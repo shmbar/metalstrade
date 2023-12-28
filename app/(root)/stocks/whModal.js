@@ -1,0 +1,231 @@
+import Modal from '@components/modal.js'
+import { useContext, useState } from 'react'
+import { SettingsContext } from "@contexts/useSettingsContext";
+import CBox from '@components/combobox'
+import Switch from '@components/switch'
+import { UserAuth } from "@contexts/useAuthContext";
+import dateFormat from "dateformat";
+
+import { v4 as uuidv4 } from 'uuid';
+import { VscArchive } from 'react-icons/vsc';
+import { getD, saveStockIn } from '@utils/utils'
+import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
+
+import ShipTable from './shipmentsTable'
+
+function countDecimalDigits(inputString) {
+    const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+    if (!match) return 0;
+
+    const decimalPart = match[1] || '';
+    const exponentPart = match[2] || '';
+
+    // Combine the decimal and exponent parts
+    const combinedPart = decimalPart + exponentPart;
+
+    // Remove leading zeros
+    const trimmedPart = combinedPart.replace(/^0+/, '');
+
+    return trimmedPart.length;
+}
+
+
+const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
+
+    const { settings, setToast } = useContext(SettingsContext);
+    const { uidCollection } = UserAuth();
+    const [showBlock, setShowBlock] = useState(false)
+    const [newItemStock, setNewItemStock] = useState({ qnty: '', stock: '' })
+    const [enabledSwitch, setEnabledSwitch] = useState(true)
+
+    const addComma = (nStr, addSymbol) => {
+        nStr += '';
+        var x = nStr.split('.');
+        var x1 = x[0];
+        var x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1,$2');
+        }
+
+
+        const symbol = item.cur !== '' ? settings.Currency.Currency.find(x => x.id === item.cur).symbol : ''
+        x2 = x2.length > 3 ? x2.substring(0, 4) : x2
+        return addSymbol ? (symbol + x1 + x2) : (x1 + x2);
+    }
+
+
+    const removeNonNumeric = (num) => num.toString().replace(/[^0-9.]/g, "");
+
+
+    const handleValuePmnt = (e) => {
+
+        if (countDecimalDigits(e.target.value) > 2) return;
+        let itm = { ...item, [e.target.name]: removeNonNumeric(e.target.value) }
+        if (e.target.name === 'unitPrc' && itm.qnty !== '') {
+            itm = { ...itm, total: removeNonNumeric(itm.qnty) * removeNonNumeric(itm.unitPrc) }
+        }
+
+        setItem(itm)
+    }
+
+    const handleValueQnty = (e) => {
+
+        if (countDecimalDigits(e.target.value) > 3) return;
+
+        let itm = { ...item, [e.target.name]: removeNonNumeric(e.target.value) }
+        if (e.target.name === 'qnty' && itm.unitPrc !== '') {
+            itm = { ...itm, total: removeNonNumeric(itm.qnty) * removeNonNumeric(itm.unitPrc) }
+        }
+
+        setItem(itm)
+    }
+
+    const handleValueQnty1 = (e) => {
+
+        if (countDecimalDigits(e.target.value) > 3) return;
+        let itm = { ...newItemStock, [e.target.name]: removeNonNumeric(e.target.value) }
+        setNewItemStock(itm)
+    }
+
+    const moveItems = () => {
+        setShowBlock(!showBlock)
+    }
+
+    const moveStock = async () => {
+
+        if (newItemStock.qnty === '' || newItemStock.stock === '') {
+            setToast({ show: true, text: 'Please fill the required data!', clr: 'fail' })
+            return;
+        }
+
+        if (newItemStock.qnty * 1 > item.qnty * 1) {
+            setToast({ show: true, text: 'Selected weight is bigger than possible!', clr: 'fail' })
+            return;
+        }
+
+        let itemOut = {
+            stock: item.stock, id: uuidv4(), invoice: '', unitPrc: item.unitPrc,
+            date: dateFormat(new Date(), 'dd-mmm-yyyy'), qnty: newItemStock.qnty * 1, type: "out",
+            supplier: item.supplier, descriptionId: item.data[0].type === 'in' ? item.data[0].description : item.data[0].descriptionId,
+            newStock: newItemStock.stock, cur: item.cur, descriptionName: item.descriptionName,
+            moveType: 'out'
+        }
+
+
+        let newData = data.map(x => (
+            x.ind === item.ind ?
+                {
+                    ...x, data: [...x.data, itemOut], qnty: x.qnty * 1 - newItemStock.qnty * 1,
+                    total: (x.qnty * 1 - newItemStock.qnty * 1) * x.unitPrc
+                } : x
+        ))
+
+        let newItem = {
+            ...item, data: [...item.data, itemOut], qnty: item.qnty * 1 - newItemStock.qnty * 1,
+            total: (item.qnty * 1 - newItemStock.qnty * 1) * item.unitPrc, 
+        }
+
+        setItem(newItem)
+        setData(newData)
+
+        let itemIn = item.data.find(x => x.type === 'in')
+        itemIn = {
+            ...itemIn, id: uuidv4(), qnty: newItemStock.qnty, total: newItemStock.qnty * item.unitPrc,
+            stock: newItemStock.stock, invoice: '', oldStock: item.stock, moveType: 'in',
+            date: dateFormat(new Date(), 'dd-mmm-yyyy')
+        }
+
+        await saveStockIn(uidCollection, [itemOut, itemIn])
+
+        setNewItemStock({ qnty: '', stock: '' })
+        setToast({ show: true, text: 'New stock data saved!', clr: 'success' })
+    }
+
+    return (
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title='Materials Breakdown' w='max-w-4xl'>
+            <div className='grid grid-cols-12 gap-4 p-2 m-2 flex border border-slate-300 rounded-lg'>
+
+                <div className='col-span-12 md:col-span-5 flex flex-col'>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Description:</p>
+                    <input type='text' disabled value={item.descriptionName} name='descriptionName' className='input text-[13px] h-7' />
+                </div>
+
+                <div className='col-span-12 md:col-span-1 flex flex-col'>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Weight</p>
+                    <input type='text' disabled className="number-separator input text-[15px] h-7 text-xs" name='qnty'
+                        value={addComma(item.qnty, false)} onChange={e => handleValueQnty(e)} />
+                </div>
+                <div className='col-span-12 md:col-span-1 flex flex-col'>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Price:</p>
+                    <input type='text' disabled className="number-separator input text-[15px] h-7 text-xs" name='unitPrc'
+                        value={addComma(item.unitPrc, true)} onChange={e => handleValuePmnt(e)} />
+                </div>
+
+                <div className='col-span-12 md:col-span-2 flex flex-col'>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Total:</p>
+                    <input type='text' disabled className="number-separator input text-[15px] h-7 text-xs" name='total'
+                        value={addComma((item.total).toFixed(2), true)} />
+                </div>
+
+                <div className='col-span-12 md:col-span-3 flex flex-col'>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Stock:</p>
+                    <input type='text' disabled value={getD(settings.Stocks.Stocks, item, 'stock')} className='input text-[15px] h-7 text-xs' />
+                </div>
+            </div>
+
+            {/*----------------- Change Stock-----------*/}
+
+            <div className={` ${showBlock ? 'flex' : 'hidden'} grid grid-cols-12 gap-4 p-2 m-2 border border-slate-300 rounded-lg`}>
+                <div className='col-span-12 md:col-span-1 flex flex-col'>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Weight</p>
+                    <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs" name='qnty'
+                        value={addComma(newItemStock.qnty, false)} onChange={e => handleValueQnty1(e)} />
+                </div>
+                <div className='col-span-12 md:col-span-3 flex flex-col'>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Stock:</p>
+                    <CBox data={settings.Stocks.Stocks}
+                        setValue={setNewItemStock} value={newItemStock} name='stock' classes='shadow-md h-7 -mt-1' />
+                </div>
+                <div className='col-span-12 md:col-span-3 flex bottom-1 items-end relative'>
+                    <button
+                        className=" flex items-center justify-center text-white gap-1.5 py-1.5 px-2  border
+                             border-slate-400 bg-slate-400 rounded-md text-xs text-white hover:bg-slate-500 shadow-lg"
+                        onClick={moveStock}
+                        disabled={item.stock === newItemStock.stock}
+                    >
+                        <FaArrowUpRightFromSquare className='scale-110' />
+                        Move to new Stock
+                    </button>
+                </div>
+
+            </div>
+
+
+
+
+            <div className='flex gap-4 p-2 border-t'>
+                <button
+                    className=" flex items-center justify-center text-white gap-1.5 py-1 px-2 border
+                            border-slate-400 bg-slate-400 rounded-md text-xs text-white hover:bg-neutral-500 shadow-lg"
+                    onClick={moveItems}
+                >
+                    <VscArchive className='scale-110' />
+                    Change Stock
+                </button>
+            </div>
+
+
+            <div className='flex items-center p-4 pb-2 gap-2'>
+                <p className='text-xs'>{!enabledSwitch ? 'Hide Shipments' : 'Show Shipments'}</p>
+                <Switch enabled={enabledSwitch} setEnabled={setEnabledSwitch} />
+            </div>
+
+            {enabledSwitch && <ShipTable item={item} data={[]} />}
+
+
+        </Modal>
+    )
+}
+
+export default WHvModal

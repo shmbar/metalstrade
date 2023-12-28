@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .table_cell {
+        @apply px-6 py-3 whitespace-nowrap text-sm text-gray-600 leading-4;
+    }
+
+    .paginator_arrow {
+        @apply text-gray-400 hover:text-blue-600 font-medium cursor-pointer;
+    }
+
+    .input {
+        @apply w-full /*md:w-48*/ border rounded-md border-slate-400 h-10 focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-slate-500;
+    }
+    .dashBox {
+      @apply col-span-12 md:col-span-1 border border-slate-200 rounded-xl bg-slate-50 justify-center flex shadow-lg
+      text-[15px] flex-col p-2
+    }
+}
+
+/******** checkbox ****/
+.checkbox:checked,
+.checkbox[checked=true],
+.checkbox[aria-checked=true] {
+    --chkbg: 157 32% 25%;
+    --chkfg: 0 0% 100%;
+    --tw-bg-opacity: 1;
+    background-color: hsl(var(--chkbg) / var(--tw-bg-opacity));
+    background-repeat: no-repeat;
+ /*    animation: checkmark var(--animation-input, .2s) ease-in-out; */
+    background-image: linear-gradient(-45deg, transparent 65%, hsl(var(--chkbg)) 65.99%), linear-gradient(45deg, transparent 75%, hsl(var(--chkbg)) 75.99%), linear-gradient(-45deg, hsl(var(--chkbg)) 40%, transparent 40.99%), linear-gradient(45deg, hsl(var(--chkbg)) 30%, hsl(var(--chkfg)) 30.99%, hsl(var(--chkfg)) 40%, transparent 40.99%), linear-gradient(-45deg, hsl(var(--chkfg)) 50%, hsl(var(--chkbg)) 50.99%);
+
+
+}
+
+@keyframes checkmark {
+    0% {
+        background-position-y: 5px
+    }
+
+    50% {
+        background-position-y: -2px
+    }
+
+    to {
+        background-position-y: 0
+    }
+}
+
+/******** toast ****/
+
+@keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .fadeInToast {
+    animation: fadeIn 1s;
+  }
+
+  /******** toast ****/
+
+  /******** expenses ****/
+
+  @keyframes enlargeDiv {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    
+    }
+  } 
+
+  .animated-div {
+    animation: enlargeDiv 0.7s forwards;   
+  }
+
+  .dnd{
+    height: 100px!important;
+    outline: 0!important;
+  }
