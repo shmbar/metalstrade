@@ -9,21 +9,23 @@ import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
 import { IoNewspaperOutline } from "react-icons/io5";
 import { HiOutlineDocumentChartBar } from "react-icons/hi2";
 import { MdOutlineWarehouse } from "react-icons/md";
-
+import { CgEreader } from "react-icons/cg";
 
 
 export const sideBar = [
     { items: [{ item: 'Dashboard', img: <RiDashboardLine />, page: 'dasahboard' }] },
     {
         ttl: 'Shipments',
-        items: [{ item: 'Contracts', img: <FaFileContract className="scale-[0.8]" />, page: 'contracts' },
-        { item: 'Invoices', img: <TbFileInvoice />, page: 'invoices' },
-        { item: 'Expenses', img: <DiBrackets />, page: 'expenses' },
+        items: [
+            { item: 'Contracts', img: <FaFileContract className="scale-[0.8]" />, page: 'contracts' },
+            { item: 'Invoices', img: <TbFileInvoice />, page: 'invoices' },
+            { item: 'Expenses', img: <DiBrackets />, page: 'expenses' },
+            { item: 'Accounting', img: <CgEreader className="scale-[0.8]" />, page: 'accounting' },
         ]
     },
     {
         ttl: 'Review',
-        items: [,
+        items: [
             { item: 'Contracts Review', img: <VscPreview />, page: 'contractsreview' },
             { item: 'Invoices Review', img: <LiaFileInvoiceDollarSolid />, page: 'invoicesreview' },
             { item: 'Inventory Review', img: <BiBasket />, page: 'inventoryreview' },
@@ -31,7 +33,7 @@ export const sideBar = [
     },
     {
         ttl: 'Statements',
-        items: [,
+        items: [
             { item: 'Contracts Statement', img: <IoNewspaperOutline />, page: 'contractsstatement' },
             { item: 'Invoices Statement', img: <HiOutlineDocumentChartBar />, page: 'invoicesstatement' },
             { item: 'Stocks', img: <MdOutlineWarehouse />, page: 'stocks' },

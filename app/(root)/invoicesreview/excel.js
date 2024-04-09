@@ -5,6 +5,7 @@ import Tooltip from '@components/tooltip';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import dateFormat from "dateformat";
 import { OutTurn, Finalizing, relStts } from '@components/const'
+import { getTtl } from '@utils/languages';
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
 const wb = new Workbook();
@@ -31,7 +32,7 @@ function getNumFmtForCurrency(currency) {
 }
 
 //{ font: { bold: true }
-export const EXD = (dataTable, settings, name) => {
+export const EXD = (dataTable, settings, name, ln) => {
 
     const exportExcel = async () => {
 
@@ -42,30 +43,49 @@ export const EXD = (dataTable, settings, name) => {
         sheet.columns = [
             { key: 'order', header: 'PO#', width: 14, style: styles },
             { key: 'supplier', header: 'Supplier', width: 16, style: styles },
+            { key: 'supplierInv', header: 'Supplier inv', width: 16, style: styles },
+            { key: 'supplierInvAmount', header: 'Sup Inv amount', width: 14, style: styles },
+            { key: 'supplierPrepayment', header: 'Sup Prepayment', width: 14, style: styles },
+            { key: 'supBlnc', header: 'Balance', width: 14, style: styles },
+
+            { key: 'invoice', header: 'Sales Invoice', width: 12, style: styles },
             { key: 'client', header: 'Consignee', width: 16, style: styles },
-            { key: 'invoice', header: 'Invoice', width: 12, style: styles },
-            { key: 'cn', header: 'Credit/Final Note', width: 14, style: styles },
             { key: 'totalInvoices', header: 'Inv Value Sales', width: 15, style: styles },
-            { key: 'deviation', header: 'Deviation', width: 15, style: styles },
             { key: 'prepaidPer', header: 'Prepaid %', width: 12, style: styles },
             { key: 'totalPrepayment1', header: 'Prepaid Amount', width: 15, style: styles },
-            { key: 'inDebt', header: 'Initial Debt', width: 15, style: styles },
-            { key: 'payments', header: 'Actual Payment', width: 15, style: styles },
             { key: 'debtaftr', header: 'Debt After Prepayment', width: 15, style: styles },
-            { key: 'debtBlnc', header: 'Debt Balance', width: 15, style: styles },
 
-            { key: 'rcvd', header: 'Outturn', width: 13, style: styles },
-            { key: 'fnlzing', header: 'Finalizing', width: 13, style: styles },
             { key: 'status', header: 'Release Status', width: 15, style: styles },
             { key: 'etd', header: 'ETD', width: 14, style: styles },
             { key: 'eta', header: 'ETA', width: 14, style: styles },
+
+            { key: 'rcvd', header: 'Outturn', width: 13, style: styles },
+            { key: 'outtrnAmnt', header: 'Outturn Amount', width: 13, style: styles },
+            { key: 'deviation', header: 'Deviation', width: 15, style: styles },
+            { key: 'debtBlnc', header: 'Debt Balance', width: 15, style: styles },
+            { key: 'cn', header: 'Credit/Final Note', width: 14, style: styles },
+            { key: 'fnlzing', header: 'Finalized', width: 13, style: styles },
+
+
+
+            { key: 'inDebt', header: 'Initial Debt', width: 15, style: styles },
+            { key: 'payments', header: 'Actual Payment', width: 15, style: styles },
+
+
         ];
+
+
 
         sheet.getRow(1).eachCell((cell, colNumber) => {
             if (cell.value) cell.fill = {
                 type: 'pattern',
                 pattern: 'solid',
-                fgColor: { argb: '800080' }
+                fgColor: {
+                    argb: colNumber <= 6 ? '30CA06' :
+                        colNumber > 6 && colNumber <= 12 ? 'FFC000' :
+                            colNumber > 12 && colNumber <= 15 ? '7030A0' :
+                                colNumber > 15 && colNumber <= 21 ? '0070C0' : '808080'
+                }
             }
             cell.font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };  // Font color to white
         });
@@ -77,23 +97,37 @@ export const EXD = (dataTable, settings, name) => {
             sheet.addRow({
                 order: item.order,
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
-                client: settings.Client.Client.find(q => q.id === item.client).nname,
+                supplierInv: item.supplierInv.map(x => x).join('\n'),
+                supplierInvAmount: item.supplierInvAmount.map(Number).reduce((accumulator, currentValue) => {
+                    return accumulator + currentValue;
+                }, 0),
+                supplierPrepayment: item.supplierPrepayment.map(Number).reduce((accumulator, currentValue) => {
+                    return accumulator + currentValue;
+                }, 0),
+                supBlnc: item.supBlnc.map(Number).reduce((accumulator, currentValue) => {
+                    return accumulator + currentValue;
+                }, 0),
+
                 invoice: item.invoice,
-                cn: item.cn,
+                client: item.final ? item.client.nname : settings.Client.Client.find(q => q.id === item.client).nname,
                 totalInvoices: item.totalAmount,
-                deviation: item.deviation,
                 prepaidPer: item.prepaidPer,
                 totalPrepayment1: item.totalPrepayment1,
-                inDebt: item.inDebt,
-                payments: item.payments,
                 debtaftr: item.debtaftr,
-                debtBlnc: item.debtBlnc,
 
-                rcvd: item.rcvd === '' ? '' : OutTurn.find(x => x.id === item.rcvd).rcvd,
-                fnlzing: item.fnlzing === '' ? '' : Finalizing.find(x => x.id === item.fnlzing).fnlzing,
                 status: item.status === '' ? '' : relStts.find(x => x.id === item.status).status,
                 etd: item.etd === '' ? '' : dateFormat(item.etd, 'dd-mmm-yy'),
                 eta: item.eta === '' ? '' : dateFormat(item.eta, 'dd-mmm-yy'),
+
+                rcvd: item.rcvd === '' ? '' : OutTurn.find(x => x.id === item.rcvd).rcvd,
+                outtrnAmnt: item.outrnamnt * 1,
+                deviation: item.deviation,
+                debtBlnc: item.debtBlnc,
+                cn: item.cn,
+                fnlzing: item.fnlzing === '' ? '' : Finalizing.find(x => x.id === item.fnlzing).fnlzing,
+
+                inDebt: item.inDebt,
+                payments: item.payments,
             })
         }
 
@@ -108,8 +142,15 @@ export const EXD = (dataTable, settings, name) => {
                     };
                 }
 
-                let cArr = [6, 7, 9, 10, 11, 12, 13, 14]
-                if (cArr.includes(colNumber) && rowNumber > 1) {
+                let cArr1 = [4, 5, 6]
+                if (cArr1.includes(colNumber) && rowNumber > 1) {
+                    let item = dataTable[rowNumber - 2]
+                    let sym = getNumFmtForCurrency(item.poCur)
+                    row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]${sym}#,##0.00`
+                }
+
+                let cArr2 = [9, 11, 12, 17, 18, 19, 22, 23]
+                if (cArr2.includes(colNumber) && rowNumber > 1) {
                     let item = dataTable[rowNumber - 2]
                     let sym = getNumFmtForCurrency(item.cur)
                     row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]${sym}#,##0.00`
@@ -143,7 +184,7 @@ export const EXD = (dataTable, settings, name) => {
      items-center text-sm rounded-full  hover:drop-shadow-md focus:outline-none"
             >
                 <SiMicrosoftexcel className="scale-[1.4] text-gray-500" />
-                <Tooltip txt='Excel' />
+                <Tooltip txt={getTtl('Excel', ln)} />
             </button>
         </div>
     );

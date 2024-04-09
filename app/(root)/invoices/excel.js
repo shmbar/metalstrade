@@ -4,6 +4,7 @@ import { Workbook } from 'exceljs';
 import Tooltip from '@components/tooltip';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import dateFormat from "dateformat";
+import { getTtl } from '@utils/languages';
 
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle' } }
@@ -30,7 +31,7 @@ function getNumFmtForCurrency(currency) {
 }
 
 //{ font: { bold: true }
-export const EXD = (dataTable, settings, name) => {
+export const EXD = (dataTable, settings, name, ln) => {
 
     const exportExcel = async () => {
 
@@ -53,11 +54,12 @@ export const EXD = (dataTable, settings, name) => {
             { key: 'pol', header: 'POL', width: 30, style: styles },
             { key: 'pod', header: 'POD', width: 30, style: styles },
             { key: 'packing', header: 'Packing', width: 30, style: styles },
-            { key: 'cur', header: 'Currency', showcol: true, arr: settings.Currency.Currency },
-            { key: 'invType', header: 'Invoice Type', showcol: false, arr: settings.InvTypes.InvTypes },
+            { key: 'cur', header: 'Currency', width: 30, style: styles },
+            { key: 'invType', header: 'Invoice Type', width: 30, style: styles },
             { key: 'totalAmount', header: 'Total Amount', width: 30, style: styles },
             { key: 'percentage', header: 'Prepayment', width: 30, style: styles },
-            { key: 'totalPrepayment', header: 'Prepaid Amount', width: 30, style: styles }
+            { key: 'totalPrepayment', header: 'Prepaid Amount', width: 30, style: styles },
+            { key: 'container', header: 'Container', width: 30, style: styles }
 
         ];
 
@@ -78,7 +80,7 @@ export const EXD = (dataTable, settings, name) => {
 
         for (let i = 0; i < dataTable.length; i++) {
             let item = dataTable[i]
-
+  
             sheet.addRow({
                 opDate: dateFormat(item.opDate, 'dd-mmm-yy HH:MM'),
                 lstSaved: dateFormat(item.lstSaved, 'dd-mmm-yy HH:MM'),
@@ -89,8 +91,8 @@ export const EXD = (dataTable, settings, name) => {
                     'Canceled',
                 client: item.final ? item.client.nname : settings.Client.Client.find(q => q.id === item.client).nname,
                 shpType: item.final ? item.shpType : settings.Shipment.Shipment.find(q => q.id === item.shpType).shpType,
-                origin: item.final ? item.origin : settings.Origin.Origin.find(q => q.id === item.origin).origin,
-                delTerm: item.final ? item.delTerm : settings['Delivery Terms']['Delivery Terms'].find(q => q.id === item.delTerm).delTerm,
+                origin: item.final ? item.origin : settings.Origin.Origin.find(q => q.id === item.origin)?.origin || '',
+                delTerm: item.final ? item.delTerm : settings['Delivery Terms']['Delivery Terms'].find(q => q.id === item.delTerm)?.delTerm || '',
                 pol: item.final ? item.pol : item.pol && settings.POL.POL.find(q => q.id === item.pol).pol,
                 pod: item.final ? item.pod : item.pod && settings.POD.POD.find(q => q.id === item.pod).pod,
                 packing: item.final ? item.packing : item.packing && settings.Packing.Packing.find(q => q.id === item.packing).packing,
@@ -98,14 +100,15 @@ export const EXD = (dataTable, settings, name) => {
                 invType: item.final ? item.invType : settings.InvTypes.InvTypes.find(q => q.id === item.invType).invType,
                 totalAmount: item.totalAmount * 1,
                 percentage: item.percentage + '%',
-                totalPrepayment: item.totalPrepayment * 1
+                totalPrepayment: item.totalPrepayment * 1,
+                container: item.container
 
             })
         }
 
         sheet.eachRow((row, rowNumber) => {
             row.eachCell((cell, colNumber) => {
-                if (cell.value || cell.value === '') {
+                if (cell.value || cell.value === '' || cell.value === 0) {
                     row.getCell(colNumber).border = {
                         top: { style: 'thin' },
                         left: { style: 'thin' },
@@ -136,6 +139,7 @@ export const EXD = (dataTable, settings, name) => {
 
         const buf = await wb.xlsx.writeBuffer();
         saveAs(new Blob([buf]), `${name}.xlsx`)
+
     }
 
 
@@ -147,7 +151,7 @@ export const EXD = (dataTable, settings, name) => {
      items-center text-sm rounded-full  hover:drop-shadow-md focus:outline-none"
             >
                 <SiMicrosoftexcel className="scale-[1.4] text-gray-500" />
-                <Tooltip txt='Excel' />
+                <Tooltip txt={getTtl('Excel', ln)} />
             </button>
         </div>
     );

@@ -1,8 +1,9 @@
 import React from 'react'
 import { GiCheckMark } from 'react-icons/gi';
 import { UserAuth } from "@contexts/useAuthContext";
+import { getTtl } from '@utils/languages';
 
-const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices }) => {
+const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln }) => {
 
     const { uidCollection } = UserAuth();
 
@@ -29,7 +30,7 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices }) => 
                 <table className="w-full border border-r-0">
                     <thead className="divide-y divide-gray-200 ">
                         <tr className='text-center' >
-                            <th className='font-medium text-xs bg-gray-100 whitespace-normal w-10 h-10' rowSpan="2">Purchase Invoices</th>
+                            <th className='font-medium text-xs bg-gray-100 whitespace-normal h-10' rowSpan="2">{getTtl('POInvoices', ln)}</th>
                         </tr>
 
                     </thead>
@@ -51,7 +52,7 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices }) => 
                     <thead className="divide-y divide-gray-200 ">
                         <tr className='text-center' >
                             <th className='font-medium text-xs bg-gray-100 h-5 whitespace-nowrap' 
-                            colSpan={[... new Set(valueCon.invoices.map(x => x.invoice))].length}>Sales Invoices</th>
+                            colSpan={[... new Set(valueCon.invoices.map(x => x.invoice))].length}>{getTtl('SalesInvoices', ln)}</th>
                         </tr>
                         <tr>
                             {[... new Set(valueCon.invoices.map(x => x.invoice))].map((y, k) => (

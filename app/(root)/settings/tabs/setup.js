@@ -3,10 +3,11 @@ import { useState, useContext } from 'react';
 import List from '@components/list';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { UserAuth } from "@contexts/useAuthContext";
+import { getTtl } from '@utils/languages';
 
 const Setup = () => {
 
-  const { settings, updateSettings } = useContext(SettingsContext);
+  const { settings, updateSettings, ln } = useContext(SettingsContext);
   const [keyName, setKeyName] = useState('Container Type')
   const [list, setList] = useState(settings[keyName]);
   const { uidCollection } = UserAuth();
@@ -49,7 +50,7 @@ const Setup = () => {
                    text-[0.8rem] text-slate-700 cursor-pointer ${x === keyName && 'font-bold bg-slate-100 '} 
                     hover:bg-slate-50 whitespace-nowrap`
                   }>
-                  {x}
+                  {x !== 'Hs' ? getTtl(x, ln) : x}
                 </li>
               )
             })}

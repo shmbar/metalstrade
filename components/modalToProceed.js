@@ -1,9 +1,15 @@
+import { useContext } from 'react';
+import { SettingsContext } from "@contexts/useSettingsContext";
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, useEffect, useState } from 'react'
+
+import { getTtl } from '@utils/languages';
 
 const MyModal = ({ isDeleteOpen, setIsDeleteOpen, ttl, txt, doAction }) => {
 
   let [isOpen, setIsOpen] = useState(false)
+  const { compData } = useContext(SettingsContext);
+  const ln = compData.lng
 
   useEffect(() => {
     setIsOpen(isDeleteOpen)
@@ -62,17 +68,17 @@ const MyModal = ({ isDeleteOpen, setIsDeleteOpen, ttl, txt, doAction }) => {
                   <div className="mt-4 gap-4 flex">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-3 py-1 text-sm font-medium text-blue-900 hover:bg-red-200 focus:outline-none"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-slate-700 px-3 py-1 text-sm font-medium text-white hover:bg-slate-400 focus:outline-none"
                       onClick={confirmDel}
                     >
-                      Confirm
+                      {getTtl('Confirm', ln)} 
                     </button>
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-3 py-1 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none"
+                      className="inline-flex justify-center rounded-md border border-slate-700 bg-white px-3 py-1 text-sm font-medium text-slate-700 hover:bg-slate-50"
                       onClick={closeModal}
                     >
-                      Cancel
+                        {getTtl('Cancel', ln)} 
                     </button>
                   </div>
                 </Dialog.Panel>

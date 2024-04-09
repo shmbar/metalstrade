@@ -6,13 +6,16 @@ import Contract from '../contractDetails';
 import Profit from './pnl';
 import Inventory from './inventory'
 import { ContractsContext } from "@contexts/useContractsContext";
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getTtl } from '@utils/languages';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
 const page = () => {
-    const { valueCon } = useContext(ContractsContext);
+    const { valueCon, isButtonDisabled } = useContext(ContractsContext);
+    const { ln } = useContext(SettingsContext);
     let tabs = ['Contract', 'Invoices', 'Shipments Tracking', 'Inventory']
 
     const SetDiv = (x) => {
@@ -37,7 +40,7 @@ const page = () => {
                         <Tab.List className="max-w-xl flex space-x-1 p-1">
                             {tabs.map((z, i) => (
                                 <Tab
-                                    disabled={(i === 1 || i == 2 || i == 3) && valueCon.id === ''}
+                                    disabled={((i === 1 || i == 2 || i == 3) && valueCon.id === '') || isButtonDisabled}
                                     key={z}
                                     className={({ selected }) =>
                                         classNames(
@@ -49,7 +52,7 @@ const page = () => {
                                         )
                                     }
                                 >
-                                    {z}
+                                    {getTtl(z, ln)}
                                 </Tab>
                             ))}
                         </Tab.List>

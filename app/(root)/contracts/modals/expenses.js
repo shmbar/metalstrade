@@ -1,3 +1,5 @@
+'use client'
+
 import { useContext, useState, useEffect } from 'react'
 import { ExpensesContext } from "@contexts/useExpensesContext";
 import Datepicker from "react-tailwindcss-datepicker";
@@ -11,25 +13,29 @@ import { validate, ErrDiv, loadInvoice } from '@utils/utils'
 import { UserAuth } from "@contexts/useAuthContext";
 import { MdOutlineWidgets } from 'react-icons/md'
 import { ContractsContext } from "@contexts/useContractsContext";
+import { usePathname } from 'next/navigation'
+import { getTtl } from '@utils/languages';
+
 
 const Expenses = ({ showExpenses }) => {
 
     const { valueExp, setValueExp, blankExpense, saveData_ExpenseInInvoice,
         delExpense, errorsExp, setErrorsExp } = useContext(ExpensesContext);
     const { valueInv, setValueInv, invoicesData, setInvoicesData } = useContext(InvoiceContext);
-    const { settings, setLoading, setDateYr } = useContext(SettingsContext);
+    const { settings, setLoading, setDateYr, ln } = useContext(SettingsContext);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
     const { uidCollection } = UserAuth();
-    const { valueCon, contractsData, setContractsData } = useContext(ContractsContext);
+    const { valueCon, contractsData, setContractsData, setValueCon } = useContext(ContractsContext);
 
     const sups = settings.Supplier.Supplier;
-
+    const pathname = usePathname();
 
     useEffect(() => {
         if (Object.values(errorsExp).includes(true)) {
             setErrorsExp(validate(valueExp, ['expense', 'cur', 'supplier', 'expType', 'amount', 'date']))
         }
     }, [valueExp])
+
 
 
     const handleValue = (e) => {
@@ -48,13 +54,25 @@ const Expenses = ({ showExpenses }) => {
         setLoading(false)
     }
 
-    return (
 
+    useEffect(() => {
+        const loadCon = async () => {
+            let tmp = await loadInvoice(uidCollection, 'contracts', valueInv.poSupplier) //load contract
+            setValueCon(tmp)
+        }
+
+        if (valueCon?.id !== valueInv.poSupplier.id && pathname === '/invoices') {
+            loadCon()
+        }
+    }, [])
+
+
+    return valueExp && (
         <div className={`z-10 relative mt-2 border border-slate-300 rounded-lg 
         ${showExpenses ? 'flex animated-div' : 'hidden'}`}>
             <div className='grid grid-cols-4 flex gap-3 p-2 w-full'>
                 <div className='col-span-12 md:col-span-1 border border-slate-300 rounded-lg p-2 h-fit'>
-                    <p className='text-sm text-slate-600 font-medium'>Expenses:</p>
+                    <p className='text-sm text-slate-600 font-medium'>{getTtl('Expenses', ln)}:</p>
                     {valueInv.expenses.length > 0 &&
                         <ul className="flex flex-col mt-1 overflow-auto ring-1 ring-black/5 rounded-lg divide-y" >
                             {valueInv.expenses.map((x, i) => {
@@ -72,14 +90,14 @@ const Expenses = ({ showExpenses }) => {
                     <div className='grid grid-cols-3 flex gap-3 w-full'>
                         <div className='col-span-12 md:col-span-1  px-2'>
                             <div>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Expense Invoice:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Expense Invoice', ln)}:</p>
                                 <div className='w-full '>
                                     <input className="input text-[15px] shadow-lg h-7 text-xs" name='expense' value={valueExp.expense} onChange={handleValue} />
                                     <ErrDiv field='expense' errors={errorsExp} />
                                 </div>
                             </div>
                             <div className='pt-2'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Date:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Date', ln)}:</p>
                                 <Datepicker useRange={false}
                                     asSingle={true}
                                     value={valueExp.date}
@@ -91,7 +109,7 @@ const Expenses = ({ showExpenses }) => {
                                 <ErrDiv field='date' errors={errorsExp} />
                             </div>
                             <div className='pt-2'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Amount:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Amount', ln)}:</p>
                                 <div className='w-full '>
                                     <input type='number' className="input text-[15px] shadow-lg h-7 text-xs" name='amount' value={valueExp.amount} onChange={handleValue} />
                                     <ErrDiv field='amount' errors={errorsExp} />
@@ -100,14 +118,14 @@ const Expenses = ({ showExpenses }) => {
                         </div>
                         <div className='col-span-12 md:col-span-1  px-2'>
                             <div>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Vendor:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Vendor', ln)}:</p>
                                 <div className='w-full '>
                                     <CBox data={sups} setValue={setValueExp} value={valueExp} name='supplier' classes='shadow-md -mt-1 h-7' classes1='max-h-48' />
                                     <ErrDiv field='supplier' errors={errorsExp} />
                                 </div>
                             </div>
                             <div className='pt-1'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Expense Type:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Expense Type', ln)}:</p>
                                 <div className='w-full '>
                                     <CBox data={settings.Expenses.Expenses} setValue={setValueExp} value={valueExp} name='expType' classes='shadow-md  -mt-1 h-7' classes1='max-h-24' />
                                     <ErrDiv field='expType' errors={errorsExp} />
@@ -115,14 +133,14 @@ const Expenses = ({ showExpenses }) => {
                             </div>
                             <div className='pt-1 gap-3 flex'>
                                 <div className='max-w-xs '>
-                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Currency:</p>
+                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
                                     <div className='w-full'>
                                         <CBox data={settings.Currency.Currency} setValue={setValueExp} value={valueExp} name='cur' classes='shadow-md -mt-1' />
                                         <ErrDiv field='cur' errors={errorsExp} />
                                     </div>
                                 </div>
                                 <div className='max-w-xs '>
-                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Payment:</p>
+                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Payment', ln)}:</p>
                                     <div className='w-full'>
                                         <CBox data={settings.ExpPmnt.ExpPmnt} setValue={setValueExp} value={valueExp} name='paid' classes='shadow-md -mt-1' />
                                     </div>
@@ -130,57 +148,47 @@ const Expenses = ({ showExpenses }) => {
                             </div>
                         </div>
                         <div className='col-span-12 md:col-span-1  px-2'>
-                            <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Comments:</p>
+                            <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
                             <div>
                                 <textarea rows="5" cols="60" name="comments"
                                     className="input text-[15px] shadow-lg h-24 text-xs p-1"
                                     value={valueExp.comments} onChange={handleValue} />
                             </div>
-                            <div className='flex gap-4 m-2'>
+                            <div className='flex gap-3 m-2 flex-wrap'>
                                 <button
-                                    className=" flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                             border-slate-400 bg-neutral-400 rounded-md text-xs text-white hover:bg-neutral-500 shadow-lg"
+                                    className="blackButton py-1 font-light"
                                     onClick={() => saveData_ExpenseInInvoice(uidCollection, valueInv, setValueInv, invoicesData, setInvoicesData, contractsData,
-                                         setContractsData, valueCon)}
+                                        setContractsData, valueCon)}
                                 >
                                     <IoAddCircleOutline className='scale-110' />
-                                    Save
+                                    {getTtl('save', ln)}
                                 </button>
 
                                 <button
-                                    className=" flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                            border-slate-400 bg-neutral-400 rounded-md text-xs text-white hover:bg-neutral-500 shadow-lg"
+                                    className=" whiteButton py-1 "
                                     onClick={blankExpense}
                                 >
                                     <MdOutlineWidgets className='scale-110' />
-                                    New
+                                    {getTtl('New', ln)}
                                 </button>
 
                                 {valueExp.id !== '' && <button
-                                    className=" flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                            border-slate-400 bg-neutral-400 rounded-md text-xs text-white hover:bg-neutral-500 shadow-lg"
+                                    className="whiteButton py-1"
                                     onClick={() => setIsDeleteOpen(true)}
                                 >
                                     <MdDelete className='scale-110' />
-                                    Delete
+                                    {getTtl('Delete', ln)}
                                 </button>}
                                 <ModalToDelete isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}
                                     ttl='Delete Confirmation' txt='Deleting this expense is irreversible. Please confirm to proceed.'
                                     doAction={() => delExpense(uidCollection, valueInv, setValueInv, invoicesData, setInvoicesData, setContractsData,
-                                    contractsData)} />
+                                        contractsData)} />
 
                             </div>
                         </div>
                     </div>
-
-
-
-
                 </div>
-
-
             </div>
-
         </div >
 
 

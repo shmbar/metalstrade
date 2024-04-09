@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { NumericFormat } from 'react-number-format';
 import ChkBox from '@components/checkbox.js'
@@ -7,6 +7,9 @@ import { MdDelete } from 'react-icons/md';
 import { getD, reOrderTableCon } from '@utils/utils.js';
 import { TbFileInvoice } from "react-icons/tb";
 import { TbBuildingWarehouse } from "react-icons/tb";
+import { CalculateNum } from '@components/calculate';
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getTtl } from '@utils/languages.js';
 
 const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvModal, setShowStockModal, setToast, contractsData }) => {
 
@@ -14,6 +17,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
     const [edit, setEdit] = useState({ status: false, id: null, header: null });
     const inputRef = useRef(null);
     const [value1, setValue1] = useState();
+    const { ln } = useContext(SettingsContext);
 
     useEffect(() => {
         if (edit.status) {
@@ -46,7 +50,9 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
     };
 
     const handleDoubleClick = (obj, key) => {
-        setValue1(obj[key]);
+        let object = value.productsData.find(z => z.id === obj.id)
+
+        setValue1(object.eq && key === 'unitPrc' ? object.eq : obj[key]);
         setEdit({ status: true, id: obj['id'], header: key });
     };
 
@@ -60,8 +66,16 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                 return;
             }
 
+            let Nm = edit.header !== 'unitPrc' ? e.target.value : CalculateNum(e.target.value, 2)
+
+            const isEquation = (e.target.value).substr(0, 1) === "=";
+
             const newArr = value.productsData.map((x) =>
-                x.id === edit.id ? { ...x, [edit.header]: e.target.value } : x
+                x.id === edit.id ? {
+                    ...x, [edit.header]: Nm,
+                    eq: e.target.name === 'unitPrc' ? (isEquation ? e.target.value : null)
+                        : x.eq ?? null
+                } : x
             );
 
             setValue({ ...value, productsData: newArr });
@@ -74,12 +88,13 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
             setValue1('');
         }
     };
+
     const q = getD(quantityTable, value, 'qTypeTable');
     const c = getD(currency, value, 'cur');
 
     const setInput = (e) => {
         let t = e.target.value;
-        t = t.indexOf(".") >= 0 && e.target.name === 'unitPrc' ? t.slice(0, t.indexOf(".") + 3) : t;
+        t = t.indexOf(".") >= 0 && e.target.name === 'unitPrc' && t.substr(0, 1) !== "=" ? t.slice(0, t.indexOf(".") + 3) : t;
         setValue1(t)
     }
 
@@ -97,12 +112,13 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
             (contractsData.find(x => x.id === value.id)?.poInvoices)?.length > 0 ? true : false :
             false
     }
+    //overflow-x-auto
 
     return (
         <div className="w-full justify-center flex">
             <div className="flex flex-col w-full">
-                <div className=" overflow-x-auto">
-                    <div className="border rounded-lg overflow-hidden">
+                <div className="relative">
+                    <div className="border rounded-lg  relative">
                         <table className=" table-fixed min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50 ">
                                 <tr>
@@ -110,19 +126,19 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                     <th scope="col" className="w-1/12 px-1 py-1 text-left text-sm font-medium text-gray-500"  >
                                         #</th>
                                     <th scope="col" className="w-6/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
-                                        Description</th>
+                                        {getTtl('Description', ln)}  </th>
                                     <th scope="col" className=" w-2/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
-                                        <div>Quantity <span className='font-bold'>
+                                        <div>   {getTtl('Quantity', ln)} <span className='font-bold'>
                                             {q !== '' ? '(' + q + ')' : ''}</span></div></th>
                                     <th scope="col" className="w-2/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
-                                        <div>Unit Price <span className='font-bold'>
+                                        <div>{getTtl('UnitPrice', ln)} <span className='font-bold'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200">
+                            <tbody className="divide-y divide-gray-200 relative">
                                 {reOrderTableCon(value.productsData).map((obj, i) => {
                                     return (
-                                        <tr key={i}>
+                                        <tr key={i} className='relative'>
                                             <td className="py-2 pl-4">
                                                 <div className="flex items-center h-5">
                                                     <ChkBox checked={checkedItems.includes(obj.id)} size='h-5 w-5' onChange={() => checkItem(obj.id)} />
@@ -140,23 +156,29 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                         key={key}
                                                         data-label={key}
                                                         className="px-1 py-1 text-sm text-gray-800 whitespace-normal
-                                                       tableStyle"
+                                                       tableStyle relative"
                                                         onClick={() => handleDoubleClick(obj, key)}
                                                     >
                                                         {edit.status &&
                                                             edit.id === obj['id'] &&
                                                             edit.header === key ? (
-
-                                                            <input
-                                                                className="w-full border rounded-md border-slate-400 h-7 
+                                                            <div className='group relative  whitespace-normal'>
+                                                                <input
+                                                                    className="w-full border rounded-md border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-slate-500"
-                                                                onKeyDown={handleKeyPress}
-                                                                value={value1}
-                                                                maxLength={70}
-                                                                name={key}
-                                                                onChange={(e) => setInput(e)}
-                                                                ref={inputRef}
-                                                            />
+                                                                    onKeyDown={handleKeyPress}
+                                                                    value={value1}
+                                                                    maxLength={70}
+                                                                    name={key}
+                                                                    onChange={(e) => setInput(e)}
+                                                                    ref={inputRef}
+                                                                    type='text'
+                                                                />
+                                                                <span className={`absolute hidden ${key === 'unitPrc' && value1.substr(0, 1) === "=" ? 'group-hover:flex' : ''}
+                                                                 bottom-[30px] w-fit p-1  bg-slate-400 rounded-md text-center
+                                                                  text-white text-xs z-50 whitespace-nowrap -left-0.5`}>
+                                                                    {value1}</span>
+                                                            </div>
                                                         ) : key === 'unitPrc' ?
                                                             isNaN(obj[key] * 1) ?
                                                                 obj[key] :
@@ -189,64 +211,60 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                         </table>
                     </div>
                 </div>
-                <div className="flex gap-5 ">
-                    <div className='group relative'>
+                <div className="flex gap-x-5 flex-wrap mt-4">
+                    <div className='group relative '>
                         <button
-                            className=" flex items-center justify-center text-white gap-1.5 mt-4 w-20 h-8 border
-                             border-slate-400 bg-slate-400 rounded-md text-sm text-white hover:bg-slate-500 shadow-lg"
+                            className="blackButton py-1.5"
                             onClick={() => addItem()}
                         >
                             <IoAddCircleOutline className='scale-110' />
-                            Add
+                            {getTtl('Add', ln)}
                         </button>
-                        <span className="absolute hidden group-hover:flex top-[50px] w-fit p-1
+                        <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-0.5">
-                            Add product</span>
+                            {getTtl('AddProduct', ln)}</span>
                     </div>
-                    <div className='group relative'>
+                    <div className='group relative whitespace-normal'>
                         <button
-                            className="flex items-center justify-center text-white gap-1.5 mt-4 w-20 h-8 border border-slate-400 bg-slate-400 rounded-md 
-                            text-sm text-white hover:bg-slate-500 shadow-lg"
+                            className="whiteButton py-1.5"
                             onClick={() => delItem()}
                         >
                             <MdDelete className='scale-110' />
-                            Delete
+                            {getTtl('Delete', ln)}
                         </button>
-                        <span className="absolute hidden group-hover:flex top-[50px] w-fit p-1
+                        <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
-                            Delete product</span>
+                            {getTtl('DelProduct', ln)}</span>
                     </div>
                     <div className='group relative'>
                         <button
-                            className={`flex items-center justify-center text-white gap-1.5 mt-4 px-1 h-8 border border-slate-400 bg-slate-400 rounded-md 
-                            text-sm text-white hover:bg-slate-500 shadow-lg
+                            className={`whiteButton py-1.5
                             ${!value.productsData.map(x => x.description).some(item => item !== '') ? 'opacity-70' : ''}
                             `}
                             onClick={openInvoicesModal}
                             disabled={!value.productsData.map(x => x.description).some(item => item !== '')}
                         >
                             <TbFileInvoice className='scale-110' />
-                            Invoices
+                            {getTtl('Invoices', ln)}
                         </button>
-                        <span className="absolute hidden group-hover:flex top-[50px] w-fit p-1
+                        <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
-                            Purchase Invoices</span>
+                            {getTtl('POInvoices', ln)}</span>
                     </div>
 
                     <div className='group relative'>
                         <button
-                            className={`flex items-center justify-center text-white gap-1.5 mt-4 px-1 h-8 border border-slate-400  bg-slate-400 rounded-md 
-                            text-sm text-white hover:bg-slate-500 shadow-lg
-                            ${value.poInvoices.length === 0 ? 'opacity-70' : ''}`}
+                            className={`whiteButton py-1.5
+                            ${value.poInvoices.length === 0 ? 'opacity-70 bg-slate-300 hover:bg-slate-300' : ''}`}
                             disabled={!checkIfAlllowed()}
                             onClick={() => setShowStockModal(true)}
                         >
                             <TbBuildingWarehouse className='scale-110' />
-                            Stocks
+                            {getTtl('Stocks', ln)}
                         </button>
-                        <span className="absolute hidden group-hover:flex top-[50px] w-fit p-1
+                        <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
-                            Material warehouse</span>
+                            {getTtl('warehouse', ln)}</span>
                     </div>
 
                 </div>

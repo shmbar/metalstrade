@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { getD } from '@utils/utils'
+import { getTtl } from '@utils/languages';
 
 const Total = (data, name, val, mult, settings) => {
     let accumulatedTotalAmount = 0;
@@ -95,18 +96,18 @@ const frmNum = (value, val, settings) => {
 
 const TotalPnlTable = ({ data, val, mult }) => {
 
-    const { settings } = useContext(SettingsContext);
+    const { settings, ln } = useContext(SettingsContext);
 
     let cols = [
-        { field: 'totalAmount', header: 'Inv Value Sales' },
-        { field: 'deviation', header: 'Deviation' },
-        { field: 'prepaidPer', header: 'Prepaid %' },
-        { field: 'totalPrepayment', header: 'Prepaid Amount' },
-        { field: 'inDebt', header: 'Initial Debt' },
-        { field: 'payments', header: 'Actual Payment' },
-        { field: 'debtaftr', header: 'Debt After Prepayment' },
-        { field: 'debtBlnc', header: 'Debt Balance' },
-        { field: 'expenses', header: 'Expenses' },
+        { field: 'totalAmount', header: getTtl('invValueSale', ln)},
+        { field: 'deviation', header:  getTtl('Deviation', ln) },
+        { field: 'prepaidPer', header:  getTtl('Prepaid', ln)+' %' },
+        { field: 'totalPrepayment', header: getTtl('Prepaid Amount', ln) },
+        { field: 'inDebt', header:  getTtl('Initial Debt', ln) },
+        { field: 'payments', header: getTtl('Actual Payment', ln) },
+        { field: 'debtaftr', header: getTtl('debtAfterPrepPmnt', ln) },
+        { field: 'debtBlnc', header: getTtl('Debt Balance', ln) }, 
+        { field: 'expenses', header: getTtl('Expenses', ln) },
 
     ];
 

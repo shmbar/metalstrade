@@ -1,6 +1,5 @@
 'use client';
 import { useContext, useEffect, useState } from 'react';
-import SignOut from '@components/signOut';
 import Spinner from '@components/spinner';
 import { UserAuth } from "@contexts/useAuthContext"
 import MonthSelect from '@components/monthSelect';
@@ -22,6 +21,7 @@ import {
 import { Bar } from 'react-chartjs-2';
 import { loadData, groupedArrayInvoice, getInvoices } from '@utils/utils'
 import { setMonthsInvoices, calContracts, frmNum } from './funcs'
+import { getTtl } from '@utils/languages';
 
 
 ChartJS.register(
@@ -53,7 +53,7 @@ const loadInvoices = async (uidCollection, con) => {
 
 const Dash = () => {
 
-  const { settings, dateSelect, setLoading, loading } = useContext(SettingsContext);
+  const { settings, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
   const [dataInvoices, setDataInvoices] = useState([])
   const [dataContracts, setDataContracts] = useState([])
   const [dataExpenses, setDataExpenses] = useState([])
@@ -118,7 +118,6 @@ const Dash = () => {
     <div className="xl:container mx-auto px-2 md:px-8 xl:px-10 pb-8 md:pb-0">
       {Object.keys(settings).length === 0 ? <Spinner /> :
         <>
-          <SignOut />
           <Toast />
           {loading && <Spin />}
           <div className="p-4 mt-8">
@@ -130,12 +129,12 @@ const Dash = () => {
           <div className='grid grid-cols-3 justify-between flex gap-4 mt-2'>
             <div className='dashBox relative'>
               <div className={`${Object.values(dataPL).reduce((acc, currentValue) => acc + currentValue, 0) > 0 ? 'bg-emerald-600' : 'bg-red-600'} py-0.5 text-white text-[0.8rem] absolute -top-3 flex gap-2 px-2 rounded-md`}>
-                <p>Profit: </p>
+                <p>{getTtl('Profit', ln)}: </p>
                 <span className='text-white font-medium'>
                   {frmNum(Object.values(dataPL).reduce((acc, currentValue) => acc + currentValue, 0) / 1000000) + 'M'}</span>
               </div>
-              <div className='flex justify-center text-slate-600 font-medium'>
-                P&L - $M
+              <div className='flex justify-center text-slate-600 font-medium pt-1'>
+                {getTtl('P&L', ln)} - $M
               </div>
               <div>
                 <Bar data={BarChart(dataPL, 'silver').obj} options={BarChart().options} />
@@ -143,11 +142,11 @@ const Dash = () => {
             </div>
             <div className='dashBox relative'>
               <div className='bg-emerald-600 py-0.5 text-white text-[0.8rem] absolute -top-3 flex gap-2 px-2 rounded-md'>
-                <p>Sales: </p>
+                <p> {getTtl('Sales', ln)}: </p>
                 <p>{frmNum(Object.values(dataInvoices).reduce((acc, currentValue) => acc + currentValue, 0) / 1000000) + 'M'}</p>
               </div>
-              <div className='flex justify-center text-slate-600 font-medium'>
-                Invoices - $M
+              <div className='flex justify-center text-slate-600 font-medium pt-1'>
+                {getTtl('Invoices', ln)} - $M
               </div>
               <div>
                 <Bar data={BarChart(dataInvoices, '#42a5f5').obj} options={BarChart().options} />
@@ -155,13 +154,13 @@ const Dash = () => {
             </div>
             <div className='dashBox relative' >
               <div className='bg-red-600 py-0.5 text-white text-[0.8rem] absolute -top-3 flex gap-2 px-2 rounded-md'>
-                <p>Costs: </p>
+                <p>{getTtl('Costs', ln)}: </p>
                 <p>
                   {frmNum((Object.values(dataInvoices).reduce((acc, currentValue) => acc + currentValue, 0) -
                     Object.values(dataPL).reduce((acc, currentValue) => acc + currentValue, 0)) / 1000000) + 'M'}</p>
               </div>
-              <div className='flex justify-center text-slate-600 font-medium'>
-                Contracts & Expenses - $M
+              <div className='flex justify-center text-slate-600 font-medium pt-1'>
+                {getTtl('Contracts & Expenses', ln)} - $M
               </div>
               <div>
                 <Bar data={BarChartContracts(dataContracts, dataExpenses, '#9c27b0', '#ed6c02').obj} options={BarChartContracts().options} />
@@ -174,7 +173,7 @@ const Dash = () => {
           <div className='grid grid-cols-2 justify-between flex gap-4 mt-4'>
             <div className='dashBox'>
               <div className='flex justify-center text-slate-600 font-medium'>
-                Top 5 Consignees - K$
+                {getTtl('Top 5 Consignees - $', ln)}
               </div>
               <div>
                 <Bar data={HorizontalBar(dataPieClnts, '#42a5f5').obj} options={HorizontalBar().options} />
@@ -182,7 +181,7 @@ const Dash = () => {
             </div>
             <div className='dashBox'>
               <div className='flex justify-center text-slate-600 font-medium'>
-                Top 5 Contracts - K$
+                {getTtl('Top 5 Contracts - $', ln)}
               </div>
               <div>
                 <Bar data={HorizontalBar(dataPieSupps, '#9c27b0').obj} options={HorizontalBar().options} />

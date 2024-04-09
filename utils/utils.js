@@ -1,10 +1,11 @@
 import { db } from '@utils/firebase'
 import {
   setDoc, doc, getDoc, collection, getDocs, query, where, deleteDoc, writeBatch, updateDoc,
-  arrayUnion, arrayRemove, increment, or, and
+  arrayUnion, arrayRemove, increment, or, and, deleteField
 } from "firebase/firestore";
 import dateFormat from 'dateformat';
 import { getStorage, ref, uploadBytes, listAll, getDownloadURL, deleteObject } from "firebase/storage";
+import { getTtl } from './languages';
 
 const storage = getStorage();
 
@@ -29,12 +30,12 @@ export const validate = (value, fields) => {
   return errors;
 }
 
-export const ErrDiv = ({ field, errors, }) => {
+export const ErrDiv = ({ field, errors, ln }) => {
   return (
     <>
       {errors[field] &&
         <div className='text-[12px] text-red-600'>
-          Field must be filled
+          {getTtl('mustFilled', ln)}
         </div>
       }
     </>
@@ -107,35 +108,36 @@ export const sortArr = (arr, name) => {
 
 export const filteredArray = (arr) => {
 
-const groupedByInvoice = arr.reduce((acc, obj) => {
-  const invoiceNumber = obj.invoice;
+  const groupedByInvoice = arr.reduce((acc, obj) => {
+    const invoiceNumber = obj.invoice;
 
-  if (!acc[invoiceNumber]) {
+    if (!acc[invoiceNumber]) {
       acc[invoiceNumber] = [];
-  }
+    }
 
-  acc[invoiceNumber].push(obj);
+    acc[invoiceNumber].push(obj);
 
-  return acc;
-}, {});
+    return acc;
+  }, {});
 
-// Filter objects based on both constraints
-const filteredArray = Object.values(groupedByInvoice).flatMap((group) => {
-  const distinctInvTypes = new Set(group.map((obj) => parseInt(obj.invType, 10)));
+  // Filter objects based on both constraints
+  const filteredArray = Object.values(groupedByInvoice).flatMap((group) => {
+    const distinctInvTypes = new Set(group.map((obj) => parseInt(obj.invType, 10)));
 
-  if (distinctInvTypes.size === 1) {
+    if (distinctInvTypes.size === 1) {
       // All invType fields are equal, include all objects
       return group;
-  } else {
+    } else {
       // Eliminate items with lower invType
       const maxInvType = Math.max(...distinctInvTypes);
       return group.filter((obj) => parseInt(obj.invType, 10) === maxInvType);
-  }
-});
+    }
+  });
 
 
   return filteredArray;
 }
+
 ////////////// Firebase Funtions////////////////////////////////////
 
 export const saveDataSettings = async (uidCollection, doc1, obj) => {
@@ -174,6 +176,7 @@ export const loadData = async (uidCollection, path, dateSelect) => {
     collection(db, uidCollection, 'data', path + '_' + dateSelect.year), where('m', 'in', dateSelect.month));
 
   const querySnapshot = await getDocs(q);
+
   return querySnapshot.docs.map((doc) => {
     doc.empty && console.log('No matching documents');
     return !doc.empty && doc.data();
@@ -263,6 +266,17 @@ export const updateDocument = async (uidCollection, path, field, poData, newFiel
   await updateDoc(Ref, { [field]: newFieldData });
 }
 
+export const delField = async (uidCollection, path, field, obj) => {
+
+  const y = obj.date.substring(0, 4)
+  const Ref = doc(db, uidCollection, "data", path + '_' + y, obj.id);
+
+  // Remove the 'capital' field from the document
+  await updateDoc(Ref, {
+    [field]: deleteField()
+  });
+}
+
 export const setNewInvoiceNum = async (uidCollection) => {
   const Ref = doc(db, uidCollection, "invoiceNum");
 
@@ -278,17 +292,19 @@ export const getInvoices = async (uidCollection, path, arrTmp) => {
   for (let i = 0; i < arrTmp.length; i++) {
     let obj = arrTmp[i]
 
-    const q = query(
-      collection(db, uidCollection, 'data', path + '_' + obj.yr),
-      where('invoice', "in", obj.arrInv)
-    );
-    const querySnapshot = await getDocs(q);
+    if (obj.arrInv.length) {
+      const q = query(
+        collection(db, uidCollection, 'data', path + '_' + obj.yr),
+        where('invoice', "in", obj.arrInv)
+      );
+      const querySnapshot = await getDocs(q);
 
-    let tmp = querySnapshot.docs.map((doc) => {
-      doc.empty && console.log('No matching documents');
-      return !doc.empty && doc.data();
-    });
-    arr = [...arr, ...tmp]
+      let tmp = querySnapshot.docs.map((doc) => {
+        doc.empty && console.log('No matching documents');
+        return !doc.empty && doc.data();
+      });
+      arr = [...arr, ...tmp]
+    }
   }
   return arr;
 }
@@ -428,6 +444,74 @@ export const delStock = async (uidCollection, delArr) => {
 
   // Commit the batch
   await batch.commit();
+
+}
+
+export const loadExpensesForAccounting = async (uidCollection, expArr) => { //for accounting
+
+  let yrs = [...new Set(expArr.map(x => x.date.substring(0, 4)))]
+
+  let dataExp = [];
+
+  for (let i = 0; i < yrs.length; i++) { //loop each year in the Expenses array
+
+    //filter objecst with the same year
+    let filteredExpArr = expArr.filter(x => x.date.substring(0, 4) === yrs[i])
+
+    let idArr = filteredExpArr.map(x => x.id)
+
+    const maxxArr = 30;
+
+    for (let k = 0; k < idArr.length; k += maxxArr) {
+      const idChunkArr = idArr.slice(k, k + maxxArr);
+
+      const q = query(
+        collection(db, uidCollection, 'data', 'expenses_' + yrs[i]), where('id', 'in', idChunkArr));
+
+      const querySnapshot = await getDocs(q);
+
+      let tmp = querySnapshot.docs.map((doc) => {
+        return !doc.empty && doc.data();
+      });
+      dataExp = [...dataExp, ...tmp]
+    }
+  }
+
+  return dataExp;
+}
+
+export const loadAdditionalCNFN = async (uidCollection, CNFN) => { //for accounting
+
+  let yrs = [...new Set(CNFN.map(x => x.date.substring(0, 4)))]
+
+
+  let dataCNFN = [];
+
+  for (let i = 0; i < yrs.length; i++) { //loop each year in the CNFN array
+
+    //filter objecst with the same year
+    let filteredInvArr = CNFN.filter(x => x.date.substring(0, 4) === yrs[i])
+
+    let idArr = filteredInvArr.map(x => x.id)
+
+    const maxxArr = 30;
+
+    for (let k = 0; k < idArr.length; k += maxxArr) {
+      const idChunkArr = idArr.slice(k, k + maxxArr);
+
+      const q = query(
+        collection(db, uidCollection, 'data', 'invoices_' + yrs[i]), where('id', 'in', idChunkArr));
+
+      const querySnapshot = await getDocs(q);
+
+      let tmp = querySnapshot.docs.map((doc) => {
+        return !doc.empty && doc.data();
+      });
+      dataCNFN = [...dataCNFN, ...tmp]
+    }
+  }
+
+  return dataCNFN;
 
 }
 

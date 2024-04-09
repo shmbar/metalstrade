@@ -71,3 +71,22 @@ export const Numcur = (obj, name, val, mult, settings) => {
     let num = obj.canceled && name !== 'payments' ? 0 : obj[name] * 1 * mltTmp
     return num;
 }
+
+export const SumValuesSupplier = (data, name, valCur) => {
+    let accum = 0;
+
+    data.forEach(innerArray => {
+        let mult = innerArray.euroToUSD
+
+        innerArray[name].forEach(num => {
+            let mltTmp = innerArray.poCur === valCur.cur ? 1 :
+                innerArray.poCur === 'us' && valCur.cur === 'eu' ? 1 / mult : mult
+
+            if (innerArray && !isNaN(parseFloat(num))) {
+                accum += parseFloat(num * 1 * mltTmp);
+            }
+        }); 
+    });
+
+    return accum;
+}

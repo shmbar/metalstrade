@@ -1,6 +1,5 @@
 import { Fragment, useEffect, useState, useRef } from 'react'
 import { Combobox, Transition } from '@headlessui/react'
-//import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import { AiOutlineCheck } from 'react-icons/ai';
 import { HiChevronUpDown } from 'react-icons/hi2';
 import { loadStockDataPerDescription, filteredArray } from '@utils/utils'

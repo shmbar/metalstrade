@@ -1,10 +1,12 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useContext } from 'react'
 import { BiEditAlt } from 'react-icons/bi';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useState } from 'react'
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { v4 as uuidv4 } from 'uuid';
-import {sortArr} from '@utils/utils'
+import { sortArr } from '@utils/utils'
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getTtl } from "@utils/languages";
 
 const List = ({ list, updateList, ttl, name }) => {
 
@@ -12,6 +14,8 @@ const List = ({ list, updateList, ttl, name }) => {
     const [edit, setEdit] = useState({ status: false, id: '' })
     const [value1, setValue1] = useState('')
     const [isNewItemAdded, setIsNewItemAdded] = useState(false);
+    const { compData } = useContext(SettingsContext);
+    const ln = compData.lng
 
     const inputRef = useRef(null);
     const containerRef = useRef(null);
@@ -70,18 +74,16 @@ const List = ({ list, updateList, ttl, name }) => {
     return (
         <div className='w-full'>
             <div className='flex items-center justify-between'>
-                <p className='flex items-center text-sm font-medium pl-2 text-slate-700' >{ttl}:</p>
-                <button className="text-slate-700  flex items-center justify-center text-white gap-1.5 px-2 
-                    h-6 border border-slate-400 bg-slate-400 rounded-md text-xs text-white 
-                    hover:bg-slate-500 shadow-lg"
+                <p className='flex items-center text-sm font-medium pl-2 text-slate-700' >{ttl!=='Hs' ? getTtl(ttl, ln): ttl}:</p>
+                <button className="blackButton py-1"
                     onClick={() => addItem()}>
-                    <IoAddCircleOutline className='scale-110' /> Add
+                    <IoAddCircleOutline className='scale-110' /> {getTtl('Add', ln)}
                 </button>
             </div>
 
             <ul ref={containerRef} className="flex flex-col mt-1 overflow-auto max-h-80 ring-1 ring-black/5 rounded-lg divide-y" >
 
-                {(name==='hs'? list: sortArr(list, name)).filter(q => !q.deleted).map((x, i) => {
+                {(name === 'hs' ? list : sortArr(list, name)).filter(q => !q.deleted).map((x, i) => {
                     return (
                         <li key={i} className="justify-between flex items-center gap-x-2 py-2 px-4 text-xs text-slate-700">
                             {edit.status && edit.id === x.id ?

@@ -1,16 +1,19 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect , useContext} from 'react'
 import { BiEditAlt } from 'react-icons/bi';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useState } from 'react'
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { v4 as uuidv4 } from 'uuid';
-
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getTtl } from '@utils/languages';
 
 const PriceRemarks = ({ value, setValue }) => {
 
     const [edit, setEdit] = useState({ status: false, id: '' })
     const [value1, setValue1] = useState('')
     const inputRef = useRef(null);
+    const {ln } = useContext(SettingsContext);
+
 
     useEffect(() => {
         edit.status && inputRef.current.focus();
@@ -55,18 +58,18 @@ const PriceRemarks = ({ value, setValue }) => {
     return (
         <div className={`${value.priceRemarks.length>0 ? 'max-w-4xl' : 'max-w-xs'}`}>
             <div className='flex items-center justify-between'>
-                <p className='flex items-center text-sm font-medium pl-2'>Price Formula:</p>
+                <p className='flex items-center text-sm font-medium pl-2'>{getTtl('PriceFormula', ln)}:</p>
 
                 <div className='group relative '>
-                    <button className="text-slate-700  flex items-center justify-center text-white gap-1.5 px-2 
-                    h-7 border border-slate-400 bg-slate-400 rounded-md text-sm text-white 
-                    hover:bg-slate-500 shadow-lg"
+                    <button className="text-white  flex items-center justify-center gap-1.5 px-2 
+                    h-7 border border-slate-400 bg-slate-700 rounded-md text-sm
+                    hover:bg-slate-400 shadow-lg"
                         onClick={() => addItem()}>
-                        <IoAddCircleOutline className='scale-110' /> Add
+                        <IoAddCircleOutline className='scale-110' /> {getTtl('Add', ln)}
                     </button>
                     <span className="absolute hidden group-hover:flex top-8 w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-1.5">
-                        Add remark</span>
+                        {getTtl('AddFormula', ln)}</span>
                 </div>
 
             </div>

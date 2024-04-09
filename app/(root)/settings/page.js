@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useContext } from 'react'
 import { Tab } from '@headlessui/react'
 import CompanyDetails from './tabs/general'
 import Setup from './tabs/setup'
@@ -8,7 +8,9 @@ import Clients from './tabs/clients'
 import BankAccount from './tabs/bankAccounts'
 import Stocks from './tabs/stocks'
 import Toast from '@components/toast.js'
-import SignOut from '@components/signOut';
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getTtl } from "@utils/languages";
+
 
 
 function classNames(...classes) {
@@ -16,6 +18,9 @@ function classNames(...classes) {
 }
 
 const page = () => {
+
+  const { compData } = useContext(SettingsContext);
+  const ln = compData.lng
 
   let tabs = ['Company Details', 'Setup', 'Suppliers', 'Clients', 'Bank Account', 'Stocks']
 
@@ -37,15 +42,14 @@ const page = () => {
 
 
   return (
-    <div className="lg:container mx-auto px-2 md:px-8 xl:px-10 pb-6">
-      <SignOut />
+    <div className="container mx-auto px-2 md:px-8 xl:px-10 pb-6 mt-16 md:mt-0">
       <Toast />
       <div className="border border-slate-200 rounded-xl p-1 md:p-4 mt-8 shadow-md">
-        <div className="text-3xl p-1 pb-2 text-slate-500">Settings</div>
+        <div className="text-3xl p-1 pb-2 text-slate-500">  {getTtl('Settings', ln)}</div>
 
         <div className="w-full px-2 sm:px-0">
           <Tab.Group >
-            <Tab.List className="overflow-x-auto max-w-xl flex space-x-1 rounded-xl bg-slate-400 p-1">
+            <Tab.List className="overflow-x-auto max-w-3xl flex space-x-1 rounded-xl bg-slate-400 p-1">
               {tabs.map((z) => (
                 <Tab
                   key={z}
@@ -59,7 +63,7 @@ const page = () => {
                     )
                   }
                 >
-                  {z}
+                  {getTtl(z, ln)}
                 </Tab>
               ))}
             </Tab.List>

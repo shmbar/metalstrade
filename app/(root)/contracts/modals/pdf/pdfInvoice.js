@@ -27,8 +27,8 @@ export const Pdf = async (value, arrTable, settings, compData) => {
     const clnt = clts.find(z => z.id === value.client);
 
     var doc = new jsPDF();
-    doc.addFont("/fonts/Poppins.ttf", "Poppins", "normal");
-    doc.addFont("/fonts/Poppins-bold.ttf", "PoppinsB", "bold");
+    doc.addFont("/fonts/Calibri.ttf", "Poppins", "normal"); //
+    doc.addFont("/fonts/Calibri-bold.ttf", "PoppinsB", "bold");
 
     // doc.addFont("/fonts/Anon.ttf", "Anon", "normal");
     //   doc.addFont("/fonts/Anon-bold.ttf", "AnonB", "bold");
@@ -53,13 +53,14 @@ export const Pdf = async (value, arrTable, settings, compData) => {
         doc.text(compData.city + ' ' + compData.zip, 130, 27)
         doc.text(compData.country, 130, 33)
 
-    //    doc.setDrawColor(220, 220, 220); // draw red lines
-    //    doc.line(10, 38, 200, 38); // horizontal line
+        //    doc.setDrawColor(220, 220, 220); // draw red lines
+        //    doc.line(10, 38, 200, 38); // horizontal line
     }
 
     const footer = () => {
         doc.setFont('Poppins', 'normal');
         doc.setFontSize(6);
+
         doc.text('This document was issued electronically and is therefore valid without signature', 70, 265);
         doc.text('These goods remain property of the seller until payment in full has been received by us', 66, 268);
 
@@ -71,35 +72,28 @@ export const Pdf = async (value, arrTable, settings, compData) => {
         doc.text(compData.name, 10, 276)
         doc.setFontSize(7);
         doc.setFont('Poppins', 'normal');
-        doc.text(compData.street, 10, 280)
-        doc.text(compData.city + ' ' + compData.zip, 10, 284)
-        doc.text(compData.country, 10, 288)
-        doc.text('T: ' + compData.phone, 10, 292)
+        doc.text(compData.street, 10, 279)
+        doc.text(compData.city + ' ' + compData.zip, 10, 282)
+        doc.text(compData.country, 10, 285)
+        doc.text('T: ' + compData.phone, 10, 288)
 
         doc.text('Vat No: ' + compData.vat, 82, 276);
-        doc.text('Reg No: ' + compData.reg, 82, 280);
-        doc.text('EORI No: ' + compData.eori, 82, 284);
-        doc.text(compData.email, 82, 288);
-        doc.text(compData.website, 82, 292);
+        doc.text('Reg No: ' + compData.reg, 82, 279);
+        doc.text('EORI No: ' + compData.eori, 82, 282);
+        doc.text(compData.email, 82, 285);
+        doc.text(compData.website, 82, 288);
 
         const banks = settings['Bank Account']['Bank Account'];
         const bank = banks.find(z => z.id === value.bankNname);
 
         doc.setFont('PoppinsB', 'bold');
-    /*    doc.text(bank.bankName, 145, 276);
-        doc.text('SWIFT code: ' + bank.swiftCode, 145, 280);
-        doc.text('IBAN: ' + bank.iban, 145, 284);
-        doc.setFont('Poppins', 'normal');
-        doc.text('Correspondent Bank: ' + bank.corrBank, 145, 288);
-        doc.text('Correspondent Bank SWIFT: ' + bank.corrBankSwift, 145, 292); */
-
         doc.text(bank.bankName, 145, 276);
-        doc.text( bank.swiftCode, 145, 280);
-        doc.text(bank.iban, 145, 284);
+        doc.text(bank.swiftCode, 145, 279);
+        doc.text(bank.iban, 145, 282);
         doc.setFont('Poppins', 'normal');
-        doc.text(bank.corrBank, 145, 288);
-        doc.text(bank.corrBankSwift, 145, 292);
-
+        doc.text(bank.corrBank, 145, 285);
+        doc.text(bank.corrBankSwift, 145, 288);
+        doc.text(bank.other, 145, 291);
     }
 
     header()
@@ -108,7 +102,7 @@ export const Pdf = async (value, arrTable, settings, compData) => {
     doc.setFont('PoppinsB', 'bold');
     doc.text('Consignee:', 10, 50);
     doc.setDrawColor(0, 0, 0); // draw red lines
-    doc.line(10, 51, 27, 51); // horizontal line
+    doc.line(10, 51, 22, 51); // horizontal line
 
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(8);
@@ -136,7 +130,7 @@ export const Pdf = async (value, arrTable, settings, compData) => {
     doc.setFont('Poppins', 'normal');
     doc.setFontSize(8);
     doc.text(value.date.startDate === '' || value.date.startDate === null ? '' :
-        dateFormat(value.date.startDate, 'dd-mmm-yyyy'), 160, 54);
+        dateFormat(value.date.startDate, 'dd-mmm-yy'), 160, 54);
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(8);
     doc.text('PO#:', 130, 58);
@@ -156,24 +150,26 @@ export const Pdf = async (value, arrTable, settings, compData) => {
 
     if (value.origin !== '') {
         doc.setFont('PoppinsB', 'bold');
-        doc.text('Origin:', 10, 98);
-        doc.setFont('Poppins', 'normal');
-        doc.text(getD(settings.Origin.Origin, value, 'origin'), 35, 98);
+        doc.text('Origin:', 10, 96);
+        if (value.origin !== 'empty') {
+            doc.setFont('Poppins', 'normal');
+            doc.text(getD(settings.Origin.Origin, value, 'origin'), 35, 96);
+        }
     }
 
     if (value.delTerm !== '') {
         doc.setFont('PoppinsB', 'bold');
-        doc.text('Delivery Terms:', 10, 104);
+        doc.text('Delivery Terms:', 10, 100);
         doc.setFont('Poppins', 'normal');
-        doc.text(getD(settings['Delivery Terms']['Delivery Terms'], value, 'delTerm'), 35, 104);
+        doc.text(getD(settings['Delivery Terms']['Delivery Terms'], value, 'delTerm'), 35, 100);
     }
 
     let empty = value.delDate.startDate === '' || value.delDate.startDate === null
     doc.setFont('PoppinsB', 'bold');
-    { !empty && doc.text('Delivery Date:', 10, 110) }
+    { !empty && doc.text('Delivery Date:', 10, 104) }
     doc.setFont('Poppins', 'normal');
     doc.text(empty ? '' :
-        dateFormat(value.delDate.startDate, 'dd-mmm-yyyy'), 35, 110);
+        dateFormat(value.delDate.startDate, 'dd-mmm-yyyy'), 35, 104);
 
     if (value.pol !== '') {
         doc.setFont('PoppinsB', 'bold');
@@ -184,19 +180,19 @@ export const Pdf = async (value, arrTable, settings, compData) => {
 
     if (value.pod !== '') {
         doc.setFont('PoppinsB', 'bold');
-        doc.text('POD:', 77, 98);
+        doc.text('POD:', 77, 96);
         doc.setFont('Poppins', 'normal');
-        doc.text(getD(settings.POD.POD, value, 'pod'), 92, 98);
+        doc.text(getD(settings.POD.POD, value, 'pod'), 92, 96);
     }
 
-
-    doc.setFont('PoppinsB', 'bold');
-    if (value.invType !== '2222' && value.invType !== '3333')
-        doc.text('Packing:', 77, 104);
-    doc.setFont('Poppins', 'normal');
-    if (value.invType !== '2222' && value.invType !== '3333')
-        doc.text(getD(settings.Packing.Packing, value, 'packing'), 92, 104);
-
+    if (value.packing !== '') {
+        doc.setFont('PoppinsB', 'bold');
+        if (value.invType !== '2222' && value.invType !== '3333')
+            doc.text('Packing:', 77, 100);
+        doc.setFont('Poppins', 'normal');
+        if (value.invType !== '2222' && value.invType !== '3333')
+            doc.text(getD(settings.Packing.Packing, value, 'packing'), 92, 100);
+    }
 
     //Total Net WT Kgs:
     const options = { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 2 };
@@ -217,27 +213,28 @@ export const Pdf = async (value, arrTable, settings, compData) => {
 
     doc.setFont('PoppinsB', 'bold');
     if (!secondRule && value.invType !== '2222' && value.invType !== '3333')
-        doc.text('Total Tarre WT Kgs:', 130, 98);
+        doc.text('Total Tarre WT Kgs:', 130, 96);
     doc.setFont('Poppins', 'normal');
-    if (!secondRule && value.invType !== '2222' && value.invType !== '3333') doc.text(TotalTarre, 165, 98);
+    if (!secondRule && value.invType !== '2222' && value.invType !== '3333') doc.text(TotalTarre, 165, 96);
 
     let thirdRule = value.packing === 'P6'
     let fourthRule = value.packing === 'P7'
 
     doc.setFont('PoppinsB', 'bold');
-    !fourthRule && doc.text(thirdRule ? 'QTY Ingots' : 'Total Gross WT Kgs:', 130, 104);
+    !fourthRule && doc.text(thirdRule ? 'QTY Ingots' : 'Total Gross WT Kgs:', 130, 100);
     doc.setFont('Poppins', 'normal');
     if (!fourthRule)
-        doc.text((value.ttlGross * 1).toLocaleString(locale, options), 165, 104);
+        doc.text((value.ttlGross * 1).toLocaleString(locale, options), 165, 100);
 
-    doc.setFont('PoppinsB', 'bold');
-    if (!secondRule && value.invType !== '2222' && value.invType !== '3333')
-        doc.text('Total Packages:', 130, 110);
-    doc.setFont('Poppins', 'normal');
+    if (value.ttlPackages !== '') {
+        doc.setFont('PoppinsB', 'bold');
+        if (!secondRule && value.invType !== '2222' && value.invType !== '3333')
+            doc.text('Total Packages:', 130, 104);
+        doc.setFont('Poppins', 'normal');
 
-    if (!secondRule && value.invType !== '2222' && value.invType !== '3333')
-        doc.text(value.ttlPackages, 165, 110);
-
+        if (!secondRule && value.invType !== '2222' && value.invType !== '3333')
+            doc.text(value.ttlPackages, 165, 104);
+    }
 
     if (value.hs1 !== '' || value.hs2 !== '') {
         doc.setFont('Poppins', 'normal');
@@ -309,11 +306,12 @@ export const Pdf = async (value, arrTable, settings, compData) => {
 
     autoTable(doc, {
         theme: 'plain',
-        margin: { left: margin, right: margin, bottom: 30, top: 45 },
+        margin: { left: margin, right: margin, bottom: 35, top: 45 },
         startY: 125,
         headStyles: { fillColor: [217, 225, 242], textColor: [32, 55, 100], fontSize: 8, halign: 'center', font: 'PoppinsB' },
         bodyStyles: {
             fontSize: 8, font: 'Poppins', textColor: [32, 55, 100], valign: "middle",
+
         },
         head: [['#', 'PO#', 'Description', ShipTitle, 'Quantity', 'Unit Price', 'Total'],
         ['', '', '', '', 'MT',
@@ -322,17 +320,21 @@ export const Pdf = async (value, arrTable, settings, compData) => {
         ]],
         body: arrTable,
         columnStyles: {
-            0: { cellWidth: 7, halign: 'center' }, //#
-            1: { cellWidth: 20, halign: 'left' },  //PO#
-            2: { cellWidth: 62, halign: 'left' },  //Description
-            3: { cellWidth: 24, halign: 'center' }, //Ship
-            4: { cellWidth: 27, halign: 'center' }, //Quantity
-            5: { cellWidth: 25, halign: 'center' },  //Unit Price
-            6: { cellWidth: 25, halign: 'right' },  //Total
+            0: { cellWidth: 7, halign: 'left' }, //#
+            1: { cellWidth: 23, halign: 'center' },  //PO#
+            2: { cellWidth: 66, halign: 'left' },  //Description
+            3: { cellWidth: 22, halign: 'center' }, //Ship
+            4: { cellWidth: 22, halign: 'center' }, //Quantity
+            5: { cellWidth: 24, halign: 'center' },  //Unit Price
+            6: { cellWidth: 24, halign: 'center' },  //Total
         },
         didParseCell: function (data) {
 
-            if (data.row.index === 0 && (data.column.index === 1 || data.column.index === 2) && data.row.section === 'head') {
+            if (data.row.index === 0 && (data.column.index === 0 || data.column.index === 1 || data.column.index === 2) && data.row.section === 'head') {
+                data.cell.styles.halign = 'left'
+            }
+
+            if (data.column.index === 1 && data.row.section === 'body') {
                 data.cell.styles.halign = 'left'
             }
 
@@ -344,11 +346,12 @@ export const Pdf = async (value, arrTable, settings, compData) => {
                 data.cell.styles.cellPadding = 0
             }
 
-            if ((data.column.index === 0 || data.column.index === 1 || data.column.index === 2) &&
-                data.row.section === 'body') {
-                data.cell.styles.cellPadding = 1.5
+            if (data.row.section === 'body') {
+                data.cell.styles.cellPadding = 0.5
             }
-            
+
+
+
         },
         willDrawCell: (data) => {
             const tmp1 = value.invType === '1111' ? 2 : 3
@@ -385,7 +388,7 @@ export const Pdf = async (value, arrTable, settings, compData) => {
             footer();
         }
     }
-
-    doc.save(getD(clts, value, 'client') + "_" + value.invoice + ".pdf"); // will save the file in the current working directory
+    
+    doc.save(value.invoice + getprefixInv(value) + "_IMS_" + clnt.nname + ".pdf"); // will save the file in the current working directory
 
 };

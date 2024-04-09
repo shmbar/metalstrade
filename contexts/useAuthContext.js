@@ -1,11 +1,13 @@
 'use client'
+
 import { createContext, useContext, useEffect, useState } from 'react'
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from 'firebase/auth'
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import { auth } from '@utils/firebase'
 import { loadDataSettings } from '@utils/utils'
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { SettingsContext } from "@contexts/useSettingsContext";
+import BackToLoginPage from '@components/backToLoginPage'
 
 const AuthContext = createContext()
 
@@ -16,15 +18,22 @@ const AuthContextProvider = ({ children }) => {
   const [err, setErr] = useState(null)
   const router = useRouter()
   const [loadingPage, setLoadingPage] = useState(true);
-  const { setLoading, setCompData, setSettings } = useContext(SettingsContext);
+  const { setCompData, setSettings } = useContext(SettingsContext);
+  const [uidCollection, setUidCollection] = useState(null)
+  const [userTitle, setUserTitle] = useState(null)
+  const pathName = usePathname()
+
+
 
   const SignIn = async (email, password) => {
-    //  setLoading(true)
+
+
     await signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        router.push("/contracts");
+      .then(async (userCredential) => {
+        sessionStorage.setItem('isLogged', true);
+
         setUser(userCredential.user)
-        //    setLoading(false)
+        //   router.push("/contracts");
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -33,15 +42,21 @@ const AuthContextProvider = ({ children }) => {
       });
 
   }
+  useEffect(() => {
+    let isLogged = sessionStorage.getItem('isLogged')
+    if (!isLogged && pathName !== '/') router.push("/");
+  }, []);
 
+
+  /*
   const SignUp = async (email, password) => {
     //  setLoading(true)
 
-    await  createUserWithEmailAndPassword(auth,email, password)
+    await createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log('success')
         router.push("/");
-    //    setUser(userCredential.user)
+        //    setUser(userCredential.user)
         //    setLoading(false)
       })
       .catch((error) => {
@@ -51,11 +66,11 @@ const AuthContextProvider = ({ children }) => {
       });
 
   }
- 
-
+*/
 
   const SignOut = async () => {
     await signOut(auth).then(() => {
+      sessionStorage.clear();
     }).catch((error) => {
     });
   }
@@ -63,7 +78,6 @@ const AuthContextProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-
     });
     return () => unsubscribe();
   }, [user]);
@@ -80,23 +94,59 @@ const AuthContextProvider = ({ children }) => {
 
   useEffect(() => {
     const loadData = async () => {
-     let dt = await loadDataSettings(user?.uid, 'cmpnyData')
-     setCompData(dt)
+      let dt = await loadDataSettings(/*user?.uid*/uidCollection, 'cmpnyData')
+      setCompData(dt)
 
-     dt = await loadDataSettings(user?.uid, 'settings')
-     setSettings(dt)
-      
+      dt = await loadDataSettings(/*user?.uid*/uidCollection, 'settings')
+      setSettings(dt)
+
     }
 
-   user?.uid && loadData()
+    uidCollection && loadData()
+  }, [uidCollection]);
+
+
+  useEffect(() => {
+    const getUidCollection = async () => {
+      try {
+        const idTokenResult = await auth.currentUser.getIdTokenResult();
+        const uidCollection = idTokenResult.claims.uidCollection;
+        sessionStorage.setItem('uidCollection', uidCollection);
+        setUidCollection(uidCollection);
+
+        const userTitl1 = idTokenResult.claims.title;
+        setUserTitle(userTitl1)
+        sessionStorage.setItem('userTitle', userTitl1);
+
+        if (userTitl1 === 'accounting') {
+          router.push("/accounting");
+        } else {
+          router.push("/contracts");
+        }
+
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+
+    let isLogged = sessionStorage.getItem('isLogged')
+    let uidCollection = sessionStorage.getItem('uidCollection')
+    let userTitle = sessionStorage.getItem('userTitle')
+
+    if (isLogged && !uidCollection) {
+      getUidCollection();
+    } else {
+      setUidCollection(uidCollection);
+      setUserTitle(userTitle)
+
+    }
+
   }, [user]);
-
-  const uidCollection = user?.uid
-
 
 
   return (
-    <AuthContext.Provider value={{ user, SignIn, err, SignOut, loadingPage, uidCollection, SignUp }}>
+    <AuthContext.Provider value={{ user, SignIn, err, SignOut, loadingPage, uidCollection, userTitle }}>
       {children}
     </AuthContext.Provider>
   )

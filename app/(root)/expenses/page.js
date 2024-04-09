@@ -1,6 +1,6 @@
 'use client';
 import { useContext, useEffect } from 'react';
-import Customtable from '../contracts/table';
+import Customtable from '../contracts/newTable';
 import MyDetailsModal from './modals/dataModal.js'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import MonthSelect from '@components/monthSelect';
@@ -8,16 +8,19 @@ import Toast from '@components/toast.js'
 import { ExpensesContext } from "@contexts/useExpensesContext";
 
 import { loadData } from '@utils/utils'
-import SignOut from '@components/signOut';
+
 import Spinner from '@components/spinner';
 import { UserAuth } from "@contexts/useAuthContext"
 import Spin from '@components/spinTable';
-import {EXD} from './excel'
+import { EXD } from './excel'
+import dateFormat from "dateformat";
+import { getTtl } from '@utils/languages';
+
 
 const Expenses = () => {
 
 
-	const { settings, lastAction, dateSelect, setDateYr, loading, setLoading } = useContext(SettingsContext);
+	const { settings, dateSelect, setDateYr, loading, setLoading, ln } = useContext(SettingsContext);
 	const { expensesData, valueExp, setValueExp, setIsOpen, isOpen, setExpensesData } = useContext(ExpensesContext);
 	const { uidCollection } = UserAuth();
 
@@ -34,51 +37,82 @@ const Expenses = () => {
 
 	}, [dateSelect])
 
+	let showAmount = (x) => {
+
+		return new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: x.row.original.cur,
+			minimumFractionDigits: 2
+		}).format(x.getValue())
+	}
+
 	let propDefaults = Object.keys(settings).length === 0 ? [] : [
-		{ field: 'lstSaved', header: 'Last Saved', showcol: false },
-		{ field: 'supplier', header: 'Vendor', showcol: true, arr: settings.Supplier.Supplier },
-		{ field: 'date', header: 'Date', showcol: false },
-		{ field: 'salesInv', header: 'Sales Invoice #', showcol: true },
-		{ field: 'poSupplierOrder', header: 'Purchase PO Supplier', showcol: true },
-		{ field: 'cur', header: 'Currency', showcol: false, arr: settings.Currency.Currency },
-		{ field: 'amount', header: 'Amount', showcol: true },
-		{ field: 'expense', header: 'Expense Invoice #', showcol: true },
-		{ field: 'expType', header: 'Expense Type', showcol: true, arr: settings.Expenses.Expenses },
-		{ field: 'paid', header: 'Paid / Unpaid', showcol: false, arr: settings.ExpPmnt.ExpPmnt },
-		{ field: 'comments', header: 'Comments', showcol: false },
+		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), enableSorting: false, cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p> },
+		{ accessorKey: 'supplier', header: getTtl('Vendor', ln) },
+		{ accessorKey: 'date', header: getTtl('Date', ln) , enableSorting: false, cell: (props) => <p>{dateFormat(props.getValue().startDate, 'dd-mmm-yy')}</p> },
+		{ accessorKey: 'salesInv', header: getTtl('SalesInvoices', ln) },
+		{ accessorKey: 'poSupplierOrder', header: getTtl('PoOrderNo', ln)},
+		{ accessorKey: 'cur', header: getTtl('Currency', ln) },
+		{ accessorKey: 'amount', header: getTtl('Amount', ln) , cell: (props) => <p>{showAmount(props)}</p> },
+		{ accessorKey: 'expense', header: getTtl('Expense Invoice', ln)+' #' },
+		{ accessorKey: 'expType', header: getTtl('Expense Type', ln) },
+		{ accessorKey: 'paid', header: getTtl('Paid / Unpaid', ln) },
+		{ accessorKey: 'comments', header: getTtl('Comments', ln) },
 	];
 
+	let invisible = ['lstSaved', 'comments'].reduce((acc, key) => {
+		acc[key] = false;
+		return acc;
+	}, {});
 
+
+	const getFormatted = (arr) => {  //convert id's to values
+
+		let newArr = []
+		const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
+
+		arr.forEach(row => {
+			let formattedRow = {
+				...row, supplier: gQ(row.supplier, 'Supplier', 'nname'),
+				cur: gQ(row.cur, 'Currency', 'cur'),
+				expType: gQ(row.expType, 'Expenses', 'expType'),
+				paid: gQ(row.paid, 'ExpPmnt', 'paid'),
+			}
+
+			newArr.push(formattedRow)
+		})
+
+		return newArr
+	}
 
 	const SelectRow = (row) => {
-		setValueExp(row);
+		setValueExp(expensesData.find(x => x.id === row.id));
 		setDateYr(row.date.startDate.substring(0, 4));
 		setIsOpen(true);
 	};
 
 	return (
-		<div className="lg:container mx-auto px-2 md:px-8 xl:px-10 ">
+		<div className="container mx-auto px-2 md:px-8 xl:px-10 mt-16 md:mt-0">
 			{Object.keys(settings).length === 0 ? <Spinner /> :
 				<>
-					<SignOut />
 					<Toast />
 					{loading && <Spin />}
 					<div className="border border-slate-200 rounded-xl p-4 mt-8 shadow-md relative">
 						<div className='flex items-center justify-between flex-wrap pb-2'>
-							<div className="text-3xl p-1 pb-2 text-slate-500">Expenses</div>
+							<div className="text-3xl p-1 pb-2 text-slate-500">{getTtl('Expenses', ln)}</div>
 							<MonthSelect />
 						</div>
 
-						<Customtable
-							data={expensesData.map(x => ({ ...x, poSupplierOrder: x.poSupplier.order }))}
-							propDefaults={propDefaults} SelectRow={SelectRow}
-							lastAction={lastAction} name='Expenses' 
+						<Customtable data={getFormatted(expensesData.map(x => ({ ...x, poSupplierOrder: x.poSupplier.order })))}
+							columns={propDefaults} SelectRow={SelectRow}
+							invisible={invisible}
 							excellReport={EXD(expensesData.map(x => ({ ...x, poSupplierOrder: x.poSupplier.order })),
-							 settings, 'Expenses')}/>
+								settings, getTtl('Expenses', ln), ln)} />
+
 					</div>
 
 					{valueExp && <MyDetailsModal isOpen={isOpen} setIsOpen={setIsOpen}
-						title={'Existing Expense'} />}
+						title={getTtl('Existing Expense', ln)} />}
 				</>}
 		</div>
 	);

@@ -9,11 +9,11 @@ import { validate, ErrDiv } from '@utils/utils'
 import ModalToDelete from '@components/modalToProceed';
 import CBox from '@components/combobox.js'
 import { UserAuth } from "@contexts/useAuthContext";
-
+import { getTtl } from '@utils/languages';
 
 const BankAccount = () => {
 
-    const { settings, updateSettings } = useContext(SettingsContext);
+    const { settings, updateSettings , compData} = useContext(SettingsContext);
     const [value, setValue] = useState({
         bankNname: '',
         bankName: '', cur: '', swiftCode: '', iban: '', corrBank: '',
@@ -23,6 +23,8 @@ const BankAccount = () => {
     const [errors, setErrors] = useState({})
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
     const { uidCollection } = UserAuth();
+    const ln = compData.lng
+
 
     const addItem = async () => {
 
@@ -82,7 +84,7 @@ const BankAccount = () => {
     return (
         <div className='border border-slate-300 p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
             <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  min-w-xl'>
-                <p className='flex items-center text-sm font-medium pl-2 text-slate-700 whitespace-nowrap'>Bank Accounts:</p>
+                <p className='flex items-center text-sm font-medium pl-2 text-slate-700 whitespace-nowrap'>{getTtl('Bank Account', ln)}:</p>
 
 
                 <ul className="flex flex-col mt-1 overflow-auto max-h-80 ring-1 ring-black/5 rounded-lg divide-y" >
@@ -101,36 +103,28 @@ const BankAccount = () => {
             </div>
             <div className='flex flex-col'>
                 <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
-                    <button className={`flex items-center justify-center text-white gap-1.5 px-2 
-                    h-6 border border-slate-400  rounded-md text-xs text-white 
-                     shadow-lg ${disabledButton ? 'cursor-not-allowed text-black bg-slate-700' : 'text-slate-700  bg-slate-400 hover:bg-slate-500'}`} disabled={disabledButton}
+                    <button className={`blackButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
                         onClick={addItem}>
-                        <IoAddCircleOutline className='scale-110' />  Add
+                        <IoAddCircleOutline className='scale-110' />   {getTtl('Add', ln)}
                     </button>
-                    <button className='text-slate-700  flex items-center justify-center text-white gap-1.5 px-2 
-                    h-6 b order border-slate-400 bg-slate-400 rounded-md text-xs text-white 
-                    hover:bg-slate-500 shadow-lg'
+                    <button className='whiteButton py-1'
                         onClick={updateList}>
                         <BiEditAlt className='scale-125' />
-                        Update
+                        {getTtl('Update', ln)}  
                     </button>
-                    <button className='text-slate-700  flex items-center justify-center text-white gap-1.5 px-2 
-                    h-6 border border-slate-400 bg-slate-400 rounded-md text-xs text-white 
-                    hover:bg-slate-500 shadow-lg' onClick={() => setIsDeleteOpen(true)}
+                    <button className='whiteButton py-1' onClick={() => setIsDeleteOpen(true)}
                     disabled={!value.id}>
-                        <MdDeleteOutline className='scale-125' />Delete
+                        <MdDeleteOutline className='scale-125' />{getTtl('Delete', ln)} 
                     </button>
-                    <button className='text-slate-700  flex items-center justify-center text-white gap-1.5 px-2 
-                    h-6 border border-slate-400 bg-slate-400 rounded-md text-xs text-white 
-                    hover:bg-slate-500 shadow-lg'
+                    <button className='whiteButton py-1'
                         onClick={clickClear}>
-                        <AiOutlineClear className='scale-125' />Clear
+                        <AiOutlineClear className='scale-125' />{getTtl('Clear', ln)}   
                     </button>
                 </div>
                 <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
                     <div className='grid grid-cols-4 flex items-center gap-4 w-full'>
                         <div className='col-span-12 md:col-span-2 w-full'>
-                            <p className='text-xs'>Bank:</p>
+                            <p className='text-xs'>{getTtl('Bank', ln)}:</p>
                             <input type='text' className='input h-7 text-xs w-full' value={value.bankName}
                                 onChange={(e) => { setValue({ ...value, 'bankName': e.target.value }) }} 
                                 maxLength="47"/>
@@ -138,14 +132,14 @@ const BankAccount = () => {
 
                         </div>
                         <div className='col-span-12 md:col-span-1 w-full'>
-                            <p className='text-xs'>Back Nick Name:</p>
+                            <p className='text-xs'>{getTtl('BankNickName', ln)}:</p>
                             <input type='text' className='input h-7 text-xs w-full' value={value.bankNname}
                                 onChange={(e) => { setValue({ ...value, 'bankNname': e.target.value }) }} />
                             <ErrDiv field='bankNname' errors={errors} />
 
                         </div>
                         <div className='col-span-12 md:col-span-1'>
-                            <p className='text-xs relative -bottom-1'>Currency:</p>
+                            <p className='text-xs relative -bottom-1'>{getTtl('Currency', ln)}:</p>
                             <div style={{ height: '35px' }}>
                                 <CBox data={settings.Currency.Currency} setValue={setValue} value={value} name='cur' />
                             </div>
@@ -157,14 +151,14 @@ const BankAccount = () => {
 
                     <div className='grid grid-cols-3 flex items-center gap-4 w-full'>
                         <div className='col-span-12 md:col-span-1'>
-                            <p className='text-xs'>Note #1:</p>
+                            <p className='text-xs'>{getTtl('Note', ln)} #1:</p>
                             <input type='text' className='input h-7 text-xs ' value={value.swiftCode}
                                 onChange={(e) => { setValue({ ...value, 'swiftCode': e.target.value }) }} 
                                 maxLength="45"/>
                             <ErrDiv field='swiftCode' errors={errors} />
                         </div>
                         <div className='col-span-12 md:col-span-1'>
-                            <p className='text-xs'>Note #2:</p>
+                            <p className='text-xs'>{getTtl('Note', ln)} #2:</p>
                             <input type='text' className='input h-7 text-xs' value={value.iban}
                                 onChange={(e) => { setValue({ ...value, 'iban': e.target.value }) }} 
                                 maxLength="47"/>
@@ -172,7 +166,7 @@ const BankAccount = () => {
 
                         </div>
                         <div className='col-span-12 md:col-span-1'>
-                            <p className='text-xs'>Note #3:</p>
+                            <p className='text-xs'>{getTtl('Note', ln)} #3:</p>
                             <input type='text' className='input h-7 text-xs w-full' value={value.corrBank}
                                 onChange={(e) => { setValue({ ...value, 'corrBank': e.target.value }) }}
                                 maxLength="47" />
@@ -183,14 +177,14 @@ const BankAccount = () => {
 
                     <div className='grid grid-cols-3 flex items-center gap-4 w-full'>
                         <div className='col-span-12 md:col-span-2 w-full'>
-                            <p className='text-xs'>Note #4:</p>
+                            <p className='text-xs'>{getTtl('Note', ln)} #4:</p>
                             <input type='text' className='input h-7 text-xs' value={value.corrBankSwift}
                                 onChange={(e) => { setValue({ ...value, 'corrBankSwift': e.target.value }) }} 
                                 maxLength="47"/>
                             <ErrDiv field='corrBankSwift' errors={errors} />
                         </div>
                         <div className='col-span-12 md:col-span-1'>
-                            <p className='text-xs'>Other:</p>
+                            <p className='text-xs'>{getTtl('Other', ln)}:</p>
                             <input type='text' className='input h-7 text-xs' value={value.other}
                                 onChange={(e) => { setValue({ ...value, 'other': e.target.value }) }} />
                         </div>
@@ -200,7 +194,7 @@ const BankAccount = () => {
                 </div>
             </div>
             <ModalToDelete isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}
-                ttl='Delete Confirmation' txt='Deleting this account is irreversible. Please confirm to proceed.'
+               ttl={getTtl('delConfirmation', ln)}txt={getTtl('delConfirmationTxtBank', ln)} 
                 doAction={deleteItem} />
         </div>
     )

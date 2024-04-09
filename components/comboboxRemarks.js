@@ -3,12 +3,11 @@ import { Combobox, Transition } from '@headlessui/react'
 //import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import { AiOutlineCheck } from 'react-icons/ai';
 import { HiChevronUpDown } from 'react-icons/hi2';
-import { remarks } from './const';
-
+import { sortArr } from '@utils/utils'
 
 const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, classes1 }) => {
 
-    const newArr = [{ id: '00000', [name]: 'Select' }, ...data.filter(x=>!x.deleted)]
+    const newArr = [{ id: '00000', [name]: 'Select' }, ...sortArr(data.filter(x => !x.deleted), name)]
     const [selected, setSelected] = useState(value.remarks[indx][name] === '' ? newArr[0] : data.find(x => x.id === value.remarks[indx][name]))
     const [query, setQuery] = useState('')
 
@@ -34,13 +33,24 @@ const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, clas
     const setSelection = (e) => {
         setSelected(e)
         //e = selected item of data
+        let v = false;
+
+        if (e.id === 'EditTextRmrks') {
+            v = true
+        }
 
         let obj = value.remarks[indx]
-        obj = { ...obj, [name]: e.id }
 
+        if (v) {
+            obj = { ...obj, 'isRmrkText': true, [name]: '' }
+        } else {
+            obj = { ...obj, [name]: e.id }
+        }
+
+        
         let newObj = [...value.remarks]
         newObj[indx] = obj;
-        let newObj1={...value, remarks:newObj}
+        let newObj1 = { ...value, remarks: newObj }
         setValue(newObj1)
     }
 
@@ -91,7 +101,9 @@ const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, clas
                                             <>
                                                 <span
                                                     className={`block truncate ${selected ? 'font-bold' : 'font-normal'
-                                                        }`}
+                                                        }
+                                                        ${x.id === 'EditTextRmrks' ? 'font-semibold italic text-purple-900' : ''}
+                                                        `}
                                                 >
                                                     {x[name]}
                                                 </span>

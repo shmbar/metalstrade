@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useState, Fragment } from 'react'
 import { useIdleTimer } from 'react-idle-timer'
 import { Dialog, Transition } from '@headlessui/react'

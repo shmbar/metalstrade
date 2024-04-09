@@ -13,6 +13,7 @@ import { getCur } from '@components/exchangeApi';
 import { VscSaveAs } from 'react-icons/vsc';
 
 import TableIbvPurchs from './refPurchaseInvoices'
+import { getTtl } from '@utils/languages';
 
 const setNum = (value, contractValue, settings) => {
 
@@ -88,7 +89,7 @@ const TotalArrsExp = (data, val, mult) => {
 
 const PNL = () => {
 
-  const { settings } = useContext(SettingsContext);
+  const { settings, ln } = useContext(SettingsContext);
   const { valueCon, setValueCon, contractsData, setContractsData, saveContractStatus,
     saveData_PoInvoices } = useContext(ContractsContext);
 
@@ -142,14 +143,16 @@ const PNL = () => {
   { id: 'D8456', conStatus: 'Closed' },
   { id: 'E34656', conStatus: 'Unsold' }]
 
+
+
   return (
     <div className='p-1'>
       <div className='grid grid-cols-12 pt-3 gap-4 '>
         <div className='col-span-12 md:col-span-3 border border-slate-300 p-2 rounded-lg '>
-          <p className='text-[0.8rem]'>Select Currency:</p>
+          <p className='text-[0.8rem]'>{getTtl('selectCurr', ln)}:</p>
           <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='shadow-md -mt-1' dis={true} />
           <div className='flex gap-2 pt-2 flex-wrap'>
-            <p className='text-[0.8rem]'>	Purchase Value:</p>
+            <p className='text-[0.8rem]'>{getTtl('purchaseValue', ln)}:</p>
             <p className='text-[0.8rem] items-center flex text-slate-800 font-medium'>
               {setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
 
@@ -164,26 +167,27 @@ const PNL = () => {
         </div>
         <div className='col-span-12 md:col-span-3 border border-slate-300 p-2 rounded-lg'>
           <div className='flex justify-between'>
-            <p className='text-[0.8rem]'>Inv Value Sales:</p>
+            <p className='text-[0.8rem]'>{getTtl('invValueSale', ln)}:</p>
             <p className='text-[0.8rem]'>{setNum(valCur, Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings), settings)}</p>
           </div>
           <div className='w-full text-right h-4 -mt-2'>-</div>
           <div className='flex justify-between'>
-            <p className='text-[0.8rem] w-28'>Purchase Value:</p>
+            <p className='text-[0.8rem] w-full'>{getTtl('purchaseValue', ln)}:</p>
             <p className='text-[0.8rem]'>{setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
           </div>
           <div className='w-full text-right h-4 -mt-2'>-</div>
           <div className='flex justify-between'>
-            <p className='text-[0.8rem] w-28'>Expenses:</p>
+            <p className='text-[0.8rem] w-28'>{getTtl('Expenses', ln)}:</p>
             <p className='text-[0.8rem]'>{setNum(valCur, TotalArrsExp(pnlData, valCur, valueCon.euroToUSD), settings)}</p>
           </div>
           <div className='pt-1.5 border-t border-slate-500'></div>
           <div className='flex justify-between font-bold'>
-            <p className='text-[0.8rem] w-28'>Profit:</p>
+            <p className='text-[0.8rem] w-28'>{getTtl('Profit', ln)}:</p>
             <p className='text-[0.8rem]'>{setNum(valCur, (Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings) -
               TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD) - TotalArrsExp(pnlData, valCur, valueCon.euroToUSD)), settings)}</p>
           </div>
         </div>
+        {/*
         <div className='col-span-12 md:col-span-2 border border-slate-300 p-2 rounded-lg'>
           <p className='text-[0.8rem]'>Contract Status:</p>
           <CBox data={conSttusArr} setValue={setValueCon} value={valueCon} name='conStatus' classes='shadow-md -mt-1' dis={true} />
@@ -194,20 +198,20 @@ const PNL = () => {
             <VscSaveAs className='text-slate-700' />
             <p className='text-sm'>Save</p></button>
         </div>
-
+          */}
         <div className='col-span-12 hidden md:flex md:col-span-4'>
-          <TableIbvPurchs valueCon={valueCon} setValueCon={setValueCon} saveData_PoInvoices={saveData_PoInvoices} />
+          <TableIbvPurchs valueCon={valueCon} setValueCon={setValueCon} saveData_PoInvoices={saveData_PoInvoices} ln={ln}/>
         </div>
       </div>
 
       <div className='block md:flex flex-wrap mt-4 gap-2 '>
-        <p className='p-2'>Invoices summary:</p>
+        <p className='p-2'>{getTtl('Invoices summary', ln)}:</p>
         <TotalPnlTable data={pnlData} val={valCur} mult={valueCon.euroToUSD} />
       </div>
 
 
       <div className='flex items-center pt-4 gap-2'>
-        <p className='text-xs'>{enabledSwitch ? 'Hide Details' : 'Show Details'}</p>
+        <p className='text-xs'>{enabledSwitch ? getTtl('Hide Details', ln) : getTtl('Show Details', ln)}</p>
         <Switch enabled={enabledSwitch} setEnabled={setEnabledSwitch} />
       </div>
 

@@ -3,8 +3,9 @@ import { saveAs } from 'file-saver';
 import { Workbook } from 'exceljs';
 import Tooltip from '@components/tooltip';
 import { SiMicrosoftexcel } from 'react-icons/si';
+import { getTtl } from '@utils/languages';
 
-const styles = { alignment: { horizontal: 'center', vertical: 'middle',  wrapText: true } }
+const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
 const wb = new Workbook();
 wb.creator = 'IMS';
 wb.created = new Date();
@@ -14,7 +15,7 @@ sheet.views = [
     { rightToLeft: false }
 ];
 
-export const EXD = (dataTable, getD, settings, name) => {
+export const EXD = (dataTable, settings, name, ln) => {
 
     const exportExcel = async () => {
 
@@ -43,23 +44,19 @@ export const EXD = (dataTable, getD, settings, name) => {
 
         for (let i = 0; i < dataTable.length; i++) {
             let item = dataTable[i]
-
             sheet.addRow({
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
                 order: item.order,
-                conQnty: { formula: item.conQnty, result: Number(item.conQnty) },
-                shipped: { formula: item.shipped, result: Number(item.shipped) },
-                remaining: { formula: item.remaining, result: Number(item.remaining) },
-                stocks: item.stocks.map(element => {
-                    const words = element.props.children.split(/\s+/);
-                    return words.length > 1 ? words.join(' ') : element.props.children;
-                }).join(', '),
+                conQnty: item.conQnty,
+                shipped: item.shipped,
+                remaining: item.remaining,
+                stocks: item.stocks.map(x => x).join('\n')
             })
         }
 
         sheet.eachRow((row, rowNumber) => {
             row.eachCell((cell, colNumber) => {
-                if (cell.value) {
+                if (cell.value || cell.value === '' || cell.value === 0) {
                     row.getCell(colNumber).border = {
                         top: { style: 'thin' },
                         left: { style: 'thin' },
@@ -67,6 +64,11 @@ export const EXD = (dataTable, getD, settings, name) => {
                         right: { style: 'thin' }
                     };
                 }
+
+                if ((colNumber === 3 || colNumber === 4 || colNumber === 5) && rowNumber > 1) {
+                    row.getCell(colNumber).numFmt = cell.value !== 0 ? `#,##0.000;[Red]-#,##0.000` : `#,##0`
+                }
+
             });
         });
 
@@ -92,7 +94,7 @@ export const EXD = (dataTable, getD, settings, name) => {
      items-center text-sm rounded-full  hover:drop-shadow-md focus:outline-none"
             >
                 <SiMicrosoftexcel className="scale-[1.4] text-gray-500" />
-                <Tooltip txt='Excel' />
+                <Tooltip txt={getTtl('Excel', ln)} />
             </button>
         </div>
     );

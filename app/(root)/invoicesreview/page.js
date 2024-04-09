@@ -1,6 +1,6 @@
 'use client';
 import { useContext, useEffect, useState } from 'react';
-import Customtable from './table';
+import Customtable from './newTable';
 import MyDetailsModal from '../contracts/modals/dataModal.js'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
@@ -10,16 +10,16 @@ import { ExpensesContext } from "@contexts/useExpensesContext";
 import { InvoiceContext } from "@contexts/useInvoiceContext";
 
 import { loadData } from '@utils/utils'
-import SignOut from '@components/signOut';
 import Spinner from '@components/spinner';
 import { UserAuth } from "@contexts/useAuthContext"
-import { getInvoices, groupedArrayInvoice } from '@utils/utils'
+import { getInvoices, groupedArrayInvoice, getD } from '@utils/utils'
 import Spin from '@components/spinTable';
-import { Numcur } from '../contractsreview/funcs'
+import { Numcur, SumValuesSupplier } from '../contractsreview/funcs'
 import CBox from '@components/combobox.js'
-import {OutTurn, Finalizing, relStts} from '@components/const'
+import { OutTurn, Finalizing, relStts } from '@components/const'
 import dateFormat from "dateformat";
-import {EXD} from './excel'
+import { EXD } from './excel'
+import { getTtl } from '@utils/languages';
 
 const TotalInvoicePayments = (data) => {
   let accumulatedPmnt = 0;
@@ -27,10 +27,10 @@ const TotalInvoicePayments = (data) => {
   data.forEach(obj => {
     if (obj && Array.isArray(obj.payments)) {
       obj.payments.forEach(payment => {
-       
-      
+
+
         if (payment && !isNaN(parseFloat(payment.pmnt))) {
-          accumulatedPmnt += parseFloat(payment.pmnt * 1 );
+          accumulatedPmnt += parseFloat(payment.pmnt * 1);
         }
       });
     }
@@ -82,7 +82,7 @@ const loadInvoices = async (uidCollection, con) => {
 
 const CB = (settings, setValCur, valCur) => {
   return (
-    <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='-mt-1 input border-slate-300 shadow-sm items-center flex'
+    <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='input border-slate-300 shadow-sm items-center flex'
       classes2='text-lg' dis={true} />
   )
 }
@@ -103,8 +103,8 @@ const sortedData = (arr) => {
 
 const Shipments = () => {
 
-  const { settings, lastAction, dateSelect, setLoading, loading, setDateYr } = useContext(SettingsContext);
-  const { valueCon, setValueCon, contractsData, setContractsData, isOpen, setIsOpen } = useContext(ContractsContext);
+  const { settings, lastAction, dateSelect, setLoading, loading, setDateYr, ln } = useContext(SettingsContext);
+  const { valueCon, setValueCon, contractsData, setContractsData, isOpenCon, setIsOpenCon } = useContext(ContractsContext);
   const { blankInvoice, setIsInvCreationCNFL } = useContext(InvoiceContext);
   const { blankExpense } = useContext(ExpensesContext);
   const { uidCollection } = UserAuth();
@@ -149,8 +149,17 @@ const Shipments = () => {
 
       dt.forEach(innerObj => {
         if (innerObj.invoicesData && Array.isArray(innerObj.invoicesData)) {
+
           innerObj.invoicesData.forEach(obj => {
-            newArr.push({ arr: obj, order: innerObj.order, supplier: innerObj.supplier, euroToUSD: innerObj.euroToUSD })
+            let reducedArr = innerObj.poInvoices.filter(invoice => invoice.invRef.includes((obj[0].invoice).toString()));
+
+            newArr.push({
+              arr: obj, poCur: innerObj.cur, order: innerObj.order, supplier: innerObj.supplier, euroToUSD: innerObj.euroToUSD,
+              poInvoices: reducedArr.map(invoice => invoice.inv),
+              invAmntSup: reducedArr.map(invoice => invoice.invValue),
+              prpMntSup: reducedArr.map(item => item.pmnt),
+              blncSup: reducedArr.map(item => item.blnc),
+            })
           })
         }
       })
@@ -198,10 +207,11 @@ const Shipments = () => {
   const setCurFilterData = (arr) => {
 
     let dt = arr.map((x) => {
+
       let srtX = sortedData(x.arr)
       const order = x.order;
       const supplier = x.supplier;
-      const euroToUSD = x.euroToUSD; 
+      const euroToUSD = x.euroToUSD;
       const cn = srtX.length > 1 ? srtX[srtX.length - 1].invoice + getprefixInv(srtX[srtX.length - 1]) : '-'
       const totalAmount = Total(srtX, 'totalAmount', valCur, x.euroToUSD, settings).accumuLastInv
       const deviation = totalAmount - Total(srtX, 'totalAmount', valCur, x.euroToUSD, settings).accumuDeviation
@@ -212,17 +222,22 @@ const Shipments = () => {
       const debtaftr = totalPrepayment1 - payments;
       const debtBlnc = totalAmount - payments;
 
-      const addData=srtX[0].shipData
+      const addData = srtX[0].shipData
       const rcvd = addData.rcvd;
+      const outrnamnt = addData.outrnamnt != null ? addData.outrnamnt : '';
       const fnlzing = addData.fnlzing;
       const status = addData.status;
-      const etd = addData.etd==='' ? '' : dateFormat(addData.etd.startDate, 'dd-mmm-yy');
-      const eta = addData.eta==='' ? '' : dateFormat(addData.eta.startDate, 'dd-mmm-yy');
-     
+      const etd = addData.etd === '' ? '' : dateFormat(addData.etd.startDate, 'dd-mmm-yy');
+      const eta = addData.eta === '' ? '' : dateFormat(addData.eta.startDate, 'dd-mmm-yy');
+      const poCur = x.poCur
 
       return {
         ...x.arr[0],
         supplier,
+        supplierInv: x.poInvoices,
+        supplierInvAmount: x.invAmntSup,
+        supplierPrepayment: x.prpMntSup,
+        supBlnc: x.blncSup,
         order,
         cn,
         totalAmount,
@@ -236,11 +251,12 @@ const Shipments = () => {
         euroToUSD,
 
         rcvd,
+        outrnamnt,
         fnlzing,
         status,
         etd,
-        eta
-
+        eta,
+        poCur
       };
     })
     return dt;
@@ -249,6 +265,14 @@ const Shipments = () => {
   const setTtl = (filteredData) => {
 
     // totals
+
+    const supplierInvAmount = SumValuesSupplier(filteredData, 'supplierInvAmount', valCur)
+    const supplierPrepayment = SumValuesSupplier(filteredData, 'supplierPrepayment', valCur)
+    const supplierBlnc = SumValuesSupplier(filteredData, 'supBlnc', valCur)
+
+    const outrnamnt = filteredData.reduce((total, obj) => {
+      return total + Numcur(obj, 'outrnamnt', valCur, obj.euroToUSD, settings);
+    }, 0);
 
     const totalInvoices1 = filteredData.reduce((total, obj) => {
       return total + Numcur(obj, 'totalAmount', valCur, obj.euroToUSD, settings);
@@ -271,36 +295,120 @@ const Shipments = () => {
       inDebt: (totalInvoices1 - totalPrepayment2),
       payments: payments1, debtaftr: totalPrepayment2 - payments1,
       debtBlnc: totalInvoices1 - payments1,
-      cur: 'us'
+      cur: 'us',
+      supplierInvAmount: supplierInvAmount,
+      supplierPrepayment: supplierPrepayment,
+      supBlnc: supplierBlnc,
+      outrnamnt: outrnamnt
     }]
 
     return Ttls;
 
   }
 
+
+  let showAmountPO = (x, obj) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: obj.row.original.poCur,
+      minimumFractionDigits: 2
+    }).format(x)
+  }
+
+  let showAmountInv = (x) => {
+
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: x.row?.original?.final ? x.row.original?.cur?.cur || 'USD' : x.row?.original?.cur,
+      minimumFractionDigits: 2
+    }).format(x.getValue())
+  }
+
+  let showAmountTtl = (x) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: getD(settings.Currency.Currency, valCur, 'cur'),
+      minimumFractionDigits: 2
+    }).format(x)
+  }
+
   let propDefaults = Object.keys(settings).length === 0 ? [] : [
-    { field: 'order', header: 'PO#', showcol: false },
-    { field: 'supplier', header: 'Supplier', showcol: true, arr: settings.Supplier.Supplier },
-    { field: 'client', header: 'Consignee', showcol: true, arr: settings.Client.Client },
-    { field: 'invoice', header: 'Invoice', showcol: true },
-    { field: 'cn', header: 'Credit/Final Note', showcol: true },
-    { field: 'totalAmount', header: 'Inv Value Sales', showcol: true, arr: settings.Currency.Currency },
-    { field: 'deviation', header: 'Deviation', showcol: true, arr: settings.Currency.Currency },
-    { field: 'prepaidPer', header: 'Prepaid %', showcol: true },
-    { field: 'totalPrepayment1', header: 'Prepaid Amount', showcol: true, arr: settings.Currency.Currency },
-    { field: 'inDebt', header: 'Initial Debt', showcol: false, arr: settings.Currency.Currency },
-    { field: 'payments', header: 'Actual Payment', showcol: false, arr: settings.Currency.Currency },
-    { field: 'debtaftr', header: 'Debt After Prepayment', showcol: false, arr: settings.Currency.Currency },
-    { field: 'debtBlnc', header: 'Debt Balance', showcol: false, arr: settings.Currency.Currency },
-  
-    { field: 'rcvd', header: 'Outturn', showcol: false, arr: OutTurn},
-    { field: 'fnlzing', header: 'Finalizing', showcol: false, arr: Finalizing},
-    { field: 'status', header: 'Release Status', showcol: false, arr: relStts},
-    { field: 'etd', header: 'ETD', showcol: false,},
-    { field: 'eta', header: 'ETA', showcol: false,},
+    { accessorKey: 'order', header: getTtl('PO', ln) + '#', bgt: 'bg-green-500', bgr: 'bg-green-50', ttl: getTtl('Total', ln)+':' }, //false
+    { accessorKey: 'supplier', header: getTtl('Supplier', ln), bgt: 'bg-green-500', bgr: 'bg-green-50' },
+    {
+      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
+        return <div key={index}>{item}</div>
+      })}</div>
+    },
+    {
+      accessorKey: 'supplierInvAmount', header: getTtl('Sup Inv amount', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
+        return <div key={index}>{showAmountPO(item, props)}</div>
+      })}</div>, ttl: showAmountTtl(totals[0]?.supplierInvAmount)
+    },
+    {
+      accessorKey: 'supplierPrepayment', header: getTtl('Sup Prepayment', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
+        return <div key={index}>{showAmountPO(item, props)}</div>
+      })}</div>, ttl: showAmountTtl(totals[0]?.supplierPrepayment)
+    },
+    {
+      accessorKey: 'supBlnc', header: getTtl('Balance', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
+        return <div key={index}>{showAmountPO(item, props)}</div>
+      })}</div>, ttl: showAmountTtl(totals[0]?.supBlnc)
+    },
+
+    { accessorKey: 'invoice', header: getTtl('Invoice', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50' },
+    { accessorKey: 'client', header: getTtl('Consignee', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50' },
+    { accessorKey: 'totalAmount', header: getTtl('invValueSale', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50', cell: (props) => <p>{showAmountInv(props)}</p>, ttl: showAmountTtl(totals[0]?.totalAmount) },
+    { accessorKey: 'prepaidPer', header: getTtl('Prepaid', ln) + ' %', bgt: 'bg-amber-400', bgr: 'bg-amber-50', ttl: totals[0]?.prepaidPer },
+    { accessorKey: 'totalPrepayment1', header: getTtl('Prepaid Amount', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50', cell: (props) => <p>{showAmountInv(props)}</p>, ttl: showAmountTtl(totals[0]?.totalPrepayment1) },
+    { accessorKey: 'debtaftr', header: getTtl('debtAfterPrepPmnt', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50', cell: (props) => <p>{showAmountInv(props)}</p>, ttl: showAmountTtl(totals[0]?.debtaftr) }, //false
+
+
+    { accessorKey: 'status', header: getTtl('Release Status', ln), bgt: 'bg-purple-800', bgr: 'bg-purple-50' }, //false
+    { accessorKey: 'etd', enableSorting: false, header: 'ETD', bgt: 'bg-purple-800', bgr: 'bg-purple-50' },//false
+    { accessorKey: 'eta', enableSorting: false, header: 'ETA', bgt: 'bg-purple-800', bgr: 'bg-purple-50' },//false
+
+    { accessorKey: 'rcvd', header: 'Outturn', bgt: 'bg-[#0070C0]', bgr: 'bg-blue-50' }, //false
+    { accessorKey: 'outrnamnt', header: 'Outturn Amount', bgt: 'bg-[#0070C0]', bgr: 'bg-blue-50', cell: (props) => <p>{props.getValue() !== '' && showAmountInv(props)}</p> }, //false
+    { accessorKey: 'deviation', header: getTtl('Deviation', ln), bgt: 'bg-[#0070C0]', bgr: 'bg-blue-50', cell: (props) => <p>{showAmountInv(props)}</p>, ttl: showAmountTtl(totals[0]?.deviation) },
+    { accessorKey: 'debtBlnc', header: getTtl('Debt Balance', ln), bgt: 'bg-[#0070C0]', bgr: 'bg-blue-50', cell: (props) => <p>{showAmountInv(props)}</p>, ttl: showAmountTtl(totals[0]?.debtBlnc) },//false
+    { accessorKey: 'cn', header: getTtl('Credit/Final Note', ln), bgt: 'bg-[#0070C0]', bgr: 'bg-blue-50' },
+    { accessorKey: 'fnlzing', header: getTtl('Finalizing', ln), bgt: 'bg-[#0070C0]', bgr: 'bg-blue-50' },//false
+
+
+    { accessorKey: 'inDebt', header: getTtl('Initial Debt', ln), bgt: 'bg-slate-400', cell: (props) => <p>{showAmountInv(props)}</p>, ttl: showAmountTtl(totals[0]?.inDebt) },
+    { accessorKey: 'payments', header: getTtl('Actual Payment', ln), bgt: 'bg-slate-400', cell: (props) => <p>{showAmountInv(props)}</p>, ttl: showAmountTtl(totals[0]?.payments) },
   ];
 
 
+  let invisible = ['supBlnc', 'etd', 'eta', 'rcvd', 'outrnamnt', 'fnlzing',
+    'inDebt', 'payments'].reduce((acc, key) => {
+      acc[key] = false
+      return acc;
+    }, {});
+
+
+  const getFormatted = (arr) => {  //convert id's to values
+
+    let newArr = []
+    const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
+
+    arr.forEach(row => {
+      let formattedRow = {
+        ...row, supplier: gQ(row.supplier, 'Supplier', 'nname'),
+        cur: gQ(row.cur, 'Currency', 'cur'),
+        poCur: gQ(row.poCur, 'Currency', 'cur'),
+        client: gQ(row.client, 'Client', 'nname'),
+        status: getD(relStts, row, 'status'),
+        rcvd: getD(OutTurn, row, 'rcvd'),
+        fnlzing: getD(Finalizing, row, 'fnlzing'),
+      }
+
+      newArr.push(formattedRow)
+    })
+
+    return newArr
+  }
 
   const SelectRow = (row) => {
     setValueCon(contractsData.find(x => x.id === row.poSupplier.id));
@@ -308,34 +416,33 @@ const Shipments = () => {
     setDateYr(row.poSupplier.date.substring(0, 4));
     blankExpense();
     setIsInvCreationCNFL(false);
-    setIsOpen(true);
+    setIsOpenCon(true);
   };
 
   return (
-    <div className="lg:container mx-auto px-2 md:px-8 xl:px-10 ">
+    <div className="container mx-auto px-2 md:px-8 xl:px-10 mt-16 md:mt-0">
       {Object.keys(settings).length === 0 ? <Spinner /> :
         <>
-          <SignOut />
           <Toast />
           {loading && <Spin />}
           <div className="border border-slate-200 rounded-xl p-4 mt-8 shadow-md relative">
             <div className='flex items-center justify-between flex-wrap'>
-              <div className="text-3xl p-1 pb-2 text-slate-500">Invoices Review</div>
+              <div className="text-3xl p-1 pb-2 text-slate-500">{getTtl('Invoices Review', ln)}</div>
               <MonthSelect />
             </div>
 
 
             <div className='mt-5'>
-              <Customtable data={loading ? [] : dataTable} datattl={loading ? [] : totals} propDefaults={propDefaults} SelectRow={SelectRow}
-                lastAction={lastAction} name='Invoices Review' cb={CB(settings, setValCur, valCur)} settings={settings}
-                filteredData={filteredData} setFilteredData={setFilteredData} valCur={valCur}
-                setCurFilterData={setCurFilterData} setValCur={setValCur} 
-                excellReport={EXD(dataTable, settings, 'Invoices Review')}/>
+              <Customtable data={loading ? [] : getFormatted(dataTable)} datattl={loading ? [] : totals} columns={propDefaults} SelectRow={SelectRow}
+                cb={CB(settings, setValCur, valCur)} settings={settings}
+                setFilteredData={setFilteredData} valCur={valCur}
+                setValCur={setValCur} invisible={invisible}
+                excellReport={EXD(dataTable, settings, getTtl('Invoices Review', ln), ln)} ln={ln} />
             </div>
           </div>
 
-          {valueCon && <MyDetailsModal isOpen={isOpen} setIsOpen={setIsOpen}
-            title={!valueCon.id ? 'New Contract' : `Contract No: ${valueCon.order}`} />}
+          {valueCon && <MyDetailsModal isOpen={isOpenCon} setIsOpen={setIsOpenCon}
+            title={!valueCon.id ? getTtl('New Contract', ln) : `${getTtl('Contract No', ln)}: ${valueCon.order}`} />}
         </>}
     </div>
   );

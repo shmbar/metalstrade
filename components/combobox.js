@@ -90,7 +90,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                         />
                         <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
                             {!dis && <MdClear
-                                className="h-5 w-5 text-gray-100  hover:text-gray-400"
+                                className="size-5 text-gray-100  hover:text-gray-400"
                                 aria-hidden="true"
                                 onClick={Cncl}
                             />}
@@ -132,7 +132,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                                                 <span
                                                     className={`block truncate ${selected ? 'font-bold' : 'font-normal'
                                                         }
-                                                        ${x.id==='EditTextDelTime' ? 'font-semibold italic text-purple-900': ''}
+                                                        ${x.id==='EditTextDelTime'? 'font-semibold italic text-purple-900': ''}
                                                         `}
                                                 >
                                                     {x[name]}
@@ -142,7 +142,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                                                         className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? 'text-white' : 'text-teal-600'
                                                             }`}
                                                     >
-                                                        <AiOutlineCheck className="h-5 w-5" aria-hidden="true" />                                                    </span>
+                                                        <AiOutlineCheck className="size-5" aria-hidden="true" />                                                    </span>
                                                 ) : null}
                                             </>
                                         )}

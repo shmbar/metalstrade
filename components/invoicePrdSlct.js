@@ -1,14 +1,15 @@
 import { Menu, Transition } from '@headlessui/react'
+import { getTtl } from '@utils/languages';
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { BsThreeDotsVertical } from 'react-icons/bs';
 
-export default function Example({isSelection, selectOrEdit, indx}) {
+export default function Example({ isSelection, selectOrEdit, indx, ln }) {
     return (
         <div>
             <Menu as="div" className="relative inline-block text-left items-center flex">
-                    <Menu.Button>
-                        <BsThreeDotsVertical className='scale-125 font-medium' />
-                    </Menu.Button>
+                <Menu.Button>
+                    <BsThreeDotsVertical className='scale-125 font-medium' />
+                </Menu.Button>
                 <Transition
                     as={Fragment}
                     enter="transition ease-out duration-100"
@@ -25,11 +26,10 @@ export default function Example({isSelection, selectOrEdit, indx}) {
                                     <button
                                         className={`${active ? 'bg-slate-500 text-white' : 'text-gray-900'
                                             } group flex w-full items-center rounded-md px-2 py-2 text-xs whitespace-nowrap`}
-                                            disabled={!isSelection}
-                                            onClick={()=>selectOrEdit('1', indx)}
+                                        disabled={!isSelection}
+                                        onClick={() => selectOrEdit('1', indx)}
                                     >
-                                   
-                                      Edit Description
+                                        {getTtl('Edit Description', ln)}
                                     </button>
                                 )}
                             </Menu.Item>
@@ -38,10 +38,10 @@ export default function Example({isSelection, selectOrEdit, indx}) {
                                     <button
                                         className={`${active ? 'bg-slate-500 text-white' : 'text-gray-900'
                                             } group flex w-full items-center rounded-md px-2 py-2 text-xs whitespace-nowrap`}
-                                            disabled={isSelection}
-                                            onClick={()=>selectOrEdit('2', indx)}
-                                   >
-                                        Original Description
+                                        disabled={isSelection}
+                                        onClick={() => selectOrEdit('2', indx)}
+                                    >
+                                        {getTtl('Original Description', ln)}
                                     </button>
                                 )}
                             </Menu.Item>

@@ -1,9 +1,9 @@
-import React from 'react'
 import { saveAs } from 'file-saver';
 import { Workbook } from 'exceljs';
 import Tooltip from '@components/tooltip';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import dateFormat from "dateformat";
+import { getTtl } from '@utils/languages';
 
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle' } }
@@ -17,8 +17,8 @@ sheet.views = [
 ];
 
 //{ font: { bold: true }
-export const EXD = (dataTable, getD, settings, name) => {
-
+export const EXD = (dataTable, settings, name, ln) => {
+   
     const exportExcel = async () => {
 
         while (sheet.rowCount > 1) {
@@ -64,14 +64,14 @@ export const EXD = (dataTable, getD, settings, name) => {
                 date: dateFormat(item.date.startDate, 'dd-mmm-yy'),
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
                 shpType: item.shpType && settings.Shipment.Shipment.find(q => q.id === item.shpType).shpType,
-                origin: item.origin && settings.Origin.Origin.find(q => q.id === item.origin).origin,
+                origin: item.origin && settings.Origin.Origin.find(q => q.id === item.origin)?.origin,
                 delTerm: item.delTerm && settings['Delivery Terms']['Delivery Terms'].find(q => q.id === item.delTerm).delTerm,
                 pol: item.pol && settings.POL.POL.find(q => q.id === item.pol).pol,
-                pod:item.pod && settings.POD.POD.find(q => q.id === item.pod).pod,
-                packing: item.packing && settings.Packing.Packing.find(q => q.id === item.packing).packing ,
+                pod: item.pod && settings.POD.POD.find(q => q.id === item.pod).pod,
+                packing: item.packing && settings.Packing.Packing.find(q => q.id === item.packing).packing,
                 contType: item.contType && settings['Container Type']['Container Type'].find(q => q.id === item.contType).contType,
                 size: item.size && settings.Size.Size.find(q => q.id === item.size).size,
-                deltime: item.deltime && settings['Delivery Time']['Delivery Time'].find(q => q.id === item.deltime).deltime,
+                deltime: item?.deltime && settings['Delivery Time']['Delivery Time'].find(q => q.id === item.deltime)?.deltime,
                 cur: settings.Currency.Currency.find(q => q.id === item.cur).cur,
                 qTypeTable: item.qTypeTable && settings.Quantity.Quantity.find(q => q.id === item.qTypeTable).qTypeTable
             })
@@ -79,7 +79,7 @@ export const EXD = (dataTable, getD, settings, name) => {
 
         sheet.eachRow((row, rowNumber) => {
             row.eachCell((cell, colNumber) => {
-                if (cell.value || cell.value==='') {
+                if (cell.value || cell.value === '') {
                     row.getCell(colNumber).border = {
                         top: { style: 'thin' },
                         left: { style: 'thin' },
@@ -94,7 +94,7 @@ export const EXD = (dataTable, getD, settings, name) => {
         //     sheet.mergeCells('A5:A6');
         //     sheet.getCell('A5').style.alignment = { horizontal: 'center', vertical: 'middle' }
 
-        const cols = sheet.columns.map(z=> z.key)
+        const cols = sheet.columns.map(z => z.key)
 
         for (let z in cols) {
             const firstColumn = sheet.getColumn(cols[z]); // Assuming 'A' is the key for the first column
@@ -116,7 +116,7 @@ export const EXD = (dataTable, getD, settings, name) => {
      items-center text-sm rounded-full  hover:drop-shadow-md focus:outline-none"
             >
                 <SiMicrosoftexcel className="scale-[1.4] text-gray-500" />
-                <Tooltip txt='Excel' />
+                <Tooltip txt={getTtl('Excel', ln)} />
             </button>
         </div>
     );

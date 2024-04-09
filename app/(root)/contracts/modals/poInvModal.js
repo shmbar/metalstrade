@@ -1,5 +1,6 @@
+'use client'
 import Modal from '@components/modal.js'
-import { useContext, useState, useEffect } from 'react'
+import { useContext, useState } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
 import { IoAddCircleOutline } from 'react-icons/io5';
@@ -11,6 +12,8 @@ import { VscSaveAs } from 'react-icons/vsc';
 import { v4 as uuidv4 } from 'uuid';
 import { VscArchive } from 'react-icons/vsc';
 import { TbArrowMoveRight } from 'react-icons/tb';
+import { getTtl } from '@utils/languages';
+
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -32,7 +35,7 @@ function countDecimalDigits(inputString) {
 const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
 
     const { valueCon, setValueCon, saveData_payments, contractsData } = useContext(ContractsContext);
-    const { settings, setToast } = useContext(SettingsContext);
+    const { settings, setToast, ln } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
     const [checkedItems, setCheckedItems] = useState([]);
 
@@ -153,9 +156,8 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
         }
     }
 
-
     return (
-        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title='Purchase Invoices' w='max-w-3xl'>
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('POInvoices', ln)} w='max-w-3xl'>
             <div className='flex flex-col p-1 justify-between gap-2'>
                 {valueCon.poInvoices.map((x, i) => {
 
@@ -166,7 +168,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                     <ChkBox checked={checkedItems.includes(x.id)} size='h-5 w-5' onChange={() => checkItem(x.id)} />
                                 </div>
                                 <div className='w-full'>
-                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Purchase Inv#:</p>
+                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'> {getTtl('PurchaseInv', ln)}#:</p>
                                     <input type='text' className="number-separator input text-[15px] h-7  shadow-lg text-xs" name='inv'
                                         value={x.inv} onChange={e => handleValue(e, i)} />
                                 </div>
@@ -174,14 +176,14 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                             </div>
 
                             <div className='col-span-12 md:col-span-3'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Invoice Value:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('InvoiceValue', ln)}:</p>
                                 <input type='text' className="number-separator input text-[15px] h-7 shadow-lg text-xs" name='invValue'
                                     value={addComma(x.invValue, true)} onChange={e => handleValuePmnt(e, i)} />
                             </div>
 
                             <div className='col-span-12 md:col-span-3'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>
-                                    {x.pmnt === x.invValue ? 'Payment' : 'Prepayment'}:<span className='ml-1 text-[0.7rem]'> {isNaN(x.pmnt / x.invValue) ? '-' : (x.pmnt / x.invValue * 100).toFixed(1)}%</span>
+                                    {x.pmnt === x.invValue ? getTtl('Payment', ln) : getTtl('Prepayment', ln)}:<span className='ml-1 text-[0.7rem]'> {isNaN(x.pmnt / x.invValue) ? '-' : (x.pmnt / x.invValue * 100).toFixed(1)}%</span>
                                 </p>
                                 <div className='flex'>
                                     <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs" name='pmnt'
@@ -192,7 +194,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                 </div>
                             </div>
                             <div className='col-span-12 md:col-span-3 '>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Balance:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Balance', ln)}:</p>
                                 <div className='flex pr-3'>
                                     <input type='text' disabled className="number-separator input border-slate-300 text-[15px] h-7 text-xs" name='blnc'
                                         value={addComma(x.blnc, true)} />
@@ -201,7 +203,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                             onClick={switchToStocks} />
                                         <span className="absolute hidden group-hover:flex top-[30px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
-                                            Stocks</span>
+                                            {getTtl('Stocks', ln)}</span>
 
                                     </div>
 
@@ -217,29 +219,27 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
             </div>
             <div className='flex gap-4 p-2 border-t'>
                 <button
-                    className=" flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                             border-slate-400 bg-slate-400 rounded-md text-xs text-white hover:bg-slate-500 shadow-lg"
-                    onClick={addItem}
-                >
-                    <IoAddCircleOutline className='scale-110' />
-                    Add
-                </button>
-                <button
-                    className=" flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                             border-slate-400 bg-slate-400 rounded-md text-xs text-white hover:bg-slate-500 shadow-lg"
+                    className="blackButton py-1"
                     onClick={() => saveData_payments(uidCollection)}
                 >
                     <VscSaveAs className='scale-110' />
-                    Save
+                    {getTtl('save', ln)}
+                </button>
+                <button
+                    className="whiteButton py-1"
+                    onClick={addItem}
+                >
+                    <IoAddCircleOutline className='scale-110' />
+                    {getTtl('Add', ln)}
                 </button>
 
+
                 <button
-                    className=" flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                            border-slate-400 bg-slate-400 rounded-md text-xs text-white hover:bg-neutral-500 shadow-lg"
+                    className="whiteButton py-1"
                     onClick={deleteItems}
                 >
                     <VscArchive className='scale-110' />
-                    Delete
+                    {getTtl('Delete', ln)}
                 </button>
             </div>
         </Modal>

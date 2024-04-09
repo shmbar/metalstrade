@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { VscArchive } from 'react-icons/vsc';
 import { getD, loadStockData, validate } from '@utils/utils'
 import { TbFileInvoice } from "react-icons/tb";
+import { getTtl } from '@utils/languages';
 
 function countDecimalDigits(inputString) {
 
@@ -35,7 +36,7 @@ function countDecimalDigits(inputString) {
 const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
     const { valueCon, setValueCon, saveData_stocks } = useContext(ContractsContext);
-    const { settings, setToast } = useContext(SettingsContext);
+    const { settings, setToast, ln } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
     const [checkedItems, setCheckedItems] = useState([]);
     const [data, setData] = useState([]);
@@ -165,7 +166,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
         setShowPoInvModal(true)
     }
     return (
-        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title='Materials Breakdown' w='max-w-7xl'>
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)} w='max-w-7xl'>
             <div className='flex flex-col p-1 justify-between gap-2'>
                 {data.map((x, i) => {
 
@@ -176,7 +177,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                     <ChkBox checked={checkedItems.includes(x.id)} size='h-5 w-5' onChange={() => checkItem(x.id)} />
                                 </div>
                                 <div className='w-full'>
-                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Description:</p>
+                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Description', ln)}:</p>
                                     <div className='flex flex-col'>
                                         <CBox data={valueCon.productsData.map(x => ({ id: x.id, description: x.description }))}
                                             setValue={setData} value={valueCon} dt={data} indx={i} name='description' classes='shadow-md h-7' />
@@ -186,14 +187,14 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-12 md:col-span-1'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{'Weight (' + getD(settings.Quantity.Quantity, valueCon, 'qTypeTable') + ')'}</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Quantity', ln)} {`(${getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')})`}</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs" name='qnty'
                                         value={addComma(x.qnty, false)} onChange={e => handleValueQnty(e, i)} />
                                 </div>
                             </div>
                             <div className='col-span-12 md:col-span-1'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Price:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Price', ln)}:</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs" name='unitPrc'
                                         value={addComma(x.unitPrc, true)} placeholder="text"
@@ -202,7 +203,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-12 md:col-span-1'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Total:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Total', ln)}:</p>
                                 <div className='flex'>
                                     <input type='text' disabled className="number-separator input text-[15px] border-slate-300 h-7 text-xs" name='total'
                                         value={addComma(x.total, true, 'total')} onChange={e => handleValue(e, i)} />
@@ -210,7 +211,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-12 md:col-span-2'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Purchase Inv#:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('PurchaseInv', ln)}#:</p>
                                 <div className='flex flex-col'>
                                     <CBox data={valueCon.poInvoices.map(x => ({ id: x.id, poInvoice: x.inv }))}
                                         setValue={setData} value={valueCon} dt={data} indx={i} name='poInvoice' classes='shadow-md h-7' />
@@ -218,7 +219,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-12 md:col-span-2'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Arrival Date:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Arrival Date', ln)}:</p>
                                 <div className='flex flex-col'>
                                     <Datepicker useRange={false}
                                         asSingle={true}
@@ -234,7 +235,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
 
                             <div className='col-span-12 md:col-span-2'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Stock:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Stock', ln)}:</p>
                                 <div className='flex flex-col'>
                                     <CBox data={settings.Stocks.Stocks}
                                         setValue={setData} value={valueCon} dt={data} indx={i} name='stock' classes='shadow-md h-7' />
@@ -249,38 +250,35 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
             </div>
             <div className='flex gap-4 p-2 border-t'>
-                <button
-                    className=" flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                             border-slate-400 bg-slate-400 rounded-md text-xs text-white hover:bg-slate-500 shadow-lg"
-                    onClick={addItem}
-                >
-                    <IoAddCircleOutline className='scale-110' />
-                    Add
-                </button>
-                <button
-                    className=" flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                             border-slate-400 bg-slate-400 rounded-md text-xs text-white hover:bg-slate-500 shadow-lg"
+            <button
+                    className="blackButton py-1"
                     onClick={saveD}
                 >
                     <VscSaveAs className='scale-110' />
-                    Save
+                    {getTtl('save', ln)}
                 </button>
+                <button
+                    className="whiteButton py-1"
+                    onClick={addItem}
+                >
+                    <IoAddCircleOutline className='scale-110' />
+                    {getTtl('Add', ln)}
+                </button>
+              
 
                 <button
-                    className="flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                            border-slate-400 bg-slate-400 rounded-md text-xs text-white hover:bg-neutral-500 shadow-lg"
+                    className="whiteButton py-1"
                     onClick={deleteItems}
                 >
                     <VscArchive className='scale-110' />
-                    Delete
+                    {getTtl('Delete', ln)}
                 </button>
                 <button
-                    className="flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                    border-slate-400 bg-slate-400 rounded-md text-xs text-white hover:bg-neutral-500 shadow-lg"
+                    className="whiteButton py-1"
                     onClick={openInvoicesModal}
                 >
                     <TbFileInvoice className='scale-110' />
-                    Invoices
+                    {getTtl('Invoices', ln)} 
                 </button>
             </div>
         </Modal>

@@ -45,7 +45,7 @@ const MyCombobox = ({ data, setValue, value, dataValue, name, classes, disabled,
     }
 
     return (
-        <div className="w-full">
+        <div >
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="relative my-1">
                     <div className={`relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left 

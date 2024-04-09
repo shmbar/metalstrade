@@ -5,13 +5,14 @@ import { IoAddCircleOutline } from 'react-icons/io5';
 import { MdDeleteOutline } from 'react-icons/md';
 import { BiEditAlt } from 'react-icons/bi';
 import { AiOutlineClear } from 'react-icons/ai';
-import { validate, ErrDiv } from '@utils/utils'
+import { validate, ErrDiv, sortArr } from '@utils/utils'
 import ModalToDelete from '@components/modalToProceed';
 import { UserAuth } from "@contexts/useAuthContext";
+import { getTtl } from '@utils/languages';
 
 const Suppliers = () => {
 
-    const { settings, updateSettings } = useContext(SettingsContext);
+    const { settings, updateSettings, compData } = useContext(SettingsContext);
     const [value, setValue] = useState({
         supplier: '', street: '', city: '', country: '', other1: '', nname: '', poc: '',
         email: '', phone: '', mobile: '', fax: '', other2: '', deleted: false
@@ -20,6 +21,8 @@ const Suppliers = () => {
     const [errors, setErrors] = useState({})
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
     const { uidCollection } = UserAuth();
+    const ln = compData.lng
+
 
     const addItem = async () => {
 
@@ -79,9 +82,9 @@ const Suppliers = () => {
         <div className='border border-slate-300 p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
 
             <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  min-w-xl'>
-                <p className='flex items-center text-sm font-medium pl-2 text-slate-700'>Suppliers:</p>
+                <p className='flex items-center text-sm font-medium pl-2 text-slate-700'>{getTtl('Suppliers', ln)}:</p>
                 <ul className="flex flex-col mt-1 overflow-auto max-h-80 ring-1 ring-black/5 rounded-lg divide-y" >
-                    {settings.Supplier.Supplier.filter(q => !q.deleted).map((x, i) => {
+                    {sortArr(settings.Supplier.Supplier.filter(q => !q.deleted),'supplier').map((x, i) => {
                         return (
                             <li key={i} onClick={() => SelectSupplier(x)}
                                 className={`whitespace-nowrap cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-slate-800
@@ -96,66 +99,58 @@ const Suppliers = () => {
 
             <div className='flex flex-col md:w-7/12'>
                 <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap'>
-                    <button className={`flex items-center justify-center text-white gap-1.5 px-2 
-                    h-6 border border-slate-400  rounded-md text-xs text-white 
-                     shadow-lg ${disabledButton ? 'cursor-not-allowed text-black bg-slate-700' : 'text-slate-700  bg-slate-400 hover:bg-slate-500'}`} disabled={disabledButton}
+                    <button className={`blackButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
                         onClick={addItem}>
-                        <IoAddCircleOutline className='scale-110' />  Add
+                        <IoAddCircleOutline className='scale-110' />  {getTtl('Add', ln)}
                     </button>
-                    <button className='text-slate-700  flex items-center justify-center text-white gap-1.5 px-2 
-                    h-6 border border-slate-400 bg-slate-400 rounded-md text-xs text-white 
-                    hover:bg-slate-500 shadow-lg'
+                    <button className='whiteButton py-1'
                         onClick={updateList}>
                         <BiEditAlt className='scale-125' />
-                        Update
+                        {getTtl('Update', ln)}  
                     </button>
-                    <button className='text-slate-700  flex items-center justify-center text-white gap-1.5 px-2 
-                    h-6 border border-slate-400 bg-slate-400 rounded-md text-xs text-white 
-                    hover:bg-slate-500 shadow-lg' onClick={() => setIsDeleteOpen(true)}
+                    <button className='whiteButton py-1' onClick={() => setIsDeleteOpen(true)}
                     disabled={!value.id}>
-                        <MdDeleteOutline className='scale-125' />Delete
+                        <MdDeleteOutline className='scale-125' />  {getTtl('Delete', ln)}  
                     </button>
-                    <button className='text-slate-700  flex items-center justify-center text-white gap-1.5 px-2 
-                    h-6 border border-slate-400 bg-slate-400 rounded-md text-xs text-white 
-                    hover:bg-slate-500 shadow-lg'
+                    <button className='whiteButton py-1'
                         onClick={clickClear}>
-                        <AiOutlineClear className='scale-125' />Clear
+                        <AiOutlineClear className='scale-125' />{getTtl('Clear', ln)}   
                     </button>
                 </div>
                 <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap'>
                     <div className='grid md:max-lg:grid-cols-1  sm:grid-cols-2 grid-rows-3 gap-2 w-full'>
                         <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>Name:</p>
+                            <p className='text-xs'>{getTtl('Name', ln)}:</p>
                             <input type='text' className='input h-7 text-xs' value={value.supplier}
                                 onChange={(e) => { setValue({ ...value, 'supplier': e.target.value }) }} />
                             <ErrDiv field='supplier' errors={errors} />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>Nick Name:</p>
+                            <p className='text-xs'>{getTtl('Nick Name', ln)}:</p>
                             <input type='text' className='input h-7 text-xs ' value={value.nname}
                                 onChange={(e) => { setValue({ ...value, 'nname': e.target.value }) }} />
                             <ErrDiv field='nname' errors={errors} />
                         </div>
                         <div className='cols-span-12 md:cols-span-1'>
-                            <p className='text-xs'>Street:</p>
+                            <p className='text-xs'>{getTtl('street', ln)}:</p>
                             <input type='text' className='input h-7 text-xs ' value={value.street}
                                 onChange={(e) => { setValue({ ...value, 'street': e.target.value }) }} />
                             <ErrDiv field='street' errors={errors} />
                         </div>
                         <div className='cols-span-12 md:cols-span-1'>
-                            <p className='text-xs '>City:</p>
+                            <p className='text-xs '>{getTtl('city', ln)}:</p>
                             <input type='text' className='input h-7 text-xs ' value={value.city}
                                 onChange={(e) => { setValue({ ...value, 'city': e.target.value }) }} />
                             <ErrDiv field='city' errors={errors} />
                         </div>
                         <div className='cols-span-12 md:cols-span-1'>
-                            <p className='text-xs '>Country:</p>
+                            <p className='text-xs '>{getTtl('country', ln)}:</p>
                             <input type='text' className='input h-7 text-xs' value={value.country}
                                 onChange={(e) => { setValue({ ...value, 'country': e.target.value }) }} />
                             <ErrDiv field='country' errors={errors} />
                         </div>
                         <div className='cols-span-12 md:cols-span-1'>
-                            <p className='text-xs'>Other:</p>
+                            <p className='text-xs'>{getTtl('Other', ln)}:</p>
                             <input type='text' className='input h-7 text-xs' value={value.other1}
                                 onChange={(e) => { setValue({ ...value, 'other1': e.target.value }) }} />
                         </div>
@@ -173,27 +168,27 @@ const Suppliers = () => {
                                 onChange={(e) => { setValue({ ...value, 'poc': e.target.value }) }} />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>Email:</p>
+                            <p className='text-xs'>{getTtl('email', ln)}:</p>
                             <input type='text' className='input h-7 text-xs' value={value.email}
                                 onChange={(e) => { setValue({ ...value, 'email': e.target.value }) }} />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>Phone:</p>
+                            <p className='text-xs'>{getTtl('cmpPhone', ln)}:</p>
                             <input type='text' className='input h-7 text-xs' value={value.phone}
                                 onChange={(e) => { setValue({ ...value, 'phone': e.target.value }) }} />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>Mobile:</p>
+                            <p className='text-xs'>{getTtl('cmpMobile', ln)}:</p>
                             <input type='text' className='input h-7 text-xs' value={value.mobile}
                                 onChange={(e) => { setValue({ ...value, 'mobile': e.target.value }) }} />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>Fax:</p>
+                            <p className='text-xs'>{getTtl('Fax', ln)}:</p>
                             <input type='text' className='input h-7 text-xs ' value={value.fax}
                                 onChange={(e) => { setValue({ ...value, 'fax': e.target.value }) }} />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>Other:</p>
+                            <p className='text-xs'>{getTtl('Other', ln)}:</p>
                             <input type='text' className='input h-7 text-xs' value={value.other2}
                                 onChange={(e) => { setValue({ ...value, 'other2': e.target.value }) }} />
                         </div>
@@ -202,7 +197,7 @@ const Suppliers = () => {
 
             </div>
             <ModalToDelete isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}
-                ttl='Delete Confirmation' txt='Deleting this supplier is irreversible. Please confirm to proceed.'
+                 ttl={getTtl('delConfirmation', ln)} txt={getTtl('delConfirmationTxtSup', ln)}
                 doAction={deleteItem} />
 
 

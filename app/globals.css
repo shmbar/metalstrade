@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+
+html,
+body,
+:root{
+  height: 100%;
+}
+
 @layer components {
     .table_cell {
         @apply px-6 py-3 whitespace-nowrap text-sm text-gray-600 leading-4;
@@ -17,6 +24,16 @@
     .dashBox {
       @apply col-span-12 md:col-span-1 border border-slate-200 rounded-xl bg-slate-50 justify-center flex shadow-lg
       text-[15px] flex-col p-2
+    }
+
+    .blackButton {
+      @apply bg-slate-700  hover:bg-slate-400  text-white flex items-center gap-2 justify-center rounded-md border  px-3 py-2 text-sm font-medium 
+      focus:outline-none drop-shadow-lg
+    }
+
+    .whiteButton {
+      @apply bg-white border-slate-700 hover:bg-slate-100 text-slate-700 flex items-center gap-2 justify-center rounded-md border  px-3 py-2 text-sm font-medium 
+      focus:outline-none drop-shadow-lg
     }
 }
 
@@ -86,3 +103,25 @@
     height: 100px!important;
     outline: 0!important;
   }
+/*******************/
+.animate-spin{
+  animation: spin 1s linear infinite;
+}	
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*******************/
+
+@media (min-width: 1280px) {
+
+  .container {
+    max-width: 1640px;
+  }
+}

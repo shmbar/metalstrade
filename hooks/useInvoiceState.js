@@ -2,9 +2,10 @@
 import { useState, useContext } from 'react';
 import dateFormat from "dateformat";
 import { v4 as uuidv4 } from 'uuid';
-import { getD, setNewInvoiceNum, loadDataSettings, updatePnl } from '@utils/utils.js';
+import { getD, setNewInvoiceNum, loadDataSettings, updatePnl, updateDocument, delField, loadInvoice } from '@utils/utils.js';
 import { validate, saveData, delDoc, saveDataFinalCancel, saveStockIn, delStock } from '@utils/utils'
 import { SettingsContext } from '@contexts/useSettingsContext'
+import { getTtl } from '@utils/languages';
 
 
 
@@ -16,16 +17,19 @@ const newInvoice = {
     productsDataInvoice: [],
     invType: '1111', totalAmount: '', percentage: '', totalPrepayment: '', bankNname: 'A1234',
     final: false, canceled: false, balanceDue: '', expenses: [], poSupplier: { id: '', order: '', date: '' }, remarks: [],
-    hs1: '', hs2: '', payments: [], shipData: { rcvd: '5678', fnlzing: '2587', status: '', etd: '', eta: '' }
+    hs1: '', hs2: '', payments: [], shipData: {
+        rcvd: '', outrnamnt: '', fnlzing: '2587', status: '', etd: '', eta: '',
+    }, comments: ''
 }
 
 const useInvoiceState = () => {
 
     const [valueInv, setValueInv] = useState();
     const [invoicesData, setInvoicesData] = useState([]);
+    const [invoicesAccData, setInvoicesAccData] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const [errors, setErrors] = useState({})
-    const { setToast, setLastAction, dateYr, setLoading } = useContext(SettingsContext);
+    const { setToast, dateYr, setLoading, ln } = useContext(SettingsContext);
     const [copyInvoice, setCopyInvoice] = useState(false)
     const [copyInvValue, setCopyInvValue] = useState()
     const [invNum, setInvNum] = useState('')
@@ -42,6 +46,7 @@ const useInvoiceState = () => {
         isInvCreationCNFL, setIsInvCreationCNFL,
         setCopyInvValue, setCopyInvoice,
         deleteProdcuts, setDeleteProducts,
+        invoicesAccData, setInvoicesAccData,
         blankInvoice: () => {
             setValueInv(newInvoice); //new Empty valueInv
             setErrors({})
@@ -52,7 +57,7 @@ const useInvoiceState = () => {
             if (tmpInvRef.includes(valueInv.invoice)) {
                 setToast({
                     show: true,
-                    text: 'This invoice is relayed to one of contract invoices!', clr: 'fail'
+                    text: getTtl('This invoice is relayed to one of contract invoices!', ln), clr: 'fail'
                 })
                 return;
             }
@@ -60,7 +65,7 @@ const useInvoiceState = () => {
             if (valueInv.expenses.length > 0) {
                 setToast({
                     show: true,
-                    text: 'This invoice contains expenses; therefore, it cannot be deleted!', clr: 'fail'
+                    text: getTtl('This invoice contains expenses; therefore, it cannot be deleted!', ln), clr: 'fail'
                 })
                 return;
             }
@@ -68,7 +73,7 @@ const useInvoiceState = () => {
             if (valueInv.productsDataInvoice.length > 0) {
                 setToast({
                     show: true,
-                    text: 'This invoice contains materials; therefore, it cannot be deleted!', clr: 'fail'
+                    text: getTtl('This invoice contains materials; therefore, it cannot be deleted!', ln), clr: 'fail'
                 })
                 return;
             }
@@ -82,9 +87,16 @@ const useInvoiceState = () => {
             await saveData(uidCollection, 'contracts', val)
             setContractsData(contractsData.map((k) => (k.id === val.id ? val : k)))
 
+            //delete cn/fn field from the original if exist
+            if (valueInv.invType !== '1111') {
+                let originalInv = valueCon.invoices.find(x => x.invoice === valueInv.invoice &&
+                    x.invType === "1111")
+                await delField(uidCollection, 'invoices', 'cnORfl', originalInv)
+            }
+
             setValueInv(newInvoice);
             let success = await delDoc(uidCollection, 'invoices', valueInv)
-            success && setToast({ show: true, text: 'Invoice successfully deleted!', clr: 'success' })
+            success && setToast({ show: true, text: getTtl('Invoice successfully deleted!', ln), clr: 'success' })
 
         },
         saveData_InvoiceInContracts: async (valueCon, valueInv, setValueCon, contractsData,
@@ -97,25 +109,26 @@ const useInvoiceState = () => {
             const isNotFilled = Object.values(errs).includes(true); //all filled
 
             if (isNotFilled) {
-                setToast({ show: true, text: 'Some fields are still empty!', clr: 'fail' })
-                return;
+                setToast({ show: true, text: getTtl('Some fields are still empty!', ln), clr: 'fail' })
+                return false;
             }
 
             let err = false;
             let arrfields = []
+
             valueInv.productsDataInvoice.forEach(obj => {
                 if (obj.descriptionId === '') arrfields.push('Description')
                 if (obj.qnty === '') arrfields.push('Quantity')
                 if (obj.unitPrc === '') arrfields.push('Unit Price')
-                if (obj.stock === '') arrfields.push('Stock')
+                if (obj.stock === '' && (obj.qnty !== "0" && obj.qnty !== 0)) arrfields.push('Stock')
             })
 
             arrfields = [...new Set(arrfields)]
             if (arrfields.length >= 1) err = true
-        
+
             if (err) {
-                setToast({ show: true, text: 'The following fields in the materials table are empty: ' + arrfields.map(x => ' ' + x), clr: 'fail' })
-                return;
+                setToast({ show: true, text: getTtl('The following fields in the materials table are empty:', ln) + ' ' + arrfields.map(x => ' ' + x), clr: 'fail' })
+                return false;
             }
 
             const NetWTKgsTmp = (valueInv.productsDataInvoice.map(x => x.qnty)
@@ -124,8 +137,8 @@ const useInvoiceState = () => {
 
             if ((TotalTarre < 0 && valueInv.invType === '1111' &&
                 valueInv.packing !== 'P6' && valueInv.packing !== 'P7')) {
-                setToast({ show: true, text: 'Total Tarre WT Kgs can not be negative!', clr: 'fail' })
-                return;
+                setToast({ show: true, text: getTtl('Total Tarre WT Kgs can not be negative!', ln), clr: 'fail' })
+                return false;
             }
 
 
@@ -144,12 +157,37 @@ const useInvoiceState = () => {
                 tmpObj = { ...valueCon, invoices: tmpArr }
                 setValueCon(tmpObj)
 
+                //in Case there is a change in a date of the final/credit invoice date - for accounting
+                if (valueInv.invType !== '1111' && valueCon.invoices[indx].date !== valueInv.date.startDate) {
+                    //update the original invoice
+
+                    let originalInv = valueCon.invoices.find(x => x.invoice === valueInv.invoice &&
+                        x.invType === "1111")
+
+                    let newFieldData = { id: valueInv.id, date: valueInv.date.startDate }
+                    await updateDocument(uidCollection, 'invoices', 'cnORfl', originalInv, newFieldData)
+                }
+
             } else { //new Invoice
                 valueInvObj = {
                     ...valueInv, id: uuidv4(), invoice: isInvCreationCNFL ? valueInv.invoice : invNum,
                     poSupplier: { id: valueCon.id, order: valueCon.order, date: valueCon.date.startDate }
                 }
-                await setNewInvoiceNum(uidCollection)
+
+                if (!isInvCreationCNFL) {
+                    await setNewInvoiceNum(uidCollection)
+                }
+
+                if (isInvCreationCNFL) {
+                    //update the original invoice
+
+                    let originalInv = valueCon.invoices.find(x => x.invoice === valueInv.invoice &&
+                        x.invType === "1111")
+
+                    let newFieldData = { id: valueInvObj.id, date: valueInvObj.date.startDate }
+                    await updateDocument(uidCollection, 'invoices', 'cnORfl', originalInv, newFieldData)
+                }
+
                 setValueInv(valueInvObj);
 
                 tmpArr = [...valueCon.invoices, {
@@ -169,12 +207,13 @@ const useInvoiceState = () => {
             //save to DataInvoice
             indx = invoicesData.findIndex((x) => x.id === valueInvObj.id); //new or existing
             let tmpValue = null;
+
             if (indx !== -1) { //update
                 tmpValue = { ...valueInv, lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM") }
                 const tmpArr = invoicesData.map((k) => (k.id === tmpValue.id ? tmpValue : k));
                 setInvoicesData(tmpArr)
 
-                //check is a date was changed
+                //check if a date was changed
                 if (dateYr !== tmpValue.date.startDate.substring(0, 4)) {
                     let dateTmp = { startDate: dateYr }
                     let valueInvTmp = ({ id: tmpValue.id, date: dateTmp })
@@ -191,8 +230,7 @@ const useInvoiceState = () => {
             //save to the server
             let success = await saveData(uidCollection, 'invoices', tmpValue)
 
-            setValueInv(newInvoice); //new Empty valueInv
-            setLastAction('=')
+            //    setValueInv(newInvoice); //new Empty valueInv
             setIsInvCreationCNFL(false)
 
             //save Stock
@@ -208,8 +246,8 @@ const useInvoiceState = () => {
             await saveStockIn(uidCollection, tmpObj1)
             if (deleteProdcuts.length > 0) delStock(uidCollection, deleteProdcuts)
 
+            if (success) return true;
 
-            success && setToast({ show: true, text: 'Invoice successfully saved!', clr: 'success' })
             //     setLoading(false)
         },
         saveData_InvoiceInInvoices: async (uidCollection, settings) => {
@@ -220,8 +258,26 @@ const useInvoiceState = () => {
             const isNotFilled = Object.values(errs).includes(true); //all filled
 
             if (isNotFilled) {
-                setToast({ show: true, text: 'Some fields are missing!', clr: 'fail' })
-                return;
+                setToast({ show: true, text: getTtl('Some fields are missing!', ln), clr: 'fail' })
+                return false;
+            }
+
+            let err = false;
+            let arrfields = []
+
+            valueInv.productsDataInvoice.forEach(obj => {
+                if (obj.descriptionId === '') arrfields.push('Description')
+                if (obj.qnty === '') arrfields.push('Quantity')
+                if (obj.unitPrc === '') arrfields.push('Unit Price')
+                if (obj.stock === '' && (obj.qnty !== "0" && obj.qnty !== 0)) arrfields.push('Stock')
+            })
+
+            arrfields = [...new Set(arrfields)]
+            if (arrfields.length >= 1) err = true
+
+            if (err) {
+                setToast({ show: true, text: getTtl('The following fields in the materials table are empty:', ln) + ' ' + arrfields.map(x => ' ' + x), clr: 'fail' })
+                return false;
             }
 
             const NetWTKgsTmp = (valueInv.productsDataInvoice.map(x => x.qnty)
@@ -230,8 +286,8 @@ const useInvoiceState = () => {
 
             if (TotalTarre < 0 && valueInv.invType === '1111' &&
                 valueInv.packing !== 'P6' && valueInv.packing !== 'P7') {
-                setToast({ show: true, text: 'Total Tarre WT Kgs can not be negative!', clr: 'fail' })
-                return;
+                setToast({ show: true, text: getTtl('Total Tarre WT Kgs can not be negative!', ln), clr: 'fail' })
+                return false;
             }
 
             const tmpValue = { ...valueInv, lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM") }
@@ -243,7 +299,28 @@ const useInvoiceState = () => {
                 let dateTmp = { startDate: dateYr }
                 let valueInvTmp = ({ id: tmpValue.id, date: dateTmp })
                 await delDoc(uidCollection, 'invoices', valueInvTmp)
+
+
+                //update valueCon.invoices
+
+                let valCon = await loadInvoice(uidCollection, 'contracts', tmpValue.poSupplier)
+                let tmpArr = valCon.invoices.map((k) => (k.id === tmpValue.id ?
+                    {
+                        ...k, date: tmpValue.date.startDate,
+                    } : k));
+                let tmpObj = { ...valCon, invoices: tmpArr }
+                await saveData(uidCollection, 'contracts', tmpObj)
+
+                //in Case there is a change in a date of the final/credit invoice date - for accounting
+                if (tmpValue.invType !== '1111') {
+                    //update the original invoice
+
+                    let newFieldData = { id: tmpValue.id, date: tmpValue.date.startDate }
+                    await updateDocument(uidCollection, 'invoices', 'cnORfl', tmpValue.originalInvoice, newFieldData)
+
+                }
             }
+
 
 
             //save Stock
@@ -260,23 +337,24 @@ const useInvoiceState = () => {
             if (deleteProdcuts.length > 0) delStock(uidCollection, deleteProdcuts)
 
             let success = await saveData(uidCollection, 'invoices', tmpValue)
-            setLastAction('=')
-            success && setToast({ show: true, text: 'Invoice successfully saved!', clr: 'success' })
-        },
-        finilizeInvoice: async (uidCollection, settings) => {
 
+            if (success) return true;
+        },
+        /*
+        finilizeInvoice: async (uidCollection, settings) => {
+        
             const NetWTKgsTmp = (valueInv.productsDataInvoice.map(x => x.qnty)
                 .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000);
             const TotalTarre = (valueInv.ttlGross - NetWTKgsTmp);
-
+        
             if ((TotalTarre < 0 && valueInv.invType === '1111' &&
                 valueInv.packing !== 'P6' && valueInv.packing !== 'P7')) {
-                setToast({ show: true, text: 'Total Tarre WT Kgs can not be negative!', clr: 'fail' })
+                setToast({ show: true, text: getTtl('Total Tarre WT Kgs can not be negative!', ln) , clr: 'fail' })
                 return;
             }
-
+        
             const tmpValue = { ...valueInv, final: true }
-
+        
             const bnk = settings['Bank Account']['Bank Account'].find(z => z.id === tmpValue.bankNname);
             tmpValue['bankName'] = {
                 bankName: bnk.bankName, swiftCode: bnk.swiftCode, bankNname: bnk.bankNname,
@@ -309,32 +387,30 @@ const useInvoiceState = () => {
                 const { hs, ...rest } = item;
                 return { hs2: hs, ...rest };
             }), tmpValue, 'hs2')
-
+        
             tmpValue['date'] = tmpValue['date'].startDate !== null ?
                 dateFormat(tmpValue['date'].startDate, 'dd-mmm-yyyy') : '';
             tmpValue['delDate'] = tmpValue['delDate'].startDate !== null ?
                 dateFormat(tmpValue['delDate'].startDate, 'dd-mmm-yyyy') : '';
-
+        
             setValueInv(tmpValue);
             const tmpArr = invoicesData.map((k) => (k.id === tmpValue.id ? tmpValue : k));
             setInvoicesData(tmpArr)
-
+        
             await saveDataFinalCancel(uidCollection, 'invoices', tmpValue)
-            setLastAction('=')
-
-        },
-        cancelInvoice: async (uidCollection) => {
+        
+        }, */
+        /*cancelInvoice: async (uidCollection) => {
             const tmpValue = { ...valueInv, canceled: true }
-
+        
             setValueInv(tmpValue)
             const tmpArr = invoicesData.map((k) => (k.id === tmpValue.id ? tmpValue : k));
             setInvoicesData(tmpArr)
-
+        
             //save value to the server
-            setLastAction('=')
             let success = await saveDataFinalCancel(uidCollection, 'invoices', tmpValue)
             success && setToast({ show: true, text: 'Invoice is canceled!', clr: 'success' })
-        },
+        },*/
         copy_Invoice: async () => {
             setCopyInvoice(true)
             setCopyInvValue(valueInv)
@@ -347,7 +423,7 @@ const useInvoiceState = () => {
                 ...copyInvValue, id: uuidv4(), invoice: tempNum.num + 1,
                 lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"), expenses: [],
                 poSupplier: { id: valueCon.id, order: valueCon.order, date: valueCon.date.startDate },
-                productsDataInvoice: [], totalAmount: '', totalPrepayment: '', payments: [], percentage:''
+                productsDataInvoice: [], totalAmount: '', totalPrepayment: '', payments: [], percentage: ''
             }
 
             await setNewInvoiceNum(uidCollection)
@@ -364,10 +440,10 @@ const useInvoiceState = () => {
             setContractsData(contractsData.map((k) => (k.id === tmpObj.id ? tmpObj : k)))
 
             setInvoicesData([...invoicesData, newValueInvObj])
-            setLastAction('=')
+
             let success = await saveData(uidCollection, 'invoices', newValueInvObj)
 
-            success && setToast({ show: true, text: 'Invoice successfully copied!', clr: 'success' })
+            success && setToast({ show: true, text: getTtl('Invoice successfully copied!', ln), clr: 'success' })
             setCopyInvValue('')
             setCopyInvoice(false)
         },
@@ -375,19 +451,19 @@ const useInvoiceState = () => {
 
             let findEmpty = valueInv.payments.find(x => x.pmnt === '')
             if (findEmpty) {
-                setToast({ show: true, text: 'Please fill payments table correctly', clr: 'fail' })
+                setToast({ show: true, text: getTtl('Please fill payments table correctly', ln), clr: 'fail' })
                 return;
             }
 
 
             let success = await saveData(uidCollection, 'invoices', valueInv)
-            setLastAction('=')
-            success && setToast({ show: true, text: 'Payments successfully saved!', clr: 'success' })
+
+            success && setToast({ show: true, text: getTtl('Payments successfully saved!', ln), clr: 'success' })
         },
         saveData_shipPnl: async (uidCollection, shipData) => {
             let success = await updatePnl(uidCollection, 'invoices', 'shipData', shipData)
 
-            success && setToast({ show: true, text: 'Data successfully saved!', clr: 'success' })
+            success && setToast({ show: true, text: getTtl('Data successfully saved!', ln), clr: 'success' })
         }
     }
 };

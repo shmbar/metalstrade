@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import Modal from '@components/modal.js'
 import { uploadFile, getAllfiles, deleteFile } from '@utils/utils'
 import Link from 'next/link'
 import { VscArchive } from 'react-icons/vsc';
 import { FileUploader } from "react-drag-drop-files";
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getTtl } from '@utils/languages';
+
 
 
 const fileTypes = ['XLSX', 'PDF', "PNG"];
@@ -12,7 +15,9 @@ const DataModal = ({ isOpen, setIsOpen, valueCon, setToast }) => {
 
     const [imageUplaod, setImageUpload] = useState(null)
     const [list, setList] = useState([])
+    const {ln } = useContext(SettingsContext);
 
+    
     const handleChange = async (file) => {
         setImageUpload(file);
 
@@ -39,7 +44,7 @@ const DataModal = ({ isOpen, setIsOpen, valueCon, setToast }) => {
 
 
     return (
-        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title='Contract files' w='max-w-3xl'>
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Contract files', ln)} w='max-w-3xl'>
             <div className='flex flex-wrap p-2 justify-between gap-2'>
 
                 <div className='max-w-md grow '>

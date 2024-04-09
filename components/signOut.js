@@ -1,12 +1,18 @@
+import { useContext } from "react";
 import { UserAuth } from "@contexts/useAuthContext";
 import { useRouter } from "next/navigation";
 import { BiLogOutCircle } from 'react-icons/bi';
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getTtl } from "@utils/languages";
 
 
 const SignOut = () => {
 
     const router = useRouter()
     const { SignOut } = UserAuth();
+    const { compData } = useContext(SettingsContext);
+    const ln = compData.lng
+
 
     const LogOut = async () => {
         router.push("/");
@@ -14,14 +20,12 @@ const SignOut = () => {
     }
 
     return (
-        <div className='justify-end hidden md:flex mt-3 '>
             <button className='gap-2 px-3 py-1 border border-slate-300 rounded-lg text-slate-600 shadow-sm flex items-center'
                 onClick={LogOut}
             >
                 <BiLogOutCircle />
-                Logout
+                {getTtl('Logout', ln) }
             </button>
-        </div>
     );
 };
 

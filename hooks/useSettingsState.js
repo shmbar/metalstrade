@@ -6,6 +6,7 @@ import { useState } from 'react';
     termsOfPayment, clients, bankAccounts, invTypes, expenses, hs, remarks, stocks
 } from '@components/const'; */
 import { saveDataSettings } from '@utils/utils';
+import { getTtl } from '@utils/languages';
 
 /*
 //will be taken from the server
@@ -37,7 +38,7 @@ const arrFromServer = {
 //will be taken from the server
 const companyData = {
     name: 'IMS Stainless and Alloys OU', street: 'Narva Mnt 13a', city: 'Tallinn', country: 'Estonia',
-    zip: '10151', reg: '14976408', vat: 'EE102320620', eori: 'EE14976408',
+    zip: '10151', reg: '14976408', vat: 'EE102320620', eori: 'EE14976408', lng: 'English',
     email: 'sbashan@ims-stainless.com', website: 'www.ims-stainless.com', phone: '3124342', mobile: '23443223'
 } 
 */
@@ -64,16 +65,17 @@ const useSettingsState = (props) => {
         lastAction, setLastAction,
         loading, setLoading,
         dateYr, setDateYr,
+        ln: compData.lng,
         updateSettings: async (uidCollection, obj, keyName, updateServer) => {
             const newSettings = { ...settings, [keyName]: obj }
             setSettings(newSettings)
             let tmpSet = updateServer && await saveDataSettings(uidCollection, 'settings', newSettings);
-            tmpSet && setToast({ show: true, text: 'Data successfully saved!', clr: 'success' })
+            tmpSet && setToast({ show: true, text: getTtl('Data successfully saved!', compData.lng) , clr: 'success' })
         },
         updateCompanyData: async (uidCollection) => {
             console.log('Update company data')
             let tmpSet = await saveDataSettings(uidCollection, 'cmpnyData', compData);
-            tmpSet && setToast({ show: true, text: 'Company data successfully saved!', clr: 'success' })
+            tmpSet && setToast({ show: true, text: getTtl('Company data successfully saved!', compData.lng) , clr: 'success' })
         },
     };
 };

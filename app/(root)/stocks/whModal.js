@@ -12,6 +12,7 @@ import { getD, saveStockIn } from '@utils/utils'
 import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
 
 import ShipTable from './shipmentsTable'
+import { getTtl } from '@utils/languages';
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -32,7 +33,7 @@ function countDecimalDigits(inputString) {
 
 const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
 
-    const { settings, setToast } = useContext(SettingsContext);
+    const { settings, setToast, ln } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
     const [showBlock, setShowBlock] = useState(false)
     const [newItemStock, setNewItemStock] = useState({ qnty: '', stock: '' })
@@ -123,7 +124,7 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
 
         let newItem = {
             ...item, data: [...item.data, itemOut], qnty: item.qnty * 1 - newItemStock.qnty * 1,
-            total: (item.qnty * 1 - newItemStock.qnty * 1) * item.unitPrc, 
+            total: (item.qnty * 1 - newItemStock.qnty * 1) * item.unitPrc,
         }
 
         setItem(newItem)
@@ -143,59 +144,58 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
     }
 
     return (
-        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title='Materials Breakdown' w='max-w-4xl'>
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)} w='max-w-4xl'>
             <div className='grid grid-cols-12 gap-4 p-2 m-2 flex border border-slate-300 rounded-lg'>
 
                 <div className='col-span-12 md:col-span-5 flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Description:</p>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Description', ln)}:</p>
                     <input type='text' disabled value={item.descriptionName} name='descriptionName' className='input text-[13px] h-7' />
                 </div>
 
                 <div className='col-span-12 md:col-span-1 flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Weight</p>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Weight', ln)}</p>
                     <input type='text' disabled className="number-separator input text-[15px] h-7 text-xs" name='qnty'
                         value={addComma(item.qnty, false)} onChange={e => handleValueQnty(e)} />
                 </div>
                 <div className='col-span-12 md:col-span-1 flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Price:</p>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Price', ln)}:</p>
                     <input type='text' disabled className="number-separator input text-[15px] h-7 text-xs" name='unitPrc'
-                        value={addComma(item.unitPrc, true)} onChange={e => handleValuePmnt(e)} />
+                        value={item.unitPrc ? addComma(item.unitPrc, true): '-'} onChange={e => handleValuePmnt(e)} />
                 </div>
 
                 <div className='col-span-12 md:col-span-2 flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Total:</p>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Total', ln)}:</p>
                     <input type='text' disabled className="number-separator input text-[15px] h-7 text-xs" name='total'
-                        value={addComma((item.total).toFixed(2), true)} />
+                        value={item.total === '-' ? item.total : addComma((item.total).toFixed(2), true)} />
                 </div>
 
                 <div className='col-span-12 md:col-span-3 flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Stock:</p>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Stock', ln)}:</p>
                     <input type='text' disabled value={getD(settings.Stocks.Stocks, item, 'stock')} className='input text-[15px] h-7 text-xs' />
                 </div>
             </div>
 
             {/*----------------- Change Stock-----------*/}
 
-            <div className={` ${showBlock ? 'flex' : 'hidden'} grid grid-cols-12 gap-4 p-2 m-2 border border-slate-300 rounded-lg`}>
-                <div className='col-span-12 md:col-span-1 flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Weight</p>
-                    <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs" name='qnty'
+            <div className={` ${showBlock ? 'flex' : 'hidden'} flex  gap-4 p-2 m-2 border border-slate-300 rounded-lg`}>
+                <div className='flex flex-col'>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Weight', ln)}</p>
+                    <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs w-24" name='qnty'
                         value={addComma(newItemStock.qnty, false)} onChange={e => handleValueQnty1(e)} />
                 </div>
-                <div className='col-span-12 md:col-span-3 flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Stock:</p>
+                <div className='flex flex-col'>
+                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Stock', ln)}:</p>
                     <CBox data={settings.Stocks.Stocks}
                         setValue={setNewItemStock} value={newItemStock} name='stock' classes='shadow-md h-7 -mt-1' />
                 </div>
-                <div className='col-span-12 md:col-span-3 flex bottom-1 items-end relative'>
+                <div className=' flex items-end bottom-1 relative'>
                     <button
-                        className=" flex items-center justify-center text-white gap-1.5 py-1.5 px-2  border
-                             border-slate-400 bg-slate-400 rounded-md text-xs text-white hover:bg-slate-500 shadow-lg"
+                        className="whiteButton w-full flex py-1.5 text-xs"
                         onClick={moveStock}
                         disabled={item.stock === newItemStock.stock}
                     >
                         <FaArrowUpRightFromSquare className='scale-110' />
-                        Move to new Stock
+                        {getTtl('Move to new Stock', ln)}
                     </button>
                 </div>
 
@@ -206,18 +206,17 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
 
             <div className='flex gap-4 p-2 border-t'>
                 <button
-                    className=" flex items-center justify-center text-white gap-1.5 py-1 px-2 border
-                            border-slate-400 bg-slate-400 rounded-md text-xs text-white hover:bg-neutral-500 shadow-lg"
+                    className="blackButton py-1.5 text-xs"
                     onClick={moveItems}
                 >
                     <VscArchive className='scale-110' />
-                    Change Stock
+                    {getTtl('Change Stock', ln)}
                 </button>
             </div>
 
 
             <div className='flex items-center p-4 pb-2 gap-2'>
-                <p className='text-xs'>{!enabledSwitch ? 'Hide Shipments' : 'Show Shipments'}</p>
+                <p className='text-xs'>{!enabledSwitch ? getTtl('Hide Shipments', ln) : getTtl('Show Shipments', ln)}</p>
                 <Switch enabled={enabledSwitch} setEnabled={setEnabledSwitch} />
             </div>
 

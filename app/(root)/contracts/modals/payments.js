@@ -13,6 +13,7 @@ import { VscSaveAs } from 'react-icons/vsc';
 import { v4 as uuidv4 } from 'uuid';
 import { VscArchive } from 'react-icons/vsc';
 import { usePathname } from 'next/navigation';
+import { getTtl } from '@utils/languages';
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -34,7 +35,7 @@ function countDecimalDigits(inputString) {
 const Payments = ({ showPayments }) => {
 
     const { valueInv, setValueInv, saveData_payments } = useContext(InvoiceContext);
-    const { settings } = useContext(SettingsContext);
+    const { settings, ln } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
     const [checkedItems, setCheckedItems] = useState([]);
     const { contractsData, setContractsData, valueCon } = useContext(ContractsContext);
@@ -131,7 +132,7 @@ const Payments = ({ showPayments }) => {
             <div className=' flex gap-3 p-2 w-full'>
 
                 <div className=' p-2 h-fit'>
-                    <p className='text-sm font-medium'>Payments:</p>
+                    <p className='text-sm font-medium'>{getTtl('Payments', ln)}:</p>
 
                     {valueInv.payments.map((x, i) => {
                         return (
@@ -140,7 +141,7 @@ const Payments = ({ showPayments }) => {
                                     <ChkBox checked={checkedItems.includes(x.id)} size='h-5 w-5' onChange={() => checkItem(x.id)} />
                                 </div>
                                 <div>
-                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Date:</p>
+                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Date', ln)}:</p>
                                     <Datepicker useRange={false}
                                         asSingle={true}
                                         value={x.date}
@@ -151,7 +152,7 @@ const Payments = ({ showPayments }) => {
                                     />
                                 </div>
                                 <div >
-                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Actual Payment:</p>
+                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Actual Payment', ln)}:</p>
                                     <div className='flex'>
                                         <input type='text' className="number-separator input text-[15px] shadow-lg h-[1.84rem] -mt-[0.03rem] text-xs" name='pmnt'
                                             value={addComma(x.pmnt)} onChange={e => handleValue(e, i)} />
@@ -169,29 +170,27 @@ const Payments = ({ showPayments }) => {
 
                     <div className='flex gap-4 m-2 pt-2'>
                         <button
-                            className=" flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                             border-slate-400 bg-neutral-400 rounded-md text-xs text-white hover:bg-neutral-500 shadow-lg"
-                            onClick={addItem}
-                        >
-                            <IoAddCircleOutline className='scale-110' />
-                            Add
-                        </button>
-                        <button
-                            className=" flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                             border-slate-400 bg-neutral-400 rounded-md text-xs text-white hover:bg-neutral-500 shadow-lg"
+                            className="blackButton py-1 font-light"
                             onClick={saveD}
                         >
                             <VscSaveAs className='scale-110' />
-                            Save
+                            {getTtl('save', ln)}
+                        </button>
+                        <button
+                            className="whiteButton py-1"
+                            onClick={addItem}
+                        >
+                            <IoAddCircleOutline className='scale-110' />
+                            {getTtl('Add', ln)}
                         </button>
 
+
                         <button
-                            className=" flex items-center justify-center text-white gap-1.5 py-1 w-20  border
-                            border-slate-400 bg-neutral-400 rounded-md text-xs text-white hover:bg-neutral-500 shadow-lg"
+                            className=" whiteButton py-1"
                             onClick={deleteItems}
                         >
                             <VscArchive className='scale-110' />
-                            Delete
+                            {getTtl('Delete', ln)}
                         </button>
                     </div>
                 </div>

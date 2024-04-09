@@ -4,25 +4,18 @@ import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
 import MonthSelect from '@components/monthSelect';
 import { loadData } from '@utils/utils'
-import Customtable from '../contracts/table';
+import Customtable from '../contracts/newTable';
 import { UserAuth } from "@contexts/useAuthContext"
 import { getInvoices, getD, loadStockData } from '@utils/utils'
-import SignOut from '@components/signOut';
 import Spinner from '@components/spinner';
 import Toast from '@components/toast.js'
 import Spin from '@components/spinTable';
 import MyDetailsModal from '../contracts/modals/dataModal.js'
 import { ExpensesContext } from "@contexts/useExpensesContext";
 import { InvoiceContext } from "@contexts/useInvoiceContext";
-import {EXD} from './excel'
+import { EXD } from './excel'
+import { getTtl } from '@utils/languages';
 
-
-const frm = (val) => {
-
-    return new Intl.NumberFormat('en-US', {
-        maximumFractionDigits: 3
-    }).format(val);
-}
 
 const setNum = (value, valueCon, settings) => {
 
@@ -82,20 +75,31 @@ const Total = (data, name, name1) => {
 
 const Inventory = () => {
 
-    const { settings, lastAction, dateSelect, setLoading, loading, setDateYr } = useContext(SettingsContext);
-    const { valueCon, setValueCon, contractsData, setContractsData, isOpen, setIsOpen } = useContext(ContractsContext);
+    const { settings, dateSelect, setLoading, loading, setDateYr, ln } = useContext(SettingsContext);
+    const { valueCon, setValueCon, contractsData, setContractsData, isOpenCon, setIsOpenCon } = useContext(ContractsContext);
     const { uidCollection } = UserAuth();
     const { blankInvoice, setIsInvCreationCNFL } = useContext(InvoiceContext);
     const { blankExpense } = useContext(ExpensesContext);
     const [dataTable, setDataTable] = useState([])
 
+
+    let showAmount = (x) => {
+        return new Intl.NumberFormat('en-US', {
+            maximumFractionDigits: 3
+        }).format(x.getValue())
+    }
+
     let propDefaults = Object.keys(settings).length === 0 ? [] : [
-        { field: 'nname', header: 'Supplier', showcol: true },
-        { field: 'order', header: 'PO#', showcol: true },
-        { field: 'conQnty', header: 'Purchase QTY/MT', showcol: true },
-        { field: 'shipped', header: 'Invoices QTY/MT', showcol: true },
-        { field: 'remaining', header: 'Remaining QTY / MT', showcol: true },
-        { field: 'stocks', header: 'Stocks', showcol: true },
+        { accessorKey: 'nname', header: getTtl('Supplier', ln) },
+        { accessorKey: 'order', header: getTtl('PO', ln) + '#' },
+        { accessorKey: 'conQnty', header: getTtl('Purchase QTY', ln) + ' / MT', cell: (props) => <p>{showAmount(props)}</p> },
+        { accessorKey: 'shipped', header: getTtl('Invoices', ln) + ' / MT', cell: (props) => <p>{showAmount(props)}</p> },
+        { accessorKey: 'remaining', header: getTtl('Remaining QTY', ln) + ' / MT', cell: (props) => <p>{showAmount(props)}</p> },
+        {
+            accessorKey: 'stocks', header: getTtl('Stocks', ln), cell: (props) => <div>{props.getValue().map((item, index) => {
+                return <p key={index}>{item}</p>
+            })}</div>
+        },
     ];
 
     const SelectRow = (row) => {
@@ -104,7 +108,7 @@ const Inventory = () => {
         setDateYr(row.date.startDate.substring(0, 4));
         blankExpense();
         setIsInvCreationCNFL(false);
-        setIsOpen(true);
+        setIsOpenCon(true);
     };
 
     useEffect(() => {
@@ -165,17 +169,15 @@ const Inventory = () => {
             const conQnty = setNum(x.stockPurchase, x, settings);
             const shipped = (Total(x.invoicesData, 'productsDataInvoice', 'qnty'));
             const remaining = (conQnty - shipped)
-            let stcks = x.stocks.map((item, index) => {
-                return <div key={index}>{item}</div>
-            })
+            let stcks = [...new Set(x.stocks.map(item => item))]
 
 
             return {
                 ...x,
                 nname: settings.Supplier.Supplier.find(q => q.id === x.supplier).nname,
-                conQnty: frm(conQnty),
-                shipped: frm(shipped),
-                remaining: frm(remaining),
+                conQnty: conQnty,
+                shipped: shipped,
+                remaining: remaining,
                 stocks: stcks
             };
         })
@@ -183,28 +185,26 @@ const Inventory = () => {
     }
 
     return (
-        <div className="lg:container mx-auto px-2 md:px-8 xl:px-10 ">
+        <div className="container mx-auto px-2 md:px-8 xl:px-10 mt-16 md:mt-0">
             {Object.keys(settings).length === 0 ? <Spinner /> :
                 <>
-                    <SignOut />
                     <Toast />
                     {loading && <Spin />}
                     <div className="border border-slate-200 rounded-xl p-4 mt-8 shadow-md relative">
                         <div className='flex items-center justify-between flex-wrap'>
-                            <div className="text-3xl p-1 pb-2 text-slate-500">Inventory Review</div>
+                            <div className="text-3xl p-1 pb-2 text-slate-500">{getTtl('Inventory Review', ln)}</div>
                             <MonthSelect />
                         </div>
 
 
                         <div className='mt-5'>
-                            <Customtable data={loading ? [] : dataTable} propDefaults={propDefaults} SelectRow={SelectRow}
-                                lastAction={lastAction} name='Inventory' 
-                                excellReport={EXD(dataTable, getD, settings, 'Inventory Review')}/>
+                            <Customtable data={loading ? [] : dataTable} columns={propDefaults} SelectRow={SelectRow}
+                                excellReport={EXD(dataTable, settings, getTtl('Inventory Review', ln), ln )} />
                         </div>
                     </div>
 
-                    {valueCon && <MyDetailsModal isOpen={isOpen} setIsOpen={setIsOpen}
-                        title={!valueCon.id ? 'New Contract' : `Contract No: ${valueCon.order}`} />}
+                    {valueCon && <MyDetailsModal isOpen={isOpenCon} setIsOpen={setIsOpenCon}
+                        title={!valueCon.id ? getTtl('New Contract', ln) : `${getTtl('Contract No', ln)}: ${valueCon.order}`} />}
                 </>}
         </div>
     )

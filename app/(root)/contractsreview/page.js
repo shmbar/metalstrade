@@ -1,6 +1,6 @@
 'use client';
-import { useContext, useEffect, useState } from 'react';
-import Customtable from './table';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import Customtable from './newTable';
 import MyDetailsModal from '../contracts/modals/dataModal.js'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
@@ -10,15 +10,15 @@ import { ExpensesContext } from "@contexts/useExpensesContext";
 import { InvoiceContext } from "@contexts/useInvoiceContext";
 
 import { loadData } from '@utils/utils'
-import SignOut from '@components/signOut';
 import Spinner from '@components/spinner';
 import { UserAuth } from "@contexts/useAuthContext"
-import { getInvoices, groupedArrayInvoice } from '@utils/utils'
+import { getInvoices, groupedArrayInvoice, getD } from '@utils/utils'
 import Spin from '@components/spinTable';
 import { ContractsValue, SumAllPayments, SumAllExp } from './funcs'
 import CBox from '@components/combobox.js'
-import {EXD} from './excel'
-
+import { EXD } from './excel'
+import dateFormat from "dateformat";
+import { getTtl } from '@utils/languages';
 
 
 const TotalInvoicePayments = (data, val, mult) => {
@@ -44,23 +44,6 @@ const TotalInvoicePayments = (data, val, mult) => {
 
 const TotalArrsExp = (data, val, mult) => {
     let accumulatedExp = 0;
-    /*
-        data.forEach(innerArray => {
-            innerArray.forEach(obj => {
-                if (obj && Array.isArray(obj.expenses)) {
-                    obj.expenses.forEach(exp => {
-    
-                        let mltTmp = exp.cur === val.cur ? 1 :
-                            exp.cur === 'us' && val.cur === 'eu' ? 1 / mult : mult
-    
-                        if (exp && !isNaN(parseFloat(exp.amount))) {
-                            accumulatedExp += parseFloat(exp.amount * 1 * mltTmp);
-                        }
-                    });
-                }
-            });
-        });
-    */
 
     data.forEach(obj => {
         if (obj) {
@@ -124,14 +107,14 @@ const loadInvoices = async (uidCollection, con) => {
 
 const CB = (settings, setValCur, valCur) => {
     return (
-        <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='-mt-1 input border-slate-300 shadow-sm items-center flex'
+        <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='input border-slate-300 shadow-sm items-center flex'
             classes2='text-lg' dis={true} />
     )
 }
 const Shipments = () => {
 
-    const { settings, lastAction, dateSelect, setLoading, loading, setDateYr } = useContext(SettingsContext);
-    const { valueCon, setValueCon, contractsData, setContractsData, isOpen, setIsOpen } = useContext(ContractsContext);
+    const { settings, dateSelect, setLoading, loading, setDateYr, ln } = useContext(SettingsContext);
+    const { valueCon, setValueCon, contractsData, setContractsData, isOpenCon, setIsOpenCon } = useContext(ContractsContext);
     const { blankInvoice, setIsInvCreationCNFL } = useContext(InvoiceContext);
     const { blankExpense } = useContext(ExpensesContext);
     const { uidCollection } = UserAuth();
@@ -147,7 +130,7 @@ const Shipments = () => {
             setLoading(true)
             let dt = await loadData(uidCollection, 'contracts', dateSelect);
             setContractsData(dt)
-           
+
         }
 
         Object.keys(settings).length !== 0 && Load();
@@ -181,7 +164,6 @@ const Shipments = () => {
     useEffect(() => {
 
         const Load = () => {
-
             let dt2 = setTtl(filteredData)
             setTotals(dt2)
         }
@@ -193,9 +175,8 @@ const Shipments = () => {
     useEffect(() => {
 
         const Load = async () => {
-
-            let dt1 = setCurFilterData(filteredData)
-            setFilteredData(dt1)
+            let dt1 = setCurFilterData(dataTable)
+            setDataTable(dt1)
 
             let dt2 = setTtl(filteredData)
             setTotals(dt2)
@@ -208,6 +189,7 @@ const Shipments = () => {
     const setCurFilterData = (arr) => {
 
         let dt = arr.map((x) => {
+
             const conValue = ContractsValue(x, 'pmnt', valCur, x.euroToUSD);
             const totalInvoices = Total(x.invoicesData, 'totalAmount', valCur, x.euroToUSD, settings).accumuLastInv;
             const deviation = totalInvoices - Total(x.invoicesData, 'totalAmount', valCur, x.euroToUSD, settings).accumuDeviation;
@@ -219,6 +201,7 @@ const Shipments = () => {
             const debtBlnc = totalInvoices - payments;
             const expenses1 = TotalArrsExp(x.expenses, valCur, x.euroToUSD)//TotalArrsExp(x.invoicesData, valCur, euroToUsd);
             const profit = totalInvoices - conValue - expenses1;
+            //    const supplier = settings.Supplier.Supplier.find(z => z.id === x.supplier).nname;
 
             return {
                 ...x,
@@ -232,7 +215,8 @@ const Shipments = () => {
                 debtaftr,
                 debtBlnc,
                 expenses1,
-                profit
+                profit,
+                //   supplier
             };
         })
         return dt;
@@ -248,7 +232,7 @@ const Shipments = () => {
         const totalInvoices1 = filteredData.reduce((total, obj) => {
             return total + Total(obj.invoicesData, 'totalAmount', valCur, obj.euroToUSD, settings).accumuLastInv;
         }, 0);
-      
+
         const totalPrepayment2 = filteredData.reduce((total, obj) => {
             return total + Total(obj.invoicesData, 'totalPrepayment', valCur, obj.euroToUSD, settings).accumuLastInv;
         }, 0);
@@ -272,24 +256,54 @@ const Shipments = () => {
         return Ttls;
     }
 
+    let showAmount = (x) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: getD(settings.Currency.Currency, valCur, 'cur'),
+            minimumFractionDigits: 2
+        }).format(x)
+    }
+   
     let propDefaults = Object.keys(settings).length === 0 ? [] : [
-        { field: 'date', header: 'Date', showcol: false },
-        { field: 'order', header: 'PO#', showcol: true },
-        { field: 'supplier', header: 'Supplier', showcol: true, arr: settings.Supplier.Supplier },
-        { field: 'conValue', header: 'Purchase Value', showcol: true, arr: settings.Currency.Currency },
-        { field: 'totalInvoices', header: 'Inv Value Sales', showcol: true, arr: settings.Currency.Currency },
-        { field: 'deviation', header: 'Deviation', showcol: true, arr: settings.Currency.Currency },
-        { field: 'prepaidPer', header: 'Prepaid %', showcol: true },
-        { field: 'totalPrepayment1', header: 'Prepaid Amount', showcol: true, arr: settings.Currency.Currency },
-        { field: 'inDebt', header: 'Initial Debt', showcol: false, arr: settings.Currency.Currency },
-        { field: 'payments', header: 'Actual Payment', showcol: false, arr: settings.Currency.Currency },
-        { field: 'debtaftr', header: 'Debt After Prepayment', showcol: false, arr: settings.Currency.Currency },
-        { field: 'debtBlnc', header: 'Debt Balance', showcol: false, arr: settings.Currency.Currency },
-        { field: 'expenses1', header: 'Expenses', showcol: true, arr: settings.Currency.Currency },
-        { field: 'profit', header: 'Profit', showcol: true, arr: settings.Currency.Currency },
+
+        { accessorKey: 'date', header: getTtl('Date', ln), enableSorting: false, cell: (props) => <p>{dateFormat(props.getValue().startDate, 'dd-mmm-yy')}</p> },
+        { accessorKey: 'order', header: getTtl('PO', ln) + '#' , ttl: <span className='font-medium'>{getTtl('Total', ln)+':'}</span>},
+        { accessorKey: 'supplier', header: getTtl('Supplier', ln),  },
+        { accessorKey: 'conValue', header: getTtl('purchaseValue', ln), cell: (props) => <p>{showAmount(props.getValue())}</p>, ttl: showAmount(totals[0]?.conValue) },
+        { accessorKey: 'totalInvoices', header:  getTtl('invValueSale', ln), cell: (props) => <p>{showAmount(props.getValue())}</p>, ttl: showAmount(totals[0]?.totalInvoices) },
+        { accessorKey: 'deviation', header: getTtl('Deviation', ln), cell: (props) => <p>{showAmount(props.getValue())}</p>, ttl: showAmount(totals[0]?.deviation) },
+        { accessorKey: 'prepaidPer', header:  getTtl('Prepaid', ln)+' %', ttl: totals[0]?.prepaidPer },
+        { accessorKey: 'totalPrepayment1', header: getTtl('Prepaid Amount', ln), cell: (props) => <p>{showAmount(props.getValue())}</p>, ttl: showAmount(totals[0]?.totalPrepayment1) },
+        { accessorKey: 'inDebt', header: getTtl('Initial Debt', ln), cell: (props) => <p>{showAmount(props.getValue())}</p>, ttl: showAmount(totals[0]?.inDebt) },
+        { accessorKey: 'payments', header: getTtl('Actual Payment', ln), cell: (props) => <p>{showAmount(props.getValue())}</p> , ttl: showAmount(totals[0]?.payments)},
+        { accessorKey: 'debtaftr', header: getTtl('debtAfterPrepPmnt', ln), cell: (props) => <p>{showAmount(props.getValue())}</p> , ttl: showAmount(totals[0]?.debtaftr)},
+        { accessorKey: 'debtBlnc', header: getTtl('Debt Balance', ln), cell: (props) => <p>{showAmount(props.getValue())}</p>, ttl: showAmount(totals[0]?.debtBlnc) },
+        { accessorKey: 'expenses1', header: getTtl('Expenses', ln), cell: (props) => <p>{showAmount(props.getValue())}</p> , ttl: showAmount(totals[0]?.expenses1)},
+        { accessorKey: 'profit', header: getTtl('Profit', ln), cell: (props) => <p>{showAmount(props.getValue())}</p> , ttl: showAmount(totals[0]?.profit)},
+
     ];
 
+    let invisible = ['date', 'debtBlnc'].reduce((acc, key) => {
+        acc[key] = false;
+        return acc;
+    }, {});
 
+    const getFormatted = (arr) => {  //convert id's to values
+
+        let newArr = []
+        const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
+
+        arr.forEach(row => {
+            let formattedRow = {
+                ...row,
+                supplier: gQ(row.supplier, 'Supplier', 'nname'),
+            }
+
+            newArr.push(formattedRow)
+        })
+
+        return newArr;
+    }
 
     const SelectRow = (row) => {
         setValueCon(contractsData.find(x => x.id === row.id));
@@ -297,34 +311,37 @@ const Shipments = () => {
         setDateYr(row.date.startDate.substring(0, 4));
         blankExpense();
         setIsInvCreationCNFL(false);
-        setIsOpen(true);
+        setIsOpenCon(true);
     };
 
     return (
-        <div className="lg:container mx-auto px-2 md:px-8 xl:px-10 ">
+        <div className="container mx-auto px-2 md:px-8 xl:px-10 mt-16 md:mt-0">
             {Object.keys(settings).length === 0 ? <Spinner /> :
                 <>
-                    <SignOut />
                     <Toast />
                     {loading && <Spin />}
                     <div className="border border-slate-200 rounded-xl p-4 mt-8 shadow-md relative">
                         <div className='flex items-center justify-between flex-wrap'>
-                            <div className="text-3xl p-1 pb-2 text-slate-500">Contracts Review</div>
+                            <div className="text-3xl p-1 pb-2 text-slate-500">{getTtl('Contracts Review', ln)}</div>
                             <MonthSelect />
                         </div>
 
 
                         <div className='mt-5'>
-                            <Customtable data={loading ? [] : dataTable} datattl={loading ? [] : totals} propDefaults={propDefaults} SelectRow={SelectRow}
-                                lastAction={lastAction} name='Contracts Review' cb={CB(settings, setValCur, valCur)}
-                                filteredData={filteredData} setFilteredData={setFilteredData} valCur={valCur}
-                                setCurFilterData={setCurFilterData} setValCur={setValCur} 
-                                excellReport={EXD(dataTable, settings, 'Contracts Review',valCur)} />
+                            <Customtable data={loading ? [] : getFormatted(dataTable)} datattl={loading ? [] : totals} columns={propDefaults} SelectRow={SelectRow}
+                                invisible={invisible} excellReport={EXD(dataTable, settings, getTtl('Contracts Review', ln), ln, valCur)}
+                                cb={CB(settings, setValCur, valCur)} 
+                                setFilteredData={setFilteredData}
+                                valCur={valCur} setValCur={setValCur}
+                                ln={ln}
+
+                            />
+
                         </div>
                     </div>
 
-                    {valueCon && <MyDetailsModal isOpen={isOpen} setIsOpen={setIsOpen}
-                        title={!valueCon.id ? 'New Contract' : `Contract No: ${valueCon.order}`} />}
+                    {valueCon && <MyDetailsModal isOpen={isOpenCon} setIsOpen={setIsOpenCon}
+                        title={!valueCon.id ? getTtl('New Contract', ln) : `${getTtl('Contract No', ln)}: ${valueCon.order}`} />}
                 </>}
         </div>
     );

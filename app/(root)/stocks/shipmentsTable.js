@@ -7,6 +7,7 @@ import { HiArrowUpTray } from 'react-icons/hi2';
 import dateFormat from "dateformat";
 
 import '../contracts/style.css';
+import { getTtl } from '@utils/languages';
 
 const getprefixInv = (x) => {
 	return (x.invType === '1111' || x.invType === 'Invoice') ? '' :
@@ -26,16 +27,16 @@ const sortDates = (arr) => {
 const Customtable = ({ data, item }) => {
 
 	const [tableData, setTableData] = useState([])
-	const { settings } = useContext(SettingsContext);
+	const { settings, ln } = useContext(SettingsContext);
 
 	let cols = [
-		{ field: 'date', header: 'Date', },
-		{ field: 'supplier', header: 'Sipplier/CONSIGNEE', arr: settings.Supplier.Supplier },
-		{ field: 'description', header: 'Description', },
-		{ field: 'invoice', header: 'Invoice#', },
-		{ field: 'qnty', header: 'Weight MT', },
-		{ field: 'type', header: 'Type', },
-		{ field: 'total', header: 'Total MT', },
+		{ field: 'date', header: getTtl('Date', ln) },
+		{ field: 'supplier', header: getTtl('Supplier/Consignee', ln), arr: settings.Supplier.Supplier },
+		{ field: 'description', header: getTtl('Description', ln), },
+		{ field: 'invoice', header: getTtl('Invoice', ln) + ' #', },
+		{ field: 'qnty', header: getTtl('Weight', ln) + ' MT', },
+		{ field: 'type', header: getTtl('Transaction', ln), },
+		{ field: 'total', header: getTtl('Total', ln)+ ' MT', },
 	];
 
 	useEffect(() => {
@@ -81,11 +82,17 @@ const Customtable = ({ data, item }) => {
 
 	}, [item])
 
+	let showWeight = (x) => {
+		return new Intl.NumberFormat('en-US', {
+		  minimumFractionDigits: 3
+		}).format(x)
+	  }
+
 
 	const showDetail = (obj, x) => {
 		const tmp = cols.find(y => y.field === x);
 
-		return x === 'supplier' ? obj.client ? obj.client : tmp.arr.find(z=> z.id===obj.supplier)['nname']:
+		return x === 'supplier' ? obj.client ? obj.client : tmp.arr.find(z => z.id === obj.supplier)['nname'] :
 			(x === 'type' && obj[x] === 'Purchase') ?
 				<div className='flex items-center gap-1'><HiArrowDownTray className='font-bold scale-110 text-green-600' /> <span >{obj[x]}</span> </div> :
 				(x === 'type' && (obj[x] !== 'Movement' && parseFloat(obj.qnty) >= 0)) ?
@@ -106,15 +113,16 @@ const Customtable = ({ data, item }) => {
     bg-slate-400 rounded-md text-center text-white text-sm z-10 whitespace-nowrap -left-36 ">
 									<span>{`Moved to:`}&nbsp;</span> <span className='font-semibold'>{`${settings.Stocks.Stocks.find(x => x.id === obj.newStock)['stock']}`}</span></span>
 							</div> :
-							x === 'qnty' ? <div className={`${obj.type === 'Purchase' || obj.moveType === 'in' || parseFloat(obj.qnty) < 0 ? 'text-green-600' : 'text-red-600'}`}>{obj[x]}</div> :
+							x === 'qnty' ? <div className={`${obj.type === 'Purchase' || obj.moveType === 'in' || parseFloat(obj.qnty) < 0 ? 'text-green-600' : 'text-red-600'}`}>{showWeight(obj[x])}</div> :
+							x === 'total' ? showWeight(obj[x]) :
 								obj[x]
 	}
 
 
-	const styledDiv = (obj, key) => {	
+	const styledDiv = (obj, key) => {
 		return (
 			key === 'total' ? 'font-medium text-right' :
-				key === 'description' ? 'whitespace-normal' :
+				key === 'description' || key === 'supplier'? 'whitespace-normal' :
 					'py-0.5'
 		)
 	}

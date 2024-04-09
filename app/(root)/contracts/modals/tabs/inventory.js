@@ -4,6 +4,7 @@ import { SettingsContext } from "@contexts/useSettingsContext";
 import { getD, getInvoices, loadStockData } from '@utils/utils'
 import { UserAuth } from "@contexts/useAuthContext";
 import dateFormat from "dateformat";
+import { getTtl } from '@utils/languages';
 
 const frm = (val) => {
 
@@ -83,18 +84,18 @@ const Total = (data, name, name1) => {
 const Inventory = () => {
 
     const { valueCon } = useContext(ContractsContext);
-    const { settings, loading, setLoading } = useContext(SettingsContext);
+    const { settings, loading, setLoading, ln } = useContext(SettingsContext);
     const [data, setData] = useState([])
     const [totalInvWeight, setTotalInvWeight] = useState()
     const { uidCollection } = UserAuth();
 
 
     let cols = [
-        { field: 'client', header: 'Consignee Nick Name' },
-        { field: 'invoice', header: '# Invoice' },
-        { field: 'd', header: 'Date' },
-        { field: 'shipped', header: 'Shipped Net WT / MT' },
-        { field: 'remaining', header: 'Remaining QTY / MT' },
+        { field: 'client', header: getTtl('Consignee', ln) },
+        { field: 'invoice', header: getTtl('Invoice', ln) },
+        { field: 'd', header: getTtl('Date', ln) },
+        { field: 'shipped', header: getTtl('Shipped Net', ln) + ' WT / MT' },
+        { field: 'remaining', header: getTtl('Remaining QTY', ln) + ' / MT' },
     ];
 
     useEffect(() => {
@@ -119,6 +120,7 @@ const Inventory = () => {
             stockData.forEach(z => {
                 ttl += parseFloat(z.qnty)
             })
+
             setTotalInvWeight(ttl)
             setLoading(false)
         }
@@ -151,25 +153,24 @@ const Inventory = () => {
     }
 
 
-
     return (
         <div className='p-1'>
 
-            <div className='container mt-3 border border-slate-300 p-2 rounded-lg w-60 ]'>
+            <div className='container mt-3 border border-slate-300 p-2 rounded-lg max-w-72 ]'>
 
                 <div className='flex justify-between'>
-                    <p className='text-[0.8rem]'>Purchase QTY/ MT</p>
+                    <p className='text-[0.8rem]'>{getTtl('Purchase QTY', ln)} / MT</p>
                     <p className='text-[0.8rem]'>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings))}</p>
                 </div>
 
                 <div className='w-full text-right h-4 -mt-2'>-</div>
                 <div className='flex justify-between'>
-                    <p className='text-[0.8rem] w-full'>Invoices summary:</p>
+                    <p className='text-[0.8rem] w-full'>{getTtl('Invoices summary', ln)}:</p>
                     <p className='text-[0.8rem]'>{frm(Total(data, 'productsDataInvoice', 'qnty'))}</p>
                 </div>
                 <div className='pt-1.5 border-t border-slate-500'></div>
                 <div className='flex justify-between font-bold'>
-                    <p className='text-[0.8rem] full'>Remaining QTY / MT:</p>
+                    <p className='text-[0.8rem] full'>{getTtl('Remaining QTY', ln)} / MT:</p>
                     <p className='text-[0.8rem]'>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings) -
                         Total(data, 'productsDataInvoice', 'qnty'))}</p>
                 </div>
@@ -186,7 +187,7 @@ const Inventory = () => {
                                         <th
                                             scope="col"
                                             key={k}
-                                            className="px-3 py-1 text-left text-[0.75rem] font-medium text-gray-500 uppercase text-white"
+                                            className="px-3 py-1 text-left text-[0.75rem] font-medium uppercase text-white text-wrap max-w-40"
                                         >
                                             {y}
                                         </th>

@@ -69,7 +69,7 @@ const Customtable = ({ data, propDefaults, val, mult }) => {
 		const tmp = cols.find(y => y.field === x);
 
 	
-		return x === 'client' ? obj.final ? obj.client.client : getD(tmp.arr, obj, x) :
+		return x === 'client' ? obj.final ? obj.client.client : settings.Client.Client.find(z => z.id === obj.client)?.nname :
 			x === 'invoice' ? obj[x] + getprefixInv(obj) :
 				x === 'totalAmount' || x === 'totalPrepayment' || x === 'amount' ? frmNum(obj[x], obj, settings) :
 					x === 'prepaidPer' ? isNaN(obj.totalPrepayment / obj.totalAmount) ? '-' : ((obj.totalPrepayment / obj.totalAmount) * 100).toFixed(1) + '%' :
@@ -101,7 +101,7 @@ const Customtable = ({ data, propDefaults, val, mult }) => {
 									<th
 										scope="col"
 										key={k}
-										className="px-3 py-1 text-left text-[0.6rem] font-medium text-gray-500 uppercase text-white"
+										className="px-3 py-1 text-left text-[0.6rem] font-medium uppercase text-white"
 									>
 										{y}
 									</th>

@@ -4,6 +4,7 @@ import { Workbook } from 'exceljs';
 import Tooltip from '@components/tooltip';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import dateFormat from "dateformat";
+import { getTtl } from '@utils/languages';
 
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
@@ -30,7 +31,7 @@ function getNumFmtForCurrency(currency) {
     }
 }
 
-export const EXD = (dataTable, settings, name) => {
+export const EXD = (dataTable, settings, name, ln) => {
 
     const exportExcel = async () => {
 
@@ -67,14 +68,15 @@ export const EXD = (dataTable, settings, name) => {
                 descriptionName: item.descriptionName === '' ? '' : item.descriptionName,
                 qnty: item.qnty * 1,
                 unitPrc: isNaN(item.unitPrc) ? '' : item.unitPrc * 1,
-                total: isNaN(item.total) ? '' : item.total,
+                total: isNaN(item.total) ? '' : (item?.total || ''),
                 stock: settings.Stocks.Stocks.find(q => q.id === item.stock)?.stock,
             })
         }
 
         sheet.eachRow((row, rowNumber) => {
             row.eachCell((cell, colNumber) => {
-                if (cell.value || cell.value === '') {
+                if (cell.value || cell.value === '' || cell.value==undefined || cell.value === 0 
+                || cell.value === '-') {
                     row.getCell(colNumber).border = {
                         top: { style: 'thin' },
                         left: { style: 'thin' },
@@ -86,10 +88,10 @@ export const EXD = (dataTable, settings, name) => {
                 if ((colNumber === 5 || colNumber === 6) && rowNumber > 1) {
                     let item = dataTable[rowNumber - 2]
                     let sym = getNumFmtForCurrency(item.cur)
-                    row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]-$#,##0.00`
+                    row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]$#,##0.00`
                 }
                 if (colNumber === 4 && rowNumber > 1) {
-                    row.getCell(colNumber).numFmt = `#,##0.000;[Red]-$#,##0.000`
+                    row.getCell(colNumber).numFmt = `#,##0.000;[Red]#,##0.000`
                 }
             });
         });
@@ -112,7 +114,7 @@ export const EXD = (dataTable, settings, name) => {
      items-center text-sm rounded-full  hover:drop-shadow-md focus:outline-none"
             >
                 <SiMicrosoftexcel className="scale-[1.4] text-gray-500" />
-                <Tooltip txt='Excel' />
+                <Tooltip txt={getTtl('Excel', ln)} />
             </button>
         </div>
     );

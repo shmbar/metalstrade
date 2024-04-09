@@ -1,22 +1,22 @@
 'use client';
 import { useState, useEffect, useContext } from 'react';
-import LinesPerPage from '@components/table/LinesPerPage.js';
-import Paginator from '@components/table/Paginator.js';
-import Header from '@components/table/header.js';
+import LinesPerPage from '@components/tableOld (to delete in the future)/LinesPerPage.js';
+import Paginator from '@components/tableOld (to delete in the future)/Paginator.js';
+import Header from '@components/tableOld (to delete in the future)/header.js';
 import { getD } from '@utils/utils.js';
 import dateFormat from "dateformat";
 import { SettingsContext } from "@contexts/useSettingsContext";
 
-import '../contracts/style.css';
+import './style.css';
 
-const Customtable = ({ data, datattl, propDefaults, SelectRow, lastAction, name, cb, valCur, filteredData,
-	setFilteredData, setCurFilterData, setValCur }) => {
+const Customtable = ({ data, propDefaults, SelectRow, lastAction, name, excellReport }) => {
 
 	const drpSelection = [5, 10, 20];
 	const [linesPerPage, setLinesPerPage] = useState(drpSelection[0]); // to present the dropdown with the number of pages to show
 	const [paginationPage, setPaginationPage] = useState(1); //to show the specific section of table per selection
 	const [numPages, setNumPages] = useState(); //how many sections will be - based on the linesPerPage
 	const [dataToPresent, setDataToPresent] = useState(data.slice(0, drpSelection[0])); //to present partial data of all data on the page
+	const [filteredData, setFilteredData] = useState([]);
 	//const fields = Object.keys(data[0]); //write array of fields
 	const [cols, setCols] = useState(propDefaults);
 	const [searchValue, setSearchValue] = useState('');
@@ -32,6 +32,7 @@ const Customtable = ({ data, datattl, propDefaults, SelectRow, lastAction, name,
 				: numLines / linesPerPage;
 
 		setNumPages(numPagesTmp == 0 ? 1 : numPagesTmp);
+
 
 		if (lastAction === '+') {
 			const start = linesPerPage * (numPagesTmp - 1);
@@ -65,9 +66,8 @@ const Customtable = ({ data, datattl, propDefaults, SelectRow, lastAction, name,
 		}
 
 		if (searchValue === '') { //data is not filtered
-			//		setFilteredData(data);
+			setFilteredData(data);
 			setSearchValue('')
-
 		} else {
 			let tmp = data.filter((x) => filteredData.map(x => x.id).includes(x.id));
 			setDataToPresent(tmp.slice(0, linesPerPage))
@@ -87,34 +87,6 @@ const Customtable = ({ data, datattl, propDefaults, SelectRow, lastAction, name,
 		setNumPages(numPagesTmp == 0 ? 1 : numPagesTmp);
 
 	}, [filteredData]);
-
-
-	useEffect(() => {
-
-		const numLines = filteredData.length;
-
-		const numPagesTmp =
-			(numLines / linesPerPage) % 1 != 0
-				? Math.ceil(numLines / linesPerPage)
-				: numLines / linesPerPage;
-
-
-		if (paginationPage <= numPagesTmp) {
-
-			const start = linesPerPage * (paginationPage - 1);
-			const end = linesPerPage * paginationPage;
-
-			setDataToPresent(filteredData.slice(start, end));
-			filteredData.length === 0 && setPaginationPage(1)
-		} else {
-			const start = linesPerPage * (numPagesTmp - 1);
-			const end = linesPerPage * numPagesTmp;
-
-			setDataToPresent(filteredData.slice(start, end));
-			filteredData.length === 0 ? setPaginationPage(1) : setPaginationPage(numPagesTmp)
-		}
-	}, [filteredData]);
-
 
 	const setNumOfLinesToshow = (x) => {
 		setPaginationPage(1);
@@ -178,27 +150,33 @@ const Customtable = ({ data, datattl, propDefaults, SelectRow, lastAction, name,
 
 	const showDetail = (obj, x) => {
 
+
 		const tmp = cols.find(y => y.field === x);
 
-		return x === 'client' ? (typeof obj[x] === 'object') ? obj.client.nname : getD(tmp.arr, obj, x) :
-			x === 'expType' ? obj[x] === 'Commercial' ? obj[x] : getD(tmp.arr, obj, x) :
-				x === 'dateInv' ? obj[x] !== '' ? dateFormat(obj[x], 'dd-mmm-yyyy') : '' :
-					(obj.type === 'con' && (x === 'totalInvoices' || x === 'totalPrepayment1'
-						|| x === 'inDebt' || x === 'invAmount' || x==='pmntAmount' 
-						|| x==='blnc')) ? new Intl.NumberFormat('en-US', {
-							style: 'currency',
-							currency: getD(cols.find(y => y.field === x)['arr'], obj, 'cur'),
-							minimumFractionDigits: 2
-						}).format(obj[x]) :
-						(obj.type === 'exp' && x === 'invAmount') ? new Intl.NumberFormat('en-US', {
-							style: 'currency',
-							currency: getD(cols.find(y => y.field === x)['arr'], obj, 'cur'),
-							minimumFractionDigits: 2
-						}).format(obj[x]) :
-							x === 'supplier' ? getD(tmp.arr, obj, x) :
-								obj[x]
-	}
+		return (tmp?.arr && !obj.final && x !== 'supplier') ? getD(tmp.arr, obj, x) :
+			(x === 'date' && obj['date'].startDate !== null && !obj.final) ?
+				dateFormat(obj[x].startDate, 'dd-mmm-yy') :
+				(x === 'date' && obj['date'].startDate === null && !obj.final) ?
+					'' :
+					x === 'totalAmount' || x === 'totalPrepayment' || x === 'amount' ? new Intl.NumberFormat('en-US', {
+						style: 'currency',
+						currency: obj.final ? obj.cur.cur : getD(cols.find(y => y.field === 'cur')['arr'], obj, 'cur'),
+						minimumFractionDigits: 2
+					}).format(obj[x]) :
+						x === 'percentage' ? (obj.invType !== '1111' && obj.invType !== "Invoice") ? '-' : obj[x] === '' ? '' : obj[x] + '%' :
+							obj.final && x === 'client' ? obj.client.client :
+								obj.final && x === 'cur' ? obj.cur.cur :
+									x === 'invoiceStatus' && !obj.final && !obj.canceled ? 'Draft' :
+										x === 'invoiceStatus' && obj.final && !obj.canceled ? 'Final' :
+											x === 'invoiceStatus' && obj.final && obj.canceled ? 'Canceled' :
+												x === 'invoice' ? obj.invoice + getprefixInv(obj) :
+													x === 'order' ? obj?.poSupplier?.order || obj[x] :
+														x === 'opDate' || x === 'lstSaved' ? dateFormat(obj[x], 'dd-mmm-yy HH:MM') :
+															x === 'supplier' ? tmp.arr.find(q => q.id === obj[x]).nname :
+																obj[x]
 
+
+	}
 
 	const styledDiv = (obj, key) => {
 
@@ -206,21 +184,9 @@ const Customtable = ({ data, datattl, propDefaults, SelectRow, lastAction, name,
 			(key === 'invoiceStatus' && !obj.final) ? 'text-slate-700 p-1.5 rounded-xl bg-slate-200 px-2 justify-center flex font-medium' :
 				(key === 'invoiceStatus' && obj.final && !obj.canceled) ? 'text-green-700 p-1.5 rounded-xl bg-slate-200 px-2 justify-center flex font-medium' :
 					(key === 'invoiceStatus' && obj.final && obj.canceled) ? 'text-red-700 p-1.5 rounded-xl bg-slate-200 px-2 justify-center flex font-medium' :
-						'py-1'
+						'md:py-1.5'
 		)
 	}
-
-
-	const styledOutDiv = (obj, x) => {
-		let isTrue=(x.field === 'supplier' || x.field === 'supInvoices' || x.field === 'expType' || x.field === 'invAmount')
-		
-		return (((obj.type === 'exp' && obj.invData.paid === '111' ) || 
-				(obj.type === 'con' && obj.blnc === 0)) && isTrue ?
-			'bg-green-500' : 
-			(obj.type === 'con' && obj.blnc > 0) && isTrue ? 'bg-yellow-400' : 
-			'')
-	}
-
 
 	const onSearchChange = (event) => {
 
@@ -235,6 +201,7 @@ const Customtable = ({ data, datattl, propDefaults, SelectRow, lastAction, name,
 				if (tmpArr.includes(key) || key === 'id') {
 					tmp[key] = showDetail(obj, key)
 				}
+
 			}
 			return tmp;
 		});
@@ -253,14 +220,36 @@ const Customtable = ({ data, datattl, propDefaults, SelectRow, lastAction, name,
 
 		let tmp = data.filter((x) => results.map(x => x.id).includes(x.id));
 
-		tmp = setCurFilterData(tmp)
+
+		const numLines = tmp.length;
+
+		const numPagesTmp =
+			(numLines / linesPerPage) % 1 != 0
+				? Math.ceil(numLines / linesPerPage)
+				: numLines / linesPerPage;
+
+
+		if (paginationPage <= numPagesTmp) {
+			const start = linesPerPage * (paginationPage - 1);
+			const end = linesPerPage * paginationPage;
+
+			setDataToPresent(tmp.slice(start, end));
+			tmp.length === 0 && setPaginationPage(1)
+		} else {
+			const start = linesPerPage * (numPagesTmp - 1);
+			const end = linesPerPage * numPagesTmp;
+
+			setDataToPresent(tmp.slice(start, end));
+			tmp.length === 0 ? setPaginationPage(1) : setPaginationPage(numPagesTmp)
+		}
+
 		setFilteredData(tmp)
+
 
 	}; //search
 
 	const resetTable = () => {
 		setFilteredData(data)
-		setValCur({ cur: 'us' })
 		setSearchValue('')
 		setDataToPresent(data.slice(0, drpSelection[0]))
 		setPaginationPage(1)
@@ -270,36 +259,20 @@ const Customtable = ({ data, datattl, propDefaults, SelectRow, lastAction, name,
 	return (
 		<div className="flex flex-col relative border rounded-lg ">
 			<div  >
-				<div></div>
-				<Header cols={cols} data={filteredData} name={name}
+				<Header cols={cols} data={data} name={name}
 					onChange={onSearchChange} searchValue={searchValue} resetTable={resetTable}
-					setCols={setCols} />
+					setCols={setCols} excellReport={excellReport} />
+
 				<div className="overflow-x-auto ">
 					<table className="w-full ">
 						<thead className="bg-gray-50 divide-y divide-gray-200 ">
-							{/*datattl.map((obj, i) => (
-								<tr key={i} className='cursor-pointer bg-slate-600 '>
-									{cols.map(x => x.field).map(key => (
-										dspl(key) && <th key={key} data-label={key} className='table_cell py-1.5' >
-											{key === 'date' ? <div className='text-white'>
-												TOTAL:
-											</div> :
-
-												<div className={`${styledDiv(obj, key)} text-white font-medium`}>
-													{showDetail(obj, key)}
-												</div>}
-										</th>
-									))
-									}
-								</tr>
-								))*/}
 							<tr className='border-b '>
 								{cols.filter((col) => col.showcol === true).map(x => x.header)
 									.map((y, k) => (
 										<th
 											scope="col"
 											key={k}
-											className="border-b divide-y divide-gray-200 px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase"
+											className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase dark:text-gray-400"
 										>
 											{y}
 										</th>
@@ -309,14 +282,15 @@ const Customtable = ({ data, datattl, propDefaults, SelectRow, lastAction, name,
 						</thead>
 						<tbody className="divide-y divide-gray-200 ">
 							{dataToPresent.map((obj, i) => (
-								<tr key={i} onDoubleClick={() => SelectRow(obj)} className={`cursor-pointer`}>
-									{cols.map(x => (
-										dspl(x.field) && <td key={x.field} data-label={x.header} className={`table_cell py-1.5 items-center  ${styledOutDiv(obj, x)}`} >
-											<div className={`${styledDiv(obj, x.field)}`}>
-												{showDetail(obj, x.field)}
-											</div>
-										</td>
-									))
+								<tr key={i} onDoubleClick={() => SelectRow(obj)} className='cursor-pointer'>
+									{/*Object.keys(obj).map(key => ( */
+										cols.map(x => (
+											dspl(x.field) && <td key={x.field} data-label={x.header} className='table_cell md:py-1.5' >
+												<div className={`${styledDiv(obj, x.field)}`}>
+													{showDetail(obj, x.field)}
+												</div>
+											</td>
+										))
 									}
 								</tr>
 							))}

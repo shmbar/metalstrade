@@ -7,6 +7,7 @@ import {
     validate, saveData, saveDataFinalCancel, delDoc, loadInvoice,
     updateExpenseInContracts, delExpenseInContracts, updateDocument
 } from '@utils/utils'
+import { getTtl } from '@utils/languages';
 
 const newExpense = {
     id: '', lstSaved: '', supplier: '', date: { startDate: null, endDate: null }, salesInv: '',
@@ -24,7 +25,7 @@ const getprefixInv = (x) => {
 const useSettingsState = (props) => {
     const [valueExp, setValueExp] = useState();
     const [expensesData, setExpensesData] = useState([]);
-    const { setToast, setLastAction, dateYr } = useContext(SettingsContext);
+    const { setToast, setLastAction, dateYr, ln } = useContext(SettingsContext);
     const [errorsExp, setErrorsExp] = useState({})
     const [isOpen, setIsOpen] = useState(false)
 
@@ -46,7 +47,7 @@ const useSettingsState = (props) => {
             const isNotFilled = Object.values(errs).includes(true); //all filled
 
             if (isNotFilled) {
-                setToast({ show: true, text: 'Some fields are missing!', clr: 'fail' })
+                setToast({ show: true, text: getTtl('Some fields are missing!', ln)  , clr: 'fail' })
                 return;
             }
 
@@ -71,10 +72,10 @@ const useSettingsState = (props) => {
                     date: valueExp.date.startDate, amount: valueExp.amount,
                     cur: valueExp.cur
                 }
-                console.log(tmpValExp)
+             
                 const tmpExpArr = await loadInvoice(uidCollection, 'contracts', valueInv.poSupplier)
                 let updatedExpArr = tmpExpArr.expenses.map(x => x.id === tmpValExp.id ? tmpValExp : x)
-                console.log(updatedExpArr)
+             
                 tmpArr1 = contractsData.map((k) => (k.id === valueCon.id ?
                     { ...k, expenses: updatedExpArr } : k));
 
@@ -111,8 +112,8 @@ const useSettingsState = (props) => {
                     date: valueExpObj.date.startDate, amount: valueExpObj.amount,
                     cur: valueExpObj.cur
                 }
-                //save to server in Contracts
 
+                //save to server in Contracts
                 let newExpArr = [...valueCon.expenses, tmpValExp]
                 tmpArr1 = contractsData.map((k) => (k.id === valueCon.id ?
                     { ...k, expenses: newExpArr } : k));
@@ -141,7 +142,7 @@ const useSettingsState = (props) => {
             let success = await saveData(uidCollection, 'expenses', tmpObj)
             setLastAction('=');
             setValueExp(newExpense); //new Empty valueInv
-            success && setToast({ show: true, text: 'Expense successfully saved!', clr: 'success' })
+            success && setToast({ show: true, text: getTtl('Expense successfully saved!', ln) , clr: 'success' })
         },
         delExpense: async (uidCollection, valueInv, setValueInv, invoicesData, setInvoicesData, setContractsData,
             contractsData) => {
@@ -176,7 +177,7 @@ const useSettingsState = (props) => {
 
 
             let success = await delDoc(uidCollection, 'expenses', valueExp)
-            success && setToast({ show: true, text: 'Expense successfully deleted!', clr: 'success' })
+            success && setToast({ show: true, text: getTtl('Expense successfully deleted!', ln) , clr: 'success' })
         },
         saveData_ExpenseExpenses: async (uidCollection, valueInv, setValueInv) => {
 
@@ -186,7 +187,7 @@ const useSettingsState = (props) => {
             const isNotFilled = Object.values(errs).includes(true); //all filled
 
             if (isNotFilled) {
-                setToast({ show: true, text: 'Some fields are missing!', clr: 'fail' })
+                setToast({ show: true, text: getTtl('Some fields are missing!', ln) , clr: 'fail' })
                 return;
             }
 
@@ -225,7 +226,7 @@ const useSettingsState = (props) => {
 
             setIsOpen(false)
             setValueExp(newExpense); //new Empty valueInv
-            success && setToast({ show: true, text: 'Expense successfully saved!', clr: 'success' })
+            success && setToast({ show: true, text: getTtl('Expense successfully saved!', ln) , clr: 'success' })
         },
     };
 };

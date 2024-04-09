@@ -8,6 +8,8 @@ import {
 } from '@utils/utils'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { getCur } from '@components/exchangeApi'
+import { getTtl } from '@utils/languages';
+//import { revalidatePath } from 'next/cache';
 
 const newContract = {
     id: '', opDate: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"), lstSaved: '', order: '',
@@ -22,18 +24,20 @@ const useContractsState = (props) => {
 
     const [valueCon, setValueCon] = useState();
     const [contractsData, setContractsData] = useState([]);
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpenCon, setIsOpenCon] = useState(false);
     const [errors, setErrors] = useState({})
-    const { setToast, setLastAction, dateYr, setLoading, } = useContext(SettingsContext);
+    const { setToast, setLastAction, dateYr, setLoading, ln } = useContext(SettingsContext);
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
     return {
         valueCon, setValueCon,
         contractsData, setContractsData,
-        isOpen, setIsOpen,
+        isOpenCon, setIsOpenCon,
         errors, setErrors,
+        isButtonDisabled, setIsButtonDisabled,
         addContract: async () => {
             setValueCon(newContract);
-            setIsOpen(true)
+            setIsOpenCon(true)
         },
         delContract: async (uidCollection) => {
 
@@ -42,7 +46,7 @@ const useContractsState = (props) => {
             if (valueCon.invoices.length > 0) {
                 setToast({
                     show: true,
-                    text: 'This contract contains customer invoices; therefore, it cannot be deleted!', clr: 'fail'
+                    text: getTtl('contractCantbeDeleted1', ln), clr: 'fail'
                 })
                 return;
             }
@@ -50,7 +54,7 @@ const useContractsState = (props) => {
             if (valueCon.stock.length > 0) {
                 setToast({
                     show: true,
-                    text: 'This contract contains stocks; therefore, it cannot be deleted!', clr: 'fail'
+                    text: getTtl('contractCantbeDeleted2', ln), clr: 'fail'
                 })
                 return;
             }
@@ -58,7 +62,7 @@ const useContractsState = (props) => {
             if (valueCon.poInvoices.length > 0) {
                 setToast({
                     show: true,
-                    text: 'This contract contains vendor invoices; therefore, it cannot be deleted!', clr: 'fail'
+                    text: getTtl('contractCantbeDeleted3', ln), clr: 'fail'
                 })
                 return;
             }
@@ -66,9 +70,9 @@ const useContractsState = (props) => {
             const tmpArr = contractsData.filter((k) => k.id !== valueCon.id);
             setLastAction('-');
             setContractsData(tmpArr)
-            setIsOpen(false)
+            setIsOpenCon(false)
             let success = await delDoc(uidCollection, 'contracts', valueCon)
-            success && setToast({ show: true, text: 'Contract successfully deleted!', clr: 'success' })
+            success && setToast({ show: true, text: getTtl('Contract successfully deleted!', ln), clr: 'success' })
 
         },
         saveData: async (uidCollection) => {
@@ -78,9 +82,9 @@ const useContractsState = (props) => {
             const isNotFilled = Object.values(errs).includes(true); //all filled
 
             if (isNotFilled) {
-                setToast({ show: true, text: 'Some fields are missing!', clr: 'fail' })
+                setToast({ show: true, text: getTtl('Some fields are missing!', ln), clr: 'fail' })
                 setLoading(false)
-                return;
+                return false;
             }
 
             let indx = contractsData.findIndex((x) => x.id === valueCon.id); //new or existing
@@ -117,6 +121,7 @@ const useContractsState = (props) => {
                     ...valueCon, id: uuidv4(),
                     'lstSaved': dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"), euroToUSD: tmpEuToUs
                 }
+                //     revalidatePath('/contracts')
                 setContractsData([...contractsData, tmpValue])
                 setLastAction('+')
             }
@@ -124,9 +129,10 @@ const useContractsState = (props) => {
             setValueCon(tmpValue)
 
             let success = await saveData(uidCollection, 'contracts', tmpValue)
-            setIsOpen(false)
-            success && setToast({ show: true, text: 'Contract successfully saved!', clr: 'success' })
+
+            //   setIsOpenCon(false)
             setLoading(false)
+            if (success) return true;
         },
         duplicate: async (uidCollection) => {
 
@@ -138,10 +144,10 @@ const useContractsState = (props) => {
             }
 
             setValueCon(newObj)
-        //    setContractsData([...contractsData, newObj])
-         //   setLastAction('+')
-        //    let success = await saveData(uidCollection, 'contracts', newObj)
-        //    success && setToast({ show: true, text: 'Contract successfully duplicated!', clr: 'success' })
+            //    setContractsData([...contractsData, newObj])
+            //   setLastAction('+')
+            //    let success = await saveData(uidCollection, 'contracts', newObj)
+            //    success && setToast({ show: true, text: 'Contract successfully duplicated!', clr: 'success' })
         },
         saveContractStatus: async (uidCollection) => {
 
@@ -149,18 +155,18 @@ const useContractsState = (props) => {
             setLastAction('=')
 
             let success = await updateDocumentContract(uidCollection, 'contracts', 'conStatus', valueCon, valueCon.conStatus)
-            success && setToast({ show: true, text: 'Data successfully saved!', clr: 'success' })
+            success && setToast({ show: true, text: getTtl('Data successfully saved!', ln), clr: 'success' })
         },
         saveData_payments: async (uidCollection) => {
 
             let findEmpty = valueCon.poInvoices.find(x => x.pmnt === '')
             if (findEmpty) {
-                setToast({ show: true, text: 'Please fill payments table correctly', clr: 'fail' })
+                setToast({ show: true, text: getTtl('Please fill payments table correctly', ln), clr: 'fail' })
                 return;
             }
 
             if (valueCon.id === '') {
-                setToast({ show: true, text: 'Contract must be saved first!', clr: 'fail' })
+                setToast({ show: true, text: getTtl('Contract must be saved first!', ln), clr: 'fail' })
                 return;
             }
 
@@ -168,7 +174,7 @@ const useContractsState = (props) => {
 
             let success = await saveData(uidCollection, 'contracts', valueCon)
             setLastAction('=')
-            success && setToast({ show: true, text: 'Payments successfully saved!', clr: 'success' })
+            success && setToast({ show: true, text: getTtl('Payments successfully saved!', ln) , clr: 'success' })
         },
         saveData_PoInvoices: async (uidCollection, newValCon) => {
 
@@ -176,7 +182,7 @@ const useContractsState = (props) => {
 
             let success = await updateDocumentContract(uidCollection, 'contracts', 'poInvoices', newValCon, newValCon.poInvoices)
             setLastAction('=')
-            success && setToast({ show: true, text: 'Payments successfully saved!', clr: 'success' })
+            success && setToast({ show: true, text: getTtl('Payments successfully saved!', ln), clr: 'success' })
         },
         saveData_stocks: async (uidCollection, data) => {
             if (data.length === 0 && valueCon.stock.length === 0) return;
@@ -200,14 +206,14 @@ const useContractsState = (props) => {
             setContractsData(contractsData.map((k) => (k.id === tmp.id ? tmp : k)))
 
             let success = await saveData(uidCollection, 'contracts', tmp)
-            success && setToast({ show: true, text: 'Contract successfully saved!', clr: 'success' })
+            success && setToast({ show: true, text: getTtl('Contract successfully saved!', ln) , clr: 'success' })
 
         },
         update_stock: async (uidCollection, objArr) => {
 
             let tmp = Array.isArray(objArr) ? objArr : [objArr]
             let success = await saveStockIn(uidCollection, tmp)
-            success && setToast({ show: true, text: 'Stock successfully saved!', clr: 'success' })
+            success && setToast({ show: true, text: getTtl('Stock successfully saved!', ln) , clr: 'success' })
         }
     };
 };

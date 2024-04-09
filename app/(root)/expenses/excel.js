@@ -4,6 +4,7 @@ import { Workbook } from 'exceljs';
 import Tooltip from '@components/tooltip';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import dateFormat from "dateformat";
+import { getTtl } from '@utils/languages';
 
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle' } }
@@ -29,7 +30,7 @@ function getNumFmtForCurrency(currency) {
     }
 }
 
-export const EXD = (dataTable, settings, name) => {
+export const EXD = (dataTable, settings, name, ln) => {
 
     const exportExcel = async () => {
 
@@ -75,7 +76,7 @@ export const EXD = (dataTable, settings, name) => {
                 amount: item.amount*1,
                 expense: item.expense,
                 expType: settings.Expenses.Expenses.find(q => q.id === item.expType).expType,
-                paid: item.paid==='111'? 'Paid': 'Unpaid',
+                paid: item.paid==='111'? 'Paid': item.paid==='222' ? 'Unpaid': '',
                 comments: item.comments
             })
         }
@@ -122,7 +123,7 @@ export const EXD = (dataTable, settings, name) => {
      items-center text-sm rounded-full  hover:drop-shadow-md focus:outline-none"
             >
                 <SiMicrosoftexcel className="scale-[1.4] text-gray-500" />
-                <Tooltip txt='Excel' />
+                <Tooltip txt={getTtl('Excel', ln)} />
             </button>
         </div>
     );

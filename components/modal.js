@@ -1,12 +1,12 @@
 'use client'
+
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { AiOutlineCloseCircle } from 'react-icons/ai';
 
-
 const Modal = ({ isOpen, setIsOpen, title, children, w }) => {
 
-//onClose={() => {}}
+    //onClose={() => {}}
 
     return (
         <>

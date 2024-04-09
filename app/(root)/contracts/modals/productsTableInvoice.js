@@ -4,12 +4,14 @@ import { NumericFormat } from 'react-number-format';
 import ChkBox from '@components/checkbox.js'
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { MdDelete } from 'react-icons/md';
-import { getD, loadStockDataPerDescription, loadInvoice } from '@utils/utils.js';
+import { getD, loadStockDataPerDescription, loadInvoice, sortArr } from '@utils/utils.js';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import CBox from '@components/comboboxProductSelect'
 import CBox1 from '@components/comboboxStockAvailability'
 
 import SlctOpt from '@components/invoicePrdSlct'
+import { CalculateNum } from '@components/calculate';
+import { getTtl } from '@utils/languages';
 
 
 
@@ -20,15 +22,15 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
     const [checkedItems, setCheckedItems] = useState([]);
     const [edit, setEdit] = useState({ status: false, id: null, header: null });
     const inputRef = useRef(null);
-    const [value1, setValue1] = useState();
+    const [value1, setValue1] = useState('0');
     const [percent, setPercent] = useState(false)
     const [prepayment, setPrepayment] = useState(false)
     const fnl = value.final;
-    const { setToast } = useContext(SettingsContext);
+    const { setToast, ln } = useContext(SettingsContext);
     const [valueDesc, setValueDesc] = useState('')
 
 
-   useEffect(() => {
+    useEffect(() => {
 
         if (edit.status || percent || prepayment) {
             inputRef.current.focus();
@@ -39,16 +41,16 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
     }, [edit.status, percent, prepayment]);
 
     const addItem = () => {
-        
-        if (materialsArr.length===0) {
-            setToast({ show: true, text: 'Contract`s materials table is empty!', clr: 'fail' })
+
+        if (materialsArr.length === 0) {
+            setToast({ show: true, text: getTtl('TableIsEmpty', ln), clr: 'fail' })
             return;
         }
 
         let newArr = [
             ...value.productsDataInvoice,
             {
-                id: uuidv4(), po: '', descriptionId: '', container: '', qnty: '', unitPrc: '', total: '',
+                id: uuidv4(), po: '', descriptionId: '', container: '', qnty: '0', unitPrc: '0', total: 0,
                 descriptionText: '', isSelection: true, stock: '', stockValue: ''
             },
         ];
@@ -73,7 +75,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
             totalPrepayment: value.invType === '1111' ? value.percentage !== '' ?
                 value.percentage / 100 * tmptotalAmount : '' : value.totalPrepayment,
             balanceDue: (value.invType === '2222' || value.invType === '3333') ? tmptotalAmount - value.totalPrepayment :
-                value.balanceDue
+                value.balanceDue,
         });
 
         setDeleteProducts(checkedItems)
@@ -82,8 +84,12 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
 
     const handleDoubleClick = (obj, key) => {
 
+        let object = value.productsDataInvoice.find(z => z.id === obj.id)
+
+
         if (!['total', 'description', 'stock', 'stockValue'].includes(key)) {
-            setValue1(obj[key]);
+            setValue1((object.eqUnitPrc || object.eq) && key === 'unitPrc' ? (object.eqUnitPrc || object.eq):
+                object.eqQnty && key === 'qnty' ? object.eqQnty : obj[key]);
             setEdit({ status: true, id: obj['id'], header: key });
             setPercent(false)
             setPrepayment(false)
@@ -115,22 +121,34 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
     const handleKeyPress = (e) => {
         const isValidInputUnitPrc = /^\d+(\.\d{0,2})?$/.test(e.target.value);
         const isValidInputQnty = /^\d+(\.\d{0,3})?$/.test(e.target.value);
+        const isEquation = (e.target.value).substr(0, 1) === "=";
 
         if (e.key === 'Enter') {
-            if (e.target.name === "unitPrc" && !isValidInputUnitPrc) {
-                setToast({ show: true, text: 'Please enter numbers only!', clr: 'fail' })
+            if (e.target.name === "unitPrc" && !isValidInputUnitPrc && !isEquation) {
+                setToast({ show: true, text: getTtl('Please enter numbers only!', ln), clr: 'fail' })
                 return;
             }
 
-            if (e.target.name === "qnty" && !isValidInputQnty) {
-                setToast({ show: true, text: 'Please enter numbers only with at most three digits after the dot!', clr: 'fail' })
+            if (e.target.name === "qnty" && !isValidInputQnty && !isEquation) {
+                setToast({ show: true, text: getTtl('NumbersOnlyWith3digits', ln), clr: 'fail' })
                 return;
             }
+
+            let Nm = edit.header === 'unitPrc' ? CalculateNum(e.target.value, 2) :
+                edit.header === 'qnty' ? CalculateNum(e.target.value, 3) :
+                    e.target.value
 
 
             let newArr = value.productsDataInvoice.map((x) =>
-                x.id === edit.id ? { ...x, [edit.header]: e.target.value } : x
+                x.id === edit.id ? {
+                    ...x, [edit.header]: Nm,
+                    eqUnitPrc: e.target.name === 'unitPrc' ? (isEquation ? e.target.value : null)
+                        : x.eqUnitPrc ?? null,
+                    eqQnty: e.target.name === 'qnty' ? (isEquation ? e.target.value : null)
+                        : x.eqQnty ?? null
+                } : x
             );
+
             newArr = newArr.map(x => ({ ...x, total: x.qnty * x.unitPrc }))
 
             let tmptotalAmount = newArr.map(x => x.total)
@@ -160,7 +178,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
         if (e.key === 'Enter') {
 
             if (!isValidInputPerc) {
-                setToast({ show: true, text: 'Please enter numbers only!', clr: 'fail' })
+                setToast({ show: true, text: getTtl('Please enter numbers only!', ln), clr: 'fail' })
                 return;
             }
 
@@ -184,7 +202,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
         if (e.key === 'Enter') {
 
             if (!isValidInputPrep) {
-                setToast({ show: true, text: 'Please enter numbers only!', clr: 'fail' })
+                setToast({ show: true, text: getTtl('Please enter numbers only!', ln), clr: 'fail' })
                 return;
             }
 
@@ -222,14 +240,19 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
 
 
     const c = fnl ? value.cur.cur : getD(currency, value, 'cur');
-    const contTitle = fnl ? value.shpType : value.shpType === '323' ? 'Container No' :
-        value.shpType === '434' ? 'Truck No' :
-            value.shpType === '565' ? 'Container pls' : 'Flight No'
+    const contTitle = fnl ? value.shpType : value.shpType === '323' ? getTtl('Container No', ln) :
+        value.shpType === '434' ? getTtl('Truck No', ln) :
+            value.shpType === '565' ? getTtl('Container pls', ln) : getTtl('Flight No', ln)
+
     const currentCur = fnl ? value.cur.sym : value.cur && currency.find(x => x.id === value.cur)['symbol']
 
     const setInput = (e) => {
+
         let t = e.target.value;
-        t = t.indexOf(".") >= 0 && e.target.name === 'unitPrc' ? t.slice(0, t.indexOf(".") + 3) : t;
+        t = t.indexOf(".") >= 0 && e.target.name === 'unitPrc' && t.substring(0, 1) !== "=" ? t.slice(0, t.indexOf(".") + 3) :
+            t.indexOf(".") >= 0 && e.target.name === 'qnty' && t.substring(0, 1) !== "=" ? t.slice(0, t.indexOf(".") + 4) :
+                t;
+
         setValue1(t)
     }
 
@@ -253,7 +276,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
         let newArr = [...value.productsDataInvoice]
         newArr[i] = itm
         setValue({ ...value, productsDataInvoice: newArr });
-    } 
+    }
+
 
     return (
         <div className="w-full justify-center flex">
@@ -267,23 +291,23 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <th scope="col" className="w-0/12 pr-1 py-1 text-left text-sm font-medium text-gray-500"  >
                                         #</th>
                                     <th scope="col" className="w-1/12 py-1 px-1 text-left text-sm font-medium text-gray-500"  >
-                                        PO#</th>
+                                        {getTtl('PO', ln)}#</th>
                                     <th scope="col" className="w-4/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
-                                        Description</th>
+                                        {getTtl('Description', ln)} </th>
                                     <th scope="col" className="w-2/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
                                         {contTitle}</th>
                                     <th scope="col" className=" w-1/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
-                                        Quantity MT</th>
+                                        {getTtl('Quantity', ln)} MT</th>
                                     <th scope="col" className="w-1/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
-                                        <div className='table-caption'>Unit Price <span className='text-xs'>
+                                        <div className='table-caption'> {getTtl('UnitPrice', ln)} <span className='text-xs'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
                                     <th scope="col" className="w-1/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
-                                        <div>Total <span className='text-xs'>
+                                        <div>{getTtl('Total', ln)} <span className='text-xs'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
                                     <th scope="col" className=" w-2/12 px-1 py-1 text-left text-sm font-medium text-gray-500 border-l" >
-                                        Stock</th>
+                                        {getTtl('Stock', ln)}</th>
                                     <th scope="col" className=" w-1/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
-                                        Available Quantity (MT)</th>
+                                        {getTtl('Available Quantity', ln)} (MT)</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
@@ -330,7 +354,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                     {obj.isSelection ?
                                                         <CBox data={materialsArr} setValue={setValue} value={value}
                                                             indx={i} name='descriptionId' classes='shadow-md'
-                                                            uidCollection={uidCollection} disabled={fnl}/>
+                                                            uidCollection={uidCollection} disabled={fnl} />
                                                         :
                                                         <div className='w-full'
                                                             onClick={() => !fnl && handleClick3(obj, 'descriptionText')}
@@ -355,7 +379,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                     }
                                                     <div className={`${obj.descriptionId === '' ? 'hidden' : 'flex'}`}>
                                                         <SlctOpt isSelection={value.productsDataInvoice[i].isSelection}
-                                                            selectOrEdit={selectOrEdit} indx={i} /> 
+                                                            selectOrEdit={selectOrEdit} indx={i} ln={ln} />
                                                     </div>
                                                 </div>
 
@@ -373,17 +397,25 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                     {edit.status &&
                                                         edit.id === obj['id'] &&
                                                         edit.header === key ? (
-
-                                                        <input
-                                                            className="w-full border rounded-md border-slate-400 h-7 
+                                                        <div className='group relative  whitespace-normal'>
+                                                            <input
+                                                                className="w-full border rounded-md border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-slate-500"
-                                                            onKeyDown={handleKeyPress}
-                                                            value={value1}
-                                                            maxLength={key === 'container' ? 17 : 100}
-                                                            name={key}
-                                                            onChange={(e) => setInput(e)}
-                                                            ref={inputRef}
-                                                        />
+                                                                onKeyDown={handleKeyPress}
+                                                                value={value1}
+                                                                maxLength={key === 'container' ? 17 : 100}
+                                                                name={key}
+                                                                onChange={(e) => setInput(e)}
+                                                                ref={inputRef}
+                                                            />
+                                                            <span className={`absolute hidden ${(key === 'unitPrc' || key === 'qnty') && value1?.substring(0, 1) === "=" ? 'group-hover:flex' : ''}
+                                                                 bottom-[30px] w-fit p-1  bg-slate-400 rounded-md text-center
+                                                                  text-white text-xs z-50 whitespace-nowrap -left-0.5`}>
+                                                                {value1}
+                                                            </span>
+
+
+                                                        </div>
                                                     ) :
                                                         key === 'unitPrc' || key === 'total' ? (
                                                             <NumericFormat
@@ -407,7 +439,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                 />
                                                             </div>
                                                         ) : key === 'stock' ? (
-                                                            <CBox1 data={settings.Stocks.Stocks}
+                                                            <CBox1 data={sortArr(settings.Stocks.Stocks, 'stock')}
                                                                 setValue={setValue} value={value} name='stock'
                                                                 dt={value.productsDataInvoice} indx={i} classes='shadow-md h-7'
                                                                 disabled={obj.descriptionId === '' || fnl} uidCollection={uidCollection} />
@@ -435,7 +467,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <td className="py-2 pl-4"></td>
                                     <td className="py-2 pl-4"></td>
                                     <td className="px-1 py-2 text-xs text-slate-600 whitespace-nowrap border-t border-slate-500">
-                                        Total Amount:
+                                        {getTtl('Total Amount', ln)}:
                                     </td>
                                     <td className="px-1 py-2 border-t border-slate-500"></td>
                                     <td className="px-1 py-2 text-sm text-slate-800 whitespace-nowrap border-t border-slate-500">
@@ -460,7 +492,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <td className="py-2 pl-4"></td>
                                     <td className="py-2 pl-4"></td>
                                     <td className="px-1 py-2 text-xs text-slate-600 whitespace-nowrap ">
-                                        Prepayment:
+                                        {getTtl('Prepayment', ln)}:
                                     </td>
                                     <td className="px-1 py-2 text-sm text-slate-800 whitespace-nowrap" onClick={() => !fnl && handleClick1()}>
                                         {percent ?
@@ -507,7 +539,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                         <td className="py-2 pl-4"></td>
                                         <td className="py-2 pl-4"></td>
                                         <td className="px-1 py-2 text-xs text-slate-600 whitespace-nowrap ">
-                                            Prepaid Amount:
+                                            {getTtl('Prepaid Amount', ln)}:
                                         </td>
                                         <td className="py-2 pl-4"></td>
                                         <td className="px-1 py-2 text-sm text-slate-800 whitespace-nowrap" onClick={() => !fnl && handleClick2()}>
@@ -546,7 +578,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                         <td className="py-2 pl-4"></td>
                                         <td className="py-2 pl-4"></td>
                                         <td className="px-1 py-2 text-xs text-slate-600 whitespace-nowrap font-medium">
-                                            Balance Due:
+                                            {getTtl('Balance Due', ln)}:
                                         </td>
                                         <td className="py-2 pl-4"></td>
                                         <td className="px-1 py-2 text-sm text-slate-800 whitespace-nowrap">
@@ -570,32 +602,30 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                     </div>
                 </div>
                 {!fnl &&
-                    <div className="flex gap-5 ">
+                    <div className="flex gap-5  mt-4">
                         <div className='group relative'>
                             <button
-                                className=" flex items-center justify-center text-white gap-1.5 mt-4 w-20 h-8 border
-                             border-slate-400 bg-slate-400 rounded-md text-sm text-white hover:bg-slate-500 shadow-lg"
+                                className="blackButton py-1"
                                 onClick={() => addItem()}
                             >
                                 <IoAddCircleOutline className='scale-110' />
-                                Add
+                                {getTtl('Add', ln)}
                             </button>
-                            <span className="absolute hidden group-hover:flex top-[50px] w-fit p-1
+                            <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-0.5">
-                                Add product</span>
+                                {getTtl('AddProduct', ln)}</span>
                         </div>
                         <div className='group relative'>
                             <button
-                                className="flex items-center justify-center text-white gap-1.5 mt-4 w-20 h-8 border border-slate-400 bg-slate-400 rounded-md 
-                            text-sm text-white hover:bg-slate-500 shadow-lg"
+                                className="whiteButton py-1 px-2"
                                 onClick={() => delItem()}
                             >
                                 <MdDelete className='scale-110' />
-                                Delete
+                                {getTtl('Delete', ln)}
                             </button>
-                            <span className="absolute hidden group-hover:flex top-[50px] w-fit p-1
+                            <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
-                                Delete product</span>
+                                {getTtl('DelProduct', ln)}</span>
                         </div>
 
                     </div>

@@ -12,6 +12,10 @@ module.exports = {
         'LoginBG': "url('/login/loginBG.jpg')",
       }
     },
+    container: {
+      maxWidth: '1700px'
+    },
   },
   plugins: [],
 }
+

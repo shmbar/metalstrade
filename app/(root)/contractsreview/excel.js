@@ -4,6 +4,7 @@ import { Workbook } from 'exceljs';
 import Tooltip from '@components/tooltip';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import dateFormat from "dateformat";
+import { getTtl } from '@utils/languages';
 
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
@@ -31,7 +32,7 @@ function getNumFmtForCurrency(currency) {
 }
 
 //{ font: { bold: true }
-export const EXD = (dataTable, settings, name, valCur) => {
+export const EXD = (dataTable, settings, name, ln, valCur ) => {
 
     const exportExcel = async () => {
 
@@ -45,13 +46,13 @@ export const EXD = (dataTable, settings, name, valCur) => {
             { key: 'supplier', header: 'Supplier', width: 16, style: styles },
             { key: 'conValue', header: 'Purchase Value', width: 15, style: styles },
             { key: 'totalInvoices', header: 'Inv Value Sales', width: 15, style: styles },
-            { key: 'deviation', header: 'Deviation',  width: 15, style: styles },
-            { key: 'prepaidPer', header: 'Prepaid %',  width: 12, style: styles },
+            { key: 'deviation', header: 'Deviation', width: 15, style: styles },
+            { key: 'prepaidPer', header: 'Prepaid %', width: 12, style: styles },
             { key: 'totalPrepayment1', header: 'Prepaid Amount', width: 15, style: styles },
             { key: 'inDebt', header: 'Initial Debt', width: 15, style: styles },
             { key: 'payments', header: 'Actual Payment', width: 15, style: styles },
             { key: 'debtaftr', header: 'Debt After Prepayment', width: 15, style: styles },
-            { key: 'debtBlnc', header: 'Debt Balance', width: 15, style: styles},
+            { key: 'debtBlnc', header: 'Debt Balance', width: 15, style: styles },
             { key: 'expenses1', header: 'Expenses', width: 15, style: styles },
             { key: 'profit', header: 'Profit', width: 15, style: styles },
         ];
@@ -74,16 +75,16 @@ export const EXD = (dataTable, settings, name, valCur) => {
                 order: item.order,
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
                 conValue: valCur.cur === 'us' ? item.conValue : item.conValue / item.euroToUSD,
-                totalInvoices:  valCur.cur === 'us' ? item.totalInvoices: item.totalInvoices / item.euroToUSD,
-                deviation:  valCur.cur === 'us' ? item.deviation: item.deviation / item.euroToUSD,
+                totalInvoices: valCur.cur === 'us' ? item.totalInvoices : item.totalInvoices / item.euroToUSD,
+                deviation: valCur.cur === 'us' ? item.deviation : item.deviation / item.euroToUSD,
                 prepaidPer: item.prepaidPer,
-                totalPrepayment1: valCur.cur === 'us' ? item.totalPrepayment1: item.totalPrepayment1 / item.euroToUSD,
-                inDebt: valCur.cur === 'us' ? item.inDebt: item.inDebt / item.euroToUSD,
-                payments:  valCur.cur === 'us' ? item.payments: item.payments / item.euroToUSD,
-                debtaftr:  valCur.cur === 'us' ? item.debtaftr: item.debtaftr / item.euroToUSD,
-                debtBlnc:  valCur.cur === 'us' ? item.debtBlnc: item.debtBlnc / item.euroToUSD,
-                expenses1:  valCur.cur === 'us' ? item.expenses1: item.expenses1 / item.euroToUSD,
-                profit:  valCur.cur === 'us' ? item.profit: item.profit / item.euroToUSD,
+                totalPrepayment1: valCur.cur === 'us' ? item.totalPrepayment1 : item.totalPrepayment1 / item.euroToUSD,
+                inDebt: valCur.cur === 'us' ? item.inDebt : item.inDebt / item.euroToUSD,
+                payments: valCur.cur === 'us' ? item.payments : item.payments / item.euroToUSD,
+                debtaftr: valCur.cur === 'us' ? item.debtaftr : item.debtaftr / item.euroToUSD,
+                debtBlnc: valCur.cur === 'us' ? item.debtBlnc : item.debtBlnc / item.euroToUSD,
+                expenses1: valCur.cur === 'us' ? item.expenses1 : item.expenses1 / item.euroToUSD,
+                profit: valCur.cur === 'us' ? item.profit : item.profit / item.euroToUSD,
             })
         }
 
@@ -98,7 +99,7 @@ export const EXD = (dataTable, settings, name, valCur) => {
                     };
                 }
 
-                let cArr=[4,5,6,8,9,10,11,12,13,14]
+                let cArr = [4, 5, 6, 8, 9, 10, 11, 12, 13, 14]
                 if (cArr.includes(colNumber) && rowNumber > 1) {
                     let sym = getNumFmtForCurrency(valCur.cur)
                     row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]-$#,##0.00`
@@ -132,7 +133,7 @@ export const EXD = (dataTable, settings, name, valCur) => {
      items-center text-sm rounded-full  hover:drop-shadow-md focus:outline-none"
             >
                 <SiMicrosoftexcel className="scale-[1.4] text-gray-500" />
-                <Tooltip txt='Excel' />
+                <Tooltip txt={getTtl('Excel', ln)} />
             </button>
         </div>
     );

@@ -1,7 +1,8 @@
 import { RadioGroup } from '@headlessui/react'
+import { getTtl } from '@utils/languages'
 
 
-export default function InvType({ setSelected, plans, value }) {
+export default function InvType({ setSelected, plans, value , ln}) {
 
     let slctd = value.invType === '' ? plans[0] : plans.find(x => x.id === value.invType)
 
@@ -39,7 +40,7 @@ export default function InvType({ setSelected, plans, value }) {
                                                             } 
                                                             `}
                                                     >
-                                                        {plan.invType}
+                                                       {getTtl(plan.invType, ln)} 
                                                     </RadioGroup.Label>
 
                                                 </div>
