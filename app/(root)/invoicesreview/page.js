@@ -11,8 +11,7 @@ import { InvoiceContext } from "@contexts/useInvoiceContext";
 import { loadData, loadInvoice } from '@utils/utils'
 import Spinner from '@components/spinner';
 import { UserAuth } from "@contexts/useAuthContext"
-import { getInvoices, groupedArrayInvoice, getD } from '@utils/utils'
-import Spin from '@components/spinTable';
+import { getD } from '@utils/utils'
 import { Numcur, SumValuesSupplier } from '../contractsreview/funcs'
 //import CBox from '@components/combobox.js'
 import { OutTurn, Finalizing, relStts } from '@components/const'
@@ -201,6 +200,7 @@ const Shipments = () => {
 
           newArr.push({
             arr: innerObj.invoicesData, poCur: innerObj.cur, order: innerObj.order, supplier: innerObj.supplier, euroToUSD: innerObj.euroToUSD,
+            originSupplier: innerObj.originSupplier,
             poInvoices: reducedArr.map(invoice => invoice.inv),
             invAmntSup: reducedArr.map(invoice => invoice.invValue),
             prpMntSup: reducedArr.map(item => item.pmnt),
@@ -243,6 +243,7 @@ const Shipments = () => {
       let srtX = sortedData(x.arr)
       const order = x.order;
       const supplier = x.supplier;
+      const originSupplier = x.originSupplier;
       const euroToUSD = x.euroToUSD;
       const cn = srtX.length > 1 ? srtX[srtX.length - 1].invoice + getprefixInv(srtX[srtX.length - 1]) : '-'
       const totalAmount = Total(srtX, 'totalAmount', valCur, x.euroToUSD, settings).accumuLastInv
@@ -266,6 +267,7 @@ const Shipments = () => {
       return {
         ...x.arr[0],
         supplier,
+        originSupplier,
         supplierInv: x.poInvoices,
         supplierInvAmount: x.invAmntSup,
         supplierPrepayment: x.prpMntSup,
@@ -384,6 +386,9 @@ const Shipments = () => {
       },
     },
     {
+      accessorKey: 'originSupplier', header: 'Original supplier', bgt: 'bg-green-500', bgr: 'bg-green-50',
+    },
+    {
       accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
         return <div key={index}>{item}</div>
       })}</div>,
@@ -409,7 +414,7 @@ const Shipments = () => {
       },
     },
 
-    { accessorKey: 'invoice', header: getTtl('Invoice', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50',  cell: (props) => <div>{String(props.getValue()).padStart(4, "0") }</div> },
+    { accessorKey: 'invoice', header: getTtl('Invoice', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50', cell: (props) => <div>{String(props.getValue()).padStart(4, "0")}</div> },
     {
       accessorKey: 'client', header: getTtl('Consignee', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50', meta: {
         filterVariant: 'selectClient',
@@ -483,7 +488,7 @@ const Shipments = () => {
   ];
 
 
-  let invisible = ['supBlnc', 'etd', 'eta', 'rcvd', 'outrnamnt', 'fnlzing',
+  let invisible = ['originSupplier', 'supBlnc', 'etd', 'eta', 'rcvd', 'outrnamnt', 'fnlzing',
     'inDebt', 'payments'].reduce((acc, key) => {
       acc[key] = false
       return acc;
@@ -498,6 +503,7 @@ const Shipments = () => {
     arr.forEach(row => {
       let formattedRow = {
         ...row, supplier: gQ(row.supplier, 'Supplier', 'nname'),
+        originSupplier: gQ(row.originSupplier, 'Supplier', 'nname'),
         cur: gQ(row.cur, 'Currency', 'cur'),
         poCur: gQ(row.poCur, 'Currency', 'cur'),
         client: gQ(row.client, 'Client', 'nname'),

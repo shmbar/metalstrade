@@ -283,6 +283,9 @@ const Shipments = () => {
             },
         },
         {
+			accessorKey: 'originSupplier', header: 'Original supplier',
+		},
+        {
             accessorKey: 'conValue', header: getTtl('purchaseValue', ln), cell: (props) => <p>{showAmount(props.getValue())}</p>, ttl: showAmount(totals[0]?.conValue),
             meta: {
                 filterVariant: 'range',
@@ -357,6 +360,7 @@ const Shipments = () => {
             let formattedRow = {
                 ...row,
                 supplier: gQ(row.supplier, 'Supplier', 'nname'),
+                originSupplier: gQ(row.originSupplier, 'Supplier', 'nname'),
             }
 
             newArr.push(formattedRow)

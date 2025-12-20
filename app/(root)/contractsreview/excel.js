@@ -44,6 +44,7 @@ export const EXD = (dataTable, settings, name, ln, valCur) => {
             { key: 'date', header: 'Date', width: 15, style: styles },
             { key: 'order', header: 'PO#', width: 15, style: styles },
             { key: 'supplier', header: 'Supplier', width: 16, style: styles },
+            { key: 'originSupplier', header: 'Original supplier', width: 16, style: styles },
             { key: 'conValue', header: 'Purchase Value', width: 15, style: styles },
             { key: 'totalInvoices', header: 'Inv Value Sales', width: 15, style: styles },
             { key: 'deviation', header: 'Deviation', width: 15, style: styles },
@@ -74,6 +75,7 @@ export const EXD = (dataTable, settings, name, ln, valCur) => {
                 date: dateFormat(item.dateRange.startDate, 'dd-mmm-yy'),
                 order: item.order,
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
+                originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier).nname,
                 conValue: valCur.cur === 'us' ? item.conValue : item.conValue / item.euroToUSD,
                 totalInvoices: valCur.cur === 'us' ? item.totalInvoices : item.totalInvoices / item.euroToUSD,
                 deviation: valCur.cur === 'us' ? item.deviation : item.deviation / item.euroToUSD,
@@ -99,7 +101,7 @@ export const EXD = (dataTable, settings, name, ln, valCur) => {
                     };
                 }
 
-                let cArr = [4, 5, 6, 8, 9, 10, 11, 12, 13, 14]
+                let cArr = [5, 6, 7, 9, 10, 11, 12, 13, 14, 15]
                 if (cArr.includes(colNumber) && rowNumber > 1) {
                     let sym = getNumFmtForCurrency(valCur.cur)
                     row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]-$#,##0.00`

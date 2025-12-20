@@ -42,14 +42,13 @@ function isNumber(str) {
 }
 
 
-export const runStocks = async (uidCollection, settings) => {
+export const runStocks = async (uidCollection, settings, yr, contractsData) => {
 
     let stockData = await loadAllStockData(uidCollection)
     stockData = stockData.filter(z => z.total !== 0).filter(x => x.draft === undefined || x.draft === false)
 
-
     let newArr = []
- 
+
     stockData = stockData.map(x => (
         {
             ...x,
@@ -61,6 +60,40 @@ export const runStocks = async (uidCollection, settings) => {
         }))
 
 
+
+    const tmpArr10 = contractsData.flatMap(con =>
+        con.productsData.map(prod => ({
+            ...prod,
+            order: con.order,
+            supplier: con.supplier,
+            originSupplier: con.originSupplier,
+            total: prod.qnty * prod.unitPrc,
+            cur: con.cur,
+            orderData: { date: con.date, id: con.id },
+        }))
+    ).filter(x => !x.import);
+
+
+    const ids = new Set(stockData.filter(x => x.type === 'in').map(i => i.description).filter(Boolean));
+    const unSoldAll = tmpArr10.filter(i => !ids.has(i.id));
+
+    const unSoldArrTitles = Object.values(
+        unSoldAll.reduce((acc, item) => {
+            if (!item?.order) return acc;
+
+            const order = item.order;
+            const total = Number(item.total) || 0;
+            const cur = item.cur;
+
+            if (!acc[order]) {
+                acc[order] = { order, total: 0, cur };
+            }
+
+            acc[order].total += total;
+
+            return acc;
+        }, {})
+    );
 
     let stocksArrData = [...new Set(stockData.map(x => x.stock))]
 
@@ -211,7 +244,7 @@ export const runStocks = async (uidCollection, settings) => {
 
     const result1 = sumupResult1.filter(z => z.total !== 0);
 
-    return { result, result1, stocksArr, stocksArrNoPayment };
+    return { result, result1, stocksArr, stocksArrNoPayment, unSoldArrTitles, unSoldAll };
 }
 
 
@@ -223,7 +256,10 @@ const moveToContracts = async (z, ent, uidCollection, setDateSelect,
         ent === 'client' ? z.poSupplier :
             ent === 'supplier' ? z.orderData :
                 ent === 'expense' ? { date: z.date, id: z.id } :
-                    ent === 'compexpense' ? { date: z.date, id: z.id } : null
+                    ent === 'compexpense' ? { date: z.date, id: z.id } :
+                        ent === 'stock1' ? z.contractData :
+                            ent === 'order' ? z.orderData :
+                                null
 
 
 
@@ -279,8 +315,6 @@ const moveToContracts = async (z, ent, uidCollection, setDateSelect,
 
         setIsOpen(true)
     }
-
-
 }
 
 export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDateSelect,
@@ -312,6 +346,117 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                                     {z.order}</td>
                                 <td className="text-left p-1 w-20">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td>
                                 <td className="text-left p-1 max-w-28 2xl:max-w-48 truncate" >{z.descriptionName}</td>
+                                <td className="text-left p-1">{
+                                    <NumericFormat
+                                        value={z.qnty}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        //  prefix={z.cur === 'us' ? '$' : '€'}
+                                        decimalScale='3'
+                                        fixedDecimalScale
+                                        className=''
+                                    />
+                                }</td>
+                                <td className="text-right p-1">{
+                                    <NumericFormat
+                                        value={z.unitPrc}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix={z.cur === 'us' ? '$' : '€'}
+                                        decimalScale='2'
+                                        fixedDecimalScale
+                                        className=''
+                                    />
+                                }</td>
+                                <td className="text-right p-1">{
+                                    <NumericFormat
+                                        value={z.total}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix={z.cur === 'us' ? '$' : '€'}
+                                        decimalScale='2'
+                                        fixedDecimalScale
+                                        className=''
+                                    />
+                                }</td>
+                            </tr>
+                        )
+                    })}
+
+                </tbody>
+                <tfoot>
+                    <tr className="border-t bg-slate-100 border border-slate-300">
+                        <th className="relative px-1 py-1 text-left font-medium text-gray-500 uppercase                                  ">
+                            Total
+                        </th>
+                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
+                        </th>
+                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
+                        </th>
+                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
+                            {
+                                <NumericFormat
+                                    value={filteredArr.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0)}
+                                    displayType="text"
+                                    thousandSeparator
+                                    allowNegative={true}
+                                    //   prefix={z.cur === 'us' ? '$' : '€'}
+                                    decimalScale='3'
+                                    fixedDecimalScale
+                                    className=''
+                                />
+                            }
+                        </th>
+                        <th className="relative p-1 text-right font-medium text-gray-500 uppercase">
+                            {showAmount(filteredArr.reduce((sum, item) => sum + item.unitPrc * 1, 0), 'usd')}
+                        </th>
+                        <th className="relativep-2 p-1 text-right font-medium text-gray-500 uppercase">
+                            {showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0), 'usd')}
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    )//stock; 
+}
+
+export const stocksUnSold = (order, stockDataAllArray, settings, uidCollection, setDateSelect,
+    setValueCon, setIsOpenCon, blankInvoice, router
+) => {
+
+    let filteredArr = stockDataAllArray.filter(z => z.order === order)
+
+    return (
+        <div className="max-h-[28rem] overflow-y-auto responsiveTextTable pt-2 justify-end flex">
+            <table>
+                <thead>
+                    <tr className="border border-slate-300 p-2">
+                        {/* <th className="text-left p-1 w-24">PO#</th> */}
+                        <th className="text-left p-1">Supplier</th>
+                        <th className="text-left p-1">Origin. Supplier</th>
+                        <th className="text-left p-1 w-40">Description</th>
+                        <th className="text-left p-1">Quantity</th>
+                        <th className="text-right p-1">Unit Price</th>
+                        <th className="text-right p-1">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredArr.map((z, i) => {
+                        return (
+                            <tr className="border border-slate-300 p-2" key={i}>
+                                {/* <td className="text-left p-1 cursor-pointer text-blue-700"
+                                    onClick={() => moveToContracts(z, 'stock1', uidCollection, setDateSelect,
+                                        setValueCon, setIsOpenCon, blankInvoice, router)}>
+                                    {z.order}</td> */}
+                                <td className="text-left p-1 cursor-pointer text-blue-700"
+                                    onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
+                                        setValueCon, setIsOpenCon, blankInvoice, router)}
+                                >{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td>
+                                <td className="text-left p-1 w-20">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</td>
+                                <td className="text-left p-1 max-w-28 2xl:max-w-48 truncate" >{z.description}</td>
                                 <td className="text-left p-1">{
                                     <NumericFormat
                                         value={z.qnty}
@@ -422,7 +567,6 @@ export const runInvoices = async (uidCollection, settings, yr) => {
 
     dt = await Promise.all(
         dt.map(async (x) => {
-            //   const con = await loadContracts(uidCollection, x)
             return {
                 //  ...con,
                 invoicesData: x,
@@ -847,25 +991,24 @@ export const addComma = (nStr) => {
 
 // Suppliers
 
-export const runSupPayments = async (uidCollection, settings, yr) => {
+export const runSupPayments = async (uidCollection, settings, yr, contractsData) => {
 
-
-    //  let dt = await loadData(uidCollection, 'contracts', { start: `${yr}-01-01`, end: `${yr}-12-31` });
-    let dt = await Promise.all(
-        yr.map(year =>
-            loadData(uidCollection, 'contracts', {
-                start: `${year}-01-01`,
-                end: `${year}-12-31`
-            })
-        )
-    );
-
-    // Merge all the individual arrays into one
-    dt = [].concat(...dt);
+    /*  let dt = await Promise.all(
+          yr.map(year =>
+              loadData(uidCollection, 'contracts', {
+                  start: `${year}-01-01`,
+                  end: `${year}-12-31`
+              })
+          )
+      );
+  
+      // Merge all the individual arrays into one
+      dt = [].concat(...dt);
+  */
 
     let arr = []
 
-    dt.forEach(contract => {
+    contractsData.forEach(contract => {
         contract.poInvoices.forEach(inv => {
             let obj = {
                 invValue: inv.invValue, pmnt: inv.pmnt, blnc: inv.blnc, supplier: contract.supplier,
@@ -878,21 +1021,6 @@ export const runSupPayments = async (uidCollection, settings, yr) => {
     })
 
     arr = arr.filter(z => z.blnc !== 0)
-
-    // let totalBySupplier = Object.entries(
-    //     arr.reduce((acc, item) => {
-    //         const supplier = item.supplier;
-    //         const blncValue = item.cur === 'us' ? parseFloat(item.blnc) : parseFloat(item.blnc * item.euroToUSD);
-
-    //         // Accumulate blnc values by supplier
-    //         acc[supplier] = (acc[supplier] || 0) + blncValue;
-    //         return acc;
-    //     }, {})
-    // );
-
-    // Convert the result to an array of objects with supplier and blnc fields
-    //   totalBySupplier = totalBySupplier.map(([supplier, blnc]) => ({ supplier, blnc }));
-
     return arr;
 }
 

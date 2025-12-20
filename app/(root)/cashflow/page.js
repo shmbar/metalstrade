@@ -7,12 +7,12 @@ import { SettingsContext } from "@contexts/useSettingsContext";
 import { getTtl } from "@utils/languages";
 import React, { useContext, useEffect, useState } from 'react'
 import Spin from '@components/spinTable';
-import { loadDataSettings, loadInvoice, loadMargins, loadStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, updateClientPayment, updateExpPayments } from "@utils/utils";
+import { loadData, loadDataSettings, loadInvoice, loadMargins, loadStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, updateClientPayment, updateExpPayments } from "@utils/utils";
 import { UserAuth } from "@contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
 import { MdDeleteOutline } from "react-icons/md";
 import { MdOutlineClose } from "react-icons/md";
-import { addComma, clientDetails, clientToolTip, expensesToolTip, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, stoclToolTip, supplierDetails, supplierToolTip } from "./funcs";
+import { addComma, clientDetails, clientToolTip, expensesToolTip, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, stocksUnSold, stoclToolTip, supplierDetails, supplierToolTip } from "./funcs";
 import Tltip from "@components/tlTip";
 import { FaSortAmountDown } from "react-icons/fa";
 import { FaSortAmountUpAlt } from "react-icons/fa";
@@ -55,8 +55,12 @@ const Cashflow = () => {
     const [initialData, setInitialData] = useState([]);
     const [stockData1, setStockData1] = useState([])
     const [stockData2, setStockData2] = useState([])
+    const [stockData3, setStockData3] = useState([])
     const [stockDataAll, setStockDataAll] = useState([])
     const [stockDataNoPayment, setStockDataNoPayment] = useState([])
+    const [stockDataNoSold, setStockDataNoSold] = useState([])
+    const [stockDataAllArray, setStockDataAllArray] = useState([])
+
 
     const [clientInvoices1, setClientInvoices1] = useState([])
     const [clientInvoices2, setClientInvoices2] = useState([])
@@ -75,8 +79,10 @@ const Cashflow = () => {
 
     const [stocksSort, setStocksSort] = useState(true)
     const [stocksSort1, setStocksSort1] = useState(true)
+    const [stocksSort2, setStocksSort2] = useState(true)
     const [stocksSortName, setStocksSortName] = useState(false)
     const [stocksSortName1, setStocksSortName1] = useState(false)
+    const [stocksSortName2, setStocksSortName2] = useState(false)
 
     const [clientsData, setClientsData] = useState([])
     const [clientSort, setClientSort] = useState(true)
@@ -101,7 +107,6 @@ const Cashflow = () => {
 
     const [toggleSupplier, setToggleSupplier] = useState({})
     const [toggleExp, setToggleExp] = useState({})
-
 
     useEffect(() => {
         const loadData = async () => {
@@ -147,14 +152,28 @@ const Cashflow = () => {
 
             setIncoming(tmp);
 
+            let contractsData = (
+                await Promise.all(
+                    yr.map(year =>
+                        loadData(uidCollection, 'contracts', {
+                            start: `${year}-01-01`,
+                            end: `${year}-12-31`,
+                        })
+                    )
+                )
+            ).flat();
+
+
             //load stocks
-            let dataStock = await runStocks(uidCollection, settings)
+            let dataStock = await runStocks(uidCollection, settings, yr, contractsData)
             dataStock.result = dataStock.result.map(z => ({ ...z, stockName: settings.Stocks.Stocks.find(k => k.id === z.stock)?.stock }))
             dataStock.result1 = dataStock.result1.map(z => ({ ...z, stockName: settings.Stocks.Stocks.find(k => k.id === z.stock)?.stock }))
             setStockData1(dataStock.result.sort((a, b) => b.total - a.total))
             setStockData2(dataStock.result1.sort((a, b) => b.total - a.total))
-            setStockDataAll(dataStock.stocksArr)
+            setStockDataAll(dataStock.stocksArr) ////this one containes items that could were be filtered
             setStockDataNoPayment(dataStock.stocksArrNoPayment)
+            setStockDataNoSold(dataStock.unSoldArrTitles)
+            setStockDataAllArray(dataStock.unSoldAll)
 
             //load invoices
             let invoices = await runInvoices(uidCollection, settings, yr)
@@ -166,7 +185,7 @@ const Cashflow = () => {
 
 
             //load payments to Suppliers
-            let supPayments = await runSupPayments(uidCollection, settings, yr)
+            let supPayments = await runSupPayments(uidCollection, settings, yr, contractsData)
             supPayments = supPayments.map(z => ({ ...z, suplierName: settings.Supplier.Supplier.find(a => a.id === z.supplier)?.nname, checked: false }))
             setsupPaymentsData(supPayments)
             setSupPayments1(getTotalsSupPayments(supPayments.filter(z => z.pmnt * 1 > 0)))
@@ -196,6 +215,12 @@ const Cashflow = () => {
                 stockData1.reduce((total, obj) => {
                     return total + (parseFloat(obj.total) || 0);
                 }, 0) +
+                stockData2.reduce((total, obj) => {
+                    return total + (parseFloat(obj.total) || 0);
+                }, 0) +
+                stockDataNoSold.reduce((total, obj) => {
+                    return total + (parseFloat(obj.total) || 0);
+                }, 0) +
                 clientInvoices1.reduce((total, obj) => {
                     return total + (parseFloat(obj.debtBlnc) || 0);
                 }, 0) +
@@ -209,7 +234,7 @@ const Cashflow = () => {
 
         }
 
-    }, [financedLeft, initialData, incoming, stockData1, , clientInvoices2, clientInvoices1])
+    }, [financedLeft, initialData, incoming, stockData1, stockData2, stockDataNoSold, clientInvoices2, clientInvoices1])
 
     useEffect(() => {
 
@@ -326,6 +351,27 @@ const Cashflow = () => {
         }
     }
 
+    const sortStocks2 = () => {
+        if (stocksSort2) { //true
+            //sort from to bottmom
+            setStockDataNoSold(stockDataNoSold.sort((a, b) => a.total - b.total))
+            setStocksSort2(false)
+        } else {
+            setStockDataNoSold(stockDataNoSold.sort((a, b) => b.total - a.total))
+            setStocksSort2(true)
+        }
+    }
+
+    const sortStocksName2 = () => {
+        if (stocksSortName2) { //true
+            //sort from to bottmom
+            setStockDataNoSold(stockDataNoSold.sort((a, b) => a.order.localeCompare(b.order)))
+            setStocksSortName2(false)
+        } else {
+            setStockDataNoSold(stockDataNoSold.sort((a, b) => b.order.localeCompare(a.order)))
+            setStocksSortName2(true)
+        }
+    }
 
     const sortClientsName = (num) => {
         const isFirst = num === 0;
@@ -414,22 +460,22 @@ const Cashflow = () => {
     }
 
 
-
-    const FinancedRight = (e) => {
-        setFinancedRight(removeNonNumeric(e.target.value))
-
-        let total1 = supPayments.reduce((total, obj) => {
-            return total + (parseFloat(obj.blnc) || 0);
-        }, 0) +
-            expenses.reduce((total, obj) => {
-                return total + (parseFloat(obj.amount) || 0);
-            }, 0) + removeNonNumeric(e.target.value) * 1;
-
-        setTotalRight(total1)
-
-        setToast({ show: true, text: 'Save Data!', clr: 'fail' })
-    }
-
+    /*
+        const FinancedRight = (e) => {
+            setFinancedRight(removeNonNumeric(e.target.value))
+    
+            let total1 = supPayments.reduce((total, obj) => {
+                return total + (parseFloat(obj.blnc) || 0);
+            }, 0) +
+                expenses.reduce((total, obj) => {
+                    return total + (parseFloat(obj.amount) || 0);
+                }, 0) + removeNonNumeric(e.target.value) * 1;
+    
+            setTotalRight(total1)
+    
+            setToast({ show: true, text: 'Save Data!', clr: 'fail' })
+        }
+    */
 
 
     const handleChange = (e, year) => {
@@ -705,12 +751,12 @@ const Cashflow = () => {
             cur: inv.cur, date: obj.date, id: uuidv4(),
             pmnt: obj.pmnt
         }
-   
+
         inv = {
             ...inv, payments: inv.payments.length > 0 ? [...inv.payments, obj1] : [obj1],
             debtBlnc: inv.debtBlnc - obj1.pmnt
         }
- 
+
 
         let success;
 
@@ -951,6 +997,76 @@ const Cashflow = () => {
                                     </div>
                                 </div>
 
+                                <div className=" p-2">
+                                    <span className="font-bold p-1 responsiveTextTitle">Stocks - UnSold</span>
+                                    <div className="flex p-1 justify-between">
+                                        {
+                                            stocksSortName2 ?
+                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName2()} />
+                                                :
+                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName2()} />}
+                                        {
+                                            stocksSort2 ?
+                                                <FaSortAmountDown className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortStocks2()} />
+                                                :
+                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks2()} />}
+                                    </div>
+
+                                    {stockDataNoSold.map((x, i) => {
+                                        return (
+                                            <div className="flex items-center  text-slate-600" key={i}>
+                                                <MyAccordion title={
+                                                    <div className="flex w-full justify-between">
+                                                        <div className="responsiveText items-center flex outline-none  truncate cursor-pointer "
+                                                        >
+                                                            {x.order}
+                                                        </div>
+
+                                                        <div className="leading-4 2xl:leading-6">
+                                                            <NumericFormat
+                                                                value={x.total}
+                                                                displayType="text"
+                                                                thousandSeparator
+                                                                allowNegative={true}
+                                                                prefix={x.cur === 'us' ? '$' : '€'}
+                                                                decimalScale='2'
+                                                                fixedDecimalScale
+                                                                className='responsiveText'
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                }>
+
+                                                    {stocksUnSold(x.order, stockDataAllArray, settings, uidCollection, setDateSelect,
+                                                        setValueCon, setIsOpenCon, blankInvoice, router
+                                                    )}
+                                                </MyAccordion>
+                                            </div>
+
+                                        )
+                                    })}
+                                    <div className="flex items-center p-1 leading-5 justify-between responsiveTextTotal">
+                                        <div className="border-t-2 border-slate-400">
+                                            Total
+                                        </div>
+                                        <div>
+                                            {
+                                                <NumericFormat
+                                                    value={stockDataNoSold.reduce((total, obj) => {
+                                                        return total + (parseFloat(obj.total) || 0);
+                                                    }, 0)}
+                                                    displayType="text"
+                                                    thousandSeparator
+                                                    allowNegative={true}
+                                                    prefix='$'
+                                                    decimalScale='2'
+                                                    fixedDecimalScale
+                                                    className='border-t-2 border-slate-400'
+                                                />
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div className=" p-2 ">
                                     <span className="font-bold p-1 responsiveTextTitle">Clients - Payment</span>
@@ -1498,7 +1614,7 @@ const Cashflow = () => {
                                         <div className="gap-2 pb-1" key={z}>
                                             <span className="text-xs 2xl:text-base">{`Total for ${z}:`}</span>
                                             <input className='input w-44 h-6 text-[0.6rem] 2xl:text-[0.8rem] ml-2'
-                                                value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] ?? 0)}
+                                                value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] ?? '0')}
                                                 onChange={e => handleChange(e, z)} />
                                         </div>
                                     )

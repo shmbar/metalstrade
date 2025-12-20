@@ -108,8 +108,8 @@ const ContractModal = () => {
 	//Total Net WT Kgs:
 	const options = { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 2 };
 	const locale = 'en-US';
-	const NetWTKgsTmp = (valueInv.productsDataInvoice.map(x => x.qnty)
-		.reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000);
+	const NetWTKgsTmp = (valueInv.productsDataInvoice.filter(q => q.qnty !== 's').map(x => x.qnty)
+		.reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000)|| '';
 	const NetWTKgs = NetWTKgsTmp.toLocaleString(locale, options);
 
 	//Total Tarre WT Kgs:
@@ -624,11 +624,11 @@ const ContractModal = () => {
 									const number2 = values[5];
 									let tmpObj = valueInv.productsDataInvoice[index]
 
-									let description = tmpObj.isSelection ? valueCon.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
+									let description = tmpObj.mtrlStatus === 'select' ? valueCon.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
 										tmpObj.descriptionText
 
 
-									const formattedNumber = new Intl.NumberFormat('en-US', {
+									const formattedNumber = number === 's' ? 'Service' : new Intl.NumberFormat('en-US', {
 										minimumFractionDigits: 3
 									}).format(number);
 
@@ -658,10 +658,10 @@ const ContractModal = () => {
 										const number1 = values[4];
 										const number2 = values[5];
 										let tmpObj = valueInv.productsDataInvoice[index]
-										let description = tmpObj.isSelection ? valueInv.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
+										let description = tmpObj.mtrlStatus === 'select' ? valueInv.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
 											tmpObj.descriptionText
 
-										const formattedNumber = new Intl.NumberFormat('en-US', {
+										const formattedNumber = number === 's' ? 'Service' : new Intl.NumberFormat('en-US', {
 											minimumFractionDigits: 3
 										}).format(number);
 

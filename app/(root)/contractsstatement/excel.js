@@ -44,6 +44,7 @@ export const EXD = (dataTable, settings, name, ln) => {
             { key: 'date', header: 'Date', width: 15, style: styles },
             { key: 'order', header: 'PO#', width: 14, style: styles },
             { key: 'supplier', header: 'Supplier', width: 16, style: styles },
+            { key: 'originSupplier', header: 'Original supplier', width: 16, style: styles },
             { key: 'poWeight', header: 'PO Weight MT', width: 14, style: styles },
             { key: 'description', header: 'Material', width: 20, style: styles },
             { key: 'unitPrc', header: 'Purchase Price', width: 16, style: styles },
@@ -78,6 +79,7 @@ export const EXD = (dataTable, settings, name, ln) => {
                 date: dateFormat(item.date, 'dd-mmm-yy'),
                 order: item.order,
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
+                originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier).nname,
                 poWeight: item.poWeight * 1,
                 description: item.description,
                 unitPrc: isNaN(item.unitPrc * 1) ? item.unitPrc : item.unitPrc * 1,
@@ -102,21 +104,21 @@ export const EXD = (dataTable, settings, name, ln) => {
                     };
                 }
 
-                let cArr3 = [4, 8, 9]
+                let cArr3 = [5, 9, 10]
                 if (cArr3.includes(colNumber) && rowNumber > 1) {
                     let item = dataTable[rowNumber - 2]
                     row.getCell(colNumber).numFmt = `#,##0.000;[Red]#,##0.00`
                 }
 
 
-                let cArr1 = [6]
+                let cArr1 = [7]
                 if (cArr1.includes(colNumber) && rowNumber > 1) {
                     let item = dataTable[rowNumber - 2]
                     let sym = getNumFmtForCurrency(item.cur)
                     row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]${sym}#,##0.00`
                 }
 
-                let cArr2 = [11, 12, 17, 18, 19, 22, 23]
+                let cArr2 = [12, 13, 18, 19, 20, 23, 24]
                 if (cArr2.includes(colNumber) && rowNumber > 1) {
                     let item = dataTable[rowNumber - 2]
                     let sym = getNumFmtForCurrency(item.cur)

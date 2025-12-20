@@ -191,7 +191,8 @@ const Contracts = () => {
 
 				let objTmp = obj.stcokData.filter(c => c.description === x).filter(v => v.qnty * 1 !== 0)
 				newObj = {
-					supplier: obj.supplier, date: obj.date, order: obj.order, poWeight: total,
+					supplier: obj.supplier, originSupplier: obj.originSupplier, 
+					date: obj.date, order: obj.order, poWeight: total,
 					comments: obj.comments, description: obj.productsData.find(z => z.id === x).description,
 					unitPrc: obj.productsData.find(z => z.id === x).unitPrc, cur: obj.cur,
 					shiipedWeight: totalShipped, remaining: total - totalShipped,
@@ -269,6 +270,9 @@ const Contracts = () => {
 			meta: {
 				filterVariant: 'selectSupplier',
 			},
+		},
+		{
+			accessorKey: 'originSupplier', header: 'Original supplier',
 		},
 		{
 			accessorKey: 'client', header: getTtl('Consignee', ln),
@@ -355,7 +359,7 @@ const Contracts = () => {
 		{ accessorKey: 'comments', header: getTtl('Comments/Status', ln), cell: (props) => <span className='w-[560px] flex text-wrap'>{props.getValue()}</span> },
 	];
 
-	let invisible = ['salesPrice'].reduce((acc, key) => {
+	let invisible = ['salesPrice', 'originSupplier'].reduce((acc, key) => {
 		acc[key] = false;
 		return acc;
 	}, {});
@@ -368,6 +372,7 @@ const Contracts = () => {
 			let formattedRow = {
 				...row,
 				supplier: gQ(row.supplier, 'Supplier', 'nname'),
+				originSupplier: gQ(row.originSupplier, 'Supplier', 'nname'),
 				cur: gQ(row.cur, 'Currency', 'cur'),
 			}
 

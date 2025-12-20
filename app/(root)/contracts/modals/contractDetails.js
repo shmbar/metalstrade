@@ -333,7 +333,7 @@ const ContractModal = () => {
 						type="button"
 						className="whiteButton"
 						onClick={() => Pdf(valueCon,
-							reOrderTableCon(valueCon.productsData).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
+							reOrderTableCon(valueCon.productsData.filter(x=> !x.import)).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
 								.map((values, index) => {
 									const number = values[1]//.toFixed(3);
 									const number1 = values[2];

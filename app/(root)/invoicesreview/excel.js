@@ -43,6 +43,7 @@ export const EXD = (dataTable, settings, name, ln, totals) => {
         sheet.columns = [
             { key: 'order', header: 'PO#', width: 14, style: styles },
             { key: 'supplier', header: 'Supplier', width: 16, style: styles },
+            { key: 'originSupplier', header: 'Original supplier', width: 16, style: styles },
             { key: 'supplierInv', header: 'Supplier inv', width: 16, style: styles },
             { key: 'supplierInvAmount', header: 'Sup Inv amount', width: 14, style: styles },
             { key: 'supplierPrepayment', header: 'Sup Prepayment', width: 14, style: styles },
@@ -81,10 +82,10 @@ export const EXD = (dataTable, settings, name, ln, totals) => {
                 type: 'pattern',
                 pattern: 'solid',
                 fgColor: {
-                    argb: colNumber <= 6 ? '30CA06' :
-                        colNumber > 6 && colNumber <= 12 ? 'FFC000' :
-                            colNumber > 12 && colNumber <= 15 ? '7030A0' :
-                                colNumber > 15 && colNumber <= 21 ? '0070C0' : '808080'
+                    argb: colNumber <= 7 ? '30CA06' :
+                        colNumber > 7 && colNumber <= 13 ? 'FFC000' :
+                            colNumber > 13 && colNumber <= 16 ? '7030A0' :
+                                colNumber > 16 && colNumber <= 22 ? '0070C0' : '808080'
                 }
             }
             cell.font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };  // Font color to white
@@ -97,6 +98,7 @@ export const EXD = (dataTable, settings, name, ln, totals) => {
             sheet.addRow({
                 order: item.order,
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
+                originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier).nname,
                 supplierInv: item.supplierInv.map(x => x).join('\n'),
                 supplierInvAmount: item.supplierInvAmount.map(Number).reduce((accumulator, currentValue) => {
                     return accumulator + currentValue;
@@ -167,11 +169,11 @@ export const EXD = (dataTable, settings, name, ln, totals) => {
         // You can now add your Totals/Sub Totals in row 1 & 2
         let us = totals[0].us
         let eu = totals[1].eu
-        sheet.getRow(1).values = ["Total $:", '', '', us.supplierInvAmount, us.supplierPrepayment, us.supBlnc,
+        sheet.getRow(1).values = ["Total $:", '', '', '', us.supplierInvAmount, us.supplierPrepayment, us.supBlnc,
             '', '', us.totalAmount, us.prepaidPer, us.totalPrepayment1, us.debtaftr, '', '', '', '', '',
             us.deviation, us.debtBlnc, '', '', us.inDebt, us.payments
         ];
-        sheet.getRow(2).values = ["Total €:", '', '', eu.supplierInvAmount, eu.supplierPrepayment, eu.supBlnc,
+        sheet.getRow(2).values = ["Total €:", '', '', '', eu.supplierInvAmount, eu.supplierPrepayment, eu.supBlnc,
             '', '', eu.totalAmount, eu.prepaidPer, eu.totalPrepayment1, eu.debtaftr, '', '', '', '', '',
             eu.deviation, eu.debtBlnc, '', '', eu.inDebt, eu.payments];
 
@@ -194,7 +196,7 @@ export const EXD = (dataTable, settings, name, ln, totals) => {
                         fgColor: { argb: 'BFDBFE' } // ARGB: A=Alpha, R=Red, G=Green, B=Blue
                     };
                     // Apply numeric formatting if needed
-                    let cArr1 = [4, 5, 6, 9, 11, 12, 18, 19, 22, 23];
+                    let cArr1 = [5, 6, 7, 10, 12, 13, 19, 20, 23, 24];
                     if (cArr1.includes(colNumber)) {
                         const cur = rowNumber === 1 ? '$' : '€'
                         row.getCell(colNumber).numFmt = `${cur}#,##0.00;[Red]${cur}#,##0.00`;

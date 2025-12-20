@@ -25,15 +25,7 @@ const CB = (settings, handleSelectStock, selectedStock) => {
   ]
 
   return (
-    //   <CBox
-    //     data={[...settings.Stocks.Stocks, { stock: '..All Stocks', id: 'allStocks' }]}
-    //     setValue={setSelectedStock} value={selectedStock}
-    //     name='stock'
-    //     classes='input border-slate-300 shadow-sm items-center flex'
-    //     classes2='text-lg' dis={true} />
-    // )
-
-    < CBox
+    <CBox
       data={dt}
       setValue={handleSelectStock}
       value={dt.find(x => x.id === selectedStock.id)}
@@ -65,16 +57,6 @@ const Stocks = () => {
   const handleSelectStock = (x) => {
     setSelectedStock({ ...x, stock: x.id })
   }
-  // const opts = [{ id: 1, opt: getTtl('Less than 0 MT', ln) }, { id: 2, opt: getTtl('Between 0 to 1 MT', ln) },
-  // { id: 3, opt: getTtl('Greater than 1 MT', ln) },
-  // { id: 4, opt: getTtl('Show all', ln) }]
-
-  // const CB1 = (selectedOpt, setSelectOpt, dis) => {
-  //   return (
-  //     <CBox data={opts} setValue={selectedOpt} value={setSelectOpt} name='opt' classes='input border-slate-300 shadow-sm items-center flex'
-  //       classes2='text-lg' disabled={dis.dis} />
-  //   )
-  // }
 
   useEffect(() => {
     setSelectedStock({ stock: 'allStocks', id: 'allStocks', nname: '..All Stocks' })
@@ -95,6 +77,9 @@ const Stocks = () => {
         filterVariant: 'selectSupplier',
       },
     },
+    {
+			accessorKey: 'originSupplier', header: 'Original supplier',
+		},
     { accessorKey: 'stock', header: getTtl('warehouse', ln) },
     { accessorKey: 'descriptionName', header: getTtl('Description', ln), cell: (props) => <p className='w-20 md:w-64 text-wrap'>{props.getValue()}</p> },
     { accessorKey: 'qnty', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props)}</p> },
@@ -135,7 +120,7 @@ const Stocks = () => {
           ...x,
           descriptionName: x.type === 'in' && x.description ?  //Contract Invoice
             x.productsData.find(y => y.id === x.description)['description'] :
-            x.isSelection ? x.productsData.find(y => y.id === x.descriptionId)?.['description'] : // Invoice 
+            x.mtrlStatus === "select" ? x.productsData.find(y => y.id === x.descriptionId)?.description : // Invoice 
               x.type === 'out' && x.moveType === "out" ? x.descriptionName :
                 x.descriptionText,
         }))
@@ -186,22 +171,8 @@ const Stocks = () => {
         totalObj['qnty'] = totalObj.qnty === 0 ? totalObj.qnty : parseFloat(totalObj.qnty).toFixed(3)
 
 
-        //    if (selectedOpt.opt === 3 && totalObj.qnty * 1 > 1) {
+
         newArr.push(totalObj);
-        //   }
-
-        //   if (selectedOpt.opt === 2 && (totalObj.qnty * 1 <= 1 && totalObj.qnty * 1 > 0)) {
-        //     newArr.push(totalObj);
-        //   }
-
-        //   if (selectedOpt.opt === 1 && totalObj.qnty * 1 <= 0) {
-        //     newArr.push(totalObj);
-        //   }
-
-        //   if (selectedOpt.opt === 4) {
-        //     newArr.push(totalObj);
-        //   }
-
       }
 
       newArr = newArr.filter(x => x.qnty * 1 > 0.1)
@@ -300,6 +271,7 @@ const Stocks = () => {
       let formattedRow = {
         ...row,
         supplier: row.supplier !== '-' ? gQ(row.supplier, 'Supplier', 'nname') : '-',
+        originSupplier: gQ(row.originSupplier, 'Supplier', 'nname'),
         cur: gQ(row.cur, 'Currency', 'cur'),
         stock: gQ(row.stock, 'Stocks', 'nname'),
         qTypeTable: gQ(row.qTypeTable, 'Quantity', 'qTypeTable'),

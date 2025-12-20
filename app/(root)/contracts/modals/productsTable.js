@@ -136,7 +136,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 relative">
-                                {reOrderTableCon(value.productsData).map((obj, i) => {
+                                {reOrderTableCon(value.productsData.filter(x=> !x.import)).map((obj, i) => {
                                     return (
                                         <tr key={i} className='relative'>
                                             <td className="py-2 pl-4">

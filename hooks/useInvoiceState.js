@@ -120,7 +120,7 @@ const useInvoiceState = () => {
                 if (obj.descriptionId === '') arrfields.push('Description')
                 if (obj.qnty === '') arrfields.push('Quantity')
                 if (obj.unitPrc === '') arrfields.push('Unit Price')
-                if (obj.stock === '' && (obj.qnty !== "0" && obj.qnty !== 0)) arrfields.push('Stock')
+                if (obj.stock === '' && obj.qnty !== "s") arrfields.push('Stock')
             })
 
             arrfields = [...new Set(arrfields)]
@@ -131,8 +131,8 @@ const useInvoiceState = () => {
                 return false;
             }
 
-            const NetWTKgsTmp = (valueInv.productsDataInvoice.map(x => x.qnty)
-                .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000);
+            const NetWTKgsTmp = (valueInv.productsDataInvoice.filter(q => q.qnty !== 's').map(x => x.qnty)
+                .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000) || 0;
             const TotalTarre = (valueInv.ttlGross - NetWTKgsTmp);
 
             if ((TotalTarre < 0 && valueInv.invType === '1111' &&
@@ -227,7 +227,7 @@ const useInvoiceState = () => {
             setIsInvCreationCNFL(false)
 
             //save Stock
-            let tmpObj1 = tmpValue.productsDataInvoice.filter(z => z.qnty !== "0").map(x => ({
+            let tmpObj1 = tmpValue.productsDataInvoice.filter(z => z.qnty !== "s").map(x => ({
                 ...x, invoice: tmpValue.invoice * 1, invType: tmpValue.invType,
                 date: tmpValue.final ? tmpValue.date : tmpValue.dateRange.startDate,
                 type: 'out', productsData: valueCon.productsData,
@@ -265,7 +265,7 @@ const useInvoiceState = () => {
                 if (obj.descriptionId === '') arrfields.push('Description')
                 if (obj.qnty === '') arrfields.push('Quantity')
                 if (obj.unitPrc === '') arrfields.push('Unit Price')
-                if (obj.stock === '' && (obj.qnty !== "0" && obj.qnty !== 0)) arrfields.push('Stock')
+                if (obj.stock === '' && obj.qnty !== "s") arrfields.push('Stock')
             })
 
             arrfields = [...new Set(arrfields)]
@@ -276,8 +276,8 @@ const useInvoiceState = () => {
                 return false;
             }
 
-            const NetWTKgsTmp = (valueInv.productsDataInvoice.map(x => x.qnty)
-                .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000);
+            const NetWTKgsTmp = (valueInv.productsDataInvoice.filter(q => q.qnty !== 's').map(x => x.qnty)
+                .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000) || 0;
             const TotalTarre = (valueInv.ttlGross - NetWTKgsTmp);
 
             if (TotalTarre < 0 && valueInv.invType === '1111' &&
@@ -326,7 +326,7 @@ const useInvoiceState = () => {
             ///////////////////
 
             //save Stock
-            let tmpObj1 = tmpValue.productsDataInvoice.filter(z => z.qnty !== "0").map(x => ({
+            let tmpObj1 = tmpValue.productsDataInvoice.filter(z => z.qnty !== "s").map(x => ({
                 ...x, invoice: tmpValue.invoice * 1, invType: tmpValue.invType,
                 date: tmpValue.final ? tmpValue.date : tmpValue.dateRange.startDate,
                 type: 'out', productsData: tmpValue.productsData,

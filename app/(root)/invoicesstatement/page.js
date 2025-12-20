@@ -318,6 +318,9 @@ const Shipments = () => {
             },
         },
         {
+			accessorKey: 'originSupplier', header: 'Original supplier',
+		},
+        {
             accessorKey: 'supInvoices', header: getTtl('Supplier inv', ln), cell: (props) => <div>{Array.isArray(props.getValue()) ? props.getValue().map((item, index) => {
                 return <div key={index}>{item}</div>
             }) : props.getValue()}</div>
@@ -376,7 +379,7 @@ const Shipments = () => {
         { accessorKey: 'eta', enableSorting: false, header: 'ETA', },//false
     ];
 
-    let invisible = ['rcvd', 'fnlzing', 'status', 'etd', 'eta'].reduce((acc, key) => {
+    let invisible = ['rcvd', 'fnlzing', 'status', 'etd', 'eta', 'originSupplier'].reduce((acc, key) => {
         acc[key] = false
         return acc;
     }, {});
@@ -391,6 +394,7 @@ const Shipments = () => {
             let formattedRow = {
                 ...row,
                 supplier: gQ(row.supplier, 'Supplier', 'nname'),
+                originSupplier: gQ(row.originSupplier, 'Supplier', 'nname'),
                 expType: row.expType !== 'Commercial' ? gQ(row.expType, 'Expenses', 'expType') : 'Commercial',
                 cur: gQ(row.cur, 'Currency', 'cur'),
                 client: typeof row.client === 'object' ? row.client.nname : gQ(row.client, 'Client', 'nname'),

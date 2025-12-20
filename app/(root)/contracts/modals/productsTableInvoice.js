@@ -4,6 +4,7 @@ import { NumericFormat } from 'react-number-format';
 import ChkBox from '@components/checkbox.js'
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { MdDelete } from 'react-icons/md';
+import { Import } from 'lucide-react';
 import { getD, sortArr } from '@utils/utils.js';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import CBox from '@components/comboboxProductSelect'
@@ -14,6 +15,7 @@ import { CalculateNum } from '@components/calculate';
 import { getTtl } from '@utils/languages';
 import { AiOutlineSafetyCertificate } from "react-icons/ai";
 import CheckBox from '@components/checkbox.js';
+import FindCOntract4Materials from '@components/findContract4Materials';
 
 
 
@@ -32,6 +34,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
     const fnl = value.final;
     const { setToast, ln } = useContext(SettingsContext);
     const [valueDesc, setValueDesc] = useState('')
+    const [openFindContract, setOpenFindContract] = useState(false)
 
 
     useEffect(() => {
@@ -55,7 +58,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
             ...value.productsDataInvoice,
             {
                 id: uuidv4(), po: '', descriptionId: '', container: '', qnty: '0', unitPrc: '0', total: 0,
-                descriptionText: '', isSelection: true, stock: '', stockValue: ''
+                descriptionText: '', mtrlStatus: 'select', stock: '', stockValue: ''
             },
         ];
         setValue({ ...value, productsDataInvoice: newArr });
@@ -155,7 +158,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
             );
 
             newArr = newArr.map(x => ({
-                ...x, total: x.qnty === "0" ? x.unitPrc * 1 :
+                ...x, total: x.qnty === "s" ? x.unitPrc * 1 :
                     x.eqQnty ? eval(x.eqQnty.replace('=', '')) * x.unitPrc :
                         Math.round(x.qnty * x.unitPrc * 100) / 100
             }))
@@ -211,6 +214,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
 
     const handleKeyPress2 = (e) => {
         const isValidInputPrep = /^\d+(\.\d{0,2})?$/.test(e.target.value);
+
 
         if (e.key === 'Enter') {
 
@@ -271,26 +275,42 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
     }
 
 
-
     const selectOrEdit = (val, i) => {
 
-        let itm = value.productsDataInvoice[i]
-        itm = { ...itm, isSelection: val === '1' ? false : true }
-
-        if (val === '1') {
-
-            // avoid initial editing =>    setEdit({ status: true, id: value.productsDataInvoice[i]['id'], header: 'description' });
-            setValueDesc(materialsArr.find(x => x.id === value.productsDataInvoice[i].descriptionId)['description']);
-            itm = {
-                ...itm,
-                descriptionText: materialsArr.find(x => x.id === value.productsDataInvoice[i].descriptionId)['description']
+        const normalized = value.productsDataInvoice.map(item => {
+            if ("isSelection" in item) {
+                const { isSelection, ...clean } = item;
+                return {
+                    ...clean,
+                    mtrlStatus: isSelection ? "select" : "edit"
+                };
             }
+
+            // If no isSelection — return item unchanged
+            return item;
+        });
+
+        let target = normalized[i];
+
+        target = { ...target, mtrlStatus: val };
+
+        if (val === "edit") {
+            const desc = materialsArr.find(x => x.id === target.descriptionId)?.description;
+            setValueDesc(desc);
+
+            target = {
+                ...target,
+                descriptionText: desc
+            };
         }
 
-        let newArr = [...value.productsDataInvoice]
-        newArr[i] = itm
+
+
+        const newArr = [...normalized];
+        newArr[i] = target;
+
         setValue({ ...value, productsDataInvoice: newArr });
-    }
+    };
 
     const handleCert = (e, k) => {
 
@@ -383,7 +403,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 className="px-1 py-1 text-sm text-gray-800 whitespace-normal"
                                             >
                                                 <div className='flex items-center gap-1'>
-                                                    {obj.isSelection ?
+                                                    {obj.mtrlStatus === 'select' || obj.isSelection ?
                                                         <CBox data={materialsArr} setValue={setValue} value={value}
                                                             indx={i} name='descriptionId' classes='shadow-md'
                                                             uidCollection={uidCollection} disabled={fnl} />
@@ -405,13 +425,13 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                     ref={inputRef}
                                                                 />
                                                                 :
-                                                                obj['descriptionText']
+                                                                obj.descriptionText
                                                             }
                                                         </div>
                                                     }
                                                     <div className={`${obj.descriptionId === '' ? 'hidden' : 'flex'}`}>
-                                                        <SlctOpt isSelection={value.productsDataInvoice[i].isSelection}
-                                                            selectOrEdit={selectOrEdit} indx={i} ln={ln} />
+                                                        <SlctOpt obj={obj}
+                                                            selectOrEdit={selectOrEdit} indx={i} />
                                                     </div>
                                                 </div>
 
@@ -461,7 +481,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                             />
                                                         ) : key === 'qnty' ? (
                                                             <div>
-                                                                <NumericFormat
+                                                                {obj[key] !== 's' ? <NumericFormat
                                                                     value={obj[key]}
                                                                     displayType="text"
                                                                     thousandSeparator
@@ -469,16 +489,18 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                     decimalScale='3'
                                                                     fixedDecimalScale
                                                                 />
+                                                                    :
+                                                                    <span>Service</span>}
                                                             </div>
-                                                        ) : key === 'stock' && obj.qnty !== "0" ?
+                                                        ) : key === 'stock' && obj.qnty !== "s" ?
                                                             (<CBox1 data={sortArr(settings.Stocks.Stocks, 'stock')}
                                                                 setValue={setValue} value={value} name='stock'
                                                                 dt={value.productsDataInvoice} indx={i} classes='shadow-md h-7'
                                                                 disabled={obj.descriptionId === '' || fnl} uidCollection={uidCollection} />
                                                             ) :
-                                                            key === 'stock' && obj.qnty === "0" ?
+                                                            key === 'stock' && obj.qnty === "s" ?
                                                                 '' :
-                                                                key === 'stockValue' && obj.qnty !== "0" ? (
+                                                                key === 'stockValue' && obj.qnty !== "s" ? (
                                                                     <NumericFormat
                                                                         value={obj[key]}
                                                                         displayType="text"
@@ -487,7 +509,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                         decimalScale={obj[key] === 0 ? 0 : 3}
                                                                         fixedDecimalScale
                                                                     />
-                                                                ) : key === 'stockValue' && obj.qnty === "0" ? ''
+                                                                ) : key === 'stockValue' && obj.qnty === "s" ? ''
                                                                     :
                                                                     obj[key]
                                                     }
@@ -676,6 +698,18 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                 Certification
                             </span>
                         </div>}
+                        <div className='group relative'>
+                            <button
+                                className="whiteButton py-1 px-2"
+                                onClick={() => setOpenFindContract(true)}
+                            >
+                                <Import size={16} />
+                                Import
+                            </button>
+                            <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
+    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
+                                Import materials</span>
+                        </div>
                         <div className='justify-end flex flex-1 gap-3'>
                             <div className='flex leading-7 items-center gap-1'>
                                 <CheckBox size='size-5' checked={value.draft ?? false}
@@ -688,10 +722,22 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                 <span className='text-sm'>Invoice completed</span>
                             </div>
                         </div>
-
+                        {
+                            openFindContract &&
+                            <FindCOntract4Materials open={openFindContract}
+                                setOpen={setOpenFindContract}
+                                uidCollection={uidCollection}
+                                value={value}
+                                setValue={setValue}
+                            />
+                        }
                     </div>
                 }
+
             </div>
+
+
+
         </div>
     );
 }
