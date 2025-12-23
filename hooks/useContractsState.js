@@ -220,7 +220,9 @@ const useContractsState = (props) => {
 
             let success = await saveData(uidCollection, 'contracts', tmp)
 
-            /////////////////////////////
+
+            
+             ///////////////Special Invoices//////////////
             let newData = tmpdata.filter(q => q.spInv).map(z => {
                 let aa = z.poInvoices.find(a => a.id === z.poInvoice);
                 let bb = z.productsData.find(a => a.id === z.description);
@@ -234,6 +236,7 @@ const useContractsState = (props) => {
                         cur: valueCon.cur,
                         qnty: z.qnty, unitPrc: z.unitPrc, total: z.total,
                         paidNotPaid: (aa?.pmnt * 1 / aa?.invValue * 1) > 0.95 ? 'Paid' : 'Not Paid',
+                          originSupplier: valueCon.originSupplier
                     })
             })
             await speciaInvoices(uidCollection, newData)

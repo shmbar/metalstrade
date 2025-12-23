@@ -98,7 +98,7 @@ export const EXD = (dataTable, settings, name, ln, totals) => {
             sheet.addRow({
                 order: item.order,
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
-                originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier).nname,
+                originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier)?.nname,
                 supplierInv: item.supplierInv.map(x => x).join('\n'),
                 supplierInvAmount: item.supplierInvAmount.map(Number).reduce((accumulator, currentValue) => {
                     return accumulator + currentValue;

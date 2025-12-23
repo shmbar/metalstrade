@@ -78,8 +78,8 @@ const Stocks = () => {
       },
     },
     {
-			accessorKey: 'originSupplier', header: 'Original supplier',
-		},
+      accessorKey: 'originSupplier', header: 'Original supplier',
+    },
     { accessorKey: 'stock', header: getTtl('warehouse', ln) },
     { accessorKey: 'descriptionName', header: getTtl('Description', ln), cell: (props) => <p className='w-20 md:w-64 text-wrap'>{props.getValue()}</p> },
     { accessorKey: 'qnty', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props)}</p> },
@@ -119,8 +119,8 @@ const Stocks = () => {
         {
           ...x,
           descriptionName: x.type === 'in' && x.description ?  //Contract Invoice
-            x.productsData.find(y => y.id === x.description)['description'] :
-            x.mtrlStatus === "select" ? x.productsData.find(y => y.id === x.descriptionId)?.description : // Invoice 
+            x.productsData.find(y => y.id === x.description)?.description :
+            x.mtrlStatus === "select" || x.isSelection ? x.productsData.find(y => y.id === x.descriptionId)?.description : // Invoice 
               x.type === 'out' && x.moveType === "out" ? x.descriptionName :
                 x.descriptionText,
         }))
@@ -257,7 +257,7 @@ const Stocks = () => {
 
 
 
-  let invisible = ['date'].reduce((acc, key) => {
+  let invisible = ['date', 'originSupplier'].reduce((acc, key) => {
     acc[key] = false;
     return acc;
   }, {});

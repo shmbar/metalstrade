@@ -55,7 +55,6 @@ const Cashflow = () => {
     const [initialData, setInitialData] = useState([]);
     const [stockData1, setStockData1] = useState([])
     const [stockData2, setStockData2] = useState([])
-    const [stockData3, setStockData3] = useState([])
     const [stockDataAll, setStockDataAll] = useState([])
     const [stockDataNoPayment, setStockDataNoPayment] = useState([])
     const [stockDataNoSold, setStockDataNoSold] = useState([])
@@ -170,7 +169,7 @@ const Cashflow = () => {
             dataStock.result1 = dataStock.result1.map(z => ({ ...z, stockName: settings.Stocks.Stocks.find(k => k.id === z.stock)?.stock }))
             setStockData1(dataStock.result.sort((a, b) => b.total - a.total))
             setStockData2(dataStock.result1.sort((a, b) => b.total - a.total))
-            setStockDataAll(dataStock.stocksArr) ////this one containes items that could were be filtered
+            setStockDataAll(dataStock.stocksArrWithPayment) ////this one containes items that could were be filtered
             setStockDataNoPayment(dataStock.stocksArrNoPayment)
             setStockDataNoSold(dataStock.unSoldArrTitles)
             setStockDataAllArray(dataStock.unSoldAll)
@@ -1310,7 +1309,7 @@ const Cashflow = () => {
                                                     {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 === 0),
                                                         uidCollection, setDateSelect,
                                                         setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-                                                        toggleSupplier, savePmntSupplier, supplierPartialPayment)}
+                                                        toggleSupplier, savePmntSupplier, supplierPartialPayment, settings)}
                                                 </MyAccordion>
                                             </div>
 
@@ -1383,7 +1382,7 @@ const Cashflow = () => {
                                                     {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 > 0),
                                                         uidCollection, setDateSelect,
                                                         setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-                                                        toggleSupplier, savePmntSupplier, supplierPartialPayment)}
+                                                        toggleSupplier, savePmntSupplier, supplierPartialPayment, settings)}
                                                 </MyAccordion>
                                             </div>
 

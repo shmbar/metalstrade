@@ -4,15 +4,11 @@ import { flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, us
 
 import { TbSortDescending } from "react-icons/tb";
 import { TbSortAscending } from "react-icons/tb";
-import { usePathname } from 'next/navigation'
 import '../../contracts/style.css';
-import { getTtl } from "@utils/languages";
 import Tltip from "@components/tlTip";
 import { expensesToolTip } from "./funcs";
 
 const Customtable = ({ data, columns, expensesData, settings, title, filt }) => {
-
-    const pathname = usePathname()
 
     const table1 = useReactTable({
         columns, data,
@@ -35,7 +31,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         <div className={`flex flex-col relative max-w-[486px]`}>
             <div className="border rounded-xl">
                 <div className="justify-between flex p-2 flex-wrap bg-gray-50 rounded-t-xl border-b">
-                    <p className="text-slate-700 p-2">{title}</p>
+                   <p className="text-slate-700 px-2 text-sm font-semibold">{title}</p>
                 </div>
 
                 <div className=" overflow-x-auto ">

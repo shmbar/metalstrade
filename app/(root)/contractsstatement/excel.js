@@ -79,7 +79,7 @@ export const EXD = (dataTable, settings, name, ln) => {
                 date: dateFormat(item.date, 'dd-mmm-yy'),
                 order: item.order,
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
-                originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier).nname,
+                originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier)?.nname,
                 poWeight: item.poWeight * 1,
                 description: item.description,
                 unitPrc: isNaN(item.unitPrc * 1) ? item.unitPrc : item.unitPrc * 1,

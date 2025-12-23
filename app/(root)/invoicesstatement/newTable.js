@@ -65,7 +65,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
 
         let field = x.column?.columnDef?.accessorKey;
 
-        let isTrue1 = (field === 'supplier' || field === 'supInvoices' || field === 'expType' ||
+        let isTrue1 = (field === 'supplier' || field === 'originSupplier' || field === 'supInvoices' || field === 'expType' ||
             field === 'invAmount' || field === 'pmntAmount')
 
         let isTrue2 = (field === 'InvNum' || field === 'dateInv' || field === 'client' || field === 'totalInvoices' ||

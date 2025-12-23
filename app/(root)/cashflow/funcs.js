@@ -16,6 +16,7 @@ let propDefaults = [
     { accessorKey: 'order', },
     { accessorKey: 'date', },
     { accessorKey: 'supplier', },
+    { accessorKey: 'originSupplier', },
     { accessorKey: 'descriptionName', },
     { accessorKey: 'qnty', },
     { accessorKey: 'qTypeTable', },
@@ -54,7 +55,7 @@ export const runStocks = async (uidCollection, settings, yr, contractsData) => {
             ...x,
             descriptionName: x.type === 'in' && x.description ?  //Contract Invoice
                 x.productsData.find(y => y.id === x.description)?.description :
-                x.isSelection ? x.productsData.find(y => y.id === x.descriptionId)?.description : // Invoice 
+                x.isSelection || x.mtrlStatus === 'select' ? x.productsData.find(y => y.id === x.descriptionId)?.description : // Invoice 
                     x.type === 'out' && x.moveType === "out" ? x.descriptionName :
                         x.descriptionText
         }))
@@ -73,7 +74,8 @@ export const runStocks = async (uidCollection, settings, yr, contractsData) => {
         }))
     ).filter(x => !x.import);
 
-
+    /*************************************** */
+    /*** UNSOLD  */
     const ids = new Set(stockData.filter(x => x.type === 'in').map(i => i.description).filter(Boolean));
     const unSoldAll = tmpArr10.filter(i => !ids.has(i.id));
 
@@ -94,6 +96,8 @@ export const runStocks = async (uidCollection, settings, yr, contractsData) => {
             return acc;
         }, {})
     );
+
+    /*************************************** */
 
     let stocksArrData = [...new Set(stockData.map(x => x.stock))]
 
@@ -179,9 +183,11 @@ export const runStocks = async (uidCollection, settings, yr, contractsData) => {
     });
 
     const stocksArrNoPayment = [...invoicesPaymentZero];
-    //Clean newArr from stocks with payment zero
 
+    //Clean newArr from stocks with payment zero
     newArr = newArr.filter(x => !invoicesPaymentZero.map(q => q.id).includes(x.id))
+    const stocksArrWithPayment = [...newArr];
+
 
     //totals for newArr
     let tmpArr = newArr.map(x => ({ cur: x.cur, qTypeTable: x.qTypeTable, stock: x.stock, qnty: 0, total: 0 }))
@@ -244,7 +250,7 @@ export const runStocks = async (uidCollection, settings, yr, contractsData) => {
 
     const result1 = sumupResult1.filter(z => z.total !== 0);
 
-    return { result, result1, stocksArr, stocksArrNoPayment, unSoldArrTitles, unSoldAll };
+    return { result, result1, stocksArrWithPayment, stocksArrNoPayment, unSoldArrTitles, unSoldAll };
 }
 
 
@@ -330,6 +336,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                     <tr className="border border-slate-300 p-2">
                         <th className="text-left p-1 w-24">PO#</th>
                         <th className="text-left p-1">Supplier</th>
+                        <th className="text-left p-1">Org. Supplier</th>
                         <th className="text-left p-1 w-40">Description</th>
                         <th className="text-left p-1">Quantity</th>
                         <th className="text-right p-1">Unit Price</th>
@@ -345,6 +352,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     {z.order}</td>
                                 <td className="text-left p-1 w-20">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td>
+                                <td className="text-left p-1 w-20">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</td>
                                 <td className="text-left p-1 max-w-28 2xl:max-w-48 truncate" >{z.descriptionName}</td>
                                 <td className="text-left p-1">{
                                     <NumericFormat
@@ -391,6 +399,8 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                     <tr className="border-t bg-slate-100 border border-slate-300">
                         <th className="relative px-1 py-1 text-left font-medium text-gray-500 uppercase                                  ">
                             Total
+                        </th>
+                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
                         </th>
                         <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
                         </th>
@@ -1047,7 +1057,7 @@ export const getTotalsSupPayments = (arr) => {
 
 export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-    toggleSupplier, savePmntSupplier, supplierPartialPayment,
+    toggleSupplier, savePmntSupplier, supplierPartialPayment, settings
 ) => {
 
     let filteredArr = data.filter(z => z.supplier === supplier)
@@ -1060,6 +1070,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                     <tr className="border border-slate-300">
                         <th className="text-left p-1 2xl:p-2">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
+                        <th className="text-left p-2">Org. supplier</th>
                         <th className="text-left p-1 2xl:p-2">Invoice</th>
                         <th className="text-right p-1 2xl:p-2">Value</th>
                         <th className="text-right p-1 2xl:p-2">Payment</th>
@@ -1085,6 +1096,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                     onClick={() => moveToContracts(z, 'supplier', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}
                                 >{z.order}</td>
+                                <td className="text-left p-2">{settings?.Supplier?.Supplier.find(q => q.id === z.originSupplier)?.nname}</td>
                                 {/* <td className="text-left p-2">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td> */}
                                 <td className="text-left p-1 2xl:p-2 2xl:max-w-24 truncate" >{z.invoice}</td>
                                 <td className="text-right p-1 2xl:p-2">{
@@ -1146,6 +1158,8 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                     <tr className="border-t bg-slate-100 border border-slate-300 responsiveTextTable">
                         <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase                                  ">
                             Total
+                        </th>
+                        <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase">
                         </th>
                         <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase">
                         </th>

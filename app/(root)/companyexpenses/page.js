@@ -181,7 +181,7 @@ const Expenses = () => {
     let colsTotals = Object.keys(settings).length === 0 ? [] : [
         {
             accessorKey: 'supplier', header: getTtl('Vendor', ln),
-            cell: (props) => <p>{props.getValue('supplier')}</p>
+            cell: (props) => <p>{gQ(props.getValue('supplier'), 'Supplier', 'nname')}</p>
         },
         {
             accessorKey: 'amount', header: getTtl('Amount', ln),
@@ -247,12 +247,12 @@ const Expenses = () => {
 
                         <div className='flex gap-4 2xl:gap-20 flex-wrap'>
                             <div className='pt-8'>
-                                <TableTotals data={totals.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
+                                <TableTotals data={totals/*.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))*/} columns={colsTotals} expensesData={expensesData}
                                     settings={settings} filt='reduced' title='Summary - Unpaid Company expenses' />
                             </div>
 
                             <div className='pt-8'>
-                                <TableTotals data={totalsAll.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
+                                <TableTotals data={totalsAll/*.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))*/} columns={colsTotals} expensesData={expensesData}
                                     settings={settings} filt='full' title='Summary' />
                             </div>
                         </div>

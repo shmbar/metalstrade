@@ -120,6 +120,9 @@ const Contracts = () => {
                 filterVariant: 'selectSupplier',
             },
         },
+        {
+			accessorKey: 'originSupplier', header: 'Original supplier',
+		},
         { accessorKey: 'order', header: getTtl('PO', ln) + '#' },
         { accessorKey: 'salesInvoice', header: 'Sales Invoice' },
         { accessorKey: 'invoice', header: getTtl('Invoice', ln) },
@@ -151,6 +154,7 @@ const Contracts = () => {
             let formattedRow = {
                 ...row,
                 supplier: gQ(row.supplier, 'Supplier', 'nname'),
+                originSupplier: gQ(row.originSupplier, 'Supplier', 'nname'),
 
             }
 
