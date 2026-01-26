@@ -70,7 +70,7 @@ const Customtable = ({
     const selectCol = {
       id: "select",
       header: ({ table }) => (
-        <div className="flex items-center justify-start w-full h-full">
+        <div className="flex items-center justify-start w-full h-full ml-2">
           <input
             type="checkbox"
             checked={table.getIsAllPageRowsSelected()}

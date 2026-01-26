@@ -461,7 +461,7 @@ const Customtable = ({
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col rounded-3xl shadow-xl overflow-hidden glass-table"
+        <div className="flex flex-col rounded-3xl shadow-xl  glass-table"
           style={{ 
             boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset',
           }}

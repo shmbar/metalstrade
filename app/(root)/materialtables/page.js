@@ -191,7 +191,7 @@ const MaterialTables = () => {
 
 
     return (
-        <div className="w-full overflow-x-hidden">
+        <div className="w-full ">
             <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
                 {Object.keys(settings).length === 0 ? <Spinner /> :
                     <>
