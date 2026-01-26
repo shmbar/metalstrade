@@ -1,5 +1,3 @@
-
-
 'use client';
 import { useContext, useEffect, useState, useCallback } from 'react';
 import Customtable from './newTable';
@@ -42,10 +40,10 @@ const Contracts = () => {
 	const { blankExpense } = useContext(ExpensesContext);
 	const { uidCollection } = UserAuth();
 	const router = useRouter();
-	const searchParams = useSearchParams();
+		const searchParams = useSearchParams();
 	const [alertArr, setAlertArr] = useState([]);
 	const [openAlert, setOpenAlert] = useState(true)
-	const [filteredData, setFilteredData] = useState([])
+		const [filteredData, setFilteredData] = useState([])
 	const [highlightId, setHighlightId] = useState(null)
 	const { upsertSourceItems } = useGlobalSearch();
 
@@ -173,7 +171,7 @@ const Contracts = () => {
 				options: settings.Shipment?.Shipment?.map(s => ({
 					value: s.id,
 					label: s.shpType
-				})) ?? []
+			})) ?? []
 			}
 		},
 		{
@@ -278,104 +276,105 @@ const Contracts = () => {
 
 	return (
 	<div className="w-full overflow-x-hidden">
-    <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-2">
-				{Object.keys(settings).length === 0 ? <Spinner /> :
-					<>
-						<Toast />
-						<ModalCopyInvoice />
+		<div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+			{Object.keys(settings).length === 0 ? <Spinner /> :
+				<>
+					<Toast />
+					<ModalCopyInvoice />
 
-						{/* Main Card */}
-						<div className="rounded-2xl p-3 sm:p-5 mt-2 bg-gradient-to-br from-[#f5f7fa] via-[#e0e7ff] to-[#f0abfc] border-0 shadow-xl w-full backdrop-blur-[2px]">
+					{/* Main Card */}
+					<div className="rounded-2xl p-3 sm:p-5 mt-2  border-0 shadow-xl w-full backdrop-blur-[2px]">
+						
+						{/* Header Section */}
+						<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+							<h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+								{getTtl('Contracts', ln)}
+							</h1>
 							
-							{/* Header Section */}
-							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-								<h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 via-purple-600 to-pink-500 drop-shadow-md tracking-tight responsiveTextTitle">
-									{getTtl('Contracts', ln)}
-								</h1>
-								
-								<div className='flex items-center gap-2 group'>
-									<div className="relative">
-										<DateRangePicker />
-									</div>
-									<Tooltip txt='Select Dates Range' />
+							{/* <div className='flex items-center gap-2 group'>
+								<div className="relative">
+									<DateRangePicker />
 								</div>
-							</div>
-
-							{/* Table Component */}
-							<Customtable 
-								data={sortArr(contractsData, 'order')}
-								columns={propDefaults} 
-								SelectRow={SelectRow}
-								invisible={invisible}
-								excellReport={EXD(contractsData.filter(x => filteredData.map(z => z.id).includes(x.id)),
-									settings, getTtl('Contracts', ln), ln)}
-								setFilteredData={setFilteredData}
-								highlightId={highlightId} 
-								onCellUpdate={onCellUpdate} 
-							/>
+								<Tooltip txt='Select Dates Range' />
+							</div> */}
 						</div>
 
-						{/* Action Buttons */}
-						  <div className="flex flex-col sm:flex-row gap-3 mt-4 ml-4">
-							<Tltip direction='bottom' tltpText='Create new Contract'>
-								<button
-									type="button"
-									onClick={addNewContract}
-									className="text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 focus:outline-none font-semibold rounded-full text-sm px-5 py-2 shadow-lg gap-2 items-center flex justify-center transition-all duration-200 hover:scale-105 border border-indigo-200/60 responsiveTextInput whitespace-nowrap"
-								>
-									<TbLayoutGridAdd className="text-lg flex-shrink-0" />
-									<span>{getTtl('New Contract', ln)}</span>
-								</button>
-							</Tltip>
-							
-							<Tltip direction='bottom' tltpText='Quantities analysis report'>
-								<button
-									type="button"
-									onClick={() => router.push('/analysis')}
-									className="text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 focus:outline-none font-semibold rounded-full text-sm px-5 py-2 shadow-lg gap-2 items-center flex justify-center transition-all duration-200 hover:scale-105 border border-indigo-200/60 responsiveTextInput whitespace-nowrap"
-								>
-									<IoAnalyticsOutline className="text-lg flex-shrink-0" />
-									<span>{getTtl('Weight Analysis', ln)}</span>
-								</button>
-							</Tltip>
-						</div>
+						{/* Table Component */}
+						<Customtable 
+							data={sortArr(contractsData, 'order')}
+							columns={propDefaults} 
+							SelectRow={SelectRow}
+							invisible={invisible}
+							excellReport={EXD(contractsData.filter(x => filteredData.map(z => z.id).includes(x.id)),
+								settings, getTtl('Contracts', ln), ln)}
+							setFilteredData={setFilteredData}
+							highlightId={highlightId} 
+							onCellUpdate={onCellUpdate} 
+						/>
+					</div>
 
-						{/* Alert Section */}
-						{alertArr.length > 0 && (
-							<div className='mt-4 px-2 sm:px-3'>
-								<div className="text-sm font-semibold text-indigo-900 border-0 p-4 rounded-xl shadow bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 w-full max-w-2xl">
-									<div className='text-[var(--port-gore)]'>
-										<span className='text-xs sm:text-sm'>Notification for delayed response</span>
-										<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
-									</div>
-								</div>
-							</div>
-						)}
-
-						{/* Modals */}
-						{valueCon && (
-							<MyDetailsModal 
-								isOpen={isOpenCon} 
-								setIsOpen={setIsOpenCon}
-								title={!valueCon.id ? getTtl('New Contract', ln) : `${getTtl('Contract No', ln)}: ${valueCon.order}`} 
-							/>
-						)}
-
-						{alertArr.length > 0 && (
-							<Modal 
-								isOpen={openAlert} 
-								setIsOpen={setOpenAlert} 
-								title='Notification for delayed response' 
-								w='max-w-2xl'
+					{/* Action Buttons */}
+					<div className="flex flex-col sm:flex-row gap-3 mt-4 ml-4">
+						<Tltip direction='bottom' tltpText='Create new Contract'>
+							<button
+								type="button"
+								onClick={addNewContract}
+								style={{ fontSize: '12px' }}
+								className="text-white bg-[#11497c] focus:outline-none font-poppins rounded-lg text-base px-5 py-2 shadow-lg gap-2 items-center flex justify-center transition-all duration-200 hover:scale-105 border border-indigo-200/60 responsiveTextInput whitespace-nowrap"
 							>
-								<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
-							</Modal>
-						)}
-					</>
-				}
-			</div>
+								<TbLayoutGridAdd className="text-lg flex-shrink-0" />
+								<span>{getTtl('New Contract', ln)}</span>
+							</button>
+						</Tltip>
+						<Tltip direction='bottom' tltpText='Quantities analysis report'>
+							<button
+								type="button"
+								onClick={() => router.push('/analysis')}
+								style={{ fontSize: '12px' }}
+								className="text-white bg-[#11497c] focus:outline-none font-poppins rounded-lg text-base px-5 py-2 shadow-lg gap-2 items-center flex justify-center transition-all duration-200 hover:scale-105 border border-indigo-200/60 responsiveTextInput whitespace-nowrap"
+							>
+								<IoAnalyticsOutline className="text-lg flex-shrink-0" />
+								<span>{getTtl('Weight Analysis', ln)}</span>
+							</button>
+						</Tltip>
+					</div>
+
+					{/* Alert Section */}
+					{alertArr.length > 0 && (
+						<div className='mt-4 px-2 sm:px-3'>
+							<div className="text-sm font-semibold text-indigo-900 border-0 p-4 rounded-xl shadow bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 w-full max-w-2xl">
+								<div className='text-[var(--port-gore)]'>
+									<span className='text-xs sm:text-sm'>Notification for delayed response</span>
+									<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
+								</div>
+							</div>
+						</div>
+					)}
+
+					{/* Modals */}
+					{valueCon && (
+						<MyDetailsModal 
+							isOpen={isOpenCon} 
+							setIsOpen={setIsOpenCon}
+							title={!valueCon.id ? getTtl('New Contract', ln) : `${getTtl('Contract No', ln)}: ${valueCon.order}`} 
+						/>
+					)}
+
+					{alertArr.length > 0 && (
+						<Modal 
+							isOpen={openAlert} 
+							setIsOpen={setOpenAlert} 
+							title='Notification for delayed response' 
+							w='max-w-2xl'
+						>
+							<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
+						</Modal>
+					)}
+				</>
+			}
 		</div>
-	);
+	</div>
+);
 };
 
 export default Contracts;

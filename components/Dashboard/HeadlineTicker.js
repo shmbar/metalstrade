@@ -28,22 +28,19 @@ export default function HeadlineTicker({
   const theme = useMemo(() => {
     const fxTheme = {
       shell:
-        'border border-blue-100/70 bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-cyan-50/60 shadow-[0_12px_30px_-18px_rgba(37,99,235,0.45)]',
+        'border border-blue-100 bg-blue-50/60 shadow-sm',
       headerIconWrap:
-        'bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-[0_10px_20px_-12px_rgba(37,99,235,0.6)]',
-      titleText: 'text-slate-900',
-      subText: 'text-slate-500',
-      tickerDot: 'bg-blue-500/70',
-      itemLabel: 'text-slate-600',
-      itemValue: 'text-slate-900',
-      itemSub: 'text-slate-500',
-      itemPill:
-        'bg-white/55 border border-blue-100/70 shadow-[0_10px_18px_-16px_rgba(37,99,235,0.35)]',
+        'bg-blue-600 text-white',
+      titleText: 'text-blue-800',
+      subText: 'text-blue-600 text-xs',
+      tickerDot: 'bg-blue-300',
+      itemLabel: 'text-slate-600 text-xs',
+      itemValue: 'text-slate-900 text-sm font-bold',
+      itemSub: 'text-slate-500 text-xs',
+      itemPill: 'bg-white border border-blue-100 rounded-full shadow-sm',
       itemIcon: 'text-blue-600/70',
-      hover:
-        'hover:shadow-[0_16px_38px_-18px_rgba(37,99,235,0.55)] hover:border-blue-200/70',
-      mask:
-        'linear-gradient(to right, transparent, black 6%, black 94%, transparent)',
+      hover: 'hover:shadow-md hover:border-blue-200',
+      mask: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
     };
 
     if (variant === 'metal') return fxTheme; // ✅ metal uses blue theme
@@ -154,7 +151,7 @@ export default function HeadlineTicker({
           ].join(' ')}
           style={{
             ['--ticker-duration']: `${duration}s`,
-            columnGap: `${gap}px`,
+            columnGap: `${gap}px`, // This uses the gap prop
           }}
         >
           {repeatedItems.map((it, idx) => {
@@ -163,29 +160,37 @@ export default function HeadlineTicker({
               <div
                 key={`${it.key}-${idx}`}
                 className={[
-                  'flex items-center gap-3 whitespace-nowrap rounded-full px-4 py-2',
+                  'flex items-center whitespace-nowrap rounded-full px-2 py-0.5',
                   theme.itemPill,
                 ].join(' ')}
               >
                 {Icon ? (
-                  <Icon className={['w-4 h-4', theme.itemIcon].join(' ')} />
+                  <Icon className={['w-3.5 h-3.5 mr-2', theme.itemIcon].join(' ')} />
                 ) : null}
 
-                <span className={['text-xs font-semibold', theme.itemLabel].join(' ')}>
-                  {it.label}
-                </span>
-
-                <span className={['text-sm font-bold', theme.itemValue].join(' ')}>
-                  {it.value}
-                </span>
-
-                {it.subValue ? (
-                  <span className={['text-xs', theme.itemSub].join(' ')}>
-                    {it.subValue}
+                {/* Group label and value together */}
+                <div className="flex items-center">
+                  <span className={['text-xs font-semibold', theme.itemLabel].join(' ')}>
+                    {it.label}
                   </span>
-                ) : null}
+                  <span
+                    className="mx-6 w-px h-4 bg-slate-200"
+                    // style={{ display: 'inline-block', borderRadius: 1 }}
+                  />
+                  <span className={['text-xs font-bold', theme.itemValue].join(' ')}>
+                    {it.value}
+                  </span>
+                  {it.subValue ? (
+                    <span className={['text-xs ml-1', theme.itemSub].join(' ')}>
+                      {it.subValue}
+                    </span>
+                  ) : null}
+                </div>
 
-                <span className={['w-1.5 h-1.5 rounded-full', theme.tickerDot].join(' ')} />
+                {/* If you want a dot after subValue, keep this */}
+                {it.subValue ? (
+                  <span className={['w-1.5 h-1.5 rounded-full ml-1', theme.tickerDot].join(' ')} />
+                ) : null}
               </div>
             );
           })}

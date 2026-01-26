@@ -2,9 +2,6 @@ function addCommas(x) {
     var parts = Math.round(x).toString().split('.');
     return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
-
-///////////////////////////////
-
 function checkIfInArray(values) {
     const arr = [3, 5.5];
     const sumOfY_axe = values.map(x => x.value).reduce((a, b) => a + b, 0) //array is included in array
@@ -513,7 +510,6 @@ export const HorizontalBar = (arr, text) => {
             legend: {
                 display: false,
             },
-
             tooltip: {
                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 titleColor: '#28264f',

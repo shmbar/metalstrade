@@ -310,97 +310,91 @@ const AccountStatement = () => {
     return newArr
   }
 
- 
 
   return (
-    <div className="container mx-auto px-0 pb-8 md:pb-0 mt-16 md:mt-0">
-      {Object.keys(settings).length === 0 ? <Spinner /> :
-        <>
-          <Toast />
-          {/* {loading && <Spin />} */}
-          <div className="border border-[var(--selago)] rounded-xl p-4 mt-8 shadow-lg bg-white relative">
-            <div className='flex items-center justify-between flex-wrap'>
-              <div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Account Statement', ln)}</div>
-
-              <div className='flex group datepicker-wrapper'>
-                <Datepicker
-                  inputClassName='border border-slate-300 text-sm/6 p-1 px-1.5 rounded-lg text-slate-500 w-60
-             focus:outline-none cursor-pointer z-0 bg-white'
-                  useRange={false}
-                  asSingle={true}
-                  value={valueDate}
-                  onChange={handleDateChange}
-                  displayFormat={"01-01-YY - DD-MM-YY"}
-                  placeholder="Select date"
-                  showShortcuts={false}
-                  readOnly={true}
-                  containerClassName="z-20 relative"
-                  disabledDates={disabledDates}
-                />
-                <Tooltip txt='Select Date' />
+    <div className="w-full overflow-x-hidden">
+      <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+        {Object.keys(settings).length === 0 ? <Spinner /> :
+          <>
+            <Toast />
+            {/* Main Card */}
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white relative">
+              {/* Header Section */}
+              <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+                <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+                  {getTtl('Account Statement', ln)}
+                </h1>
+                <div className='flex group datepicker-wrapper'>
+                  <Datepicker
+                    inputClassName='border border-slate-300 text-sm/6 p-1 px-1.5 rounded-lg text-slate-500 w-60
+                      focus:outline-none cursor-pointer z-0 bg-white'
+                    useRange={false}
+                    asSingle={true}
+                    value={valueDate}
+                    onChange={handleDateChange}
+                    displayFormat={"01-01-YY - DD-MM-YY"}
+                    placeholder="Select date"
+                    showShortcuts={false}
+                    readOnly={true}
+                    containerClassName="z-20 relative"
+                    disabledDates={disabledDates}
+                  />
+                  <Tooltip txt='Select Date' />
+                </div>
               </div>
 
-
-              {/* <div className='flex group'>
-                <DateRangePicker />
-                <Tooltip txt='Select Dates Range' />
-              </div> */}
+              {/* Table Component */}
+              <div className='mt-5'>
+                <Customtable
+                  data={loading ? [] : getFormatted(dataTable)}
+                  datattl={loading ? [] : totals}
+                  columns={propDefaults}
+                  cb={CB(settings, setselectedClient, selectedClient)}
+                  settings={settings}
+                  setFilteredData={setFilteredData}
+                  valCur={valCur}
+                  setValCur={setValCur}
+                  invisible={invisible}
+                  excellReport={EXD(filteredData, settings, getTtl('Account Statement', ln), ln)}
+                  ln={ln}
+                />
+              </div>
             </div>
 
-
-            <div className='mt-5'>
-              <Customtable data={loading ? [] : getFormatted(dataTable)} datattl={loading ? [] : totals} columns={propDefaults}
-                cb={CB(settings, setselectedClient, selectedClient)} settings={settings}
-                setFilteredData={setFilteredData} valCur={valCur}
-                setValCur={setValCur}
-                invisible={invisible}
-                excellReport={EXD(filteredData, settings, getTtl('Account Statement', ln), ln)} ln={ln} />
+            {/* PDF Button Section */}
+            <div className="text-lg font-medium leading-5 text-gray-900 p-3 flex gap-4 flex-wrap justify-center md:justify-start ">
+              <Tltip direction='top' tltpText='Create PDF document'>
+                <button
+                  type="button"
+                  className="blackButton"
+                  onClick={() => PdfAccountStatement(filteredData.map(obj => Object.values(obj))
+                    .map((values, index) => {
+                      const invoice = values[0];
+                      const date = dateFormat(values[1], "dd-mmm-yy");
+                      const cur = settings.Currency.Currency.find(q => q.id === values[3])?.cur;
+                      const amount = new Intl.NumberFormat('en-US', {
+                        minimumFractionDigits: 2
+                      }).format(values[2]);
+                      const due = dateFormat(values[4], "dd-mmm-yy");
+                      const paid = new Intl.NumberFormat('en-US', {
+                        minimumFractionDigits: 2
+                      }).format(values[5]);
+                      const notPaid = new Intl.NumberFormat('en-US', {
+                        minimumFractionDigits: 2
+                      }).format(values[6]);
+                      return [invoice, date, amount, cur, due, paid, notPaid];
+                    })
+                    , settings, compData, selectedClient.client, totals, gisAccount)
+                  }
+                >
+                  <FaFilePdf />
+                  PDF
+                </button>
+              </Tltip>
             </div>
-
-
-          </div>
-
-
-          <div className="text-lg font-medium leading-5 text-gray-900 p-3 flex gap-4 flex-wrap justify-center md:justify-start ">
-            <Tltip direction='top' tltpText='Create PDF document'>
-              <button
-                type="button"
-                className="blackButton"
-                onClick={() => PdfAccountStatement(filteredData.map(obj => Object.values(obj))
-                  .map((values, index) => {
-
-                    const invoice = values[0]//.toFixed(3);
-                    const date = dateFormat(values[1], "dd-mmm-yy");
-                    const cur = settings.Currency.Currency.find(q => q.id === values[3])?.cur;
-
-                    const amount = new Intl.NumberFormat('en-US', {
-                      minimumFractionDigits: 2
-                    }).format(values[2]);
-
-                    const due = dateFormat(values[4], "dd-mmm-yy");
-
-                    const paid = new Intl.NumberFormat('en-US', {
-                      minimumFractionDigits: 2
-                    }).format(values[5]);
-
-                    const notPaid = new Intl.NumberFormat('en-US', {
-                      minimumFractionDigits: 2
-                    }).format(values[6]);
-
-
-
-                    return [invoice, date, amount, cur, due, paid, notPaid];
-                  })
-                  , settings, compData, selectedClient.client, totals, gisAccount)
-
-                }
-              >
-                <FaFilePdf />
-                PDF
-              </button>
-            </Tltip>
-          </div>
-        </>}
+          </>
+        }
+      </div>
     </div>
   );
 };

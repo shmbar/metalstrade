@@ -121,7 +121,14 @@ export const EXD = (dataTable, settings, name, ln) => {
                     className=" justify-center size-10 inline-flex
      items-center text-sm rounded-full  focus:outline-none cursor-pointer "
                 >
-                    <Image src="/logo/excel.svg" alt="Excel Export" width={32} height={32} className="w-8 h-8 object-cover inline-block align-middle" priority />
+                    <Image
+                      src="/logo/excel.svg"
+                      alt="Excel Export"
+                      width={20} // reduced from 32
+                      height={20} // reduced from 32
+                      className="w-5 h-5 object-cover inline-block align-middle" // w-5 = 20px, h-5 = 20px
+                      priority
+                    />
                 </div>
             </Tltip>
         </div>

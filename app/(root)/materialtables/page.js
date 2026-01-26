@@ -191,55 +191,63 @@ const MaterialTables = () => {
 
 
     return (
-        <div className="w-full max-w-full px-2 sm:px-4 md:px-8 pb-8 md:pb-0 mt-8 md:mt-0 mx-auto">
-            {Object.keys(settings).length === 0 ? <Spinner /> :
-                <>
-                    <Toast />
-                    <div className="border border-[var(--selago)] rounded-xl p-2 sm:p-4 mt-4 shadow-lg bg-white relative max-w-7xl mx-auto">
-                        <div className="flex items-center justify-between flex-wrap pb-2">
-                            <div className="text-2xl sm:text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Material Tables', ln)}</div>
-                        </div>
-                        <div className="flex gap-2 sm:gap-4 flex-wrap">
-                            <Button className="bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)] hover:opacity-90 min-w-[100px] text-white" onClick={addTable}>
-                                Add Table
-                            </Button>
-                            <Button className="bg-white border-[var(--rock-blue)] text-[var(--port-gore)] min-w-[100px]" variant="outline" onClick={saveTable}>
-                                Save
-                            </Button>
-                        </div>
-                        <div className="w-full overflow-x-auto mt-4">
-                            {data.map(table => (
-                                <Table
-                                    data={table.data}
-                                    key={table.id}
-                                    table1={table}
-                                    columns={propDefaults}
-                                    addMaterial={() => addMaterial(table)}
-                                    editCell={editCell}
-                                    delMaterial={delMaterial}
-                                    delTable={delTable}
-                                    runPdf={runPdf}
-                                    excellReport={EXD(table.data)}
-                                />
-                            ))}
-                        </div>
-                        {(data.length && !Object.values(totals).some(value => isNaN(value))) ? (
-                            <div className="w-full pt-8 overflow-x-auto">
-                                <TableTotals
-                                    data={[totals]}
-                                    columns={propDefaults}
-                                    addMaterial={addMaterial}
-                                    editCell={editCell}
-                                    delMaterial={delMaterial}
-                                    delTable={delTable}
-                                />
+        <div className="w-full overflow-x-hidden">
+            <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+                {Object.keys(settings).length === 0 ? <Spinner /> :
+                    <>
+                        <Toast />
+                        {/* Main Card */}
+                        <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white relative max-w-7xl mx-auto">
+                            {/* Header Section */}
+                            <div className="flex items-center justify-between flex-wrap gap-2 pb-2">
+                                <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+                                    {getTtl('Material Tables', ln)}
+                                </h1>
                             </div>
-                        ) : null}
-                    </div>
-                </>
-            }
+                            {/* Action Buttons */}
+                            <div className="flex gap-2 sm:gap-4 flex-wrap mb-2">
+                                <Button className="bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)] hover:opacity-90 min-w-[100px] text-white" onClick={addTable}>
+                                    Add Table
+                                </Button>
+                                <Button className="bg-white border-[var(--rock-blue)] text-[var(--port-gore)] min-w-[100px]" variant="outline" onClick={saveTable}>
+                                    Save
+                                </Button>
+                            </div>
+                            {/* Table(s) */}
+                            <div className="w-full overflow-x-auto mt-4">
+                                {data.map(table => (
+                                    <Table
+                                        data={table.data}
+                                        key={table.id}
+                                        table1={table}
+                                        columns={propDefaults}
+                                        addMaterial={() => addMaterial(table)}
+                                        editCell={editCell}
+                                        delMaterial={delMaterial}
+                                        delTable={delTable}
+                                        runPdf={runPdf}
+                                        excellReport={EXD(table.data)}
+                                    />
+                                ))}
+                            </div>
+                            {/* Totals Section */}
+                            {(data.length && !Object.values(totals).some(value => isNaN(value))) ? (
+                                <div className="w-full pt-8 overflow-x-auto">
+                                    <TableTotals
+                                        data={[totals]}
+                                        columns={propDefaults}
+                                        addMaterial={addMaterial}
+                                        editCell={editCell}
+                                        delMaterial={delMaterial}
+                                        delTable={delTable}
+                                    />
+                                </div>
+                            ) : null}
+                        </div>
+                    </>
+                }
+            </div>
         </div>
-
     )
 }
 

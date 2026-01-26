@@ -1,4 +1,3 @@
-// 
 'use client'
 
 import { useContext, useState, useRef, useEffect } from 'react'
@@ -8,6 +7,7 @@ import { getTtl } from '../../../utils/languages'
 import { useRouter } from 'next/navigation'
 import { BiSearch, BiLogOutCircle, BiMessageRoundedDots } from 'react-icons/bi'
 import { FiSettings } from 'react-icons/fi'
+import { IoClose } from 'react-icons/io5';
 import Image from 'next/image';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext'
 
@@ -58,109 +58,179 @@ export const MainNav = () => {
   }
 
   return (
-    <div className='px-2 md:px-4 xl:px-6 py-3 hidden md:flex items-center justify-between bg-white border-b-2 border-[var(--selago)]'>
-      {/* Search Bar */}
-      <div className='flex items-center flex-1 max-w-xl'>
-        <div className='relative w-full' ref={searchRef}>
-          <BiSearch className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none z-10' />
-          <input
-            type='text'
-            placeholder={getTtl('Search anything...', ln) || 'Search anything...'}
-            value={query || ''}
-            onFocus={() => setOpenSearch(true)}
-            onChange={(e) => {
-              setQuery(e.target.value)
-              setOpenSearch(true)
-            }}
-            className='w-full pl-10 pr-4 py-2 rounded-full bg-gray-50 border border-gray-200 shadow-sm focus:border-[var(--rock-blue)] focus:bg-white focus:outline-none text-sm text-gray-700 placeholder:text-gray-400 placeholder:opacity-100 transition-all'
-            style={{ color: query ? '#374151' : undefined }}
-          />
+    <div
+      className='fixed top-0 left-0 right-0  px-2 md:px-4 xl:px-6 py-3 hidden md:flex items-center bg-[#bce1ff] z-20 rounded-lg'
+      style={{
+        height: 'clamp(56px, 7vh, 80px)',
+        borderRadius: '12px',
+        padding: '0 clamp(16px, 2vw, 32px)',
+      }}
+    >
+      {/* Logo Section (left) */}
+      <div
+        className='flex items-center justify-center bg-white rounded-lg shadow-md'
+        style={{
+          width: 'clamp(180px, 15vw, 250px)',
+          height: 'clamp(50px, 6vh, 70px)',
+          marginRight: 'clamp(16px, 2vw, 32px)',
+          marginBottom: 'clamp(10px, 1vw, 20px)',
+          padding: 'clamp(10px, 1vw, 20px)',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <img
+          src='/logo/ims_main.svg'
+          alt='IMS Logo'
+          style={{
+            width: 'clamp(100px, 15vw, 150px)',
+            height: 'auto',
+          }}
+        />
+      </div>
 
-          {/* Search Dropdown */}
-          {openSearch && searchResults.length > 0 && (
-            <div className='absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-[var(--selago)] z-[9999] overflow-visible max-h-96 overflow-y-auto'>
-              {searchResults.map((r) => (
-                <button
-                  key={r.key}
-                  type='button'
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => onPickResult(r)}
-                  className='w-full text-left px-4 py-3 hover:bg-[var(--selago)] transition-all'
-                >
-                  <div className='text-sm font-semibold text-[var(--port-gore)]'>{r.title}</div>
-                  <div className='text-xs text-gray-500 truncate'>{r.subtitle}</div>
-                </button>
-              ))}
+      {/* Right Side: All icons and controls in a row, all functional */}
+      <div className='flex items-center gap-1 ml-auto'>
+        {/* Chatbot (Ask Question) */}
+        
+        {/* Global Search */}
+        <div className='relative flex items-center' ref={searchRef}>
+          {!openSearch ? (
+            <button
+              className='flex items-center justify-center w-10 h-10'
+              onClick={() => setOpenSearch(true)}
+              aria-label='Search'
+              title={getTtl('Search', ln) || 'Search'}
+            >
+              <img src='/logo/search.svg' alt='Search' className='w-5 h-5' />
+            </button>
+          ) : (
+            <div className="relative flex items-center">
+              <input
+                type='text'
+                placeholder={getTtl('Search anything...', ln) || 'Search anything...'}
+                value={query || ''}
+                autoFocus
+                onBlur={() => setOpenSearch(false)}
+                onChange={(e) => setQuery(e.target.value)}
+                className='ml-2 w-60 pl-3 pr-8 py-2 rounded-full bg-gray-50 border border-gray-200 shadow-sm focus:border-[var(--rock-blue)] focus:bg-white focus:outline-none text-sm text-gray-700 placeholder:text-gray-400 placeholder:opacity-100 transition-all'
+                style={{ color: query ? '#374151' : undefined }}
+              />
+              <button
+                type="button"
+                onClick={() => { setOpenSearch(false); setQuery(''); }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
+                tabIndex={-1}
+                aria-label="Close search"
+              >
+                <IoClose size={20} />
+              </button>
+            </div>
+          )}
+          {/* Results dropdown, only if openSearch and query */}
+          {openSearch && query && (
+            <div className='absolute left-0 top-full mt-2 w-72 bg-white rounded-xl shadow-lg border border-[var(--selago)] z-[9999] max-h-96 overflow-y-auto p-3'>
+              {searchResults.length > 0 ? (
+                searchResults.map((r) => (
+                  <button
+                    key={r.key}
+                    type='button'
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => onPickResult(r)}
+                    className='w-full text-left px-4 py-3 hover:bg-[var(--selago)] transition-all rounded-lg'
+                  >
+                    <div className='text-sm font-semibold text-[var(--port-gore)]'>{r.title}</div>
+                    <div className='text-xs text-gray-500 truncate'>{r.subtitle}</div>
+                  </button>
+                ))
+              ) : (
+                <div className='text-xs text-gray-400 px-4 py-2'>No results</div>
+              )}
             </div>
           )}
         </div>
-      </div>
 
-      {/* Right Side Icons */}
-      <div className='flex items-center gap-3'>
         <button
-          className='flex items-center gap-2 px-4 py-2 rounded-md bg-[var(--endeavour)]  text-white text-sm font-medium transition-all shadow-md '
+          className='flex items-center justify-center w-10 h-10  '
           onClick={() => {
             if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('ims:openChat'))
           }}
           aria-label='Ask question'
           title={getTtl('Ask question', ln) || 'Ask question'}
         >
-          <BiMessageRoundedDots className='text-lg' />
-          {getTtl('Ask Question', ln) || 'Ask Question'}
+          <img src='/logo/Ai bot.svg' alt='Chatbot' className='w-5 h-5' />
         </button>
+        {/* Notification Icon (placeholder, can be made functional) */}
         <button
-          className='p-2.5 rounded-lg bg-white border border-gray-200 hover:bg-[var(--selago)] hover:border-[var(--rock-blue)] transition-all group'
+          className='flex items-center justify-center w-10 h-10 '
+          aria-label='Notifications'
+          title={getTtl('Notifications', ln) || 'Notifications'}
+        >
+          <img src='/logo/notofication.svg' alt='Notifications' className='w-5 h-5' />
+        </button>
+        {/* Logout Icon */}
+        <button
+          className='flex items-center justify-center w-10 h-10 '
           onClick={LogOut}
           aria-label='Logout'
           title={getTtl('Logout', ln) || 'Logout'}
         >
-          <BiLogOutCircle className='text-xl text-gray-500 group-hover:text-[var(--endeavour)]' />
+          <img src='/logo/logout.svg' alt='Logout' className='w-5 h-5' />
         </button>
-
-        <div className='relative' ref={dropdownRef}>
-          <button
-            onClick={() => setShowDropdown(!showDropdown)}
-            className='flex items-center gap-2 p-1 rounded-lg hover:bg-[var(--selago)] transition-all'
-            aria-label='User menu'
-          >
-            <div className='w-10 h-10 rounded-full  flex items-center justify-center text-white font-semibold text-sm overflow-hidden border-2 border-white shadow-md'>
-              <Image src="/logo/profile.svg" alt="Profile" width={28} height={28} className="inline-block align-middle" />
-            </div>
-          </button>
-
-          {showDropdown && (
-            <div className='absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-[var(--selago)] py-2 z-[9999] overflow-visible'>
-              <div className='px-4 py-3 border-b border-[var(--selago)]'>
-                <p className='text-sm font-semibold text-[var(--port-gore)]'>
-                  {user?.displayName || user?.email?.split('@')[0] || 'User'}
-                </p>
-                <p className='text-xs text-gray-500 truncate'>{user?.email || ''}</p>
-              </div>
-
-              <div className='py-1'>
-                <button
-                  onClick={() => {
-                    router.push('/settings')
-                    setShowDropdown(false)
-                  }}
-                  className='w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-[var(--selago)] hover:text-[var(--endeavour)] transition-all'
-                >
-                  <FiSettings className='text-lg' />
-                  {getTtl('Settings', ln) || 'Settings'}
-                </button>
-
-                <button
-                  onClick={LogOut}
-                  className='w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-all'
-                >
-                  <BiLogOutCircle className='text-lg' />
-                  {getTtl('Logout', ln) || 'Logout'}
-                </button>
-              </div>
-            </div>
-          )}
+        {/* User Role Button and Profile Icon: no gap between */}
+        <div className="flex items-center ml-2">
+  <span
+    className="inline-flex items-center px-3 py-2 rounded-md bg-[var(--endeavour)] text-white text-xs font-semibold shadow-md"
+    style={{
+      minWidth: 60,
+      justifyContent: 'center',
+      marginRight: 0,
+      borderTopRightRadius: 0,
+      borderBottomRightRadius: 0
+    }}
+  >
+    {user?.role ? user.role : 'Admin'}
+  </span>
+  <div className='relative' ref={dropdownRef} style={{marginLeft: 0}}>
+    <button
+      onClick={() => setShowDropdown(!showDropdown)}
+      className='flex items-center bg-white gap-2 p-1 rounded-md hover:bg-[var(--selago)] transition-all'
+      aria-label='User menu'
+    >
+      <div className='w-6  flex items-center justify-center text-white font-semibold text-sm overflow-hidden'>
+        <img src="/logo/person.svg" alt="Profile" className="w-6 h-6 inline-block align-middle" />
+      </div>
+    </button>
+    {showDropdown && (
+      <div className='absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-[var(--selago)] py-2 z-[9999] overflow-visible'>
+        <div className='px-4 py-3 border-b border-[var(--selago)]'>
+          <p className='text-sm font-semibold text-[var(--port-gore)]'>
+            {user?.displayName || user?.email?.split('@')[0] || 'User'}
+          </p>
+          <p className='text-xs text-gray-500 truncate'>{user?.email || ''}</p>
         </div>
+        <div className='py-1'>
+          <button
+            onClick={() => {
+              router.push('/settings')
+              setShowDropdown(false)
+            }}
+            className='w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-[var(--selago)] hover:text-[var(--endeavour)] transition-all'
+          >
+            <img src='/logo/Settings.svg' alt='Settings' className='w-4 h-4 mr-2' />
+            {getTtl('Settings', ln) || 'Settings'}
+          </button>
+          <button
+            onClick={LogOut}
+            className='w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-all'
+          >
+            <img src='/logo/logout.svg' alt='Logout' className='w-4 h-4 mr-2' />
+            {getTtl('Logout', ln) || 'Logout'}
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
       </div>
     </div>
   )

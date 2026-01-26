@@ -12,6 +12,7 @@ import {
   FaRubleSign,
 } from 'react-icons/fa';
 import { TbCurrencyShekel } from 'react-icons/tb';
+import Flag from 'react-world-flags';
 
 const currencyNames = {
   USD: 'US Dollar',
@@ -27,6 +28,53 @@ const currencyIcons = {
   GBP: FaPoundSign,
   ILS: TbCurrencyShekel,
   RUB: FaRubleSign,
+};
+
+const currencySymbols = {
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  ILS: '₪',
+  RUB: '₽',
+};
+
+// use emoji flags as lightweight country icons matching the currency
+const currencyCountry = {
+  USD: 'US',
+  EUR: 'EU',
+  GBP: 'GB',
+  ILS: 'IL',
+  RUB: 'RU',
+};
+
+const makeFlagIcon = (cc) => ({ className = '' }) => {
+  const code = (cc || 'un').toLowerCase();
+  // react-world-flags may not include an 'eu' asset everywhere — provide a simple fallback
+  if (code === 'eu') {
+    return (
+      <div
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 18,
+          height: 12,
+          background: '#003399',
+          borderRadius: 2,
+          lineHeight: 0,
+        }}
+      >
+        <FaEuroSign style={{ color: '#FFD700', width: 12, height: 12 }} />
+      </div>
+    );
+  }
+
+  return (
+    <div className={className} style={{ lineHeight: 0 }}>
+      <Flag code={code} style={{ width: 18, height: 12 }} />
+    </div>
+  );
 };
 
 const metalIcons = {
@@ -48,18 +96,19 @@ export default function MarketsTicker({ className = '' }) {
   };
 
   const fxItems = useMemo(() => {
-    const list = ['USD', 'EUR', 'GBP', 'ILS', 'RUB'].filter(
-      (c) => c !== baseCurrency
-    );
+    const list = ['USD', 'EUR', 'GBP', 'ILS', 'RUB'].filter((c) => c !== baseCurrency);
 
     return list.map((c) => {
       const r = getFxRate(fx.rates, c);
+      const pairLabel = `${c}/${baseCurrency}`;
+      const cc = currencyCountry[c] || 'UN';
+      const FlagIcon = makeFlagIcon(cc);
+
       return {
         key: `fx-${c}`,
-        icon: currencyIcons[c],
-        label: `${currencyNames[baseCurrency]} → ${currencyNames[c]}`,
-        value: r ? fx.formatRate(r) : '—',
-        subValue: `1 ${baseCurrency} = ${r ? fx.formatRate(r) : '—'} ${c}`,
+        icon: FlagIcon,
+        label: pairLabel,
+        value: r ? `${fx.formatRate(r)} ${currencySymbols[c] || ''}` : '—',
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,10 +136,7 @@ export default function MarketsTicker({ className = '' }) {
         icon: metalIcons[k],
         label: `${m.name || k} (${m.unit || 'USD/MT'})`,
         value: metals.formatPrice(m.price),
-        subValue:
-          ch !== null
-            ? `${sign}${ch.toFixed(2)} (${(pct ?? 0).toFixed(2)}%)`
-            : '',
+        subValue: ch !== null ? `${sign}${ch.toFixed(2)} (${(pct ?? 0).toFixed(2)}%)` : '',
       };
     });
   }, [metals.prices, metals]);
@@ -119,58 +165,43 @@ export default function MarketsTicker({ className = '' }) {
 
   const refreshMetals = () => metals.refresh?.();
 
-  const BaseIcon = currencyIcons[baseCurrency] || FaDollarSign;
+  const BaseIcon = makeFlagIcon(currencyCountry[baseCurrency] || 'UN');
 
   return (
     <div className={['mt-3 mb-2 space-y-2', className].join(' ')}>
       {/* ===== FX ===== */}
-      <HeadlineTicker
-        variant="fx"
-        title="Exchange Rates"
-        subtitle={fxSubtitle}
-        leftIcon={BaseIcon}
-        rightSlot={
-          <div className="flex items-center gap-2">
-            {/* base selector INLINE with heading (desktop) */}
-            <div className="hidden md:flex items-center gap-1">
-              {['USD', 'EUR', 'GBP', 'ILS', 'RUB'].map((cur) => (
-                <button
-                  key={cur}
-                  onClick={() => setBaseCurrency(cur)}
-                  className={[
-                    'px-3 py-1 rounded-full text-xs font-semibold transition',
-                    baseCurrency === cur
-                      ? 'bg-[var(--endeavour)] text-white'
-                      : 'bg-[var(--selago)] text-[var(--port-gore)] hover:bg-[var(--rock-blue)]/30',
-                  ].join(' ')}
-                >
-                  {cur}
-                </button>
-              ))}
-            </div>
-
-            {/* refresh on far right */}
+      <div className="flex items-center gap-2 px-1 mb-1">
+        <span className="font-semibold text-[var(--endeavour)] text-base flex items-center">
+          {/* Flag icon for base currency */}
+          <span style={{ display: "inline-flex", alignItems: "center", marginRight: 8 }}>
+            {makeFlagIcon(currencyCountry[baseCurrency] || 'UN')({})}
+          </span>
+          Exchange Rates
+        </span>
+        {/* base selector INLINE with heading (desktop) */}
+        <div className="hidden md:flex items-center gap-1 ml-3">
+          {['USD', 'EUR', 'GBP', 'ILS', 'RUB'].map((cur) => (
             <button
-              onClick={refreshFx}
-              disabled={fxRefreshing}
-              title="Refresh exchange rates"
+              key={cur}
+              onClick={() => setBaseCurrency(cur)}
               className={[
-                'inline-flex items-center justify-center',
-                'h-9 w-11 rounded-full',
-                'bg-[var(--selago)] text-[var(--port-gore)]',
-                'hover:bg-[var(--rock-blue)]/30 transition-colors',
-                fxRefreshing ? 'opacity-60 cursor-not-allowed' : '',
+                'px-3 py-1 rounded-full text-xs font-semibold transition',
+                baseCurrency === cur
+                  ? 'bg-[var(--endeavour)] text-white'
+                  : 'bg-[var(--selago)] text-[var(--port-gore)] hover:bg-[var(--rock-blue)]/30',
               ].join(' ')}
             >
-              <HiRefresh
-                className={[
-                  'w-5 h-5',
-                  fxRefreshing ? 'animate-spin' : '',
-                ].join(' ')}
-              />
+              {cur}
             </button>
-          </div>
-        }
+          ))}
+        </div>
+      </div>
+      <HeadlineTicker
+        variant="fx"
+       
+        leftIcon={null}
+        
+       
         items={fxItems}
         speed={50}
         pauseOnHover
@@ -197,37 +228,22 @@ export default function MarketsTicker({ className = '' }) {
       </div>
 
       {/* ===== METALS ===== */}
+      <div className="flex items-center gap-2 px-1 mb-1 mt-2">
+        <span className="font-semibold text-[var(--endeavour)] text-base flex items-center">
+          <HiCube className="mr-2" />
+          Metal Prices
+        </span>
+      </div>
       <HeadlineTicker
         variant="metal"
-        title="Metal Prices"
-        subtitle={metalSubtitle}
-        leftIcon={HiCube}
-        rightSlot={
-          <button
-            onClick={refreshMetals}
-            disabled={metals.loading}
-            title="Refresh metal prices"
-            className={[
-              'inline-flex items-center justify-center',
-              'h-9 w-11 rounded-full',
-              'bg-[var(--selago)] text-[var(--port-gore)]',
-              'hover:bg-[var(--rock-blue)]/30 transition-colors',
-              metals.loading ? 'opacity-60 cursor-not-allowed' : '',
-            ].join(' ')}
-          >
-            <HiRefresh
-              className={[
-                'w-5 h-5',
-                metals.loading ? 'animate-spin' : '',
-              ].join(' ')}
-            />
-          </button>
-        }
+        
+        leftIcon={null}
+       
         items={metalItems}
         speed={50}
         pauseOnHover
         rightToLeft
-        gap={18} // ✅ tighter so it never feels empty with only 2 metals
+        gap={26} // increased spacing so metals don't feel cramped
       />
     </div>
   );

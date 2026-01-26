@@ -1,4 +1,6 @@
-  @media screen and (max-width: 450px) {
+@import url('../tableStyles.css');
+
+@media screen and (max-width: 450px) {
     table {
       background: transparent !important;
       border: none !important;

@@ -109,14 +109,14 @@ const ColFilter = ({ table }) => {
 	return (
 		<div className="relative">
 			   <Tltip direction='bottom' tltpText={getTtl('Columns', ln)}>
-					  <div
-						  ref={triggerRef}
-						  onClick={() => setOpen(!open)}
-						  className="justify-center size-10 inline-flex items-center text-sm rounded-full focus:outline-none cursor-pointer"
-					  >
-						  <Image src="/logo/colum.svg" alt="Columns" width={32} height={32} className="w-8 h-8 object-cover inline-block align-middle" priority />
-					  </div>
-			   </Tltip>
+  <div
+    ref={triggerRef}
+    onClick={() => setOpen(!open)}
+    className="justify-center w-8 h-8 inline-flex items-center text-sm rounded focus:outline-none cursor-pointer"
+  >
+    <Image src="/logo/colums.svg" alt="Columns" width={16} height={16} className="w-4 h-4 object-cover inline-block align-middle" priority />
+  </div>
+</Tltip>
 
 			{open && portalNodeRef.current ? createPortal(
 				<>

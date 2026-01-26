@@ -804,92 +804,99 @@ const ContractsMerged = () => {
     }
 
     return (
-       <div className="container mx-auto px-0 pb-8 md:pb-0 mt-16 md:mt-0">
-            {Object.keys(settings).length === 0 ? <Spinner /> :
-                <>
-                    <Toast />
-                    {loading && <Spin />}
-                    <div className="border border-[var(--selago)] rounded-xl p-4 mt-8 shadow-lg relative bg-white">
-                        <div className='flex items-center justify-between flex-wrap'>
-                            {/* <div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Contracts', ln)}</div> */}
-                            <div className='flex group'>
-                                <DateRangePicker />
-                                <Tooltip txt='Select Dates Range' />
-                            </div>
-                        </div>
-
-                        {/* Tabs */}
-                        <div className='flex gap-8 mt-4 mb-6 '>
-                            <button
-                                onClick={() => setActiveTab('review')}
-                                className={`pb-2 text-lg font-semibold transition-all border-b-4 ${
-                                    activeTab === 'review'
-                                        ? 'border-[var(--endeavour)] text-[var(--endeavour)]'
-                                        : 'border-transparent text-[var(--port-gore)] hover:text-[var(--endeavour)]'
-                                }`}
-                                style={{ background: 'none', boxShadow: 'none', borderRadius: 0 }}
-                            >
-                                {getTtl('Contracts Review', ln)}
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('statement')}
-                                className={`pb-2 text-lg font-semibold transition-all border-b-4 ${
-                                    activeTab === 'statement'
-                                        ? 'border-[var(--endeavour)] text-[var(--endeavour)]'
-                                        : 'border-transparent text-[var(--port-gore)] hover:text-[var(--endeavour)]'
-                                }`}
-                                style={{ background: 'none', boxShadow: 'none', borderRadius: 0 }}
-                            >
-                                {getTtl('Contracts Statement', ln)}
-                            </button>
-                        </div>
-
-                        {/* Review Tab Content */}
-                        {activeTab === 'review' && (
-                            <div className='mt-5'>
-                                <Customtable data={loading ? [] : getFormatted(dataTable)} datattl={loading ? [] : totals} columns={propDefaults} SelectRow={SelectRow}
-                                    invisible={invisible} 
-                                    excellReport={EXD(dataTable.filter(x => filteredData.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Review', ln),
-                                         ln, valCur)}
-                                    cb={CB(settings, setValCur, valCur)}
-                                    setFilteredData={setFilteredData}
-                                    valCur={valCur} setValCur={setValCur}
-                                    ln={ln}
-                                />
-                            </div>
-                        )}
-
-                        {/* Statement Tab Content */}
-                        {activeTab === 'statement' && (
-                            <>
-                                {enabledSwitch ?
-                                    <CustomtableStatement data={loading ? [] : groupedArrayInvoiceStatement(getFormattedStatement(dataTableStatement))} columns={propDefaultsStatement}
-                                        excellReport={EXDStatement(dataTableStatement.filter(x => filteredDataStatement.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
-                                        invisible={invisibleStatement} ln={ln}
-                                        setFilteredData={setFilteredDataStatement}
-                                        tableModes={<TableModes />} type='contractStatementTableModes'
-                                    />
-                                    :
-                                    <CustomtableStatement1 data={loading ? [] : (getFormattedStatement(dataTableStatement))} columns={propDefaultsStatement.slice(1)}
-                                        excellReport={EXDStatement(dataTableStatement.filter(x => filteredDataStatement.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
-                                        invisible={invisibleStatement} ln={ln}
-                                        setFilteredData={setFilteredDataStatement}
-                                        tableModes={<TableModes />} type='contractStatementTableModes'
-                                    />
-                                }
-
-                                <div className='pt-8'>
-                                    <TableTotals data={sortArr(totalsStatement.map(z => ({ ...z, spName: gQ(z.supplier, 'Supplier', 'nname') })), 'spName')} columns={colsTotals} expensesData={dataTableStatement}
-                                        settings={settings} />
+        <div className="w-full overflow-x-hidden">
+            <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+                {Object.keys(settings).length === 0 ? <Spinner /> :
+                    <>
+                        <Toast />
+                        {loading && <Spin />}
+                        {/* Main Card */}
+                        <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white relative">
+                            {/* Header Section */}
+                            <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+                                <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+                                    {getTtl('Contracts', ln)}
+                                </h1>
+                                <div className='flex group'>
+                                    <DateRangePicker />
+                                    <Tooltip txt='Select Dates Range' />
                                 </div>
-                            </>
-                        )}
-                    </div>
+                            </div>
 
-                    {valueCon && <MyDetailsModal isOpen={isOpenCon} setIsOpen={setIsOpenCon}
-                        title={!valueCon.id ? getTtl('New Contract', ln) : `${getTtl('Contract No', ln)}: ${valueCon.order}`} />}
-                </>
-            }
+                            {/* Tabs */}
+                            <div className='flex gap-8 mt-4 mb-6 '>
+                                <button
+                                    onClick={() => setActiveTab('review')}
+                                    className={`pb-2 text-lg font-semibold transition-all border-b-4 ${
+                                        activeTab === 'review'
+                                            ? 'border-[var(--endeavour)] text-[var(--endeavour)]'
+                                            : 'border-transparent text-[var(--port-gore)] hover:text-[var(--endeavour)]'
+                                    }`}
+                                    style={{ background: 'none', boxShadow: 'none', borderRadius: 0 }}
+                                >
+                                    {getTtl('Contracts Review', ln)}
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('statement')}
+                                    className={`pb-2 text-lg font-semibold transition-all border-b-4 ${
+                                        activeTab === 'statement'
+                                            ? 'border-[var(--endeavour)] text-[var(--endeavour)]'
+                                            : 'border-transparent text-[var(--port-gore)] hover:text-[var(--endeavour)]'
+                                    }`}
+                                    style={{ background: 'none', boxShadow: 'none', borderRadius: 0 }}
+                                >
+                                    {getTtl('Contracts Statement', ln)}
+                                </button>
+                            </div>
+
+                            {/* Review Tab Content */}
+                            {activeTab === 'review' && (
+                                <div className='mt-5'>
+                                    <Customtable data={loading ? [] : getFormatted(dataTable)} datattl={loading ? [] : totals} columns={propDefaults} SelectRow={SelectRow}
+                                        invisible={invisible} 
+                                        excellReport={EXD(dataTable.filter(x => filteredData.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Review', ln),
+                                            ln, valCur)}
+                                        cb={CB(settings, setValCur, valCur)}
+                                        setFilteredData={setFilteredData}
+                                        valCur={valCur} setValCur={setValCur}
+                                        ln={ln}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Statement Tab Content */}
+                            {activeTab === 'statement' && (
+                                <>
+                                    {enabledSwitch ?
+                                        <CustomtableStatement data={loading ? [] : groupedArrayInvoiceStatement(getFormattedStatement(dataTableStatement))} columns={propDefaultsStatement}
+                                            excellReport={EXDStatement(dataTableStatement.filter(x => filteredDataStatement.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
+                                            invisible={invisibleStatement} ln={ln}
+                                            setFilteredData={setFilteredDataStatement}
+                                            tableModes={<TableModes />} type='contractStatementTableModes'
+                                        />
+                                        :
+                                        <CustomtableStatement1 data={loading ? [] : (getFormattedStatement(dataTableStatement))} columns={propDefaultsStatement.slice(1)}
+                                            excellReport={EXDStatement(dataTableStatement.filter(x => filteredDataStatement.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
+                                            invisible={invisibleStatement} ln={ln}
+                                            setFilteredData={setFilteredDataStatement}
+                                            tableModes={<TableModes />} type='contractStatementTableModes'
+                                        />
+                                    }
+
+                                    <div className='pt-8'>
+                                        <TableTotals data={sortArr(totalsStatement.map(z => ({ ...z, spName: gQ(z.supplier, 'Supplier', 'nname') })), 'spName')} columns={colsTotals} expensesData={dataTableStatement}
+                                            settings={settings} />
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Modal */}
+                        {valueCon && <MyDetailsModal isOpen={isOpenCon} setIsOpen={setIsOpenCon}
+                            title={!valueCon.id ? getTtl('New Contract', ln) : `${getTtl('Contract No', ln)}: ${valueCon.order}`} />}
+                    </>
+                }
+            </div>
         </div>
     );
 };

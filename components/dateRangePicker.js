@@ -1,10 +1,11 @@
+
 'use client'
 
 import React, { useContext, useState, useEffect } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 import { SettingsContext } from "../contexts/useSettingsContext";
 import dateFormat from "dateformat";
-import { FaRegCalendarAlt } from "react-icons/fa"; // Make sure you have this import
+import { FaRegCalendarAlt } from "react-icons/fa";
 
 function useIsMobile() {
     const [isMobile, setIsMobile] = useState(false);
@@ -85,6 +86,12 @@ const DateRangePicker = ({ displayLabel }) => {
                 ring: none !important;
             }
 
+            /* Force text color and font size */
+            .react-tailwindcss-datepicker input {
+                color: #11497c !important;
+                font-size: 0.75rem !important;
+            }
+
             /* Remove ring/focus styles */
             .react-tailwindcss-datepicker .focus\\:ring-2,
             .react-tailwindcss-datepicker .focus\\:ring,
@@ -114,10 +121,10 @@ const DateRangePicker = ({ displayLabel }) => {
             }
             .react-tailwindcss-datepicker .rdrStaticRangeLabel {
                 font-weight: 700 !important;
-                font-size: 1.08rem !important;
+                font-size: 0.75rem !important;
                 color: #5b21b6 !important;
                 border-radius: 0.5rem !important;
-                padding: 0.5rem 1.2rem 0.5rem 1.2rem !important;
+                padding: 0.4rem 1rem 0.4rem 1rem !important;
                 margin: 0.1rem 0.2rem !important;
                 transition: background 0.15s, color 0.15s;
                 cursor: pointer;
@@ -132,7 +139,7 @@ const DateRangePicker = ({ displayLabel }) => {
                 color: #1e40af !important;
                 border-left: 4px solid #7c3aed !important;
             }
-            /* Add a dot for selected shortcut (optional, for visual cue) */
+            /* Add a dot for selected shortcut */
             .react-tailwindcss-datepicker .rdrStaticRangeSelected .rdrStaticRangeLabel::before {
                 content: '';
                 display: inline-block;
@@ -154,31 +161,30 @@ const DateRangePicker = ({ displayLabel }) => {
 
     return (
         <div
-            className="relative flex items-center gap-3 p-3 rounded-2xl shadow-xl bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border border-indigo-100/60 hover:shadow-2xl transition-all duration-200 group w-full max-w-xs sm:max-w-sm md:max-w-md"
+            className="relative flex items-center transition-all duration-200 group w-full max-w-[240px]"
             style={{ zIndex: 5 }}
         >
             {displayLabel && (
-                <span className="text-[15px] sm:text-base font-black text-indigo-700 bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 px-4 py-1.5 rounded-xl shadow whitespace-nowrap tracking-wider mr-3">
+                <span className="text-[10px] font-medium text-gray-700 bg-gray-100 px-2 py-0.5 rounded shadow-sm whitespace-nowrap mr-2">
                     {displayLabel}
                 </span>
             )}
             <div className="relative w-full flex-1">
                 <Datepicker
                     inputClassName="
-                        text-[15px] sm:text-base p-2 pl-11 pr-4
-                        rounded-xl
-                        text-indigo-900
-                        font-extrabold
+                        text-xs py-1.5 pl-7 pr-2
+                        rounded-lg
+                        font-normal
                         w-full
-                        bg-white/90
+                        bg-white
                         cursor-pointer
-                        hover:bg-indigo-100/90
+                        hover:border-gray-400
                         focus:outline-none
-                        focus:ring-2 focus:ring-indigo-300
-                        border border-indigo-200
-                        shadow transition-all duration-200
-                        placeholder:text-indigo-300
-                        tracking-wide
+                        focus:ring-1 focus:ring-blue-200
+                        border border-gray-300
+                        shadow-sm transition-all duration-200
+                        placeholder:text-gray-400
+                        tracking-normal
                         leading-tight
                     "
                     useRange={false}
@@ -188,6 +194,7 @@ const DateRangePicker = ({ displayLabel }) => {
                     placeholder="Select range"
                     showShortcuts={true}
                     readOnly={true}
+                 
                     popoverDirection="down"
                     containerClassName="relative z-[5]"
                     configs={{
@@ -223,7 +230,10 @@ const DateRangePicker = ({ displayLabel }) => {
                         },
                     }}
                 />
-                <FaRegCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 text-xl sm:text-2xl pointer-events-none group-hover:text-indigo-600 transition-colors" />
+                <FaRegCalendarAlt 
+                    className="absolute left-2 top-1/2 -translate-y-1/2 text-xs pointer-events-none transition-colors" 
+                    style={{ color: '#11497c' }}
+                />
             </div>
         </div>
     );

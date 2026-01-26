@@ -1,20 +1,19 @@
-
 'use client';
 
 import { useContext } from "react";
-
 import { FaSearch } from "react-icons/fa";
 import { TiDeleteOutline } from "react-icons/ti";
 import ColFilter from "./ColumnsFilter";
 import { getTtl } from '../../utils/languages';
 import { SettingsContext } from "../../contexts/useSettingsContext";
-import { usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation';
 import { GrAddCircle } from "react-icons/gr";
 import Image from 'next/image';
 import Tltip from "../../components/tlTip";
 import { MdDeleteOutline } from "react-icons/md";
 import { GrDocumentPdf } from "react-icons/gr";
 import QuickSumControl from './quicksum/QuickSumControl';
+import DateRangePicker from '../../components/dateRangePicker';
 
 const Header = ({ 
   data, 
@@ -42,7 +41,7 @@ const Header = ({
 }) => {
 
   const { ln } = useContext(SettingsContext);
-  const pathname = usePathname()
+  const pathname = usePathname();
   
   const editEnabledRoutes = [
     '/invoices',
@@ -56,130 +55,164 @@ const Header = ({
   );
 
   return (
-    <div className="flex justify-between items-center p-3 flex-wrap gap-3 sticky top-0 z-20 bg-gradient-to-r from-indigo-200 via-purple-100 to-pink-100 shadow-lg rounded-2xl border-0 backdrop-blur-[2px]">
+    <div className="sticky top-0 z-20 bg-gray-50">
       
-      {/* Left Section - Search & Callback */}
-      <div className='flex items-center gap-3 w-full sm:w-auto'>
-        {pathname !== '/accounting' && (
-          <div className="flex items-center relative w-auto min-w-[120px] sm:min-w-[160px] md:w-56 border-0 rounded-xl bg-gradient-to-r from-white via-indigo-50 to-purple-50 shadow focus-within:ring-2 focus-within:ring-indigo-300 transition-all">
-            <input
-              className="bg-transparent border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-indigo-900 placeholder:text-indigo-400 h-8 text-[13px]"
-              placeholder={getTtl('Search', ln)}
-              value={globalFilter ?? ''}
-              onChange={e => setGlobalFilter(e.target.value)}
-              type='text'
-              style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}
-            />
-            {globalFilter === '' ? (
-              <FaSearch className="text-indigo-300 absolute right-3 top-2.5" style={{ fontSize: 'clamp(12px, 1vw, 15px)' }} />
-            ) : (
-              <TiDeleteOutline 
-                className="text-indigo-400 absolute right-3 top-2.5 cursor-pointer hover:text-pink-500 transition-colors" 
-                onClick={() => setGlobalFilter('')}
-                style={{ fontSize: 'clamp(13px, 1vw, 16px)' }}
+      {/* Main Content - Single Row on Desktop, Two Rows on Mobile */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-2 gap-2">
+        
+        {/* Left Section: Search + All Action Icons */}
+        <div className='flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0 flex-1'>
+          
+          {/* Search Box */}
+          {pathname !== '/accounting' && (
+            <div className="flex items-center relative w-[120px] sm:w-[140px] h-8 border border-gray-300 rounded-lg bg-white focus-within:ring-1 focus-within:ring-blue-200 focus-within:border-blue-400 hover:border-gray-400 shadow-sm transition-all duration-200">
+              <input
+                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-gray-700 placeholder:text-gray-400 h-full text-xs rounded-lg"
+                placeholder={getTtl('Search', ln)}
+                value={globalFilter ?? ''}
+                onChange={e => setGlobalFilter(e.target.value)}
+                type='text'
               />
-            )}
-          </div>
-        )}
-        
-        {cb && (
-          <div className={`${
-            type === 'stock' ? 'max-w-[14rem]' :
-            (type === 'analysis' || type === 'accstatement') ? 'lg:w-[18em]' : 'w-[7rem]'
-          }`} style={{ fontSize: 'clamp(9px, 0.8vw, 11px)' }}>
-            {cb}
-          </div>
-        )}
-      </div>
+              {globalFilter === '' ? (
+                <FaSearch className="text-gray-400 absolute right-3 top-2.5" style={{ fontSize: 14 }} />
+              ) : (
+                <TiDeleteOutline 
+                  className="text-gray-500 absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors" 
+                  onClick={() => setGlobalFilter('')}
+                  style={{ fontSize: 16 }}
+                />
+              )}
+            </div>
+          )}
 
-      {/* Right Section - Actions */}
-      <div className='flex items-center justify-end flex-wrap gap-2'>
-        
-        {/* Material Table Actions */}
-        {type === 'mTable' && (
-          <div className='flex items-center gap-1'>
-            <Tltip direction='bottom' tltpText='Add new material'>
-              <button
-                onClick={addMaterial}
-                className="hover:bg-blue-50 text-gray-600 inline-flex items-center rounded-lg p-1.5 hover:shadow-sm focus:outline-none transition-all border border-transparent hover:border-blue-200"
-              >
-                <GrAddCircle className="cursor-pointer hover:text-blue-600 transition-colors" style={{ fontSize: 'clamp(11px, 1vw, 13px)' }} />
-              </button>
-            </Tltip>
+          {/* All Action Icons */}
+          <div className='flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0'>
             
-            <Tltip direction='bottom' tltpText='Export to PDF'>
-              <button
-                onClick={() => runPdf(table1)}
-                className="hover:bg-blue-50 text-gray-600 inline-flex items-center rounded-lg p-1.5 hover:shadow-sm focus:outline-none transition-all border border-transparent hover:border-blue-200"
+            {/* Quick Sum */}
+            <div className="border border-gray-300 rounded-lg px-2 flex items-center bg-white hover:border-gray-400 focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200 min-w-0 sm:h-8">
+              <QuickSumControl
+                table={table}
+                enabled={quickSumEnabled}
+                setEnabled={setQuickSumEnabled}
+                selectedColumnIds={quickSumColumns}
+                setSelectedColumnIds={setQuickSumColumns}
+                buttonClassName="text-gray-700 font-medium text-xs whitespace-nowrap"
+              />
+            </div>
+
+            {/* Edit Mode */}
+            {showEditButton && typeof setIsEditMode === 'function' && (
+              <Tltip direction="bottom" tltpText={isEditMode ? 'Editing ON' : 'Edit'}>
+                <div
+                  onClick={() => setIsEditMode(prev => !prev)}
+                  className={`w-8 h-8 inline-flex items-center justify-center rounded hover:bg-gray-100 cursor-pointer transition-colors ${
+                    isEditMode ? 'bg-blue-100 text-blue-700' : 'text-gray-600'
+                  }`}
+                  title={isEditMode ? 'Editing ON' : 'Edit'}
+                >
+                  <Image 
+                    src="/logo/edit.svg" 
+                    alt="Edit" 
+                    width={16} 
+                    height={16} 
+                    className="w-4 h-4 object-cover" 
+                    priority 
+                  />
+                </div>
+              </Tltip>
+            )}
+
+            {/* Chat */}
+            <Tltip direction="bottom" tltpText={getTtl('Ask question', ln) || 'Ask question'}>
+              <div
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new CustomEvent('ims:openChat'));
+                  }
+                }}
+                className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-gray-100 cursor-pointer text-gray-600 transition-colors"
+                aria-label={getTtl('Ask question', ln) || 'Ask question'}
+                title={getTtl('Ask question', ln) || 'Ask question'}
               >
-                <GrDocumentPdf className="cursor-pointer hover:text-blue-600 transition-colors" style={{ fontSize: 'clamp(11px, 1vw, 13px)' }} />
-              </button>
+                <Image 
+                  src="/logo/chat.svg" 
+                  alt="Chat" 
+                  width={16} 
+                  height={16} 
+                  className="w-4 h-4 object-cover" 
+                  priority 
+                />
+              </div>
             </Tltip>
 
-            <Tltip direction='bottom' tltpText='Delete Table'>
-              <button
-                onClick={() => delTable(table1)}
-                className="hover:bg-red-50 text-gray-600 inline-flex items-center rounded-lg p-1.5 hover:shadow-sm focus:outline-none transition-all border border-transparent hover:border-red-200"
-              >
-                <MdDeleteOutline className="cursor-pointer hover:text-red-600 transition-colors" style={{ fontSize: 'clamp(11px, 1vw, 13px)' }} />
-              </button>
-            </Tltip>
+            {/* Column Filter */}
+            <div className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-gray-100 cursor-pointer text-gray-600 transition-colors">
+              <ColFilter table={table} iconClassName="text-gray-600" iconSize={16} />
+            </div>
+
+            {/* Excel Report */}
+            {excellReport && (
+              <div className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-gray-100 cursor-pointer text-gray-600 transition-colors">
+                {excellReport}
+              </div>
+            )}
+
+            {/* Filter Icon */}
+            {filterIcon && (
+              <div className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-gray-100 cursor-pointer text-gray-600 transition-colors">
+                {filterIcon}
+              </div>
+            )}
+
+            {/* Reset Filter */}
+            {resetFilterTable && (
+              <>{resetFilterTable}</>
+            )}
+
+            {/* Material Table Actions */}
+            {type === 'mTable' && (
+              <div className='flex items-center gap-1.5 sm:gap-2'>
+                <Tltip direction='bottom' tltpText='Add new material'>
+                  <button
+                    onClick={addMaterial}
+                    className="w-8 h-8 hover:bg-gray-100 text-gray-600 inline-flex items-center justify-center rounded focus:outline-none transition-colors"
+                  >
+                    <GrAddCircle style={{ fontSize: 16 }} />
+                  </button>
+                </Tltip>
+                
+                <Tltip direction='bottom' tltpText='Export to PDF'>
+                  <button
+                    onClick={() => runPdf(table1)}
+                    className="w-8 h-8 hover:bg-gray-100 text-gray-600 inline-flex items-center justify-center rounded focus:outline-none transition-colors"
+                  >
+                    <GrDocumentPdf style={{ fontSize: 16 }} />
+                  </button>
+                </Tltip>
+
+                <Tltip direction='bottom' tltpText='Delete Table'>
+                  <button
+                    onClick={() => delTable(table1)}
+                    className="w-8 h-8 hover:bg-red-50 text-gray-600 hover:text-red-600 inline-flex items-center justify-center rounded focus:outline-none transition-colors"
+                  >
+                    <MdDeleteOutline style={{ fontSize: 16 }} />
+                  </button>
+                </Tltip>
+              </div>
+            )}
+
+            {/* Contract Statement Modes */}
+            {type === 'contractStatementTableModes' && tableModes}
           </div>
-        )}
-
-        {/* Contract Statement Table Modes */}
-        {type === 'contractStatementTableModes' && tableModes}
-
-
-        {/* Filter Controls + Chat Button */}
-        <div className="flex items-center gap-1">
-          {resetFilterTable}
-          {filterIcon}
-          {excellReport}
-          <ColFilter table={table} />
-          {/* Chat Button */}
-          <Tltip direction="bottom" tltpText={getTtl('Ask question', ln) || 'Ask question'}>
-            <div
-              onClick={() => {
-                if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('ims:openChat'));
-              }}
-              className="justify-center size-10 inline-flex items-center text-sm rounded-full focus:outline-none cursor-pointer"
-              style={{ fontSize: 'clamp(13px, 1vw, 16px)' }}
-              aria-label={getTtl('Ask question', ln) || 'Ask question'}
-              title={getTtl('Ask question', ln) || 'Ask question'}
-            >
-              <Image src="/logo/chat.svg" alt="Chat" width={32} height={32} className="w-8 h-8 object-cover inline-block align-middle" priority />
-            </div>
-          </Tltip>
         </div>
 
-        {/* Edit Mode Toggle */}
-        {showEditButton && typeof setIsEditMode === 'function' && (
-          <Tltip direction="bottom" tltpText={isEditMode ? 'Editing ON' : 'Edit'}>
-            <div
-              onClick={() => setIsEditMode(prev => !prev)}
-              className="justify-center size-10 inline-flex items-center text-sm rounded-full focus:outline-none cursor-pointer"
-              style={{ fontSize: 'clamp(13px, 1vw, 16px)' }}
-              title={isEditMode ? 'Editing ON' : 'Edit'}
-            >
-              <Image src="/logo/edit.svg" alt="Edit" width={32} height={32} className="w-8 h-8 object-cover inline-block align-middle" priority />
-            </div>
-          </Tltip>
-        )}
-
-        {/* Quick Sum Control */}
-        <div className="border border-gray-200 rounded-lg px-1.5 py-1 flex items-center h-7 bg-white hover:border-gray-300 transition-colors">
-          <QuickSumControl
-            table={table}
-            enabled={quickSumEnabled}
-            setEnabled={setQuickSumEnabled}
-            selectedColumnIds={quickSumColumns}
-            setSelectedColumnIds={setQuickSumColumns}
-          />
-        </div>
+        {/* DateRangePicker: Moves to new row on mobile, inline on desktop */}
+        {/* <div className="w-full sm:w-auto flex-shrink-0"> */}
+          <DateRangePicker />
+        {/* </div> */}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Header;

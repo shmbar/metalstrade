@@ -13,7 +13,7 @@ import Tooltip from '../../../components/tooltip';
 import Customtable from './newTable';
 import TableTotals from './totals/tableTotals';
 
-const Contracts = () => {
+const SpecialInvoices = () => {
     const { settings, dateSelect, setDateYr, setLoading, loading, ln } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
     const [data, setData] = useState([]);
@@ -184,43 +184,69 @@ const Contracts = () => {
 
 
     return (
-        <div className="container mx-auto px-0 pb-8 md:pb-0 mt-16 md:mt-0">
-            {Object.keys(settings).length === 0 ? <Spinner /> :
-                <>
-
-                    <div className="border border-[var(--selago)] rounded-xl p-4 mt-8 shadow-lg bg-white relative">
-                        <div className='flex items-center justify-between flex-wrap pb-2'>
-                            <div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold"> {getTtl('Misc Invoices', ln)} </div>
-                            <div className='flex group'>
-                                <DateRangePicker />
-                                <Tooltip txt='Select Dates Range' />
+        <div className="w-full overflow-x-hidden">
+            <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+                {Object.keys(settings).length === 0 ? <Spinner /> :
+                    <>
+                        {/* Main Card */}
+                        <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white relative">
+                            {/* Header Section */}
+                            <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+                                <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+                                    {getTtl('Misc Invoices', ln)}
+                                </h1>
+                                {/* <div className='flex items-center gap-2 group'>
+                                    <div className="relative">
+                                        <DateRangePicker />
+                                    </div>
+                                    <Tooltip txt='Select Dates Range' />
+                                </div> */}
                             </div>
 
+                            {/* Table Component */}
+                            <Customtable
+                                data={getFormatted(data)}
+                                columns={propDefaults}
+                                SelectRow={SelectRow}
+                                excellReport={EXD(
+                                    data.filter(x => filteredData.map(z => z.id).includes(x.id)),
+                                    settings,
+                                    getTtl('Misc Invoices', ln),
+                                    ln
+                                )}
+                                setFilteredData={setFilteredData}
+                            />
+
+                            {/* Totals Section */}
+                            <div className='flex flex-col md:flex-row w-full gap-4 mt-6'>
+                                <div className='w-full md:w-1/2'>
+                                    <TableTotals
+                                        data={totals}
+                                        columns={colsTotals}
+                                        expensesData={filteredData}
+                                        settings={settings}
+                                        title='Summary - Unpaid invoices'
+                                        filt='reduced'
+                                    />
+                                </div>
+                                <div className='w-full md:w-1/2'>
+                                    <TableTotals
+                                        data={totalsAll}
+                                        columns={colsTotals}
+                                        expensesData={filteredData}
+                                        settings={settings}
+                                        title='Summary'
+                                        filt='full'
+                                    />
+                                </div>
+                            </div>
                         </div>
-
-                        <Customtable data={getFormatted(data)} columns={propDefaults} SelectRow={SelectRow}
-                            excellReport={EXD(data.filter(x => filteredData.map(z => z.id).includes(x.id)), settings, getTtl('Misc Invoices', ln), ln)}
-                            setFilteredData={setFilteredData}
-                        />
-
-                        <div className='flex flex-col md:flex-row w-full gap-4 mt-6'>
-                            <div className='w-full md:w-1/2'>
-                                <TableTotals data={totals} columns={colsTotals} expensesData={filteredData}
-                                    settings={settings} title='Sumarry - Unpaid invoices' filt='reduced' />
-                            </div>
-                            <div className='w-full md:w-1/2'>
-                                <TableTotals data={totalsAll} columns={colsTotals} expensesData={filteredData}
-                                    settings={settings} title='Sumarry' filt='full' />
-                            </div>
-                        </div>
-
-                    </div>
-                </>}
-
+                    </>
+                }
+            </div>
         </div>
     );
-
 };
 
-export default Contracts;
+export default SpecialInvoices;
 

@@ -312,37 +312,69 @@ const Stocks = () => {
 
 
   return (
+    <div className="w-full overflow-x-hidden">
+      <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+        {Object.keys(settings).length === 0 ? <Spinner /> :
+          <>
+            <Toast />
+            {loading && <Spin />}
+            {/* Main Card */}
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white relative">
+              {/* Header Section */}
+              <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+                <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+                  {getTtl('Stocks', ln)}
+                </h1>
+              </div>
 
-    <div className="container mx-auto px-0 pb-8 md:pb-0 mt-16 md:mt-0">
-      {Object.keys(settings).length === 0 ? <Spinner /> :
-        <>
-          <Toast />
-          {loading && <Spin />}
-          <div className="border border-[var(--selago)] rounded-xl p-4 mt-8 shadow-lg bg-white relative">
-            <div className='flex items-center justify-between flex-wrap'>
-              <div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Stocks', ln)} </div>
+              {/* Table Component */}
+              <div className='mt-5'>
+                <Customtable
+                  data={getFormatted(data)}
+                  columns={propDefaults}
+                  SelectRow={SelectRow}
+                  cb={CB(settings, handleSelectStock, selectedStock)}
+                  type='stock'
+                  invisible={invisible}
+                  excellReport={EXD(
+                    data.filter(x => filteredArray1.map(z => z.id).includes(x.id)),
+                    settings,
+                    getTtl('Stocks', ln),
+                    ln,
+                    sumData
+                  )}
+                  ln={ln}
+                  setFilteredArray1={setFilteredArray1}
+                />
+              </div>
+
+              {/* Totals Section */}
+              <div className='flex gap-6 flex-wrap'>
+                <SumTable
+                  sumData={sumData}
+                  loading={loading}
+                  settings={settings}
+                  dataTable={data}
+                  ln={ln}
+                />
+              </div>
             </div>
 
-
-            <div className='mt-5'>
-              <Customtable data={getFormatted(data)} columns={propDefaults} SelectRow={SelectRow}
-                cb={CB(settings, handleSelectStock, selectedStock)}
-                //   cb1={CB1(setSelectOpt, selectedOpt, { dis: !data.length > 0 })}
-                //  settings={settings}
-                type='stock' invisible={invisible}
-                excellReport={EXD(data.filter(x => filteredArray1.map(z => z.id).includes(x.id)), settings, getTtl('Stocks', ln), ln, sumData)} ln={ln}
-                setFilteredArray1={setFilteredArray1} />
-            </div>
-
-            <div className='flex gap-6 flex-wrap'>
-              <SumTable sumData={sumData} loading={loading} settings={settings} dataTable={data}
-                ln={ln} />
-            </div>
-          </div>
-
-          {isOpenCon && <MyDetailsModal isOpen={isOpenCon} setIsOpen={setIsOpenCon} data={data} setData={setData}
-            title='' item={item} setItem={setItem} />}
-        </>}
+            {/* Modal */}
+            {isOpenCon && (
+              <MyDetailsModal
+                isOpen={isOpenCon}
+                setIsOpen={setIsOpenCon}
+                data={data}
+                setData={setData}
+                title=''
+                item={item}
+                setItem={setItem}
+              />
+            )}
+          </>
+        }
+      </div>
     </div>
   );
 

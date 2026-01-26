@@ -205,63 +205,71 @@ const Expenses = () => {
     };
 
     return (
-        <div className="container mx-auto px-0 pb-8 md:pb-0 mt-16 md:mt-0">
-            {Object.keys(settings).length === 0 ? <Spinner /> :
-                <>
-                    <Toast />
-                    {loading && <Spin />}
-                    <div className="border border-[var(--selago)] rounded-xl p-4 mt-8 shadow-lg bg-white relative">
-                        <div className='flex items-center justify-between flex-wrap pb-2'>
-                            <div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Company Expenses', ln)}</div>
-                            <div className='flex group'>
-                                <DateRangePicker />
-                                <Tooltip txt='Select Dates Range' />
+        <div className="w-full overflow-x-hidden">
+            <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+                {Object.keys(settings).length === 0 ? <Spinner /> :
+                    <>
+                        <Toast />
+                        {loading && <Spin />}
+                        {/* Main Card */}
+                        <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white relative">
+                            {/* Header Section */}
+                            <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+                                <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+                                    {getTtl('Company Expenses', ln)}
+                                </h1>
+                                {/* <div className='flex items-center gap-2 group'>
+                                    <div className="relative">
+                                        <DateRangePicker />
+                                    </div>
+                                    <Tooltip txt='Select Dates Range' />
+                                </div> */}
+                            </div>
+
+                            {/* Table Component */}
+                            <Customtable
+                                data={getFormatted(expensesData)}
+                                columns={propDefaults}
+                                SelectRow={SelectRow}
+                                excellReport={EXD(expensesData.filter(x => filteredId.includes(x.id)), settings, getTtl('Company Expenses', ln), ln)}
+                                setFilteredId={setFilteredId}
+                                invisible={invisible}
+                            />
+
+                            {/* Action Button */}
+                            <div className="text-left pt-6 flex gap-4">
+                                <Tltip direction='bottom' tltpText='Create new Company Expense'>
+                                    <button
+                                        type="button"
+                                        onClick={addNewExpense}
+                                        className="text-white bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)] hover:opacity-90 focus:outline-none font-medium rounded-lg 
+                                         text-sm px-4 py-3 text-center drop-shadow-xl gap-1.5 items-center flex"
+                                    >
+                                        <TbLayoutGridAdd className="scale-110" />
+                                        New Expense
+                                    </button>
+                                </Tltip>
+                            </div>
+
+                            {/* Totals Section */}
+                            <div className='flex gap-4 2xl:gap-20 flex-wrap'>
+                                <div className='pt-8 min-w-[350px] max-w-[400px] w-full'>
+                                    <TableTotals data={totals.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
+                                        settings={settings} filt='reduced' title='Summary - Unpaid Company expenses' />
+                                </div>
+                                <div className='pt-8 min-w-[350px] max-w-[400px] w-full'>
+                                    <TableTotals data={totalsAll.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
+                                        settings={settings} filt='full' title='Summary' />
+                                </div>
                             </div>
                         </div>
 
-                        <Customtable
-                            data={getFormatted(expensesData)}
-                            columns={propDefaults}
-                            SelectRow={SelectRow}
-                            excellReport={EXD(expensesData.filter(x => filteredId.includes(x.id)), settings, getTtl('Company Expenses', ln), ln)}
-                            setFilteredId={setFilteredId}
-                            invisible={invisible}
-                        />
-
-
-
-                        <div className="text-left pt-6 flex gap-4">
-                            <Tltip direction='bottom' tltpText='Create new Company Expense'>
-                                <button
-                                    type="button"
-                                    onClick={addNewExpense}
-                                    className="text-white bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)] hover:opacity-90 focus:outline-none font-medium rounded-lg 
-													 text-sm px-4 py-3 text-center drop-shadow-xl gap-1.5 items-center flex"
-                                >
-                                    <TbLayoutGridAdd className="scale-110" />
-                                    New Expense
-                                </button>
-                            </Tltip>
-                        </div>
-
-
-                        <div className='flex gap-4 2xl:gap-20 flex-wrap'>
-                            <div className='pt-8 min-w-[350px] max-w-[400px] w-full'>
-                                <TableTotals data={totals.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
-                                    settings={settings} filt='reduced' title='Summary - Unpaid Company expenses' />
-                            </div>
-
-                            <div className='pt-8 min-w-[350px] max-w-[400px] w-full'>
-                                <TableTotals data={totalsAll.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
-                                    settings={settings} filt='full' title='Summary' />
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <MyDetailsModal isOpen={isOpen} setIsOpen={setIsOpen}
-                        title={getTtl('Existing Expense', ln)} />
-                </>}
+                        {/* Modal */}
+                        <MyDetailsModal isOpen={isOpen} setIsOpen={setIsOpen}
+                            title={getTtl('Existing Expense', ln)} />
+                    </>
+                }
+            </div>
         </div>
     );
 };

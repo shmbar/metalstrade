@@ -1,9 +1,6 @@
-
 "use client";
 import { useState, useContext } from "react";
 import Tltip from "../../../components/tlTip";
-import imsLogo from "../../../public/logo/logoNew.svg";
-import Image from "next/image";
 import { FiSettings } from "react-icons/fi";
 import { sideBar } from "../../../components/const";
 import Link from "next/link";
@@ -14,80 +11,112 @@ import { getTtl } from "../../../utils/languages";
 import styles from "./SideBar.module.css";
 
 export default function Sidebar() {
+  // Collapsed state
+  const [collapsed, setCollapsed] = useState(false);
+
+  // Helper to map sidebar item names to SVG filenames
+  const getSvgIcon = (name) => {
+    const map = {
+      Dashboard: "dashboard.svg",
+      "Assistant": "ai assistant.svg",
+      "Contracts": "contracts.svg",
+      "Invoices": "excel.svg",
+      "Expenses": "expenses.svg",
+      "Accounting": "accounting.svg",
+      "Contracts Review & Statement": "Contracts Review & Statement.svg",
+      "Invoices Review & Statement": "Invoices Review & Statement.svg",
+      "Account Statement": "accounting.svg",
+      "Stocks": "colums.svg",
+      "Misc Invoices": "edit.svg",
+      "Company Expenses": "Company Expenses.svg",
+      "Material Tables": "Material Tables.svg",
+      "Sharon Admin": "dashboard.svg",
+      "Cashflow": "Cashflow.svg",
+      "Formulas Calc": "Formulas Calc.svg",
+    };
+    return map[name] || "dashboard.svg";
+  };
+
   const pathName = usePathname();
   const { setDates, compData } = useContext(SettingsContext);
   const { userTitle } = UserAuth();
   const ln = compData?.lng || "English";
   const [openDropdowns, setOpenDropdowns] = useState({});
 
-  const showLink = userTitle !== "Accounting";
-
   return (
-    showLink && (
-      <nav
-        className="relative flex flex-col h-screen overflow-hidden"
+    <div
+      className="relative flex flex-col h-screen overflow-hidden transition-all duration-200"
+      style={{
+        width: collapsed ? "60px" : "clamp(220px, 18vw, 260px)",
+        minWidth: collapsed ? "60px" : "clamp(220px, 18vw, 260px)",
+        maxWidth: collapsed ? "60px" : "clamp(220px, 18vw, 260px)",
+        borderRadius: "12px",
+        zIndex: 10,
+        background: "linear-gradient(to right, #bce1ff 0%, #bce1ff 60%, rgba(255,255,255,0) 100%)",
+      }}
+    >
+      <div
+        className="shrink-0"
         style={{
-          width: "clamp(220px, 18vw, 260px)",
-          minWidth: "clamp(220px, 18vw, 260px)",
-          maxWidth: "clamp(220px, 18vw, 260px)",
-          boxShadow: "2px 0 8px rgba(0, 0, 0, 0.08)",
+          height: "clamp(56px, 7vh, 80px)",
+          minHeight: "clamp(56px, 7vh, 80px)",
+          borderRadius: "12px 12px 0 0",
+        }}
+      />
+      {/* Collapse/Expand Arrow Button */}
+      <button
+        onClick={() => setCollapsed((c) => !c)}
+        className="absolute z-20 bg-white shadow rounded-full w-7 h-7 flex items-center justify-center transition-transform"
+        style={{
+          top: "clamp(56px, 7vh, 80px)",
+          right: 0,
+          transition: "transform 0.2s",
+        }}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          {collapsed ? (
+            // Arrow points right (>)
+            <path d="M8 5l5 5-5 5" stroke="#11497c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          ) : (
+            // Arrow points left (<)
+            <path d="M12 5l-5 5 5 5" stroke="#11497c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          )}
+        </svg>
+      </button>
+
+      {/* Links wrapper with separate background */}
+      <div
+        style={{
+          background: "#E3F2FD",
+          borderRadius: "0 0 12px 12px",
+          margin: "0 8px 8px 8px",
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          borderRadius: "12px",
+          
         }}
       >
-        {/* Logo */}
-        <div
-          className="shrink-0 flex items-center justify-center overflow-hidden"
-          style={{
-            background:
-              "radial-gradient(circle at center, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 18%, rgba(14,95,165,1) 100%)",
-            height: "clamp(50px, 7vh, 64px)",
-            minHeight: "clamp(50px, 7vh, 64px)",
-            width: "100%",
-            padding: "clamp(6px, 1vw, 10px)",
-          }}
-        >
-          <Image
-            src={imsLogo}
-            className="overflow-hidden transition-all hover:scale-105 duration-300"
-            style={{
-              height: "clamp(60px, 8vh, 88px)",
-              width: "auto",
-              objectFit: "contain",
-              maxWidth: "100%",
-            }}
-            priority
-            alt="IMS Logo"
-            width={200}
-            height={48}
-          />
-        </div>
-
-        {/* Menu */}
-        <div
-          className="flex-1 min-h-0 flex flex-col overflow-hidden"
-          style={{
-            background:
-              "linear-gradient(180deg, #0e5fa5 0%, #0a4d84 30%, #064378 60%, #003d6e 100%)",
-          }}
-        >
-          <ul
-            className="flex-1 overflow-hidden"
-            style={{
-              paddingTop: "clamp(4px, 0.5vh, 6px)",
-              paddingBottom: "clamp(4px, 0.5vh, 6px)",
-            }}
-          >
+        <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+          <ul style={{ paddingTop: "clamp(4px, 0.5vh, 6px)", paddingBottom: "clamp(4px, 0.5vh, 6px)" }}>
             {sideBar().map((x, i) => (
               <div key={i}>
-                {x.ttl && (
+                {/* Section Title */}
+                {x.ttl && !collapsed && (
                   <div
-                    className="font-semibold tracking-[0.1em] uppercase"
+                    className="font-semibold tracking-[0.1em] uppercase text-[#003366] truncate"
                     style={{
-                      color: "rgba(255, 255, 255, 0.45)",
-                      fontSize: "clamp(7px, 0.6vw, 9px)",
-                      paddingLeft: "clamp(10px, 1.5vw, 14px)",
-                      paddingRight: "clamp(10px, 1.5vw, 14px)",
+                      fontSize: "clamp(6px, 0.5vw, 8px)",
+                      paddingLeft: collapsed ? "0" : "16px",
+                      paddingRight: "0",
                       paddingBottom: "clamp(2px, 0.3vh, 4px)",
-                      paddingTop: "clamp(4px, 0.6vh, 8px)",
+                      paddingTop: i === 0 ? "0" : "clamp(4px, 0.6vh, 8px)",
+                      opacity: 0.7,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                     }}
                   >
                     {getTtl(x.ttl, ln)}
@@ -104,8 +133,7 @@ export default function Sidebar() {
                       return (
                         <div key={k}>
                           {y.subItems.map((sub, si) => {
-                            const isSubActive =
-                              pathName.slice(1) === sub.page;
+                            const isSubActive = pathName.slice(1) === sub.page;
 
                             return (
                               <Link
@@ -113,46 +141,59 @@ export default function Sidebar() {
                                 key={si}
                                 onClick={setDates}
                               >
-                                <div
-                                  className={`group flex items-center rounded-md cursor-pointer transition-all duration-200
-                                  ${
-                                    isSubActive
-                                      ? "bg-gradient-to-r from-[#7ba7cc] to-[#6b9ac2] text-white font-medium shadow-lg scale-[1.01]"
-                                      : "text-white/90 hover:bg-white/10 hover:translate-x-0.5"
-                                  }`}
-                                  style={{
-                                    gap: "clamp(4px, 0.8vw, 7px)",
-                                    paddingTop:
-                                      "clamp(3px, 0.5vh, 5px)",
-                                    paddingBottom:
-                                      "clamp(3px, 0.5vh, 5px)",
-                                    paddingLeft:
-                                      "clamp(6px, 1.2vw, 10px)",
-                                    paddingRight:
-                                      "clamp(6px, 1.2vw, 10px)",
-                                    marginLeft:
-                                      "clamp(1px, 0.2vw, 2px)",
-                                    marginRight:
-                                      "clamp(1px, 0.2vw, 2px)",
-                                  }}
-                                >
-                                  <span
+                                <Tltip direction="right" tltpText={getTtl(sub.item, ln)} show={collapsed}>
+                                  <div
+                                    className={`group flex items-center rounded-md cursor-pointer transition-all duration-200
+                                    ${
+                                      isSubActive
+                                        ? "bg-white text-[#003366] font-medium scale-[1.01]"
+                                        : "text-[#003366] hover:bg-white/50 hover:translate-x-0.5"
+                                    }`}
                                     style={{
-                                      fontSize:
-                                        "clamp(11px, 0.95vw, 13px)",
+                                      gap: collapsed ? "0" : "clamp(4px, 0.6vw, 6px)",
+                                      paddingTop: "clamp(3px, 0.4vh, 5px)",
+                                      paddingBottom: "clamp(3px, 0.4vh, 5px)",
+                                      paddingLeft: collapsed ? "0" : "24px",
+                                      paddingRight: "0",
+                                      marginBottom: "clamp(1px, 0.15vh, 2px)",
+                                      justifyContent: collapsed ? "center" : "flex-start",
+                                      alignItems: "center"
                                     }}
                                   >
-                                    {sub.img}
-                                  </span>
-                                  <span
-                                    style={{
-                                      fontSize:
-                                        "clamp(9px, 0.8vw, 11px)",
-                                    }}
-                                  >
-                                    {getTtl(sub.item, ln)}
-                                  </span>
-                                </div>
+                                    <span
+                                      className="shrink-0 flex items-center"
+                                      style={{
+                                        width: 16,
+                                        height: 16,
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <img
+                                        src={`/logo/${getSvgIcon(sub.item)}`}
+                                        alt={sub.item}
+                                        style={{
+                                          width: 16,
+                                          height: 16,
+                                          objectFit: "contain",
+                                        }}
+                                      />
+                                    </span>
+                                    {!collapsed && (
+                                      <span
+                                        className="truncate"
+                                        style={{
+                                          fontSize: "clamp(8px, 0.65vw, 10px)",
+                                          whiteSpace: "nowrap",
+                                          overflow: "hidden",
+                                          textOverflow: "ellipsis",
+                                        }}
+                                      >
+                                        {getTtl(sub.item, ln)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </Tltip>
                               </Link>
                             );
                           })}
@@ -161,51 +202,51 @@ export default function Sidebar() {
                     }
 
                     return (
-                      <Link
-                        href={`/${y.page}`}
-                        key={k}
-                        onClick={setDates}
-                      >
-                        <div
-                          className={`group flex items-center rounded-lg cursor-pointer transition-all duration-200
-                          ${
-                            isActive
-                              ? "bg-gradient-to-r from-[#7ba7cc] to-[#6b9ac2] text-white font-medium shadow-lg scale-[1.01]"
-                              : "text-white hover:bg-[#0a4d84]/50 hover:translate-x-0.5"
-                          }`}
-                          style={{
-                            gap: "clamp(5px, 0.9vw, 7px)",
-                            paddingTop:
-                              "clamp(4px, 0.7vh, 7px)",
-                            paddingBottom:
-                              "clamp(4px, 0.7vh, 7px)",
-                            paddingLeft:
-                              "clamp(8px, 1.5vw, 14px)",
-                            paddingRight:
-                              "clamp(8px, 1.5vw, 14px)",
-                            marginLeft:
-                              "clamp(3px, 0.6vw, 5px)",
-                            marginRight:
-                              "clamp(3px, 0.6vw, 5px)",
-                          }}
-                        >
-                          <span
+                      <Link href={`/${y.page}`} key={k} onClick={setDates}>
+                        <Tltip direction="right" tltpText={getTtl(y.item, ln)} show={collapsed}>
+                          <div
+                            className={`group flex items-center rounded-lg cursor-pointer transition-all duration-200
+                            ${
+                              isActive
+                                ? "bg-white text-[#003366] font-medium scale-[1.01]"
+                                : "text-[#003366] hover:bg-white/50 hover:translate-x-0.5"
+                            }`}
                             style={{
-                              fontSize:
-                                "clamp(13px, 1.1vw, 15px)",
+                              gap: collapsed ? "0" : "clamp(5px, 0.7vw, 7px)",
+                              paddingTop: "clamp(4px, 0.5vh, 6px)",
+                              paddingBottom: "clamp(4px, 0.5vh, 6px)",
+                              paddingLeft: collapsed ? "0" : "24px",
+                              paddingRight: "0",
+                              marginBottom: "clamp(1px, 0.15vh, 2px)",
+                              justifyContent: collapsed ? "center" : "flex-start",
+                              alignItems: "center"
                             }}
                           >
-                            {y.img}
-                          </span>
-                          <span
-                            style={{
-                              fontSize:
-                                "clamp(10px, 0.9vw, 12px)",
-                            }}
-                          >
-                            {getTtl(y.item, ln)}
-                          </span>
-                        </div>
+                            <span
+                              className="shrink-0 flex items-center"
+                              style={{ width: 16, height: 16, display: "flex", alignItems: "center" }}
+                            >
+                              <img
+                                src={`/logo/${getSvgIcon(y.item)}`}
+                                alt={y.item}
+                                style={{ width: 16, height: 16, objectFit: "contain" }}
+                              />
+                            </span>
+                            {!collapsed && (
+                              <span
+                                className="truncate"
+                                style={{
+                                  fontSize: "clamp(9px, 0.75vw, 11px)",
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                }}
+                              >
+                                {getTtl(y.item, ln)}
+                              </span>
+                            )}
+                          </div>
+                        </Tltip>
                       </Link>
                     );
                   })}
@@ -213,49 +254,53 @@ export default function Sidebar() {
               </div>
             ))}
 
-            {/* Settings inside menu */}
-            <Tltip direction="right" tltpText={getTtl("Settings", ln)} show={false}>
-              <Link href="/settings">
-                <div
-                  className="group flex items-center rounded-lg cursor-pointer transition-all duration-200 text-white hover:bg-[#0a4d84]/50 hover:translate-x-0.5"
-                  style={{
-                    gap: "clamp(5px, 0.9vw, 7px)",
-                    paddingTop:
-                      "clamp(4px, 0.7vh, 7px)",
-                    paddingBottom:
-                      "clamp(4px, 0.7vh, 7px)",
-                    paddingLeft:
-                      "clamp(8px, 1.5vw, 14px)",
-                    paddingRight:
-                      "clamp(8px, 1.5vw, 14px)",
-                    marginLeft:
-                      "clamp(3px, 0.6vw, 5px)",
-                    marginRight:
-                      "clamp(3px, 0.6vw, 5px)",
-                  }}
-                >
-                  <FiSettings
-                    className="shrink-0 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-105"
+            {/* Settings - Inside the same scrollable area, no gap */}
+            <div style={{ marginTop: "0" }}>
+              <Tltip direction="right" tltpText={getTtl("Settings", ln)} show={collapsed}>
+                <Link href="/settings">
+                  <div
+                    className={`group flex items-center rounded-lg cursor-pointer transition-all duration-200 ${
+                      pathName === "/settings"
+                        ? "bg-white text-[#003366] font-medium scale-[1.01]"
+                        : "text-[#003366] hover:bg-white/50 hover:translate-x-0.5"
+                    }`}
                     style={{
-                      fontSize:
-                        "clamp(13px, 1.1vw, 15px)",
-                    }}
-                  />
-                  <span
-                    className="font-medium tracking-wide leading-tight"
-                    style={{
-                      fontSize:
-                        "clamp(10px, 0.9vw, 12px)",
+                      gap: collapsed ? "0" : "clamp(5px, 0.7vw, 7px)",
+                      paddingTop: "clamp(4px, 0.5vh, 6px)",
+                      paddingBottom: "clamp(4px, 0.5vh, 6px)",
+                      paddingLeft: collapsed ? "0" : "24px",
+                      paddingRight: "0",
+                      marginBottom: "clamp(1px, 0.15vh, 2px)",
+                      justifyContent: collapsed ? "center" : "flex-start",
+                      alignItems: "center"
                     }}
                   >
-                    {getTtl("Settings", ln)}
-                  </span>
-                </div>
-              </Link>
-            </Tltip>
+                    <FiSettings
+                      className="shrink-0 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-105"
+                      style={{
+                        fontSize: "clamp(11px, 0.9vw, 13px)",
+                      }}
+                    />
+                    {!collapsed && (
+                      <span
+                        className="font-medium tracking-wide truncate"
+                        style={{
+                          fontSize: "clamp(9px, 0.75vw, 11px)",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {getTtl("Settings", ln)}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              </Tltip>
+            </div>
           </ul>
-        </div>
-      </nav>
-    )
+        </nav>
+      </div>
+    </div>
   );
 }

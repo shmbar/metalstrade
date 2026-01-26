@@ -545,16 +545,19 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
 };
 
   return (
-   <div className="container mx-auto px-4 md:px-6 lg:px-8 pb-8 md:pb-0 mt-16 md:mt-0 overflow-x-hidden">
+  <div className="w-full overflow-x-hidden">
+    <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
       {Object.keys(settings).length === 0 ? <Spinner /> :
         <>
           <Toast />
           {loading && <Spin />}
-          
-          {/* Header */}
-          <div className='flex items-center justify-between flex-wrap py-4'>
-            <div className="text-3xl text-[var(--port-gore)] font-semibold">{getTtl('Accounting', ln)}</div>
-            <div className='flex'>
+
+          {/* Header Section */}
+          <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+            <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+              {getTtl('Accounting', ln)}
+            </h1>
+            <div className='flex group'>
               <DateRangePicker />
             </div>
           </div>
@@ -614,7 +617,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
             </div>
           </div>
            {/* Full Table */}
-          <div className="bg-white rounded-2xl p-5 shadow-lg border border-[var(--selago)]">
+          <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white">
             <h3 className="text-lg font-semibold text-[var(--port-gore)] mb-4">All Transactions</h3>
             <Customtable data={invoicesAccData} columns={propDefaults}  onCellUpdate={onCellUpdate}
               excellReport={EXD(invoicesAccData, settings, getTtl('Accounting', ln), ln)} />
@@ -623,7 +626,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6 mt-3">
             {/* Last Transaction */}
-            <div className="xl:col-span-2 bg-white rounded-2xl p-5 shadow-lg border border-[var(--selago)]">
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white xl:col-span-2">
               <h3 className="text-lg font-semibold text-[var(--port-gore)] mb-4">Last Transaction</h3>
               <div className="space-y-3">
                 {recentTransactions.map((item, idx) => (
@@ -655,7 +658,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
             </div>
 
             {/* Invoices Sent */}
-            <div className="bg-white rounded-2xl p-5 shadow-lg border border-[var(--selago)]">
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white">
               <h3 className="text-lg font-semibold text-[var(--port-gore)] mb-4">Invoices Sent</h3>
               <div className="space-y-3">
                 {recentInvoices.map((item, idx) => (
@@ -683,7 +686,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           {/* Chart Section */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
             {/* Debit & Credit Overview */}
-            <div className="bg-white rounded-2xl p-5 shadow-lg border border-[var(--selago)]">
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                 <div className="min-w-0">
                   <h3 className="text-lg font-semibold text-[var(--port-gore)]">Debit & Credit Overview</h3>
@@ -706,7 +709,6 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
                 <Bar data={chartData} options={chartOptions} />
               </div>
             </div>
-
             {/* Summary Stats */}
             <div className="bg-gradient-to-br from-[var(--endeavour)] to-[var(--bunting)] rounded-2xl p-6 shadow-lg text-white overflow-hidden">
               <h3 className="text-lg font-semibold mb-6">Financial Summary</h3>
@@ -734,12 +736,11 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
               </div>
             </div>
           </div>
-
-         
-
-        </>}
+        </>
+      }
     </div>
+  </div>
   );
-};
+}
 
 export default Accounting;

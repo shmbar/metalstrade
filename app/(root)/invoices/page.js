@@ -1,4 +1,3 @@
-
 'use client';
 import { useContext, useEffect, useState, useCallback } from 'react';
 import Customtable from '../contracts/newTable';
@@ -459,51 +458,75 @@ const Invoices = () => {
 	};
 
 	return (
-		<div className="container mx-auto px-0 pb-8 md:pb-0 mt-16 md:mt-0">
-			{Object.keys(settings).length === 0 ? <Spinner /> :
-				<>
-					<Toast />
-					{/*loading && <Spin />*/}
-					<div className="border border-[var(--selago)] rounded-xl p-4 mt-8 shadow-md relative">
-						<div className='flex items-center justify-between flex-wrap pb-2'>
-							<div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Invoices', ln)}</div>
-							<div className='flex group'>
-								<DateRangePicker />
-								<Tooltip txt='Select Dates Range' />
+		<div className="w-full overflow-x-hidden">
+			<div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+				{Object.keys(settings).length === 0 ? <Spinner /> :
+					<>
+						<Toast />
+						{/* Main Card */}
+						<div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px]">
+							
+							{/* Header Section */}
+							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+								<h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+									{getTtl('Invoices', ln)}
+								</h1>
+								{/* <div className='flex items-center gap-2 group'>
+									<div className="relative">
+										<DateRangePicker />
+									</div>
+									<Tooltip txt='Select Dates Range' />
+								</div> */}
 							</div>
+
+							{/* Table Component */}
+							<Customtable 
+								data={sortArr(invoicesData, 'invoice')} 
+								columns={propDefaults} 
+								SelectRow={SelectRow}
+								invisible={invisible}
+								onCellUpdate={onCellUpdate}
+								excellReport={EXD(invoicesData.filter(x => filteredData.map(z => z.id).includes(x.id)),
+									settings, getTtl('Invoices', ln), ln)}
+								setFilteredData={setFilteredData}
+								highlightId={highlightId}
+							/>
 						</div>
 
-						<Customtable 
-							data={sortArr(invoicesData, 'invoice')} 
-							columns={propDefaults} 
-							SelectRow={SelectRow}
-							invisible={invisible}
-							onCellUpdate={onCellUpdate}
-							excellReport={EXD(invoicesData.filter(x => filteredData.map(z => z.id).includes(x.id)),
-								settings, getTtl('Invoices', ln), ln)}
-							setFilteredData={setFilteredData}
-							highlightId={highlightId}
-						/>
-					</div>
-
-					{alertArr.length ? <div className='mt-14'>
-						<div className="text-lg font-medium leading-5 text-[var(--port-gore)] border-2
-						 border-[var(--selago)] p-2 max-w-4xl mb-10 rounded-xl shadow-md"
-						>
-							<div className='text-[var(--port-gore)] '>
-								<span className='p-2'>Notification for delayed response</span>
-								<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
+						{/* Alert Section */}
+						{alertArr.length > 0 && (
+							<div className='mt-4 px-2 sm:px-3'>
+								<div className="text-sm font-semibold text-indigo-900 border-0 p-4 rounded-xl shadow bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 w-full max-w-2xl">
+									<div className='text-[var(--port-gore)]'>
+										<span className='text-xs sm:text-sm'>Notification for delayed response</span>
+										<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
+									</div>
+								</div>
 							</div>
-						</div >
-					</div> : ''}
+						)}
 
-					{valueInv && <MyDetailsModal isOpen={isOpen} setIsOpen={setIsOpen}
-						title={`${getTtl('Contract No', ln)}: ${valueInv.poSupplier.order}`} />}
+						{/* Modals */}
+						{valueInv && (
+							<MyDetailsModal 
+								isOpen={isOpen} 
+								setIsOpen={setIsOpen}
+								title={`${getTtl('Contract No', ln)}: ${valueInv.poSupplier.order}`} 
+							/>
+						)}
 
-					{alertArr.length ? <Modal isOpen={openAlert} setIsOpen={setOpenAlert} title='Notification for delayed response' w='max-w-4xl'>
-						<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
-					</Modal> : null}
-				</>}
+						{alertArr.length > 0 && (
+							<Modal 
+								isOpen={openAlert} 
+								setIsOpen={setOpenAlert} 
+								title='Notification for delayed response' 
+								w='max-w-2xl'
+							>
+								<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
+							</Modal>
+						)}
+					</>
+				}
+			</div>
 		</div>
 	);
 };

@@ -309,49 +309,65 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
 };
 
 	return (
-			<div className="container mx-auto px-0 pb-8 md:pb-0 mt-16 md:mt-0">
-			{Object.keys(settings).length === 0 ? <Spinner /> :
-				<>
-					<Toast />
-					{loading && <Spin />}
-					<div className="border border-[var(--selago)] rounded-xl p-4 mt-8 shadow-lg relative bg-white">
-						<div className='flex items-center justify-between flex-wrap pb-2'>
-							<div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Expenses', ln)}</div>
-							<div className='flex group'>
-								<DateRangePicker />
-								<Tooltip txt='Select Dates Range' />
+			<div className="w-full overflow-x-hidden">
+			<div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+				{Object.keys(settings).length === 0 ? <Spinner /> :
+					<>
+						<Toast />
+						{loading && <Spin />}
+						{/* Main Card */}
+						<div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white">
+							
+							{/* Header Section */}
+							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+								<h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+									{getTtl('Expenses', ln)}
+								</h1>
+								{/* <div className='flex items-center gap-2 group'>
+									<div className="relative">
+										<DateRangePicker />
+									</div>
+									<Tooltip txt='Select Dates Range' />
+								</div> */}
+							</div>
+
+							{/* Table Component */}
+							<Customtable 
+								data={expensesData.map(x => ({ ...x, poSupplierOrder: x.poSupplier?.order }))}
+								columns={propDefaults} 
+								SelectRow={SelectRow}
+								invisible={invisible}
+								excellReport={EXD(expensesData.filter(x => filteredId.includes(x.id)).map(x => ({ ...x, poSupplierOrder: x.poSupplier?.order })),
+									settings, getTtl('Expenses', ln), ln)}
+								setFilteredId={setFilteredId}
+								highlightId={highlightId} 
+								onCellUpdate={onCellUpdate}
+							/>
+
+							{/* Totals Section */}
+							<div className='flex gap-4 2xl:gap-20 flex-wrap'>
+								<div className='pt-8'>
+									<TableTotals data={totals} columns={colsTotals} expensesData={expensesData}
+										settings={settings} filt='reduced' title='Summary - Unpaid invoices' />
+								</div>
+								<div className='pt-8'>
+									<TableTotals data={totalsAll} columns={colsTotals} expensesData={expensesData}
+										settings={settings} filt='full' title='Summary' />
+								</div>
 							</div>
 						</div>
 
-						<Customtable data={expensesData.map(x => ({ ...x, poSupplierOrder: x.poSupplier?.order }))}
-							columns={propDefaults} SelectRow={SelectRow}
-							invisible={invisible}
-							excellReport={EXD(expensesData.filter(x => filteredId.includes(x.id)).map(x => ({ ...x, poSupplierOrder: x.poSupplier?.order })),
-								settings, getTtl('Expenses', ln), ln)}
-							setFilteredId={setFilteredId}
-							highlightId={highlightId} onCellUpdate={onCellUpdate}
-						/>
-
-
-						<div className='flex gap-4 2xl:gap-20 flex-wrap'>
-							<div className='pt-8'>
-								<TableTotals data={totals} columns={colsTotals} expensesData={expensesData}
-									settings={settings} filt='reduced' title='Summary - Unpaid invoices' />
-							</div>
-
-							<div className='pt-8'>
-								<TableTotals data={totalsAll} columns={colsTotals} expensesData={expensesData}
-									settings={settings} filt='full' title='Summary' />
-							</div>
-
-						</div>
-
-
-					</div>
-
-					{valueExp && <MyDetailsModal isOpen={isOpen} setIsOpen={setIsOpen}
-						title={getTtl('Existing Expense', ln)} />}
-				</>}
+						{/* Modals */}
+						{valueExp && (
+							<MyDetailsModal 
+								isOpen={isOpen} 
+								setIsOpen={setIsOpen}
+								title={getTtl('Existing Expense', ln)} 
+							/>
+						)}
+					</>
+				}
+			</div>
 		</div>
 	);
 };

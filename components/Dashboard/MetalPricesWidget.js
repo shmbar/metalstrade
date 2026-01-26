@@ -82,7 +82,7 @@ export default function MetalPricesWidget() {
                 </div>
 
                 {/* Metal Price Cards */}
-                <div className="space-y-4">
+                <div className="flex gap-6 px-2 py-1">
                     {['nickel', 'copper'].map((metalKey) => {
                         const Icon = metalIcons[metalKey];
                         const metal = prices?.[metalKey];
@@ -91,50 +91,34 @@ export default function MetalPricesWidget() {
                         return (
                             <div
                                 key={metalKey}
-                                className="p-4 bg-gradient-to-r from-[var(--selago)]/50 to-transparent rounded-xl hover:from-[var(--selago)] transition-colors"
+                                className="flex items-center gap-2 bg-white border border-[var(--selago)] rounded-full px-4 py-1 shadow-sm"
+                                style={{ minWidth: 180 }}
                             >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-12 h-12 bg-gradient-to-br ${metalColors[metalKey]} rounded-xl flex items-center justify-center shadow-lg`}>
-                                            <Icon className="w-6 h-6 text-white" />
-                                        </div>
-                                        <div>
-                                            <p className="text-base font-bold text-[var(--port-gore)]">
-                                                {metal?.name || metalKey.charAt(0).toUpperCase() + metalKey.slice(1)}
-                                            </p>
-                                            <p className="text-xs text-[var(--regent-gray)]">
-                                                {metal?.symbol || ''} - {metal?.unit || 'USD/MT'}
-                                            </p>
-                                        </div>
+                                <div className={`w-7 h-7 bg-gradient-to-br ${metalColors[metalKey]} rounded-full flex items-center justify-center`}>
+                                    <Icon className="w-4 h-4 text-white" />
+                                </div>
+                                <div>
+                                    <div className="text-xs font-bold text-[var(--port-gore)]">
+                                        {metal?.name || metalKey.charAt(0).toUpperCase() + metalKey.slice(1)}
                                     </div>
-                                    <div className="text-right">
-                                        {loading ? (
-                                            <div className="space-y-2">
-                                                <div className="w-24 h-6 bg-[var(--selago)] animate-pulse rounded"></div>
-                                                <div className="w-16 h-4 bg-[var(--selago)] animate-pulse rounded ml-auto"></div>
-                                            </div>
-                                        ) : metal ? (
-                                            <>
-                                                <p className="text-xl font-bold text-[var(--port-gore)]">
-                                                    {formatPrice(metal.price)}
-                                                </p>
-                                                {change && (
-                                                    <div className={`flex items-center justify-end gap-1 text-sm ${change.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                                                        {change.isPositive ? (
-                                                            <TbArrowUpRight className="w-4 h-4" />
-                                                        ) : (
-                                                            <TbArrowDownRight className="w-4 h-4" />
-                                                        )}
-                                                        <span className="font-medium">{change.value}</span>
-                                                        <span className="text-xs">({change.percent})</span>
-                                                    </div>
-                                                )}
-                                            </>
-                                        ) : (
-                                            <p className="text-lg text-[var(--regent-gray)]">—</p>
-                                        )}
+                                    <div className="text-[10px] text-[var(--regent-gray)]">
+                                        {metal?.symbol || ''} {metal?.unit || 'USD/MT'}
                                     </div>
                                 </div>
+                                <div className="text-xs font-bold text-[var(--port-gore)] ml-2">
+                                    {metal ? formatPrice(metal.price) : '—'}
+                                </div>
+                                {change && (
+                                    <div className={`flex items-center gap-1 text-[10px] ${change.isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                                        {change.isPositive ? (
+                                            <TbArrowUpRight className="w-3 h-3" />
+                                        ) : (
+                                            <TbArrowDownRight className="w-3 h-3" />
+                                        )}
+                                        <span>{change.value}</span>
+                                        <span>({change.percent})</span>
+                                    </div>
+                                )}
                             </div>
                         );
                     })}
