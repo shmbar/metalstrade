@@ -275,7 +275,7 @@ const Contracts = () => {
 	};
 
 	return (
-	<div className="w-full overflow-x-hidden">
+	<div className="w-full overflow-x-hidden" style={{ background: "#f8fbff" }}>
 		<div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
 			{Object.keys(settings).length === 0 ? <Spinner /> :
 				<>
@@ -283,7 +283,7 @@ const Contracts = () => {
 					<ModalCopyInvoice />
 
 					{/* Main Card */}
-					<div className="rounded-2xl p-3 sm:p-5 mt-2  border-0 shadow-xl w-full backdrop-blur-[2px]">
+					<div className="rounded-2xl p-3 sm:p-5 mt-8 border border-gray-200 shadow-xl w-full backdrop-blur-[2px] bg-white">
 						
 						{/* Header Section */}
 						<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>

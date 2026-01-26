@@ -263,173 +263,181 @@ Try asking me something or use the quick actions below!`, ln),
     };
 
     return (
-        <div className="container mx-auto px-2 md:px-4 xl:px-6 mt-16 md:mt-0 h-[calc(100vh-80px)]">
-            {Object.keys(settings).length === 0 ? <Spinner /> :
-                <>
-                    <Toast />
-                    <div className="border border-[var(--selago)] rounded-xl shadow-lg bg-white h-full mt-4 flex flex-col overflow-hidden">
-                        {/* Header */}
-                        <div className="p-4 border-b border-[var(--selago)] bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)]">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                                        <IoSparkles className="w-5 h-5 text-white" />
+        <div
+            className="w-full min-h-screen flex flex-col"
+            style={{ background: "#f8fbff" }} // optional: matches your app bg
+        >
+            <div
+                className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 flex-1 flex flex-col"
+                style={{ marginTop: 'clamp(56px, 7vh, 80px)', minHeight: 'calc(100vh - clamp(56px, 7vh, 80px))' }}
+            >
+                {Object.keys(settings).length === 0 ? <Spinner /> :
+                    <>
+                        <Toast />
+                        <div className="border border-[var(--selago)] rounded-xl shadow-lg bg-white mt-4 flex flex-col flex-1 overflow-hidden">
+                            {/* Header */}
+                            <div className="p-4 border-b border-[var(--selago)] bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)]">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                                            <IoSparkles className="w-5 h-5 text-white" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-xl font-semibold text-white">{getTtl('IMS Assistant', ln)}</h2>
+                                            <p className="text-white/70 text-sm">{getTtl('AI-powered help for your inventory management', ln)}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h2 className="text-xl font-semibold text-white">{getTtl('IMS Assistant', ln)}</h2>
-                                        <p className="text-white/70 text-sm">{getTtl('AI-powered help for your inventory management', ln)}</p>
-                                    </div>
+                                    <button
+                                        onClick={handleClearChat}
+                                        className="p-2 hover:bg-white/20 rounded-lg transition-colors text-white/80 hover:text-white"
+                                        title="Clear conversation"
+                                    >
+                                        <IoTrash className="w-5 h-5" />
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={handleClearChat}
-                                    className="p-2 hover:bg-white/20 rounded-lg transition-colors text-white/80 hover:text-white"
-                                    title="Clear conversation"
-                                >
-                                    <IoTrash className="w-5 h-5" />
-                                </button>
                             </div>
-                        </div>
 
-                        {/* Data Context Indicator */}
-                        <div className="px-4 py-2 bg-[var(--selago)]/50 border-b border-[var(--selago)] flex items-center gap-4 text-sm text-gray-600">
-                            <div className="flex items-center gap-1">
-                                <FiDatabase className="w-4 h-4 text-[var(--endeavour)]" />
-                                <span>{dataLoading ? getTtl('Loading...', ln) : getTtl('Connected:', ln)}</span>
+                            {/* Data Context Indicator */}
+                            <div className="px-4 py-2 bg-[var(--selago)]/50 border-b border-[var(--selago)] flex items-center gap-4 text-sm text-gray-600">
+                                <div className="flex items-center gap-1">
+                                    <FiDatabase className="w-4 h-4 text-[var(--endeavour)]" />
+                                    <span>{dataLoading ? getTtl('Loading...', ln) : getTtl('Connected:', ln)}</span>
+                                </div>
+                                {!dataLoading && (
+                                    <>
+                                        <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+                                            {contractsData.length} {getTtl('Contracts', ln)}
+                                        </span>
+                                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">
+                                            {invoicesData.length} {getTtl('Invoices', ln)}
+                                        </span>
+                                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs">
+                                            {expensesData.length} {getTtl('Expenses', ln)}
+                                        </span>
+                                    </>
+                                )}
                             </div>
-                            {!dataLoading && (
-                                <>
-                                    <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
-                                        {contractsData.length} {getTtl('Contracts', ln)}
-                                    </span>
-                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">
-                                        {invoicesData.length} {getTtl('Invoices', ln)}
-                                    </span>
-                                    <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs">
-                                        {expensesData.length} {getTtl('Expenses', ln)}
-                                    </span>
-                                </>
-                            )}
-                        </div>
 
-                        {/* Chat Area */}
-                        <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-[var(--selago)]/10 to-white">
-                            {messages.map((message) => (
-                                <div
-                                    key={message.id}
-                                    className={`flex mb-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                                >
-                                    {/* Avatar for assistant */}
-                                    {message.role === 'assistant' && (
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--endeavour)] to-[var(--chathams-blue)] flex items-center justify-center mr-2 flex-shrink-0">
+                            {/* Chat Area */}
+                            <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-[var(--selago)]/10 to-white">
+                                {messages.map((message) => (
+                                    <div
+                                        key={message.id}
+                                        className={`flex mb-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                                    >
+                                        {/* Avatar for assistant */}
+                                        {message.role === 'assistant' && (
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--endeavour)] to-[var(--chathams-blue)] flex items-center justify-center mr-2 flex-shrink-0">
+                                                <BsRobot className="w-4 h-4 text-white" />
+                                            </div>
+                                        )}
+
+                                        <div
+                                            className={`max-w-[75%] rounded-2xl px-4 py-3 ${message.role === 'user'
+                                                ? 'bg-gradient-to-r from-[var(--endeavour)] to-[var(--chathams-blue)] text-white rounded-br-md'
+                                                : message.isError
+                                                    ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-md'
+                                                    : 'bg-white text-[var(--port-gore)] shadow-md border border-[var(--selago)]/50 rounded-bl-md'
+                                                }`}
+                                        >
+                                            <div
+                                                className="break-words text-[15px] leading-relaxed"
+                                                dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
+                                            />
+                                            <div className={`flex items-center justify-end gap-1 mt-2 ${message.role === 'user' ? 'text-white/60' : 'text-gray-400'
+                                                }`}>
+                                                <span className="text-xs">{message.time}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Avatar for user */}
+                                        {message.role === 'user' && (
+                                            <div className="w-8 h-8 rounded-full bg-[var(--port-gore)] flex items-center justify-center ml-2 flex-shrink-0">
+                                                <BsPerson className="w-4 h-4 text-white" />
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+
+                                {/* Loading indicator */}
+                                {isLoading && (
+                                    <div className="flex justify-start mb-4">
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--endeavour)] to-[var(--chathams-blue)] flex items-center justify-center mr-2">
                                             <BsRobot className="w-4 h-4 text-white" />
                                         </div>
-                                    )}
-
-                                    <div
-                                        className={`max-w-[75%] rounded-2xl px-4 py-3 ${message.role === 'user'
-                                            ? 'bg-gradient-to-r from-[var(--endeavour)] to-[var(--chathams-blue)] text-white rounded-br-md'
-                                            : message.isError
-                                                ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-md'
-                                                : 'bg-white text-[var(--port-gore)] shadow-md border border-[var(--selago)]/50 rounded-bl-md'
-                                            }`}
-                                    >
-                                        <div
-                                            className="break-words text-[15px] leading-relaxed"
-                                            dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
-                                        />
-                                        <div className={`flex items-center justify-end gap-1 mt-2 ${message.role === 'user' ? 'text-white/60' : 'text-gray-400'
-                                            }`}>
-                                            <span className="text-xs">{message.time}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Avatar for user */}
-                                    {message.role === 'user' && (
-                                        <div className="w-8 h-8 rounded-full bg-[var(--port-gore)] flex items-center justify-center ml-2 flex-shrink-0">
-                                            <BsPerson className="w-4 h-4 text-white" />
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-
-                            {/* Loading indicator */}
-                            {isLoading && (
-                                <div className="flex justify-start mb-4">
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--endeavour)] to-[var(--chathams-blue)] flex items-center justify-center mr-2">
-                                        <BsRobot className="w-4 h-4 text-white" />
-                                    </div>
-                                    <div className="bg-white text-[var(--port-gore)] shadow-md border border-[var(--selago)]/50 rounded-2xl rounded-bl-md px-4 py-3">
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex gap-1">
-                                                <span className="w-2 h-2 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                                <span className="w-2 h-2 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                                <span className="w-2 h-2 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                        <div className="bg-white text-[var(--port-gore)] shadow-md border border-[var(--selago)]/50 rounded-2xl rounded-bl-md px-4 py-3">
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex gap-1">
+                                                    <span className="w-2 h-2 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                                    <span className="w-2 h-2 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                                    <span className="w-2 h-2 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                                </div>
+                                                <span className="text-sm text-gray-500">{getTtl('Thinking...', ln)}</span>
                                             </div>
-                                            <span className="text-sm text-gray-500">{getTtl('Thinking...', ln)}</span>
                                         </div>
+                                    </div>
+                                )}
+
+                                <div ref={messagesEndRef} />
+                            </div>
+
+                            {/* Quick Actions */}
+                            {messages.length <= 2 && !isLoading && (
+                                <div className="px-4 py-3 border-t border-[var(--selago)] bg-[var(--selago)]/20">
+                                    <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                                        <BsLightbulb className="w-3 h-3" />
+                                        {getTtl('Quick actions:', ln)}
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {quickActions.map((action, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => handleQuickAction(action.text)}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[var(--selago)] rounded-full text-sm text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:bg-[var(--endeavour)]/5 transition-colors"
+                                            >
+                                                {action.icon}
+                                                {action.text}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
                             )}
 
-                            <div ref={messagesEndRef} />
-                        </div>
-
-                        {/* Quick Actions */}
-                        {messages.length <= 2 && !isLoading && (
-                            <div className="px-4 py-3 border-t border-[var(--selago)] bg-[var(--selago)]/20">
-                                <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
-                                    <BsLightbulb className="w-3 h-3" />
-                                    {getTtl('Quick actions:', ln)}
+                            {/* Message Input */}
+                            <div className="p-4 border-t border-[var(--selago)] bg-white">
+                                <div className="flex items-center gap-2">
+                                    <div className="flex-1 relative">
+                                        <input
+                                            ref={inputRef}
+                                            type="text"
+                                            placeholder={getTtl('Ask me anything about IMS...', ln)}
+                                            value={newMessage}
+                                            onChange={(e) => setNewMessage(e.target.value)}
+                                            onKeyDown={handleKeyDown}
+                                            disabled={isLoading || dataLoading}
+                                            className="w-full px-4 py-3 pr-12 border border-[var(--selago)] rounded-xl focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20 bg-[var(--selago)]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                        />
+                                    </div>
+                                    <button
+                                        onClick={() => handleSendMessage()}
+                                        disabled={!newMessage.trim() || isLoading || dataLoading}
+                                        className="p-3 bg-gradient-to-r from-[var(--endeavour)] to-[var(--chathams-blue)] text-white rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                                    >
+                                        {isLoading ? (
+                                            <IoRefresh className="w-5 h-5 animate-spin" />
+                                        ) : (
+                                            <IoSend className="w-5 h-5" />
+                                        )}
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-400 mt-2 text-center">
+                                    {getTtl('Powered by AI • Your data stays secure', ln)}
                                 </p>
-                                <div className="flex flex-wrap gap-2">
-                                    {quickActions.map((action, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => handleQuickAction(action.text)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[var(--selago)] rounded-full text-sm text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:bg-[var(--endeavour)]/5 transition-colors"
-                                        >
-                                            {action.icon}
-                                            {action.text}
-                                        </button>
-                                    ))}
-                                </div>
                             </div>
-                        )}
-
-                        {/* Message Input */}
-                        <div className="p-4 border-t border-[var(--selago)] bg-white">
-                            <div className="flex items-center gap-2">
-                                <div className="flex-1 relative">
-                                    <input
-                                        ref={inputRef}
-                                        type="text"
-                                        placeholder={getTtl('Ask me anything about IMS...', ln)}
-                                        value={newMessage}
-                                        onChange={(e) => setNewMessage(e.target.value)}
-                                        onKeyDown={handleKeyDown}
-                                        disabled={isLoading || dataLoading}
-                                        className="w-full px-4 py-3 pr-12 border border-[var(--selago)] rounded-xl focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20 bg-[var(--selago)]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                                    />
-                                </div>
-                                <button
-                                    onClick={() => handleSendMessage()}
-                                    disabled={!newMessage.trim() || isLoading || dataLoading}
-                                    className="p-3 bg-gradient-to-r from-[var(--endeavour)] to-[var(--chathams-blue)] text-white rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-                                >
-                                    {isLoading ? (
-                                        <IoRefresh className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <IoSend className="w-5 h-5" />
-                                    )}
-                                </button>
-                            </div>
-                            <p className="text-xs text-gray-400 mt-2 text-center">
-                                {getTtl('Powered by AI • Your data stays secure', ln)}
-                            </p>
                         </div>
-                    </div>
-                </>
-            }
+                    </>
+                }
+            </div>
         </div>
     );
 };

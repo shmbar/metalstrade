@@ -11,33 +11,30 @@ import { Calendar } from "../../../..//components/ui/calendar"
 
 
 const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
-
     return (
-        <div className="flex relative  w-20 rounded-md">
+        <div className="flex relative w-20 rounded-md">
             <Popover className='flex'>
                 <PopoverTrigger asChild>
                     <Button
                         variant="ghost"
                         className="h-6 p-1 justify-start text-left font-normal text-gray-600 text-xs"
                     >
-
-                        {props.getValue()?.startDate ? dateFormat(props.getValue()?.startDate, 'dd.mm.yy') :
+                        {props.value?.startDate ? dateFormat(props.value.startDate, 'dd.mm.yy') :
                             <span className=''>DD.MM.YY</span>}
-                        {!props.getValue()?.startDate &&
-                            <MdOutlineDateRange className=" font-bold scale-110  mr-1 text-slate-500 cursor-pointer" />}
+                        {!props.value?.startDate &&
+                            <MdOutlineDateRange className="font-bold scale-110 mr-1 text-slate-500 cursor-pointer" />}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                         mode="single"
-                        selected={props.getValue()?.startDate}
+                        selected={props.value?.startDate}
                         onSelect={(e) => handleChangeDate(e, props.row.index, month)}
                         initialFocus
                     />
                 </PopoverContent>
-
             </Popover>
-            {props.getValue()?.startDate &&
+            {props.value?.startDate &&
                 <ImCancelCircle className="absolute right-0 top-1 mr-1 text-slate-500 cursor-pointer text-xs"
                     onClick={(e) => handleCancelDate(e, props.row.index, month)} />
             }

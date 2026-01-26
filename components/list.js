@@ -71,6 +71,10 @@ const List = ({ list, updateList, ttl, name }) => {
         }
     };
 
+    const displayList = Array.isArray(name === 'hs' ? list : sortArr(list, name))
+        ? (name === 'hs' ? list : sortArr(list, name))
+        : [];
+
     return (
         <div className='w-full'>
             <div className='flex items-center justify-between'>
@@ -82,8 +86,7 @@ const List = ({ list, updateList, ttl, name }) => {
             </div>
 
             <ul ref={containerRef} className="flex flex-col mt-1 overflow-auto max-h-80 ring-1 ring-black/5 rounded-lg divide-y" >
-
-                {(name === 'hs' ? list : sortArr(list, name)).filter(q => !q.deleted).map((x, i) => {
+                {displayList.filter(q => !q.deleted).map((x, i) => {
                     return (
                         <li key={i} className="justify-between flex items-center gap-x-2 py-2 px-4 text-xs text-slate-700">
                             {edit.status && edit.id === x.id ?
@@ -105,7 +108,6 @@ focus:outline-0 focus:border-slate-600 indent-1.5 text-xs text-slate-500"
                                 <MdDeleteOutline className='scale-125 opacity-50 cursor-pointer' onClick={() => deleteItem(x)} />
                             </div>}
                         </li>
-
                     )
                 })}
             </ul>

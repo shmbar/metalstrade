@@ -59,22 +59,22 @@ export const MainNav = () => {
 
   return (
     <div
-      className='fixed top-0 left-0 right-0  px-2 md:px-4 xl:px-6 py-3 hidden md:flex items-center bg-[#bce1ff] z-20 rounded-lg'
+      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[#bce1ff] z-20 rounded-lg'
       style={{
         height: 'clamp(56px, 7vh, 80px)',
         borderRadius: '12px',
-        padding: '0 clamp(16px, 2vw, 32px)',
+        padding: '0 clamp(8px, 1vw, 16px)', // reduced horizontal padding
       }}
     >
       {/* Logo Section (left) */}
       <div
-        className='flex items-center justify-center bg-white rounded-lg shadow-md'
+        className='flex items-center bg-white rounded-lg shadow-md'
         style={{
-          width: 'clamp(180px, 15vw, 250px)',
+          width: 'clamp(220px, 20vw, 240px)', // wider
           height: 'clamp(50px, 6vh, 70px)',
-          marginRight: 'clamp(16px, 2vw, 32px)',
+          marginRight: 'clamp(6px, 1vw, 10px)', // slightly less right margin
           marginBottom: 'clamp(10px, 1vw, 20px)',
-          padding: 'clamp(10px, 1vw, 20px)',
+          padding: 'clamp(10px, 1vw, 40px)',
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         }}
       >
@@ -82,7 +82,7 @@ export const MainNav = () => {
           src='/logo/ims_main.svg'
           alt='IMS Logo'
           style={{
-            width: 'clamp(100px, 15vw, 150px)',
+            width: 'clamp(120px, 18vw, 200px)', // wider logo
             height: 'auto',
           }}
         />

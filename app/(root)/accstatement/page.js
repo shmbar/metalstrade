@@ -312,19 +312,19 @@ const AccountStatement = () => {
 
 
   return (
-    <div className="w-full overflow-x-hidden">
+    <div className="w-full overflow-x-hidden" style={{ background: "#f8fbff" }}>
       <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
         {Object.keys(settings).length === 0 ? <Spinner /> :
           <>
             <Toast />
             {/* Main Card */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white relative">
+            <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-gray-200 shadow-xl w-full backdrop-blur-[2px] bg-white">
               {/* Header Section */}
               <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
                 <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
                   {getTtl('Account Statement', ln)}
                 </h1>
-                <div className='flex group datepicker-wrapper'>
+                {/* <div className='flex group datepicker-wrapper'>
                   <Datepicker
                     inputClassName='border border-slate-300 text-sm/6 p-1 px-1.5 rounded-lg text-slate-500 w-60
                       focus:outline-none cursor-pointer z-0 bg-white'
@@ -340,7 +340,7 @@ const AccountStatement = () => {
                     disabledDates={disabledDates}
                   />
                   <Tooltip txt='Select Date' />
-                </div>
+                </div> */}
               </div>
 
               {/* Table Component */}

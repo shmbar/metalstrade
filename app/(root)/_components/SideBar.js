@@ -26,7 +26,7 @@ export default function Sidebar() {
       "Contracts Review & Statement": "Contracts Review & Statement.svg",
       "Invoices Review & Statement": "Invoices Review & Statement.svg",
       "Account Statement": "accounting.svg",
-      "Stocks": "colums.svg",
+      "Stocks": "Stocks.svg",
       "Misc Invoices": "edit.svg",
       "Company Expenses": "Company Expenses.svg",
       "Material Tables": "Material Tables.svg",
