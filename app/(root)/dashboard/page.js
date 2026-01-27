@@ -107,6 +107,8 @@ function StatKpiCard({
   chartData,
   chartColor = "rgba(255,255,255,0.92)",
   grad = "from-red-500 to-rose-600",
+  icon,
+  iconBg = '#fff',
 }) {
   return (
     <div
@@ -114,20 +116,25 @@ function StatKpiCard({
     >
       <div className="p-3">
         <div className="flex items-start justify-between mb-1">
-          <div>
-            <div className="text-white/90 text-[11px] font-medium">
-              {title}
-            </div>
-            <div className="text-xl font-bold text-white">
-              {value}
+          <div className="flex items-center gap-2">
+            {icon && (
+              <span className="inline-flex items-center justify-center rounded-full" style={{ background: iconBg, width: 28, height: 28 }}>
+                {icon}
+              </span>
+            )}
+            <div>
+              <div className="text-white/90 text-[11px] font-medium">
+                {title}
+              </div>
+              <div className="text-xl font-bold text-white">
+                {value}
+              </div>
             </div>
           </div>
-
           <div className="px-2 py-0.5 rounded-md text-[10px] bg-white/20 text-white">
             {badgeText}
           </div>
         </div>
-
         <div className="h-[38px] mt-1">
           <Line
             data={{
@@ -606,58 +613,67 @@ const Dash = () => {
           {/* KPI GRID */}
           <div className="grid grid-cols-2 gap-3 auto-rows-fr flex-1">
 
+
+
             <StatKpiCard 
               title="P&L" 
               badgeText="Profit" 
               value={fmtAutoKM(totalPL)} 
               chartData={dataPL} 
-              grad="from-pink-500 to-rose-600" 
+              grad="from-[#CE283D] to-[#892043]" 
               chartColor="rgba(255,255,255,0.95)"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><text x="8" y="16" fontSize="7" fill="#fff" fontFamily="Arial">$</text></svg>}
+              iconBg="#CE283D"
             />
-            
             <StatKpiCard 
               title="Invoices" 
               badgeText="Sales" 
               value={fmtAutoKM(totalInvoices)} 
               chartData={dataInvoices} 
-              grad="from-yellow-500 to-amber-500" 
+              grad="from-[#C69C0B] to-[#837619]" 
               chartColor="rgba(255,255,255,0.95)"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#fff" strokeWidth="2"/><path d="M8 10h8M8 14h8" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M8 7h8" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M7 4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
+              iconBg="#C69C0B"
             />
-            
             <StatKpiCard 
-              title="Sales" 
-              badgeText="Contracts" 
+              title="Contracts & Expenses" 
+              badgeText="Costs" 
               value={fmtAutoKM(totalContracts)} 
               chartData={dataContracts} 
-              grad="from-blue-500 to-blue-600" 
+              grad="from-[#3969F6] to-[#7A4756]" 
               chartColor="rgba(255,255,255,0.95)"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
+              iconBg="#3969F6"
             />
-            
             <StatKpiCard 
-              title="Costs" 
-              badgeText="Expenses" 
-              value={fmtAutoKM(totalExpenses)} 
-              chartData={dataExpenses} 
-              grad="from-pink-600 to-fuchsia-600" 
+              title="Sales Contracts" 
+              badgeText="Sales" 
+              value={fmtAutoKM(totalContracts)} 
+              chartData={dataContracts} 
+              grad="from-[#B62A62] to-[#684B68]" 
               chartColor="rgba(255,255,255,0.95)"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M12 12l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
+              iconBg="#B62A62"
             />
-            
             <StatKpiCard 
               title="Expenses" 
-              badgeText="Cost" 
+              badgeText="Costs" 
               value={fmtAutoKM(totalExpenses)} 
               chartData={dataExpenses} 
-              grad="from-teal-500 to-cyan-600" 
+              grad="from-[#3F7EC3] to-[#356F94]" 
               chartColor="rgba(255,255,255,0.95)"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M12 12l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
+              iconBg="#3F7EC3"
             />
-            
             <StatKpiCard 
-              title="Purchases" 
-              badgeText="Orders" 
+              title="Purchase Contracts" 
+              badgeText="Purchases" 
               value={fmtAutoKM(totalInvoices)} 
               chartData={dataInvoices} 
-              grad="from-emerald-500 to-green-600" 
+              grad="from-[#56AFCB] to-[#3E8370]" 
               chartColor="rgba(255,255,255,0.95)"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="10" rx="2" stroke="#fff" strokeWidth="2"/><path d="M9 11h6" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M9 14h4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
+              iconBg="#56AFCB"
             />
 
           </div>
