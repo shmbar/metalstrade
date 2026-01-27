@@ -344,14 +344,14 @@ const Customtable = ({
                               </div>
                             ) : (
                               <div
-                                className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border border-transparent transition-all duration-200 ease-in-out ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
+                                className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-transparent transition-all duration-200  ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
                                 style={{
                                   // Apply hover effect styles when edit mode is on
                                   ...(isEditMode && {
                                     backgroundColor: '#f9f9f9',
                                     color: '#545454',
                                     boxShadow: 'inset 0 0 0 1px #d1d1d1',
-                                    border: '1px solid #d1d1d1',
+                                    border: '  #d1d1d1',
                                   }),
                                 }}
                               >
