@@ -60,6 +60,7 @@ const Customtable = ({
   const [columnFilters, setColumnFilters] = useState([])
   const [quickSumEnabled, setQuickSumEnabled] = useState(false);
   const [quickSumColumns, setQuickSumColumns] = useState([]);
+  const [showSelectionDropdown, setShowSelectionDropdown] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false)
   const [rowSelection, setRowSelection] = useState({});
 
@@ -70,27 +71,31 @@ const Customtable = ({
     const selectCol = {
       id: "select",
       header: ({ table }) => (
-        <input
-          type="checkbox"
-          checked={table.getIsAllPageRowsSelected()}
-          ref={el => {
-            if (!el) return;
-            el.indeterminate = table.getIsSomePageRowsSelected();
-          }}
-          onChange={table.getToggleAllPageRowsSelectedHandler()}
-          className="w-4 h-4 cursor-pointer rounded"
-          style={{ accentColor: '#9333EA' }}
-        />
+        <div className="flex items-center justify-start w-full h-full ml-2">
+          <input
+            type="checkbox"
+            checked={table.getIsAllPageRowsSelected()}
+            ref={el => {
+              if (!el) return;
+              el.indeterminate = table.getIsSomePageRowsSelected();
+            }}
+            onChange={table.getToggleAllPageRowsSelectedHandler()}
+            className="w-4 h-4 cursor-pointer rounded"
+            style={{ accentColor: '#BCE1FE' }}
+          />
+        </div>
       ),
       cell: ({ row }) => (
-        <input
-          type="checkbox"
-          checked={row.getIsSelected()}
-          disabled={!row.getCanSelect()}
-          onChange={row.getToggleSelectedHandler()}
-          className="w-4 h-4 cursor-pointer rounded"
-          style={{ accentColor: '#9333EA' }}
-        />
+        <div className="flex items-center  w-full h-full">
+          <input
+            type="checkbox"
+            checked={row.getIsSelected()}
+            disabled={!row.getCanSelect()}
+            onChange={row.getToggleSelectedHandler()}
+            className="w-4 h-4 cursor-pointer rounded"
+            style={{ accentColor: '#BCE1FE' }}
+          />
+        </div>
       ),
       enableSorting: false,
       enableColumnFilter: false,
@@ -141,7 +146,7 @@ const Customtable = ({
     setFilteredId(
       table.getFilteredRowModel().rows.map(r => r.original.id)
     )
-  }, [globalFilter, columnFilters])
+  }, [columnFilters, globalFilter])
 
   const currentRows = table.getRowModel().rows.length;
   const dynamicMaxHeight = currentRows > 0
@@ -355,7 +360,7 @@ const Customtable = ({
                               </div>
                             ) : (
                                <div
-                                className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-transparent transition-all duration-200  ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
+                                className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
                                 style={{
                                   // Apply hover effect styles when edit mode is on
                                   ...(isEditMode && {
@@ -450,13 +455,12 @@ const Customtable = ({
                   <div 
                     className="px-3 py-2 flex items-center justify-between"
                     style={{ 
-                      background: 'linear-gradient(135deg, #6366F1, #9333EA, #0D9488)',
+                      background: '#bce1ff',
                     }}
                   >
                     <span 
                       className="font-normal"
                       style={{ 
-                        color: '#FFFFFF',
                         fontSize: 'clamp(9px, 0.8vw, 10px)',
                         textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                       }}
