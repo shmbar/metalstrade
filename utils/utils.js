@@ -761,7 +761,7 @@ export const loadMaterials = async (uidCollection) => {
 
 
 export const saveCashflow = async (uidCollection, yr, data) => {
- const ref = doc(db, uidCollection, "cashflow");
+  const ref = doc(db, uidCollection, "cashflow");
 
   await setDoc(
     ref,
@@ -863,3 +863,17 @@ export const loadContract = async (uidCollection, orderNum) => {
 
   return querySnapshot.docs.map(doc => doc.data());
 };
+
+export const updateOpenMonth = async (uidCollection, month, year, open) => {
+
+  await setDoc(
+    doc(db,
+      uidCollection,
+      "margins",
+      String(year),
+      String(month)),
+    { openMonth: open, month: String(month) },
+    { merge: true }
+  );
+
+}

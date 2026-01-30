@@ -89,18 +89,18 @@ const Margins = () => {
             setLoading(true)
 
             let dt = await loadMargins(uidCollection, yr)
-
-            dt = dt.map(({ items, ids, ...rest }) => ({
+            dt = dt.map(({ items, ids, openMonth, ...rest }) => ({
                 ...rest,
-                ids,
-                items: ids?.map(id => items?.find(item => item.id === id)).filter(Boolean) || []
+                ids: ids ?? [],
+                items: ids?.map(id => items?.find(item => item.id === id)).filter(Boolean) || [],
+                ...(openMonth === undefined ? { openMonth: false } : { openMonth })
             }));
 
             setData(dt)
             setLoading(false)
         }
 
-        //   Object.keys(settings).length !== 0 &&
+
         Load();
     }, [yr, settings])
 
@@ -232,7 +232,7 @@ const Margins = () => {
 
         let newData = [...data, {
             month: formattedMonth, openShip: '', purchase: '', remaining: '', totalMargin: '',
-            items: [], ids: []
+            items: [], ids: [], openMonth: false
         }]
 
         setData(newData)
@@ -324,6 +324,7 @@ const Margins = () => {
 
 
     const handleChangeSelect = useCallback((e, i, month, name) => {
+
         setData((prevData) =>
             prevData.map((z) =>
                 z.month === month
@@ -357,7 +358,6 @@ const Margins = () => {
                 return accumulator + (current.gis ? (current.remaining / 2 || 0) : (current.remaining || 0))
             }, 0),
             totalMargin: z.items.reduce((accumulator, current) => {
-                console.log(current)
                 return accumulator + (current.gis ? (current.totalMargin / 2 || 0) : (current.totalMargin || 0))
             }, 0),
             purchase: z.items.reduce((accumulator, current) => {
@@ -367,11 +367,12 @@ const Margins = () => {
                 return accumulator + (current.openShip * 1 || 0)
             }, 0),
         } : z)
-        console.log(newArr)
+
         setData(newArr)
     };
 
     const saveData = async () => {
+
         let result = await saveMargins(uidCollection, data, yr)
         result && setToast({ show: true, text: 'Data successfully saved!', clr: 'success' })
     }
@@ -419,7 +420,7 @@ const Margins = () => {
                         <div className="w-full p-2 mt-2">
                             <div className="w-full max-w-8xl divide-y  rounded-xl">
 
-                                {data.map(({ month, items }) => {
+                                {data.map(({ month, items, openMonth }) => {
                                     return (
                                         <div key={month}>
                                             <MarginTable
@@ -437,6 +438,10 @@ const Margins = () => {
                                                 handleDragEnd={handleDragEnd}
                                                 sensors={sensors}
                                                 handleCheckBox={handleCheckBox}
+                                                uidCollection={uidCollection}
+                                                openMonth={openMonth}
+                                                data={data}
+                                                setData={setData}
                                             />
                                         </div>
                                     )

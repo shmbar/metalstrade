@@ -68,7 +68,16 @@ const Dash = () => {
     const Load = async () => {
       setLoading(true)
 
-      let dtContracts = await loadData(uidCollection, 'contracts', dateSelect);
+      let ddt =
+        dateSelect?.start?.substring(0, 4) !== dateSelect?.end?.substring(0, 4)
+          ? {
+            start: `${dateSelect?.end?.substring(0, 4)}-01-01`,
+            end: dateSelect?.end
+          }
+          : dateSelect;
+
+
+      let dtContracts = await loadData(uidCollection, 'contracts', ddt);
       let dtConTmp = [...dtContracts]
       dtConTmp = await Promise.all(
         dtConTmp.map(async (x) => {
@@ -93,11 +102,11 @@ const Dash = () => {
       }, {});
 
       let arrInvoices = setMonthsInvoices(dtConTmp, settings)
-   
+
       setDataInvoices(arrInvoices.accumulatedPmnt)
       setDataPieClnts(arrInvoices.pieArrClnts)
       //  setDataDebt(arrInvoices.accumulatedActualPmnt)
-      
+
       //calculate P&L
       const tmpPL = Object.keys(arrInvoices.accumulatedPmnt).reduce((acc, key) => {
         acc[key] = arrInvoices.accumulatedPmnt[key] - summedArr[key];
@@ -109,10 +118,10 @@ const Dash = () => {
       setLoading(false)
     }
 
-    if (dateSelect?.start?.substring(0, 4) !== dateSelect?.end?.substring(0, 4)) {
-      setToast({ show: true, text: getTtl('DashbordDatesAlert', ln), clr: 'fail' })
-      return
-    }
+    // if (dateSelect?.start?.substring(0, 4) !== dateSelect?.end?.substring(0, 4)) {
+    //   setToast({ show: true, text: getTtl('DashbordDatesAlert', ln), clr: 'fail' })
+    //   return
+    // }
 
     Object.keys(settings).length !== 0 && Load();
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Spinner from "@components/spinner";
 import Toast from "@components/toast";
 import YearSelect from "./yearSelect";
@@ -217,9 +218,9 @@ const Cashflow = () => {
                 stockData2.reduce((total, obj) => {
                     return total + (parseFloat(obj.total) || 0);
                 }, 0) +
-                stockDataNoSold.reduce((total, obj) => {
-                    return total + (parseFloat(obj.total) || 0);
-                }, 0) +
+                // stockDataNoSold.reduce((total, obj) => {
+                //     return total + (parseFloat(obj.total) || 0);
+                // }, 0) +
                 clientInvoices1.reduce((total, obj) => {
                     return total + (parseFloat(obj.debtBlnc) || 0);
                 }, 0) +
@@ -233,7 +234,7 @@ const Cashflow = () => {
 
         }
 
-    }, [financedLeft, initialData, incoming, stockData1, stockData2, stockDataNoSold, clientInvoices2, clientInvoices1])
+    }, [financedLeft, initialData, incoming, stockData1, stockData2, /*stockDataNoSold,*/ clientInvoices2, clientInvoices1])
 
     useEffect(() => {
 
@@ -364,10 +365,10 @@ const Cashflow = () => {
     const sortStocksName2 = () => {
         if (stocksSortName2) { //true
             //sort from to bottmom
-            setStockDataNoSold(stockDataNoSold.sort((a, b) => a.order.localeCompare(b.order)))
+            setStockDataNoSold(stockDataNoSold.sort((a, b) => a.supplierName.localeCompare(b.supplierName)))
             setStocksSortName2(false)
         } else {
-            setStockDataNoSold(stockDataNoSold.sort((a, b) => b.order.localeCompare(a.order)))
+            setStockDataNoSold(stockDataNoSold.sort((a, b) => b.supplierName.localeCompare(a.supplierName)))
             setStocksSortName2(true)
         }
     }
@@ -797,206 +798,773 @@ const Cashflow = () => {
                                 <YearSelect yr={yr} setYr={setYr} />
                             </div>
                         </div>
-                        {userTitle === 'Admin' &&
-                            <div className="w-full p-2 ">
-                                <div className="flex gap-2 ">
-                                    <span className="text-xs 2xl:text-sm items-center flex  w-44 font-bold">Future</span>
-                                    <label className="pl-1">{
-                                        <NumericFormat
-                                            value={incoming}
-                                            displayType="text"
-                                            thousandSeparator
-                                            allowNegative={true}
-                                            prefix={'$'}
-                                            decimalScale='2'
-                                            fixedDecimalScale
-                                            className='responsiveTextTotal'
-                                        />
-                                    }</label>
-                                </div>
-                                {
-                                    initialData?.map((z, i) => {
-                                        return (
-                                            <div className="flex gap-2 my-1" key={i}>
-                                                <input className="text-xs 2xl:text-sm items-center flex outline-none w-44 truncate font-bold" value={z.title}
-                                                    onChange={e => handleChangeInitial(e, i, 'title')} />
-                                                <input className='input w-44 h-6 text-[0.7rem] 2xl:text-[0.77rem] font-bold'
-                                                    value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
-                                                <button onClick={() => delItem(i)}><MdDeleteOutline className="scale-110" /></button>
-                                            </div>
-                                        )
-                                    })}
-                                <div className="flex gap-2">
-                                    <Tltip direction='bottom' tltpText='Save added data'>
-                                        <button
-                                            type="button"
-                                            className="blackButton h-6 mt-3 "
-                                            onClick={saveInitData}
-                                        >
-                                            Save
-                                        </button>
-                                    </Tltip>
-                                    <Tltip direction='bottom' tltpText='Add new item above'>
-                                        <button
-                                            type="button"
-                                            className="whiteButton h-6 mt-3 "
-                                            onClick={addItem}
-                                        >
-                                            Add
-                                        </button>
-                                    </Tltip>
-                                </div>
-                            </div>
-
-                        }
-
-                        <div className="flex overflow-x-auto whitespace-nowrap w-full">
-                            <div className="border-r-2 border-t-2 border-b-2 border-slate-600 w-1/2 2xl:w-[42rem]">
-                                <div className=" p-2">
-                                    <span className="font-bold p-1 responsiveTextTitle">Stocks - Paid</span>
-                                    <div className="flex p-1 justify-between">
-                                        {
-                                            stocksSortName ?
-                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} />}
-                                        {
-                                            stocksSort ?
-                                                <FaSortAmountDown className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortStocks()} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks()} />}
-                                    </div>
-                                    {stockData1.map((x, i) => {
-                                        return (
-                                            <div className="flex items-center  text-slate-600" key={i}>
-                                                <MyAccordion title={
-                                                    <div className="flex w-full justify-between">
-                                                        <div className="responsiveText items-center flex outline-none  truncate cursor-pointer "
-                                                        >
-                                                            {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
-                                                        </div>
-
-                                                        <div className="leading-4 2xl:leading-6">
-                                                            <NumericFormat
-                                                                value={x.total}
-                                                                displayType="text"
-                                                                thousandSeparator
-                                                                allowNegative={true}
-                                                                prefix={x.cur === 'us' ? '$' : '€'}
-                                                                decimalScale='2'
-                                                                fixedDecimalScale
-                                                                className='responsiveText'
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                }>
-
-                                                    {stoclToolTip(x.stock, stockDataAll, settings, uidCollection,
-                                                        setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router,)}
-                                                </MyAccordion>
 
 
-                                            </div>
-
-                                        )
-                                    })}
-                                    <div className="flex items-center p-1 leading-5 justify-between responsiveTextTotal">
-                                        <div className="border-t-2 border-slate-400">
-                                            Total
+                        <Tabs defaultValue="account" className="w-full">
+                            <TabsList>
+                                <TabsTrigger value="account" className='text-xs'>General Cashflow</TabsTrigger>
+                                <TabsTrigger value="password" className='text-xs'>Unsold Stocks</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="account">
+                                {userTitle === 'Admin' &&
+                                    <div className="w-full p-2 ">
+                                        <div className="flex gap-2 ">
+                                            <span className="text-xs 2xl:text-sm items-center flex  w-44 font-bold">Future</span>
+                                            <label className="pl-1">{
+                                                <NumericFormat
+                                                    value={incoming}
+                                                    displayType="text"
+                                                    thousandSeparator
+                                                    allowNegative={true}
+                                                    prefix={'$'}
+                                                    decimalScale='2'
+                                                    fixedDecimalScale
+                                                    className='responsiveTextTotal'
+                                                />
+                                            }</label>
                                         </div>
+                                        {
+                                            initialData?.map((z, i) => {
+                                                return (
+                                                    <div className="flex gap-2 my-1" key={i}>
+                                                        <input className="text-xs 2xl:text-sm items-center flex outline-none w-44 truncate font-bold" value={z.title}
+                                                            onChange={e => handleChangeInitial(e, i, 'title')} />
+                                                        <input className='input w-44 h-6 text-[0.7rem] 2xl:text-[0.77rem] font-bold'
+                                                            value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
+                                                        <button onClick={() => delItem(i)}><MdDeleteOutline className="scale-110" /></button>
+                                                    </div>
+                                                )
+                                            })}
+                                        <div className="flex gap-2">
+                                            <Tltip direction='bottom' tltpText='Save added data'>
+                                                <button
+                                                    type="button"
+                                                    className="blackButton h-6 mt-3 "
+                                                    onClick={saveInitData}
+                                                >
+                                                    Save
+                                                </button>
+                                            </Tltip>
+                                            <Tltip direction='bottom' tltpText='Add new item above'>
+                                                <button
+                                                    type="button"
+                                                    className="whiteButton h-6 mt-3 "
+                                                    onClick={addItem}
+                                                >
+                                                    Add
+                                                </button>
+                                            </Tltip>
+                                        </div>
+                                    </div>
+
+                                }
+
+
+                                <div className="flex overflow-x-auto whitespace-nowrap w-full">
+                                    <div className="border-r-2 border-t-2 border-b-2 border-slate-600 w-1/2 2xl:w-[42rem]">
+                                        <div className=" p-2">
+                                            <span className="font-bold p-1 responsiveTextTitle">Stocks - Paid</span>
+                                            <div className="flex p-1 justify-between">
+                                                {
+                                                    stocksSortName ?
+                                                        <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} />}
+                                                {
+                                                    stocksSort ?
+                                                        <FaSortAmountDown className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortStocks()} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks()} />}
+                                            </div>
+                                            {stockData1.map((x, i) => {
+                                                return (
+                                                    <div className="flex items-center  text-slate-600" key={i}>
+                                                        <MyAccordion title={
+                                                            <div className="flex w-full justify-between">
+                                                                <div className="responsiveText items-center flex outline-none  truncate cursor-pointer "
+                                                                >
+                                                                    {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
+                                                                </div>
+
+                                                                <div className="leading-4 2xl:leading-6">
+                                                                    <NumericFormat
+                                                                        value={x.total}
+                                                                        displayType="text"
+                                                                        thousandSeparator
+                                                                        allowNegative={true}
+                                                                        prefix={x.cur === 'us' ? '$' : '€'}
+                                                                        decimalScale='2'
+                                                                        fixedDecimalScale
+                                                                        className='responsiveText'
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        }>
+
+                                                            {stoclToolTip(x.stock, stockDataAll, settings, uidCollection,
+                                                                setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router,)}
+                                                        </MyAccordion>
+
+
+                                                    </div>
+
+                                                )
+                                            })}
+                                            <div className="flex items-center p-1 leading-5 justify-between responsiveTextTotal">
+                                                <div className="border-t-2 border-slate-400">
+                                                    Total
+                                                </div>
+                                                <div>
+                                                    {
+                                                        <NumericFormat
+                                                            value={stockData1.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.total) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='responsiveTextTotal border-t-2 border-slate-400'
+                                                        />
+                                                    }
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+
+                                        <div className=" p-2">
+                                            <span className="font-bold p-1 responsiveTextTitle">Stocks - UnPaid</span>
+                                            <div className="flex p-1 justify-between">
+                                                {
+                                                    stocksSortName1 ?
+                                                        <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} />}
+                                                {
+                                                    stocksSort1 ?
+                                                        <FaSortAmountDown className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortStocks1()} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks1()} />}
+                                            </div>
+
+                                            {stockData2.map((x, i) => {
+                                                return (
+                                                    <div className="flex items-center  text-slate-600" key={i}>
+                                                        <MyAccordion title={
+                                                            <div className="flex w-full justify-between">
+                                                                <div className="responsiveText items-center flex outline-none  truncate cursor-pointer "
+                                                                >
+                                                                    {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
+                                                                </div>
+
+                                                                <div className="leading-4 2xl:leading-6">
+                                                                    <NumericFormat
+                                                                        value={x.total}
+                                                                        displayType="text"
+                                                                        thousandSeparator
+                                                                        allowNegative={true}
+                                                                        prefix={x.cur === 'us' ? '$' : '€'}
+                                                                        decimalScale='2'
+                                                                        fixedDecimalScale
+                                                                        className='responsiveText'
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        }>
+
+                                                            {stoclToolTip(x.stock, stockDataNoPayment, settings, uidCollection,
+                                                                setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router,)}
+                                                        </MyAccordion>
+                                                    </div>
+
+                                                )
+                                            })}
+                                            <div className="flex items-center p-1 leading-5 justify-between responsiveTextTotal">
+                                                <div className="border-t-2 border-slate-400">
+                                                    Total
+                                                </div>
+                                                <div>
+                                                    {
+                                                        <NumericFormat
+                                                            value={stockData2.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.total) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='border-t-2 border-slate-400'
+                                                        />
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className=" p-2 ">
+                                            <span className="font-bold p-1 responsiveTextTitle">Clients - Payment</span>
+                                            <div className="flex p-1 justify-between">
+                                                {
+                                                    clientSortName1 ?
+                                                        <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} />}
+                                                {
+                                                    clientSort1 ?
+                                                        <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(1)} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortClients(1)} />}
+                                            </div>
+
+                                            {clientInvoices2.map((x, i) => {
+                                                return (
+                                                    <div className="flex gap-4 items-center text-slate-600 " key={i}>
+                                                        <MyAccordion title={
+                                                            <div className="flex w-full justify-between">
+                                                                <div className="responsiveText items-center flex outline-none truncate cursor-pointer"
+                                                                >
+                                                                    {settings.Client.Client.find(z => z.id === x.client)?.nname}
+                                                                </div>
+                                                                <div className='leading-4 2xl:leading-6'>
+                                                                    <NumericFormat
+                                                                        value={x.debtBlnc}
+                                                                        displayType="text"
+                                                                        thousandSeparator
+                                                                        allowNegative={true}
+                                                                        prefix={x.cur === 'us' ? '$' : '€'}
+                                                                        decimalScale='2'
+                                                                        fixedDecimalScale
+                                                                        className='responsiveText'
+                                                                    />
+
+                                                                </div>
+                                                            </div>}>
+                                                            {clientDetails(x.client, clientsData, 'InDebt', uidCollection, setDateSelect,
+                                                                setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient, toggleCheckClientAll,
+                                                                toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment)}
+                                                        </MyAccordion>
+                                                    </div>
+                                                )
+                                            })}
+                                            <div className="flex items-center leading-5 justify-between p-1 responsiveTextTotal">
+                                                <div className="border-t-2 border-slate-400">
+                                                    Total
+                                                </div>
+                                                <div>
+                                                    {
+                                                        <NumericFormat
+                                                            value={clientInvoices2.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.debtBlnc) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='border-t-2 border-slate-400'
+                                                        />
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div className=" p-2 ">
+                                            <span className="font-bold p-1 responsiveTextTitle">Clients - Balances</span>
+                                            <div className="flex p-1 justify-between ">
+                                                {
+                                                    clientSortName ?
+                                                        <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} />}
+                                                {
+                                                    clientSort ?
+                                                        <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(0)} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(0)} />}
+                                            </div>
+
+                                            {clientInvoices1.map((x, i) => {
+                                                return (
+                                                    <div className="flex  gap-4 items-center   text-slate-600 " key={i}>
+                                                        <MyAccordion title={
+                                                            <div className="flex w-full justify-between">
+                                                                <div className="responsiveText items-center flex outline-none truncate cursor-pointer"
+                                                                >
+                                                                    {settings.Client.Client.find(z => z.id === x.client)?.nname}
+                                                                </div>
+                                                                <div className='leading-4 2xl:leading-6'>
+                                                                    <NumericFormat
+                                                                        value={x.debtBlnc}
+                                                                        displayType="text"
+                                                                        thousandSeparator
+                                                                        allowNegative={true}
+                                                                        prefix={x.cur === 'us' ? '$' : '€'}
+                                                                        decimalScale='2'
+                                                                        fixedDecimalScale
+                                                                        className='responsiveText'
+                                                                    />
+
+                                                                </div>
+                                                            </div>}>
+                                                            {clientDetails(x.client, clientsData, 'PartPaid', uidCollection, setDateSelect,
+                                                                setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient,
+                                                                toggleCheckClientAll, toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment)}
+                                                        </MyAccordion>
+                                                    </div>
+                                                )
+                                            })}
+                                            <div className="flex items-center leading-4 2xl:leading-6 justify-between p-1 responsiveTextTotal">
+                                                <div className="">
+                                                    <span className="leading-5 border-t-2 border-slate-400">Total</span>
+                                                </div>
+                                                <div>
+                                                    {
+                                                        <NumericFormat
+                                                            value={clientInvoices1.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.debtBlnc) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='border-t-2 border-slate-400 '
+                                                        />
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+
                                         <div>
                                             {
-                                                <NumericFormat
-                                                    value={stockData1.reduce((total, obj) => {
-                                                        return total + (parseFloat(obj.total) || 0);
-                                                    }, 0)}
+                                                userTitle === 'Admin' &&
+                                                <div className='mt-10 p-1'>
+                                                    <div className='flex justify-between p-2'>
+                                                        <span className="font-bold responsiveTextTitle">Financing</span>
+                                                        <button
+                                                            type="button"
+                                                            className="blackButton h-4  text-xs w-10 p-3"
+                                                            onClick={() => setFinancedLeft([...financedLeft, { title: '', num: '' }])}
+                                                        >
+                                                            Add
+                                                        </button>
+                                                    </div>
+                                                    <div className="flex gap-1 mt-1 pt-2 flex-col">
+                                                        {
+                                                            financedLeft?.map((z, i) => {
+                                                                return (
+                                                                    <div className="flex gap-2 cursor-pointer hover:bg-slate-200 rounded-md px-1 responsiveTextInput" key={i}>
+                                                                        <button onClick={() => setFinancedLeft(financedLeft.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
+                                                                        <input className={cn('items-center flex outline-none w-[52rem] truncate  h-6 text-slate-600 bg-transparent',
+                                                                            z.title === '' ? 'input' : '')} value={z.title}
+                                                                            onChange={e => handleChangeFinance(e, i, 'left', 'title')} />
+                                                                        <input className={cn('h-6 text-slate-700 bg-transparent w-full',
+                                                                            z.num === '' ? 'input text-left' : 'text-right outline-none')}
+                                                                            value={addComma(z.num)} onChange={e => handleChangeFinance(e, i, 'left', 'num')}
+                                                                        />
+
+                                                                    </div>
+                                                                )
+                                                            })}
+                                                    </div>
+
+                                                    <div className="flex items-center leading-5  gap-3 justify-between p-1 responsiveTextTotal">
+                                                        <div className="border-t-2 border-slate-400">
+                                                            Total
+                                                        </div>
+                                                        <div>
+                                                            {
+                                                                <NumericFormat
+                                                                    value={Array.isArray(financedLeft) ? financedLeft.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
+                                                                    displayType="text"
+                                                                    thousandSeparator
+                                                                    allowNegative={true}
+                                                                    prefix='$'
+                                                                    decimalScale='2'
+                                                                    fixedDecimalScale
+                                                                    className='pl-1 border-t-2 border-slate-400'
+                                                                />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                        </div>
+                                    </div>
+
+
+                                    <div className=" border-t-2 border-b-2 border-slate-600 w-1/2 2xl:w-[36rem]">
+
+                                        <div className=" p-2 ">
+                                            <span className="font-bold flex items-center p-1 responsiveTextTitle">Supplier - Payment </span>
+                                            <div className="flex p-1 justify-between">
+                                                {
+                                                    supPmntssSortName1 ?
+                                                        <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
+                                                {
+                                                    supPmntssSort1 ?
+                                                        <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(1)} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(1)} />}
+                                            </div>
+
+
+
+                                            {supPayments2.map((x, i) => {
+                                                return (
+                                                    <div className="flex gap-4 items-center text-slate-600" key={i}>
+                                                        <MyAccordion title={
+                                                            <div className="flex w-full justify-between leading-4 2xl:leading-6">
+                                                                <span className="responsiveText items-center flex outline-none truncate cursor-pointer w-full"
+                                                                >
+                                                                    {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
+                                                                </span>
+                                                                <div className="w-full text-right">
+                                                                    <NumericFormat
+                                                                        value={x.blnc}
+                                                                        displayType="text"
+                                                                        thousandSeparator
+                                                                        allowNegative={true}
+                                                                        prefix={'$'}
+                                                                        decimalScale='2'
+                                                                        fixedDecimalScale
+                                                                        className='responsiveText'
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        }>
+                                                            {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 === 0),
+                                                                uidCollection, setDateSelect,
+                                                                setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
+                                                                toggleSupplier, savePmntSupplier, supplierPartialPayment, settings)}
+                                                        </MyAccordion>
+                                                    </div>
+
+                                                )
+                                            })}
+                                            <div className="flex items-center leading-5 justify-between p-1 responsiveTextTotal">
+                                                <div className="border-t-2 border-slate-400">
+                                                    Total
+                                                </div>
+                                                <div>
+                                                    {
+                                                        <NumericFormat
+                                                            value={supPayments2?.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.blnc) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='border-t-2 border-slate-400'
+                                                        />
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div className=" p-2 ">
+                                            <span className="font-bold flex items-center p-1 responsiveTextTitle">Supplier - Balances </span>
+                                            <div className="flex p-1 justify-between">
+                                                {
+                                                    supPmntssSortName ?
+                                                        <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
+                                                {
+                                                    supPmntssSort ?
+                                                        <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(0)} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(0)} />}
+                                            </div>
+
+
+
+                                            {supPayments1.map((x, i) => {
+                                                return (
+                                                    <div className="flex gap-4  items-center text-slate-600" key={i}>
+                                                        <MyAccordion title={
+                                                            <div className="flex w-full justify-between leading-4 2xl:leading-6">
+                                                                <span className="responsiveText items-center flex outline-none truncate cursor-pointer w-full"
+                                                                >
+                                                                    {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
+                                                                </span>
+                                                                <div className="w-full text-right">
+                                                                    <NumericFormat
+                                                                        value={x.blnc}
+                                                                        displayType="text"
+                                                                        thousandSeparator
+                                                                        allowNegative={true}
+                                                                        prefix={'$'}
+                                                                        decimalScale='2'
+                                                                        fixedDecimalScale
+                                                                        className='responsiveText'
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        }>
+                                                            {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 > 0),
+                                                                uidCollection, setDateSelect,
+                                                                setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
+                                                                toggleSupplier, savePmntSupplier, supplierPartialPayment, settings)}
+                                                        </MyAccordion>
+                                                    </div>
+
+                                                )
+                                            })}
+                                            <div className="flex items-center leading-4 justify-between p-1 responsiveTextTotal">
+                                                <div className="border-t-2 border-slate-400 ">
+                                                    Total
+                                                </div>
+                                                <div>
+                                                    {
+                                                        <NumericFormat
+                                                            value={supPayments1?.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.blnc) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='border-t-2 border-slate-400'
+                                                        />
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className=" p-2 ">
+                                            <span className="font-bold flex items-center p-1 responsiveTextTitle">Expenses</span>
+                                            <div className="flex p-1 justify-between">
+                                                {
+                                                    expensesSortName ?
+                                                        <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} />}
+                                                {
+                                                    expensesSort ?
+                                                        <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpenses()} />
+                                                        :
+                                                        <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpenses()} />}
+                                            </div>
+
+                                            {expenses.map((x, i) => {
+                                                return (
+                                                    <div className="flex items-center  text-slate-600 " key={i}>
+                                                        <MyAccordion title={
+                                                            <div className="flex justify-between leading-4 2xl:leading-6 w-full">
+                                                                <div className="responsiveText items-center flex outline-none truncate cursor-pointer"              >
+                                                                    {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
+                                                                </div>
+
+                                                                <div className="items-center flex">
+                                                                    <NumericFormat
+                                                                        value={x.amount}
+                                                                        displayType="text"
+                                                                        thousandSeparator
+                                                                        allowNegative={true}
+                                                                        prefix={'$'}
+                                                                        decimalScale='2'
+                                                                        fixedDecimalScale
+                                                                        className='responsiveText'
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        }>
+                                                            {expensesToolTip(x.supplier, expensesAll, settings, uidCollection, setDateSelect,
+                                                                setValueExp, setIsOpen, blankInvoice, router, toggleCheckExp, toggleCheckExpAll,
+                                                                toggleExp, savePmntExp)}
+                                                        </MyAccordion>
+                                                    </div>
+
+                                                )
+                                            })}
+                                            <div className="flex items-center leading-5 justify-between p-1 responsiveTextTotal">
+                                                <div className="border-t-2 border-slate-400">
+                                                    Total
+                                                </div>
+                                                <div>
+
+                                                    <NumericFormat
+                                                        value={expenses?.reduce((total, obj) => {
+                                                            return total + (parseFloat(obj.amount) || 0);
+                                                        }, 0)}
+                                                        displayType="text"
+                                                        thousandSeparator
+                                                        allowNegative={true}
+                                                        prefix='$'
+                                                        decimalScale='2'
+                                                        fixedDecimalScale
+                                                        className='border-t-2 border-slate-400'
+                                                    />
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-2">
+                                            {
+                                                userTitle === 'Admin' &&
+                                                <div className='mt-10 p-1'>
+                                                    <div className='flex justify-between'>
+                                                        <span className="font-bold responsiveTextTitle">Financing</span>
+                                                        <button
+                                                            type="button"
+                                                            className="blackButton h-4  text-xs w-10 p-3"
+                                                            onClick={() => setFinancedRight([...financedRight, { title: '', num: '' }])}
+                                                        >
+                                                            Add
+                                                        </button>
+                                                    </div>
+                                                    <div className="flex gap-1 mt-1 pt-2 flex-col" >
+                                                        {
+                                                            financedRight?.map((z, i) => {
+                                                                return (
+                                                                    <div className="flex gap-2 cursor-pointer hover:bg-slate-200 rounded-md px-0.5 responsiveTextInput" key={i}>
+                                                                        <button onClick={() => setFinancedRight(financedRight.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
+                                                                        <input className={cn('items-center flex outline-none w-[44rem] truncate  h-6 text-slate-600 bg-transparent',
+                                                                            z.title === '' ? 'input' : '')}
+                                                                            value={z.title} onChange={e => handleChangeFinance(e, i, 'right', 'title')} />
+                                                                        <input className={cn('w-full h-6 text-slate-700 outline-none bg-transparent',
+                                                                            z.num === '' ? 'input text-left' : 'text-right')}
+                                                                            value={addComma(z.num)} onChange={e => handleChangeFinance(e, i, 'right', 'num')} />
+                                                                    </div>
+                                                                )
+                                                            })}
+                                                    </div>
+
+                                                    <div className="flex items-center leading-5  gap-3 justify-between pt-1 responsiveTextTotal">
+                                                        <div className="border-t-2 border-slate-400">
+                                                            Total
+                                                        </div>
+                                                        <div>
+                                                            {
+                                                                <NumericFormat
+                                                                    value={Array.isArray(financedRight) ? financedRight.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
+                                                                    displayType="text"
+                                                                    thousandSeparator
+                                                                    allowNegative={true}
+                                                                    prefix='$'
+                                                                    decimalScale='2'
+                                                                    fixedDecimalScale
+                                                                    className='pl-1 border-t-2 border-slate-400'
+                                                                />
+                                                            }
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            }
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                                {userTitle === 'Admin' &&
+                                    <div className="flex w-full">
+                                        <div className="flex gap-2 p-2 items-center w-1/2 2xl:w-[42rem] justify-end responsiveTextTotal" >
+                                            <span className="flex">
+                                                Total:
+                                            </span>
+
+                                            <span className=''>
+                                                {<NumericFormat
+                                                    value={totalLeft}
                                                     displayType="text"
                                                     thousandSeparator
                                                     allowNegative={true}
                                                     prefix='$'
                                                     decimalScale='2'
                                                     fixedDecimalScale
-                                                    className='responsiveTextTotal border-t-2 border-slate-400'
-                                                />
-                                            }
+                                                    className=''
+                                                />}
+                                            </span>
+
                                         </div>
-                                    </div>
-
-                                </div>
 
 
+                                        <div className="flex gap-2 p-2 items-center w-1/2 2xl:w-[34rem] justify-end responsiveTextTotal" >
+                                            <span className=" w-10 flex font-semibold">
+                                                Total:
+                                            </span>
 
-                                <div className=" p-2">
-                                    <span className="font-bold p-1 responsiveTextTitle">Stocks - UnPaid</span>
-                                    <div className="flex p-1 justify-between">
-                                        {
-                                            stocksSortName1 ?
-                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} />}
-                                        {
-                                            stocksSort1 ?
-                                                <FaSortAmountDown className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortStocks1()} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks1()} />}
-                                    </div>
-
-                                    {stockData2.map((x, i) => {
-                                        return (
-                                            <div className="flex items-center  text-slate-600" key={i}>
-                                                <MyAccordion title={
-                                                    <div className="flex w-full justify-between">
-                                                        <div className="responsiveText items-center flex outline-none  truncate cursor-pointer "
-                                                        >
-                                                            {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
-                                                        </div>
-
-                                                        <div className="leading-4 2xl:leading-6">
-                                                            <NumericFormat
-                                                                value={x.total}
-                                                                displayType="text"
-                                                                thousandSeparator
-                                                                allowNegative={true}
-                                                                prefix={x.cur === 'us' ? '$' : '€'}
-                                                                decimalScale='2'
-                                                                fixedDecimalScale
-                                                                className='responsiveText'
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                }>
-
-                                                    {stoclToolTip(x.stock, stockDataNoPayment, settings, uidCollection,
-                                                        setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router,)}
-                                                </MyAccordion>
-                                            </div>
-
-                                        )
-                                    })}
-                                    <div className="flex items-center p-1 leading-5 justify-between responsiveTextTotal">
-                                        <div className="border-t-2 border-slate-400">
-                                            Total
-                                        </div>
-                                        <div>
-                                            {
-                                                <NumericFormat
-                                                    value={stockData2.reduce((total, obj) => {
-                                                        return total + (parseFloat(obj.total) || 0);
-                                                    }, 0)}
+                                            <span className='w-20'>
+                                                {<NumericFormat
+                                                    value={totalRight}
                                                     displayType="text"
                                                     thousandSeparator
                                                     allowNegative={true}
                                                     prefix='$'
                                                     decimalScale='2'
                                                     fixedDecimalScale
-                                                    className='border-t-2 border-slate-400'
-                                                />
-                                            }
+                                                    className=''
+                                                />}
+                                            </span>
                                         </div>
                                     </div>
-                                </div>
+                                }
 
-                                <div className=" p-2">
+
+                                {userTitle === 'Admin' &&
+                                    <div className="flex w-full justify-center">
+                                        <div className="flex gap-2 items-center  justify-end responsiveTextTotal" >
+                                            <span className="flex  font-semibold">
+                                                Balance:
+                                            </span>
+
+                                            <span className=''>
+                                                {<NumericFormat
+                                                    value={totalLeft - totalRight}
+                                                    displayType="text"
+                                                    thousandSeparator
+                                                    allowNegative={true}
+                                                    prefix='$'
+                                                    decimalScale='2'
+                                                    fixedDecimalScale
+                                                    className=''
+                                                />}
+                                            </span>
+                                        </div>
+                                    </div>
+                                }
+                                {userTitle === 'Admin' &&
+                                    <div className="pt-4 pl-2">
+                                        {yr.map(z => {
+                                            const key = `total${z}`;
+                                            return (
+                                                <div className="gap-2 pb-1" key={z}>
+                                                    <span className="text-xs 2xl:text-base">{`Total for ${z}:`}</span>
+                                                    <input className='input w-44 h-6 text-[0.6rem] 2xl:text-[0.8rem] ml-2'
+                                                        value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] ?? '0')}
+                                                        onChange={e => handleChange(e, z)} />
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                }
+
+                            </TabsContent>
+                            <TabsContent value="password">
+                                <div className=" p-2 w-[30rem]">
                                     <span className="font-bold p-1 responsiveTextTitle">Stocks - UnSold</span>
                                     <div className="flex p-1 justify-between">
                                         {
@@ -1018,7 +1586,7 @@ const Cashflow = () => {
                                                     <div className="flex w-full justify-between">
                                                         <div className="responsiveText items-center flex outline-none  truncate cursor-pointer "
                                                         >
-                                                            {x.order}
+                                                            {x.supplierName}
                                                         </div>
 
                                                         <div className="leading-4 2xl:leading-6">
@@ -1036,7 +1604,7 @@ const Cashflow = () => {
                                                     </div>
                                                 }>
 
-                                                    {stocksUnSold(x.order, stockDataAllArray, settings, uidCollection, setDateSelect,
+                                                    {stocksUnSold(x.supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
                                                         setValueCon, setIsOpenCon, blankInvoice, router
                                                     )}
                                                 </MyAccordion>
@@ -1066,560 +1634,10 @@ const Cashflow = () => {
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className=" p-2 ">
-                                    <span className="font-bold p-1 responsiveTextTitle">Clients - Payment</span>
-                                    <div className="flex p-1 justify-between">
-                                        {
-                                            clientSortName1 ?
-                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} />}
-                                        {
-                                            clientSort1 ?
-                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(1)} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortClients(1)} />}
-                                    </div>
-
-                                    {clientInvoices2.map((x, i) => {
-                                        return (
-                                            <div className="flex gap-4 items-center text-slate-600 " key={i}>
-                                                <MyAccordion title={
-                                                    <div className="flex w-full justify-between">
-                                                        <div className="responsiveText items-center flex outline-none truncate cursor-pointer"
-                                                        >
-                                                            {settings.Client.Client.find(z => z.id === x.client)?.nname}
-                                                        </div>
-                                                        <div className='leading-4 2xl:leading-6'>
-                                                            <NumericFormat
-                                                                value={x.debtBlnc}
-                                                                displayType="text"
-                                                                thousandSeparator
-                                                                allowNegative={true}
-                                                                prefix={x.cur === 'us' ? '$' : '€'}
-                                                                decimalScale='2'
-                                                                fixedDecimalScale
-                                                                className='responsiveText'
-                                                            />
-
-                                                        </div>
-                                                    </div>}>
-                                                    {clientDetails(x.client, clientsData, 'InDebt', uidCollection, setDateSelect,
-                                                        setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient, toggleCheckClientAll,
-                                                        toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment)}
-                                                </MyAccordion>
-                                            </div>
-                                        )
-                                    })}
-                                    <div className="flex items-center leading-5 justify-between p-1 responsiveTextTotal">
-                                        <div className="border-t-2 border-slate-400">
-                                            Total
-                                        </div>
-                                        <div>
-                                            {
-                                                <NumericFormat
-                                                    value={clientInvoices2.reduce((total, obj) => {
-                                                        return total + (parseFloat(obj.debtBlnc) || 0);
-                                                    }, 0)}
-                                                    displayType="text"
-                                                    thousandSeparator
-                                                    allowNegative={true}
-                                                    prefix='$'
-                                                    decimalScale='2'
-                                                    fixedDecimalScale
-                                                    className='border-t-2 border-slate-400'
-                                                />
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
+                            </TabsContent>
+                        </Tabs>
 
 
-                                <div className=" p-2 ">
-                                    <span className="font-bold p-1 responsiveTextTitle">Clients - Balances</span>
-                                    <div className="flex p-1 justify-between ">
-                                        {
-                                            clientSortName ?
-                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} />}
-                                        {
-                                            clientSort ?
-                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(0)} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(0)} />}
-                                    </div>
-
-                                    {clientInvoices1.map((x, i) => {
-                                        return (
-                                            <div className="flex  gap-4 items-center   text-slate-600 " key={i}>
-                                                <MyAccordion title={
-                                                    <div className="flex w-full justify-between">
-                                                        <div className="responsiveText items-center flex outline-none truncate cursor-pointer"
-                                                        >
-                                                            {settings.Client.Client.find(z => z.id === x.client)?.nname}
-                                                        </div>
-                                                        <div className='leading-4 2xl:leading-6'>
-                                                            <NumericFormat
-                                                                value={x.debtBlnc}
-                                                                displayType="text"
-                                                                thousandSeparator
-                                                                allowNegative={true}
-                                                                prefix={x.cur === 'us' ? '$' : '€'}
-                                                                decimalScale='2'
-                                                                fixedDecimalScale
-                                                                className='responsiveText'
-                                                            />
-
-                                                        </div>
-                                                    </div>}>
-                                                    {clientDetails(x.client, clientsData, 'PartPaid', uidCollection, setDateSelect,
-                                                        setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient,
-                                                        toggleCheckClientAll, toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment)}
-                                                </MyAccordion>
-                                            </div>
-                                        )
-                                    })}
-                                    <div className="flex items-center leading-4 2xl:leading-6 justify-between p-1 responsiveTextTotal">
-                                        <div className="">
-                                            <span className="leading-5 border-t-2 border-slate-400">Total</span>
-                                        </div>
-                                        <div>
-                                            {
-                                                <NumericFormat
-                                                    value={clientInvoices1.reduce((total, obj) => {
-                                                        return total + (parseFloat(obj.debtBlnc) || 0);
-                                                    }, 0)}
-                                                    displayType="text"
-                                                    thousandSeparator
-                                                    allowNegative={true}
-                                                    prefix='$'
-                                                    decimalScale='2'
-                                                    fixedDecimalScale
-                                                    className='border-t-2 border-slate-400 '
-                                                />
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div>
-                                    {
-                                        userTitle === 'Admin' &&
-                                        <div className='mt-10 p-1'>
-                                            <div className='flex justify-between p-2'>
-                                                <span className="font-bold responsiveTextTitle">Financing</span>
-                                                <button
-                                                    type="button"
-                                                    className="blackButton h-4  text-xs w-10 p-3"
-                                                    onClick={() => setFinancedLeft([...financedLeft, { title: '', num: '' }])}
-                                                >
-                                                    Add
-                                                </button>
-                                            </div>
-                                            <div className="flex gap-1 mt-1 pt-2 flex-col">
-                                                {
-                                                    financedLeft?.map((z, i) => {
-                                                        return (
-                                                            <div className="flex gap-2 cursor-pointer hover:bg-slate-200 rounded-md px-1 responsiveTextInput" key={i}>
-                                                                <button onClick={() => setFinancedLeft(financedLeft.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
-                                                                <input className={cn('items-center flex outline-none w-[52rem] truncate  h-6 text-slate-600 bg-transparent',
-                                                                    z.title === '' ? 'input' : '')} value={z.title}
-                                                                    onChange={e => handleChangeFinance(e, i, 'left', 'title')} />
-                                                                <input className={cn('h-6 text-slate-700 bg-transparent w-full',
-                                                                    z.num === '' ? 'input text-left' : 'text-right outline-none')}
-                                                                    value={addComma(z.num)} onChange={e => handleChangeFinance(e, i, 'left', 'num')}
-                                                                />
-
-                                                            </div>
-                                                        )
-                                                    })}
-                                            </div>
-
-                                            <div className="flex items-center leading-5  gap-3 justify-between p-1 responsiveTextTotal">
-                                                <div className="border-t-2 border-slate-400">
-                                                    Total
-                                                </div>
-                                                <div>
-                                                    {
-                                                        <NumericFormat
-                                                            value={Array.isArray(financedLeft) ? financedLeft.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix='$'
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='pl-1 border-t-2 border-slate-400'
-                                                        />
-                                                    }
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-
-                                </div>
-                            </div>
-
-
-                            <div className=" border-t-2 border-b-2 border-slate-600 w-1/2 2xl:w-[36rem]">
-
-                                <div className=" p-2 ">
-                                    <span className="font-bold flex items-center p-1 responsiveTextTitle">Supplier - Payment </span>
-                                    <div className="flex p-1 justify-between">
-                                        {
-                                            supPmntssSortName1 ?
-                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
-                                        {
-                                            supPmntssSort1 ?
-                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(1)} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(1)} />}
-                                    </div>
-
-
-
-                                    {supPayments2.map((x, i) => {
-                                        return (
-                                            <div className="flex gap-4 items-center text-slate-600" key={i}>
-                                                <MyAccordion title={
-                                                    <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                        <span className="responsiveText items-center flex outline-none truncate cursor-pointer w-full"
-                                                        >
-                                                            {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
-                                                        </span>
-                                                        <div className="w-full text-right">
-                                                            <NumericFormat
-                                                                value={x.blnc}
-                                                                displayType="text"
-                                                                thousandSeparator
-                                                                allowNegative={true}
-                                                                prefix={'$'}
-                                                                decimalScale='2'
-                                                                fixedDecimalScale
-                                                                className='responsiveText'
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                }>
-                                                    {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 === 0),
-                                                        uidCollection, setDateSelect,
-                                                        setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-                                                        toggleSupplier, savePmntSupplier, supplierPartialPayment, settings)}
-                                                </MyAccordion>
-                                            </div>
-
-                                        )
-                                    })}
-                                    <div className="flex items-center leading-5 justify-between p-1 responsiveTextTotal">
-                                        <div className="border-t-2 border-slate-400">
-                                            Total
-                                        </div>
-                                        <div>
-                                            {
-                                                <NumericFormat
-                                                    value={supPayments2?.reduce((total, obj) => {
-                                                        return total + (parseFloat(obj.blnc) || 0);
-                                                    }, 0)}
-                                                    displayType="text"
-                                                    thousandSeparator
-                                                    allowNegative={true}
-                                                    prefix='$'
-                                                    decimalScale='2'
-                                                    fixedDecimalScale
-                                                    className='border-t-2 border-slate-400'
-                                                />
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div className=" p-2 ">
-                                    <span className="font-bold flex items-center p-1 responsiveTextTitle">Supplier - Balances </span>
-                                    <div className="flex p-1 justify-between">
-                                        {
-                                            supPmntssSortName ?
-                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
-                                        {
-                                            supPmntssSort ?
-                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(0)} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(0)} />}
-                                    </div>
-
-
-
-                                    {supPayments1.map((x, i) => {
-                                        return (
-                                            <div className="flex gap-4  items-center text-slate-600" key={i}>
-                                                <MyAccordion title={
-                                                    <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                        <span className="responsiveText items-center flex outline-none truncate cursor-pointer w-full"
-                                                        >
-                                                            {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
-                                                        </span>
-                                                        <div className="w-full text-right">
-                                                            <NumericFormat
-                                                                value={x.blnc}
-                                                                displayType="text"
-                                                                thousandSeparator
-                                                                allowNegative={true}
-                                                                prefix={'$'}
-                                                                decimalScale='2'
-                                                                fixedDecimalScale
-                                                                className='responsiveText'
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                }>
-                                                    {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 > 0),
-                                                        uidCollection, setDateSelect,
-                                                        setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-                                                        toggleSupplier, savePmntSupplier, supplierPartialPayment, settings)}
-                                                </MyAccordion>
-                                            </div>
-
-                                        )
-                                    })}
-                                    <div className="flex items-center leading-4 justify-between p-1 responsiveTextTotal">
-                                        <div className="border-t-2 border-slate-400 ">
-                                            Total
-                                        </div>
-                                        <div>
-                                            {
-                                                <NumericFormat
-                                                    value={supPayments1?.reduce((total, obj) => {
-                                                        return total + (parseFloat(obj.blnc) || 0);
-                                                    }, 0)}
-                                                    displayType="text"
-                                                    thousandSeparator
-                                                    allowNegative={true}
-                                                    prefix='$'
-                                                    decimalScale='2'
-                                                    fixedDecimalScale
-                                                    className='border-t-2 border-slate-400'
-                                                />
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className=" p-2 ">
-                                    <span className="font-bold flex items-center p-1 responsiveTextTitle">Expenses</span>
-                                    <div className="flex p-1 justify-between">
-                                        {
-                                            expensesSortName ?
-                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} />}
-                                        {
-                                            expensesSort ?
-                                                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpenses()} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpenses()} />}
-                                    </div>
-
-                                    {expenses.map((x, i) => {
-                                        return (
-                                            <div className="flex items-center  text-slate-600 " key={i}>
-                                                <MyAccordion title={
-                                                    <div className="flex justify-between leading-4 2xl:leading-6 w-full">
-                                                        <div className="responsiveText items-center flex outline-none truncate cursor-pointer"              >
-                                                            {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
-                                                        </div>
-
-                                                        <div className="items-center flex">
-                                                            <NumericFormat
-                                                                value={x.amount}
-                                                                displayType="text"
-                                                                thousandSeparator
-                                                                allowNegative={true}
-                                                                prefix={'$'}
-                                                                decimalScale='2'
-                                                                fixedDecimalScale
-                                                                className='responsiveText'
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                }>
-                                                    {expensesToolTip(x.supplier, expensesAll, settings, uidCollection, setDateSelect,
-                                                        setValueExp, setIsOpen, blankInvoice, router, toggleCheckExp, toggleCheckExpAll,
-                                                        toggleExp, savePmntExp)}
-                                                </MyAccordion>
-                                            </div>
-
-                                        )
-                                    })}
-                                    <div className="flex items-center leading-5 justify-between p-1 responsiveTextTotal">
-                                        <div className="border-t-2 border-slate-400">
-                                            Total
-                                        </div>
-                                        <div>
-
-                                            <NumericFormat
-                                                value={expenses?.reduce((total, obj) => {
-                                                    return total + (parseFloat(obj.amount) || 0);
-                                                }, 0)}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative={true}
-                                                prefix='$'
-                                                decimalScale='2'
-                                                fixedDecimalScale
-                                                className='border-t-2 border-slate-400'
-                                            />
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="p-2">
-                                    {
-                                        userTitle === 'Admin' &&
-                                        <div className='mt-10 p-1'>
-                                            <div className='flex justify-between'>
-                                                <span className="font-bold responsiveTextTitle">Financing</span>
-                                                <button
-                                                    type="button"
-                                                    className="blackButton h-4  text-xs w-10 p-3"
-                                                    onClick={() => setFinancedRight([...financedRight, { title: '', num: '' }])}
-                                                >
-                                                    Add
-                                                </button>
-                                            </div>
-                                            <div className="flex gap-1 mt-1 pt-2 flex-col" >
-                                                {
-                                                    financedRight?.map((z, i) => {
-                                                        return (
-                                                            <div className="flex gap-2 cursor-pointer hover:bg-slate-200 rounded-md px-0.5 responsiveTextInput" key={i}>
-                                                                <button onClick={() => setFinancedRight(financedRight.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
-                                                                <input className={cn('items-center flex outline-none w-[44rem] truncate  h-6 text-slate-600 bg-transparent',
-                                                                    z.title === '' ? 'input' : '')}
-                                                                    value={z.title} onChange={e => handleChangeFinance(e, i, 'right', 'title')} />
-                                                                <input className={cn('w-full h-6 text-slate-700 outline-none bg-transparent',
-                                                                    z.num === '' ? 'input text-left' : 'text-right')}
-                                                                    value={addComma(z.num)} onChange={e => handleChangeFinance(e, i, 'right', 'num')} />
-                                                            </div>
-                                                        )
-                                                    })}
-                                            </div>
-
-                                            <div className="flex items-center leading-5  gap-3 justify-between pt-1 responsiveTextTotal">
-                                                <div className="border-t-2 border-slate-400">
-                                                    Total
-                                                </div>
-                                                <div>
-                                                    {
-                                                        <NumericFormat
-                                                            value={Array.isArray(financedRight) ? financedRight.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix='$'
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='pl-1 border-t-2 border-slate-400'
-                                                        />
-                                                    }
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    }
-
-                                </div>
-
-                            </div>
-                        </div>
-                        {userTitle === 'Admin' &&
-                            <div className="flex w-full">
-                                <div className="flex gap-2 p-2 items-center w-1/2 2xl:w-[42rem] justify-end responsiveTextTotal" >
-                                    <span className="flex">
-                                        Total:
-                                    </span>
-
-                                    <span className=''>
-                                        {<NumericFormat
-                                            value={totalLeft}
-                                            displayType="text"
-                                            thousandSeparator
-                                            allowNegative={true}
-                                            prefix='$'
-                                            decimalScale='2'
-                                            fixedDecimalScale
-                                            className=''
-                                        />}
-                                    </span>
-
-                                </div>
-
-
-                                <div className="flex gap-2 p-2 items-center w-1/2 2xl:w-[34rem] justify-end responsiveTextTotal" >
-                                    <span className=" w-10 flex font-semibold">
-                                        Total:
-                                    </span>
-
-                                    <span className='w-20'>
-                                        {<NumericFormat
-                                            value={totalRight}
-                                            displayType="text"
-                                            thousandSeparator
-                                            allowNegative={true}
-                                            prefix='$'
-                                            decimalScale='2'
-                                            fixedDecimalScale
-                                            className=''
-                                        />}
-                                    </span>
-                                </div>
-                            </div>
-                        }
-
-
-                        {userTitle === 'Admin' &&
-                            <div className="flex w-full justify-center">
-                                <div className="flex gap-2 items-center  justify-end responsiveTextTotal" >
-                                    <span className="flex  font-semibold">
-                                        Balance:
-                                    </span>
-
-                                    <span className=''>
-                                        {<NumericFormat
-                                            value={totalLeft - totalRight}
-                                            displayType="text"
-                                            thousandSeparator
-                                            allowNegative={true}
-                                            prefix='$'
-                                            decimalScale='2'
-                                            fixedDecimalScale
-                                            className=''
-                                        />}
-                                    </span>
-                                </div>
-                            </div>
-                        }
-                        {userTitle === 'Admin' &&
-                            <div className="pt-4 pl-2">
-                                {yr.map(z => {
-                                    const key = `total${z}`;
-                                    return (
-                                        <div className="gap-2 pb-1" key={z}>
-                                            <span className="text-xs 2xl:text-base">{`Total for ${z}:`}</span>
-                                            <input className='input w-44 h-6 text-[0.6rem] 2xl:text-[0.8rem] ml-2'
-                                                value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] ?? '0')}
-                                                onChange={e => handleChange(e, z)} />
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        }
                     </div>
 
                 </>

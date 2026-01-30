@@ -83,15 +83,16 @@ export const runStocks = async (uidCollection, settings, yr, contractsData) => {
         unSoldAll.reduce((acc, item) => {
             if (!item?.order) return acc;
 
-            const order = item.order;
+            const supplier = item.supplier;
+            const supplierName = settings.Supplier.Supplier.find(z => z.id === item.supplier)?.nname;
             const total = Number(item.total) || 0;
             const cur = item.cur;
 
-            if (!acc[order]) {
-                acc[order] = { order, total: 0, cur };
+            if (!acc[supplier]) {
+                acc[supplier] = { supplier, total: 0, cur, supplierName };
             }
 
-            acc[order].total += total;
+            acc[supplier].total += total;
 
             return acc;
         }, {})
@@ -433,19 +434,23 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
     )//stock; 
 }
 
-export const stocksUnSold = (order, stockDataAllArray, settings, uidCollection, setDateSelect,
+export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router
 ) => {
 
-    let filteredArr = stockDataAllArray.filter(z => z.order === order)
+    let filteredArr = stockDataAllArray.filter(z => z.supplier === supplier)
 
+
+    const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd') 
+
+    console.log((filteredArr.reduce((sum, item) => sum + item.total * 1, 0)) || '')
     return (
         <div className="max-h-[28rem] overflow-y-auto responsiveTextTable pt-2 justify-end flex">
             <table>
                 <thead>
                     <tr className="border border-slate-300 p-2">
-                        {/* <th className="text-left p-1 w-24">PO#</th> */}
-                        <th className="text-left p-1">Supplier</th>
+                        <th className="text-left p-1 w-24">PO#</th>
+                        {/* <th className="text-left p-1">Supplier</th> */}
                         <th className="text-left p-1">Origin. Supplier</th>
                         <th className="text-left p-1 w-40">Description</th>
                         <th className="text-left p-1">Quantity</th>
@@ -457,14 +462,14 @@ export const stocksUnSold = (order, stockDataAllArray, settings, uidCollection, 
                     {filteredArr.map((z, i) => {
                         return (
                             <tr className="border border-slate-300 p-2" key={i}>
-                                {/* <td className="text-left p-1 cursor-pointer text-blue-700"
-                                    onClick={() => moveToContracts(z, 'stock1', uidCollection, setDateSelect,
-                                        setValueCon, setIsOpenCon, blankInvoice, router)}>
-                                    {z.order}</td> */}
                                 <td className="text-left p-1 cursor-pointer text-blue-700"
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
+                                        setValueCon, setIsOpenCon, blankInvoice, router)}>
+                                    {z.order}</td>
+                                {/* <td className="text-left p-1 cursor-pointer text-blue-700"
+                                    onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}
-                                >{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td>
+                                >{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td> */}
                                 <td className="text-left p-1 w-20">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</td>
                                 <td className="text-left p-1 max-w-28 2xl:max-w-48 truncate" >{z.description}</td>
                                 <td className="text-left p-1">{
@@ -532,10 +537,9 @@ export const stocksUnSold = (order, stockDataAllArray, settings, uidCollection, 
                             }
                         </th>
                         <th className="relative p-1 text-right font-medium text-gray-500 uppercase">
-                            {showAmount(filteredArr.reduce((sum, item) => sum + item.unitPrc * 1, 0), 'usd')}
                         </th>
                         <th className="relativep-2 p-1 text-right font-medium text-gray-500 uppercase">
-                            {showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0), 'usd')}
+                            {ttl }
                         </th>
                     </tr>
                 </tfoot>
