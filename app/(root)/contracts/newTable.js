@@ -161,17 +161,17 @@ const Customtable = ({
         /* Professional gradient scrollbar matching cards */
         .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
         .dashboard-scroll::-webkit-scrollbar-track { 
-          background: linear-gradient(180deg, #F5F5F5, #FAFAFA); 
+          background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
           border-radius: 6px; 
         }
         .dashboard-scroll::-webkit-scrollbar-thumb { 
-          background: linear-gradient(180deg, #6366F1, #4338CA); 
+          background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
           border-radius: 6px; 
-          border: 2px solid #F5F5F5;
+          border: 2px solid #F8F8F8;
         }
         .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-          background: linear-gradient(180deg, #A855F7, #7E22CE);
-          border-color: #FAFAFA;
+          background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
+          border-color: #F0F0F0;
         }
 
         /* Glassmorphic professional table */

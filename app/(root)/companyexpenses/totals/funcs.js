@@ -1,59 +1,169 @@
 import { NumericFormat } from "react-number-format";
 import dateFormat from "dateformat";
 
-
 export const expensesToolTip = (row, expensesData, settings, filt) => {
+  let filteredArr =
+    filt === "reduced"
+      ? expensesData.filter((z) => z.paid === "222")
+      : expensesData;
+  filteredArr = filteredArr.filter(
+    (z) => z.supplier === row.original.supplier && z.cur === row.original.cur
+  );
 
-    let filteredArr = filt === 'reduced' ? expensesData.filter(z => z.paid === '222') : expensesData;
-    filteredArr = filteredArr.filter(z => (z.supplier === row.original.supplier && z.cur === row.original.cur))
-
-    return (
-
-        <div className="bg-[var(--selago)] max-h-[32rem] overflow-y-auto w-fit rounded-lg">
-            <table>
-                <thead>
-                    <tr className="border border-[var(--rock-blue)] p-2 bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)]">
-                        <th className="text-left p-2 text-white">PO#</th>
-                        {/* <th className="text-left p-2">Supplier</th> */}
-                        <th className="text-left p-2 text-white">Expense Invoice</th>
-                        <th className="text-left p-2 text-white">Expense Type</th>
-                        <th className="text-left p-2 text-white">Amount</th>
-                        <th className="text-left p-2 text-white">Date</th>
-                        <th className="text-left p-2 text-white">Payment</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredArr.map((z, i) => {
-                        return (
-                            <tr className="border border-[var(--rock-blue)]/50 p-2 hover:bg-[var(--rock-blue)]/30" key={i}>
-                                <td className="text-left p-2">{z.poSupplier?.order ?? 'Comp. Exp.'}</td>
-                                {/* <td className="text-left p-2">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td> */}
-                                <td className="text-left p-2" >{z.expense}</td>
-                                <td className="text-left p-2" >{settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType}</td>
-                                <td className="text-left p-2">{
-                                    <NumericFormat
-                                        value={z.amount}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        prefix={z.cur === 'us' ? '$' : '€'}
-                                        decimalScale='3'
-                                        fixedDecimalScale
-                                        className='text-[0.8rem]'
-                                    />
-                                }</td>
-                                <td className="text-left p-2">
-                                    {dateFormat(z.date, 'dd-mmm-yy')}
-                                </td>
-                                <td className="text-left p-2">
-                                    {z.paid === '111' ? 'Paid' : 'Unpaid'}
-                                </td>
-                            </tr>
-                        )
-                    })}
-
-                </tbody>
-            </table>
-        </div>
-    )
-}
+  return (
+    <div
+      className="max-h-[32rem] overflow-y-auto w-fit rounded-lg custom-tooltip-table"
+      style={{
+        background: "#f6f9ff",
+        border: "1px solid #e0e0e0",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        fontFamily:
+          "'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+        fontSize: "10px",
+        transitionProperty:
+          "color, background-color, border-color, box-shadow",
+        transitionDuration: "150ms",
+        transitionTimingFunction: "ease-in-out",
+      }}
+    >
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr
+            style={{
+              background: "#eaf4ff",
+              borderBottom: "1px solid #e0e0e0",
+            }}
+          >
+            <th
+              style={{
+                textAlign: "left",
+                padding: "8px",
+                color: "#183d79",
+                fontWeight: 600,
+                fontSize: "clamp(10px, 1vw, 13px)",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
+              PO#
+            </th>
+            <th
+              style={{
+                textAlign: "left",
+                padding: "8px",
+                color: "#183d79",
+                fontWeight: 600,
+                fontSize: "clamp(10px, 1vw, 13px)",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
+              Expense Invoice
+            </th>
+            <th
+              style={{
+                textAlign: "left",
+                padding: "8px",
+                color: "#183d79",
+                fontWeight: 600,
+                fontSize: "clamp(10px, 1vw, 13px)",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
+              Expense Type
+            </th>
+            <th
+              style={{
+                textAlign: "left",
+                padding: "8px",
+                color: "#183d79",
+                fontWeight: 600,
+                fontSize: "clamp(10px, 1vw, 13px)",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
+              Amount
+            </th>
+            <th
+              style={{
+                textAlign: "left",
+                padding: "8px",
+                color: "#183d79",
+                fontWeight: 600,
+                fontSize: "clamp(10px, 1vw, 13px)",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
+              Date
+            </th>
+            <th
+              style={{
+                textAlign: "left",
+                padding: "8px",
+                color: "#183d79",
+                fontWeight: 600,
+                fontSize: "clamp(10px, 1vw, 13px)",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
+              Payment
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredArr.map((z, i) => {
+            return (
+              <tr
+                key={i}
+                style={{
+                  borderBottom: "1px solid #e0e0e0",
+                  background: i % 2 === 0 ? "#fff" : "#f9f9f9",
+                  transition: "background-color 150ms ease-in-out",
+                }}
+              >
+                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937" }}>
+                  {z.poSupplier?.order ?? "Comp. Exp."}
+                </td>
+                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937" }}>
+                  {z.expense}
+                </td>
+                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937" }}>
+                  {settings.Expenses.Expenses.find((q) => q.id === z.expType)?.expType}
+                </td>
+                <td
+                  style={{
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "#183d79",
+                    fontWeight: 500,
+                  }}
+                >
+                  <NumericFormat
+                    value={z.amount}
+                    displayType="text"
+                    thousandSeparator
+                    allowNegative={true}
+                    prefix={z.cur === "us" ? "$" : "€"}
+                    decimalScale={3}
+                    fixedDecimalScale
+                    className="text-[0.8rem]"
+                  />
+                </td>
+                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937" }}>
+                  {dateFormat(z.date, "dd-mmm-yy")}
+                </td>
+                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937" }}>
+                  {z.paid === "111" ? "Paid" : "Unpaid"}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+};

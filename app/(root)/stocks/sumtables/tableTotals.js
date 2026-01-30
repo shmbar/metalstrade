@@ -66,7 +66,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
           if (index === 0) {
             return (
               <td key={`${currency}-${index}`} className="px-2 py-2 md:px-3 md:py-2">
-                <span className="text-[0.7rem] md:text-[0.75rem] font-medium text-white uppercase whitespace-nowrap">
+                <span className="text-[0.7rem] md:text-[0.75rem] font-medium text-[#1F2937] uppercase whitespace-nowrap">
                   {config.label}
                 </span>
               </td>
@@ -74,13 +74,13 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
           } else if (index === 1) {
             return (
               <td key={`${currency}-${index}`} className="px-2 py-2 md:px-3 md:py-2">
-                <span className="text-[0.7rem] md:text-[0.75rem] font-medium text-white uppercase" />
+                <span className="text-[0.7rem] md:text-[0.75rem] font-medium text-[#1F2937] uppercase" />
               </td>
             )
           } else if (index === 2) {
             return (
               <td key={`${currency}-${index}`} className="px-2 py-2 md:px-3 md:py-2 text-left">
-                <span className="text-[0.7rem] md:text-[0.75rem] font-medium text-white uppercase whitespace-nowrap">
+                <span className="text-[0.7rem] md:text-[0.75rem] font-medium text-[#1F2937] uppercase whitespace-nowrap">
                   {formatNumber(quantity)}
                 </span>
               </td>
@@ -88,7 +88,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
           } else if (index === 3) {
             return (
               <td key={`${currency}-${index}`} className="px-2 py-2 md:px-3 md:py-2 text-right">
-                <span className="text-[0.7rem] md:text-[0.75rem] font-medium text-white uppercase whitespace-nowrap">
+                <span className="text-[0.7rem] md:text-[0.75rem] font-medium text-[#1F2937] uppercase whitespace-nowrap">
                   {formatCurrency(total, config.code)}
                 </span>
               </td>
@@ -101,93 +101,129 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
   }, [totals, columns, formatNumber, formatCurrency])
 
   return (
-    <div className="flex flex-col relative w-full">
-      <div className="overflow-x-auto border-x border-[var(--selago)]">
-        <table className="w-full min-w-0 table-auto">
-          <thead className="bg-[var(--rock-blue)]/50 divide-y divide-[var(--selago)]">
-            {table.getHeaderGroups().map(hdGroup => (
-              <tr key={hdGroup.id} className='border-b border-[var(--selako)]'>
-                {hdGroup.headers.map((header, idx) => (
-                  <th 
-                    key={header.id} 
-                    className={`relative px-2 py-2 md:px-3 md:py-2 ${
-                        idx === 3 ? 'text-right' : 'text-left'
-                      } text-sm font-semibold text-white uppercase bg-[var(--endeavour)] ${
-                        idx === 0 ? 'w-[18%]' : idx === 1 ? 'w-[12%]' : idx === 2 ? 'w-[20%]' : 'w-[20%]'
-                      }`}
-                  >
-                    {header.column.getCanSort() ? (
-                      <div 
-                        onClick={header.column.getToggleSortingHandler()} 
-                        className={`text-[10px] md:text-xs flex cursor-pointer items-center gap-1 hover:opacity-80 transition-opacity ${
-                          idx === 3 ? 'justify-end' : 'justify-start'
-                        }`}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={`Sort by ${header.column.columnDef.header}`}
-                      >
-                        <span className="truncate max-w-[150px] block">
-                          {header.column.columnDef.header}
-                        </span>
-                        {header.column.getIsSorted() === 'asc' && (
-                          <TbSortAscending className="text-white scale-110 md:scale-125" />
-                        )}
-                        {header.column.getIsSorted() === 'desc' && (
-                          <TbSortDescending className="text-white scale-110 md:scale-125" />
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-[10px] md:text-xs truncate max-w-[150px] block">
-                        {header.column.columnDef.header}
-                      </span>
-                    )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody className="divide-y divide-[var(--selago)]">
-            {table.getRowModel().rows.length > 0 ? (
-              table.getRowModel().rows.map(row => (
-                <tr 
-                  key={row.id} 
-                  className='cursor-pointer hover:bg-[var(--selago)]/30 transition-colors'
-                >
-                  {row.getVisibleCells().map((cell, idx) => (
-                    <td 
-                      key={cell.id} 
-                      data-label={cell.column.columnDef.header} 
-                      className={`table_cell text-xs px-2 md:px-3 py-1.5 md:py-2 ${
-                        idx === 3 ? 'text-right' : 'text-left'
-                      } max-w-[160px]`}
+    <div className="w-full">
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+        .glass-table {
+          background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(250,250,250,0.90) 50%, rgba(255,255,255,0.85) 100%);
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+        }
+        .custom-table, .custom-table *, .glass-table, .glass-table * {
+          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-size: 10px !important;
+          transition-property: color, background-color, border-color, box-shadow !important;
+          transition-duration: 150ms !important;
+          transition-timing-function: ease-in-out !important;
+        }
+        .custom-table th, .custom-table td {
+          border: 1px solid #ccc;
+          background-color: #f9f9f9;
+          text-align: center;
+          vertical-align: middle;
+          padding: 6px;
+          border-radius: 4px;
+        }
+        .custom-table th {
+          background-color: #d4eafc;
+        }
+        .custom-table td {
+          background-color: #fff;
+          border: 1px solid #e0e0e0;
+        }
+        .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+        .dashboard-scroll::-webkit-scrollbar-track { background: linear-gradient(180deg, #F5F5F5, #FAFAFA); border-radius: 6px; }
+        .dashboard-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #6366F1, #4338CA); border-radius: 6px; border: 2px solid #F5F5F5; }
+        .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #A855F7, #7E22CE); border-color: #FAFAFA; }
+      `}</style>
+      <div className="glass-table rounded-2xl shadow-lg border border-[#e0e0e0]">
+        <div className="overflow-x-auto dashboard-scroll" style={{ borderLeft: '8px solid #1D3D79', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
+          <table className="custom-table w-full" style={{ tableLayout: 'auto' }}>
+            <thead className="sticky top-0 z-10">
+              {table.getHeaderGroups().map(hdGroup => (
+                <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
+                  {hdGroup.headers.map((header, idx) => (
+                    <th
+                      key={header.id}
+                      className="px-2 py-2 uppercase text-center"
+                      style={{
+                        color: '#183d79',
+                        minWidth: '60px',
+                        fontSize: 'clamp(10px, 1.0vw, 13px)',
+                        letterSpacing: '0.05em',
+                        textAlign: 'center',
+                      }}
                     >
-                      <Tltip 
-                        direction='right' 
-                        tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}
-                      >
-                        <span className="inline-block max-w-[140px] truncate">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </span>
-                      </Tltip>
-                    </td>
+                      {header.column.getCanSort() ? (
+                        <div
+                          onClick={header.column.getToggleSortingHandler()}
+                          className="text-xs flex cursor-pointer items-center gap-1 justify-center"
+                        >
+                          {header.column.columnDef.header}
+                          {header.column.getIsSorted() === 'asc' && (
+                            <TbSortAscending className="text-[#6366F1] scale-110 md:scale-125" />
+                          )}
+                          {header.column.getIsSorted() === 'desc' && (
+                            <TbSortDescending className="text-[#6366F1] scale-110 md:scale-125" />
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs">{header.column.columnDef.header}</span>
+                      )}
+                    </th>
                   ))}
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td 
-                  colSpan={columns.length} 
-                  className="text-center py-8 text-gray-500"
-                >
-                  No data available
-                </td>
-              </tr>
-            )}
-          </tbody>
-          <tfoot>
-            {Object.keys(CURRENCIES).map(currency => renderTotalRow(currency))}
-          </tfoot>
-        </table>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.length > 0 ? (
+                table.getRowModel().rows.map(row => (
+                  <tr
+                    key={row.id}
+                    className="cursor-pointer transition-colors"
+                  >
+                    {row.getVisibleCells().map((cell, idx) => (
+                      <td
+                        key={cell.id}
+                        data-label={cell.column.columnDef.header}
+                        className="px-2 py-2 text-center"
+                        style={{
+                          color: '#1F2937',
+                          fontSize: 'clamp(11px, 1.0vw, 13px)',
+                          fontWeight: '400',
+                          zIndex: 1,
+                          willChange: 'background-color, color',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <Tltip
+                          direction='right'
+                          tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}
+                        >
+                          <span className="text-[11px] items-center flex w-full justify-center outline-none truncate cursor-default">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </span>
+                        </Tltip>
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={columns.length}
+                    className="text-center py-8 text-gray-500"
+                  >
+                    No data available
+                  </td>
+                </tr>
+              )}
+            </tbody>
+            <tfoot>
+              {Object.keys(CURRENCIES).map(currency => renderTotalRow(currency))}
+            </tfoot>
+          </table>
+        </div>
       </div>
     </div>
   )

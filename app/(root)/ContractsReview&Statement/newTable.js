@@ -1,13 +1,9 @@
-
 'use client'
-
-// Fade-in animation for badges
 if (typeof window !== 'undefined') {
   const style = document.createElement('style');
   style.innerHTML = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`;
   document.head.appendChild(style);
 }
-
 import Header from "../../../components/table/header";
 import {
   flexRender,
@@ -16,9 +12,8 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable
-} from "@tanstack/react-table"
-
-import { Fragment, useEffect, useMemo, useState } from "react"
+} from "@tanstack/react-table";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { TbSortDescending, TbSortAscending } from "react-icons/tb";
 
 import { Paginator } from "../../../components/table/Paginator";
@@ -144,17 +139,17 @@ const Customtable = ({
         /* Professional gradient scrollbar matching cards */
         .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
         .dashboard-scroll::-webkit-scrollbar-track { 
-          background: linear-gradient(180deg, #F5F5F5, #FAFAFA); 
+          background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
           border-radius: 6px; 
         }
         .dashboard-scroll::-webkit-scrollbar-thumb { 
-          background: linear-gradient(180deg, #6366F1, #4338CA); 
+          background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
           border-radius: 6px; 
-          border: 2px solid #F5F5F5;
+          border: 2px solid #F8F8F8;
         }
         .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-          background: linear-gradient(180deg, #A855F7, #7E22CE);
-          border-color: #FAFAFA;
+          background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
+          border-color: #F0F0F0;
         }
 
         /* Glassmorphic professional table */
@@ -251,22 +246,7 @@ const Customtable = ({
                               textAlign: 'center',
                             }}
                           >
-                            {header.column.getCanSort() ? (
-                              <div
-                                onClick={header.column.getToggleSortingHandler()}
-                                className="flex items-center gap-2 cursor-pointer select-none transition-colors hover:opacity-90"
-                              >
-                                <span className="truncate">{header.column.columnDef.header}</span>
-                                <span className="flex-shrink-0">
-                                  {{
-                                    asc: <TbSortAscending className="w-4 h-4" />,
-                                    desc: <TbSortDescending className="w-4 h-4" />
-                                  }[header.column.getIsSorted()]}
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="truncate block">{header.column.columnDef.header}</span>
-                            )}
+                            {flexRender(header.column.columnDef.header, header.getContext())}
                           </th>
                         ))}
                       </tr>

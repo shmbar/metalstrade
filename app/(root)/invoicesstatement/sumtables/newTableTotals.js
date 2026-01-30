@@ -40,30 +40,53 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
     const eurTotals = calculateTotals("eur")
 
     return (
-        <div className={`flex flex-col relative w-full ${pathname === '/stocks' ? 'max-w-[700px]' : 'max-w-[520px]'}`}>
-            <style jsx global>{`
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-                .custom-table-totals, .custom-table-totals * {
-                  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-                  font-size: 10px !important;
-                  transition-property: color, background-color, border-color, box-shadow !important;
-                  transition-duration: 150ms !important;
-                  transition-timing-function: ease-in-out !important;
-                }
-            `}</style>
-            <div className="custom-table-totals bg-white rounded-xl shadow border overflow-hidden">
-                <div className="px-4 py-2.5 bg-gradient-to-r from-[#d4eafc] to-[#bce1fe]">
-                    <p className="text-[#183d79] font-semibold uppercase" style={{ fontSize: 'clamp(10px, 1vw, 13px)', letterSpacing: '0.05em' }}>{getTtl(ttl, ln)}</p>
-                </div>
-
+        <div className="custom-table-totals bg-white rounded-xl shadow border overflow-hidden"
+            style={{
+                borderColor: '#e0e0e0',
+                borderWidth: 1,
+                borderRadius: '16px', // more rounded overall
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+            }}>
+            <div className="px-4 py-2.5"
+                style={{
+                    // background: '#eaf4ff',
+                    // borderBottom: '1px solid #e0e0e0',
+                    borderTopLeftRadius: '16px', // more rounded
+                    borderTopRightRadius: '12px'
+                }}>
+                <p className="text-[#183d79] font-semibold uppercase"
+                    style={{
+                        fontSize: 'clamp(12px, 1vw, 15px)',
+                        letterSpacing: '0.05em'
+                    }}>
+                    {getTtl(ttl, ln)}
+                </p>
+            </div>
+            <div style={{
+                borderLeft: '8px solid #1D3D79',
+                borderTopLeftRadius: '32px',    // << more rounded left top
+                borderBottomLeftRadius: '32px', // << more rounded left bottom
+                borderTopRightRadius: '0px',
+                borderBottomRightRadius: '0px',
+                overflow: 'hidden'
+            }}>
                 {/* Desktop View */}
                 <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="divide-y">
+                    <table className="w-full" style={{ borderCollapse: 'collapse' }}>
+                        <thead>
                             {table1.getHeaderGroups().map(hdGroup =>
-                                <tr key={hdGroup.id} className='border-b'>
+                                <tr key={hdGroup.id} style={{ borderBottom: '1px solid #e0e0e0' }}>
                                     {hdGroup.headers.map(header =>
-                                        <th key={header.id} className="relative px-6 py-2 text-left font-medium uppercase" style={{ fontSize: 'clamp(10px, 1vw, 13px)', color: '#183d79', letterSpacing: '0.05em', background: 'linear-gradient(90deg, #d4eafc 0%, #bce1fe 100%)' }}>
+                                        <th key={header.id}
+                                            className="relative px-6 py-2 text-left font-medium uppercase"
+                                            style={{
+                                                fontSize: 'clamp(10px, 1vw, 13px)',
+                                                color: '#183d79',
+                                                letterSpacing: '0.05em',
+                                                background: '#d4eafc',
+                                                borderRight: '1px solid #e0e0e0',
+                                                borderBottom: '1px solid #e0e0e0'
+                                            }}>
                                             {header.column.getCanSort() ?
                                                 <div onClick={header.column.getToggleSortingHandler()} className="flex cursor-pointer items-center gap-1">
                                                     {header.column.columnDef.header}
@@ -83,9 +106,18 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         </thead>
                         <tbody>
                             {table1.getRowModel().rows.map(row => (
-                                <tr key={row.id} className='hover:bg-[#f9f9f9] transition'>
+                                <tr key={row.id} style={{ borderBottom: '1px solid #e0e0e0' }} className='hover:bg-[#f9f9f9] transition'>
                                     {row.getVisibleCells().map(cell => (
-                                        <td key={cell.id} data-label={cell.column.columnDef.header} className="px-6 py-2 items-center" style={{ fontSize: 'clamp(10px, 1vw, 13px)', color: cell.column.id === 'amount' ? '#183d79' : '#1F2937', fontWeight: cell.column.id === 'amount' ? 500 : 400, textAlign: cell.column.id === 'amount' ? 'right' : 'left' }}>
+                                        <td key={cell.id} data-label={cell.column.columnDef.header}
+                                            className="px-6 py-2 items-center"
+                                            style={{
+                                                fontSize: 'clamp(10px, 1vw, 13px)',
+                                                color: cell.column.id === 'amount' ? '#183d79' : '#1F2937',
+                                                fontWeight: cell.column.id === 'amount' ? 500 : 400,
+                                                textAlign: cell.column.id === 'amount' ? 'right' : 'left',
+                                                borderRight: '1px solid #e0e0e0',
+                                                borderBottom: '1px solid #e0e0e0'
+                                            }}>
                                             <Tltip direction='right' tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}>
                                                 <span>
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -97,51 +129,100 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                             ))}
                         </tbody>
                         <tfoot>
-                            <tr className="border-t" style={{ background: '#f9f9f9' }}>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase" style={{ color: '#183d79', fontSize: 'clamp(10px, 1vw, 13px)' }}>
+                            <tr style={{
+                                background: '#eaf4ff', // match header
+                                fontWeight: 600
+                            }}>
+                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                    style={{
+                                    color: '#183d79',
+                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                    borderRight: '1px solid #e0e0e0'
+                                    }}>
                                     Total $
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase" style={{ color: '#183d79', fontSize: 'clamp(10px, 1vw, 13px)' }}>
+                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                    style={{
+                                    color: '#183d79',
+                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                    borderRight: '1px solid #e0e0e0'
+                                    }}>
                                     {showAmount(usdTotals.invoices, 'usd')}
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase" style={{ color: '#183d79', fontSize: 'clamp(10px, 1vw, 13px)' }}>
+                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                    style={{
+                                    color: '#183d79',
+                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                    borderRight: '1px solid #e0e0e0'
+                                    }}>
                                     {showAmount(usdTotals.payments, 'usd')}
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase" style={{ color: '#183d79', fontSize: 'clamp(10px, 1vw, 13px)' }}>
+                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                    style={{
+                                    color: '#183d79',
+                                    fontSize: 'clamp(10px, 1vw, 13px)'
+                                    }}>
                                     {showAmount(usdTotals.balance, 'usd')}
                                 </th>
                             </tr>
-                            <tr className="border-t" style={{ background: '#f9f9f9' }}>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase" style={{ color: '#183d79', fontSize: 'clamp(10px, 1vw, 13px)' }}>
+                            <tr style={{
+                                background: '#f9f9f9', borderTop: '1px solid #e0e0e0', borderBottom: '1px solid #e0e0e0'
+                            }}>
+                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                    style={{
+                                    color: '#183d79',
+                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                    borderRight: '1px solid #e0e0e0'
+                                    }}>
                                     Total €
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase" style={{ color: '#183d79', fontSize: 'clamp(10px, 1vw, 13px)' }}>
+                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                    style={{
+                                    color: '#183d79',
+                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                    borderRight: '1px solid #e0e0e0'
+                                    }}>
                                     {showAmount(eurTotals.invoices, 'eur')}
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase" style={{ color: '#183d79', fontSize: 'clamp(10px, 1vw, 13px)' }}>
+                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                    style={{
+                                    color: '#183d79',
+                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                    borderRight: '1px solid #e0e0e0'
+                                    }}>
                                     {showAmount(eurTotals.payments, 'eur')}
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase" style={{ color: '#183d79', fontSize: 'clamp(10px, 1vw, 13px)' }}>
+                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                    style={{
+                                    color: '#183d79',
+                                    fontSize: 'clamp(10px, 1vw, 13px)'
+                                    }}>
                                     {showAmount(eurTotals.balance, 'eur')}
                                 </th>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
-
                 {/* Mobile View - Card Layout */}
                 <div className="md:hidden">
-                    <div className="divide-y">
+                    <div className="divide-y" style={{ borderColor: '#e0e0e0' }}>
                         {table1.getRowModel().rows.map(row => (
-                            <div key={row.id} className="p-4 bg-white hover:bg-[#f9f9f9] transition-colors">
+                            <div key={row.id} className="p-4 bg-white hover:bg-[#f9f9f9] transition-colors" style={{ borderBottom: '1px solid #e0e0e0' }}>
                                 <Tltip direction='top' tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}>
                                     <div className="space-y-2.5">
                                         {row.getVisibleCells().map((cell) => (
                                             <div key={cell.id} className="flex justify-between items-start gap-4">
-                                                <span className="uppercase tracking-wide flex-shrink-0 min-w-[100px]" style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 600, color: '#183d79', letterSpacing: '0.05em' }}>
+                                                <span className="uppercase tracking-wide flex-shrink-0 min-w-[100px]"
+                                                    style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 600, color: '#183d79', letterSpacing: '0.05em' }}>
                                                     {cell.column.columnDef.header}
                                                 </span>
-                                                <span style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: cell.column.id === 'amount' ? 500 : 400, color: cell.column.id === 'amount' ? '#183d79' : '#1F2937', textAlign: cell.column.id === 'amount' ? 'right' : 'left', wordBreak: 'break-word' }}>
+                                                <span style={{
+                                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                                    fontWeight: cell.column.id === 'amount' ? 500 : 400,
+                                                    color: cell.column.id === 'amount' ? '#183d79' : '#1F2937',
+                                                    textAlign: cell.column.id === 'amount' ? 'right' : 'left',
+                                                    wordBreak: 'break-word'
+                                                }}>
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                 </span>
                                             </div>
@@ -151,14 +232,14 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                             </div>
                         ))}
                     </div>
-
                     {/* Mobile Total Sections */}
-                    <div className="border-t-2" style={{ background: '#f9f9f9' }}>
+                    <div className="border-t-2" style={{ background: '#f9f9f9', borderTop: '2px solid #e0e0e0' }}>
                         {/* USD Totals */}
-                        <div className="p-4 border-b">
+                        <div className="p-4 border-b" style={{ borderBottom: '1px solid #e0e0e0' }}>
                             <div className="space-y-2.5">
-                                <div className="pb-2 mb-2 border-b" style={{ borderColor: '#183d79', opacity: 0.2 }}>
-                                    <span className="uppercase tracking-wide" style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 700, color: '#183d79' }}>
+                                <div className="pb-2 mb-2 border-b" style={{ borderColor: '#e0e0e0', background: '#d4eafc' }}>
+                                    <span className="uppercase tracking-wide"
+                                        style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 700, color: '#183d79' }}>
                                         Total $ (USD)
                                     </span>
                                 </div>
@@ -188,12 +269,12 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                 </div>
                             </div>
                         </div>
-
                         {/* EUR Totals */}
-                        <div className="p-4">
+                        <div className="p-4" style={{ borderBottom: '1px solid #e0e0e0' }}>
                             <div className="space-y-2.5">
-                                <div className="pb-2 mb-2 border-b" style={{ borderColor: '#183d79', opacity: 0.2 }}>
-                                    <span className="uppercase tracking-wide" style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 700, color: '#183d79' }}>
+                                <div className="pb-2 mb-2 border-b" style={{ borderColor: '#e0e0e0', background: '#d4eafc' }}>
+                                    <span className="uppercase tracking-wide"
+                                        style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 700, color: '#183d79' }}>
                                         Total € (EUR)
                                     </span>
                                 </div>

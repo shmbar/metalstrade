@@ -2,37 +2,20 @@
 
 import Header from "../../../components/table/header";
 import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
-import { useMemo, useState } from "react"
-import { TbSortDescending } from "react-icons/tb";
-import { TbSortAscending } from "react-icons/tb";
-
-import { Paginator } from "../../../components/table/Paginator";
-import RowsIndicator from "../../../components/table/RowsIndicator";
-import '../contracts/style.css';
-import { useContext } from 'react';
+import { useMemo, useState, useContext } from "react"
+import { MdDeleteOutline } from "react-icons/md";
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { usePathname } from "next/navigation";
 import { getTtl } from "../../../utils/languages";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "../../..//components/ui/tooltip"
-import Tltip from "../../../components/tlTip";
 import { Filter } from "../../../components/table/filters/filterFunc";
-import { MdDeleteOutline } from "react-icons/md";
 
 const Customtable = ({ data, columns }) => {
-
     const [globalFilter, setGlobalFilter] = useState('')
     const [filterOn, setFilterOn] = useState(false)
-
     const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 500, })
     const pagination = useMemo(() => ({ pageIndex, pageSize, }), [pageIndex, pageSize])
     const pathName = usePathname()
     const { ln } = useContext(SettingsContext);
-
     const [columnFilters, setColumnFilters] = useState([])
 
     const table = useReactTable({
@@ -52,45 +35,110 @@ const Customtable = ({ data, columns }) => {
         onPaginationChange: setPagination,
     })
 
+    // Fade-in animation for badges (as in contracts table)
+    if (typeof window !== 'undefined') {
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`;
+        document.head.appendChild(style);
+    }
+
     return (
-        <div className="flex flex-col relative pt-7">
-            <div>
-                <div className="overflow-x-auto rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-white md:max-h-[310px] 2xl:max-h-[550px]">
-                    <table className="table-cell-uniform w-full min-w-[600px] sm:table hidden border-collapse">
-                        <thead className="md:sticky md:top-0 md:z-10">
+        <div className="w-full">
+            <style jsx global>{`
+                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+                .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+                .dashboard-scroll::-webkit-scrollbar-track { 
+                  background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
+                  border-radius: 6px; 
+                }
+                .dashboard-scroll::-webkit-scrollbar-thumb { 
+                  background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
+                  border-radius: 6px; 
+                  border: 2px solid #F8F8F8;
+                }
+                .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
+                  background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
+                  border-color: #F0F0F0;
+                }
+                .glass-table {
+                  background: linear-gradient(135deg, 
+                    rgba(255, 255, 255, 0.85) 0%, 
+                    rgba(250, 250, 250, 0.90) 50%,
+                    rgba(255, 255, 255, 0.85) 100%
+                  );
+                  backdrop-filter: blur(16px) saturate(180%);
+                  -webkit-backdrop-filter: blur(16px) saturate(180%);
+                }
+                .custom-table, .custom-table *, .glass-table, .glass-table * {
+                  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+                  font-size: 10px !important;
+                  transition-property: color, background-color, border-color, box-shadow !important;
+                  transition-duration: 150ms !important;
+                  transition-timing-function: ease-in-out !important;
+                }
+                .custom-table th, .custom-table td {
+                  border: 1px solid #ccc;
+                  background-color: #f9f9f9;
+                  text-align: center;
+                  vertical-align: middle;
+                  padding: 6px;
+                  border-radius: 4px;
+                }
+                .custom-table th {
+                  background-color: #d4eafc;
+                }
+                .custom-table td {
+                  background-color: #fff;
+                  border: 1px solid #e0e0e0;
+                }
+            `}</style>
+            <div className="custom-table">
+                <div className="overflow-auto dashboard-scroll rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-white md:max-h-[310px] 2xl:max-h-[550px]">
+                    <table className="w-full min-w-[600px] hidden sm:table" style={{ tableLayout: 'auto' }}>
+                        <thead className="sticky top-0 z-10">
                             {table.getHeaderGroups().map(hdGroup => (
-                                <tr key={hdGroup.id} className="bg-[#2563eb]">
-                                    {hdGroup.headers.map((header, idx) => {
-                                        const isFirst = idx === 0
-                                        const isLast = idx === hdGroup.headers.length - 1
-                                        return (
-                                            <th
-                                                key={header.id}
-                                                className={`relative px-3 py-3 text-white text-[13px] font-semibold text-center whitespace-nowrap ${header.id === 'material' ? 'min-w-[120px] max-w-[200px] text-left' : 'min-w-[80px] max-w-[90px]'}
-                                                ${isFirst ? 'rounded-tl-xl' : ''}
-                                                ${isLast ? 'rounded-tr-xl' : ''}
-                                                `}
-                                                scope="col"
-                                            >
-                                                {header.column.columnDef.header}
-                                            </th>
-                                        )
-                                    })}
+                                <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                                    {hdGroup.headers.map((header, idx) => (
+                                        <th
+                                            key={header.id}
+                                            className={`px-2 py-2 uppercase ${header.id === 'material' ? 'text-left' : 'text-center'}`}
+                                            style={{
+                                                color: '#183d79',
+                                                minWidth: header.id === 'material' ? '120px' : '60px',
+                                                maxWidth: header.id === 'material' ? '200px' : '90px',
+                                                fontSize: 'clamp(10px, 1.0vw, 13px)',
+                                                letterSpacing: '0.05em',
+                                                textAlign: header.id === 'material' ? 'left' : 'center',
+                                            }}
+                                            scope="col"
+                                        >
+                                            {header.column.columnDef.header}
+                                        </th>
+                                    ))}
                                 </tr>
                             ))}
                         </thead>
-                        <tbody className="bg-white">
+                        <tbody>
                             {table.getRowModel().rows.map((row, rowIdx) => (
-                                <tr key={row.id} className={`cursor-pointer hover:bg-[#f8fafb] transition-colors duration-100 ${rowIdx !== table.getRowModel().rows.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                                <tr key={row.id} className="cursor-pointer">
                                     {row.getVisibleCells().map(cell => (
                                         <td
                                             key={cell.id}
                                             data-label={cell.column.columnDef.header}
-                                            className={`px-3 py-2.5  text-[13px] text-center ${cell.column.id === 'material' ? 'min-w-[120px] max-w-[200px] text-left' : 'min-w-[80px] max-w-[90px]'} bg-white`}
+                                            className="px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect"
+                                            style={{
+                                                color: '#1F2937',
+                                                minWidth: cell.column.id === 'material' ? '120px' : '60px',
+                                                maxWidth: cell.column.id === 'material' ? '200px' : '90px',
+                                                fontSize: 'clamp(11px, 1.0vw, 13px)',
+                                                fontWeight: '400',
+                                                zIndex: 1,
+                                                willChange: 'background-color, color',
+                                            }}
                                         >
                                             {cell.column.id !== 'del' ? (
                                                 <div
-                                                    className={`text-gray-700 px-2 py-1.5 bg-[#ECF3FC] rounded-lg shadow-md font-normal items-center text-[13px] flex ${cell.column.id === 'material' ? 'justify-start' : 'justify-center'} w-full min-w-0`}
+                                                    className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
                                                 >
                                                     {cell.column.id !== 'material'
                                                         ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(cell.getContext().getValue())
@@ -115,27 +163,66 @@ const Customtable = ({ data, columns }) => {
                     
                     {/* Mobile stacked table */}
                     <div className="sm:hidden flex flex-col gap-4 p-4">
-                        {table.getRowModel().rows.map(row => (
-                            <div key={row.id} className="rounded-xl border border-gray-200 bg-white shadow-md overflow-hidden">
-                                {row.getVisibleCells().map(cell => (
-                                    <div key={cell.id} className="flex justify-between items-center py-3 px-4 border-b last:border-b-0 border-gray-100">
-                                        <span className="font-semibold text-sm text-gray-700">{cell.column.columnDef.header}</span>
-                                        <span className="text-sm font-normal text-right break-all text-gray-700">
-                                            {cell.column.id !== 'del'
-                                                ? (cell.column.id !== 'material'
-                                                    ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(cell.getContext().getValue())
-                                                    : cell.getContext().getValue())
-                                                : (
-                                                    <button
-                                                        className="text-gray-300 cursor-pointer hover:text-gray-400 transition-colors"
-                                                        aria-label="Delete material"
-                                                    >
-                                                        <MdDeleteOutline className="w-5 h-5" />
-                                                    </button>
-                                                )}
-                                        </span>
-                                    </div>
-                                ))}
+                        {table.getRowModel().rows.map((row, rowIndex) => (
+                            <div
+                                key={row.id}
+                                className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
+                                style={{
+                                    backgroundColor: '#FFFFFF',
+                                    border: '1px solid #E5E7EB',
+                                }}
+                            >
+                                <div
+                                    className="px-3 py-2 flex items-center justify-between"
+                                    style={{
+                                        background: '#bce1ff',
+                                    }}
+                                >
+                                    <span
+                                        className="font-normal"
+                                        style={{
+                                            fontSize: 'clamp(9px, 0.8vw, 10px)',
+                                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                                        }}
+                                    >
+                                        Row {rowIndex + 1}
+                                    </span>
+                                </div>
+                                <div className="p-4 space-y-2.5">
+                                    {row.getVisibleCells().map((cell) => {
+                                        if (cell.column.id === 'del') return null;
+                                        return (
+                                            <div
+                                                key={cell.id}
+                                                className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
+                                                style={{ borderBottom: '1px solid #E5E7EB' }}
+                                            >
+                                                <div
+                                                    className="uppercase tracking-wider font-normal"
+                                                    style={{
+                                                        color: '#6B7280',
+                                                        fontSize: 'clamp(6px, 0.6vw, 7px)'
+                                                    }}
+                                                >
+                                                    {cell.column.columnDef.header}
+                                                </div>
+                                                <div
+                                                    className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                                                    style={{
+                                                        color: '#1F2937',
+                                                        background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                                                        fontSize: 'clamp(8px, 0.7vw, 10px)',
+                                                        border: '1px solid #E5E7EB'
+                                                    }}
+                                                >
+                                                    {cell.column.id !== 'material'
+                                                        ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(cell.getContext().getValue())
+                                                        : cell.getContext().getValue()}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         ))}
                     </div>

@@ -28,7 +28,7 @@ import Tooltip from '../../../components/tooltip';
 import { MdOutlineArrowForwardIos } from "react-icons/md";
 import { IoIosArrowDown } from "react-icons/io";
 import { Switch } from "../../../components/ui/switch";
-
+import React from "react";
 
 const TotalInvoicePayments = (data, val, mult) => {
     let accumulatedPmnt = 0;
@@ -197,7 +197,6 @@ const ContractsMerged = () => {
             let dt = await loadData(uidCollection, 'contracts', dateSelect);
             setContractsData(dt)
             
-
         }
 
         Object.keys(settings).length !== 0 && Load();
@@ -791,16 +790,50 @@ const ContractsMerged = () => {
     };
 
     const TableModes = () => {
+        // Adjust these values for perfect spacing
+        const knobSize = 18;
+        const trackWidth = 36;
+        const knobOffset = 2;
+        const rightGap = 4; // space from right edge
+
+        // Calculate translateX so knob stops before the right edge
+        const translateX = trackWidth - knobSize - knobOffset - rightGap;
+
         return (
             <div className='flex items-center gap-3'>
-                <span className='text-sm text-[var(--port-gore)] font-medium select-none'>{enabledSwitch ? 'Expanded mode' : 'Table mode'}</span>
-                <Switch
-                    checked={enabledSwitch}
-                    onCheckedChange={(v) => setEnabledSwitch(!!v)}
-                    className={`h-6 w-11 p-0.5 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--endeavour)] ${enabledSwitch ? 'bg-[var(--endeavour)]' : 'bg-white border border-gray-300'}`}
-                />
+                <span className='text-sm text-[var(--port-gore)] font-medium select-none'>
+                    {enabledSwitch ? 'Expanded mode' : 'Table mode'}
+                </span>
+                <button
+                    aria-label={enabledSwitch ? "Switch to Table mode" : "Switch to Expanded mode"}
+                    onClick={() => setEnabledSwitch(!enabledSwitch)}
+                    className="relative w-9 h-5 rounded-full focus:outline-none transition-colors duration-200 border-2 flex items-center"
+                    style={{
+                        background: enabledSwitch ? "#3367AE" : "#a0a0a0",
+                        borderColor: enabledSwitch ? "#3367AE" : "#a0a0a0",
+                        minWidth: trackWidth,
+                        borderWidth: 2,
+                        padding: 0,
+                    }}
+                >
+                    <span
+                        className="absolute"
+                        style={{
+                            top: "50%",
+                            left: `${knobOffset}px`,
+                            width: `${knobSize}px`,
+                            height: `${knobSize}px`,
+                            borderRadius: "50%",
+                            background: "radial-gradient(circle at 60% 40%, #f5f5f5 70%, #e0e0e0 100%)",
+                            boxShadow: "0 2px 6px rgba(0,0,0,0.10)",
+                            transform: `translateY(-50%) ${enabledSwitch ? `translateX(${translateX}px)` : "translateX(0)"}`,
+                            transition: "transform 0.2s",
+                            display: "block",
+                        }}
+                    />
+                </button>
             </div>
-        )
+        );
     }
 
     return (

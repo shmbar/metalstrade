@@ -132,17 +132,17 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
                 .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
                 .dashboard-scroll::-webkit-scrollbar-track { 
-                    background: linear-gradient(180deg, #F5F5F5, #FAFAFA); 
+                    background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
                     border-radius: 6px; 
                 }
                 .dashboard-scroll::-webkit-scrollbar-thumb { 
-                    background: linear-gradient(180deg, #6366F1, #4338CA); 
+                    background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
                     border-radius: 6px; 
-                    border: 2px solid #F5F5F5;
+                    border: 2px solid #F8F8F8;
                 }
                 .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-                    background: linear-gradient(180deg, #A855F7, #7E22CE);
-                    border-color: #FAFAFA;
+                    background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
+                    border-color: #F0F0F0;
                 }
                 .glass-table {
                     background: linear-gradient(135deg, 
@@ -336,7 +336,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                             className="w-12 h-12" 
                                                             style={{ color: '#FFFFFF' }}
                                                             fill="none" 
-                                                        viewBox="0 0 24 24" 
+                                                            viewBox="0 0 24 24" 
                                                             stroke="currentColor"
                                                         >
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

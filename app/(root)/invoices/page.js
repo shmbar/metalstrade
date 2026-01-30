@@ -481,7 +481,7 @@ const Invoices = () => {
 
 							{/* Table Component */}
 							<Customtable 
-								data={sortArr(invoicesData, 'invoice')} 
+								data={sortArr(getFormatted(invoicesData), 'invoice')} 
 								columns={propDefaults} 
 								SelectRow={SelectRow}
 								invisible={invisible}

@@ -2,7 +2,6 @@ import { sortArr } from "../../../../utils/utils"
 import { NumericFormat } from "react-number-format";
 import dateFormat from "dateformat";
 
-
 const sumUpSuppliers = (dt, z, field, cur) => { //dt, z, 'invAmount', 'us'
 
     return dt.filter(s => (s.supplier === z && s.cur === cur)).reduce((total, obj) => {
@@ -34,7 +33,6 @@ const sumUpClientsBlnc = (dt, z, cur) => {
         return total + amnt * 1
     }, 0)
 }
-
 
 //*8**?///////////////////////////////////////////////////
 
@@ -124,142 +122,180 @@ export const sumClients = (dt) => {
 
 
 export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
-    if (rmrk === 'sup') {
+    const containerStyle = {
+        fontFamily: "'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+        fontSize: '9px',
+        background: '#d4eafc', // Single color background
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(99,102,241,0.08)',
+        maxHeight: 'none',
+        overflow: 'visible',
+        padding: '0',
+        minWidth: '400px',
+    };
+    const tableStyle = {
+        width: '100%',
+        tableLayout: 'fixed',
+        borderCollapse: 'collapse',
+        border: '1px solid #e0e0e0',
+        borderRadius: '4px',
+        margin: 0,
+    };
+    const thStyle = {
+        textAlign: 'center',
+        padding: '3px 2px',
+        color: '#183d79',
+        fontWeight: 600,
+        fontSize: '9px',
+        letterSpacing: '0.05em',
+        textTransform: 'uppercase',
+        wordBreak: 'break-word',
+        border: '1px solid #ccc',
+        minWidth: '60px',
+        maxWidth: '120px',
+        background: 'linear-gradient(90deg, #d4eafc, #bce1fe)',
+    };
+    const tdStyle = {
+        textAlign: 'center',
+        padding: '3px 2px',
+        color: '#1F2937',
+        fontWeight: 400,
+        wordBreak: 'break-word',
+        fontSize: '9px',
+        borderBottom: '1px solid #e0e0e0',
+    };
+    const tdAmountStyle = {
+        ...tdStyle,
+        color: '#183d79',
+        fontWeight: 500,
+    };
 
+    if (rmrk === 'sup') {
         let filteredArr = dataTable?.filter(z => (z.supplier === row.original.supplier && (z.cur).toLowerCase() === row.original.cur))
             .filter(z => (z.type === 'exp' && z.invData.paid !== '111') ||
-                (z.type === 'con' && (z.pmntAmount === 0 || z.pmntAmount === '')))
+                (z.type === 'con' && (z.pmntAmount === 0 || z.pmntAmount === '')));
 
         return (
-
-            <div className="bg-[var(--selago)] max-h-[32rem] overflow-y-auto w-fit rounded-lg">
-                <table>
+            <div style={containerStyle}>
+                <table style={tableStyle}>
                     <thead>
-                        <tr className="border border-[var(--rock-blue)] p-2 bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)]">
-                            <th className="text-left p-2 text-white">Supplier Inv</th>
-                            <th className="text-left p-2 text-white">Invoices amount</th>
-                            <th className="text-left p-2 text-white">Prepayment</th>
-                            <th className="text-left p-2 text-white">Balance</th>
+                        <tr>
+                            <th style={thStyle}>Supplier Inv</th>
+                            <th style={thStyle}>Invoices amount</th>
+                            <th style={thStyle}>Prepayment</th>
+                            <th style={thStyle}>Balance</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredArr?.map((z, i) => {
-                            return (
-                                <tr className="border border-[var(--rock-blue)]/50 p-2 hover:bg-[var(--rock-blue)]/30 text-[var(--port-gore)]" key={i}>
-                                    <td className="text-left p-2">{Array.isArray(z.supInvoices) ? z.supInvoices.map((item, index) => {
-                                        return <div key={index}>{item}</div>
-                                    }) : z.supInvoices}</td>
-                                    <td className="text-left p-2">{
-                                        <NumericFormat
-                                            value={z.invAmount}
-                                            displayType="text"
-                                            thousandSeparator
-                                            allowNegative={true}
-                                            prefix={z.cur === 'USD' ? '$' : '€'}
-                                            decimalScale='2'
-                                            fixedDecimalScale
-                                            className='text-[0.8rem]'
-                                        />
-                                    }</td>
-                                    <td className="text-left p-2">
-                                        <NumericFormat
-                                            value={z.pmntAmount === '' ? 0 : z.pmntAmount}
-                                            displayType="text"
-                                            thousandSeparator
-                                            allowNegative={true}
-                                            prefix={z.cur === 'USD' ? '$' : '€'}
-                                            decimalScale={z.pmntAmount === '' || z.pmntAmount === 0 ? 0 : 2}
-                                            fixedDecimalScale
-                                            className='text-[0.8rem]'
-                                        />
-                                    </td>
-                                    <td className="text-left p-2">
-                                        <NumericFormat
-                                            value={z.blnc === '' ? z.invAmount : z.blnc}
-                                            displayType="text"
-                                            thousandSeparator
-                                            allowNegative={true}
-                                            prefix={z.cur === 'USD' ? '$' : '€'}
-                                            decimalScale='2'
-                                            fixedDecimalScale
-                                            className='text-[0.8rem]'
-                                        />
-                                    </td>
-                                </tr>
-                            )
-                        })}
-
+                        {filteredArr?.map((z, i) => (
+                            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#f9f9f9', transition: 'background 150ms ease-in-out' }}>
+                                <td style={tdStyle}>
+                                    {Array.isArray(z.supInvoices) ? z.supInvoices.map((item, index) => (
+                                        <div key={index}>{item}</div>
+                                    )) : z.supInvoices}
+                                </td>
+                                <td style={tdAmountStyle}>
+                                    <NumericFormat
+                                        value={z.invAmount}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix={z.cur === 'USD' ? '$' : '€'}
+                                        decimalScale={2}
+                                        fixedDecimalScale
+                                        style={tdAmountStyle}
+                                    />
+                                </td>
+                                <td style={tdAmountStyle}>
+                                    <NumericFormat
+                                        value={z.pmntAmount === '' ? 0 : z.pmntAmount}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix={z.cur === 'USD' ? '$' : '€'}
+                                        decimalScale={z.pmntAmount === '' || z.pmntAmount === 0 ? 0 : 2}
+                                        fixedDecimalScale
+                                        style={tdAmountStyle}
+                                    />
+                                </td>
+                                <td style={tdAmountStyle}>
+                                    <NumericFormat
+                                        value={z.blnc === '' ? z.invAmount : z.blnc}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix={z.cur === 'USD' ? '$' : '€'}
+                                        decimalScale={2}
+                                        fixedDecimalScale
+                                        style={tdAmountStyle}
+                                    />
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
-        )
+        );
     } else {
-
         let filteredArr = dataTable?.filter(z => (z.client === row.original.client && (z.curInvoice).toLowerCase() === row.original.cur))
-            .filter(x => Math.abs(x.inDebt) >= 0.1)
+            .filter(x => Math.abs(x.inDebt) >= 0.1);
 
         return (
-
-            <div className="bg-[var(--selago)] max-h-[32rem] overflow-y-auto w-fit rounded-lg">
-                <table>
+            <div style={containerStyle}>
+                <table style={tableStyle}>
                     <thead>
-                        <tr className="border border-[var(--rock-blue)] p-2 bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)]">
-                            <th className="text-left p-2 text-white">Invoice</th>
-                            <th className="text-left p-2 text-white">Inv. amount</th>
-                            <th className="text-left p-2 text-white">Payment</th>
-                            <th className="text-left p-2 text-white">Debt</th>
+                        <tr>
+                            <th style={thStyle}>Invoice</th>
+                            <th style={thStyle}>Inv. amount</th>
+                            <th style={thStyle}>Payment</th>
+                            <th style={thStyle}>Debt</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredArr?.map((z, i) => {
-                            return (
-                                <tr className="border border-[var(--rock-blue)]/50 p-2 hover:bg-[var(--rock-blue)]/30 text-[var(--port-gore)]" key={i}>
-                                    <td className="text-left p-2">{z.InvNum}</td>
-                                    <td className="text-left p-2">{
-                                        <NumericFormat
-                                            value={z.totalInvoices}
-                                            displayType="text"
-                                            thousandSeparator
-                                            allowNegative={true}
-                                            prefix={z.cur === 'USD' ? '$' : '€'}
-                                            decimalScale='2'
-                                            fixedDecimalScale
-                                            className='text-[0.8rem]'
-                                        />
-                                    }</td>
-                                    <td className="text-left p-2">
-                                        <NumericFormat
-                                            value={z.totalPmnts}
-                                            displayType="text"
-                                            thousandSeparator
-                                            allowNegative={true}
-                                            prefix={z.cur === 'USD' ? '$' : '€'}
-                                            decimalScale='2'
-                                            fixedDecimalScale
-                                            className='text-[0.8rem]'
-                                        />
-                                    </td>
-                                    <td className="text-left p-2">
-                                        <NumericFormat
-                                            value={z.inDebt}
-                                            displayType="text"
-                                            thousandSeparator
-                                            allowNegative={true}
-                                            prefix={z.cur === 'USD' ? '$' : '€'}
-                                            decimalScale='2'
-                                            fixedDecimalScale
-                                            className='text-[0.8rem]'
-                                        />
-                                    </td>
-                                </tr>
-                            )
-                        })}
-
+                        {filteredArr?.map((z, i) => (
+                            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#f9f9f9', transition: 'background 150ms ease-in-out' }}>
+                                <td style={tdStyle}>{z.InvNum}</td>
+                                <td style={tdAmountStyle}>
+                                    <NumericFormat
+                                        value={z.totalInvoices}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix={z.cur === 'USD' ? '$' : '€'}
+                                        decimalScale={2}
+                                        fixedDecimalScale
+                                        style={tdAmountStyle}
+                                    />
+                                </td>
+                                <td style={tdAmountStyle}>
+                                    <NumericFormat
+                                        value={z.totalPmnts}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix={z.cur === 'USD' ? '$' : '€'}
+                                        decimalScale={2}
+                                        fixedDecimalScale
+                                        style={tdAmountStyle}
+                                    />
+                                </td>
+                                <td style={tdAmountStyle}>
+                                    <NumericFormat
+                                        value={z.inDebt}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix={z.cur === 'USD' ? '$' : '€'}
+                                        decimalScale={2}
+                                        fixedDecimalScale
+                                        style={tdAmountStyle}
+                                    />
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
-        )
+        );
     }
-
-
-}
+};

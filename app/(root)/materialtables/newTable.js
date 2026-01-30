@@ -1,4 +1,3 @@
-
 'use client'
 
 import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
@@ -8,7 +7,6 @@ import { MdDeleteOutline } from "react-icons/md"
 import Header from "../../../components/table/header"
 import { Filter } from "../../../components/table/filters/filterFunc"
 import { SettingsContext } from "../../../contexts/useSettingsContext"
-import '../contracts/style.css'
 
 const Customtable = ({ 
   data, 
@@ -28,7 +26,7 @@ const Customtable = ({
   const [filterOn, setFilterOn] = useState(false)
   const [{ pageIndex, pageSize }, setPagination] = useState({ 
     pageIndex: 0, 
-    pageSize: 500 
+    pageSize: 25 
   })
   const [columnFilters, setColumnFilters] = useState([])
 
@@ -90,14 +88,73 @@ const Customtable = ({
     if (columnId === 'kgs') return 'min-w-[100px] lg:min-w-[120px]'
     return 'min-w-[80px] lg:min-w-[90px]'
   }
-  const getCellBgClass = (columnId) => 'bg-white'
   const getTextAlignClass = (columnId) => columnId === 'material' ? 'text-left' : 'text-center'
 
+  // Fade-in animation for badges (as in contracts table)
+  if (typeof window !== 'undefined') {
+    const style = document.createElement('style');
+    style.innerHTML = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`;
+    document.head.appendChild(style);
+  }
+
   return (
-    <div className="flex flex-col w-full px-4 py-6 ">
+    <div className="w-full">
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+        .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+        .dashboard-scroll::-webkit-scrollbar-track { 
+          background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
+          border-radius: 6px; 
+        }
+        .dashboard-scroll::-webkit-scrollbar-thumb { 
+          background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
+          border-radius: 6px; 
+          border: 2px solid #F8F8F8;
+        }
+        .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
+          background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
+          border-color: #F0F0F0;
+        }
+        .glass-table {
+          background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.85) 0%, 
+            rgba(250, 250, 250, 0.90) 50%,
+            rgba(255, 255, 255, 0.85) 100%
+          );
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+        }
+        .custom-table, .custom-table *, .glass-table, .glass-table * {
+          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-size: 10px !important;
+          transition-property: color, background-color, border-color, box-shadow !important;
+          transition-duration: 150ms !important;
+          transition-timing-function: ease-in-out !important;
+        }
+        .custom-table th, .custom-table td {
+          border: 1px solid #ccc;
+          background-color: #f9f9f9;
+          text-align: center;
+          vertical-align: middle;
+          padding: 6px;
+          border-radius: 4px;
+        }
+        .custom-table th {
+          background-color: #d4eafc;
+        }
+        .custom-table td {
+          background-color: #fff;
+          border: 1px solid #e0e0e0;
+        }
+      `}</style>
+
       {/* Header Controls */}
       {showHeader && (
-        <div className="w-full mb-4">
+        <div className="flex-shrink-0"
+          style={{
+            borderBottom: '2px solid #E5E7EB',
+            background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+          }}>
           <Header 
             globalFilter={globalFilter} 
             setGlobalFilter={setGlobalFilter}
@@ -113,75 +170,93 @@ const Customtable = ({
       )}
 
       {/* Desktop Table */}
-      <div className="hidden sm:block overflow-hidden rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] ">
-        <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 250px)' }}>
-          <table className="w-full min-w-full border-collapse">
+      <div className="hidden sm:block custom-table">
+        <div className="overflow-auto dashboard-scroll" style={{ maxHeight: '700px', borderLeft: '8px solid #1D3D79', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
+          <table className="w-full" style={{ tableLayout: 'auto' }}>
             {/* THEAD */}
-            <thead className="sticky top-0">
+            <thead className="sticky top-0 z-10">
               {table.getHeaderGroups().map(hdGroup => (
-                <tr key={hdGroup.id} className='bg-[#2563eb]'>
-                  {hdGroup.headers.map((header, idx) => {
-                    const isMaterial = header.id === 'material'
-                    const isFirst = idx === 0
-                    const isLast = idx === hdGroup.headers.length - 1
-                    return (
-                      <th 
-                        key={header.id}
-                        className={`relative px-3 py-3 text-[13px] text-white whitespace-nowrap font-semibold
-                          ${getCellWidthClass(header.id)}
-                          ${getTextAlignClass(header.id)}
-                          ${isFirst ? 'rounded-tl-xl' : ''}
-                          ${isLast ? 'rounded-tr-xl' : ''}
-                        `}
-                      >
-                        {header.column.getCanSort() ? (
-                          <div 
-                            onClick={header.column.getToggleSortingHandler()} 
-                            className={`cursor-pointer flex items-center gap-1.5 ${isMaterial ? 'justify-start' : 'justify-center'}`}
-                          >
-                            {header.column.columnDef.header}
-                            {{
-                              asc: <TbSortAscending className="text-white w-4 h-4" />,
-                              desc: <TbSortDescending className="text-white w-4 h-4" />
-                            }[header.column.getIsSorted()]}
-                          </div>
-                        ) : (
-                          <span className="text-[13px] font-semibold text-white">
-                            {header.column.columnDef.header}
-                          </span>
-                        )}
-                        {header.column.getCanFilter() && (
-                          <div>
-                            <Filter column={header.column} table={table} filterOn={filterOn} />
-                          </div>
-                        )}
-                      </th>
-                    )
-                  })}
+                <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                  {hdGroup.headers.map((header, idx) => (
+                    <th
+                      key={header.id}
+                      className={`px-2 py-2 uppercase ${header.column.id === 'material' ? 'text-left' : 'text-center'}`}
+                      style={{
+                        color: '#183d79',
+                        minWidth: header.column.id === 'material' ? '120px' : '60px',
+                        maxWidth: header.column.id === 'material' ? '150px' : 'none',
+                        fontSize: 'clamp(10px, 1.0vw, 13px)',
+                        letterSpacing: '0.05em',
+                        textAlign: header.column.id === 'material' ? 'left' : 'center',
+                      }}
+                    >
+                      {header.column.getCanSort() ? (
+                        <div
+                          onClick={header.column.getToggleSortingHandler()}
+                          className={`cursor-pointer flex items-center gap-1.5 ${header.column.id === 'material' ? 'justify-start' : 'justify-center'}`}
+                        >
+                          {header.column.columnDef.header}
+                          {{
+                            asc: <TbSortAscending className="text-[#183d79] w-4 h-4" />,
+                            desc: <TbSortDescending className="text-[#183d79] w-4 h-4" />
+                          }[header.column.getIsSorted()]}
+                        </div>
+                      ) : (
+                        <span className="text-[13px] font-semibold text-[#183d79]">
+                          {header.column.columnDef.header}
+                        </span>
+                      )}
+                      {header.column.getCanFilter() && (
+                        <div>
+                          <Filter column={header.column} table={table} filterOn={filterOn} />
+                        </div>
+                      )}
+                    </th>
+                  ))}
                 </tr>
               ))}
             </thead>
 
             {/* TBODY */}
-            <tbody className="bg-white">
+            <tbody>
               {table.getRowModel().rows.map((row, rowIdx) => (
-                <tr key={row.id} className={`cursor-pointer hover:bg-[#f8fafb] transition-colors duration-100 ${rowIdx !== table.getRowModel().rows.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                <tr key={row.id} className="cursor-pointer">
                   {row.getVisibleCells().map(cell => {
                     const isMaterialOrKgs = cell.column.id === 'material' || cell.column.id === 'kgs'
                     const isDel = cell.column.id === 'del'
                     return (
-                      <td 
-                        key={cell.id} 
+                      <td
+                        key={cell.id}
                         data-label={cell.column.columnDef.header}
-                        className={`px-3 py-2.5 text-[13px] bg-[#ECF3FC] ${getCellBgClass(cell.column.id)} ${getCellWidthClass(cell.column.id)} ${getTextAlignClass(cell.column.id)}`}
+                        className="px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect"
+                        style={{
+                          color: '#1F2937',
+                          minWidth: cell.column.id === 'material' ? '120px' : '60px',
+                          maxWidth: cell.column.id === 'material' ? '150px' : '110px',
+                          fontSize: 'clamp(11px, 1.0vw, 13px)',
+                          fontWeight: '400',
+                          zIndex: 1,
+                          willChange: 'background-color, color',
+                        }}
                       >
                         {!isDel ? (
-                          <input
-                            type={isMaterialOrKgs ? 'text' : 'number'}
-                            className={`w-full px-2 py-1.5 border-none rounded-lg shadow-md shadow-gray-500 text-[13px] font-normal text-gray-700 focus:outline-none focus:ring-0 ${getTextAlignClass(cell.column.id)}`}
-                            onChange={(e) => editCell(table1, e, cell)}
-                            value={cell.column.id === 'kgs' ? formatNumber(cell.getContext().getValue()) : cell.getContext().getValue()}
-                          />
+                          <div
+                            className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
+                          >
+                            <input
+                              type={isMaterialOrKgs ? 'text' : 'number'}
+                              className={`w-full border-none bg-transparent focus:outline-none text-center`}
+                              onChange={(e) => editCell(table1, e, cell)}
+                              value={cell.column.id === 'kgs' ? formatNumber(cell.getContext().getValue()) : cell.getContext().getValue()}
+                              style={{
+                                fontFamily: 'Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+                                fontSize: 'clamp(11px, 1.0vw, 13px)',
+                                color: '#1F2937',
+                                background: 'transparent',
+                                textAlign: cell.column.id === 'material' ? 'left' : 'center'
+                              }}
+                            />
+                          </div>
                         ) : (
                           <div className="flex justify-center items-center px-2 py-1.5 bg-[#ECF3FC] rounded-lg shadow-md">
                             <button
@@ -201,18 +276,20 @@ const Customtable = ({
 
             {/* TFOOT - Footer Totals */}
             {showFooter && (
-              <tfoot className="bg-[#2563eb] sticky bottom-0">
+              <tfoot>
                 <tr>
-                  {table.getHeaderGroups()[0].headers.map((header, idx) => {
-                    const isMaterial = header.id === 'material'
-                    const isFirst = idx === 0
-                    const isLast = idx === table.getHeaderGroups()[0].headers.length - 1
-                    return (
-                      <td key={header.id} className={`px-3 py-3 text-[13px] text-white whitespace-nowrap font-bold ${isMaterial ? 'font-normal text-left' : 'text-center'} ${getCellWidthClass(header.id)} ${isFirst ? 'rounded-bl-xl' : ''} ${isLast ? 'rounded-br-xl' : ''}`}>
-                        {calculateFooterTotals(header)}
-                      </td>
-                    )
-                  })}
+                  {table.getHeaderGroups()[0].headers.map((header, idx) => (
+                    <td key={header.id}
+                      className="px-2 py-2 font-bold"
+                      style={{
+                        backgroundColor: '#d4eafc',
+                        color: '#183d79',
+                        fontSize: 'clamp(10px, 1.0vw, 13px)',
+                        textAlign: header.id === 'material' ? 'left' : 'center'
+                      }}>
+                      {calculateFooterTotals(header)}
+                    </td>
+                  ))}
                 </tr>
               </tfoot>
             )}
@@ -221,56 +298,81 @@ const Customtable = ({
       </div>
 
       {/* Mobile Table/Card View */}
-      <div className="sm:hidden space-y-4">
-        {table.getRowModel().rows.map(row => (
-          <div key={row.id} className="bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden">
-            {row.getVisibleCells().map(cell => {
-              const isDel = cell.column.id === 'del'
-              const isMaterialOrKgs = cell.column.id === 'material' || cell.column.id === 'kgs'
-              if (isDel) {
-                return (
-                  <div key={cell.id} className="p-4 border-t border-gray-200 bg-red-50 flex justify-between items-center">
-                    <span className="text-sm font-semibold text-gray-700">Actions</span>
-                    <button
-                      onClick={() => delMaterial(table1, cell)}
-                      className="text-gray-400 hover:text-red-500 hover:bg-red-100 p-2 rounded-lg transition-all duration-200"
+      <div className="sm:hidden">
+        <div className="overflow-y-auto dashboard-scroll px-2 py-2 space-y-2" style={{ maxHeight: '700px' }}>
+          {table.getRowModel().rows.map((row, rowIndex) => (
+            <div
+              key={row.id}
+              className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
+              style={{
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E5E7EB',
+              }}
+            >
+              <div
+                className="px-3 py-2 flex items-center justify-between"
+                style={{
+                  background: '#bce1ff',
+                }}
+              >
+                <span
+                  className="font-normal"
+                  style={{
+                    fontSize: 'clamp(9px, 0.8vw, 10px)',
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                  }}
+                >
+                  Row {rowIndex + 1}
+                </span>
+              </div>
+              <div className="p-4 space-y-2.5">
+                {row.getVisibleCells().map((cell) => {
+                  if (cell.column.id === 'del') return null;
+                  return (
+                    <div
+                      key={cell.id}
+                      className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
+                      style={{ borderBottom: '1px solid #E5E7EB' }}
                     >
-                      <MdDeleteOutline className="w-6 h-6" />
-                    </button>
-                  </div>
-                )
-              }
-              return (
-                <div key={cell.id} className={`p-4 border-t first:border-t-0 border-gray-200 flex flex-col gap-2 shadow-lg bg-white`}>
-                  <label className="text-sm font-semibold text-gray-700">{cell.column.columnDef.header}</label>
-                  <input
-                    type={isMaterialOrKgs ? 'text' : 'number'}
-                    className={`w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${getTextAlignClass(cell.column.id)}`}
-                    onChange={(e) => editCell(table1, e, cell)}
-                    value={cell.column.id === 'kgs' ? formatNumber(cell.getContext().getValue()) : cell.getContext().getValue()}
-                  />
-                </div>
-              )
-            })}
-          </div>
-        ))}
-
-        {/* Mobile Footer Summary */}
-        {showFooter && (
-          <div className="bg-[#2563eb] rounded-xl p-4 space-y-2.5 shadow-lg">
-            <h3 className="text-white font-semibold text-base mb-3">Summary</h3>
-            {table.getHeaderGroups()[0].headers
-              .filter(header => header.id !== 'del')
-              .map((header) => (
-                <div key={header.id} className="flex justify-between items-center text-white text-sm py-1">
-                  <span className="font-medium">{header.column.columnDef.header}:</span>
-                  <span className={`font-semibold ${getTextAlignClass(header.id)}`}>
-                    {calculateFooterTotals(header)}
-                  </span>
-                </div>
-            ))}
-          </div>
-        )}
+                      <div
+                        className="uppercase tracking-wider font-normal"
+                        style={{
+                          color: '#6B7280',
+                          fontSize: 'clamp(6px, 0.6vw, 7px)'
+                        }}
+                      >
+                        {cell.column.columnDef.header}
+                      </div>
+                      <div
+                        className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                        style={{
+                          color: '#1F2937',
+                          background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                          fontSize: 'clamp(8px, 0.7vw, 10px)',
+                          border: '1px solid #E5E7EB'
+                        }}
+                      >
+                        <input
+                          type={cell.column.id === 'material' || cell.column.id === 'kgs' ? 'text' : 'number'}
+                          className="w-full border-none bg-transparent focus:outline-none"
+                          onChange={(e) => editCell(table1, e, cell)}
+                          value={cell.column.id === 'kgs' ? formatNumber(cell.getContext().getValue()) : cell.getContext().getValue()}
+                          style={{
+                            fontFamily: 'Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+                            fontSize: 'clamp(8px, 0.7vw, 10px)',
+                            color: '#1F2937',
+                            background: 'transparent',
+                            textAlign: cell.column.id === 'material' ? 'left' : 'center'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
