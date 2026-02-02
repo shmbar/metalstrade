@@ -189,7 +189,7 @@ const Customtable = ({
            to avoid any hover vibration (no transform transitions allowed). */
         .custom-table, .custom-table *, .glass-table, .glass-table * {
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          font-size: 10px !important;
+          font-size: clamp(10px, 1.0vw, 13px) !important;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
@@ -336,16 +336,30 @@ const Customtable = ({
                           >
                             {isCompleted ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="text-[11px] font-normal text-white">{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
+                                <span 
+                                  className="font-normal text-white"
+                                  style={{ fontSize: 'clamp(10px, 1.0vw, 13px)' }}
+                                >
+                                  {cell.getValue() ? 'Completed' : 'Incompleted'}
+                                </span>
                               </div>
                             ) : isStatus ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="text-[11px] font-normal" style={{ color: bg ? '#FFFFFF' : undefined }}>{cell.getValue()}</span>
+                                <span 
+                                  className="font-normal" 
+                                  style={{ 
+                                    color: bg ? '#FFFFFF' : undefined,
+                                    fontSize: 'clamp(10px, 1.0vw, 13px)'
+                                  }}
+                                >
+                                  {cell.getValue()}
+                                </span>
                               </div>
                             ) : (
                               <div
-                                className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
+                                className="px-2 py-1 font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
                                 style={{
+                                  fontSize: 'clamp(10px, 1.0vw, 13px)',
                                   // Apply hover effect styles when edit mode is on
                                   ...(isEditMode && {
                                     backgroundColor: '#f9f9f9',
@@ -399,7 +413,7 @@ const Customtable = ({
                           <p 
                             style={{ 
                               color: '#6B7280',
-                                fontSize: 'clamp(10px, 0.9vw, 12px)' 
+                              fontSize: 'clamp(10px, 0.9vw, 12px)' 
                             }}
                           >
                             Try adjusting your filters or date range
@@ -445,7 +459,6 @@ const Customtable = ({
                           <span 
                             className="font-normal"
                             style={{ 
-                              
                               fontSize: 'clamp(9px, 0.8vw, 10px)',
                               textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                             }}
@@ -498,10 +511,11 @@ const Customtable = ({
                             {cell.column.id === 'completed' ? (
                               cell.getValue() ? (
                                 <div 
-                                      className="w-full px-2 py-2 rounded-md text-[11px] font-normal flex items-center gap-2 justify-center shadow-md"
+                                      className="w-full px-2 py-2 rounded-md font-normal flex items-center gap-2 justify-center shadow-md"
                                       style={{ 
                                         backgroundColor: '#00bf63',
-                                        color: '#FFFFFF'
+                                        color: '#FFFFFF',
+                                        fontSize: 'clamp(8px, 0.7vw, 10px)'
                                       }}
                                 >
                                   {/* <Image src="/logo/right.svg" alt="Completed" width={12} height={12} className="brightness-0 invert" /> */}
@@ -509,10 +523,11 @@ const Customtable = ({
                                 </div>
                               ) : (
                                 <div 
-                                  className="w-full px-2 py-2 rounded-md text-[11px] font-normal flex items-center gap-2 justify-center shadow-sm"
+                                  className="w-full px-2 py-2 rounded-md font-normal flex items-center gap-2 justify-center shadow-sm"
                                   style={{ 
                                     backgroundColor: '#ff3131',
-                                    color: '#FFFFFF'
+                                    color: '#FFFFFF',
+                                    fontSize: 'clamp(8px, 0.7vw, 10px)'
                                   }}
                                 >
                                   {/* <Image src="/logo/cross.svg" alt="Not completed" width={12} height={12} /> */}
@@ -589,7 +604,7 @@ const Customtable = ({
                   className="whitespace-nowrap font-normal" 
                   style={{ 
                     color: '#6B7280',
-                        fontSize: 'clamp(7px, 0.6vw, 9px)' 
+                    fontSize: 'clamp(7px, 0.6vw, 9px)' 
                   }}
                 >
                   {`${

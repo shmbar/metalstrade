@@ -61,8 +61,7 @@ export default function EditableCell({ getValue, row, column, table }) {
           e.currentTarget.blur();
         }
       }}
-      className="w-full bg-transparent px-1 py-0.5 border border-transparent rounded
-                 focus:bg-white focus:border-gray-400 outline-none"
+      className="w-full bg-transparent px-1 py-0.5  outline-none"
     />
   );
 }

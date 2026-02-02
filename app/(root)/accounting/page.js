@@ -563,7 +563,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           {/* Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {/* My Balance */}
-            <div className="bg-gradient-to-r from-[#CE283D] to-[#892043] rounded-2xl p-4 text-white shadow-lg min-w-0">
+            <div className="bg-[#54A6E9] rounded-2xl p-4 text-white shadow-lg min-w-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                   <FaWallet className="text-white text-lg" />
@@ -576,7 +576,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
             </div>
 
             {/* Income */}
-            <div className="bg-gradient-to-r from-[#3969F6] to-[#7A4756] rounded-2xl p-4 text-white shadow-lg min-w-0">
+            <div className="bg-[#5FBEF8] rounded-2xl p-4 text-white shadow-lg min-w-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                   <FaArrowTrendUp className="text-white text-lg" />
@@ -589,7 +589,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
             </div>
 
             {/* Expense */}
-            <div className="bg-gradient-to-r from-[#B62A62] to-[#684B68] rounded-2xl p-4 text-white shadow-lg min-w-0">
+            <div className="bg-[#7DD3FC] rounded-2xl p-4 text-white shadow-lg min-w-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                   <FaArrowTrendDown className="text-white text-lg" />
@@ -602,7 +602,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
             </div>
 
             {/* Total Saving */}
-            <div className="bg-gradient-to-r from-[#3F7EC3] to-[#356F94] rounded-2xl p-4 text-white shadow-lg min-w-0">
+            <div className="bg-[#6366F1] rounded-2xl p-4 text-white shadow-lg min-w-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                   <FaPiggyBank className="text-white text-lg" />

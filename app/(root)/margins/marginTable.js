@@ -1,164 +1,286 @@
 import React from 'react'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { IoAddCircleOutline } from "react-icons/io5";
-import { FiMinusCircle } from "react-icons/fi";
-
+import { FiMinusCircle, FiTrash2 } from "react-icons/fi";
 import Customtable from './newTable';
 import { NumericFormat } from "react-number-format";
 
-
-
 const MarginTable = (props) => {
-
-    let { month, year, addItem } = props
+    let { month, year, addItem, deleteMonth } = props
     let data = props.items
+
+    // Calculate summary values
+    const purchase = data.reduce((sum, row) => sum + (Number(row.purchase) || 0), 0);
+    const totalMargin = data.reduce((sum, row) => sum + (row?.gis ? Number(row?.totalMargin) / 2 || 0 : Number(row?.totalMargin) || 0), 0);
+    const totalOpenShip = data.reduce((sum, row) => sum + (Number(row.openShip) || 0), 0);
+    const remaining = data.reduce((sum, row) => sum + (row?.gis ? Number(row?.remaining) / 2 || 0 : Number(row?.remaining) || 0), 0);
+
     return (
-        <Disclosure as="div" className="w-full mb-4 border border-[var(--rock-blue)] rounded-md" defaultOpen={true}>
-            {/* <DisclosureButton className="w-full p-2 text-left text-sm">{month}</DisclosureButton> */}
-            {({ open }) => (
-                <>
-                    <div className="flex items-center gap-2 p-2 text-[0.8rem] w-full">
-                        <DisclosureButton className="flex items-center gap-2 w-full text-left">
-                            {!open ? <IoAddCircleOutline className="scale-125 font-bold text-[var(--endeavour)]" /> :
-                                <FiMinusCircle className="scale-110 font-bold text-[var(--endeavour)]" />}
-                            <span className='w-32 flex gap-5 items-center text-[var(--port-gore)] font-semibold'>
-                                {`${month} - ${year}`}
-                                {!open && <div className="border-l border-[var(--rock-blue)] h-7"></div>}
+        <div className="w-full p-1 mt-3">
+            {/* Import Poppins font and apply consistent styling exactly like newTable */}
+            <style jsx global>{`
+                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+                
+                .margin-card, .margin-card * {
+                    font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+                    transition-property: color, background-color, border-color, box-shadow !important;
+                    transition-duration: 150ms !important;
+                    transition-timing-function: ease-in-out !important;
+                }
+            `}</style>
+
+            <Disclosure 
+                as="div" 
+                className="margin-card w-full overflow-visible"
+                style={{
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(250, 250, 250, 0.90) 50%, rgba(255, 255, 255, 0.85) 100%)',
+                    backdropFilter: 'blur(16px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+                    borderRadius: '16px',
+                    border: '1px solid #E5E7EB',
+                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.06), 0 0 1px rgba(99, 102, 241, 0.08) inset',
+                    marginBottom: '12px',
+                    padding: '8px'
+                }}
+            >
+                {({ open }) => (
+                    <>
+                        {/* Compact Header Row */}
+                        <div 
+                            className="flex flex-wrap items-center gap-2 mb-2"
+                            style={{
+                                background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))',
+                                borderBottom: '1px solid #E5E7EB',
+                                padding: '6px 8px',
+                                borderRadius: '12px',
+                                marginBottom: '8px',
+                                minHeight: '40px'
+                            }}
+                        >
+                            <DisclosureButton className="flex items-center transition-colors duration-150 hover:opacity-80">
+                                {!open
+                                    ? <IoAddCircleOutline 
+                                        className="text-lg" 
+                                        style={{ color: '#183d79', fontSize: '18px' }}
+                                      />
+                                    : <FiMinusCircle 
+                                        className="text-lg" 
+                                        style={{ color: '#183d79', fontSize: '18px' }}
+                                      />}
+                            </DisclosureButton>
+
+                            <span 
+                                className="rounded-full px-3 py-1 font-normal text-center shadow-sm"
+                                style={{
+                                    background: '#183d79',
+                                    color: '#FFFFFF',
+                                    fontSize: 'clamp(9px, 0.8vw, 11px)',
+                                    fontWeight: '400',
+                                    letterSpacing: '0.02em',
+                                    minWidth: '70px',
+                                    height: '26px',
+                                    lineHeight: '16px'
+                                }}
+                            >
+                                {`${month}-${year}`}
                             </span>
 
-                            {!open ?
-                                <div className='w-full'>
-                                    <div className="flex justify-start space-x-4 w-96 gap-4 text-[var(--port-gore)]">
-                                        <div className="text-left ">
-                                            <div className='font-semibold'>Qty (MT)</div>
-                                            <div>
-                                                {(() => {
-                                                    const purchase = data.reduce(
-                                                        (sum, row) => sum + (Number(row.purchase) || 0), 0);
-
-                                                    return (
-                                                        <NumericFormat
-                                                            value={purchase}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative
-                                                            prefix=""
-                                                            decimalScale='3' fixedDecimalScale
-                                                            className="text-[0.8rem] text-[var(--port-gore)] font-normal"
-                                                        />
-                                                    );
-                                                })()}
-                                            </div>
+                            <div className="flex-1 min-w-[280px]">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                    <div className="text-center">
+                                        <div 
+                                            className="font-normal uppercase tracking-wider mb-0.5"
+                                            style={{
+                                                color: '#6B7280',
+                                                fontSize: 'clamp(7px, 0.6vw, 8px)',
+                                                letterSpacing: '0.05em',
+                                                lineHeight: '1.1'
+                                            }}
+                                        >
+                                            Qty (MT)
                                         </div>
-                                        <div className="text-left">
-                                            <div className='font-semibold'>Total Margin</div>
-                                            <div>
-                                                {(() => {
-                                                    const totalMargin = data.reduce(
-                                                        (sum, row) => sum + (row?.gis
-                                                            ? Number(row?.totalMargin) / 2 || 0
-                                                            : Number(row?.totalMargin) || 0), 0);
-
-                                                    return (
-                                                        <NumericFormat
-                                                            value={totalMargin}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative
-                                                            prefix="$"
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className="text-[0.8rem] text-[var(--port-gore)] font-normal"
-                                                        />
-                                                    );
-                                                })()}
-                                            </div>
-                                        </div>
-                                        <div className="text-left">
-                                            <div className='font-semibold'>Open Ship</div>
-                                            <div>
-                                                {(() => {
-                                                    const totalOpenShip = data.reduce(
-                                                        (sum, row) => sum + (Number(row.openShip) || 0), 0);
-
-                                                    return (
-                                                        <NumericFormat
-                                                            value={totalOpenShip}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative
-                                                            prefix=""
-                                                            decimalScale={totalOpenShip === 0 ? 0 : 3}
-                                                            fixedDecimalScale
-                                                            className="text-[0.8rem] text-[var(--port-gore)] font-normal"
-                                                        />
-                                                    );
-                                                })()}
-                                            </div>
-                                        </div>
-                                        <div className="text-left">
-                                            <div className='font-semibold'>Remaining</div>
-                                            <div>
-                                                {(() => {
-                                                    const remaining = data.reduce(
-                                                        (sum, row) => sum + (row?.gis
-                                                            ? Number(row?.remaining) / 2 || 0
-                                                            : Number(row?.remaining) || 0), 0);
-
-                                                    return (
-                                                        <NumericFormat
-                                                            value={remaining}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative
-                                                            prefix="$"
-                                                            decimalScale={remaining === 0 ? 0 : 2}
-                                                            fixedDecimalScale
-                                                            className="text-[0.8rem] text-[var(--port-gore)] font-normal"
-                                                        />
-                                                    );
-                                                })()}
-                                            </div>
+                                        <div 
+                                            className="font-normal"
+                                            style={{
+                                                color: '#1F2937',
+                                                fontSize: 'clamp(9px, 0.8vw, 11px)',
+                                                fontWeight: '400',
+                                                lineHeight: '1.2'
+                                            }}
+                                        >
+                                            <NumericFormat
+                                                value={purchase}
+                                                displayType="text"
+                                                thousandSeparator
+                                                allowNegative
+                                                decimalScale={3}
+                                                fixedDecimalScale
+                                            />
                                         </div>
                                     </div>
 
+                                    <div className="text-center">
+                                        <div 
+                                            className="font-normal uppercase tracking-wider mb-0.5"
+                                            style={{
+                                                color: '#6B7280',
+                                                fontSize: 'clamp(7px, 0.6vw, 8px)',
+                                                letterSpacing: '0.05em',
+                                                lineHeight: '1.1'
+                                            }}
+                                        >
+                                            Total Margin
+                                        </div>
+                                        <div 
+                                            className="font-normal"
+                                            style={{
+                                                color: '#1F2937',
+                                                fontSize: 'clamp(9px, 0.8vw, 11px)',
+                                                fontWeight: '400',
+                                                lineHeight: '1.2'
+                                            }}
+                                        >
+                                            <NumericFormat
+                                                value={totalMargin}
+                                                displayType="text"
+                                                thousandSeparator
+                                                allowNegative
+                                                prefix="$"
+                                                decimalScale={2}
+                                                fixedDecimalScale
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="text-center">
+                                        <div 
+                                            className="font-normal uppercase tracking-wider mb-0.5"
+                                            style={{
+                                                color: '#6B7280',
+                                                fontSize: 'clamp(7px, 0.6vw, 8px)',
+                                                letterSpacing: '0.05em',
+                                                lineHeight: '1.1'
+                                            }}
+                                        >
+                                            Open Ship
+                                        </div>
+                                        <div 
+                                            className="font-normal"
+                                            style={{
+                                                color: '#1F2937',
+                                                fontSize: 'clamp(9px, 0.8vw, 11px)',
+                                                fontWeight: '400',
+                                                lineHeight: '1.2'
+                                            }}
+                                        >
+                                            <NumericFormat
+                                                value={totalOpenShip}
+                                                displayType="text"
+                                                thousandSeparator
+                                                allowNegative
+                                                decimalScale={3}
+                                                fixedDecimalScale
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="text-center">
+                                        <div 
+                                            className="font-normal uppercase tracking-wider mb-0.5"
+                                            style={{
+                                                color: '#6B7280',
+                                                fontSize: 'clamp(7px, 0.6vw, 8px)',
+                                                letterSpacing: '0.05em',
+                                                lineHeight: '1.1'
+                                            }}
+                                        >
+                                            Remaining
+                                        </div>
+                                        <div 
+                                            className="font-normal"
+                                            style={{
+                                                color: '#1F2937',
+                                                fontSize: 'clamp(9px, 0.8vw, 11px)',
+                                                fontWeight: '400',
+                                                lineHeight: '1.2'
+                                            }}
+                                        >
+                                            <NumericFormat
+                                                value={remaining}
+                                                displayType="text"
+                                                thousandSeparator
+                                                allowNegative
+                                                decimalScale={2}
+                                                fixedDecimalScale
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                                :
-                                ''
-                            }
-                        </DisclosureButton>
+                            </div>
 
-                        <button
-                            className="bg-white border border-[var(--rock-blue)] text-[var(--port-gore)] px-3 py-0.5 rounded-lg hover:bg-[var(--selago)]/30 font-medium relative"
-                            onClick={(e) => {
-                                e.stopPropagation(); // Prevents triggering DisclosureButton
-                                addItem(month);
-                            }}
-                        >
-                            Add
-                        </button>
-                        {/* <button
-                            className="whiteButton py-0.5 relative"
-                            onClick={(e) => { saveItem(month) }}
-                        >
-                            Save
-                        </button> */}
-                    </div>
-                    <div className="">
+                            <div className="flex items-center gap-1.5">
+                                <button
+                                    className="px-3 py-1.5 rounded-lg font-normal shadow-sm transition-all duration-150 hover:opacity-90"
+                                    style={{
+                                        background: 'linear-gradient(135deg, #183d79, #1e40af)',
+                                        color: '#FFFFFF',
+                                        fontSize: 'clamp(8px, 0.7vw, 10px)',
+                                        fontWeight: '400',
+                                        border: '1px solid transparent',
+                                        minWidth: '45px',
+                                        height: '28px',
+                                        lineHeight: '1'
+                                    }}
+                                    onClick={() => addItem(month)}
+                                    onMouseEnter={(e) => {
+                                        e.target.style.transform = 'translateY(-1px)';
+                                        e.target.style.boxShadow = '0 3px 8px rgba(24, 61, 121, 0.3)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.transform = 'translateY(0)';
+                                        e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                                    }}
+                                >
+                                    Add
+                                </button>
+                                <button
+                                    className="p-1.5 rounded-lg transition-colors duration-150 hover:bg-red-50"
+                                    onClick={() => deleteMonth(month)}
+                                    title="Delete month"
+                                    style={{
+                                        color: '#ef4444',
+                                        border: '1px solid #fecaca',
+                                        width: '28px',
+                                        height: '28px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                >
+                                    <FiTrash2 
+                                        style={{ fontSize: '14px' }}
+                                    />
+                                </button>
+                            </div>
+                        </div>
 
-                        <DisclosurePanel
-                            transition
-                            className="p-2 origin-top transition duration-100 ease-out data-[closed]:-translate-y-6 data-[closed]:opacity-0"
-                        >
-                            <Customtable  {...props} />
+                        {/* Compact Table Container */}
+                        <DisclosurePanel>
+                            <div 
+                                className="mt-1 w-full"
+                                style={{
+                                    borderTop: '1px solid #E5E7EB',
+                                    paddingTop: '8px'
+                                }}
+                            >
+                                <Customtable {...props} />
+                            </div>
                         </DisclosurePanel>
+                    </>
+                )}
+            </Disclosure>
+        </div>
+    );
+};
 
-                    </div>
-                </>
-            )}
-
-        </Disclosure>
-    )
-}
-
-export default MarginTable
+export default MarginTable;

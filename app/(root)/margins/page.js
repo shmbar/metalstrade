@@ -15,7 +15,6 @@ import FirstPart from "./firstpart";
 import ThirdPart from "./thirdpart";
 import dateFormat from "dateformat";
 
-
 // needed for table body level scope DnD setup
 import {
     KeyboardSensor,
@@ -34,8 +33,6 @@ import { useSortable } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
 import { countDecimalDigits, dataIds, removeNonNumeric } from "./funcs";
 
-
-
 // Cell Component
 const RowDragHandleCell = ({ rowId }) => {
     const { attributes, listeners } = useSortable({
@@ -49,12 +46,10 @@ const RowDragHandleCell = ({ rowId }) => {
     );
 };
 
-
 let newItm = {
     date: null, purchase: '', description: '', supplier: '', client: '',
     margin: '', totalMargin: '', shipped: '', openShip: '', remaining: '',
 }
-
 
 // Table Component
 const Margins = () => {
@@ -135,7 +130,6 @@ const Margins = () => {
 
     }, [data])
 
-
     const handleChangeDate = (e, i, month) => {
         let dd = dateFormat(e, 'yyyy-mm-dd')
         let monthData = data.map(z => z.month === month ?
@@ -165,7 +159,6 @@ const Margins = () => {
 
         setData(monthData)
     }
-
 
     // reorder rows after drag & drop
     function handleDragEnd(event) {
@@ -275,7 +268,6 @@ const Margins = () => {
             }, 0),
         } : z)
 
-
         setData(monthData)
 
     }
@@ -320,8 +312,6 @@ const Margins = () => {
         setRemainingGIS(total5)
 
     }, [data])
-
-
 
     const handleChangeSelect = useCallback((e, i, month, name) => {
         setData((prevData) =>
@@ -376,101 +366,111 @@ const Margins = () => {
         result && setToast({ show: true, text: 'Data successfully saved!', clr: 'success' })
     }
 
+    const deleteMonth = (month) => {
+        setData(prev => prev.filter(z => z.month !== month));
+    }
+
     return (
-        <div className="container mx-auto px-0 pb-8 md:pb-0 mt-16 md:mt-0">
+        <div className="w-full" style={{ background: "#f8fbff" }}>
+            <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+                {Object.keys(settings).length === 0 ? <Spinner /> :
+                    <>
+                        <Toast />
+                        {loading && <Spin />}
 
-            {Object.keys(settings).length === 0 ? <Spinner /> :
-                <>
-                    <Toast />
-                    {loading && <Spin />}
-                    <div className="border border-[var(--selago)] rounded-xl p-4 mt-8 shadow-lg bg-white relative">
-                        <div className='flex items-center justify-between flex-wrap'>
-                            <div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Margins', ln)}</div>
-
-                            <div className="flex group w-16">
-                                <YearSelect yr={yr} setYr={setYr} />
-                                <Tooltip txt='Select year' />
+                        {/* Main Card */}
+                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-gray-200 shadow-xl w-full backdrop-blur-[2px] bg-white">
+                            
+                            {/* Header Section */}
+                            <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+                                <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+                                    {getTtl('Margins', ln)}
+                                </h1>
+                                
+                                <div className='flex items-center gap-2 group'>
+                                    <div className="relative">
+                                        <YearSelect yr={yr} setYr={setYr} />
+                                    </div>
+                                    <Tooltip txt='Select year' />
+                                </div>
                             </div>
 
-                        </div>
-
-                        {/*******First Part */}
-                        <FirstPart
-                            incoming={incoming}
-                            outStandingShip={outStandingShip}
-                            purchase={purchase}
-                            totalMargin={totalMargin}
-                            shipped={shipped}
-                        />
-
-
-                        {/*******Second Part */}
-                        <div className="p-2 flex gap-4">
-                            <button className="bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)] text-white px-4 py-2 rounded-lg hover:opacity-90 font-medium" disabled={data.length >= 12}
-                                onClick={addMonth}>
-                                Add month
-                            </button>
-                            <button className="bg-white border border-[var(--rock-blue)] text-[var(--port-gore)] px-4 py-2 rounded-lg hover:bg-[var(--selago)]/30 font-medium"
-                                onClick={saveData}>
-                                Save
-                            </button>
-                        </div>
-
-                        <div className="w-full p-2 mt-2">
-                            <div className="w-full max-w-8xl divide-y  rounded-xl">
-
-                                {data.map(({ month, items }) => {
-                                    return (
-                                        <div key={month}>
-                                            <MarginTable
-                                                month={month}
-                                                year={yr}
-                                                items={items}
-                                                addItem={addItem}
-                                                handleChangeDate={handleChangeDate}
-                                                handleChange={handleChange}
-                                                handleChangeSelect={handleChangeSelect}
-                                                deleteRow={deleteRow}
-                                                handleCancelDate={handleCancelDate}
-                                                settings={settings}
-                                                RowDragHandleCell={RowDragHandleCell}
-                                                handleDragEnd={handleDragEnd}
-                                                sensors={sensors}
-                                                handleCheckBox={handleCheckBox}
-                                            />
-                                        </div>
-                                    )
-                                })}
-
-                            </div>
-                        </div>
-
-
-                        {/* ******Third Part  TOTALS */}
-                        <div className='flex gap-6'>
-                            <ThirdPart
-                                data={data}
-                                remaining={remaining}
+                            {/* Stats Section */}
+                            <FirstPart
+                                incoming={incoming}
                                 outStandingShip={outStandingShip}
                                 purchase={purchase}
                                 totalMargin={totalMargin}
-                                yr={yr}
-                                title='Totals'
+                                shipped={shipped}
                             />
-                            <ThirdPart
-                                data={dataGIS}
-                                remaining={remainingGIS}
-                                outStandingShip={outStandingShipGIS}
-                                purchase={purchaseGIS}
-                                totalMargin={totalMarginGIS}
-                                yr={yr}
-                                title={cName === 'ims' ? 'Total GIS' : 'Total IMS'}
-                            />
-                        </div>
 
-                    </div>
-                </>}
-        </div >
+                            {/* Action Buttons - Keep original position */}
+                            <div className="p-2 flex gap-4">
+                                <button className="bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)] text-white px-4 py-2 rounded-lg hover:opacity-90 font-medium" disabled={data.length >= 12}
+                                    onClick={addMonth}>
+                                    Add month
+                                </button>
+                                <button className="bg-white border border-[var(--rock-blue)] text-[var(--port-gore)] px-4 py-2 rounded-lg hover:bg-[var(--selago)]/30 font-medium"
+                                    onClick={saveData}>
+                                    Save
+                                </button>
+                            </div>
+
+                            {/* Margins Tables */}
+                            <div className="w-full p-2 mt-2">
+                                <div className="w-full max-w-8xl divide-y rounded-xl">
+                                    {data.map(({ month, items }) => {
+                                        return (
+                                            <div key={month}>
+                                                <MarginTable
+                                                    month={month}
+                                                    year={yr}
+                                                    items={items}
+                                                    addItem={addItem}
+                                                    deleteMonth={deleteMonth}
+                                                    handleChangeDate={handleChangeDate}
+                                                    handleChange={handleChange}
+                                                    handleChangeSelect={handleChangeSelect}
+                                                    deleteRow={deleteRow}
+                                                    handleCancelDate={handleCancelDate}
+                                                    settings={settings}
+                                                    RowDragHandleCell={RowDragHandleCell}
+                                                    handleDragEnd={handleDragEnd}
+                                                    sensors={sensors}
+                                                    handleCheckBox={handleCheckBox}
+                                                />
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Summary Sections */}
+                            <div className='flex gap-6'>
+                                <ThirdPart
+                                    data={data}
+                                    remaining={remaining}
+                                    outStandingShip={outStandingShip}
+                                    purchase={purchase}
+                                    totalMargin={totalMargin}
+                                    yr={yr}
+                                    title='Totals'
+                                />
+                                <ThirdPart
+                                    data={dataGIS}
+                                    remaining={remainingGIS}
+                                    outStandingShip={outStandingShipGIS}
+                                    purchase={purchaseGIS}
+                                    totalMargin={totalMarginGIS}
+                                    yr={yr}
+                                    title={cName === 'ims' ? 'Total GIS' : 'Total IMS'}
+                                />
+                            </div>
+                        </div>
+                    </>
+                }
+            </div>
+        </div>
     )
 }
 

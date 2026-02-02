@@ -1,6 +1,7 @@
 
 'use client';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import Spinner from '@components/spinner';
 import { UserAuth } from "@contexts/useAuthContext"
 import { SettingsContext } from "@contexts/useSettingsContext";
@@ -94,9 +95,15 @@ const sumObj = (obj) => Object.values(obj || {}).reduce((a, v) => a + (Number(v)
 
 function CardShell({ className = "", children }) {
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
+    <motion.div
+      className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      whileHover={{ scale: 1.02, boxShadow: '0 8px 32px rgba(0,0,0,0.08)' }}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
@@ -111,8 +118,12 @@ function StatKpiCard({
   iconBg = '#fff',
 }) {
   return (
-    <div
-      className={`relative h-full min-h-[120px] rounded-xl overflow-hidden bg-gradient-to-br ${grad} shadow-md hover:shadow-lg transition-all duration-300`}
+    <motion.div
+      className={`relative h-full min-h-[120px] rounded-xl overflow-hidden bg-gradient-to-br ${grad} shadow-md`}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      whileHover={{ scale: 1.03, boxShadow: '0 8px 32px rgba(0,0,0,0.10)' }}
     >
       <div className="p-3">
         <div className="flex items-start justify-between mb-1">
@@ -163,7 +174,7 @@ function StatKpiCard({
           />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -318,12 +329,12 @@ const Dash = () => {
       <Toast />
       {loading && <Spin />}
 
-      <div className="mb-4">
+      <motion.div className="mb-4" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
         <MarketsTicker />
-      </div>
+      </motion.div>
 
       {/* HEADER */}
-      <div className="mb-5 flex items-center justify-between">
+      <motion.div className="mb-5 flex items-center justify-between" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
         <div>
           <h1 className="text-xl font-bold text-gray-800">
             {getTtl('Dashboard', ln)}
@@ -337,13 +348,21 @@ const Dash = () => {
           <DateRangePicker />
           <TooltipComp txt="Select Dates Range" />
         
-      </div>
+      </motion.div>
 
       {/* MAIN GRID */}
-      <div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-5">
+      <motion.div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-5"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
 
         {/* LEFT COLUMN */}
-        <div className="flex flex-col gap-4">
+        <motion.div className="flex flex-col gap-4"
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.25 }}
+        >
 
           {/* TOTAL REVENUE */}
           <CardShell>
@@ -436,14 +455,22 @@ const Dash = () => {
                   const pct = max > 0 ? (value / max) * 100 : 0;
 
                   return (
-                    <div key={idx} className="flex items-center gap-3 mb-3">
+                    <motion.div
+                      key={idx}
+                      className="flex items-center gap-3 mb-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.4, delay: idx * 0.07 }}
+                    >
                       {/* Avatar */}
-                      <div
+                      <motion.div
                         className="flex items-center justify-center rounded-full text-xs font-semibold text-white flex-shrink-0"
                         style={{ width: avatarSize, height: avatarSize, background: color }}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ type: 'spring', stiffness: 300 }}
                       >
                         {getInitials(lbl)}
-                      </div>
+                      </motion.div>
 
                       {/* Name */}
                       <div className="w-20 text-xs text-gray-700 truncate flex-shrink-0">
@@ -451,23 +478,31 @@ const Dash = () => {
                       </div>
 
                       {/* Bar */}
-                      <div className="flex-1 min-w-0">
-                        <div
-                          className="rounded-sm transition-all duration-300"
+                      <motion.div className="flex-1 min-w-0">
+                        <motion.div
+                          className="rounded-sm"
                           style={{
                             width: `${pct}%`,
                             height: 20,
                             background: color,
                             minWidth: '8px'
                           }}
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
+                          whileHover={{ scaleY: 1.1 }}
                         />
-                      </div>
+                      </motion.div>
 
                       {/* Value */}
-                      <div className="w-20 text-right text-xs text-gray-700 font-semibold flex-shrink-0">
+                      <motion.div className="w-20 text-right text-xs text-gray-700 font-semibold flex-shrink-0"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.4, delay: idx * 0.09 }}
+                      >
                         {fmtAutoKM(value)}
-                      </div>
-                    </div>
+                      </motion.div>
+                    </motion.div>
                   );
                 })}
               </div>
@@ -495,48 +530,65 @@ const Dash = () => {
                   const pct = max > 0 ? (value / max) * 100 : 0;
                   
                   return (
-                    <div key={idx} className="flex items-center gap-3 mb-3">
+                    <motion.div
+                      key={idx}
+                      className="flex items-center gap-3 mb-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.4, delay: idx * 0.07 }}
+                    >
                       {/* Avatar */}
-                      <div
+                      <motion.div
                         className="flex items-center justify-center rounded-full text-xs font-semibold text-white flex-shrink-0"
                         style={{ width: avatarSize, height: avatarSize, background: color }}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ type: 'spring', stiffness: 300 }}
                       >
                         {getInitials(lbl)}
-                      </div>
-                      
+                      </motion.div>
                       {/* Name */}
                       <div className="w-20 text-xs text-gray-700 truncate flex-shrink-0">
                         {lbl}
                       </div>
-                      
                       {/* Bar */}
-                      <div className="flex-1 min-w-0">
-                        <div 
-                          className="rounded-sm transition-all duration-300" 
+                      <motion.div className="flex-1 min-w-0">
+                        <motion.div 
+                          className="rounded-sm" 
                           style={{ 
                             width: `${pct}%`, 
                             height: 20, 
                             background: color,
                             minWidth: '8px'
                           }} 
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
+                          whileHover={{ scaleY: 1.1 }}
                         />
-                      </div>
-                      
+                      </motion.div>
                       {/* Value */}
-                      <div className="w-20 text-right text-xs text-gray-700 font-semibold flex-shrink-0">
+                      <motion.div className="w-20 text-right text-xs text-gray-700 font-semibold flex-shrink-0"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.4, delay: idx * 0.09 }}
+                      >
                         {fmtAutoKM(value)}
-                      </div>
-                    </div>
+                      </motion.div>
+                    </motion.div>
                   );
                 })}
               </div>
             </div>
           </CardShell>
 
-        </div>
+        </motion.div>
 
         {/* RIGHT COLUMN */}
-        <div className="flex flex-col gap-4 h-full">
+        <motion.div className="flex flex-col gap-4 h-full"
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
           {/* SALES OVERVIEW */}
           <CardShell>
             <div className="p-4">
@@ -678,9 +730,9 @@ const Dash = () => {
 
           </div>
 
-        </div>
+        </motion.div>
 
-      </div>
+      </motion.div>
 
       </div>
     </div>
