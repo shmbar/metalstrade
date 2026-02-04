@@ -119,34 +119,39 @@ function StatKpiCard({
 }) {
   return (
     <motion.div
-      className={`relative h-full min-h-[120px] rounded-xl overflow-hidden bg-gradient-to-br ${grad} shadow-md`}
+      className={`relative h-full min-h-[120px] rounded-xl overflow-hidden bg-gradient-to-br ${grad} shadow-md flex flex-col`}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
       whileHover={{ scale: 1.03, boxShadow: '0 8px 32px rgba(0,0,0,0.10)' }}
     >
-      <div className="p-3">
-        <div className="flex items-start justify-between mb-1">
+      <div className="p-3 flex flex-col justify-between h-full">
+        {/* Top Section - Icon, Title and Badge */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {icon && (
-              <span className="inline-flex items-center justify-center rounded-full" style={{ background: iconBg, width: 28, height: 28 }}>
+              <span className="inline-flex items-center justify-center rounded-full flex-shrink-0" style={{ background: iconBg, width: 28, height: 28 }}>
                 {icon}
               </span>
             )}
-            <div>
-              <div className="text-white/90 text-[11px] font-medium">
-                {title}
-              </div>
-              <div className="text-xl font-bold text-white">
-                {value}
-              </div>
+            <div className="text-white/90 text-[11px] font-medium leading-tight">
+              {title}
             </div>
           </div>
-          <div className="px-2 py-0.5 rounded-md text-[10px] bg-white/20 text-white">
+          <div className="px-2 py-0.5 rounded-md text-[10px] bg-white/20 text-white flex-shrink-0">
             {badgeText}
           </div>
         </div>
-        <div className="h-[38px] mt-1">
+        
+        {/* Middle Section - Left Aligned Value */}
+        <div className="flex-1 flex items-center justify-start">
+          <div className="text-2xl font-bold text-white">
+            {value}
+          </div>
+        </div>
+        
+        {/* Bottom Section - Chart */}
+        <div className="h-[38px]">
           <Line
             data={{
               labels: Object.keys(chartData || {}).slice(0, 12),
@@ -448,7 +453,14 @@ const Dash = () => {
 
               <div className="min-h-[200px]">
                 {(hbSupps.obj.labels || []).map((lbl, idx) => {
-                  const color = hbSupps.obj.datasets?.[0]?.backgroundColor?.[idx] || '#9fb8d4';
+                  // Professional color palette for contracts
+                  const colorPalette = [
+                    '#54A6E9',
+                    '#5FBEF8',
+                    '#7DD3FC',
+                    '#BAE6FD'
+                  ];
+                  const color = hbSupps.obj.datasets?.[0]?.backgroundColor?.[idx] || colorPalette[idx % colorPalette.length];
                   const value = hbSuppsData?.datasets?.[0]?.data?.[idx] || 0;
                   const allValues = hbSuppsData?.datasets?.[0]?.data || [1];
                   const max = Math.max(...allValues);
@@ -523,7 +535,15 @@ const Dash = () => {
 
               <div className="min-h-[200px]">
                 {(hbClnts.obj.labels || []).map((lbl, idx) => {
-                  const color = hbClnts.obj.datasets?.[0]?.backgroundColor?.[idx] || '#9fb8d4';
+                  // Professional color palette for co-signed
+                  const colorPalette = [
+                    '#54A6E9',
+                    '#5FBEF8',
+                    '#7DD3FC',
+                    '#6366F1',
+                    '#818CF8'
+                  ];
+                  const color = hbClnts.obj.datasets?.[0]?.backgroundColor?.[idx] || colorPalette[idx % colorPalette.length];
                   const value = hbClntsData?.datasets?.[0]?.data?.[idx] || 0;
                   const allValues = hbClntsData?.datasets?.[0]?.data || [1];
                   const max = Math.max(...allValues);

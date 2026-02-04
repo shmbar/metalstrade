@@ -15,7 +15,7 @@ import {
   useReactTable
 } from "@tanstack/react-table";
 
-import { useEffect, useMemo, useState, useContext } from "react";
+import { Fragment, useEffect, useMemo, useState, useContext } from "react";
 import { TbSortDescending, TbSortAscending } from "react-icons/tb";
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
@@ -167,11 +167,11 @@ const Customtable = ({
         .dashboard-scroll::-webkit-scrollbar-thumb { 
           background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
           border-radius: 6px; 
-          border: 2px solid #F8F8F8;
+          /* border removed */
         }
         .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
           background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
-          border-color: #F0F0F0;
+          /* border removed */
         }
 
         /* Glassmorphic professional table */
@@ -189,7 +189,7 @@ const Customtable = ({
            to avoid any hover vibration (no transform transitions allowed). */
         .custom-table, .custom-table *, .glass-table, .glass-table * {
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          font-size: clamp(10px, 1.0vw, 13px) !important;
+          font-size: 10px !important;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
@@ -216,9 +216,8 @@ const Customtable = ({
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col "
+        <div className="flex flex-col rounded-3xl shadow-xl glass-table"
           style={{ 
-            
             boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset',
           }}
         >
@@ -255,9 +254,9 @@ const Customtable = ({
                 {/* THEAD - Multi-color gradient inspired by all cards */}
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(hdGroup => (
-                    <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
-                      {/* Add this th for select-all if needed */}
-                      {hdGroup.headers.map((header, idx) => (
+                    <Fragment key={hdGroup.id}>
+                      <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                        {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
                           className={`px-2 py-2 uppercase ${header.column.id === 'select' ? 'text-left' : 'text-center'}`}
@@ -272,14 +271,13 @@ const Customtable = ({
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}
                         </th>
-                      ))}
-                    </tr>
-                  ))}
+                        ))}
+                      </tr>
 
-                  {/* Filter Row */}
-                  {filterOn && (
-                    <tr style={{ backgroundColor: '#FFFFFF' }}>
-                      {table.getHeaderGroups()[0].headers.map(header => (
+                      {/* Filter Row */}
+                      {filterOn && (
+                        <tr style={{ backgroundColor: '#FFFFFF' }}>
+                          {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
                           className="px-2 py-1.5"
@@ -297,6 +295,8 @@ const Customtable = ({
                       ))}
                     </tr>
                   )}
+                    </Fragment>
+                  ))}
                 </thead>
 
                 {/* TBODY - Professional rows with card-inspired hover */}
@@ -312,10 +312,10 @@ const Customtable = ({
                         const isCompleted = cell.column.id === 'completed';
                         const isStatus = cell.column.id === 'status' && cell.getValue();
                         let bg = undefined;
-                        if (isCompleted) bg = cell.getValue() ? '#00bf63' : '#ff3131';
+                        if (isCompleted) bg = cell.getValue() ? '#00bf63' : '#eb3636';
                         if (isStatus) {
                           if (cell.getValue() === 'Completed') bg = '#00bf63';
-                          else if (cell.getValue() === 'Incompleted') bg = '#ff3131';
+                          else if (cell.getValue() === 'Incompleted') bg = '#eb3636';
                         }
 
                         return (
@@ -336,30 +336,20 @@ const Customtable = ({
                           >
                             {isCompleted ? (
                               <div className="w-full flex items-center justify-center">
-                                <span 
-                                  className="font-normal text-white"
-                                  style={{ fontSize: 'clamp(10px, 1.0vw, 13px)' }}
-                                >
+                                <span className="text-[11px] font-normal text-white">
                                   {cell.getValue() ? 'Completed' : 'Incompleted'}
                                 </span>
                               </div>
                             ) : isStatus ? (
                               <div className="w-full flex items-center justify-center">
-                                <span 
-                                  className="font-normal" 
-                                  style={{ 
-                                    color: bg ? '#FFFFFF' : undefined,
-                                    fontSize: 'clamp(10px, 1.0vw, 13px)'
-                                  }}
-                                >
+                                <span className="text-[11px] font-normal" style={{ color: bg ? '#FFFFFF' : undefined }}>
                                   {cell.getValue()}
                                 </span>
                               </div>
                             ) : (
                               <div
-                                className="px-2 py-1 font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
+                                className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
                                 style={{
-                                  fontSize: 'clamp(10px, 1.0vw, 13px)',
                                   // Apply hover effect styles when edit mode is on
                                   ...(isEditMode && {
                                     backgroundColor: '#f9f9f9',
@@ -507,36 +497,7 @@ const Customtable = ({
                               border: '1px solid #E5E7EB'
                             }}
                           >
-                            {/* Custom rendering for 'completed' column */}
-                            {cell.column.id === 'completed' ? (
-                              cell.getValue() ? (
-                                <div 
-                                      className="w-full px-2 py-2 rounded-md font-normal flex items-center gap-2 justify-center shadow-md"
-                                      style={{ 
-                                        backgroundColor: '#00bf63',
-                                        color: '#FFFFFF',
-                                        fontSize: 'clamp(8px, 0.7vw, 10px)'
-                                      }}
-                                >
-                                  {/* <Image src="/logo/right.svg" alt="Completed" width={12} height={12} className="brightness-0 invert" /> */}
-                                  Completed
-                                </div>
-                              ) : (
-                                <div 
-                                  className="w-full px-2 py-2 rounded-md font-normal flex items-center gap-2 justify-center shadow-sm"
-                                  style={{ 
-                                    backgroundColor: '#ff3131',
-                                    color: '#FFFFFF',
-                                    fontSize: 'clamp(8px, 0.7vw, 10px)'
-                                  }}
-                                >
-                                  {/* <Image src="/logo/cross.svg" alt="Not completed" width={12} height={12} /> */}
-                                  Pending
-                                </div>
-                              )
-                            ) : (
-                              flexRender(cell.column.columnDef.cell, cell.getContext())
-                            )}
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         </div>
                       );

@@ -268,10 +268,10 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                 const isCompleted = cell.column.id === 'completed';
                                                 const isStatus = cell.column.id === 'status' && cell.getValue();
                                                 let bg = undefined;
-                                                if (isCompleted) bg = cell.getValue() ? '#00bf63' : '#ff3131';
+                                                if (isCompleted) bg = cell.getValue() ? '#00bf63' : '#eb3636';
                                                 if (isStatus) {
                                                     if (cell.getValue() === 'Completed') bg = '#00bf63';
-                                                    else if (cell.getValue() === 'Incompleted') bg = '#ff3131';
+                                                    else if (cell.getValue() === 'Incompleted') bg = '#eb3636';
                                                 }
 
                                                 return (
@@ -460,7 +460,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                                 <div 
                                                                     className="w-full px-2 py-2 rounded-md text-[11px] font-normal flex items-center gap-2 justify-center shadow-sm"
                                                                     style={{ 
-                                                                        backgroundColor: '#ff3131',
+                                                                        backgroundColor: '#eb3636',
                                                                         color: '#FFFFFF'
                                                                     }}
                                                                 >
