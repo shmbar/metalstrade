@@ -736,22 +736,25 @@ const Cashflow = () => {
 // ...existing code...
 
 return (
-    <div className="container mx-auto max-w-[1200px] px-4 pb-8 md:pb-0 mt-16 md:mt-0">
-        {Object.keys(settings).length === 0 ? <Spinner /> :
+	<div className="w-full" style={{ background: "#f8fbff" }}>
+		<div className="mx-auto max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+			{Object.keys(settings).length === 0 ? <Spinner /> :
             <>
                 <Toast />
                 {loading && <Spin />}
-                <div className="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm relative">
-                    <div className='flex items-center justify-between flex-wrap'>
-                        <div className="text-3xl p-1 pb-2 text-slate-500">{getTtl('Cashflow', ln)}</div>
-                        <div className="flex group">
+                <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-gray-200 shadow-xl w-full backdrop-blur-[2px] bg-white">
+                    <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+                        <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2">
+                            {getTtl('Cashflow', ln)}
+                        </h1>
+                        <div className="flex items-center gap-2 group">
                             <YearSelect yr={yr} setYr={setYr} />
                         </div>
                     </div>
                     {userTitle === 'Admin' &&
-                        <div className="w-full p-2 ">
-                            <div className="flex gap-2 ">
-                                <span className="text-xs 2xl:text-sm items-center flex  w-44 font-bold">Future</span>
+                        <div className="w-full p-3 sm:p-4">
+                            <div className="flex gap-2">
+                                <span className="responsiveTextInput items-center flex w-44 font-bold">Future</span>
                                 <label className="pl-1">{
                                     <NumericFormat
                                         value={incoming}
@@ -769,9 +772,9 @@ return (
                                 initialData?.map((z, i) => {
                                     return (
                                         <div className="flex gap-2 my-1" key={i}>
-                                            <input className="text-xs 2xl:text-sm items-center flex outline-none w-44 truncate font-bold" value={z.title}
+                                            <input className="responsiveTextInput items-center flex outline-none w-44 truncate font-bold" value={z.title}
                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
-                                            <input className='input w-44 h-6 text-[0.7rem] 2xl:text-[0.77rem] font-bold'
+                                            <input className='input w-44 h-6 responsiveTextTotal font-bold'
                                                 value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
                                             <button onClick={() => delItem(i)}><MdDeleteOutline className="scale-110" /></button>
                                         </div>
@@ -802,10 +805,10 @@ return (
                     }
 
                     <div className="flex flex-wrap gap-4 w-full">
-                        <div className="w-full max-w-screen-lg flex-1 min-w-[320px] pr-4  ">
-                            <div className="p-4   mb-4 flex flex-col justify-between min-h-[140px] cf-card">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-bold p-1 responsiveTextTitle">Stocks - Paid</span>
+                        <div className="w-full max-w-screen-lg flex-1 min-w-[320px] border pr-4 border-t-8 border-[#11497c] rounded-t-xl">
+                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="font-bold text-[#11497c] responsiveTextTitle">Stocks - Paid</span>
                                 </div>
                                 <div className="flex p-1 justify-between">
                                     {
@@ -821,10 +824,10 @@ return (
                                 </div>
                                 {stockData1.map((x, i) => {
                                     return (
-                                        <div className="flex items-center  text-slate-600" key={i}>
+                                        <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                        <div className="responsiveText items-center flex outline-none whitespace-normal break-words cursor-pointer min-w-0"
+                                                        <div className="responsiveText items-center flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
                                                     </div>
@@ -852,12 +855,12 @@ return (
                                         </div>
 
                                     )
-                                })}
-                                <div className="flex items-center p-1 leading-5 justify-between responsiveTextTotal">
-                                    <div className="border-t-2 border-slate-400">
+                                })}  
+                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
+                                    <div className="font-bold text-[#11497c]">
                                         Total
                                     </div>
-                                    <div>
+                                    <div className="font-bold text-[#11497c]">
                                         {
                                             <NumericFormat
                                                 value={stockData1.reduce((total, obj) => {
@@ -869,7 +872,7 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='responsiveTextTotal border-t-2 border-slate-400'
+                                                className='responsiveTextTotal'
                                             />
                                         }
                                     </div>
@@ -879,9 +882,9 @@ return (
 
 
 
-                            <div className="p-4 bg-white rounded-md shadow-sm border border-slate-100 mb-4 flex flex-col justify-between min-h-[140px] cf-card">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-bold p-1 responsiveTextTitle">Stocks - UnPaid</span>
+                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="font-bold text-[#11497c] responsiveTextTitle">Stocks - UnPaid</span>
                                 </div>
                                 <div className="flex p-1 justify-between">
                                     {
@@ -898,10 +901,10 @@ return (
 
                                 {stockData2.map((x, i) => {
                                     return (
-                                        <div className="flex items-center  text-slate-600" key={i}>
+                                        <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                    <div className="responsiveText items-center flex outline-none whitespace-normal break-words cursor-pointer min-w-0"
+                                                    <div className="responsiveText items-center flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
                                                     </div>
@@ -928,11 +931,11 @@ return (
 
                                     )
                                 })}
-                                <div className="flex items-center p-1 leading-5 justify-between responsiveTextTotal">
-                                    <div className="border-t-2 border-slate-400">
+                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
+                                    <div className="font-bold text-[#11497c]">
                                         Total
                                     </div>
-                                    <div>
+                                    <div className="font-bold text-[#11497c]">
                                         {
                                             <NumericFormat
                                                 value={stockData2.reduce((total, obj) => {
@@ -944,7 +947,7 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='border-t-2 border-slate-400'
+                                                className='responsiveTextTotal'
                                             />
                                         }
                                     </div>
@@ -952,9 +955,9 @@ return (
                             </div>
 
 
-                            <div className="p-4 bg-white rounded-md shadow-sm border border-slate-100 mb-4 flex flex-col justify-between min-h-[140px] cf-card">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-bold p-1 responsiveTextTitle">Clients - Payment</span>
+                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="font-bold text-[#11497c] responsiveTextTitle">Clients - Payment</span>
                                 </div>
                                 <div className="flex p-1 justify-between">
                                     {
@@ -971,10 +974,10 @@ return (
 
                                 {clientInvoices2.map((x, i) => {
                                     return (
-                                        <div className="flex gap-4 items-center text-slate-600 " key={i}>
+                                        <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                    <div className="responsiveText items-center flex outline-none whitespace-normal break-words cursor-pointer min-w-0"
+                                                    <div className="responsiveText items-center flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Client.Client.find(z => z.id === x.client)?.nname}
                                                     </div>
@@ -999,11 +1002,11 @@ return (
                                         </div>
                                     )
                                 })}
-                                <div className="flex items-center leading-5 justify-between p-1 responsiveTextTotal">
-                                    <div className="border-t-2 border-slate-400">
+                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
+                                    <div className="font-bold text-[#11497c]">
                                         Total
                                     </div>
-                                    <div>
+                                    <div className="font-bold text-[#11497c]">
                                         {
                                             <NumericFormat
                                                 value={clientInvoices2.reduce((total, obj) => {
@@ -1015,7 +1018,6 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='border-t-2 border-slate-400'
                                             />
                                         }
                                     </div>
@@ -1023,9 +1025,9 @@ return (
                             </div>
 
 
-                            <div className="p-4 bg-white rounded-md shadow-sm border border-slate-100 mb-4 flex flex-col justify-between min-h-[140px] cf-card">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-bold p-1 responsiveTextTitle">Clients - Balances</span>
+                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="font-bold text-[#11497c] responsiveTextTitle">Clients - Balances</span>
                                 </div>
                                 <div className="flex p-1 justify-between ">
                                     {
@@ -1042,10 +1044,10 @@ return (
 
                                 {clientInvoices1.map((x, i) => {
                                     return (
-                                        <div className="flex  gap-4 items-center   text-slate-600 " key={i}>
+                                        <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                    <div className="responsiveText items-center flex outline-none whitespace-normal break-words cursor-pointer min-w-0"
+                                                    <div className="responsiveText items-center flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Client.Client.find(z => z.id === x.client)?.nname}
                                                     </div>
@@ -1071,11 +1073,11 @@ return (
                                         )
                                     })}
 
-                                <div className="flex items-center leading-4 2xl:leading-6 justify-between p-1 responsiveTextTotal">
-                                    <div className="">
-                                        <span className="leading-5 border-t-2 border-slate-400">Total</span>
+                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
+                                    <div className="font-bold text-[#11497c]">
+                                        Total
                                     </div>
-                                    <div>
+                                    <div className="font-bold text-[#11497c]">
                                         {
                                             <NumericFormat
                                                 value={clientInvoices1.reduce((total, obj) => {
@@ -1087,7 +1089,7 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='border-t-2 border-slate-400 '
+                                                className='responsiveTextTotal'
                                             />
                                         }
                                     </div>
@@ -1113,7 +1115,7 @@ return (
                                             {
                                                 financedLeft?.map((z, i) => {
                                                     return (
-                                                        <div className="flex gap-2 cursor-pointer hover:bg-slate-200 rounded-md px-1 responsiveTextInput" key={i}>
+                                                        <div className="flex gap-2 rounded-xl px-1 responsiveTextInput" key={i}>
                                                             <button onClick={() => setFinancedLeft(financedLeft.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
                                                             <input className={cn('items-center flex-1 min-w-0 outline-none h-6 text-slate-600 bg-transparent',
                                                                 z.title === '' ? 'input' : '')} value={z.title}
@@ -1128,11 +1130,11 @@ return (
                                                 })}
                                         </div>
 
-                                        <div className="flex items-center leading-5  gap-3 justify-between p-1 responsiveTextTotal">
-                                            <div className="border-t-2 border-slate-400">
+                                        <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
+                                            <div className="font-bold text-[#11497c]">
                                                 Total
                                             </div>
-                                            <div>
+                                            <div className="font-bold text-[#11497c]">
                                                 {
                                                     <NumericFormat
                                                         value={Array.isArray(financedLeft) ? financedLeft.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
@@ -1142,7 +1144,6 @@ return (
                                                         prefix='$'
                                                         decimalScale='2'
                                                         fixedDecimalScale
-                                                        className='pl-1 border-t-2 border-slate-400'
                                                     />
                                                 }
                                             </div>
@@ -1154,11 +1155,11 @@ return (
                         </div>
 
 
-                        <div className="w-full max-w-screen-lg flex-1 min-w-[320px] pl-4">
+                        <div className="w-full max-w-screen-lg flex-1 min-w-[320px] border pl-4 border-t-8 border-[#11497c] rounded-t-xl">
 
-                            <div className="p-4 bg-white rounded-md shadow-sm border border-slate-100 mb-4 flex flex-col justify-between min-h-[140px] cf-card">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-bold flex items-center p-1 responsiveTextTitle">Supplier - Payment </span>
+                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="font-bold text-[#11497c] responsiveTextTitle">Supplier - Payment</span>
                                 </div>
                                 <div className="flex p-1 justify-between">
                                     {
@@ -1177,10 +1178,10 @@ return (
 
                                 {supPayments2.map((x, i) => {
                                     return (
-                                        <div className="flex gap-4 items-center text-slate-600" key={i}>
+                                        <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                    <span className="responsiveText items-center flex outline-none whitespace-normal break-words cursor-pointer w-full min-w-0"
+                                                    <span className="responsiveText items-center flex outline-none whitespace-normal break-words w-full min-w-0"
                                                     >
                                                         {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                     </span>
@@ -1207,11 +1208,11 @@ return (
 
                                     )
                                 })}
-                                <div className="flex items-center leading-5 justify-between p-1 responsiveTextTotal">
-                                    <div className="border-t-2 border-slate-400">
+                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
+                                    <div className="font-bold text-[#11497c]">
                                         Total
                                     </div>
-                                    <div>
+                                    <div className="font-bold text-[#11497c]">
                                         {
                                             <NumericFormat
                                                 value={supPayments2?.reduce((total, obj) => {
@@ -1223,7 +1224,7 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='border-t-2 border-slate-400'
+                                                className='responsiveTextTotal'
                                             />
                                         }
                                     </div>
@@ -1231,9 +1232,9 @@ return (
                             </div>
 
 
-                            <div className="p-4 bg-white rounded-md shadow-sm border border-slate-100 mb-4 flex flex-col justify-between min-h-[140px] cf-card">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-bold flex items-center p-1 responsiveTextTitle">Supplier - Balances </span>
+                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="font-bold text-[#11497c] responsiveTextTitle">Supplier - Balances</span>
                                 </div>
                                 <div className="flex p-1 justify-between">
                                     {
@@ -1252,10 +1253,10 @@ return (
 
                                 {supPayments1.map((x, i) => {
                                     return (
-                                        <div className="flex gap-4  items-center text-slate-600" key={i}>
+                                        <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                    <span className="responsiveText items-center flex outline-none whitespace-normal break-words cursor-pointer w-full min-w-0"
+                                                    <span className="responsiveText items-center flex outline-none whitespace-normal break-words w-full min-w-0"
                                                     >
                                                         {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                     </span>
@@ -1282,11 +1283,11 @@ return (
                                     )
                                 })}
 
-                                <div className="flex items-center leading-5 justify-between p-1 responsiveTextTotal">
-                                    <div className="border-t-2 border-slate-400">
+                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
+                                    <div className="font-bold text-[#11497c]">
                                         Total
                                     </div>
-                                    <div>
+                                    <div className="font-bold text-[#11497c]">
                                         {
                                             <NumericFormat
                                                 value={supPayments1?.reduce((total, obj) => {
@@ -1298,7 +1299,6 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='border-t-2 border-slate-400'
                                             />
                                         }
                                     </div>
@@ -1325,7 +1325,7 @@ return (
                                         <div className="flex items-center  text-slate-600 " key={i}>
                                             <MyAccordion title={
                                                 <div className="flex justify-between leading-4 2xl:leading-6 w-full">
-                                                    <div className="responsiveText items-center flex outline-none whitespace-normal break-words cursor-pointer min-w-0"              >
+                                                    <div className="responsiveText items-center flex outline-none whitespace-normal break-words min-w-0"              >
                                                         {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                     </div>
 
@@ -1351,11 +1351,11 @@ return (
 
                                     )
                                 })}
-                                <div className="flex items-center leading-5 justify-between p-1 responsiveTextTotal">
-                                    <div className="border-t-2 border-slate-400">
+                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
+                                    <div className="font-bold text-[#11497c]">
                                         Total
                                     </div>
-                                    <div>
+                                    <div className="font-bold text-[#11497c]">
 
                                         <NumericFormat
                                             value={expenses?.reduce((total, obj) => {
@@ -1367,19 +1367,18 @@ return (
                                             prefix='$'
                                             decimalScale='2'
                                             fixedDecimalScale
-                                            className='border-t-2 border-slate-400'
                                         />
 
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="p-4 bg-white rounded-md shadow-sm border border-slate-100 mb-4 flex flex-col justify-between min-h-[140px] cf-card">
+                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
                                 {
                                     userTitle === 'Admin' &&
                                     <div className='mt-10 p-1'>
                                         <div className='flex justify-between'>
-                                            <span className="font-bold responsiveTextTitle">Financing</span>
+                                            <span className="font-bold text-[#11497c] responsiveTextTitle">Financing</span>
                                             <button
                                                 type="button"
                                                 className="blackButton h-4  text-xs w-10 p-3"
@@ -1392,7 +1391,7 @@ return (
                                             {
                                                 financedRight?.map((z, i) => {
                                                     return (
-                                                        <div className="flex gap-2 cursor-pointer hover:bg-slate-200 rounded-md px-0.5 responsiveTextInput" key={i}>
+                                                        <div className="flex gap-2 rounded-xl px-0.5 responsiveTextInput" key={i}>
                                                             <button onClick={() => setFinancedRight(financedRight.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
                                                             <input className={cn('items-center flex-1 min-w-0 outline-none h-6 text-slate-600 bg-transparent',
                                                                 z.title === '' ? 'input' : '')}
@@ -1405,11 +1404,11 @@ return (
                                                 })}
                                         </div>
 
-                                        <div className="flex items-center leading-5  gap-3 justify-between pt-1 responsiveTextTotal">
-                                            <div className="border-t-2 border-slate-400">
+                                        <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
+                                            <div className="font-bold text-[#11497c]">
                                                 Total
                                             </div>
-                                            <div>
+                                            <div className="font-bold text-[#11497c]">
                                                 {
                                                     <NumericFormat
                                                         value={Array.isArray(financedRight) ? financedRight.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
@@ -1419,7 +1418,6 @@ return (
                                                         prefix='$'
                                                         decimalScale='2'
                                                         fixedDecimalScale
-                                                        className='pl-1 border-t-2 border-slate-400'
                                                     />
                                                 }
                                             </div>
@@ -1433,13 +1431,13 @@ return (
                         </div>
                     </div>
                      {userTitle === 'Admin' && (
-                <div className="mt-8 w-full max-w-[900px] mx-auto space-y-4">
+                <div className="mt-2 w-full border-2 border-gray-300 rounded-lg p-2">
 
-                    {/* TOTALS ROW */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 responsiveTextTotal">
+                    {/* TOTALS AND BALANCE IN ONE ROW */}
+                    <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
                         
-                        <div className="flex justify-between items-center border-t-2 border-slate-300 pt-2">
-                            <span className="font-semibold text-slate-600">
+                        <div className="flex justify-between items-center bg-blue-50 border-2 border-blue-300 rounded-lg px-4 py-0">
+                            <span className="font-bold text-[#11497c] responsiveTextTitle">
                                 Total (Left)
                             </span>
                             <NumericFormat
@@ -1453,8 +1451,24 @@ return (
                             />
                         </div>
 
-                        <div className="flex justify-between items-center border-t-2 border-slate-300 pt-2">
-                            <span className="font-semibold text-slate-600">
+                        <div className="flex justify-between items-center bg-[#11497c] text-white border-2 border-[#11497c] rounded-lg px-4 py-0 responsiveTextTotal">
+                            <span className="font-bold">
+                                Balance
+                            </span>
+                            <NumericFormat
+                                value={totalLeft - totalRight}
+                                displayType="text"
+                                thousandSeparator
+                                allowNegative
+                                prefix="$"
+                                decimalScale={2}
+                                fixedDecimalScale
+                                className="font-bold"
+                            />
+                        </div>
+
+                        <div className="flex justify-between items-center bg-blue-50 border-2 border-blue-300 rounded-lg px-4 py-0">
+                            <span className="font-bold text-[#11497c] responsiveTextTitle">
                                 Total (Right)
                             </span>
                             <NumericFormat
@@ -1470,48 +1484,30 @@ return (
 
                     </div>
 
-                    {/* BALANCE ROW */}
-                    <div className="flex justify-between items-center border-t-2 border-slate-400 pt-3 responsiveTextTotal">
-                        <span className="font-bold text-slate-700">
-                            Balance
-                        </span>
-                        <NumericFormat
-                            value={totalLeft - totalRight}
-                            displayType="text"
-                            thousandSeparator
-                            allowNegative
-                            prefix="$"
-                            decimalScale={2}
-                            fixedDecimalScale
-                            className="font-bold"
-                        />
+                    {/* YEAR TOTAL INPUTS */}
+                    <div className="pt-2 pl-2">
+                        {yr.map(z => {
+                            const key = `total${z}`;
+                            return (
+                                <div className="flex gap-2 my-2" key={z}>
+                                    <span className="responsiveTextInput items-center flex w-20 font-bold">{z}</span>
+                                    <input
+                                        className='input w-44 h-6 responsiveTextTotal font-bold'
+                                        value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
+                                        onChange={e => handleChange(e, z)}
+                                    />
+                                </div>
+                            )
+                        })}
                     </div>
 
                 </div>
             )}
 
-            {/* YEAR TOTAL INPUTS */}
-            {userTitle === 'Admin' &&
-                <div className="pt-6 pl-2 max-w-[900px] mx-auto">
-                    {yr.map(z => {
-                        const key = `total${z}`;
-                        return (
-                            <div className="flex gap-2 my-2" key={z}>
-                                <span className="text-xs 2xl:text-sm items-center flex w-20 font-bold">{z}</span>
-                                <input
-                                    className='input w-44 h-6 text-[0.7rem] 2xl:text-[0.77rem] font-bold'
-                                    value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
-                                    onChange={e => handleChange(e, z)}
-                                />
-                            </div>
-                        )
-                    })}
-                </div>
-            }
-
         </div>
     </>
     }
+    </div>
 </div>
     )
 }
