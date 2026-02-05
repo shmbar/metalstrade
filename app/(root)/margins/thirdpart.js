@@ -1,352 +1,4 @@
-// import { NumericFormat } from "react-number-format";
 
-// const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr, title }) => {
-
-//     return (
-//         <div className="w-full p-2 mt-6">
-//             {/* Import Poppins font and apply consistent styling */}
-//             <style jsx global>{`
-//                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-                
-//                 .margins-table, .margins-table * {
-//                     font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-//                     transition-property: color, background-color, border-color, box-shadow !important;
-//                     transition-duration: 150ms !important;
-//                     transition-timing-function: ease-in-out !important;
-//                 }
-//             `}</style>
-
-//             {/* Title with consistent typography */}
-//             <h1 
-//                 className="font-normal mb-4 margins-table"
-//                 style={{ 
-//                     color: '#183d79',
-//                     fontSize: 'clamp(14px, 1.2vw, 16px)',
-//                     fontWeight: '500',
-//                     letterSpacing: '0.02em'
-//                 }}
-//             >
-//                 {title}:
-//             </h1>
-
-//             {/* Main container with consistent styling matching newTable */}
-//             <div 
-//                 className="w-full max-w-4xl margins-table"
-//                 style={{
-//                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(250, 250, 250, 0.90) 50%, rgba(255, 255, 255, 0.85) 100%)',
-//                     backdropFilter: 'blur(16px) saturate(180%)',
-//                     WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-//                     borderRadius: '24px',
-//                     border: '1px solid #E5E7EB',
-//                     boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset',
-//                     overflow: 'hidden'
-//                 }}
-//             >
-//                 {/* Header row - matching newTable header style */}
-//                 <div 
-//                     className="grid grid-cols-2 sm:grid-cols-5 gap-0"
-//                     style={{
-//                         background: '#d4eafc',
-//                         borderBottom: '2px solid #E5E7EB',
-//                         padding: '8px'
-//                     }}
-//                 >
-//                     <div 
-//                         className="px-2 py-2 text-center"
-//                         style={{
-//                             color: '#183d79',
-//                             fontSize: 'clamp(10px, 1.0vw, 13px)',
-//                             fontWeight: '500',
-//                             letterSpacing: '0.05em',
-//                             textTransform: 'uppercase'
-//                         }}
-//                     >
-//                         Months
-//                     </div>
-//                     <div 
-//                         className="px-2 py-2 text-center"
-//                         style={{
-//                             color: '#183d79',
-//                             fontSize: 'clamp(10px, 1.0vw, 13px)',
-//                             fontWeight: '500',
-//                             letterSpacing: '0.05em',
-//                             textTransform: 'uppercase'
-//                         }}
-//                     >
-//                         Purchased quantity (MT)
-//                     </div>
-//                     <div 
-//                         className="px-2 py-2 text-center sm:block hidden"
-//                         style={{
-//                             color: '#183d79',
-//                             fontSize: 'clamp(10px, 1.0vw, 13px)',
-//                             fontWeight: '500',
-//                             letterSpacing: '0.05em',
-//                             textTransform: 'uppercase'
-//                         }}
-//                     >
-//                         Profit
-//                     </div>
-//                     <div 
-//                         className="px-2 py-2 text-center sm:block hidden"
-//                         style={{
-//                             color: '#183d79',
-//                             fontSize: 'clamp(10px, 1.0vw, 13px)',
-//                             fontWeight: '500',
-//                             letterSpacing: '0.05em',
-//                             textTransform: 'uppercase'
-//                         }}
-//                     >
-//                         Outstanding shipment
-//                     </div>
-//                     <div 
-//                         className="px-2 py-2 text-center sm:block hidden"
-//                         style={{
-//                             color: '#183d79',
-//                             fontSize: 'clamp(10px, 1.0vw, 13px)',
-//                             fontWeight: '500',
-//                             letterSpacing: '0.05em',
-//                             textTransform: 'uppercase'
-//                         }}
-//                     >
-//                         Remaining
-//                     </div>
-//                 </div>
-
-//                 {/* Data rows - matching newTable body cell style */}
-//                 {data.map((z, i) => (
-//                     <div 
-//                         key={i} 
-//                         className="grid grid-cols-2 sm:grid-cols-5 gap-0 cursor-pointer transition-colors duration-150"
-//                         style={{
-//                             borderBottom: '1px solid #E5E7EB',
-//                             backgroundColor: '#FFFFFF'
-//                         }}
-//                         onMouseEnter={(e) => {
-//                             e.currentTarget.style.backgroundColor = '#f9f9f9';
-//                         }}
-//                         onMouseLeave={(e) => {
-//                             e.currentTarget.style.backgroundColor = '#FFFFFF';
-//                         }}
-//                     >
-//                         <div 
-//                             className="px-2 py-2 flex items-center justify-center"
-//                             style={{
-//                                 color: '#1F2937',
-//                                 fontSize: 'clamp(11px, 1.0vw, 13px)',
-//                                 fontWeight: '400',
-//                                 border: '1px solid #e0e0e0',
-//                                 backgroundColor: '#fff',
-//                                 textAlign: 'center',
-//                                 verticalAlign: 'middle'
-//                             }}
-//                         >
-//                             <div className="px-2 py-1 text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out hover:bg-[#f9f9f9]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] min-w-[70px]">
-//                                 {z.month + "-" + yr}
-//                             </div>
-//                         </div>
-                        
-//                         <div 
-//                             className="px-2 py-2 flex items-center justify-center"
-//                             style={{
-//                                 color: '#1F2937',
-//                                 fontSize: 'clamp(11px, 1.0vw, 13px)',
-//                                 fontWeight: '400',
-//                                 border: '1px solid #e0e0e0',
-//                                 backgroundColor: '#fff',
-//                                 textAlign: 'center',
-//                                 verticalAlign: 'middle'
-//                             }}
-//                         >
-//                             <div className="px-2 py-1 text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out hover:bg-[#f9f9f9]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] min-w-[70px]">
-//                                 <NumericFormat
-//                                     value={z.purchase}
-//                                     displayType="text"
-//                                     thousandSeparator
-//                                     allowNegative={true}
-//                                     decimalScale={!Number.isInteger(z.purchase) && '2'}
-//                                     fixedDecimalScale
-//                                 />
-//                             </div>
-//                         </div>
-
-//                         <div 
-//                             className="px-2 py-2 hidden sm:flex items-center justify-center"
-//                             style={{
-//                                 color: '#1F2937',
-//                                 fontSize: 'clamp(11px, 1.0vw, 13px)',
-//                                 fontWeight: '400',
-//                                 border: '1px solid #e0e0e0',
-//                                 backgroundColor: '#fff',
-//                                 textAlign: 'center',
-//                                 verticalAlign: 'middle'
-//                             }}
-//                         >
-//                             <div className="px-2 py-1 text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out hover:bg-[#f9f9f9]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] min-w-[70px]">
-//                                 <NumericFormat
-//                                     value={z.totalMargin}
-//                                     displayType="text"
-//                                     thousandSeparator
-//                                     allowNegative={true}
-//                                     prefix={'$'}
-//                                     decimalScale="2"
-//                                     fixedDecimalScale
-//                                 />
-//                             </div>
-//                         </div>
-
-//                         <div 
-//                             className="px-2 py-2 hidden sm:flex items-center justify-center"
-//                             style={{
-//                                 color: '#1F2937',
-//                                 fontSize: 'clamp(11px, 1.0vw, 13px)',
-//                                 fontWeight: '400',
-//                                 border: '1px solid #e0e0e0',
-//                                 backgroundColor: '#fff',
-//                                 textAlign: 'center',
-//                                 verticalAlign: 'middle'
-//                             }}
-//                         >
-//                             <div className="px-2 py-1 text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out hover:bg-[#f9f9f9]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] min-w-[70px]">
-//                                 <NumericFormat
-//                                     value={z.openShip}
-//                                     displayType="text"
-//                                     thousandSeparator
-//                                     allowNegative={true}
-//                                     decimalScale={!Number.isInteger(z.openShip) && '2'}
-//                                     fixedDecimalScale
-//                                 />
-//                             </div>
-//                         </div>
-
-//                         <div 
-//                             className="px-2 py-2 hidden sm:flex items-center justify-center"
-//                             style={{
-//                                 color: '#1F2937',
-//                                 fontSize: 'clamp(11px, 1.0vw, 13px)',
-//                                 fontWeight: '400',
-//                                 border: '1px solid #e0e0e0',
-//                                 backgroundColor: '#fff',
-//                                 textAlign: 'center',
-//                                 verticalAlign: 'middle'
-//                             }}
-//                         >
-//                             <div className="px-2 py-1 text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out hover:bg-[#f9f9f9]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] min-w-[70px]">
-//                                 <NumericFormat
-//                                     value={z.remaining}
-//                                     displayType="text"
-//                                     thousandSeparator
-//                                     allowNegative={true}
-//                                     prefix={'$'}
-//                                     decimalScale="2"
-//                                     fixedDecimalScale
-//                                 />
-//                             </div>
-//                         </div>
-//                     </div>
-//                 ))}
-
-//                 {/* Totals row - matching newTable footer style */}
-//                 <div 
-//                     className="grid grid-cols-2 sm:grid-cols-5 gap-0"
-//                     style={{
-//                         background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))',
-//                         borderTop: '2px solid #E5E7EB',
-//                         padding: '8px'
-//                     }}
-//                 >
-//                     <div 
-//                         className="px-2 py-2 flex items-center justify-center"
-//                         style={{
-//                             color: '#183d79',
-//                             fontSize: 'clamp(11px, 1.0vw, 13px)',
-//                             fontWeight: '600',
-//                             textAlign: 'center'
-//                         }}
-//                     >
-//                         Total
-//                     </div>
-                    
-//                     <div 
-//                         className="px-2 py-2 flex items-center justify-center"
-//                         style={{
-//                             color: '#1F2937',
-//                             fontSize: 'clamp(11px, 1.0vw, 13px)',
-//                             fontWeight: '500'
-//                         }}
-//                     >
-//                         <NumericFormat
-//                             value={purchase}
-//                             displayType="text"
-//                             thousandSeparator
-//                             allowNegative={true}
-//                             decimalScale={!Number.isInteger(purchase) && '2'}
-//                             fixedDecimalScale
-//                         />
-//                     </div>
-                    
-//                     <div 
-//                         className="px-2 py-2 hidden sm:flex items-center justify-center"
-//                         style={{
-//                             color: '#1F2937',
-//                             fontSize: 'clamp(11px, 1.0vw, 13px)',
-//                             fontWeight: '500'
-//                         }}
-//                     >
-//                         <NumericFormat
-//                             value={totalMargin}
-//                             displayType="text"
-//                             thousandSeparator
-//                             allowNegative={true}
-//                             prefix={'$'}
-//                             decimalScale="2"
-//                             fixedDecimalScale
-//                         />
-//                     </div>
-                    
-//                     <div 
-//                         className="px-2 py-2 hidden sm:flex items-center justify-center"
-//                         style={{
-//                             color: '#1F2937',
-//                             fontSize: 'clamp(11px, 1.0vw, 13px)',
-//                             fontWeight: '500'
-//                         }}
-//                     >
-//                         <NumericFormat
-//                             value={outStandingShip}
-//                             displayType="text"
-//                             thousandSeparator
-//                             allowNegative={true}
-//                             decimalScale="2"
-//                             fixedDecimalScale
-//                         />
-//                     </div>
-                    
-//                     <div 
-//                         className="px-2 py-2 hidden sm:flex items-center justify-center"
-//                         style={{
-//                             color: '#1F2937',
-//                             fontSize: 'clamp(11px, 1.0vw, 13px)',
-//                             fontWeight: '500'
-//                         }}
-//                     >
-//                         <NumericFormat
-//                             value={remaining}
-//                             displayType="text"
-//                             thousandSeparator
-//                             allowNegative={true}
-//                             prefix={'$'}
-//                             decimalScale="2"
-//                             fixedDecimalScale
-//                         />
-//                     </div>
-//                 </div>
-//             </div>
-//         </div>
-//     )
-// }
-
-// export default ThirdPart
 import { NumericFormat } from "react-number-format";
 
 const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr, title }) => {
@@ -360,14 +12,14 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                 .margins-table, .margins-table * {
                     font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
                     font-size: 10px !important;
-                    transition-property: color, background-color, border-color, box-shadow !important;
+           
                     transition-duration: 150ms !important;
                     transition-timing-function: ease-in-out !important;
                 }
 
                 /* Add border, background, and text alignment styles for table cells */
                 .margins-table th, .margins-table td {
-                    border: 1px solid #ccc;
+                    
                     background-color: #f9f9f9;
                     text-align: center;
                     vertical-align: middle;
@@ -401,7 +53,9 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
             <div 
                 className="w-full margins-table"
                 style={{
+                    borderRadius: '24px',
                     boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset',
+                    overflow: 'hidden'
                 }}
             >
                 {/* Header section matching newTable */}
@@ -409,7 +63,9 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                     className="flex-shrink-0"
                     style={{ 
                         borderBottom: '2px solid #E5E7EB',
-                        background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+                        background: '#d4eafc',
+                        borderTopLeftRadius: '24px',
+                        borderTopRightRadius: '24px'
                     }}
                 >
                     {/* Desktop table container matching newTable exactly */}
@@ -418,7 +74,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                             className="overflow-auto"
                            
                         >
-                            <table className="w-full" style={{ tableLayout: 'auto' }}>
+                            <table className="w-full rounded-xl" style={{ tableLayout: 'auto', borderSpacing: '6px' }}>
                                 {/* THEAD - matching newTable header exactly */}
                                 <thead className="sticky top-0 z-10">
                                     <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
@@ -430,6 +86,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                 letterSpacing: '0.05em',
                                                 textAlign: 'center',
+                                                borderRadius: '12px',
+                                                border: '1px solid #b8ddf8'
                                             }}
                                         >
                                             Months
@@ -442,6 +100,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                 letterSpacing: '0.05em',
                                                 textAlign: 'center',
+                                                borderRadius: '12px',
+                                                border: '1px solid #b8ddf8'
                                             }}
                                         >
                                             Purchased quantity (MT)
@@ -454,6 +114,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                 letterSpacing: '0.05em',
                                                 textAlign: 'center',
+                                                borderRadius: '12px',
+                                                border: '1px solid #b8ddf8'
                                             }}
                                         >
                                             Profit
@@ -466,6 +128,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                 letterSpacing: '0.05em',
                                                 textAlign: 'center',
+                                                borderRadius: '12px',
+                                                border: '1px solid #b8ddf8'
                                             }}
                                         >
                                             Outstanding shipment
@@ -478,6 +142,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                 letterSpacing: '0.05em',
                                                 textAlign: 'center',
+                                                borderRadius: '12px',
+                                                border: '1px solid #b8ddf8'
                                             }}
                                         >
                                             Remaining

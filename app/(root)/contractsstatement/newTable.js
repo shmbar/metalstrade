@@ -148,20 +148,21 @@ const Customtable = ({
         /* Import Poppins and set table font */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
-       .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-.dashboard-scroll::-webkit-scrollbar-track { 
-  background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
-  border-radius: 6px; 
-}
-.dashboard-scroll::-webkit-scrollbar-thumb { 
-  background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
-  border-radius: 6px; 
-  border: 2px solid #F8F8F8;
-}
-.dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-  background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
-  border-color: #F0F0F0;
-}
+ /* Professional gradient scrollbar matching cards */
+        .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+        .dashboard-scroll::-webkit-scrollbar-track { 
+          background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
+          border-radius: 6px; 
+        }
+        .dashboard-scroll::-webkit-scrollbar-thumb { 
+          background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
+          border-radius: 6px; 
+          border: 2px solid #F8F8F8;
+        }
+        .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
+          background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
+          border-color: #F0F0F0;
+        }
 
         /* Glassmorphic professional table */
         .glass-table {
@@ -356,7 +357,7 @@ const Customtable = ({
                                     <tr key={sub.id} style={{ borderBottom: '1px solid #E5E7EB' }} className="last:border-b-0">
                                       {sub.getVisibleCells().map(cell => (
                                         <td key={cell.id} className="px-2 py-2" style={{ fontSize: 'clamp(10px, 0.9vw, 12px)' }}>
-                                          <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border border-transparent transition-all duration-200 ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1]">
+                                          <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border border-transparent transition-all duration-200 ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] rounded-xl hover:shadow-[inset_0_0_0_1px_#d1d1d1]">
                                             {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}
                                           </div>
                                         </td>

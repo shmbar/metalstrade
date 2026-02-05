@@ -60,41 +60,110 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
     return (
       <tr 
         key={currency}
-        className="border-t border-[var(--selako)] bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)]"
+        className="cursor-pointer"
       >
         {columns.map((col, index) => {
           if (index === 0) {
             return (
-              <td key={`${currency}-${index}`} className="px-2 py-2 md:px-3 md:py-2">
-                <span className="text-[0.7rem] md:text-[0.75rem] font-medium text-[#1F2937] uppercase whitespace-nowrap">
+              <td
+                key={`${currency}-${index}`}
+                className="px-2 py-2 transition-colors duration-150 group/cell relative"
+                style={{
+                  color: '#183d79',
+                  minWidth: '60px',
+                  maxWidth: '110px',
+                  fontSize: 'clamp(11px, 1.0vw, 13px)',
+                  fontWeight: '600',
+                  zIndex: 1,
+                  willChange: 'background-color, color',
+                  background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+                }}
+              >
+                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl transition-all duration-200 ease-in-out bg-[#e3f3ff] border-transparent"
+                  style={{ border: '1px solid #b8ddf8' }}>
                   {config.label}
-                </span>
+                </div>
               </td>
             )
           } else if (index === 1) {
             return (
-              <td key={`${currency}-${index}`} className="px-2 py-2 md:px-3 md:py-2">
-                <span className="text-[0.7rem] md:text-[0.75rem] font-medium text-[#1F2937] uppercase" />
+              <td
+                key={`${currency}-${index}`}
+                className="px-2 py-2 transition-colors duration-150 group/cell relative"
+                style={{
+                  color: '#1F2937',
+                  minWidth: '60px',
+                  maxWidth: '110px',
+                  fontSize: 'clamp(11px, 1.0vw, 13px)',
+                  fontWeight: '500',
+                  zIndex: 1,
+                  willChange: 'background-color, color',
+                  background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+                }}
+              >
+                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9]"
+                  style={{ border: '1px solid #e0e0e0' }}>
+                  {/* Empty cell */}
+                </div>
               </td>
             )
           } else if (index === 2) {
             return (
-              <td key={`${currency}-${index}`} className="px-2 py-2 md:px-3 md:py-2 text-left">
-                <span className="text-[0.7rem] md:text-[0.75rem] font-medium text-[#1F2937] uppercase whitespace-nowrap">
+              <td
+                key={`${currency}-${index}`}
+                className="px-2 py-2 transition-colors duration-150 group/cell relative"
+                style={{
+                  color: '#1F2937',
+                  minWidth: '60px',
+                  maxWidth: '110px',
+                  fontSize: 'clamp(11px, 1.0vw, 13px)',
+                  fontWeight: '500',
+                  zIndex: 1,
+                  willChange: 'background-color, color',
+                  background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+                }}
+              >
+                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9] hover:shadow-[inset_0_0_0_1px_#d1d1d1]"
+                  style={{ border: '1px solid #e0e0e0' }}>
                   {formatNumber(quantity)}
-                </span>
+                </div>
               </td>
             )
           } else if (index === 3) {
             return (
-              <td key={`${currency}-${index}`} className="px-2 py-2 md:px-3 md:py-2 text-right">
-                <span className="text-[0.7rem] md:text-[0.75rem] font-medium text-[#1F2937] uppercase whitespace-nowrap">
+              <td
+                key={`${currency}-${index}`}
+                className="px-2 py-2 transition-colors duration-150 group/cell relative"
+                style={{
+                  color: '#1F2937',
+                  minWidth: '60px',
+                  maxWidth: '110px',
+                  fontSize: 'clamp(11px, 1.0vw, 13px)',
+                  fontWeight: '500',
+                  zIndex: 1,
+                  willChange: 'background-color, color',
+                  background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+                }}
+              >
+                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9] hover:shadow-[inset_0_0_0_1px_#d1d1d1]"
+                  style={{ border: '1px solid #e0e0e0' }}>
                   {formatCurrency(total, config.code)}
-                </span>
+                </div>
               </td>
             )
           }
-          return <td key={`${currency}-${index}`} className="px-2 py-2 md:px-3 md:py-2" />
+          return (
+            <td
+              key={`${currency}-${index}`}
+              className="px-2 py-2 transition-colors duration-150 group/cell relative"
+              style={{
+                background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+              }}
+            >
+              <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9]"
+                style={{ border: '1px solid #e0e0e0' }} />
+            </td>
+          )
         })}
       </tr>
     )
@@ -104,41 +173,57 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
     <div className="w-full">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-        .glass-table {
-          background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(250,250,250,0.90) 50%, rgba(255,255,255,0.85) 100%);
-          backdrop-filter: blur(16px) saturate(180%);
-          -webkit-backdrop-filter: blur(16px) saturate(180%);
-        }
-        .custom-table, .custom-table *, .glass-table, .glass-table * {
+        
+        .stocks-table, .stocks-table * {
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
           font-size: 10px !important;
-          transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
         }
-        .custom-table th, .custom-table td {
-          border: 1px solid #ccc;
+
+        /* Add border, background, and text alignment styles for table cells */
+        .stocks-table th, .stocks-table td {
           background-color: #f9f9f9;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
         }
-        .custom-table th {
+
+        .stocks-table th {
           background-color: #d4eafc;
         }
-        .custom-table td {
+
+        .stocks-table td {
           background-color: #fff;
           border: 1px solid #e0e0e0;
         }
+        
         .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
         .dashboard-scroll::-webkit-scrollbar-track { background: linear-gradient(180deg, #F5F5F5, #FAFAFA); border-radius: 6px; }
         .dashboard-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #6366F1, #4338CA); border-radius: 6px; border: 2px solid #F5F5F5; }
         .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #A855F7, #7E22CE); border-color: #FAFAFA; }
       `}</style>
-      <div className="glass-table rounded-2xl shadow-lg border border-[#e0e0e0]">
-        <div className="overflow-x-auto dashboard-scroll" style={{ borderLeft: '8px solid #1D3D79', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
-          <table className="custom-table w-full" style={{ tableLayout: 'auto' }}>
+      <div 
+        className="w-full"
+        style={{
+          borderRadius: '24px',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset',
+          overflow: 'hidden'
+        }}
+      >
+        {/* Header section matching newTable */}
+        <div 
+          className="flex-shrink-0"
+          style={{ 
+            borderBottom: '2px solid #E5E7EB',
+            background: '#d4eafc',
+            borderTopLeftRadius: '24px',
+            borderTopRightRadius: '24px'
+          }}
+        >
+          <div className="overflow-x-auto dashboard-scroll">
+            <table className="stocks-table w-full rounded-xl" style={{ tableLayout: 'auto', borderSpacing: '6px' }}>
             <thead className="sticky top-0 z-10">
               {table.getHeaderGroups().map(hdGroup => (
                 <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
@@ -152,6 +237,8 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         fontSize: 'clamp(10px, 1.0vw, 13px)',
                         letterSpacing: '0.05em',
                         textAlign: 'center',
+                        borderRadius: '12px',
+                        border: '1px solid #b8ddf8'
                       }}
                     >
                       {header.column.getCanSort() ? (
@@ -186,23 +273,24 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                       <td
                         key={cell.id}
                         data-label={cell.column.columnDef.header}
-                        className="px-2 py-2 text-center"
+                        className="px-2 py-2 transition-colors duration-150 group/cell relative"
                         style={{
                           color: '#1F2937',
+                          minWidth: '60px',
+                          maxWidth: '110px',
                           fontSize: 'clamp(11px, 1.0vw, 13px)',
                           fontWeight: '400',
                           zIndex: 1,
                           willChange: 'background-color, color',
-                          textAlign: 'center',
                         }}
                       >
                         <Tltip
                           direction='right'
                           tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}
                         >
-                          <span className="text-[11px] items-center flex w-full justify-center outline-none truncate cursor-default">
+                          <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </span>
+                          </div>
                         </Tltip>
                       </td>
                     ))}
@@ -222,7 +310,8 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             <tfoot>
               {Object.keys(CURRENCIES).map(currency => renderTotalRow(currency))}
             </tfoot>
-          </table>
+            </table>
+          </div>
         </div>
       </div>
     </div>
