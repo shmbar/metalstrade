@@ -4,7 +4,7 @@ function addCommas(x) {
 }
 function checkIfInArray(values) {
     const arr = [3, 5.5];
-    const sumOfY_axe = values.map(x => x.value).reduce((a, b) => a + b, 0) //array is included in array
+    const sumOfY_axe = values.map(x => x.value).reduce((a, b) => a + b, 0); //array is included in array
     return arr.indexOf(sumOfY_axe) !== -1
 }
 
@@ -472,12 +472,11 @@ export const HorizontalBar = (arr, text) => {
     // Generate gradient colors based on site color palette
     const generateGradientColors = (length) => {
         const colors = [
-            '#103a7a', // chathams-blue
-            '#0366ae', // endeavour
-            '#9fb8d4', // rock-blue
-            '#28264f', // port-gore
-            '#1c134d', // bunting
-            '#838ca7', // regent-gray
+            '#0ea5e9', // Sky blue
+            '#38bdf8', // Light sky blue  
+            '#7dd3fc', // Very light sky blue
+            '#6366f1', // Indigo
+            '#818cf8', // Light indigo
         ];
         return Array.from({ length }, (_, i) => colors[i % colors.length]);
     };

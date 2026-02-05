@@ -1,4 +1,3 @@
-
 'use client';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
@@ -328,7 +327,6 @@ const Dash = () => {
   if (Object.keys(settings).length === 0) return <Spinner />;
 
   return (
-
     <div className="w-full ">
       <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px] min-h-screen ">
       <Toast />
@@ -455,10 +453,10 @@ const Dash = () => {
                 {(hbSupps.obj.labels || []).map((lbl, idx) => {
                   // Professional color palette for contracts
                   const colorPalette = [
-                    '#54A6E9',
-                    '#5FBEF8',
-                    '#7DD3FC',
-                    '#BAE6FD'
+                    '#0ea5e9', // Sky blue
+                    '#38bdf8', // Light sky blue
+                    '#7dd3fc', // Very light sky blue
+                    '#6366f1'  // Indigo
                   ];
                   const color = hbSupps.obj.datasets?.[0]?.backgroundColor?.[idx] || colorPalette[idx % colorPalette.length];
                   const value = hbSuppsData?.datasets?.[0]?.data?.[idx] || 0;
@@ -537,11 +535,11 @@ const Dash = () => {
                 {(hbClnts.obj.labels || []).map((lbl, idx) => {
                   // Professional color palette for co-signed
                   const colorPalette = [
-                    '#54A6E9',
-                    '#5FBEF8',
-                    '#7DD3FC',
-                    '#6366F1',
-                    '#818CF8'
+                    '#0ea5e9', // Sky blue
+                    '#38bdf8', // Light sky blue
+                    '#7dd3fc', // Very light sky blue
+                    '#6366f1', // Indigo
+                    '#818cf8'  // Light indigo
                   ];
                   const color = hbClnts.obj.datasets?.[0]?.backgroundColor?.[idx] || colorPalette[idx % colorPalette.length];
                   const value = hbClntsData?.datasets?.[0]?.data?.[idx] || 0;
