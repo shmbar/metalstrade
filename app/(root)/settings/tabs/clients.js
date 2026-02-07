@@ -93,8 +93,8 @@ const Clients = () => {
     }
 
     return (
-        <div className='border border-[var(--rock-blue)] p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
-            <div className='border border-[var(--rock-blue)] p-4 rounded-lg mt-1 shadow-md  min-w-xl'>
+        <div className=' p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
+            <div className='border border-[var()] p-4 rounded-lg mt-1 shadow-md  min-w-xl'>
                 <p className='flex items-center text-sm font-medium pl-2 text-[var(--port-gore)]'>{getTtl('Clients', ln)}:</p>
 
 
@@ -113,7 +113,7 @@ const Clients = () => {
 
             </div>
             <div className='flex flex-col  md:w-7/12'>
-                <div className='border border-[var(--rock-blue)] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap'>
+                <div className='border border-[var(#E5E7EB)] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap'>
                     <Tltip direction='top' tltpText='Add new client'>
                         <button className={`blackButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
                             onClick={addItem}>
@@ -140,77 +140,77 @@ const Clients = () => {
                         </button>
                     </Tltip>
                 </div>
-                <div className='border border-[var(--rock-blue)] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
+                <div className='border border-[var(#E5E7EB)] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
                     <div className='grid md:max-lg:grid-cols-1  sm:grid-cols-2 grid-rows-3 gap-2 w-full'>
                         <div className='cols-span-12 lg:cols-span-1'>
                             <p className='text-xs'>{getTtl('Name', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs ' value={value.client}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.client}
                                 onChange={(e) => { setValue({ ...value, 'client': e.target.value }) }} />
                             <ErrDiv field='client' />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
                             <p className='text-xs'>{getTtl('Nick Name', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.nname}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.nname}
                                 onChange={(e) => { setValue({ ...value, 'nname': e.target.value }) }} />
                             <ErrDiv field='nname' />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
                             <p className='text-xs'>{getTtl('street', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.street}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.street}
                                 onChange={(e) => { setValue({ ...value, 'street': e.target.value }) }} />
                             <ErrDiv field='street' />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
                             <p className='text-xs'>{getTtl('city', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs ' value={value.city}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.city}
                                 onChange={(e) => { setValue({ ...value, 'city': e.target.value }) }} />
                             <ErrDiv field='city' />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
                             <p className='text-xs'>{getTtl('country', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.country}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.country}
                                 onChange={(e) => { setValue({ ...value, 'country': e.target.value }) }} />
                             <ErrDiv field='country' />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
                             <p className='text-xs'>{getTtl('Other', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.other1}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.other1}
                                 onChange={(e) => { setValue({ ...value, 'other1': e.target.value }) }} />
                         </div>
                     </div>
                 </div>
 
 
-                <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
+                <div className='border border-[var(#E5E7EB)] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
                     <div className='grid md:max-lg:grid-cols-1  sm:grid-cols-2 grid-rows-3 gap-2 w-full'>
                         <div className='cols-span-12 lg:cols-span-1'>
                             <p className='text-xs'>POC:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.poc}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.poc}
                                 onChange={(e) => { setValue({ ...value, 'poc': e.target.value }) }} />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
                             <p className='text-xs'>{getTtl('email', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.email}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.email}
                                 onChange={(e) => { setValue({ ...value, 'email': e.target.value }) }} />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
                             <p className='text-xs'>{getTtl('cmpPhone', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.phone}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.phone}
                                 onChange={(e) => { setValue({ ...value, 'phone': e.target.value }) }} />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
                             <p className='text-xs'>{getTtl('cmpMobile', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.mobile}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.mobile}
                                 onChange={(e) => { setValue({ ...value, 'mobile': e.target.value }) }} />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
                             <p className='text-xs'>{getTtl('Fax', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.fax}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.fax}
                                 onChange={(e) => { setValue({ ...value, 'fax': e.target.value }) }} />
                         </div>
                         <div className='cols-span-12 lg:cols-span-1'>
                             <p className='text-xs'>{getTtl('Other', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.other2}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.other2}
                                 onChange={(e) => { setValue({ ...value, 'other2': e.target.value }) }} />
                         </div>
                     </div>

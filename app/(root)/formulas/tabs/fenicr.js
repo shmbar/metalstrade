@@ -917,412 +917,365 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
     }
 
     return value.fenicr != null ? (
-        <div className='w-full bg-white'>
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <div className="w-full bg-[#F5FAFF] rounded-2xl p-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
                 {/* COST SECTION */}
-                <div className="w-full">
-                    <h3 className='text-base font-semibold text-[var(--port-gore)] mb-2'>Cost</h3>
+                <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                    <h3 className="text-lg font-semibold text-slate-800 mb-4">Cost</h3>
                     
                     {/* Composition */}
-                    <div className='mb-3'>
-                        <p className='text-sm font-medium text-[var(--regent-gray)] mb-2 text-center'>Composition</p>
-                        <div className='flex border border-[var(--rock-blue)] overflow-hidden'>
-                            <div className='flex-1'>
-                                <div className='bg-[var(--selago)] text-center py-1 text-xs font-semibold border-b border-[var(--rock-blue)]'>Ni</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2 text-sm font-medium border-0 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]' 
-                                    value={value?.fenicr?.ni + '%'}
-                                    name='ni' 
-                                    onChange={(e) => {
-                                        handleChange({
-                                            target: {
-                                                name: e.target.name,
-                                                value: e.target.value.replace('%', ''),
-                                            },
-                                        }, 'fenicr');
-                                    }}
-                                    onBlur={(e) => {
-                                        let num = parseFloat(e.target.value.replace("%", ""));
-                                        if (!isNaN(num)) {
-                                            handleChange({
-                                                target: {
-                                                    name: e.target.name,
-                                                    value: num.toFixed(2),
-                                                },
-                                            }, "fenicr");
-                                        }
-                                    }}
-                                />
-                            </div>
-                            <div className='flex-1 border-l border-[var(--rock-blue)]'>
-                                <div className='bg-[var(--selago)] text-center py-1.5 text-xs font-semibold border-b border-[var(--rock-blue)]'>Cr</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2 text-sm font-medium border-0 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]' 
-                                    value={value?.fenicr?.cr + '%'}
-                                    name='cr' 
-                                    onChange={(e) => {
-                                        handleChange({
-                                            target: {
-                                                name: e.target.name,
-                                                value: e.target.value.replace('%', ''),
-                                            },
-                                        }, 'fenicr');
-                                    }}
-                                    onBlur={(e) => {
-                                        let num = parseFloat(e.target.value.replace("%", ""));
-                                        if (!isNaN(num)) {
-                                            handleChange({
-                                                target: {
-                                                    name: e.target.name,
-                                                    value: num.toFixed(2),
-                                                },
-                                            }, "fenicr");
-                                        }
-                                    }}
-                                />
-                            </div>
-                            <div className='flex-1 border-l border-[var(--rock-blue)]'>
-                                <div className='bg-[var(--selago)] text-center py-1.5 text-xs font-semibold border-b border-[var(--rock-blue)]'>Mo</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2 text-sm font-medium border-0 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]' 
-                                    value={value?.fenicr?.mo + '%'}
-                                    name='mo' 
-                                    onChange={(e) => {
-                                        handleChange({
-                                            target: {
-                                                name: e.target.name,
-                                                value: e.target.value.replace('%', ''),
-                                            },
-                                        }, 'fenicr');
-                                    }}
-                                    onBlur={(e) => {
-                                        let num = parseFloat(e.target.value.replace("%", ""));
-                                        if (!isNaN(num)) {
-                                            handleChange({
-                                                target: {
-                                                    name: e.target.name,
-                                                    value: num.toFixed(2),
-                                                },
-                                            }, "fenicr");
-                                        }
-                                    }}
-                                />
-                            </div>
-                            <div className='flex-1 border-l border-[var(--rock-blue)]'>
-                                <div className='bg-[var(--selago)] text-center py-1.5 text-xs font-semibold border-b border-[var(--rock-blue)]'>Fe</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2.5 text-sm font-medium bg-gray-100 border-0 cursor-not-allowed' 
-                                    value={fe + '%'}
-                                    readOnly 
-                                />
-                            </div>
-                        </div>
-                    </div>
+                    <div className="mb-5 mt-8">
+                    <p className="text-sm font-medium text-[var(--regent-gray)] mb-2 text-center">
+                        Composition
+                    </p>
 
-                    {/* Price Row */}
-                    <div className='mb-3'>
-                        <p className='text-sm font-medium text-[var(--regent-gray)] mb-2 text-center'>Price</p>
-                        <div className='flex border border-[var(--rock-blue)] overflow-hidden'>
-                            <div className='flex-1'>
-                                <div className='bg-[var(--selago)] text-center py-1 text-xs font-semibold border-b border-[var(--rock-blue)]'>Ni</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2 text-sm font-semibold bg-[var(--selago)] border-0 cursor-not-allowed' 
-                                    value={formatCurrency((value.general?.nilme * value.fenicr?.formulaNiCost / 100).toFixed(2))}
-                                    readOnly 
-                                />
-                            </div>
-                            <div className='flex-1 border-l border-gray-400'>
-                                <div className='bg-[var(--selago)] text-center py-1.5 text-xs font-semibold border-b border-[var(--rock-blue)]'>Cr</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2 text-sm font-semibold text-[var(--port-gore)] border-0 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]'
-                                    name='crPrice' 
-                                    onChange={(e) => handleChange(e, 'fenicr')}
-                                    value={focusedField === 'crPrice' ? value.fenicr?.crPrice : formatCurrency(value.fenicr?.crPrice)}
-                                    onFocus={() => setFocusedField('crPrice')}
-                                    onBlur={(e) => {
-                                        setFocusedField(null);
-                                        let num = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
-                                        if (!isNaN(num)) {
-                                            handleChange({
-                                                target: {
-                                                    name: e.target.name,
-                                                    value: num.toFixed(2),
-                                                },
-                                            }, "fenicr");
-                                        }
-                                    }}
-                                />
-                            </div>
-                            <div className='flex-1 border-l border-[var(--rock-blue)]'>
-                                <div className='bg-[var(--selago)] text-center py-1.5 text-xs font-semibold border-b border-[var(--rock-blue)]'>Mo</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2 text-sm font-semibold text-[var(--endeavour)] border-0 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]'
-                                    name='moPrice' 
-                                    onChange={(e) => handleChange(e, 'fenicr')}
-                                    value={focusedField === 'moPrice' ? value.fenicr?.moPrice : formatCurrency(value.fenicr?.moPrice)}
-                                    onFocus={() => setFocusedField('moPrice')}
-                                    onBlur={(e) => {
-                                        setFocusedField(null);
-                                        let num = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
-                                        if (!isNaN(num)) {
-                                            handleChange({
-                                                target: {
-                                                    name: e.target.name,
-                                                    value: num.toFixed(2),
-                                                },
-                                            }, "fenicr");
-                                        }
-                                    }}
-                                />
-                            </div>
-                            <div className='flex-1 border-l border-gray-400'>
-                                <div className='bg-[var(--selago)] text-center py-1.5 text-xs font-semibold border-b border-[var(--rock-blue)]'>Fe</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2 text-sm font-semibold text-[var(--endeavour)] border-0 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]'
-                                    name='fePrice' 
-                                    onChange={(e) => handleChange(e, 'fenicr')}
-                                    value={focusedField === 'fePrice' ? value.fenicr?.fePrice : formatCurrency(value.fenicr?.fePrice)}
-                                    onFocus={() => setFocusedField('fePrice')}
-                                    onBlur={(e) => {
-                                        setFocusedField(null);
-                                        let num = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
-                                        if (!isNaN(num)) {
-                                            handleChange({
-                                                target: {
-                                                    name: e.target.name,
-                                                    value: num.toFixed(2),
-                                                },
-                                            }, "fenicr");
-                                        }
-                                    }}
-                                />
-                            </div>
+                    <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+                        {/* Header */}
+                        <div className="grid grid-cols-4 bg-[#EAF4FF] text-[#2F6FDB] text-xs font-semibold">
+                        <div className="py-2 text-center">Ni</div>
+                        <div className="py-2 text-center border-l border-[#D9ECFF]">Cr</div>
+                        <div className="py-2 text-center border-l border-[#D9ECFF]">Mo</div>
+                        <div className="py-2 text-center border-l border-[#D9ECFF]">Fe</div>
                         </div>
-                    </div>
 
-                    {/* Formula x Ni */}
-                    <div className='bg-[var(--selago)] rounded p-2 mb-3'>
-                        <p className='text-sm font-semibold text-[var(--port-gore)] mb-2'>Formula x Ni</p>
-                        <input 
-                            type='text' 
-                            className='w-full px-3 py-2 bg-[var(--selago)] border-0 rounded text-center font-bold text-[var(--port-gore)] focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]' 
-                            value={value?.fenicr?.formulaNiCost + '%'}
-                            name='formulaNiCost' 
-                            onChange={(e) => handleChange(e, 'fenicr')}
+                        {/* Values */}
+                        <div className="grid grid-cols-4 bg-white text-sm ">
+                        <input
+                            type="text"
+                            className="w-full text-center py-3 outline-none text-[#F44336]"
+                            value={value?.fenicr?.ni + '%'}
+                            name="ni"
+                            onChange={(e) =>
+                            handleChange({ target: { name: e.target.name, value: e.target.value.replace('%','') } }, "fenicr")
+                            }
                             onBlur={(e) => {
-                                let num = parseFloat(e.target.value.replace("%", ""));
-                                if (!isNaN(num)) {
-                                    handleChange({
-                                        target: {
-                                            name: e.target.name,
-                                            value: num.toFixed(2),
-                                        },
-                                    }, "fenicr");
-                                }
+                            const num = parseFloat(e.target.value.replace("%", ""));
+                            if (!isNaN(num)) handleChange({ target: { name: e.target.name, value: num.toFixed(2) } }, "fenicr");
                             }}
                         />
+
+                        <input
+                            type="text"
+                            className="w-full text-center py-3 outline-none border-l border-[#D9ECFF] text-[#F44336]"
+                            value={value?.fenicr?.cr + '%'}
+                            name="cr"
+                            onChange={(e) =>
+                            handleChange({ target: { name: e.target.name, value: e.target.value.replace('%','') } }, "fenicr")
+                            }
+                            onBlur={(e) => {
+                            const num = parseFloat(e.target.value.replace("%", ""));
+                            if (!isNaN(num)) handleChange({ target: { name: e.target.name, value: num.toFixed(2) } }, "fenicr");
+                            }}
+                        />
+
+                        <input
+                            type="text"
+                            className="w-full text-center py-3 outline-none border-l border-[#D9ECFF] text-[#2F6FDB]"
+                            value={value?.fenicr?.mo + '%'}
+                            name="mo"
+                            onChange={(e) =>
+                            handleChange({ target: { name: e.target.name, value: e.target.value.replace('%','') } }, "fenicr")
+                            }
+                            onBlur={(e) => {
+                            const num = parseFloat(e.target.value.replace("%", ""));
+                            if (!isNaN(num)) handleChange({ target: { name: e.target.name, value: num.toFixed(2) } }, "fenicr");
+                            }}
+                        />
+
+                        <input
+                            type="text"
+                            className="w-full text-center py-3  cursor-not-allowed border-l border-[#D9ECFF] outline-none text-[#2F6FDB]"
+                            value={fe + '%'}
+                            readOnly
+                        />
+                        </div>
+                    </div>
+                    </div>
+
+
+                    {/* Price Row */}
+                    <div className="mb-5 mt-8">
+                    <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+                        {/* Header (Purple strip like Canva) */}
+                        <div className="grid grid-cols-4 bg-[#E9E2FF] text-[#2F6FDB] text-xs font-semibold">
+                        <div className="py-2 text-center">Ni</div>
+                        <div className="py-2 text-center border-l border-[#D9ECFF]">Cr</div>
+                        <div className="py-2 text-center border-l border-[#D9ECFF]">Mo</div>
+                        <div className="py-2 text-center border-l border-[#D9ECFF]">Fe</div>
+                        </div>
+
+                        {/* Values */}
+                        <div className="grid grid-cols-4 bg-white text-sm ">
+                        <input
+                            readOnly
+                            className="w-full text-center py-3 bg-white outline-none text-[#2F6FDB]"
+                            value={formatCurrency((value.general?.nilme * value.fenicr?.formulaNiCost / 100).toFixed(2))}
+                        />
+
+                        <input
+                            type="text"
+                            className="w-full text-center py-3 outline-none border-l border-[#D9ECFF] text-[#F44336]"
+                            name="crPrice"
+                            onChange={(e) => handleChange(e, "fenicr")}
+                            value={focusedField === "crPrice" ? value.fenicr?.crPrice : formatCurrency(value.fenicr?.crPrice)}
+                            onFocus={() => setFocusedField("crPrice")}
+                            onBlur={(e) => {
+                            setFocusedField(null);
+                            const num = parseFloat(e.target.value.replace(/[^0-9.]/g, ""));
+                            if (!isNaN(num)) handleChange({ target: { name: e.target.name, value: num.toFixed(2) } }, "fenicr");
+                            }}
+                        />
+
+                        <input
+                            type="text"
+                            className="w-full text-center py-3 outline-none border-l border-[#D9ECFF] text-[#F44336]"
+                            name="moPrice"
+                            onChange={(e) => handleChange(e, "fenicr")}
+                            value={focusedField === "moPrice" ? value.fenicr?.moPrice : formatCurrency(value.fenicr?.moPrice)}
+                            onFocus={() => setFocusedField("moPrice")}
+                            onBlur={(e) => {
+                            setFocusedField(null);
+                            const num = parseFloat(e.target.value.replace(/[^0-9.]/g, ""));
+                            if (!isNaN(num)) handleChange({ target: { name: e.target.name, value: num.toFixed(2) } }, "fenicr");
+                            }}
+                        />
+
+                        <input
+                            type="text"
+                            className="w-full text-center py-3 outline-none border-l border-[#D9ECFF] text-[#F44336]"
+                            name="fePrice"
+                            onChange={(e) => handleChange(e, "fenicr")}
+                            value={focusedField === "fePrice" ? value.fenicr?.fePrice : formatCurrency(value.fenicr?.fePrice)}
+                            onFocus={() => setFocusedField("fePrice")}
+                            onBlur={(e) => {
+                            setFocusedField(null);
+                            const num = parseFloat(e.target.value.replace(/[^0-9.]/g, ""));
+                            if (!isNaN(num)) handleChange({ target: { name: e.target.name, value: num.toFixed(2) } }, "fenicr");
+                            }}
+                        />
+                        </div>
+                    </div>
+                    </div>
+                    {/* Formula x Ni */}
+                    <div className="mb-5 mt-8 flex">
+                    <div className="w-48 rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+                        
+                        {/* Header */}
+                        <div className="bg-[#FFDADA] text-[#F44336] text-xs  py-2 text-center">
+                        Formula x Ni
+                        </div>
+
+                        {/* Value */}
+                        <input
+                        type="text"
+                        className="w-full text-center py-3 outline-none text-sm text-[#F44336]"
+                        value={value?.fenicr?.formulaNiCost + '%'}
+                        name="formulaNiCost"
+                        onChange={(e) => handleChange(e, 'fenicr')}
+                        onBlur={(e) => {
+                            const num = parseFloat(e.target.value.replace('%', ''));
+                            if (!isNaN(num)) {
+                            handleChange(
+                                {
+                                target: {
+                                    name: e.target.name,
+                                    value: num.toFixed(2),
+                                },
+                                },
+                                'fenicr'
+                            );
+                            }
+                        }}
+                        />
+                    </div>
                     </div>
 
                     {/* Results */}
-                    <div className='space-y-2 mb-4'>
-                        <div className='flex items-center gap-3'>
-                            <span className='text-sm font-medium text-[var(--port-gore)] w-32'>Solids Price:</span>
-                            <div className='flex-1 bg-[var(--selago)] border border-[var(--rock-blue)] rounded px-3 py-2 text-center font-bold text-base'>
-                                {formatCurrency(solidsPrice.toFixed(2))}
-                            </div>
+                    <div className="grid grid-cols-3 mt-8 gap-4 mb-4">
+
+                    {/* Solids Price */}
+                    <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
+                        {/* Header strip */}
+                        <div className="bg-[#FFECEC] py-1.5">
+                        <p className="text-xs text-[#2F6FDB]">
+                            Solids Price
+                        </p>
                         </div>
-                        <div className='flex items-center gap-3'>
-                            <span className='text-sm font-medium text-[var(--port-gore)] w-32'>Turnings Price:</span>
-                            <div className='flex-1 bg-[var(--selago)] border border-[var(--rock-blue)] rounded px-3 py-2 text-center font-bold text-base'>
-                                {formatCurrency((solidsPrice * 0.92).toFixed(2))}
-                            </div>
-                        </div>
-                        <div className='flex items-center gap-3'>
-                            <span className='text-sm font-medium text-[var(--port-gore)] w-32'>Price/Euro:</span>
-                            <div className='flex-1 bg-[var(--selago)] border border-[var(--rock-blue)] rounded px-3 py-2 text-center font-bold text-base'>
-                                {formatCurrency((solidsPrice / value.general?.euroRate).toFixed(2), '€')}
-                            </div>
+
+                        {/* Value */}
+                        <div className="py-3 text-sm text-[#2F6FDB]">
+                        {formatCurrency(solidsPrice.toFixed(2))}
                         </div>
                     </div>
 
-                    <div className='text-xs text-[var(--port-gore)] space-y-1'>
+                    {/* Turnings Price */}
+                    <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
+                        <div className="bg-[#FFECEC] py-1.5">
+                        <p className="text-xs text-[#2F6FDB]">
+                            Turnings Price
+                        </p>
+                        </div>
+
+                        <div className="py-3 text-sm text-[#2F6FDB]">
+                        {formatCurrency((solidsPrice * 0.92).toFixed(2))}
+                        </div>
+                    </div>
+
+                    {/* Price / Euro */}
+                    <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
+                        <div className="bg-[#E9FFF1] py-1.5">
+                        <p className="text-xs text-[#2F6FDB]">
+                            Price / Euro
+                        </p>
+                        </div>
+
+                        <div className="py-3 text-sm text-[#2F6FDB]">
+                        {formatCurrency((solidsPrice / value.general?.euroRate).toFixed(2), '€')}
+                        </div>
+                    </div>
+
+                    </div>
+
+
+                    <div className='text-xs mt-8 text-[var(--port-gore)] space-y-1'>
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>
                 </div>
 
                 {/* SALES SECTION */}
-                <div className="w-full">
-                    <h3 className='text-base font-semibold text-gray-700 mb-3'>Sales</h3>
-                    
-                    {/* Composition (Read-only) */}
-                    <div className='mb-3'>
-                        <p className='text-sm font-medium text-gray-600 mb-2 text-center'>Composition</p>
-                        <div className='flex border border-[var(--rock-blue)] overflow-hidden'>
-                            <div className='flex-1'>
-                                <div className='bg-[var(--selago)] text-center py-1.5 text-xs font-semibold border-b border-[var(--rock-blue)]'>Ni</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2.5 text-sm font-medium bg-gray-100 border-0 cursor-not-allowed'
-                                    value={value?.fenicr?.ni + '%'} 
-                                    readOnly 
-                                />
-                            </div>
-                            <div className='flex-1 border-l border-gray-400'>
-                                <div className='bg-gray-200 text-center py-1.5 text-xs font-semibold border-b border-gray-400'>Cr</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2.5 text-sm font-medium bg-gray-100 border-0 cursor-not-allowed'
-                                    value={value?.fenicr?.cr + '%'} 
-                                    readOnly 
-                                />
-                            </div>
-                            <div className='flex-1 border-l border-gray-400'>
-                                <div className='bg-gray-200 text-center py-1.5 text-xs font-semibold border-b border-gray-400'>Mo</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2.5 text-sm font-medium bg-gray-100 border-0 cursor-not-allowed'
-                                    value={value?.fenicr?.mo + '%'} 
-                                    readOnly 
-                                />
-                            </div>
-                            <div className='flex-1 border-l border-gray-400'>
-                                <div className='bg-gray-200 text-center py-1.5 text-xs font-semibold border-b border-gray-400'>Fe</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2.5 text-sm font-medium bg-gray-100 border-0 cursor-not-allowed'
-                                    value={fe + '%'} 
-                                    readOnly 
-                                />
-                            </div>
+                <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                <h3 className="text-lg font-semibold text-slate-800 mb-4">Sales</h3>
+
+                    {/* Composition */}
+                    <div className="mb-5 mt-8">
+                        <p className="text-sm font-medium text-[var(--regent-gray)] mb-2 text-center">
+                        Composition
+                        </p>
+
+                        <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+                        {/* Header */}
+                        <div className="grid grid-cols-4 bg-[#EAF4FF] text-[#2F6FDB] text-xs font-semibold">
+                            <div className="py-2 text-center">Ni</div>
+                            <div className="py-2 text-center border-l border-[#D9ECFF]">Cr</div>
+                            <div className="py-2 text-center border-l border-[#D9ECFF]">Mo</div>
+                            <div className="py-2 text-center border-l border-[#D9ECFF]">Fe</div>
+                        </div>
+
+                        {/* Values */}
+                        <div className="grid grid-cols-4 bg-white text-sm">
+                            <div className="py-3 text-center text-[#F44336]">{value?.fenicr?.ni}%</div>
+                            <div className="py-3 text-center border-l border-[#D9ECFF] text-[#F44336]">{value?.fenicr?.cr}%</div>
+                            <div className="py-3 text-center border-l border-[#D9ECFF] text-[#2F6FDB]">{value?.fenicr?.mo}%</div>
+                            <div className="py-3 text-center border-l border-[#D9ECFF] text-[#2F6FDB]">{fe}%</div>
+                        </div>
                         </div>
                     </div>
+
 
                     {/* Price Row */}
-                    <div className='mb-1'>
-                        <p className='text-sm font-medium text-gray-600 mb-2 text-center'>Price</p>
-                        <div className='flex border border-[var(--rock-blue)] overflow-hidden'>
-                            <div className='flex-1'>
-                                <div className='bg-[var(--selago)] text-center py-1.5 text-xs font-semibold border-b border-[var(--rock-blue)]'>Ni</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2.5 text-sm font-semibold bg-gray-50 border-0 cursor-not-allowed' 
-                                    value={formatCurrency((value?.general?.nilme * value?.fenicr?.formulaNiPrice / 100).toFixed(2))}
-                                    readOnly 
-                                />
-                            </div>
-                            <div className='flex-1 border-l border-[var(--rock-blue)]'>
-                                <div className='bg-[var(--selago)] text-center py-1.5 text-xs font-semibold border-b border-[var(--rock-blue)]'>Cr</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2.5 text-sm font-semibold bg-gray-50 border-0 cursor-not-allowed'
-                                    value={formatCurrency((value.general?.chargeCrLb * value.general?.mt * value?.fenicr?.crPriceArgus / 100).toFixed(2))} 
-                                    readOnly 
-                                />
-                            </div>
-                            <div className='flex-1 border-l border-[var(--rock-blue)]'>
-                                <div className='bg-[var(--selago)] text-center py-1.5 text-xs font-semibold border-b border-[var(--rock-blue)]'>Mo</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2.5 text-sm font-semibold bg-gray-50 border-0 cursor-not-allowed'
-                                    value={formatCurrency((value.general?.MoOxideLb * value?.fenicr?.moPriceArgus * value.general?.mt / 100).toFixed(2))} 
-                                    readOnly 
-                                />
-                            </div>
-                            <div className='flex-1 border-l border-[var(--rock-blue)]'>
-                                <div className='bg-[var(--selago)] text-center py-1.5 text-xs font-semibold border-b border-[var(--rock-blue)]'>Fe</div>
-                                <input 
-                                    type='text' 
-                                    className='w-full text-center py-2 text-sm font-semibold text-[var(--endeavour)] border-0 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]'
-                                    name='fePrice1' 
-                                    onChange={(e) => handleChange(e, 'fenicr')}
-                                    value={focusedField === 'fePrice1' ? value.fenicr?.fePrice1 : formatCurrency(value.fenicr?.fePrice1)}
-                                    onFocus={() => setFocusedField('fePrice1')}
-                                    onBlur={(e) => {
-                                        setFocusedField(null);
-                                        let num = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
-                                        if (!isNaN(num)) {
-                                            handleChange({
-                                                target: {
-                                                    name: e.target.name,
-                                                    value: num.toFixed(2),
-                                                },
-                                            }, "fenicr");
-                                        }
-                                    }}
-                                />
-                            </div>
+                    <div className="mb-5 mt-8">
+                        <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+                        {/* Header */}
+                        <div className="grid grid-cols-4 bg-[#E9E2FF] text-[#2F6FDB] text-xs font-semibold">
+                            <div className="py-2 text-center">Ni</div>
+                            <div className="py-2 text-center border-l border-[#D9ECFF]">Cr</div>
+                            <div className="py-2 text-center border-l border-[#D9ECFF]">Mo</div>
+                            <div className="py-2 text-center border-l border-[#D9ECFF]">Fe</div>
                         </div>
-                    </div>
 
-                    {/* Argus Info Row */}
-                    <div className='flex mb-3'>
-                        <div className='flex-1 text-center py-1 text-xs text-gray-500'>
-                            Lb {formatCurrency(((value?.general?.nilme * value?.fenicr?.formulaNiPrice / 100) / (value?.general?.mt)).toFixed(2))}
+                        {/* Values */}
+                        <div className="grid grid-cols-4 bg-white text-sm">
+                            <div className="py-3 text-center text-[#2F6FDB]">
+                            {formatCurrency((value.general?.nilme * value.fenicr?.formulaNiPrice / 100).toFixed(2))}
+                            </div>
+
+                            <div className="py-3 text-center border-l border-[#D9ECFF] text-[#F44336]">
+                            {formatCurrency((value.general?.chargeCrLb * value.general?.mt * value.fenicr?.crPriceArgus / 100).toFixed(2))}
+                            </div>
+
+                            <div className="py-3 text-center border-l border-[#D9ECFF] text-[#F44336]">
+                            {formatCurrency((value.general?.MoOxideLb * value.fenicr?.moPriceArgus * value.general?.mt / 100).toFixed(2))}
+                            </div>
+
+                            <input
+                            type="text"
+                            className="w-full text-center py-3 outline-none border-l border-[#D9ECFF] text-[#F44336]"
+                            name="fePrice1"
+                            value={focusedField === 'fePrice1'
+                                ? value.fenicr?.fePrice1
+                                : formatCurrency(value.fenicr?.fePrice1)}
+                            onFocus={() => setFocusedField('fePrice1')}
+                            onBlur={(e) => {
+                                setFocusedField(null);
+                                const num = parseFloat(e.target.value.replace(/[^0-9.]/g, ""));
+                                if (!isNaN(num)) {
+                                handleChange({ target: { name: 'fePrice1', value: num.toFixed(2) } }, 'fenicr');
+                                }
+                            }}
+                            onChange={(e) => handleChange(e, 'fenicr')}
+                            />
                         </div>
-                        <div className='flex-1 text-center py-1 text-xs text-[var(--port-gore)] font-medium'>
-                            Argus {value?.fenicr?.crPriceArgus}%
                         </div>
-                        <div className='flex-1 text-center py-1 text-xs text-[var(--port-gore)] font-medium'>
-                            Argus {value?.fenicr?.moPriceArgus}%
-                        </div>
-                        <div className='flex-1'></div>
                     </div>
 
                     {/* Formula x Ni */}
-                    <div className='bg-[var(--selago)] rounded p-3 mb-4'>
-                        <p className='text-sm font-semibold text-gray-800 mb-2'>Formula x Ni</p>
-                        <input 
-                            type='text' 
-                            className='w-full px-3 py-2.5 bg-[var(--selago)] border-0 rounded text-center font-bold text-[var(--port-gore)] focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]' 
+                    <div className="mb-5 mt-8 flex">
+                        <div className="w-48 rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+                        <div className="bg-[#FFDADA] text-[#F44336] text-xs py-2 text-center">
+                            Formula x Ni
+                        </div>
+
+                        <input
+                            type="text"
+                            className="w-full text-center py-3 outline-none text-sm text-[#F44336]"
                             value={value?.fenicr?.formulaNiPrice + '%'}
-                            name='formulaNiPrice' 
+                            name="formulaNiPrice"
                             onChange={(e) => handleChange(e, 'fenicr')}
                             onBlur={(e) => {
-                                let num = parseFloat(e.target.value.replace("%", ""));
-                                if (!isNaN(num)) {
-                                    handleChange({
-                                        target: {
-                                            name: e.target.name,
-                                            value: num.toFixed(2),
-                                        },
-                                    }, "fenicr");
-                                }
+                            const num = parseFloat(e.target.value.replace('%', ''));
+                            if (!isNaN(num)) {
+                                handleChange({ target: { name: 'formulaNiPrice', value: num.toFixed(2) } }, 'fenicr');
+                            }
                             }}
                         />
+                        </div>
                     </div>
+
 
                     {/* Results */}
-                    <div className='space-y-2 mb-4'>
-                        <div className='flex items-center gap-3'>
-                            <span className='text-sm font-medium text-gray-700 w-32'>Solids Price:</span>
-                            <div className='flex-1 bg-[var(--selago)] border border-[var(--rock-blue)] rounded px-3 py-2.5 text-center font-bold text-base'>
-                                {formatCurrency(solidsPrice1.toFixed(2))}
-                            </div>
+                    <div className="grid grid-cols-3 mt-8 gap-4 mb-4">
+
+                        <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
+                        <div className="bg-[#FFECEC] py-1.5 text-xs text-[#2F6FDB]">
+                            Solids Price
                         </div>
-                        <div className='flex items-center gap-3'>
-                            <span className='text-sm font-medium text-gray-700 w-32'>Turnings Price:</span>
-                            <div className='flex-1 bg-gray-100 border border-gray-300 rounded px-3 py-2.5 text-center font-bold text-base'>
-                                {formatCurrency((solidsPrice1 * 0.9).toFixed(2))}
-                            </div>
+                        <div className="py-3 text-sm text-[#2F6FDB]">
+                            {formatCurrency(solidsPrice1.toFixed(2))}
                         </div>
-                        <div className='flex items-center gap-3'>
-                            <span className='text-sm font-medium text-gray-700 w-32'>Price/Euro:</span>
-                            <div className='flex-1 bg-[var(--selago)] border border-[var(--rock-blue)] rounded px-3 py-2.5 text-center font-bold text-base'>
-                                {formatCurrency((solidsPrice1 / value.general?.euroRate).toFixed(2), '€')}
-                            </div>
                         </div>
+
+                        <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
+                        <div className="bg-[#FFECEC] py-1.5 text-xs text-[#2F6FDB]">
+                            Turnings Price
+                        </div>
+                        <div className="py-3 text-sm text-[#2F6FDB]">
+                            {formatCurrency((solidsPrice1 * 0.9).toFixed(2))}
+                        </div>
+                        </div>
+
+                        <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
+                        <div className="bg-[#E9FFF1] py-1.5 text-xs text-[#2F6FDB]">
+                            Price / Euro
+                        </div>
+                        <div className="py-3 text-sm text-[#2F6FDB]">
+                            {formatCurrency((solidsPrice1 / value.general?.euroRate).toFixed(2), '€')}
+                        </div>
+                        </div>
+
                     </div>
 
-                    <div className='text-xs text-[var(--port-gore)] space-y-1'>
+                    <div className="text-xs mt-8 text-[var(--port-gore)] space-y-1">
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>

@@ -19,7 +19,7 @@ export default function Example({ languages, compData, setCompData, lang }) {
       <Listbox value={selected} onChange={(e) => setSelection(e)}>
         <div className="relative my-1">
           <Listbox.Button className='cursor-default rounded-md
-                     focus:outline-none text-sm border border-[var(--rock-blue)] 
+                     focus:outline-none text-sm 
                    py-1 pl-3 pr-10 text-[var(--port-gore)] h-8 max-w-3xl w-32'>
             <span className="block truncate">{selected?.lng || ''}</span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">

@@ -110,7 +110,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                     >
                       
                         <ComboboxOptions anchor="bottom" className={`absolute left-0 z-50 w-[var(--input-width)] 
-                        [--anchor-gap:var(--spacing-1)] empty:hidden border boder-1 border-[var(--selago)]
+                        [--anchor-gap:var(--spacing-1)] empty:hidden 
                         mt-1 max-h-60 rounded-md bg-white py-1 text-base shadow-lg focus:outline-none 
                         sm:text-sm ${classes1} dropDownHeight`}>
                             {filteredData.length === 0 && query !== '' ? (

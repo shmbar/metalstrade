@@ -109,101 +109,167 @@ const Page = () => {
 				<>
 					<Toast />
 					{loading && <Spinner />}
-					<div className="bg-white rounded-lg shadow-sm p-3 sm:p-5 mt-6">
+					<div className="bg-white rounded-2xl shadow-md p-6 mt-6 border border-slate-100">
 						<div className='pb-3'>
-							<div className="text-2xl font-semibold text-[var(--port-gore)] mb-4">Formulas</div>
+							<div className="text-2xl font-semibold text-[var(--port-gore)] mb-2 mt-3">Formulas</div>
 
 							<div className="w-full">
 								<TabGroup>
-									<TabList className="flex space-x-2 mb-4 border-b border-[var(--rock-blue)]">
+									<TabList className="flex bg-[#EAF4FF] p-1 rounded-full w-fit border border-[#D9ECFF] mb-3">
 										{tabs.map((z) => (
-											<Tab
-												key={z}
-												className={({ selected }) =>
-													classNames(
-														'px-6 py-2.5 text-sm font-medium rounded-t-lg transition-colors',
-														'focus:outline-none',
-														selected
-															? 'bg-[var(--endeavour)] text-[var(--selago)]'
-															: 'bg-[var(--selago)] text-[var(--regent-gray)] hover:bg-[var(--rock-blue)]'
-													)
-												}
-											>
-												{z}
-											</Tab>
+										<Tab
+										key={z}
+										className={({ selected }) =>
+											classNames(
+											'px-6 py-2 text-sm font-medium transition-all rounded-full',
+											selected
+												? 'bg-[var(--endeavour)] text-white shadow'
+												: 'text-[#2F6FDB] hover:bg-white'
+											)
+										}
+										>
+										{z}
+										</Tab>
 										))}
 									</TabList>
+
+
 									
 									{value.general != null && !loading && (
-										<div className='bg-[var(--selago)] rounded-lg p-3 mb-4'>
+										<div className="rounded-xl p-6 mb-6 border border-[#E6EEF8]">
 											<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3'>
-												<div className='flex flex-col'>
-													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>Ni LME</span>
-													<input 
-														type='text' 
-														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]' 
-														name='nilme'
-														onChange={(e) => handleChange(e, 'general')}
-														value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
-														onFocus={() => setFocusedField('nilme')}
-														onBlur={() => setFocusedField(null)}
-													/>
-												</div>
+												
+<div className="border border-[#D9ECFF] rounded-xl shadow-sm overflow-hidden text-center">
+  {/* Header strip */}
+  <div className="bg-[#EAF4FF] px-4 py-1.5">
+    <p className="text-xs text-[#2F6FDB]">
+      Ni LME
+    </p>
+  </div>
 
-												<div className='flex flex-col'>
-													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>Mo Oxide - Lb</span>
-													<input 
-														type='text' 
-														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
-														value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
-														name='MoOxideLb' 
-														onChange={(e) => handleChange(e, 'general')}
-														onFocus={() => setFocusedField('MoOxideLb')}
-														onBlur={() => setFocusedField(null)}
-													/>
-												</div>
+  {/* Value area */}
+  <div className="bg-white px-4 py-3">
+    <input
+      type="text"
+      className="w-full text-center bg-transparent text-ms text-[#F44336] focus:outline-none"
+      name="nilme"
+      value={
+        focusedField === 'nilme'
+          ? value.general?.nilme || ''
+          : addComma(value.general?.nilme || '0')
+      }
+      onChange={(e) => handleChange(e, 'general')}
+      onFocus={() => setFocusedField('nilme')}
+      onBlur={() => setFocusedField(null)}
+    />
+  </div>
+</div>
 
-												<div className='flex flex-col'>
-													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>Charge Cr - Lb</span>
-													<input 
-														type='text' 
-														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
-														name='chargeCrLb' 
-														onChange={(e) => handleChange(e, 'general')}
-														value={focusedField === 'chargeCrLb' ? value.general?.chargeCrLb || '' : addComma(value.general?.chargeCrLb || '0')}
-														onFocus={() => setFocusedField('chargeCrLb')}
-														onBlur={() => setFocusedField(null)}
-													/>
-												</div>
 
-												<div className='flex flex-col'>
-													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>1 MT</span>
-													<input 
-														type='text' 
-														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
-														value={(value.general?.mt || '0') + ' Lb'}
-														name='mt' 
-														onChange={(e) => handleChange(e, 'general')} 
-													/>
-												</div>
 
-												<div className='flex flex-col'>
-													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>Euro / USD</span>
-													<input 
-														type='text' 
-														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]' 
-														value={(value.general?.euroRate || '0')}
-														name='euroRate' 
-														onChange={(e) => handleChange(e, 'general')} 
-													/>
-												</div>
+<div className="border border-[#D9ECFF] rounded-xl shadow-sm overflow-hidden text-center">
+  {/* Header */}
+  <div className="bg-[#EAF4FF] px-4 py-1.5">
+    <p className="text-xs text-[#2F6FDB]">
+      Mo Oxide – Lb
+    </p>
+  </div>
 
-												<Button 
-													className='px-6 py-2 rounded bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] text-[var(--selago)] rounded font-medium text-sm mt-auto h-[40px]'
-													onClick={saveData}
-												>
-													Save
-												</Button>
+  {/* Value */}
+  <div className="bg-white px-4 py-3">
+    <input
+      type="text"
+      className="w-full text-center bg-transparent text-ms text-[#F44336] focus:outline-none"
+      name="MoOxideLb"
+      value={
+        focusedField === 'MoOxideLb'
+          ? value.general?.MoOxideLb || ''
+          : addComma(value.general?.MoOxideLb || '0')
+      }
+      onChange={(e) => handleChange(e, 'general')}
+      onFocus={() => setFocusedField('MoOxideLb')}
+      onBlur={() => setFocusedField(null)}
+    />
+  </div>
+</div>
+
+
+												
+													<div className="border border-[#D9ECFF] rounded-xl shadow-sm overflow-hidden text-center">
+  <div className="bg-[#EAF4FF] px-4 py-1.5">
+    <p className="text-xs text-[#2F6FDB]">
+      Charge Cr – Lb
+    </p>
+  </div>
+
+  <div className="bg-white px-4 py-3">
+    <input
+      type="text"
+      className="w-full text-center bg-transparent text-ms text-[#F44336] focus:outline-none"
+      name="chargeCrLb"
+      value={
+        focusedField === 'chargeCrLb'
+          ? value.general?.chargeCrLb || ''
+          : addComma(value.general?.chargeCrLb || '0')
+      }
+      onChange={(e) => handleChange(e, 'general')}
+      onFocus={() => setFocusedField('chargeCrLb')}
+      onBlur={() => setFocusedField(null)}
+    />
+  </div>
+</div>
+
+
+											
+												<div className="border border-[#D9ECFF] rounded-xl shadow-sm overflow-hidden text-center">
+  <div className="bg-[#EAF4FF] px-4 py-1.5">
+    <p className="text-xs text-[#2F6FDB]">
+      1 MT
+    </p>
+  </div>
+
+  <div className="bg-white px-4 py-3">
+    <input
+      type="text"
+      className="w-full text-center bg-transparent text-ms  text-[#F44336] focus:outline-none"
+      value={(value.general?.mt || '0') + ' Lb'}
+      name="mt"
+      onChange={(e) => handleChange(e, 'general')}
+    />
+  </div>
+</div>
+						
+
+	<div className="border border-[#D9ECFF] rounded-xl shadow-sm overflow-hidden text-center">
+  <div className="bg-[#EAF4FF] px-4 py-1.5">
+    <p className="text-xs  text-[#2F6FDB]">
+      Euro / USD
+    </p>
+  </div>
+
+  <div className="bg-white px-4 py-3">
+    <input
+      type="text"
+      className="w-full text-center bg-transparent text-ms text-[#F44336] focus:outline-none"
+      value={value.general?.euroRate || '0'}
+      name="euroRate"
+      onChange={(e) => handleChange(e, 'general')}
+    />
+  </div>
+</div>
+
+
+												<div className=" rounded-xl shadow-sm overflow-hidden flex items-center justify-center bg-white">
+  <Button
+    className="h-[42px] px-10 rounded-lg bg-[var(--endeavour)] 
+    hover:bg-[var(--chathams-blue)] text-white font-semibold shadow"
+    onClick={saveData}
+  >
+    Save
+  </Button>
+</div>
+
+
 											</div>
 										</div>
 									)}

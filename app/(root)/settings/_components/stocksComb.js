@@ -25,7 +25,7 @@ const StockComb = ({ value, setValue }) => {
       <Listbox value={selected} onChange={e=> setSelection(e)}>
         <div className="relative ">
           <ListboxButton className='cursor-default rounded-md
-                     focus:outline-none text-xs border border-[var(--rock-blue)] 
+                     focus:outline-none text-xs 
                    pl-3 pr-10 text-[var(--port-gore)] h-7 max-w-3xl w-full text-left'>
             <span className="block truncate">{value.sType === '' ? selected?.sType : value?.sType}</span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">

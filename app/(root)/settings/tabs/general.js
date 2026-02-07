@@ -33,30 +33,73 @@ const General = () => {
             {compData && Object.keys(compData).length === 0 ?
                 <Spinner />
                 : <>
-                    <div className='border border-[var(--rock-blue)] p-4 rounded-lg mt-1 flex flex-wrap md:flex-nowrap w-full space-x-4'>
-                        <div className='flex gap-4 items-center w-full'>
+                    <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 flex flex-wrap md:flex-nowrap w-full space-x-4'>
+                                    <div className='gap-4 flex items-center w-full' >
                             <p className='text-sm font-medium whitespace-nowrap text-[var(--port-gore)]'>
                                 {getTtl('cmpName', ln)}:</p>
                                 <input
                                     type='input'
-                                    className='input max-w-3xl w-full h-8'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#2E3A59]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
                                     value={compData?.name || ''}
                                     onChange={e => setCompData({ ...(compData || {}), name: e.target.value })}
                                 />
                         </div>
 
-                        <div className='flex gap-4 items-center w-full'>
-                            <p className='text-sm font-medium whitespace-nowrap text-[var(--port-gore)]'>
-                                {getTtl('lng', ln)}:</p>
-                            <div>
-                                <CBox languages={languages} compData={compData} setCompData={setCompData}
-                                    lang={languages.find(x => x.lng === (compData?.lng || 'English'))} />
-                            </div>
-                        </div>
+                                    <div className='gap-4 flex items-center w-full' >
+  <p className="text-sm font-medium text-[var(--port-gore)]">
+    {getTtl("lng", ln)}:
+  </p>
+
+  <div
+    className="
+      flex
+      items-center
+      w-full
+      h-8
+      px-4
+      rounded-full
+      border
+      border-[#E5E7EB]
+      bg-white
+      transition
+      focus-within:border-[#0A5DB8]
+      focus-within:ring-2
+      focus-within:ring-[#0A5DB8]/20
+    "
+  >
+    <CBox
+      languages={languages}
+      compData={compData}
+      setCompData={setCompData}
+      lang={languages.find(
+        x => x.lng === (compData?.lng || "English")
+      )}
+    />
+  </div>
+</div>
+
+
+
 
                     </div>
 
-                    <div className='border border-[var(--rock-blue)] p-4 rounded-lg mt-5'>
+                    <div className='border border-[#E5E7EB] p-4 rounded-lg mt-5'>
                         <div className='grid grid-cols-2 gap-4'>
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2 max-w-sm'>
@@ -65,7 +108,24 @@ const General = () => {
                                             {getTtl('street', ln)}:</p>
                                         <input
                                             type='input'
-                                            className='input w-full h-8'
+className="
+  w-full
+  h-8
+  px-4
+    ml-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#2E3A59]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
                                             value={compData?.street || ''}
                                             onChange={e => setCompData({ ...(compData || {}), street: e.target.value })}
                                         />
@@ -75,7 +135,24 @@ const General = () => {
                                             {getTtl('city', ln)}: </p>
                                         <input
                                             type='input'
-                                            className='input max-w-sm h-8'
+className="
+  w-full
+  h-8
+  px-4
+  ml-7
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#2E3A59]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
                                             value={compData?.city || ''}
                                             onChange={e => setCompData({ ...(compData || {}), city: e.target.value })}
                                         />
@@ -85,7 +162,23 @@ const General = () => {
                                             {getTtl('country', ln)}:</p>
                                         <input
                                             type='input'
-                                            className='input max-w-sm h-8'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#2E3A59]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
                                             value={compData?.country || ''}
                                             onChange={e => setCompData({ ...(compData || {}), country: e.target.value })}
                                         />
@@ -95,7 +188,23 @@ const General = () => {
                                             {getTtl('zipCode', ln)}:</p>
                                         <input
                                             type='input'
-                                            className='input max-w-sm h-8'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#2E3A59]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
                                             value={compData?.zip || ''}
                                             onChange={e => setCompData({ ...(compData || {}), zip: e.target.value })}
                                         />
@@ -108,7 +217,23 @@ const General = () => {
                                         <p className='text-sm font-medium whitespace-nowrap text-[var(--port-gore)]'>Reg No.:</p>
                                         <input
                                             type='input'
-                                            className='input max-w-sm h-8'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#2E3A59]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
                                             value={compData?.reg || ''}
                                             onChange={e => setCompData({ ...(compData || {}), reg: e.target.value })}
                                         />
@@ -117,7 +242,23 @@ const General = () => {
                                         <p className='text-sm font-medium whitespace-nowrap text-[var(--port-gore)]'>VAT No.:</p>
                                         <input
                                             type='input'
-                                            className='input max-w-sm h-8'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#2E3A59]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
                                             value={compData?.vat || ''}
                                             onChange={e => setCompData({ ...(compData || {}), vat: e.target.value })}
                                         />
@@ -126,7 +267,23 @@ const General = () => {
                                         <p className='text-sm font-medium whitespace-nowrap text-[var(--port-gore)]'>EORI No.:</p>
                                         <input
                                             type='input'
-                                            className='input max-w-sm h-8'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#2E3A59]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
                                             value={compData?.eori || ''}
                                             onChange={e => setCompData({ ...(compData || {}), eori: e.target.value })}
                                         />
@@ -139,14 +296,29 @@ const General = () => {
 
 
 
-                    <div className='border border-[var(--rock-blue)] p-4 rounded-lg  mt-5 w-full'>
+                    <div className='border border-[#E5E7EB] p-4 rounded-lg  mt-5 w-full'>
                         <div className='grid grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
                                 <p className='text-sm font-medium whitespace-nowrap text-[var(--port-gore)]'>
                                     {getTtl('cmpemail', ln)}:</p>
                                 <input
                                     type='input'
-                                    className='input h-8 max-w-md'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#2E3A59]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
                                     value={compData?.email || ''}
                                     onChange={e => setCompData({ ...(compData || {}), email: e.target.value })}
                                 />
@@ -156,7 +328,22 @@ const General = () => {
                                     {getTtl('cmpwebsite', ln)}:</p>
                                 <input
                                     type='input'
-                                    className='input max-w-md h-8'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#2E3A59]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
                                     value={compData?.website || ''}
                                     onChange={e => setCompData({ ...(compData || {}), website: e.target.value })}
                                 />
@@ -165,14 +352,29 @@ const General = () => {
                     </div>
 
 
-                    <div className=' border border-[var(--rock-blue)] p-4 rounded-lg  mt-5 w-full'>
+                    <div className=' border border-[#E5E7EB] p-4 rounded-lg  mt-5 w-full'>
                         <div className='grid grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
                                 <p className='text-sm font-medium whitespace-nowrap text-[var(--port-gore)]'>
                                     {getTtl('cmpPhone', ln)}:</p>
                                 <input
                                     type='input'
-                                    className='input max-w-sm w-full h-8'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#2E3A59]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
                                     value={compData?.phone || ''}
                                     onChange={e => setCompData({ ...(compData || {}), phone: e.target.value })}
                                 />
@@ -182,7 +384,22 @@ const General = () => {
                                     {getTtl('cmpMobile', ln)}:</p>
                                 <input
                                     type='input'
-                                    className='input max-w-sm w-full h-8'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#2E3A59]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
                                     value={compData?.mobile || ''}
                                     onChange={e => setCompData({ ...(compData || {}), mobile: e.target.value })}
                                 />

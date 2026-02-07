@@ -99,8 +99,8 @@ const Stocks = () => {
     }
 
     return (
-        <div className='border border-[var(--rock-blue)] p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
-            <div className='border border-[var(--rock-blue)] p-4 rounded-lg mt-1 shadow-md  min-w-xl'>
+        <div className=' p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
+            <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 shadow-md  min-w-xl'>
                 <p className='flex items-center text-sm font-medium pl-2 text-[var(--port-gore)] whitespace-nowrap'>{getTtl('Stocks', ln)}:</p>
 
 
@@ -119,7 +119,7 @@ const Stocks = () => {
 
             </div>
             <div className='flex flex-col'>
-                <div className='border border-[var(--rock-blue)] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
+                <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
                     <Tltip direction='top' tltpText='Add new stock'>
                         <button className={`blackButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
                             onClick={addItem}>
@@ -146,18 +146,18 @@ const Stocks = () => {
                         </button>
                     </Tltip>
                 </div>
-                <div className='border border-[var(--rock-blue)] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
+                <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
                     <div className='grid grid-cols-4  items-center gap-4 w-full'>
                         <div className='col-span-12 md:col-span-2 w-full'>
                             <p className='text-xs'>{getTtl('Name', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs w-full' value={value.stock}
+                            <input type='text' className='input h-7 text-xs w-full   rounded-full border border-[#E5E7EB]' value={value.stock}
                                 onChange={(e) => { setValue({ ...value, 'stock': e.target.value }) }} />
                             <ErrDiv field='stock' errors={errors} ln={ln} />
 
                         </div>
                         <div className='col-span-12 md:col-span-2 w-full'>
                             <p className='text-xs'>{getTtl('Nick Name', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs w-full' value={value.nname ?? ''}
+                            <input type='text' className='input h-7 text-xs w-full   rounded-full border border-[#E5E7EB]' value={value.nname ?? ''}
                                 onChange={(e) => { setValue({ ...value, 'nname': e.target.value }) }} />
                             <ErrDiv field='nname' errors={errors} ln={ln} />
 
@@ -168,17 +168,17 @@ const Stocks = () => {
                     <div className='grid grid-cols-3  items-center gap-4 w-full'>
                         <div className='col-span-12 md:col-span-1'>
                             <p className='text-xs'>{getTtl('country', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs ' value={value.country}
+                            <input type='text' className='input h-7 text-xs   rounded-full border border-[#E5E7EB]' value={value.country}
                                 onChange={(e) => { setValue({ ...value, 'country': e.target.value }) }} />
                         </div>
                         <div className='col-span-12 md:col-span-1'>
                             <p className='text-xs'>{getTtl('Address', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.address}
+                            <input type='text' className='input h-7 text-xs w-full   rounded-full border border-[#E5E7EB]' value={value.address}
                                 onChange={(e) => { setValue({ ...value, 'address': e.target.value }) }} />
                         </div>
                         <div className='col-span-12 md:col-span-1'>
                             <p className='text-xs'>{getTtl('cmpPhone', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs w-full' value={value.phone}
+                            <input type='text' className='input h-7 text-xs w-full   rounded-full border border-[#E5E7EB]' value={value.phone}
                                 onChange={(e) => { setValue({ ...value, 'phone': e.target.value }) }} />
                         </div>
                     </div>
@@ -186,14 +186,42 @@ const Stocks = () => {
                     <div className='grid grid-cols-3  items-center gap-4 w-full'>
                         <div className='col-span-12 md:col-span-1'>
                             <p className='text-xs'>{getTtl('Other', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.other}
+                            <input type='text' className='input h-7 text-xs   rounded-full border border-[#E5E7EB]' value={value.other}
                                 onChange={(e) => { setValue({ ...value, 'other': e.target.value }) }} />
                         </div>
 
-                        <div className='col-span-12 md:col-span-1'>
-                            <p className='text-xs'>{getTtl('Stock type', ln)}:</p>
-                            <CBox value={value} setValue={setValue} />
-                        </div>
+<div className="col-span-12 md:col-span-1">
+  {/* Label */}
+  <p className="text-xs mb-1 text-[var(--port-gore)]">
+    {getTtl('Stock type', ln)}:
+  </p>
+
+  {/* Outer rounded input container */}
+  <div
+    className="
+      flex
+      items-center
+      w-full
+      h-8
+      px-4
+      rounded-full
+      border
+      border-[#E5E7EB]
+      bg-white
+      transition
+      focus-within:border-[#0A5DB8]
+      focus-within:ring-2
+      focus-within:ring-[#0A5DB8]/20
+    "
+  >
+    <CBox
+      value={value}
+      setValue={setValue}
+      className="w-full h-full bg-transparent border-0 rounded-none shadow-none"
+    />
+  </div>
+</div>
+
                     </div>
 
 

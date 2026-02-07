@@ -83,8 +83,8 @@ const BankAccount = () => {
 
 
     return (
-        <div className='border border-[var(--rock-blue)] p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
-            <div className='border border-[var(--rock-blue)] p-4 rounded-lg mt-1 shadow-md  min-w-xl'>
+        <div className=' p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
+            <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 shadow-md  min-w-xl'>
                 <p className='flex items-center text-sm font-medium pl-2 text-[var(--port-gore)] whitespace-nowrap'>{getTtl('Bank Account', ln)}:</p>
 
 
@@ -103,7 +103,7 @@ const BankAccount = () => {
 
             </div>
             <div className='flex flex-col'>
-                <div className='border border-[var(--rock-blue)] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
+                <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
                     <Tltip direction='top' tltpText='Add new bank'>
                         <button className={`blackButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
                             onClick={addItem}>
@@ -130,11 +130,11 @@ const BankAccount = () => {
                         </button>
                     </Tltip>
                 </div>
-                <div className='border border-[var(--rock-blue)] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
+                <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
                     <div className='grid grid-cols-4 items-center gap-4 w-full'>
                         <div className='col-span-12 md:col-span-2 w-full'>
                             <p className='text-xs'>{getTtl('Bank', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs w-full' value={value.bankName}
+                            <input type='text' className='input h-7 text-xs w-full rounded-full  border border-[#E5E7EB]' value={value.bankName}
                                 onChange={(e) => { setValue({ ...value, 'bankName': e.target.value }) }}
                                 maxLength="47" />
                             <ErrDiv field='bankName' errors={errors} ln={ln} />
@@ -142,33 +142,63 @@ const BankAccount = () => {
                         </div>
                         <div className='col-span-12 md:col-span-1 w-full'>
                             <p className='text-xs'>{getTtl('BankNickName', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs w-full' value={value.bankNname}
+                            <input type='text' className='input h-7 text-xs w-full  rounded-full  border border-[#E5E7EB]' value={value.bankNname}
                                 onChange={(e) => { setValue({ ...value, 'bankNname': e.target.value }) }} />
                             <ErrDiv field='bankNname' errors={errors} ln={ln} />
 
                         </div>
-                        <div className='col-span-12 md:col-span-1'>
-                            <p className='text-xs relative -bottom-1'>{getTtl('Currency', ln)}:</p>
-                            <div style={{ height: '35px' }}>
-                                <CBox data={settings.Currency?.Currency || []} setValue={setValue} value={value} name='cur' />
-                            </div>
-                            <div className='relative -top-1'>
-                                <ErrDiv field='cur' errors={errors} ln={ln} />
-                            </div>
-                        </div>
+                     <div className="col-span-12 md:col-span-1">
+  {/* Label */}
+  <p className="text-xs mb-1 text-[var(--port-gore)]">
+    {getTtl('Currency', ln)}:
+  </p>
+
+  {/* Rounded input container */}
+  <div
+    className="
+      flex
+      items-center
+      w-full
+      h-8
+      px-4
+      rounded-full
+      border
+      border-[#E5E7EB]
+      bg-white
+      transition
+      focus-within:border-[#0A5DB8]
+      focus-within:ring-2
+      focus-within:ring-[#0A5DB8]/20
+    "
+  >
+    <CBox
+      data={settings.Currency?.Currency || []}
+      setValue={setValue}
+      value={value}
+      name="cur"
+      className="w-full h-full bg-transparent border-0 rounded-none shadow-none"
+    />
+  </div>
+
+  {/* Error */}
+  <div className="mt-1">
+    <ErrDiv field="cur" errors={errors} ln={ln} />
+  </div>
+</div>
+
                     </div>
 
                     <div className='grid grid-cols-3  items-center gap-4 w-full'>
                         <div className='col-span-12 md:col-span-1'>
                             <p className='text-xs'>{getTtl('Note', ln)} #1:</p>
-                            <input type='text' className='input h-7 text-xs ' value={value.swiftCode}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.swiftCode}
                                 onChange={(e) => { setValue({ ...value, 'swiftCode': e.target.value }) }}
                                 maxLength="45" />
                             <ErrDiv field='swiftCode' errors={errors} ln={ln} />
                         </div>
                         <div className='col-span-12 md:col-span-1'>
                             <p className='text-xs'>{getTtl('Note', ln)} #2:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.iban}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.iban}
                                 onChange={(e) => { setValue({ ...value, 'iban': e.target.value }) }}
                                 maxLength="47" />
                             <ErrDiv field='iban' errors={errors} ln={ln} />
@@ -176,7 +206,7 @@ const BankAccount = () => {
                         </div>
                         <div className='col-span-12 md:col-span-1'>
                             <p className='text-xs'>{getTtl('Note', ln)} #3:</p>
-                            <input type='text' className='input h-7 text-xs w-full' value={value.corrBank}
+                            <input type='text' className='input h-7 text-xs w-full rounded-full  border border-[#E5E7EB]' value={value.corrBank}
                                 onChange={(e) => { setValue({ ...value, 'corrBank': e.target.value }) }}
                                 maxLength="47" />
                             <ErrDiv field='corrBank' errors={errors} ln={ln} />
@@ -187,14 +217,14 @@ const BankAccount = () => {
                     <div className='grid grid-cols-3  items-center gap-4 w-full'>
                         <div className='col-span-12 md:col-span-2 w-full'>
                             <p className='text-xs'>{getTtl('Note', ln)} #4:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.corrBankSwift}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.corrBankSwift}
                                 onChange={(e) => { setValue({ ...value, 'corrBankSwift': e.target.value }) }}
                                 maxLength="47" />
                             <ErrDiv field='corrBankSwift' errors={errors} ln={ln} />
                         </div>
                         <div className='col-span-12 md:col-span-1'>
                             <p className='text-xs'>{getTtl('Other', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs' value={value.other}
+                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.other}
                                 onChange={(e) => { setValue({ ...value, 'other': e.target.value }) }} />
                         </div>
                     </div>

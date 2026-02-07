@@ -53,42 +53,75 @@ const Page = () => {
       <Toast />
       {loading && <Spin />}
       <div className="border border-[var(--selago)] rounded-xl p-1 md:p-4 mt-8 shadow-md bg-white">
-        <div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Settings', ln)}</div>
+        <div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold mt-4">{getTtl('Settings', ln)}</div>
 
         <div className="w-full px-2 sm:px-0">
           <TabGroup >
-            <TabList className="overflow-x-auto max-w-3xl flex space-x-1 rounded-xl bg-gradient-to-r from-[var(--endeavour)] to-[var(--chathams-blue)] p-1">
+<TabList
+  className="
+    flex 
+    gap-4
+    bg-transparent
+    pb-0
+    p-1
+    w-full
+    overflow-visible
+  "
+>
               {tabs.map((z) => (
-                <Tab
-                  key={z}
-                  className={({ selected }) =>
-                    classNames(
-                      'w-full rounded-lg py-2.5 px-2 text-sm font-medium leading-5 whitespace-nowrap transition-all duration-200',
-                      'ring-white ring-opacity-60 focus:outline-none focus:ring-2',
-                      selected
-                        ? 'text-[var(--endeavour)] bg-white shadow-md'
-                        : 'text-white/90 hover:bg-white/20 hover:text-white'
-                    )
-                  }
-                >
-                  {getTtl(z, ln)}
-                </Tab>
+               <Tab
+  key={z}
+  className={({ selected }) =>
+    classNames(
+      'px-6 py-2.5 text-sm font-semibold whitespace-nowrap transition-all',
+      'focus:outline-none',
+      selected
+        ? `
+          rounded-t-xl 
+          rounded-b-none
+          shadow-sm
+text-white
+                    bg-[#0A5DB8]
+
+        `
+        : `
+          bg-[#ECECEC]
+          text-[#0A5DB8]
+          rounded-t-xl
+          rounded-b-none
+          hover:bg-[#E0E0E0]
+        `
+    )
+  }
+>
+  {getTtl(z, ln)}
+</Tab>
+
               ))}
             </TabList>
-            <TabPanels className="mt-4">
-              {tabs.map((tab, idx) => (
-                <TabPanel
-                  key={idx}
-                  className={classNames(
-                    'rounded-xl bg-white',
-                    'ring-white ring-opacity-60 focus:outline-none focus:ring-2'
-                  )}
-                >
-                  {SetDiv(idx)}
+           <div
+  className="
+    relative
+    mt-[-1px]
+    rounded-xl
+    border border-[#E5E7EB]
+    bg-white
+    shadow-sm
+    p-6
+  "
+>
+  <TabPanels>
+    {tabs.map((tab, idx) => (
+      <TabPanel
+        key={idx}
+        className="focus:outline-none"
+      >
+        {SetDiv(idx)}
+      </TabPanel>
+    ))}
+  </TabPanels>
+</div>
 
-                </TabPanel>
-              ))}
-            </TabPanels>
           </TabGroup>
         </div>
 
