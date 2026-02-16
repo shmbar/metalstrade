@@ -8,19 +8,34 @@ import { ContractsContext } from "@contexts/useContractsContext";
 import Toast from '@components/toast.js'
 import Spinner from '@components/spinner';
 import { UserAuth } from "@contexts/useAuthContext"
-import { loadStockData, filteredArray, loadAllStockData, loadDataWeightAnalysis, getInvoices, groupedArrayInvoice, sortArr } from '@utils/utils'
+import { loadDataWeightAnalysis, getInvoices, groupedArrayInvoice, sortArr } from '@utils/utils'
 import Spin from '@components/spinTable';
-import CBox from '@components/combobox.js'
 import { EXD } from './excel'
 import { getTtl } from '@utils/languages';
-
 import { isNumber } from 'mathjs';
 import DateRangePicker from '@components/dateRangePicker';
+import { Selector } from '@components/selectors/selectShad';
 
 const CB = (settings, setSelectedStock, selectedStock) => {
+
+  const handleChange = (e, name) => {
+    setSelectedStock(prev => {
+      return { ...prev, [name]: e }
+    })
+  }
+
+  const clear = (name) => {
+    setSelectedStock(prev => ({
+      ...prev, [name]: '',
+    }))
+  }
+
+
   return (
-    <CBox data={settings.Supplier.Supplier} setValue={setSelectedStock} value={selectedStock} name='supplier' classes='input border-slate-300 shadow-sm items-center flex '
-      classes2='text-lg ]' dis={false} />
+    <Selector arr={settings.Supplier.Supplier} value={selectedStock}
+      onChange={(e) => handleChange(e, 'supplier')}
+      name='supplier'
+      clear={clear} />
   )
 }
 

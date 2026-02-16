@@ -2,14 +2,13 @@ import { useState, useRef, useEffect, useContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { NumericFormat } from 'react-number-format';
 import ChkBox from '@components/checkbox.js'
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { MdDelete } from 'react-icons/md';
 import { getD, reOrderTableCon } from '@utils/utils.js';
-import { TbFileInvoice } from "react-icons/tb";
-import { TbBuildingWarehouse } from "react-icons/tb";
 import { CalculateNum } from '@components/calculate';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { getTtl } from '@utils/languages.js';
+import { Button } from '@components/ui/button';
+import { ScrollText, Warehouse, Trash, CirclePlus, } from "lucide-react"
+
 
 const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvModal, setShowStockModal, setToast, contractsData }) => {
 
@@ -57,15 +56,15 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
     };
 
     const handleKeyPress = (e) => {
-       // const isValidInputQnty = /^\d+(\.\d{0,3})?$/.test(e.target.value);
+        // const isValidInputQnty = /^\d+(\.\d{0,3})?$/.test(e.target.value);
 
         if (e.key === 'Enter') {
 
-/*            if (e.target.name === "qnty" && !isValidInputQnty) {
-                setToast({ show: true, text: 'Please enter numbers only with at most three letters after the dot!', clr: 'fail' })
-                return;
-            }
-*/
+            /*            if (e.target.name === "qnty" && !isValidInputQnty) {
+                            setToast({ show: true, text: 'Please enter numbers only with at most three letters after the dot!', clr: 'fail' })
+                            return;
+                        }
+            */
 
             let Nm = edit.header !== 'unitPrc' ? e.target.value : CalculateNum(e.target.value, 10)
             const isEquation = (e.target.value).substr(0, 1) === "=";
@@ -123,20 +122,20 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                             <thead className="bg-gray-50 ">
                                 <tr>
                                     <th scope="col" className=" w-1/12 py-1 pl-4 "></th>
-                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-sm font-medium text-gray-500"  >
+                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500"  >
                                         #</th>
-                                    <th scope="col" className="w-6/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
+                                    <th scope="col" className="w-6/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
                                         {getTtl('Description', ln)}  </th>
-                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
+                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
                                         <div>   {getTtl('Quantity', ln)} <span className='font-bold'>
                                             {q !== '' ? '(' + q + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-2/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
+                                    <th scope="col" className="w-2/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
                                         <div>{getTtl('UnitPrice', ln)} <span className='font-bold'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 relative">
-                                {reOrderTableCon(value.productsData.filter(x=> !x.import)).map((obj, i) => {
+                                {reOrderTableCon(value.productsData.filter(x => !x.import)).map((obj, i) => {
                                     return (
                                         <tr key={i} className='relative'>
                                             <td className="py-2 pl-4">
@@ -145,7 +144,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                 </div>
                                             </td>
                                             <td className="px-1 py-2 ">
-                                                <div className="flex items-center h-5 text-sm text-gray-800">
+                                                <div className="flex items-center h-5 text-[13px] text-gray-800">
                                                     {i + 1}
                                                 </div>
                                             </td>
@@ -155,7 +154,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                     <td
                                                         key={key}
                                                         data-label={key}
-                                                        className="px-1 py-1 text-sm text-gray-800 whitespace-normal
+                                                        className="px-1 py-1 text-[13px] text-gray-800 whitespace-normal
                                                        tableStyle relative"
                                                         onClick={() => handleDoubleClick(obj, key)}
                                                     >
@@ -164,8 +163,8 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                             edit.header === key ? (
                                                             <div className='group relative  whitespace-normal'>
                                                                 <input
-                                                                    className="w-full border rounded-md border-slate-400 h-7 
-                                focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-slate-500"
+                                                                    className="input w-full border rounded-md border-slate-400 h-7 
+                                focus:outline-0 focus:border-slate-600 indent-1.5 text-[13px] text-slate-500"
                                                                     onKeyDown={handleKeyPress}
                                                                     value={value1}
                                                                     maxLength={70}
@@ -213,55 +212,58 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                 </div>
                 <div className="flex gap-x-5 flex-wrap mt-4">
                     <div className='group relative '>
-                        <button
-                            className="blackButton py-1.5"
+                        <Button
+                            className="h-8 px-3"
                             onClick={() => addItem()}
                         >
-                            <IoAddCircleOutline className='scale-110' />
+                            <CirclePlus />
                             {getTtl('Add', ln)}
-                        </button>
+                        </Button>
                         <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-0.5">
                             {getTtl('AddProduct', ln)}</span>
                     </div>
                     <div className='group relative whitespace-normal'>
-                        <button
-                            className="whiteButton py-1.5"
+                        <Button
+                            className="h-8 px-3"
+                            variant='outline'
                             onClick={() => delItem()}
                         >
-                            <MdDelete className='scale-110' />
+                            <Trash />
                             {getTtl('Delete', ln)}
-                        </button>
+                        </Button>
                         <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
                             {getTtl('DelProduct', ln)}</span>
                     </div>
                     <div className='group relative'>
-                        <button
-                            className={`whiteButton py-1.5
+                        <Button
+                            variant='outline'
+                            className={`h-8 px-3
                             ${!value.productsData.map(x => x.description).some(item => item !== '') ? 'opacity-70' : ''}
                             `}
                             onClick={openInvoicesModal}
                             disabled={!value.productsData.map(x => x.description).some(item => item !== '')}
                         >
-                            <TbFileInvoice className='scale-110' />
+                            <ScrollText />
                             {getTtl('Invoices', ln)}
-                        </button>
+                        </Button>
                         <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
                             {getTtl('POInvoices', ln)}</span>
                     </div>
 
                     <div className='group relative'>
-                        <button
-                            className={`whiteButton py-1.5
+                        <Button
+                            variant='outline'
+                            className={`h-8 px-3
                             ${value.poInvoices.length === 0 ? 'opacity-70 bg-slate-300 hover:bg-slate-300' : ''}`}
                             disabled={!checkIfAlllowed()}
                             onClick={() => setShowStockModal(true)}
                         >
-                            <TbBuildingWarehouse className='scale-110' />
+                            <Warehouse />
                             {getTtl('Stocks', ln)}
-                        </button>
+                        </Button>
                         <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
                             {getTtl('warehouse', ln)}</span>

@@ -13,7 +13,6 @@ import Spinner from '@components/spinner';
 import { UserAuth } from "@contexts/useAuthContext"
 import { getD } from '@utils/utils'
 import { Numcur, SumValuesSupplier } from '../contractsreview/funcs'
-//import CBox from '@components/combobox.js'
 import { OutTurn, Finalizing, relStts } from '@components/const'
 import dateFormat from "dateformat";
 import { EXD } from './excel'
@@ -82,8 +81,7 @@ const loadInvoices = async (uidCollection, con) => {
 */
 // const CB = (settings, setValCur, valCur) => {
 //   return (
-//     <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='input border-slate-300 shadow-sm items-center flex'
-//       classes2='text-lg' dis={true} />
+
 //   )
 // }
 

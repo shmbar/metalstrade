@@ -11,7 +11,6 @@ import { UserAuth } from "@contexts/useAuthContext"
 import { groupedArrayInvoice, getD } from '@utils/utils'
 import Spin from '@components/spinTable';
 import { Numcur, SumValuesSupplier } from '../contractsreview/funcs'
-import CBox from '@components/combobox.js'
 import dateFormat from "dateformat";
 import { EXD } from './excel'
 import { getTtl } from '@utils/languages';

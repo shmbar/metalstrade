@@ -9,32 +9,36 @@ import Spinner from '@components/spinner';
 import { UserAuth } from "@contexts/useAuthContext"
 import { loadStockData, filteredArray, loadAllStockData } from '@utils/utils'
 import Spin from '@components/spinTable';
-import CBox from '@components/comboboxSelectStock.js'
-//import CBox from '@components/combobox.js'
 import { EXD } from './excel'
 import { getTtl } from '@utils/languages';
 import SumTable from './sumtables/sumTable'
 import { isNumber } from 'mathjs';
 import dateFormat from 'dateformat';
+import { Selector } from '@components/selectors/selectShad';
 
-
-const CB = (settings, handleSelectStock, selectedStock) => {
+const CB = (settings, selectedStock, setSelectedStock) => {
 
   let dt = [{ stock: '..All Stocks', id: 'allStocks', nname: '..All Stocks' },
   ...settings.Stocks.Stocks.filter(x => !x.deleted)
   ]
 
+  const handleChange = (e, name) => {
+    setSelectedStock(prev => {
+      return { ...prev, [name]: e }
+    })
+  }
+
   return (
-    <CBox
-      data={dt}
-      setValue={handleSelectStock}
-      value={dt.find(x => x.id === selectedStock.id)}
-      idx={0}
-      name='nname'
-      classes='input border-slate-300 shadow-sm items-center flex'
-      classes2='text-lg'
-      plcHolder='Select Stock'
-    />
+
+    <div className='w-48'>
+      <Selector
+        arr={dt}
+        value={selectedStock}
+        onChange={(e) => handleChange(e, 'stock')}
+        name='stock'
+        secondaryName='nname'
+      />
+    </div>
   )
 }
 
@@ -53,14 +57,6 @@ const Stocks = () => {
   const [filteredArray1, setFilteredArray1] = useState([])
   const [item, setItem] = useState(null)
 
-
-  const handleSelectStock = (x) => {
-    setSelectedStock({ ...x, stock: x.id })
-  }
-
-  useEffect(() => {
-    setSelectedStock({ stock: 'allStocks', id: 'allStocks', nname: '..All Stocks' })
-  }, [])
 
   let propDefaults = [
     { accessorKey: 'order', header: getTtl('PO', ln) + '#' },
@@ -126,13 +122,18 @@ const Stocks = () => {
         }))
 
 
-      let destcriptionArr = [...new Set(stockData.map(x => (x.description || x.descriptionId)))]
+      let tempArr = stockData.filter(q => q.stock !== '').map(x => ({ stock: x.stock, description: x.description || x.descriptionId }))
+      //Remove duplicates
+      tempArr = Array.from(new Map(tempArr.map(item => [`${item.stock}|${item.description}`, item])).values());
+
 
       let fieldValues = propDefaults.map(item => item.accessorKey);
 
-      for (const key in destcriptionArr) {
-        let filteredstockData = stockData.filter(x => ((x.description === destcriptionArr[key]) ||
-          (x.descriptionId === destcriptionArr[key])))
+      for (const key in tempArr) {
+
+        let item = tempArr[key];
+        let filteredstockData = stockData.filter(x => ((x.description === item.description ||
+          x.descriptionId === item.description) && x.stock === item.stock))
 
         filteredstockData = filteredArray(filteredstockData) //Filter Original invoices if there is final invoice
 
@@ -298,9 +299,7 @@ const Stocks = () => {
 
             <div className='mt-5'>
               <Customtable data={getFormatted(data)} columns={propDefaults} SelectRow={SelectRow}
-                cb={CB(settings, handleSelectStock, selectedStock)}
-                //   cb1={CB1(setSelectOpt, selectedOpt, { dis: !data.length > 0 })}
-                //  settings={settings}
+                cb={CB(settings, selectedStock, setSelectedStock)}
                 type='stock' invisible={invisible}
                 excellReport={EXD(data.filter(x => filteredArray1.map(z => z.id).includes(x.id)), settings, getTtl('Stocks', ln), ln, sumData)} ln={ln}
                 setFilteredArray1={setFilteredArray1} />

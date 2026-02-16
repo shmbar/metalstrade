@@ -14,7 +14,6 @@ import { UserAuth } from "@contexts/useAuthContext"
 import { getInvoices, groupedArrayInvoice, getD } from '@utils/utils'
 import Spin from '@components/spinTable';
 import { Numcur, SumValuesSupplier } from '../contractsreview/funcs.js'
-//import CBox from '@components/combobox.js'
 import { OutTurn, Finalizing, relStts } from '@components/const'
 import dateFormat from "dateformat";
 import { EXD } from './excel.js'
@@ -80,12 +79,6 @@ const loadInvoices = async (uidCollection, con) => {
 
 }
 
-// const CB = (settings, setValCur, valCur) => {
-//   return (
-//     <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='input border-slate-300 shadow-sm items-center flex'
-//       classes2='text-lg' dis={true} />
-//   )
-// }
 
 const sortedData = (arr) => {
   return arr.map(z => ({

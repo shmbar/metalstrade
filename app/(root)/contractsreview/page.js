@@ -1,10 +1,9 @@
 'use client';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Customtable from './newTable';
 import MyDetailsModal from '../contracts/modals/dataModal.js'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
-import MonthSelect from '@components/monthSelect';
 import Toast from '@components/toast.js'
 import { ExpensesContext } from "@contexts/useExpensesContext";
 import { InvoiceContext } from "@contexts/useInvoiceContext";
@@ -15,13 +14,12 @@ import { UserAuth } from "@contexts/useAuthContext"
 import { getInvoices, groupedArrayInvoice, getD } from '@utils/utils'
 import Spin from '@components/spinTable';
 import { ContractsValue, SumAllPayments, SumAllExp } from './funcs'
-import CBox from '@components/combobox.js'
 import { EXD } from './excel'
 import dateFormat from "dateformat";
 import { getTtl } from '@utils/languages';
 import DateRangePicker from '@components/dateRangePicker';
 import Tooltip from '@components/tooltip';
-
+import { Selector } from '@components/selectors/selectShad';
 
 const TotalInvoicePayments = (data, val, mult) => {
     let accumulatedPmnt = 0;
@@ -107,10 +105,20 @@ const loadInvoices = async (uidCollection, con) => {
 
 }
 
+
+
 const CB = (settings, setValCur, valCur) => {
+
+    const handleChange = (e, name) => {
+        setValCur(prev => {
+            return { ...prev, [name]: e }
+        })
+    }
+
     return (
-        <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='input border-slate-300 shadow-sm items-center flex'
-            classes2='text-lg' dis={true} />
+        <Selector arr={settings.Currency.Currency} value={valCur}
+            onChange={(e) => handleChange(e, 'cur')}
+            name='cur' />
     )
 }
 const Shipments = () => {
@@ -132,7 +140,7 @@ const Shipments = () => {
             setLoading(true)
             let dt = await loadData(uidCollection, 'contracts', dateSelect);
             setContractsData(dt)
-            
+
 
         }
 
@@ -283,8 +291,8 @@ const Shipments = () => {
             },
         },
         {
-			accessorKey: 'originSupplier', header: 'Original supplier',
-		},
+            accessorKey: 'originSupplier', header: 'Original supplier',
+        },
         {
             accessorKey: 'conValue', header: getTtl('purchaseValue', ln), cell: (props) => <p>{showAmount(props.getValue())}</p>, ttl: showAmount(totals[0]?.conValue),
             meta: {
@@ -396,9 +404,9 @@ const Shipments = () => {
 
                         <div className='mt-5'>
                             <Customtable data={loading ? [] : getFormatted(dataTable)} datattl={loading ? [] : totals} columns={propDefaults} SelectRow={SelectRow}
-                                invisible={invisible} 
+                                invisible={invisible}
                                 excellReport={EXD(dataTable.filter(x => filteredData.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Review', ln),
-                                     ln, valCur)}
+                                    ln, valCur)}
                                 cb={CB(settings, setValCur, valCur)}
                                 setFilteredData={setFilteredData}
                                 valCur={valCur} setValCur={setValCur}

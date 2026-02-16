@@ -337,7 +337,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                     <tr className="border border-slate-300 p-2">
                         <th className="text-left p-1 w-24">PO#</th>
                         <th className="text-left p-1">Supplier</th>
-                        <th className="text-left p-1">Org. Supplier</th>
+                        <th className="text-left p-1">Org Sup.</th>
                         <th className="text-left p-1 w-40">Description</th>
                         <th className="text-left p-1">Quantity</th>
                         <th className="text-right p-1">Unit Price</th>
@@ -348,13 +348,13 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                     {filteredArr.map((z, i) => {
                         return (
                             <tr className="border border-slate-300 p-2" key={i}>
-                                <td className="text-left p-1 cursor-pointer text-blue-700"
+                                <td className="text-left p-1 cursor-pointer text-blue-700  max-w-16 truncate"
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     {z.order}</td>
-                                <td className="text-left p-1 w-20">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td>
-                                <td className="text-left p-1 w-20">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</td>
-                                <td className="text-left p-1 max-w-28 2xl:max-w-48 truncate" >{z.descriptionName}</td>
+                                <td className="text-left p-1 max-w-16 truncate">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td>
+                                <td className="text-left p-1 max-w-16 truncate">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</td>
+                                <td className="text-left p-1 max-w-16 truncate" >{z.descriptionName}</td>
                                 <td className="text-left p-1">{
                                     <NumericFormat
                                         value={z.qnty}
@@ -443,7 +443,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
 
     const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd') 
 
-    console.log((filteredArr.reduce((sum, item) => sum + item.total * 1, 0)) || '')
+
     return (
         <div className="max-h-[28rem] overflow-y-auto responsiveTextTable pt-2 justify-end flex">
             <table>
@@ -451,7 +451,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                     <tr className="border border-slate-300 p-2">
                         <th className="text-left p-1 w-24">PO#</th>
                         {/* <th className="text-left p-1">Supplier</th> */}
-                        <th className="text-left p-1">Origin. Supplier</th>
+                        <th className="text-left p-1">Org Sup.</th>
                         <th className="text-left p-1 w-40">Description</th>
                         <th className="text-left p-1">Quantity</th>
                         <th className="text-right p-1">Unit Price</th>
@@ -471,7 +471,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                                         setValueCon, setIsOpenCon, blankInvoice, router)}
                                 >{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td> */}
                                 <td className="text-left p-1 w-20">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</td>
-                                <td className="text-left p-1 max-w-28 2xl:max-w-48 truncate" >{z.description}</td>
+                                <td className="text-left p-1 max-w-28 2xl:max-w-40 truncate" >{z.description}</td>
                                 <td className="text-left p-1">{
                                     <NumericFormat
                                         value={z.qnty}
@@ -705,7 +705,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                 <th className="text-right p-1 2xl:p-2">Balance</th>
                                 <th className="text-left p-1 2xl:p-2">ETD</th>
                                 <th className="text-left p-1 2xl:p-2">ETA</th>
-                                <th className="text-left p-1 2xl:p-2">Payment</th>
+                                <th className="text-left p-1 2xl:p-2">Pmn</th>
                                 <th className="text-center px-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
@@ -1074,12 +1074,12 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                     <tr className="border border-slate-300">
                         <th className="text-left p-1 2xl:p-2">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
-                        <th className="text-left p-2">Org. supplier</th>
+                        <th className="text-left p-2">Org Sup.</th>
                         <th className="text-left p-1 2xl:p-2">Invoice</th>
                         <th className="text-right p-1 2xl:p-2">Value</th>
                         <th className="text-right p-1 2xl:p-2">Payment</th>
                         <th className="text-right p-1 2xl:p-2">Balance</th>
-                        <th className="text-right p-1 2xl:p-2">Payment</th>
+                        <th className="text-right p-1 2xl:p-2">Pmn</th>
                         <th>
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
@@ -1102,7 +1102,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                 >{z.order}</td>
                                 <td className="text-left p-2">{settings?.Supplier?.Supplier.find(q => q.id === z.originSupplier)?.nname}</td>
                                 {/* <td className="text-left p-2">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td> */}
-                                <td className="text-left p-1 2xl:p-2 2xl:max-w-24 truncate" >{z.invoice}</td>
+                                <td className="text-left p-1 2xl:p-2 xl:max-w-10 truncate" >{z.invoice}</td>
                                 <td className="text-right p-1 2xl:p-2">{
                                     <NumericFormat
                                         value={z.invValue}

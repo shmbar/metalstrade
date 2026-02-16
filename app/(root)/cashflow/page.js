@@ -1564,7 +1564,7 @@ const Cashflow = () => {
 
                             </TabsContent>
                             <TabsContent value="password">
-                                <div className=" p-2 w-[30rem]">
+                                <div className=" p-2 w-[36rem]">
                                     <span className="font-bold p-1 responsiveTextTitle">Stocks - UnSold</span>
                                     <div className="flex p-1 justify-between">
                                         {

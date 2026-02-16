@@ -1,17 +1,14 @@
 import { useState, useContext, useEffect } from 'react';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { v4 as uuidv4 } from 'uuid';
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { MdDeleteOutline } from 'react-icons/md';
-import { BiEditAlt } from 'react-icons/bi';
-import { AiOutlineClear } from 'react-icons/ai';
 import { validate, ErrDiv, sortArr } from '@utils/utils'
 import ModalToDelete from '@components/modalToProceed';
 
 import { UserAuth } from "@contexts/useAuthContext";
 import { getTtl } from '@utils/languages';
-import CBox from '../_components/stocksComb'
-import Tltip from '@components/tlTip';
+
+import { Selector } from '@components/selectors/selectShad.js';
+import Buttons from './buttons';
 
 
 const Stocks = () => {
@@ -82,6 +79,15 @@ const Stocks = () => {
         setErrors({})
     }
 
+
+    const handleChange = (e, name) => {
+        setValue(prev => {
+            return { ...prev, [name]: e }
+        })
+    }
+
+    const types = [{ id: 'Warehouse', sType: "Warehouse" }, { id: "Virtual", sType: "Virtual" }]
+
     return (
         <div className='border border-slate-300 p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
             <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  min-w-xl'>
@@ -103,33 +109,9 @@ const Stocks = () => {
 
             </div>
             <div className='flex flex-col'>
-                <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
-                    <Tltip direction='top' tltpText='Add new stock'>
-                        <button className={`blackButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
-                            onClick={addItem}>
-                            <IoAddCircleOutline className='scale-110' />   {getTtl('Add', ln)}
-                        </button>
-                    </Tltip>
-                    <Tltip direction='top' tltpText='Update stock data'>
-                        <button className='whiteButton py-1'
-                            onClick={updateList}>
-                            <BiEditAlt className='scale-125' />
-                            {getTtl('Update', ln)}
-                        </button>
-                    </Tltip>
-                    <Tltip direction='top' tltpText='Delete stock'>
-                        <button className='whiteButton py-1' onClick={() => setIsDeleteOpen(true)}
-                            disabled={!value.id}>
-                            <MdDeleteOutline className='scale-125' /> {getTtl('Delete', ln)}
-                        </button>
-                    </Tltip>
-                    <Tltip direction='top' tltpText='Clear form'>
-                        <button className='whiteButton py-1'
-                            onClick={clickClear}>
-                            <AiOutlineClear className='scale-125' />{getTtl('Clear', ln)}
-                        </button>
-                    </Tltip>
-                </div>
+                <Buttons disabledButton={disabledButton}
+                    addItem={addItem} updateList={updateList} setIsDeleteOpen={setIsDeleteOpen}
+                    clickClear={clickClear} ln={ln} value={value} />
                 <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
                     <div className='grid grid-cols-4 flex items-center gap-4 w-full'>
                         <div className='col-span-12 md:col-span-2 w-full'>
@@ -176,7 +158,11 @@ const Stocks = () => {
 
                         <div className='col-span-12 md:col-span-1'>
                             <p className='text-xs'>{getTtl('Stock type', ln)}:</p>
-                            <CBox value={value} setValue={setValue} />
+                            <Selector arr={types} value={value}
+                                onChange={(e) => handleChange(e, 'sType')}
+                                name='sType'
+                                classes='h-7 mb-0.5'
+                            />
                         </div>
                     </div>
 

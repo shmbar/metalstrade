@@ -1,19 +1,16 @@
 import React from 'react'
 import { useContext, useEffect, useState } from 'react'
-import CBox from '@components/combobox.js'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
-import { getD, saveData, getInvoices, groupedArrayInvoice } from '@utils/utils'
-//import { ImCancelCircle } from "react-icons/im";
+import { getD,  getInvoices, groupedArrayInvoice } from '@utils/utils'
 import { UserAuth } from "@contexts/useAuthContext";
 import PnlTables from './pnlTables';
 import Switch from '@components/switch'
 import TotalPnlTable from './totalPnlTable'
-import { getCur } from '@components/exchangeApi';
-import { VscSaveAs } from 'react-icons/vsc';
-
 import TableIbvPurchs from './refPurchaseInvoices'
 import { getTtl } from '@utils/languages';
+import { Selector } from '@components/selectors/selectShad';
+
 
 const setNum = (value, contractValue, settings) => {
 
@@ -143,13 +140,22 @@ const PNL = () => {
   { id: 'D8456', conStatus: 'Closed' },
   { id: 'E34656', conStatus: 'Unsold' }]
 
+  const handleChange = (e, name) => {
+    setValCur(prev => {
+      return { ...prev, [name]: e }
+    })
+  }
+
 
   return (
     <div className='p-1'>
       <div className='grid grid-cols-12 pt-3 gap-4 '>
         <div className='col-span-12 md:col-span-3 border border-slate-300 p-2 rounded-lg '>
           <p className='text-[0.8rem]'>{getTtl('selectCurr', ln)}:</p>
-          <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='shadow-md -mt-1' dis={true} />
+          <Selector arr={settings.Currency.Currency} value={valCur}
+            onChange={(e) => handleChange(e, 'cur')}
+            name='cur'
+           />
           <div className='flex gap-2 pt-2 flex-wrap'>
             <p className='text-[0.8rem]'>{getTtl('purchaseValue', ln)}:</p>
             <p className='text-[0.8rem] items-center flex text-slate-800 font-medium'>
@@ -189,7 +195,7 @@ const PNL = () => {
         {/*
         <div className='col-span-12 md:col-span-2 border border-slate-300 p-2 rounded-lg'>
           <p className='text-[0.8rem]'>Contract Status:</p>
-          <CBox data={conSttusArr} setValue={setValueCon} value={valueCon} name='conStatus' classes='shadow-md -mt-1' dis={true} />
+          
           <button className='mt-2 py-0.5 bg-slate-100  px-2 border border-slate-400 shadow-md rounded-lg text-slate-700
                     flex items-center gap-1'
             onClick={() => saveContractStatus(uidCollection)}
@@ -204,7 +210,7 @@ const PNL = () => {
       </div>
 
       <div className='block md:flex flex-wrap mt-4 gap-2 '>
-        <p className='p-2'>{getTtl('Invoices summary', ln)}:</p>
+        <p className='p-2 text-sm'>{getTtl('Invoices summary', ln)}:</p>
         <TotalPnlTable data={pnlData} val={valCur} mult={valueCon.euroToUSD} />
       </div>
 

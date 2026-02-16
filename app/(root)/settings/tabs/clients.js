@@ -1,15 +1,11 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext } from 'react';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { v4 as uuidv4 } from 'uuid';
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { MdDeleteOutline } from 'react-icons/md';
-import { BiEditAlt } from 'react-icons/bi';
-import { AiOutlineClear } from 'react-icons/ai';
 import { sortArr, validate } from '@utils/utils'
 import ModalToDelete from '@components/modalToProceed';
 import { UserAuth } from "@contexts/useAuthContext";
 import { getTtl } from '@utils/languages';
-import Tltip from '@components/tlTip';
+import Buttons from './buttons';
 
 const Clients = () => {
 
@@ -113,33 +109,9 @@ const Clients = () => {
 
             </div>
             <div className='flex flex-col  md:w-7/12'>
-                <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap'>
-                    <Tltip direction='top' tltpText='Add new client'>
-                        <button className={`blackButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
-                            onClick={addItem}>
-                            <IoAddCircleOutline className='scale-110' />  {getTtl('Add', ln)}
-                        </button>
-                    </Tltip>
-                    <Tltip direction='top' tltpText='Update client data'>
-                        <button className='whiteButton py-1'
-                            onClick={updateList}>
-                            <BiEditAlt className='scale-125' />
-                            {getTtl('Update', ln)}
-                        </button>
-                    </Tltip>
-                    <Tltip direction='top' tltpText='Delete client'>
-                        <button className='whiteButton py-1' onClick={() => setIsDeleteOpen(true)}
-                            disabled={!value.id}>
-                            <MdDeleteOutline className='scale-125' />{getTtl('Delete', ln)}
-                        </button>
-                    </Tltip>
-                    <Tltip direction='top' tltpText='Clear form'>
-                        <button className='whiteButton py-1'
-                            onClick={clickClear}>
-                            <AiOutlineClear className='scale-125' />{getTtl('Clear', ln)}
-                        </button>
-                    </Tltip>
-                </div>
+                 <Buttons disabledButton={disabledButton}
+                    addItem={addItem} updateList={updateList} setIsDeleteOpen={setIsDeleteOpen}
+                    clickClear={clickClear} ln={ln} value={value} />
                 <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
                     <div className='grid md:max-lg:grid-cols-1  sm:grid-cols-2 grid-rows-3 gap-2 w-full'>
                         <div className='cols-span-12 lg:cols-span-1'>

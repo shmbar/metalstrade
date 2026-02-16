@@ -58,11 +58,11 @@ const Customtable = ({ data, item }) => {
 						obj.type === 'out' && 'Shipment' :
 					'Movement',
 				total: 0,
-				client: obj.client,
+				client: obj.type === 'in' ? null : obj.client,
 				description: obj.descriptionName,
 				moveType: obj.moveType,
-				newStock: obj.newStock != null ? obj.newStock : '',
-				oldStock: obj.oldStock != null ? obj.oldStock : ''
+				newStock: obj.newStock ?? '',
+				oldStock: obj.oldStock ?? ''
 			}
 
 			arr.push(fstItem)
@@ -79,8 +79,8 @@ const Customtable = ({ data, item }) => {
 					client: '',
 					description: obj.descriptionName,
 					moveType: obj.moveType,
-					newStock: obj.newStock != null ? obj.newStock : '',
-					oldStock: obj.oldStock != null ? obj.oldStock : ''
+					newStock: obj.newStock ?? '',
+					oldStock: obj.oldStock ?? ''
 
 				}
 				arr.push(fntItem)
@@ -117,7 +117,7 @@ const Customtable = ({ data, item }) => {
 	const showDetail = (obj, x) => {
 		const tmp = cols.find(y => y.field === x);
 
-		return x === 'supplier' ? obj.client ? obj.client : tmp.arr.find(z => z.id === obj.supplier)['nname'] :
+		return x === 'supplier' ? obj.client ?? tmp.arr.find(z => z.id === obj.supplier)['nname'] :
 			(x === 'type' && obj[x] === 'Purchase') ?
 				<div className='flex items-center gap-1'><HiArrowDownTray className='font-bold scale-110 text-green-600' /> <span >{obj[x]}</span> </div> :
 				(x === 'type' && obj[x] === 'Final Settlement') ?
@@ -140,8 +140,8 @@ const Customtable = ({ data, item }) => {
     bg-slate-400 rounded-md text-center text-white text-sm z-10 whitespace-nowrap -left-36 ">
 										<span>{`Moved to:`}&nbsp;</span> <span className='font-semibold'>{`${settings.Stocks.Stocks.find(x => x.id === obj.newStock)['stock']}`}</span></span>
 								</div> :
-								x === 'qnty' ? 
-								<div className={`${obj.type === 'Purchase' || obj.moveType === 'in' || parseFloat(obj.qnty) < 0 ? 'text-green-600' : 'text-red-600'}`}>{showWeight(obj[x])}</div> :
+								x === 'qnty' ?
+									<div className={`${obj.type === 'Purchase' || obj.moveType === 'in' || parseFloat(obj.qnty) < 0 ? 'text-green-600' : 'text-red-600'}`}>{showWeight(obj[x])}</div> :
 									x === 'total' ? showWeight(obj[x]) :
 										obj[x]
 	}

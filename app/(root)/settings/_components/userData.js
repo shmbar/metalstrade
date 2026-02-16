@@ -1,15 +1,14 @@
 import { UserAuth } from '@contexts/useAuthContext';
 import React, { useContext, useEffect, useState, useTransition } from 'react'
-import { VscSaveAs } from 'react-icons/vsc';
-import CBox from '@components/combobox.js'
 import { ErrDiv, validate } from '@utils/utils';
-import { getTtl } from '@utils/languages';
 import { SettingsContext } from '@contexts/useSettingsContext';
 import { createNewUser, updateUser } from '@actions/pass';
 import { checkEmail, checkName, checkPassLenght, checkPassMatch } from '@actions/validations';
 import CheckBox from '@components/checkbox';
 import { Titles } from '@components/const';
-
+import { Selector } from '@components/selectors/selectShad';
+import {  Save } from "lucide-react"
+import { Button } from '@components/ui/button.jsx';
 
 
 
@@ -36,13 +35,27 @@ const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, di
 
 const USerDSelect = ({ data, value, setValue, name, errors, ln }) => {
 
+    const handleChange = (e, name) => {
+        setValue(prev => {
+            return { ...prev, [name]: e }
+        })
+    }
+
+
+    const clear = (name) => {
+        setValue(prev => ({
+            ...prev, [name]: '',
+        }))
+    }
+
     return (
         <div className='flex gap-4 justify-between'>
             <p className='flex items-center text-sm font-medium whitespace-nowrap'>Title:</p>
             <div className='w-full'>
-                <CBox data={data} setValue={setValue} value={value} name={name}
-                />
-
+                <Selector arr={data} value={value}
+                    onChange={(e) => handleChange(e, name)}
+                    name={name}
+                    clear={clear} />
                 <ErrDiv field={name} errors={errors} ln={ln} />
             </div>
         </div>
@@ -193,16 +206,14 @@ const UserData = ({ setIsOpen, data, setData, user, setUser }) => {
 
             <div className={`pt-2 text-lg font-medium leading-5 text-gray-900 flex gap-4 flex-wrap justify-center md:justify-start
                 ${isPending ? 'opacity-50' : ''}`}>
-                <button
-                    type="button"
-                    className="blackButton"
+                <Button
+                    className='h-8'
                     onClick={SaveUser}
                     disabled={isPending}
-
                 >
-                    <VscSaveAs className='scale-110' />
+                    <Save />
                     Save
-                </button>
+                </Button>
             </div>
         </div>
     )

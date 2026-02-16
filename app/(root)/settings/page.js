@@ -57,7 +57,7 @@ const Page = () => {
 
         <div className="w-full px-2 sm:px-0">
           <TabGroup >
-            <TabList className="overflow-x-auto max-w-3xl flex space-x-1 rounded-xl bg-slate-400 p-1">
+            <TabList className="overflow-x-auto max-w-4xl flex space-x-1 rounded-xl bg-slate-400 p-1">
               {tabs.map((z) => (
                 <Tab
                   key={z}

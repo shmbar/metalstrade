@@ -1,16 +1,13 @@
 import { useState, useContext, useEffect } from 'react';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { v4 as uuidv4 } from 'uuid';
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { MdDeleteOutline } from 'react-icons/md';
-import { BiEditAlt } from 'react-icons/bi';
-import { AiOutlineClear } from 'react-icons/ai';
 import { validate, ErrDiv } from '@utils/utils'
 import ModalToDelete from '@components/modalToProceed';
-import CBox from '@components/combobox.js'
 import { UserAuth } from "@contexts/useAuthContext";
 import { getTtl } from '@utils/languages';
-import Tltip from '@components/tlTip';
+import { Selector } from '@components/selectors/selectShad';
+import Buttons from './buttons';
+
 
 const BankAccount = () => {
 
@@ -81,6 +78,18 @@ const BankAccount = () => {
         setErrors({})
     }
 
+    const handleChange = (e, name) => {
+        setValue(prev => {
+            return { ...prev, [name]: e }
+        })
+    }
+
+
+    const clear = (name) => {
+        setValue(prev => ({
+            ...prev, [name]: '',
+        }))
+    }
 
     return (
         <div className='border border-slate-300 p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
@@ -103,35 +112,12 @@ const BankAccount = () => {
 
             </div>
             <div className='flex flex-col'>
+                <Buttons disabledButton={disabledButton}
+                    addItem={addItem} updateList={updateList} setIsDeleteOpen={setIsDeleteOpen}
+                    clickClear={clickClear} ln={ln} value={value} />
+
                 <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
-                    <Tltip direction='top' tltpText='Add new bank'>
-                        <button className={`blackButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
-                            onClick={addItem}>
-                            <IoAddCircleOutline className='scale-110' />   {getTtl('Add', ln)}
-                        </button>
-                    </Tltip>
-                    <Tltip direction='top' tltpText='Update bank data'>
-                        <button className='whiteButton py-1'
-                            onClick={updateList}>
-                            <BiEditAlt className='scale-125' />
-                            {getTtl('Update', ln)}
-                        </button>
-                    </Tltip>
-                    <Tltip direction='top' tltpText='Delete bank'>
-                        <button className='whiteButton py-1' onClick={() => setIsDeleteOpen(true)}
-                            disabled={!value.id}>
-                            <MdDeleteOutline className='scale-125' />{getTtl('Delete', ln)}
-                        </button>
-                    </Tltip>
-                    <Tltip direction='top' tltpText='Clear form'>
-                        <button className='whiteButton py-1'
-                            onClick={clickClear}>
-                            <AiOutlineClear className='scale-125' />{getTtl('Clear', ln)}
-                        </button>
-                    </Tltip>
-                </div>
-                <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
-                    <div className='grid grid-cols-4 flex items-center gap-4 w-full'>
+                    <div className='grid grid-cols-4 items-center gap-4 w-full'>
                         <div className='col-span-12 md:col-span-2 w-full'>
                             <p className='text-xs'>{getTtl('Bank', ln)}:</p>
                             <input type='text' className='input h-7 text-xs w-full' value={value.bankName}
@@ -149,8 +135,11 @@ const BankAccount = () => {
                         </div>
                         <div className='col-span-12 md:col-span-1'>
                             <p className='text-xs relative -bottom-1'>{getTtl('Currency', ln)}:</p>
-                            <div style={{ height: '35px' }}>
-                                <CBox data={settings.Currency.Currency} setValue={setValue} value={value} name='cur' />
+                            <div style={{ height: '35px' }} className='pt-0.5'>
+                                <Selector arr={settings.Currency.Currency} value={value}
+                                    onChange={(e) => handleChange(e, 'cur')}
+                                    name='cur'
+                                    clear={clear} />
                             </div>
                             <div className='relative -top-1'>
                                 <ErrDiv field='cur' errors={errors} ln={ln} />

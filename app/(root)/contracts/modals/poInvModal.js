@@ -3,19 +3,14 @@ import Modal from '@components/modal.js'
 import { useContext, useEffect, useState } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { MdPayments } from 'react-icons/md';
 import { UserAuth } from "@contexts/useAuthContext";
 
 import ChkBox from '@components/checkbox';
-import { VscSaveAs } from 'react-icons/vsc';
 import { v4 as uuidv4 } from 'uuid';
-import { VscArchive } from 'react-icons/vsc';
-import { TbArrowMoveRight } from 'react-icons/tb';
 import { getTtl } from '@utils/languages';
 import Datepicker from "react-tailwindcss-datepicker";
-import { CirclePlus, CircleMinus } from 'lucide-react';
-
+import { Button } from '@components/ui/button.jsx';
+import { Save, CirclePlus, CircleMinus, Trash, ArrowBigRight } from "lucide-react";
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -46,7 +41,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
         if (!valueCon?.poInvoices?.length) return;
 
         const arr = valueCon.poInvoices.map((item) => {
-            
+
             if (item.payments == null) {
                 const pmntPerc = item.invValue !== '' ? ((parseFloat(item.pmnt) / parseFloat(item.invValue) * 100)).toFixed(1) : 0;
                 const pmnt = { pmntId: uuidv4(), pmntDate: null, pmntPerc, pmnt: item.pmnt, };
@@ -321,8 +316,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                 <input type='text' disabled className="number-separator input border-slate-300 text-[15px] h-7 text-xs" name='blnc'
                                                     value={addComma(x.blnc, true)} />
                                                 <div className='group relative'>
-                                                    <TbArrowMoveRight className={`scale-[2.5] text-slate-500 ml-4 mt-1 cursor-pointer `}
-                                                        onClick={switchToStocks} />
+                                                    <ArrowBigRight className='text-slate-500 ml-3 cursor-pointer' onClick={switchToStocks} />
                                                     <span className="absolute hidden group-hover:flex top-[30px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
                                                         {getTtl('Stocks', ln)}</span>
@@ -378,26 +372,28 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                     </div>
                                                 </div>
 
-                                                <button
-                                                    className="whiteButton py-1 mt-3.5 text-slate-500"
+                                                <Button
+                                                    className="h-7 px-3 mt-4 text-slate-600 text-[13px]"
+                                                    variant='outline'
                                                     onClick={() => deletePayment(x, y)}
                                                 >
-                                                    <VscArchive className='scale-110' />
+                                                    <Trash />
                                                     Delete payment
-                                                </button>
+                                                </Button>
                                             </div>
                                         </div>
                                     )
                                 })}
                                 <div className='flex gap-4 p-2 border-t'>
 
-                                    <button
-                                        className="whiteButton py-1"
+                                    <Button
+                                        className="h-7 px-2 text-slate-500"
+                                        variant='outline'
                                         onClick={() => addPaymnt(x)}
                                     >
-                                        <IoAddCircleOutline className='scale-110' />
+                                        <CirclePlus />
                                         Add Payment
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         </div>
@@ -406,29 +402,31 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
 
             </div>
             <div className='flex gap-4 p-2 border-t'>
-                <button
-                    className="blackButton py-1"
+                <Button
+                    className="h-8 px-3"
                     onClick={() => saveData_payments(uidCollection)}
                 >
-                    <VscSaveAs className='scale-110' />
+                    <Save className='scale-110' />
                     {getTtl('save', ln)}
-                </button>
-                <button
-                    className="whiteButton py-1"
+                </Button>
+                <Button
+                    className="h-8 px-3"
+                    variant='outline'
                     onClick={addInvoice}
                 >
-                    <IoAddCircleOutline className='scale-110' />
+                    <CirclePlus />
                     Add Invoice
-                </button>
+                </Button>
 
 
-                <button
-                    className="whiteButton py-1"
+                <Button
+                    className="h-8 px-3"
+                    variant='outline'
                     onClick={deleteItems}
                 >
-                    <VscArchive className='scale-110' />
+                    <Trash />
                     Delete Invoice
-                </button>
+                </Button>
             </div>
         </Modal>
     )

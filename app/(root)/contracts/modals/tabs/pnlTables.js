@@ -2,13 +2,16 @@ import React, { useEffect, useState } from 'react'
 import Customtable from '@components/tablePnl';
 import { useContext } from 'react';
 import { SettingsContext } from "@contexts/useSettingsContext";
-import CBox from '@components/comboboxPNL.js'
 import Datepicker from "react-tailwindcss-datepicker";
-import { VscSaveAs } from 'react-icons/vsc';
 import { InvoiceContext } from "@contexts/useInvoiceContext";
 import { UserAuth } from "@contexts/useAuthContext";
 import { OutTurn, Finalizing, relStts } from '@components/const'
 import { getTtl } from '@utils/languages';
+import { Selector } from '@components/selectors/selectShad.js';
+import { Button } from '@components/ui/button.jsx';
+import { Save } from "lucide-react";
+
+
 
 const PnlTables = ({ data, setPnlData, val, mult }) => {
 
@@ -24,7 +27,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
         { field: 'invoice', header: getTtl('Invoice', ln) },
         { field: 'totalAmount', header: getTtl('invValueSale', ln) },
         { field: 'deviation', header: getTtl('Deviation', ln) },
-        { field: 'prepaidPer', header: getTtl('Prepaid', ln)+' %' },
+        { field: 'prepaidPer', header: getTtl('Prepaid', ln) + ' %' },
         { field: 'totalPrepayment', header: getTtl('Prepaid Amount', ln) },
         { field: 'inDebt', header: getTtl('Initial Debt', ln) },
         { field: 'payments', header: getTtl('Actual Payment', ln) },
@@ -56,7 +59,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
         setRunData(true)
     }, [])
 
-    const Save = (i) => {
+    const SaveData = (i) => {
 
         let pnlDataTmp = [...data]
         let invTmp = pnlDataTmp[i].find(k => k.id === dataValue[i].id && (k.invType === '1111' || k.invType === 'Invoice'))
@@ -99,7 +102,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
 
     const addComma = (nStr, i) => {
 
-        if(!nStr)return '';
+        if (!nStr) return '';
         nStr += '';
         var x = nStr.split('.');
         var x1 = x[0];
@@ -117,6 +120,21 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
         return (symbol + x1 + x2);
     }
 
+    const handleChange = (e, name, indx) => {
+        setDataValue(prev =>
+            prev.map((item, i) =>
+                i === indx ? { ...item, [name]: e } : item
+            )
+        );
+    }
+
+
+    const clear = (name) => {
+        setValueInv(prev => ({
+            ...prev, [name]: '',
+        }))
+    }
+
     return runData && (
         <div>
             {data.map((x, i) => {
@@ -126,7 +144,13 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                     <div className='bg-slate-200 mt-2 lg:mt-0 flex flex-wrap items-center border border-slate-300 rounded-lg max-w-6xl'>
                         <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
                             <div className='text-xs text-gray-800 items-center flex text-[0.7rem]'>Outturn:</div>
-                            <CBox data={OutTurn} setValue={setDataValue} value={dataValue[i]} dataValue={dataValue} name='rcvd' classes='shadow-md h-6 items-center flex max-w-[8rem]' classes2='text-[0.6rem]' />
+                            <Selector
+                                arr={OutTurn}
+                                value={dataValue[i]}
+                                onChange={(e) => handleChange(e, 'rcvd', i)}
+                                name='rcvd'
+                                classes='h-6 w-28'
+                            />
                         </div>
                         {dataValue[i].rcvd === '1234' &&
                             <div className='p-1 space-x-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
@@ -137,11 +161,23 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                         }
                         <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
                             <div className='text-xs text-gray-800 items-center flex text-[0.7rem]'>{getTtl('Finalizing', ln)}:</div>
-                            <CBox data={Finalizing} setValue={setDataValue} value={dataValue[i]} dataValue={dataValue} name='fnlzing' classes='shadow-md h-6 items-center flex max-w-[6rem]' classes2='text-[0.6rem]' />
+                            <Selector
+                                arr={Finalizing}
+                                value={dataValue[i]}
+                                onChange={(e) => handleChange(e, 'fnlzing', i)}
+                                name='fnlzing'
+                                classes='h-6 w-20'
+                            />
                         </div>
                         <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
                             <div className='text-xs text-gray-800 items-center flex text-[0.7rem] whitespace-nowrap'>{getTtl('Release Status', ln)}:</div>
-                            <CBox data={relStts} setValue={setDataValue} value={dataValue[i]} dataValue={dataValue} name='status' classes='shadow-md h-6 items-center flex max-w-[11rem]' classes2='text-[0.6rem]' />
+                            <Selector
+                                arr={relStts}
+                                value={dataValue[i]}
+                                onChange={(e) => handleChange(e, 'status', i)}
+                                name='status'
+                                classes='h-6 w-40'
+                            />
                         </div>
 
                         <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
@@ -170,12 +206,13 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
 
 
                     </div>
-                    <button className='m-1 h-fit py-0.5 bg-slate-100  px-3 border border-slate-400 shadow-md rounded-lg text-slate-700
-                    flex items-center gap-1 self-center'
-                        onClick={() => Save(i)}
+                    <Button
+                        className='h-7 mt-1 px-3 text-[13px]'
+                        onClick={() => SaveData(i)}
                     >
-                        <VscSaveAs className='text-slate-700' />
-                        <p className='text-sm'> {getTtl('save', ln)}</p></button>
+                        <Save />
+                        <p className='text-sm'> {getTtl('save', ln)}</p>
+                    </Button>
 
                 </div>
 

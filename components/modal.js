@@ -10,7 +10,7 @@ const Modal = ({ isOpen, setIsOpen, title, children, w }) => {
     return (
         <>
             <Transition appear show={isOpen} as={Fragment}>
-                <Dialog as="div" className="relative z-20" onClose={() => setIsOpen(false)} >
+                <Dialog as="div" className="relative z-20" /*onClose={() => setIsOpen(false)}*/onClose={() => {}} >
                     <TransitionChild
                         as={Fragment}
                         enter="ease-out duration-300"

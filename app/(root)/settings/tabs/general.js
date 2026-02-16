@@ -1,32 +1,30 @@
-import { useContext, useState } from 'react'
+import { useContext } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
-import { MdOutlineSaveAs } from 'react-icons/md';
 import { UserAuth } from "@contexts/useAuthContext";
 import Spinner from '@components/spinner';
-//import Modal from '@components/modalToProceed';
-import CBox from '../_components/combobox.js'
 import { getTtl } from '@utils/languages'
-import Logos from './logos.js';
 import Tltip from '@components/tlTip.js';
+import { Selector } from '@components/selectors/selectShad';
+import {Save,} from "lucide-react"
+import { Button } from '@components/ui/button.jsx';
 
 export const getLng = () => {
     return;
 }
 
-const languages = [{ lng: "English" }, { lng: "Русский" }]
+const languages = [{ id:"English", lng: "English" }, {id:"Русский", lng: "Русский" }]
 
 const General = () => {
     const { compData, setCompData, updateCompanyData, setToast } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
     const ln = compData.lng
-    // const [invNum, setInvNum] = useState('')
 
-    //   const [isOpen, setIsOpen] = useState(false)
-    // const setNum = async () => {
-    //     let success = await saveDataSettings(uidCollection, 'invoiceNum', { num: invNum * 1 })
-    //     success && setToast({ show: true, text: 'New number is saved!', clr: 'success' })
-    // }
 
+    const handleChange = (e, name) => {
+        setCompData(prev => {
+            return { ...prev, [name]: e }
+        })
+    }
 
     return (
         <div>
@@ -44,9 +42,11 @@ const General = () => {
                         <div className='flex gap-4 items-center w-full'>
                             <p className='text-sm font-medium whitespace-nowrap text-slate-600'>
                                 {getTtl('lng', ln)}:</p>
-                            <div>
-                                <CBox languages={languages} compData={compData} setCompData={setCompData}
-                                    lang={languages.find(x => x.lng === compData.lng)} />
+                            <div className='w-40'>
+                                <Selector arr={languages} value={compData}
+                                    onChange={(e) => handleChange(e, 'lng')}
+                                    name='lng'
+                                    />
                             </div>
                         </div>
 
@@ -145,15 +145,15 @@ const General = () => {
                     {/* <div className=' border border-slate-300 p-4 rounded-lg  mt-5 w-full'>
                         <Logos compData={compData} setCompData={setCompData} />
                     </div> */}
-                    <div className="flex">
+                    <div className="flex mt-2">
                         <Tltip direction='top' tltpText='Save/update company data'>
-                            <button
-                                className="blackButton p-1 px-2 mt-4"
+                            <Button
+                                className="h-8 px-3"
                                 onClick={() => updateCompanyData(uidCollection)}
                             >
-                                <MdOutlineSaveAs className='scale-110' />
+                                <Save />
                                 {getTtl('save', ln)}
-                            </button>
+                            </Button>
                         </Tltip>
                     </div>
                     {/*

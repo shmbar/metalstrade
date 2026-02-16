@@ -2,21 +2,17 @@ import { useState, useRef, useEffect, useContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { NumericFormat } from 'react-number-format';
 import ChkBox from '@components/checkbox.js'
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { MdDelete } from 'react-icons/md';
-import { Import } from 'lucide-react';
-import { getD, sortArr } from '@utils/utils.js';
+import {  } from 'lucide-react';
+import { filteredArray, getD, loadStockDataPerDescription, sortArr } from '@utils/utils.js';
 import { SettingsContext } from "@contexts/useSettingsContext";
-import CBox from '@components/comboboxProductSelect'
-import CBox1 from '@components/comboboxStockAvailability'
-
 import SlctOpt from '@components/invoicePrdSlct'
 import { CalculateNum } from '@components/calculate';
 import { getTtl } from '@utils/languages';
-import { AiOutlineSafetyCertificate } from "react-icons/ai";
 import CheckBox from '@components/checkbox.js';
 import FindCOntract4Materials from '@components/findContract4Materials';
-
+import { Selector } from '@components/selectors/selectShad';
+import { CirclePlus , ShieldCheck , Import, Trash, } from "lucide-react"
+import { Button } from '@components/ui/button.jsx';
 
 
 const cols = ['container', 'qnty', 'unitPrc', 'total', 'stock', 'stockValue']
@@ -323,6 +319,43 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
 
     }
 
+    const handleChange = async (e, name, indx) => {
+
+        const products = [...value.productsDataInvoice];
+        const current = products[indx];
+
+        let totalQnty = 0;
+
+        if (current.stock) {
+            let stockData = await loadStockDataPerDescription(uidCollection, current.stock, e);
+
+            totalQnty = filteredArray(stockData).reduce(
+                (sum, obj) => sum + (obj.type === "in" ? Number(obj.qnty) : -Number(obj.qnty)), 0);
+        }
+
+        products[indx] = { ...current, [name]: e, stockValue: totalQnty, };
+
+        setValue(prev => ({ ...prev, productsDataInvoice: products, }));
+
+    }
+
+    const handleChangeStockAvailability = async (e, name, indx) => {
+        const current = value.productsDataInvoice[indx];
+
+        const stockData = filteredArray(
+            await loadStockDataPerDescription(uidCollection, e, current.descriptionId));
+
+        const totalQnty = stockData.reduce(
+            (sum, obj) => sum + (obj.type === "in" ? Number(obj.qnty) : -Number(obj.qnty)), 0
+        );
+
+        setValue(prev => ({
+            ...prev, productsDataInvoice: prev.productsDataInvoice.map((item, i) =>
+                i === indx ? { ...item, [name]: e, stockValue: totalQnty } : item),
+        }));
+    };
+
+
     return (
         <div className="w-full justify-center flex">
             <div className="flex flex-col w-full">
@@ -332,27 +365,27 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                             <thead className="bg-gray-50 ">
                                 <tr>
                                     <th scope="col" className=" w-0/12 py-1 px-6"></th>
-                                    <th scope="col" className="w-0/12 pr-1 py-1 text-left text-sm font-medium text-gray-500"  >
+                                    <th scope="col" className="w-0/12 pr-1 py-1 text-left text-[13px] font-medium text-gray-500"  >
                                         #</th>
-                                    {certOpen && <th scope="col" className="w-0/12 pr-1 py-1 text-left text-sm font-medium text-gray-500"  >
+                                    {certOpen && <th scope="col" className="w-0/12 pr-1 py-1 text-left text-[13px] font-medium text-gray-500"  >
                                         Cert</th>}
-                                    <th scope="col" className="w-1/12 py-1 px-1 text-left text-sm font-medium text-gray-500"  >
+                                    <th scope="col" className="w-1/12 py-1 px-1 text-left text-[13px] font-medium text-gray-500"  >
                                         {getTtl('PO', ln)}#</th>
-                                    <th scope="col" className="w-4/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
+                                    <th scope="col" className="w-4/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
                                         {getTtl('Description', ln)} </th>
-                                    <th scope="col" className="w-2/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
+                                    <th scope="col" className="w-2/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
                                         {contTitle}</th>
-                                    <th scope="col" className=" w-1/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
+                                    <th scope="col" className=" w-1/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
                                         {getTtl('Quantity', ln)} MT</th>
-                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
+                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
                                         <div className='table-caption'> {getTtl('UnitPrice', ln)} <span className='text-xs'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
+                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
                                         <div>{getTtl('Total', ln)} <span className='text-xs'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left text-sm font-medium text-gray-500 border-l" >
+                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500 border-l" >
                                         {getTtl('Stock', ln)}</th>
-                                    <th scope="col" className=" w-1/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
+                                    <th scope="col" className=" w-1/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
                                         {getTtl('Available Quantity', ln)} (MT)</th>
                                 </tr>
                             </thead>
@@ -366,19 +399,19 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 </div>
                                             </td>
                                             <td className="px-1 py-2">
-                                                <div className="flex items-center h-5 text-sm text-gray-800">
+                                                <div className="flex items-center h-5 text-[13px] text-gray-800">
                                                     {i + 1}
                                                 </div>
                                             </td>
                                             {certOpen && <td>
                                                 <input value={obj.cert} onChange={e => handleCert(e, i)}
                                                     className="w-14 border rounded-md border-slate-400 h-7 
-                                focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-slate-500"
+                                focus:outline-0 focus:border-slate-600 indent-1.5 text-[13px] text-slate-500"
                                                 />
                                             </td>}
                                             <td
                                                 data-label='po'
-                                                className="px-1 py-1 text-sm text-gray-800 whitespace-normal"
+                                                className="px-1 py-1 text-[13px] text-gray-800 whitespace-normal"
                                                 onClick={() => !fnl && handleDoubleClick(obj, 'po')}
                                             >
                                                 {edit.status &&
@@ -386,8 +419,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                     edit.header === 'po' ? (
 
                                                     <input
-                                                        className="w-full border rounded-md border-slate-400 h-7 
-                                focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-slate-500"
+                                                        className="input w-full border rounded-md border-slate-400 h-7 
+                                focus:outline-0 focus:border-slate-600 indent-1.5 text-[13px] text-slate-500"
                                                         onKeyDown={handleKeyPress}
                                                         value={value1}
                                                         maxLength={15}
@@ -400,13 +433,16 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                             </td>
                                             <td
                                                 data-label='description'
-                                                className="px-1 py-1 text-sm text-gray-800 whitespace-normal"
+                                                className="px-1 py-1 text-[13px] text-gray-800 whitespace-normal"
                                             >
                                                 <div className='flex items-center gap-1'>
                                                     {obj.mtrlStatus === 'select' || obj.isSelection ?
-                                                        <CBox data={materialsArr} setValue={setValue} value={value}
-                                                            indx={i} name='descriptionId' classes='shadow-md'
-                                                            uidCollection={uidCollection} disabled={fnl} />
+
+                                                        <Selector arr={materialsArr.map(x => ({ ...x, descriptionId: x.description }))}
+                                                            value={value.productsDataInvoice[i]}
+                                                            onChange={(e) => handleChange(e, 'descriptionId', i)}
+                                                            name='descriptionId'
+                                                        />
                                                         :
                                                         <div className='w-full'
                                                             onClick={() => !fnl && handleClick3(obj, 'descriptionText')}
@@ -415,8 +451,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                 edit.id === obj['id'] &&
                                                                 edit.header === 'description' ?
                                                                 <input
-                                                                    className="w-full border rounded-md border-slate-400 h-7 
-                                focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-slate-500"
+                                                                    className="inpiut  w-full border rounded-md border-slate-400 h-7 
+                                focus:outline-0 focus:border-slate-600 indent-1.5 text-[13px] text-slate-500"
                                                                     onKeyDown={handleKeyPress3}
                                                                     value={valueDesc}
                                                                     maxLength={80}
@@ -442,7 +478,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 <td
                                                     key={key}
                                                     data-label={key}
-                                                    className={`px-1 py-1 text-sm text-gray-800 whitespace-normal
+                                                    className={`px-1 py-1 text-[13px] text-gray-800 whitespace-normal
                                                     ${key === 'stock' ? 'border-l' : ''}`}
                                                     onClick={() => !fnl && handleDoubleClick(obj, key)}
                                                 >
@@ -451,8 +487,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                         edit.header === key ? (
                                                         <div className='group relative  whitespace-normal'>
                                                             <input
-                                                                className="w-full border rounded-md border-slate-400 h-7 
-                                focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-slate-500"
+                                                                className="input w-full border rounded-md border-slate-400 h-7 
+                                focus:outline-0 focus:border-slate-600 indent-1.5 text-[13px] text-slate-500"
                                                                 onKeyDown={handleKeyPress}
                                                                 value={value1}
                                                                 maxLength={key === 'container' ? 17 : 100}
@@ -462,7 +498,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                             />
                                                             <span className={`absolute hidden ${(key === 'unitPrc' || key === 'qnty') && value1?.substring(0, 1) === "=" ? 'group-hover:flex' : ''}
                                                                  bottom-[30px] w-fit p-1  bg-slate-400 rounded-md text-center
-                                                                  text-white text-xs z-50 whitespace-nowrap -left-0.5`}>
+                                                                  text-white text-[13px] z-50 whitespace-nowrap -left-0.5`}>
                                                                 {value1}
                                                             </span>
 
@@ -493,11 +529,12 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                     <span>Service</span>}
                                                             </div>
                                                         ) : key === 'stock' && obj.qnty !== "s" ?
-                                                            (<CBox1 data={sortArr(settings.Stocks.Stocks, 'stock')}
-                                                                setValue={setValue} value={value} name='stock'
-                                                                dt={value.productsDataInvoice} indx={i} classes='shadow-md h-7'
-                                                                disabled={obj.descriptionId === '' || fnl} uidCollection={uidCollection} />
-                                                            ) :
+                                                            <Selector arr={sortArr(settings.Stocks.Stocks, 'stock')}
+                                                                value={value.productsDataInvoice[i]}
+                                                                onChange={(e) => handleChangeStockAvailability(e, 'stock', i)}
+                                                                name='stock'  disabled={obj.descriptionId === ''}
+                                                            />
+                                                            :
                                                             key === 'stock' && obj.qnty === "s" ?
                                                                 '' :
                                                                 key === 'stockValue' && obj.qnty !== "s" ? (
@@ -528,7 +565,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                         {getTtl('Total Amount', ln)}:
                                     </td>
                                     <td className="px-1 py-2 border-t border-slate-500"></td>
-                                    <td className="px-1 py-2 text-sm text-slate-800 whitespace-nowrap border-t border-slate-500">
+                                    <td className="px-1 py-2 text-[13px] text-slate-800 whitespace-nowrap border-t border-slate-500">
                                         <NumericFormat
                                             value={value.totalAmount}
                                             displayType="text"
@@ -662,50 +699,53 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                 {!fnl &&
                     <div className="flex gap-5  mt-4">
                         <div className='group relative'>
-                            <button
-                                className="blackButton py-1"
+                            <Button
+                                className="h-8 px-3"
                                 onClick={() => addItem()}
                             >
-                                <IoAddCircleOutline className='scale-110' />
+                                <CirclePlus  />
                                 {getTtl('Add', ln)}
-                            </button>
+                            </Button>
                             <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-0.5">
                                 {getTtl('AddProduct', ln)}</span>
                         </div>
                         <div className='group relative'>
-                            <button
-                                className="whiteButton py-1 px-2"
+                            <Button
+                            variant='outline'
+                                className="h-8 px-3"
                                 onClick={() => delItem()}
                             >
-                                <MdDelete className='scale-110' />
+                                <Trash />
                                 {getTtl('Delete', ln)}
-                            </button>
+                            </Button>
                             <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
                                 {getTtl('DelProduct', ln)}</span>
                         </div>
                         {value.invType === '1111' && <div className='group relative'>
-                            <button
-                                className="whiteButton py-1 px-2"
+                            <Button
+                                variant='outline'
+                                className="h-8 px-3"
                                 onClick={() => { setCertOpen(!certOpen) }}
                             >
-                                <AiOutlineSafetyCertificate className='scale-110' />
+                                <ShieldCheck />
                                 Certs
-                            </button>
+                            </Button>
                             <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
                                 Certification
                             </span>
                         </div>}
                         <div className='group relative'>
-                            <button
-                                className="whiteButton py-1 px-2"
+                            <Button
+                                variant='outline'
+                                className="h-8 px-3"
                                 onClick={() => setOpenFindContract(true)}
                             >
                                 <Import size={16} />
                                 Import
-                            </button>
+                            </Button>
                             <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
                                 Import materials</span>
