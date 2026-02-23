@@ -660,12 +660,12 @@ const SupperAlloys = ({ value, handleChange }) => {
     const elementLabels = ['Ni', 'Cr', 'Mo', 'Nb', 'Co', 'W', 'Hf', 'Ta', 'Fe'];
     const priceFields = ['niPrice', 'crPrice', 'MoOxideLb', 'nbPrice', 'coPrice', 'wPrice', 'hfPrice', 'taPrice', 'fePrice'];
 
-    return value.supperalloys != null ? (
-<div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <h3 className='text-base font-semibold text-[var(--port-gore)] mb-3 text-center'>Cost</h3>
+        return value.supperalloys != null ? (
+        <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-2">
+          <h3 className='text-sm font-semibold text-[var(--port-gore)] mb-2 text-center'>Cost</h3>
             
             {/* Composition */}
-            <div className="mb-6">
+            <div className="mb-3">
             <p className="text-sm font-medium text-[var(--regent-gray)] mb-2 text-center">
                 Composition
             </p>
@@ -674,28 +674,28 @@ const SupperAlloys = ({ value, handleChange }) => {
                 {/* Header */}
                 <div className="grid grid-cols-9 bg-[#EAF4FF] text-[#2F6FDB] text-xs font-semibold">
                 {elementLabels.map((label, idx) => (
-                    <div
-                    key={label}
-                    className={`py-2 text-center ${idx > 0 ? 'border-l border-[#D9ECFF]' : ''}`}
-                    >
-                    {label}
-                    </div>
+                  <div
+                  key={label}
+                  className={`py-1 text-center ${idx > 0 ? 'border-l border-[#D9ECFF]' : ''}`}
+                  >
+                  {label}
+                  </div>
                 ))}
                 </div>
 
                 {/* Values */}
-                <div className="grid grid-cols-9 bg-white text-sm">
+                <div className="grid grid-cols-9 bg-white text-xs">
                 {elements.map((elem, idx) => (
-                    <input
-                    key={elem}
-                    type="text"
-                    className={`w-full text-center py-3 outline-none ${
-                        idx > 0 ? 'border-l border-[#D9ECFF]' : ''
-                    } ${
-                        elem === 'fe'
-                        ? 'text-[#2F6FDB] bg-gray-50 cursor-not-allowed'
-                        : 'text-[#F44336]'
-                    }`}
+                  <input
+                  key={elem}
+                  type="text"
+                  className={`w-full text-center py-1 outline-none ${
+                    idx > 0 ? 'border-l border-[#D9ECFF]' : ''
+                  } ${
+                    elem === 'fe'
+                    ? 'text-[#2F6FDB] bg-gray-50 cursor-not-allowed'
+                    : 'text-[#F44336]'
+                  }`}
                     name={elem}
                     value={elem === 'fe'
                         ? fe + '%'
@@ -726,7 +726,7 @@ const SupperAlloys = ({ value, handleChange }) => {
             </div>
 
             {/* Price / Lbs */}
-            <div className="mb-6">
+            <div className="mb-3">
             <p className="text-sm font-medium text-[var(--regent-gray)] mb-2 text-center">
                 Price / Lbs
             </p>
@@ -735,17 +735,17 @@ const SupperAlloys = ({ value, handleChange }) => {
                 {/* Header */}
                 <div className="grid grid-cols-9 bg-[#E9E2FF] text-[#2F6FDB] text-xs font-semibold">
                 {elementLabels.map((label, idx) => (
-                    <div
-                    key={label}
-                    className={`py-2 text-center ${idx > 0 ? 'border-l border-[#D9ECFF]' : ''}`}
-                    >
-                    {label}
-                    </div>
+                  <div
+                  key={label}
+                  className={`py-1 text-center ${idx > 0 ? 'border-l border-[#D9ECFF]' : ''}`}
+                  >
+                  {label}
+                  </div>
                 ))}
                 </div>
 
                 {/* Values */}
-                <div className="grid grid-cols-9 bg-white text-sm">
+                <div className="grid grid-cols-9 bg-white text-xs">
                 {priceFields.map((field, idx) => {
                     const isReadOnly = field === 'niPrice' || field === 'MoOxideLb';
 
@@ -760,9 +760,9 @@ const SupperAlloys = ({ value, handleChange }) => {
 
                     return (
                     <input
-                        key={field}
-                        type="text"
-                        className={`w-full text-center py-3 outline-none ${
+                      key={field}
+                      type="text"
+                      className={`w-full text-center py-1 outline-none ${
                         idx > 0 ? 'border-l border-[#D9ECFF]' : ''
                         } ${
                         isReadOnly
@@ -869,10 +869,10 @@ const SupperAlloys = ({ value, handleChange }) => {
 };
 const ResultBox = ({ title, value, bg }) => (
   <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
-    <div className="py-1.5" style={{ backgroundColor: bg }}>
+    <div className="py-1" style={{ backgroundColor: bg }}>
       <p className="text-xs text-[#2F6FDB]">{title}</p>
     </div>
-    <div className="py-3 text-sm font-semibold text-[#2F6FDB]">
+    <div className="py-1 text-xs font-semibold text-[#2F6FDB]">
       {value}
     </div>
   </div>

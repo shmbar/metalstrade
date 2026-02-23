@@ -104,24 +104,24 @@ const Page = () => {
 	}
 
 	return (
-		<div className="container mx-auto px-4 pb-6 md:pb-0 mt-6 md:mt-0">
+		<div className="container mx-auto px-1 pb-2 md:pb-0 mt-1 md:mt-0">
 			{Object.keys(settings).length === 0 ? <Spinner /> :
 				<>
 					<Toast />
 					{loading && <Spinner />}
-					<div className="bg-white rounded-2xl shadow-md p-6 mt-6 border border-slate-100">
+					<div className="bg-white rounded-2xl shadow-md p-2 mt-1 border border-slate-100">
 						<div className='pb-3'>
-							<div className="text-2xl font-semibold text-[var(--port-gore)] mb-2 mt-3">Formulas</div>
+							<div className="text-lg font-semibold text-[var(--port-gore)] mb-0 mt-0">Formulas</div>
 
 							<div className="w-full">
 								<TabGroup>
-									<TabList className="flex bg-[#EAF4FF] p-1 rounded-full w-fit border border-[#D9ECFF] mb-3">
+									<TabList className="flex bg-[#EAF4FF] p-0.5 rounded-full w-fit border border-[#D9ECFF] mb-1">
 										{tabs.map((z) => (
 										<Tab
 										key={z}
 										className={({ selected }) =>
 											classNames(
-											'px-6 py-2 text-sm font-medium transition-all rounded-full',
+											'px-3 py-0.5 text-[11px] font-medium transition-all rounded-sm',
 											selected
 												? 'bg-[var(--endeavour)] text-white shadow'
 												: 'text-[#2F6FDB] hover:bg-white'
@@ -136,22 +136,22 @@ const Page = () => {
 
 									
 									{value.general != null && !loading && (
-										<div className="rounded-xl p-6 mb-6 border border-[#E6EEF8]">
-											<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3'>
+										<div className="rounded-xl p-2 mb-2 border border-[#E6EEF8]">
+											<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2'>
 												
 <div className="border border-[#D9ECFF] rounded-xl shadow-sm overflow-hidden text-center">
   {/* Header strip */}
-  <div className="bg-[#EAF4FF] px-4 py-1.5">
-    <p className="text-xs text-[#2F6FDB]">
+	<div className="bg-[#EAF4FF] px-1 py-0.5">
+		<p className="text-xs text-[#2F6FDB]">
       Ni LME
     </p>
   </div>
 
   {/* Value area */}
-  <div className="bg-white px-4 py-3">
-    <input
-      type="text"
-      className="w-full text-center bg-transparent text-ms text-[#F44336] focus:outline-none"
+ 	<div className="bg-white px-1 py-1">
+		<input
+				type="text"
+				className="w-full text-center bg-transparent text-xs text-[#F44336] focus:outline-none py-0.5 w-28"
       name="nilme"
       value={
         focusedField === 'nilme'
@@ -169,18 +169,18 @@ const Page = () => {
 
 <div className="border border-[#D9ECFF] rounded-xl shadow-sm overflow-hidden text-center">
   {/* Header */}
-  <div className="bg-[#EAF4FF] px-4 py-1.5">
-    <p className="text-xs text-[#2F6FDB]">
-      Mo Oxide – Lb
-    </p>
-  </div>
+	<div className="bg-[#EAF4FF] px-1 py-0.5">
+		<p className="text-xs text-[#2F6FDB]">
+			Mo Oxide – Lb
+		</p>
+	</div>
 
-  {/* Value */}
-  <div className="bg-white px-4 py-3">
-    <input
-      type="text"
-      className="w-full text-center bg-transparent text-ms text-[#F44336] focus:outline-none"
-      name="MoOxideLb"
+	{/* Value */}
+	<div className="bg-white px-1 py-1">
+		<input
+			type="text"
+			className="w-full text-center bg-transparent text-xs text-[#F44336] focus:outline-none py-0.5 w-28"
+			name="MoOxideLb"
       value={
         focusedField === 'MoOxideLb'
           ? value.general?.MoOxideLb || ''
@@ -196,17 +196,17 @@ const Page = () => {
 
 												
 													<div className="border border-[#D9ECFF] rounded-xl shadow-sm overflow-hidden text-center">
-  <div className="bg-[#EAF4FF] px-4 py-1.5">
-    <p className="text-xs text-[#2F6FDB]">
-      Charge Cr – Lb
-    </p>
-  </div>
+	<div className="bg-[#EAF4FF] px-1 py-0.5">
+		<p className="text-xs text-[#2F6FDB]">
+			Charge Cr – Lb
+		</p>
+	</div>
 
-  <div className="bg-white px-4 py-3">
-    <input
-      type="text"
-      className="w-full text-center bg-transparent text-ms text-[#F44336] focus:outline-none"
-      name="chargeCrLb"
+	<div className="bg-white px-1 py-1">
+		<input
+			type="text"
+			className="w-full text-center bg-transparent text-xs text-[#F44336] focus:outline-none py-0.5 w-28"
+			name="chargeCrLb"
       value={
         focusedField === 'chargeCrLb'
           ? value.general?.chargeCrLb || ''
@@ -222,52 +222,51 @@ const Page = () => {
 
 											
 												<div className="border border-[#D9ECFF] rounded-xl shadow-sm overflow-hidden text-center">
-  <div className="bg-[#EAF4FF] px-4 py-1.5">
-    <p className="text-xs text-[#2F6FDB]">
-      1 MT
-    </p>
-  </div>
+	<div className="bg-[#EAF4FF] px-1 py-0.5">
+		<p className="text-xs text-[#2F6FDB]">
+			1 MT
+		</p>
+	</div>
 
-  <div className="bg-white px-4 py-3">
-    <input
-      type="text"
-      className="w-full text-center bg-transparent text-ms  text-[#F44336] focus:outline-none"
-      value={(value.general?.mt || '0') + ' Lb'}
-      name="mt"
-      onChange={(e) => handleChange(e, 'general')}
-    />
-  </div>
+	<div className="bg-white px-1 py-1">
+		<input
+			type="text"
+			className="w-full text-center bg-transparent text-xs text-[#F44336] focus:outline-none py-0.5 w-28"
+			value={(value.general?.mt || '0') + ' Lb'}
+			name="mt"
+			onChange={(e) => handleChange(e, 'general')}
+		/>
+	</div>
 </div>
 						
 
 	<div className="border border-[#D9ECFF] rounded-xl shadow-sm overflow-hidden text-center">
-  <div className="bg-[#EAF4FF] px-4 py-1.5">
-    <p className="text-xs  text-[#2F6FDB]">
-      Euro / USD
-    </p>
-  </div>
+	<div className="bg-[#EAF4FF] px-1 py-0.5">
+	  <p className="text-xs  text-[#2F6FDB]">
+	    Euro / USD
+	  </p>
+	</div>
 
-  <div className="bg-white px-4 py-3">
-    <input
-      type="text"
-      className="w-full text-center bg-transparent text-ms text-[#F44336] focus:outline-none"
-      value={value.general?.euroRate || '0'}
-      name="euroRate"
-      onChange={(e) => handleChange(e, 'general')}
-    />
-  </div>
+	<div className="bg-white px-1 py-1">
+		<input
+			type="text"
+			className="w-full text-center bg-transparent text-xs text-[#F44336] focus:outline-none py-0.5 w-28"
+	    value={value.general?.euroRate || '0'}
+	    name="euroRate"
+	    onChange={(e) => handleChange(e, 'general')}
+	  />
+	</div>
 </div>
 
 
 												<div className=" rounded-xl shadow-sm overflow-hidden flex items-center justify-center bg-white">
-  <Button
-    className="h-[42px] px-10 rounded-lg bg-[var(--endeavour)] 
-    hover:bg-[var(--chathams-blue)] text-white font-semibold shadow"
-    onClick={saveData}
-  >
-    Save
-  </Button>
-</div>
+										<Button
+											className="h-7 px-3 rounded-sm bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] text-white font-semibold shadow-sm text-sm"
+											onClick={saveData}
+										>
+										Save
+										</Button>
+										</div>
 
 
 											</div>
