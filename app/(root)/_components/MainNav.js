@@ -59,7 +59,7 @@ export const MainNav = () => {
 
   return (
     <div
-      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[#bce1ff] z-20 rounded-lg'
+      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[#e3f3ff] z-20 rounded-lg'
       style={{
         height: 'clamp(56px, 7vh, 80px)',
         borderRadius: '12px',
@@ -68,14 +68,14 @@ export const MainNav = () => {
     >
       {/* Logo Section (left) */}
       <div
-        className='flex items-center bg-white rounded-lg shadow-md'
+        className='flex items-center '
         style={{
           width: 'clamp(220px, 20vw, 240px)', // wider
           height: 'clamp(50px, 6vh, 70px)',
           marginRight: 'clamp(6px, 1vw, 10px)', // slightly less right margin
           marginBottom: 'clamp(10px, 1vw, 20px)',
           padding: 'clamp(10px, 1vw, 40px)',
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+          
         }}
       >
         <img
