@@ -49,23 +49,22 @@ const Page = () => {
 
 
   return (
-    <div className="container mx-auto px-2 md:px-8 xl:px-10 pb-6 mt-16 md:mt-0">
+    <div className="container ">
       <Toast />
       {loading && <Spin />}
-      <div className="border border-[var(--selago)] rounded-xl p-1 md:p-4 mt-8 shadow-md bg-white">
+      <div className=" p-1 md:p-4 mt-8 bg-white">
         <div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold mt-4">{getTtl('Settings', ln)}</div>
 
         <div className="w-full px-2 sm:px-0">
           <TabGroup >
 <TabList
   className="
-    flex 
-    gap-4
+    flex
+    gap-3
     bg-transparent
     pb-0
-    p-1
-    w-full
-    overflow-visible
+    p-0
+    overflow-x-auto
   "
 >
               {tabs.map((z) => (
@@ -73,15 +72,15 @@ const Page = () => {
   key={z}
   className={({ selected }) =>
     classNames(
-      'px-6 py-2.5 text-sm font-semibold whitespace-nowrap transition-all',
+      'px-6 py-1.5 text-sm font-["Poppins"] whitespace-nowrap transition-all text-[#005B9F] w-[140px]',
       'focus:outline-none',
       selected
         ? `
           rounded-t-xl 
           rounded-b-none
           shadow-sm
-text-white
-                    bg-[#0A5DB8]
+text-black
+          bg-[#e3f3ff]
 
         `
         : `
@@ -90,6 +89,8 @@ text-white
           rounded-t-xl
           rounded-b-none
           hover:bg-[#E0E0E0]
+                    bg-[#e3f3ff]
+
         `
     )
   }
@@ -107,7 +108,7 @@ text-white
     border border-[#E5E7EB]
     bg-white
     shadow-sm
-    p-6
+    p-3
   "
 >
   <TabPanels>

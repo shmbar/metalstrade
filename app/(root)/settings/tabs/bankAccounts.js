@@ -84,153 +84,193 @@ const BankAccount = () => {
 
     return (
         <div className=' p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
-            <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 shadow-md  min-w-xl'>
-                <p className='flex items-center text-sm font-medium pl-2 text-[var(--port-gore)] whitespace-nowrap'>{getTtl('Bank Account', ln)}:</p>
 
+    <div className="md:px-5 w-[27%] flex-shrink-0 rounded-lg p-2
+                          bg-[#e3f3ff]">
+                     <p className='flex items-center text-sm font-medium pl-2 text-[#005B9F] whitespace-nowrap'>{getTtl('Bank Account', ln)}:</p>
 
-                <ul className="flex flex-col mt-1 overflow-auto max-h-80 ring-1 ring-black/5 rounded-lg divide-y" >
-                   {(settings['Bank Account']?.['Bank Account'] || []).filter(x => !x.deleted).map((x, i) => {
+                      <ul
+                        className="
+                          flex flex-col overflow-auto mt-1
+                          bg-[#e3f3ff]
+                          py-2
+                        "
+                      >
+                         {(settings['Bank Account']?.['Bank Account'] || []).filter(x => !x.deleted).map((x, i) => {
                         return (
                             <li key={i} onClick={() => SelectBank(x)}
-                                className={`whitespace-nowrap cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--port-gore)]
-                                ${value.id === x.id && 'font-medium bg-[var(--selago)]'}`}>
+                                className={`whitespace-nowrap cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[#005B9F] rounded-full
+                                ${value.id === x.id && 'font-medium bg-white'}`}>
                                 {x.bankNname}
 
                             </li>
                         )
                     })}
-                </ul>
-
-            </div>
-            <div className='flex flex-col'>
-                <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
+                      </ul>
+                    </div>
+            <div className='flex flex-col  w-[88%] bg-[#f7f7f7]  p-5 rounded-lg'>
+                <div className='pb-2 rounded-lg mt-1 w-full gap-4 flex flex-wrap h-fit'>
                     <Tltip direction='top' tltpText='Add new bank'>
-                        <button className={`blackButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
+                        <button className={`supplierAddButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
                             onClick={addItem}>
                             <IoAddCircleOutline className='scale-110' />   {getTtl('Add', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update bank data'>
-                        <button className='whiteButton py-1'
+                        <button className='supplierButton py-1'
                             onClick={updateList}>
-                            <BiEditAlt className='scale-125' />
+                            <BiEditAlt className='scale-125 text-[#005b9f]' />
                             {getTtl('Update', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Delete bank'>
-                        <button className='whiteButton py-1' onClick={() => setIsDeleteOpen(true)}
+                        <button className='supplierButton py-1' onClick={() => setIsDeleteOpen(true)}
                             disabled={!value.id}>
-                            <MdDeleteOutline className='scale-125' />{getTtl('Delete', ln)}
+                            <MdDeleteOutline className='scale-125 text-[#005b9f]' />{getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Clear form'>
-                        <button className='whiteButton py-1'
+                        <button className='supplierButton py-1'
                             onClick={clickClear}>
-                            <AiOutlineClear className='scale-125' />{getTtl('Clear', ln)}
+                            <AiOutlineClear className='scale-125 text-[#005b9f]' />{getTtl('Clear', ln)}
                         </button>
                     </Tltip>
                 </div>
-                <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
-                    <div className='grid grid-cols-4 items-center gap-4 w-full'>
-                        <div className='col-span-12 md:col-span-2 w-full'>
-                            <p className='text-xs'>{getTtl('Bank', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs w-full rounded-full  border border-[#E5E7EB]' value={value.bankName}
-                                onChange={(e) => { setValue({ ...value, 'bankName': e.target.value }) }}
-                                maxLength="47" />
-                            <ErrDiv field='bankName' errors={errors} ln={ln} />
+               <div className='border border-[#E5E7EB] p-6 rounded-lg mt-1 shadow-md w-full bg-white'>
 
-                        </div>
-                        <div className='col-span-12 md:col-span-1 w-full'>
-                            <p className='text-xs'>{getTtl('BankNickName', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs w-full  rounded-full  border border-[#E5E7EB]' value={value.bankNname}
-                                onChange={(e) => { setValue({ ...value, 'bankNname': e.target.value }) }} />
-                            <ErrDiv field='bankNname' errors={errors} ln={ln} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8 w-full">
 
-                        </div>
-                     <div className="col-span-12 md:col-span-1">
-  {/* Label */}
-  <p className="text-xs mb-1 text-[var(--port-gore)]">
-    {getTtl('Currency', ln)}:
-  </p>
+                    {/* LEFT COLUMN */}
+                    <div className="space-y-6">
 
-  {/* Rounded input container */}
-  <div
-    className="
-      flex
-      items-center
-      w-full
-      h-8
-      px-4
-      rounded-full
-      border
-      border-[#E5E7EB]
-      bg-white
-      transition
-      focus-within:border-[#0A5DB8]
-      focus-within:ring-2
-      focus-within:ring-[#0A5DB8]/20
-    "
-  >
-    <CBox
-      data={settings.Currency?.Currency || []}
-      setValue={setValue}
-      value={value}
-      name="cur"
-      className="w-full h-full bg-transparent border-0 rounded-none shadow-none"
-    />
-  </div>
+                    <div className="flex items-center">
+                        <label className="w-[90px] text-xs text-[#0c5aa6]">
+                        {getTtl('Bank', ln)}:
+                        </label>
+                        <input
+                        type="text"
+                        className="flex-1 h-8 px-5 text-xs rounded-full border border-[#E5E7EB] bg-white"
+                        value={value.bankName}
+                        onChange={(e) => setValue({ ...value, bankName: e.target.value })}
+                        maxLength="47"
+                        />
+                    </div>
 
-  {/* Error */}
-  <div className="mt-1">
-    <ErrDiv field="cur" errors={errors} ln={ln} />
-  </div>
-</div>
+                    <div className="flex items-center">
+                        <label className="w-[90px] text-xs text-[#0c5aa6]">
+                        {getTtl('Note', ln)} #1:
+                        </label>
+                        <input
+                        type="text"
+                        className="flex-1 h-8 px-5 text-xs rounded-full border border-[#E5E7EB] bg-white"
+                        value={value.swiftCode}
+                        onChange={(e) => setValue({ ...value, swiftCode: e.target.value })}
+                        maxLength="45"
+                        />
+                    </div>
+
+                    <div className="flex items-center">
+                        <label className="w-[90px] text-xs text-[#0c5aa6]">
+                        {getTtl('Note', ln)} #2:
+                        </label>
+                        <input
+                        type="text"
+                        className="flex-1 h-8 px-5 text-xs rounded-full border border-[#E5E7EB] bg-white"
+                        value={value.iban}
+                        onChange={(e) => setValue({ ...value, iban: e.target.value })}
+                        maxLength="47"
+                        />
+                    </div>
+
+                    <div className="flex items-center">
+                        <label className="w-[90px] text-xs text-[#0c5aa6]">
+                        {getTtl('Note', ln)} #4:
+                        </label>
+                        <input
+                        type="text"
+                        className="flex-1 h-8 px-5 text-xs rounded-full border border-[#E5E7EB] bg-white"
+                        value={value.corrBankSwift}
+                        onChange={(e) =>
+                            setValue({ ...value, corrBankSwift: e.target.value })
+                        }
+                        maxLength="47"
+                        />
+                    </div>
 
                     </div>
 
-                    <div className='grid grid-cols-3  items-center gap-4 w-full'>
-                        <div className='col-span-12 md:col-span-1'>
-                            <p className='text-xs'>{getTtl('Note', ln)} #1:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.swiftCode}
-                                onChange={(e) => { setValue({ ...value, 'swiftCode': e.target.value }) }}
-                                maxLength="45" />
-                            <ErrDiv field='swiftCode' errors={errors} ln={ln} />
-                        </div>
-                        <div className='col-span-12 md:col-span-1'>
-                            <p className='text-xs'>{getTtl('Note', ln)} #2:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.iban}
-                                onChange={(e) => { setValue({ ...value, 'iban': e.target.value }) }}
-                                maxLength="47" />
-                            <ErrDiv field='iban' errors={errors} ln={ln} />
+                    {/* RIGHT COLUMN */}
+                    <div className="space-y-6">
 
-                        </div>
-                        <div className='col-span-12 md:col-span-1'>
-                            <p className='text-xs'>{getTtl('Note', ln)} #3:</p>
-                            <input type='text' className='input h-7 text-xs w-full rounded-full  border border-[#E5E7EB]' value={value.corrBank}
-                                onChange={(e) => { setValue({ ...value, 'corrBank': e.target.value }) }}
-                                maxLength="47" />
-                            <ErrDiv field='corrBank' errors={errors} ln={ln} />
+                    <div className="flex items-center">
+                        <label className="w-[110px] text-xs text-[#0c5aa6]">
+                        {getTtl('BankNickName', ln)}:
+                        </label>
+                        <input
+                        type="text"
+                        className="flex-1 h-8 px-5 text-xs rounded-full border border-[#E5E7EB] bg-white"
+                        value={value.bankNname}
+                        onChange={(e) => setValue({ ...value, bankNname: e.target.value })}
+                        />
+                    </div>
 
+                    <div className="flex items-center">
+                        <label className="w-[110px] text-xs text-[#0c5aa6]">
+                        {getTtl('Currency', ln)}:
+                        </label>
+
+                        <div className="flex-1">
+                        <div
+                            className="
+                            flex items-center h-8 px-4 rounded-full
+                            border border-[#E5E7EB] bg-white
+                            transition
+                            focus-within:border-[#0A5DB8]
+                            focus-within:ring-2
+                            focus-within:ring-[#0A5DB8]/20
+                            "
+                        >
+                            <CBox
+                            data={settings.Currency?.Currency || []}
+                            setValue={setValue}
+                            value={value}
+                            name="cur"
+                            className="w-full bg-transparent border-none rounded-none shadow-none text-xs"
+                            />
+                        </div>
                         </div>
                     </div>
 
-                    <div className='grid grid-cols-3  items-center gap-4 w-full'>
-                        <div className='col-span-12 md:col-span-2 w-full'>
-                            <p className='text-xs'>{getTtl('Note', ln)} #4:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.corrBankSwift}
-                                onChange={(e) => { setValue({ ...value, 'corrBankSwift': e.target.value }) }}
-                                maxLength="47" />
-                            <ErrDiv field='corrBankSwift' errors={errors} ln={ln} />
-                        </div>
-                        <div className='col-span-12 md:col-span-1'>
-                            <p className='text-xs'>{getTtl('Other', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.other}
-                                onChange={(e) => { setValue({ ...value, 'other': e.target.value }) }} />
-                        </div>
+                    <div className="flex items-center">
+                        <label className="w-[110px] text-xs text-[#0c5aa6]">
+                        {getTtl('Note', ln)} #3:
+                        </label>
+                        <input
+                        type="text"
+                        className="flex-1 h-8 px-5 text-xs rounded-full border border-[#E5E7EB] bg-white"
+                        value={value.corrBank}
+                        onChange={(e) => setValue({ ...value, corrBank: e.target.value })}
+                        maxLength="47"
+                        />
                     </div>
 
+                    <div className="flex items-center">
+                        <label className="w-[110px] text-xs text-[#0c5aa6]">
+                        {getTtl('Other', ln)}:
+                        </label>
+                        <input
+                        type="text"
+                        className="flex-1 h-8 px-5 text-xs rounded-full border border-[#E5E7EB] bg-white"
+                        value={value.other}
+                        onChange={(e) => setValue({ ...value, other: e.target.value })}
+                        />
+                    </div>
+
+                    </div>
 
                 </div>
+
+</div>
             </div>
             <ModalToDelete isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}
                 ttl={getTtl('delConfirmation', ln)} txt={getTtl('delConfirmationTxtBank', ln)}

@@ -107,8 +107,6 @@ const Users = () => {
   return (
     <div className='border border-[var(--rock-blue)] p-4 rounded-lg flex flex-col w-full gap-4 '>
 
-      <p className='w-full flex items-center text-sm font-medium pl-2 text-[var(--port-gore)] whitespace-nowrap'>{getTtl('Users', ln)}</p>
-
       <div className='max-w-6xl z-0'>
         <Customtable data={data} columns={propDefaults} SelectRow={() => { }}
 							/* excellReport={EXD(invoicesData, settings, getTtl('Invoices', ln), ln)}*/ />

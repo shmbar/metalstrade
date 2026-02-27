@@ -1,134 +1,214 @@
-'use client'
+"use client";
 
 import Header from "../../../../../components/table/header";
-import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
-import { useEffect, useMemo, useState } from "react"
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { useEffect, useMemo, useState } from "react";
 import { TbSortDescending } from "react-icons/tb";
 import { TbSortAscending } from "react-icons/tb";
 
 import { Paginator } from "../../../../../components/table/Paginator";
 import RowsIndicator from "../../../../../components/table/RowsIndicator";
-import '../../../contracts/style.css';
-import { useContext } from 'react';
+import "../../../contracts/style.css";
+import { useContext } from "react";
 import { SettingsContext } from "../../../../../contexts/useSettingsContext";
 import { usePathname } from "next/navigation";
 import { getTtl } from "../../../../../utils/languages";
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "../../../../..//components/ui/tooltip"
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../../../..//components/ui/tooltip";
 import Tltip from "../../../../../components/tlTip";
 
+const Customtable = ({
+  data,
+  columns,
+  invisible,
+  SelectRow,
+  excellReport,
+  setFilteredData,
+}) => {
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [columnVisibility, setColumnVisibility] = useState(invisible);
+  const [filterOn, setFilterOn] = useState(false);
 
+  const [{ pageIndex, pageSize }, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 500,
+  });
+  const pagination = useMemo(
+    () => ({ pageIndex, pageSize }),
+    [pageIndex, pageSize],
+  );
+  const pathName = usePathname();
+  const { ln } = useContext(SettingsContext);
 
-const Customtable = ({ data, columns, invisible, SelectRow, excellReport, setFilteredData }) => {
+  const [columnFilters, setColumnFilters] = useState([]); //Column filter
 
+  const table = useReactTable({
+    columns,
+    data,
+    getCoreRowModel: getCoreRowModel(),
+    state: {
+      globalFilter,
+      columnVisibility,
+      pagination,
+      columnFilters,
+    },
+    onColumnFiltersChange: setColumnFilters, ////Column filter
+    getFilteredRowModel: getFilteredRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
+    onColumnVisibilityChange: setColumnVisibility,
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
+  });
 
+  const resetTable = () => {
+    table.resetColumnFilters();
+  };
 
-    const [globalFilter, setGlobalFilter] = useState('')
-    const [columnVisibility, setColumnVisibility] = useState(invisible)
-    const [filterOn, setFilterOn] = useState(false)
+  useEffect(() => {
+    resetTable();
+  }, []);
 
+  return (
+    <div className="flex flex-col relative ">
+      <div>
+        <Header
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+          table={table}
+        />
 
-    const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 500, })
-    const pagination = useMemo(() => ({ pageIndex, pageSize, }), [pageIndex, pageSize])
-    const pathName = usePathname()
-    const { ln } = useContext(SettingsContext);
-
-    const [columnFilters, setColumnFilters] = useState([]) //Column filter
-
-    const table = useReactTable({
-        columns, data,
-        getCoreRowModel: getCoreRowModel(),
-        state: {
-            globalFilter,
-            columnVisibility,
-            pagination,
-            columnFilters
-        },
-        onColumnFiltersChange: setColumnFilters, ////Column filter
-        getFilteredRowModel: getFilteredRowModel(),
-        onGlobalFilterChange: setGlobalFilter,
-        onColumnVisibilityChange: setColumnVisibility,
-        getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onPaginationChange: setPagination,
-    })
-
-    const resetTable = () => {
-        table.resetColumnFilters()
-    }
-
-    useEffect(() => {
-        resetTable()
-    }, [])
-
-    return (
-        <div className="flex flex-col relative ">
-            <div >
-                <Header globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}
-                    table={table} 
-                />
-
-                <div className=" overflow-x-auto border-x md:max-h-[310px] 2xl:max-h-[550px]">
-                    <table className="w-full">
-                        <thead className="md:sticky md:top-0 md:z-10">
-                            {table.getHeaderGroups().map(hdGroup =>
-                                <tr key={hdGroup.id} className='bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)]'>
-                                    {hdGroup.headers.map(
-                                        header =>
-                                            <th key={header.id} className="relative px-6 py-3 text-left text-sm font-semibold text-white uppercase">
-                                                {header.column.getCanSort() ?
-                                                    <div onClick={header.column.getToggleSortingHandler()} className="table-caption cursor-pointer items-center gap-1 text-xs
-                                                    font-semibold">
-                                                        {/* <Tltip direction='top' tltpText='sdsd ffgf'> */}
-                                                        {header.column.columnDef.header}
-                                                        {/* </Tltip> */}
-
-                                                        {
-                                                            {
-                                                                asc: <TbSortAscending className="text-white scale-125" />,
-                                                                desc: <TbSortDescending className="text-white scale-125" />
-                                                            }[header.column.getIsSorted()]
-                                                        }
-                                                    </div>
-                                                    :
-                                                    <span className="text-xs py-1 font-medium text-white">{header.column.columnDef.header}</span>
-                                                }
-                                            </th>
-                                    )}
-                                </tr>)}
-                        </thead>
-                        <tbody className="divide-y divide-[var(--selago)]">
-                            {table.getRowModel().rows.map(row => (
-                                <tr key={row.id} className='cursor-pointer hover:bg-[var(--selago)]/50 transition-colors' onDoubleClick={() => SelectRow(row.original)}>
-
-                                    {row.getVisibleCells().map(cell => (
-                                        <td key={cell.id} data-label={cell.column.columnDef.header} className={`table_cell text-xs ${pathName === '/invoices' ? 'md:py-1.5' : 'md:py-3'}`}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </td>
-                                    ))}
-
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                <div className="flex p-2.5 border-t border-[var(--selago)] flex-wrap bg-white rounded-b-2xl">
-                    <div className="hidden lg:flex text-[var(--port-gore)] text-sm w-48 xl:w-96 p-2 items-center">
-                        {`${getTtl('Showing', ln)} ${table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
-                            (table.getFilteredRowModel().rows.length ? 1 : 0)}-${table.getRowModel().rows.length + table.getState().pagination.pageIndex * table.getState().pagination.pageSize}
-                            ${getTtl('of', ln)} ${table.getFilteredRowModel().rows.length}`}
-                    </div>
-                    <Paginator table={table} />
-                    <RowsIndicator table={table} />
-                </div>
-            </div>
+        <div
+          className="
+                w-full
+                rounded-lg
+                border
+                border-[#E5E7EB]
+                overflow-hidden
+                bg-[#F9FAFB]
+                shadow-sm
+            "
+        >
+          {" "}
+          <table className="w-full border-collapse border border-[#E5E7EB] overflow-hidden text-center">
+            <thead className="md:sticky md:top-0 md:z-10 bg-[#e3f3ff]">
+              {table.getHeaderGroups().map((hdGroup) => (
+                <tr key={hdGroup.id}>
+                  {hdGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="
+                            px-6
+                            py-4
+                            text-sm
+                            text-[#005b9f]
+                            text-center
+                            border-r
+                            border-b
+                            border-[#E5E7EB]
+                            last:border-r-0
+                        "
+                    >
+                      {header.column.getCanSort() ? (
+                        <div
+                          onClick={header.column.getToggleSortingHandler()}
+                          className="cursor-pointer flex items-center justify-center gap-1 text-xs "
+                        >
+                          {header.column.columnDef.header}
+                          {
+                            {
+                              asc: (
+                                <TbSortAscending className="text-[#005b9f] scale-110" />
+                              ),
+                              desc: (
+                                <TbSortDescending className="text-[#005b9f] scale-110" />
+                              ),
+                            }[header.column.getIsSorted()]
+                          }
+                        </div>
+                      ) : (
+                        <span className="text-xs">
+                          {header.column.columnDef.header}
+                        </span>
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody className="divide-y divide-[var(--selago)]">
+              {table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  className="cursor-pointer hover:bg-[var(--selago)]/50 transition-colors"
+                  onDoubleClick={() => SelectRow(row.original)}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                   <td
+                    key={cell.id}
+                    data-label={cell.column.columnDef.header}
+                    className="
+                        px-4
+                        h-8
+                        bg-[#F4F6F8]
+                        border
+                        border-[#E5E7EB]
+                        text-[12px]
+                        font-normal
+                        leading-none
+                        text-center
+                        truncate
+                    "
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-    )
-}
+        <div className="flex items-center justify-between p-3 border-[#E5E7EB] bg-white rounded-b-lg">
+          {/* LEFT — Showing text */}
+          <div className="hidden lg:flex text-[#005b9f] text-[0.72rem]">
+            {`${getTtl("Showing", ln)} ${
+              table.getState().pagination.pageIndex *
+                table.getState().pagination.pageSize +
+              (table.getFilteredRowModel().rows.length ? 1 : 0)
+            }-${
+              table.getRowModel().rows.length +
+              table.getState().pagination.pageIndex *
+                table.getState().pagination.pageSize
+            } ${getTtl("of", ln)} ${table.getFilteredRowModel().rows.length}`}
+          </div>
 
+          {/* CENTER — Pagination */}
+          <div className="flex justify-center flex-1">
+            <Paginator table={table} />
+          </div>
+
+          {/* RIGHT — Rows Indicator */}
+          <div className="flex justify-end">
+            <RowsIndicator table={table} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default Customtable;

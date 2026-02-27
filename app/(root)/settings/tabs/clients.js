@@ -93,128 +93,239 @@ const Clients = () => {
     }
 
     return (
-        <div className=' p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
-            <div className='border border-[var()] p-4 rounded-lg mt-1 shadow-md  min-w-xl'>
-                <p className='flex items-center text-sm font-medium pl-2 text-[var(--port-gore)]'>{getTtl('Clients', ln)}:</p>
+        <div className='p-2 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
+              <div className="md:px-5 w-[27%] flex-shrink-0 rounded-lg p-2
+                          bg-[#e3f3ff]">
+                                <p className='flex items-center text-sm font-medium pl-2 text-[#005B9F] mt-2'>{getTtl('Clients', ln)}:</p>
 
-
-                <ul className="flex flex-col mt-1 overflow-auto max-h-80 ring-1 ring-black/5 rounded-lg divide-y" >
-                   {sortArr((settings.Client?.Client || []).filter(q => !q.deleted), 'client').map((x, i) => {
+                      <ul
+                        className="
+                          flex flex-col overflow-auto mt-1
+                          
+                          py-2
+                        "
+                      >
+                         {sortArr((settings.Client?.Client || []).filter(q => !q.deleted), 'client').map((x, i) => {
                         return (
                             <li key={i} onClick={() => SelectClient(x)}
-                                className={`whitespace-nowrap cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--port-gore)]
-                                ${value.id === x.id && 'font-medium bg-[var(--selago)]'}`}>
+                                className={`whitespace-nowrap cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[#005B9F]    rounded-full
+
+                                ${value.id === x.id && 'font-medium bg-white'}`}>
                                 {x.client}
 
                             </li>
                         )
                     })}
-                </ul>
-
+                      </ul>
             </div>
-            <div className='flex flex-col  md:w-7/12'>
-                <div className='border border-[var(#E5E7EB)] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap'>
+           
+            <div className='flex flex-col   w-[88%] bg-[#f7f7f7]  p-5 rounded-lg'>
+                <div className='pb-2 rounded-lg mt-1   w-full gap-4 flex flex-wrap'>
                     <Tltip direction='top' tltpText='Add new client'>
-                        <button className={`blackButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
+                        <button className={`supplierAddButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
                             onClick={addItem}>
                             <IoAddCircleOutline className='scale-110' />  {getTtl('Add', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update client data'>
-                        <button className='whiteButton py-1'
+                        <button className='supplierButton py-1 bg-[#e3f3ff] border-none text-[#005b9f]'
                             onClick={updateList}>
                             <BiEditAlt className='scale-125' />
                             {getTtl('Update', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Delete client'>
-                        <button className='whiteButton py-1' onClick={() => setIsDeleteOpen(true)}
+                        <button className='supplierButton py-1 bg-[#e3f3ff] border-none text-[#005b9f]' onClick={() => setIsDeleteOpen(true)}
                             disabled={!value.id}>
                             <MdDeleteOutline className='scale-125' />{getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Clear form'>
-                        <button className='whiteButton py-1'
+                        <button className='supplierButton py-1 bg-[#e3f3ff] border-none text-[#005b9f]'
                             onClick={clickClear}>
                             <AiOutlineClear className='scale-125' />{getTtl('Clear', ln)}
                         </button>
                     </Tltip>
                 </div>
-                <div className='border border-[var(#E5E7EB)] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
-                    <div className='grid md:max-lg:grid-cols-1  sm:grid-cols-2 grid-rows-3 gap-2 w-full'>
-                        <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>{getTtl('Name', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.client}
-                                onChange={(e) => { setValue({ ...value, 'client': e.target.value }) }} />
-                            <ErrDiv field='client' />
-                        </div>
-                        <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>{getTtl('Nick Name', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.nname}
-                                onChange={(e) => { setValue({ ...value, 'nname': e.target.value }) }} />
-                            <ErrDiv field='nname' />
-                        </div>
-                        <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>{getTtl('street', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.street}
-                                onChange={(e) => { setValue({ ...value, 'street': e.target.value }) }} />
-                            <ErrDiv field='street' />
-                        </div>
-                        <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>{getTtl('city', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.city}
-                                onChange={(e) => { setValue({ ...value, 'city': e.target.value }) }} />
-                            <ErrDiv field='city' />
-                        </div>
-                        <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>{getTtl('country', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.country}
-                                onChange={(e) => { setValue({ ...value, 'country': e.target.value }) }} />
-                            <ErrDiv field='country' />
-                        </div>
-                        <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>{getTtl('Other', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.other1}
-                                onChange={(e) => { setValue({ ...value, 'other1': e.target.value }) }} />
-                        </div>
-                    </div>
-                </div>
+               <div className='border border-[#E5E7EB] p-6 rounded-lg mt-1 shadow-md w-full bg-white'>
 
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8 w-full">
 
-                <div className='border border-[var(#E5E7EB)] p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap h-fit'>
-                    <div className='grid md:max-lg:grid-cols-1  sm:grid-cols-2 grid-rows-3 gap-2 w-full'>
-                        <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>POC:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.poc}
-                                onChange={(e) => { setValue({ ...value, 'poc': e.target.value }) }} />
-                        </div>
-                        <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>{getTtl('email', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.email}
-                                onChange={(e) => { setValue({ ...value, 'email': e.target.value }) }} />
-                        </div>
-                        <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>{getTtl('cmpPhone', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.phone}
-                                onChange={(e) => { setValue({ ...value, 'phone': e.target.value }) }} />
-                        </div>
-                        <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>{getTtl('cmpMobile', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.mobile}
-                                onChange={(e) => { setValue({ ...value, 'mobile': e.target.value }) }} />
-                        </div>
-                        <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>{getTtl('Fax', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.fax}
-                                onChange={(e) => { setValue({ ...value, 'fax': e.target.value }) }} />
-                        </div>
-                        <div className='cols-span-12 lg:cols-span-1'>
-                            <p className='text-xs'>{getTtl('Other', ln)}:</p>
-                            <input type='text' className='input h-7 text-xs rounded-full  border border-[#E5E7EB]' value={value.other2}
-                                onChange={(e) => { setValue({ ...value, 'other2': e.target.value }) }} />
-                        </div>
-                    </div>
-                </div>
+    {/* LEFT COLUMN */}
+    <div className="space-y-6">
+
+      <div className="flex items-center">
+        <label className="w-[70px] text-xs text-[#0c5aa6]">
+          {getTtl('Name', ln)}:
+        </label>
+        <input
+          type="text"
+          className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
+          value={value.client}
+          onChange={(e) => setValue({ ...value, client: e.target.value })}
+        />
+      </div>
+
+      <div className="flex items-center">
+        <label className="w-[70px] text-xs text-[#0c5aa6]">
+          {getTtl('street', ln)}:
+        </label>
+        <input
+          type="text"
+          className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
+          value={value.street}
+          onChange={(e) => setValue({ ...value, street: e.target.value })}
+        />
+      </div>
+
+      <div className="flex items-center">
+        <label className="w-[70px] text-xs text-[#0c5aa6]">
+          {getTtl('country', ln)}:
+        </label>
+        <input
+          type="text"
+          className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
+          value={value.country}
+          onChange={(e) => setValue({ ...value, country: e.target.value })}
+        />
+      </div>
+
+    </div>
+
+    {/* RIGHT COLUMN */}
+    <div className="space-y-6">
+
+      <div className="flex items-center">
+        <label className="w-[80px] text-xs text-[#0c5aa6]">
+          {getTtl('Nick Name', ln)}:
+        </label>
+        <input
+          type="text"
+          className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
+          value={value.nname}
+          onChange={(e) => setValue({ ...value, nname: e.target.value })}
+        />
+      </div>
+
+      <div className="flex items-center">
+        <label className="w-[80px] text-xs text-[#0c5aa6]">
+          {getTtl('city', ln)}:
+        </label>
+        <input
+          type="text"
+          className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
+          value={value.city}
+          onChange={(e) => setValue({ ...value, city: e.target.value })}
+        />
+      </div>
+
+      <div className="flex items-center">
+        <label className="w-[80px] text-xs text-[#0c5aa6]">
+          {getTtl('Other', ln)}:
+        </label>
+        <input
+          type="text"
+          className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
+          value={value.other1}
+          onChange={(e) => setValue({ ...value, other1: e.target.value })}
+        />
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+               <div className='border border-[#E5E7EB] p-6 rounded-lg mt-1 shadow-md w-full bg-white'>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8 w-full">
+
+    {/* LEFT COLUMN */}
+    <div className="space-y-6">
+
+      <div className="flex items-center">
+        <label className="w-[70px] text-xs text-[#0c5aa6]">
+          POC:
+        </label>
+        <input
+          type="text"
+          className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
+          value={value.poc}
+          onChange={(e) => setValue({ ...value, poc: e.target.value })}
+        />
+      </div>
+
+      <div className="flex items-center">
+        <label className="w-[70px] text-xs text-[#0c5aa6]">
+          {getTtl('cmpPhone', ln)}:
+        </label>
+        <input
+          type="text"
+          className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
+          value={value.phone}
+          onChange={(e) => setValue({ ...value, phone: e.target.value })}
+        />
+      </div>
+
+      <div className="flex items-center">
+        <label className="w-[70px] text-xs text-[#0c5aa6]">
+          {getTtl('Fax', ln)}:
+        </label>
+        <input
+          type="text"
+          className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
+          value={value.fax}
+          onChange={(e) => setValue({ ...value, fax: e.target.value })}
+        />
+      </div>
+
+    </div>
+
+    {/* RIGHT COLUMN */}
+    <div className="space-y-6">
+
+      <div className="flex items-center">
+        <label className="w-[70px] text-xs text-[#0c5aa6]">
+          {getTtl('email', ln)}:
+        </label>
+        <input
+          type="text"
+          className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
+          value={value.email}
+          onChange={(e) => setValue({ ...value, email: e.target.value })}
+        />
+      </div>
+
+      <div className="flex items-center">
+        <label className="w-[70px] text-xs text-[#0c5aa6]">
+          {getTtl('cmpMobile', ln)}:
+        </label>
+        <input
+          type="text"
+          className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
+          value={value.mobile}
+          onChange={(e) => setValue({ ...value, mobile: e.target.value })}
+        />
+      </div>
+
+      <div className="flex items-center">
+        <label className="w-[70px] text-xs text-[#0c5aa6]">
+          {getTtl('Other', ln)}:
+        </label>
+        <input
+          type="text"
+          className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
+          value={value.other2}
+          onChange={(e) => setValue({ ...value, other2: e.target.value })}
+        />
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
             </div>
             <ModalToDelete isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}
                 ttl={getTtl('delConfirmation', ln)} txt={getTtl('delConfirmationTxtClient', ln)}

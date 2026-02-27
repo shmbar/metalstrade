@@ -32,8 +32,8 @@ export const Paginator = ({table}) => {
 				<button
 					onClick={() => table.getCanPreviousPage() && table.previousPage()}
 					disabled={!table.getCanPreviousPage()}
-					className={`text-[0.72rem] font-medium text-[var(--port-gore)] hover:text-[var(--endeavour)] transition-colors
-						${!table.getCanPreviousPage() ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
+					className={`text-[0.72rem] font-medium text-[#005b9f] hover:text-[var(--endeavour)]
+						${!table.getCanPreviousPage() ? 'cursor-not-allowed' : 'cursor-pointer'}`}
 				>
 					Previous
 				</button>
@@ -44,7 +44,7 @@ export const Paginator = ({table}) => {
 						<button
 							key={pageIndex}
 							onClick={() => table.setPageIndex(pageIndex)}
-							className={`min-w-[2rem] h-8 text-[0.72rem] font-medium rounded-md border transition-all
+							className={`min-w-[2rem] h-8 text-[0.72rem]  font-medium rounded-md border transition-all
 								${currentPage === pageIndex 
 									? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]' 
 									: 'bg-white text-[var(--port-gore)] border-gray-200 hover:border-[var(--endeavour)]'}`}
@@ -58,8 +58,8 @@ export const Paginator = ({table}) => {
 				<button
 					onClick={() => table.getCanNextPage() && table.nextPage()}
 					disabled={!table.getCanNextPage()}
-					className={`text-[0.72rem] font-medium text-[var(--port-gore)] hover:text-[var(--endeavour)] transition-colors
-						${!table.getCanNextPage() ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
+					className={`text-[0.72rem] font-medium text-[#005b9f] hover:text-[var(--endeavour)] transition-colors
+						${!table.getCanNextPage() ? ' cursor-not-allowed' : 'cursor-pointer'}`}
 				>
 					Next
 				</button>
