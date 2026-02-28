@@ -394,7 +394,7 @@ const Margins = () => {
                                     <Tooltip txt='Select year' />
                                 </div>
                             </div>
-
+                            <div className="rounded-2xl bg-[#e3f3ff] py-2">
                             {/* Stats Section */}
                             <FirstPart
                                 incoming={incoming}
@@ -403,15 +403,23 @@ const Margins = () => {
                                 totalMargin={totalMargin}
                                 shipped={shipped}
                             />
+                            </div>
 
                             {/* Action Buttons - Keep original position */}
-                            <div className="p-2 flex gap-4">
-                                <button className="bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)] text-white px-4 py-2 rounded-lg hover:opacity-90 font-medium" disabled={data.length >= 12}
-                                    onClick={addMonth}>
+                            <div className="rounded-2xl border border-gray-200">
+                           <div className="p-2 flex gap-3 mt-3">
+                                <button
+                                    className="bg-[#e3f3ff] text-[#005b9f] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
+                                    disabled={data.length >= 12}
+                                    onClick={addMonth}
+                                >
                                     Add month
                                 </button>
-                                <button className="bg-white border border-[var(--rock-blue)] text-[var(--port-gore)] px-4 py-2 rounded-lg hover:bg-[var(--selago)]/30 font-medium"
-                                    onClick={saveData}>
+
+                                <button
+                                    className="bg-[#005b9f] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                    onClick={saveData}
+                                >
                                     Save
                                 </button>
                             </div>
@@ -465,6 +473,7 @@ const Margins = () => {
                                     yr={yr}
                                     title={cName === 'ims' ? 'Total GIS' : 'Total IMS'}
                                 />
+                            </div>
                             </div>
                         </div>
                     </>

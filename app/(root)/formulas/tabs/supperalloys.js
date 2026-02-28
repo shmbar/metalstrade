@@ -662,21 +662,21 @@ const SupperAlloys = ({ value, handleChange }) => {
 
         return value.supperalloys != null ? (
         <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-2">
-          <h3 className='text-sm font-semibold text-[var(--port-gore)] mb-2 text-center'>Cost</h3>
+          <h3 className='text-sm text-[#005b9f] mb-2 text-center'>Cost</h3>
             
             {/* Composition */}
             <div className="mb-3">
-            <p className="text-sm font-medium text-[var(--regent-gray)] mb-2 text-center">
+            <p className="text-sm text-[#979797] mb-2 text-center">
                 Composition
             </p>
 
-            <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+            <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white">
                 {/* Header */}
-                <div className="grid grid-cols-9 bg-[#EAF4FF] text-[#2F6FDB] text-xs font-semibold">
+                <div className="grid grid-cols-9 bg-[#fafafa] text-[#005b9f] text-xs">
                 {elementLabels.map((label, idx) => (
                   <div
                   key={label}
-                  className={`py-1 text-center ${idx > 0 ? 'border-l border-[#D9ECFF]' : ''}`}
+                  className={`py-1 text-center ${idx > 0 ? 'border-l border-[#dedede]' : ''}`}
                   >
                   {label}
                   </div>
@@ -684,13 +684,13 @@ const SupperAlloys = ({ value, handleChange }) => {
                 </div>
 
                 {/* Values */}
-                <div className="grid grid-cols-9 bg-white text-xs">
-                {elements.map((elem, idx) => (
+              <div className="grid grid-cols-9 bg-[#fafafa] text-xs border-t border-[#dedede]">
+                  {elements.map((elem, idx) => (
                   <input
                   key={elem}
                   type="text"
-                  className={`w-full text-center py-1 outline-none ${
-                    idx > 0 ? 'border-l border-[#D9ECFF]' : ''
+                  className={`w-full text-center py-1 outline-none bg-[#fafafa] ${
+                    idx > 0 ? 'border-l border-[#dedede]' : ''
                   } ${
                     elem === 'fe'
                     ? 'text-[#2F6FDB] bg-gray-50 cursor-not-allowed'
@@ -727,17 +727,17 @@ const SupperAlloys = ({ value, handleChange }) => {
 
             {/* Price / Lbs */}
             <div className="mb-3">
-            <p className="text-sm font-medium text-[var(--regent-gray)] mb-2 text-center">
+            <p className="text-sm text-[#979797] mb-2 text-center">
                 Price / Lbs
             </p>
 
-            <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+            <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white">
                 {/* Header */}
-                <div className="grid grid-cols-9 bg-[#E9E2FF] text-[#2F6FDB] text-xs font-semibold">
+                <div className="grid grid-cols-9 bg-[#fafafa] text-[#2F6FDB] text-xs">
                 {elementLabels.map((label, idx) => (
                   <div
                   key={label}
-                  className={`py-1 text-center ${idx > 0 ? 'border-l border-[#D9ECFF]' : ''}`}
+                  className={`py-1 text-center ${idx > 0 ? 'border-l border-[#dedede]' : ''}`}
                   >
                   {label}
                   </div>
@@ -745,7 +745,7 @@ const SupperAlloys = ({ value, handleChange }) => {
                 </div>
 
                 {/* Values */}
-                <div className="grid grid-cols-9 bg-white text-xs">
+                <div className="grid grid-cols-9 bg-white text-xs border-t border-[#dedede]">
                 {priceFields.map((field, idx) => {
                     const isReadOnly = field === 'niPrice' || field === 'MoOxideLb';
 
@@ -762,8 +762,8 @@ const SupperAlloys = ({ value, handleChange }) => {
                     <input
                       key={field}
                       type="text"
-                      className={`w-full text-center py-1 outline-none ${
-                        idx > 0 ? 'border-l border-[#D9ECFF]' : ''
+                      className={`w-full text-center py-1 outline-none bg-[#fafafa] ${
+                        idx > 0 ? 'border-l border-[#dedede]' : ''
                         } ${
                         isReadOnly
                             ? 'bg-gray-50 cursor-not-allowed text-[#2F6FDB]'
@@ -799,66 +799,90 @@ const SupperAlloys = ({ value, handleChange }) => {
             </div>
             </div>
 
- {/* Results */}
-<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
 
   {/* LEFT — COST RESULTS */}
-  <div className="grid grid-cols-1 gap-3">
+  <div>
 
-    <ResultBox
-      title="Solids Price"
-      bg="#FFECEC"
-      value={formatCurrency(
-        (solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100).toFixed(2)
-      )}
-    />
+    {/* Top two */}
+    <div className="grid grid-cols-2 gap-2 mb-2">
+      <div className="w-[65%] mx-auto">
+        <ResultBox
+          title="Solids Price"
+          bg="#FFECEC"
+          value={formatCurrency(
+            (solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100).toFixed(2)
+          )}
+        />
+      </div>
 
-    <ResultBox
-      title="Price per MT"
-      bg="#FFECEC"
-      value={formatCurrency(
-        (solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 * value.general.mt).toFixed(2)
-      )}
-    />
+      <div className="w-[65%] mx-auto">
+        <ResultBox
+          title="Price per MT"
+          bg="#FFECEC"
+          value={formatCurrency(
+            (solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 * value.general.mt).toFixed(2)
+          )}
+        />
+      </div>
+    </div>
 
-    <ResultBox
-      title="Price / Euro"
-      bg="#E9FFF1"
-      value={formatCurrency(
-        (solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 / value.general?.euroRate).toFixed(2),
-        '€'
-      )}
-    />
+    {/* Bottom centered */}
+    <div className="flex justify-center">
+      <div className="w-[35%]">
+        <ResultBox
+          title="Price / Euro"
+          bg="#E9FFF1"
+          value={formatCurrency(
+            (solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 / value.general?.euroRate).toFixed(2),
+            "€"
+          )}
+        />
+      </div>
+    </div>
 
   </div>
 
+
   {/* RIGHT — PRICE RESULTS */}
-  <div className="grid grid-cols-1 gap-3">
+  <div>
 
-    <ResultBox
-      title="Solids Price"
-      bg="#EAF4FF"
-      value={formatCurrency(
-        (solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100).toFixed(2)
-      )}
-    />
+    {/* Top two */}
+    <div className="grid grid-cols-2 gap-2 mb-2">
+      <div className="w-[65%] mx-auto">
+        <ResultBox
+          title="Solids Price"
+          bg="#EAF4FF"
+          value={formatCurrency(
+            (solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100).toFixed(2)
+          )}
+        />
+      </div>
 
-    <ResultBox
-      title="Price per MT"
-      bg="#EAF4FF"
-      value={formatCurrency(
-        (solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 * value.general.mt).toFixed(2)
-      )}
-    />
+      <div className="w-[65%] mx-auto">
+        <ResultBox
+          title="Price per MT"
+          bg="#EAF4FF"
+          value={formatCurrency(
+            (solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 * value.general.mt).toFixed(2)
+          )}
+        />
+      </div>
+    </div>
 
-    <ResultBox
-      title="Price / Euro"
-      bg="#E9FFF1"
-      value={formatCurrency(
-        (solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 / value.general?.euroRate).toFixed(2),
-        '€'
-      )}
-    />
+    {/* Bottom centered */}
+    <div className="flex justify-center">
+      <div className="w-[35%]">
+        <ResultBox
+          title="Price / Euro"
+          bg="#E9FFF1"
+          value={formatCurrency(
+            (solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 / value.general?.euroRate).toFixed(2),
+            "€"
+          )}
+        />
+      </div>
+    </div>
 
   </div>
 

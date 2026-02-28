@@ -917,32 +917,32 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
     }
 
     return value.fenicr != null ? (
-        <div className="w-full bg-[#F5FAFF] rounded-2xl p-3">
+        <div className="w-full  rounded-2xl p-3">
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 mt-3">
                 {/* COST SECTION */}
-                <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-3">
-                    <h3 className="text-base font-semibold text-slate-800 mb-2">Cost</h3>
+                <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-3 text-center">
+                    <h3 className="text-base text-[#005b9f] mb-4">Cost</h3>
                     
                     {/* Composition */}
-                    <div className="mb-3 mt-4">
-                    <p className="text-sm font-medium text-[var(--regent-gray)] mb-2 text-center">
+                    <div className="mb-5 mt-4">
+                    <p className="text-sm text-[#979797] mb-2 text-center">
                         Composition
                     </p>
 
-                    <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+                    <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white">
                         {/* Header */}
-                        <div className="grid grid-cols-4 bg-[#EAF4FF] text-[#2F6FDB] text-xs font-semibold">
-                        <div className="py-1 text-center">Ni</div>
-                        <div className="py-1 text-center border-l border-[#D9ECFF]">Cr</div>
-                        <div className="py-1 text-center border-l border-[#D9ECFF]">Mo</div>
-                        <div className="py-1 text-center border-l border-[#D9ECFF]">Fe</div>
+                        <div className="grid grid-cols-4 bg-[#EAF4FF] text-[#2F6FDB] text-xs">
+                        <div className="py-2 text-center">Ni</div>
+                        <div className="py-2 text-center border-l border-[#dedede]">Cr</div>
+                        <div className="py-2 text-center border-l border-[#dedede]">Mo</div>
+                        <div className="py-2 text-center border-l border-[#dedede]">Fe</div>
                         </div>
 
                         {/* Values */}
                         <div className="grid grid-cols-4 bg-white text-sm ">
                         <input
                             type="text"
-                            className="w-full text-center py-2 outline-none text-[#F44336]"
+                            className="w-full text-center py-3 outline-none text-[#F44336] bg-[#fafafa] "
                             value={value?.fenicr?.ni + '%'}
                             name="ni"
                             onChange={(e) =>
@@ -956,7 +956,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                         <input
                             type="text"
-                            className="w-full text-center py-2 outline-none border-l border-[#D9ECFF] text-[#F44336]"
+                            className="w-full text-center py-3 outline-none border-l border-[#dedede] bg-[#fafafa] text-[#F44336]"
                             value={value?.fenicr?.cr + '%'}
                             name="cr"
                             onChange={(e) =>
@@ -970,7 +970,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                         <input
                             type="text"
-                            className="w-full text-center py-2 outline-none border-l border-[#D9ECFF] text-[#2F6FDB]"
+                            className="w-full text-center py-3 outline-none border-l border-[#dedede] bg-[#fafafa] text-[#2F6FDB]"
                             value={value?.fenicr?.mo + '%'}
                             name="mo"
                             onChange={(e) =>
@@ -984,7 +984,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                         <input
                             type="text"
-                            className="w-full text-center py-2  cursor-not-allowed border-l border-[#D9ECFF] outline-none text-[#2F6FDB]"
+                            className="w-full text-center py-3  cursor-not-allowed border-l border-[#dedede] bg-[#fafafa]  outline-none text-[#2F6FDB]"
                             value={fe + '%'}
                             readOnly
                         />
@@ -994,27 +994,27 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
 
                     {/* Price Row */}
-                    <div className="mb-3 mt-4">
-                    <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+                    <div className="mb-3 mt-8">
+                    <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white">
                         {/* Header (Purple strip like Canva) */}
-                        <div className="grid grid-cols-4 bg-[#E9E2FF] text-[#2F6FDB] text-xs font-semibold">
-                        <div className="py-1 text-center">Ni</div>
-                        <div className="py-1 text-center border-l border-[#D9ECFF]">Cr</div>
-                        <div className="py-1 text-center border-l border-[#D9ECFF]">Mo</div>
-                        <div className="py-1 text-center border-l border-[#D9ECFF]">Fe</div>
+                        <div className="grid grid-cols-4 bg-[#E9E2FF] text-[#2F6FDB] text-xs">
+                        <div className="py-2 text-center">Ni</div>
+                        <div className="py-2 text-center border-l border-[#dedede]">Cr</div>
+                        <div className="py-2 text-center border-l border-[#dedede]">Mo</div>
+                        <div className="py-2 text-center border-l border-[#dedede]">Fe</div>
                         </div>
 
                         {/* Values */}
                         <div className="grid grid-cols-4 bg-white text-sm ">
                         <input
                             readOnly
-                            className="w-full text-center py-2 bg-white outline-none text-[#2F6FDB]"
+                            className="w-full text-center py-3 bg-white outline-none text-[#2F6FDB]"
                             value={formatCurrency((value.general?.nilme * value.fenicr?.formulaNiCost / 100).toFixed(2))}
                         />
 
                         <input
                             type="text"
-                            className="w-full text-center py-2 outline-none border-l border-[#D9ECFF] text-[#F44336]"
+                            className="w-full text-center py-3 outline-none border-l border-[#dedede] bg-[#fafafa] text-[#F44336]"
                             name="crPrice"
                             onChange={(e) => handleChange(e, "fenicr")}
                             value={focusedField === "crPrice" ? value.fenicr?.crPrice : formatCurrency(value.fenicr?.crPrice)}
@@ -1028,7 +1028,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                         <input
                             type="text"
-                            className="w-full text-center py-2 outline-none border-l border-[#D9ECFF] text-[#F44336]"
+                            className="w-full text-center py-3 outline-none border-l border-[#dedede] bg-[#fafafa] text-[#F44336]"
                             name="moPrice"
                             onChange={(e) => handleChange(e, "fenicr")}
                             value={focusedField === "moPrice" ? value.fenicr?.moPrice : formatCurrency(value.fenicr?.moPrice)}
@@ -1042,7 +1042,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                         <input
                             type="text"
-                            className="w-full text-center py-2 outline-none border-l border-[#D9ECFF] text-[#F44336]"
+                            className="w-full text-center py-3 outline-none border-l border-[#dedede] bg-[#fafafa] text-[#F44336]"
                             name="fePrice"
                             onChange={(e) => handleChange(e, "fenicr")}
                             value={focusedField === "fePrice" ? value.fenicr?.fePrice : formatCurrency(value.fenicr?.fePrice)}
@@ -1057,18 +1057,18 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                     </div>
                     </div>
                     {/* Formula x Ni */}
-                    <div className="mb-3 mt-4 flex">
-                    <div className="w-36 rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+                    <div className="mb-3 mt-5 flex">
+                    <div className="w-36 rounded-xl overflow-hidden border border-[#dedede] bg-white">
                         
                         {/* Header */}
                         <div className="bg-[#FFDADA] text-[#F44336] text-xs  py-2 text-center">
                         Formula x Ni
                         </div>
-
+ 
                         {/* Value */}
                         <input
                         type="text"
-                        className="w-full text-center py-2 outline-none text-sm text-[#F44336]"
+                        className="w-full text-center py-1 outline-none text-sm text-[#F44336] border-t border-[#dedede] bg-[#fafafa]"
                         value={value?.fenicr?.formulaNiCost + '%'}
                         name="formulaNiCost"
                         onChange={(e) => handleChange(e, 'fenicr')}
@@ -1094,7 +1094,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                     <div className="grid grid-cols-3 mt-4 gap-2 mb-3">
 
                     {/* Solids Price */}
-                    <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
+                    <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white text-center">
                         {/* Header strip */}
                         <div className="bg-[#FFECEC] py-1">
                         <p className="text-xs text-[#2F6FDB]">
@@ -1103,33 +1103,33 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                         </div>
 
                         {/* Value */}
-                        <div className="py-2 text-sm text-[#2F6FDB]">
+                        <div className="py-1 text-sm text-[#2F6FDB] border-t border-[#dedede] bg-[#fafafa]">
                         {formatCurrency(solidsPrice.toFixed(2))}
                         </div>
                     </div>
 
                     {/* Turnings Price */}
-                    <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
+                    <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white text-center">
                         <div className="bg-[#FFECEC] py-1">
                         <p className="text-xs text-[#2F6FDB]">
                             Turnings Price
                         </p>
                         </div>
 
-                        <div className="py-2 text-sm text-[#2F6FDB]">
+                        <div className="py-1 text-sm text-[#2F6FDB] border-t border-[#dedede] bg-[#fafafa]">
                         {formatCurrency((solidsPrice * 0.92).toFixed(2))}
                         </div>
                     </div>
 
                     {/* Price / Euro */}
-                    <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
+                    <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white text-center">
                         <div className="bg-[#E9FFF1] py-1">
                         <p className="text-xs text-[#2F6FDB]">
                             Price / Euro
                         </p>
                         </div>
 
-                        <div className="py-2 text-sm text-[#2F6FDB]">
+                        <div className="py-1 text-sm text-[#2F6FDB] border-t border-[#dedede] bg-[#fafafa]">
                         {formatCurrency((solidsPrice / value.general?.euroRate).toFixed(2), '€')}
                         </div>
                     </div>
@@ -1137,37 +1137,37 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                     </div>
 
 
-                    <div className='text-xs mt-4 text-[var(--port-gore)] space-y-1'>
+                    <div className='text-xs mt-8 text-[#005b9f] space-y-1 text-left'>
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>
                 </div>
 
                 {/* SALES SECTION */}
-                <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">Sales</h3>
+                <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-3 text-center">
+                <h3 className="text-base text-[#005b9f] mb-4">Sales</h3>
 
                     {/* Composition */}
-                    <div className="mb-5 mt-8">
-                        <p className="text-sm font-medium text-[var(--regent-gray)] mb-2 text-center">
+                    <div className="mb-5 mt-4">
+                        <p className="text-sm text-[#979797] mb-2 text-center">
                         Composition
                         </p>
 
-                        <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+                        <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white">
                         {/* Header */}
-                        <div className="grid grid-cols-4 bg-[#EAF4FF] text-[#2F6FDB] text-xs font-semibold">
+                        <div className="grid grid-cols-4 bg-[#EAF4FF] text-[#2F6FDB] text-xs">
                             <div className="py-2 text-center">Ni</div>
-                            <div className="py-2 text-center border-l border-[#D9ECFF]">Cr</div>
-                            <div className="py-2 text-center border-l border-[#D9ECFF]">Mo</div>
-                            <div className="py-2 text-center border-l border-[#D9ECFF]">Fe</div>
+                            <div className="py-2 text-center border-l border-[#dedede]">Cr</div>
+                            <div className="py-2 text-center border-l border-[#dedede]">Mo</div>
+                            <div className="py-2 text-center border-l border-[#dedede]">Fe</div>
                         </div>
 
                         {/* Values */}
-                        <div className="grid grid-cols-4 bg-white text-sm">
+                        <div className="grid grid-cols-4 bg-[#fafafa]  text-sm">
                             <div className="py-3 text-center text-[#F44336]">{value?.fenicr?.ni}%</div>
-                            <div className="py-3 text-center border-l border-[#D9ECFF] text-[#F44336]">{value?.fenicr?.cr}%</div>
-                            <div className="py-3 text-center border-l border-[#D9ECFF] text-[#2F6FDB]">{value?.fenicr?.mo}%</div>
-                            <div className="py-3 text-center border-l border-[#D9ECFF] text-[#2F6FDB]">{fe}%</div>
+                            <div className="py-3 text-center border-l border-[#dedede] text-[#F44336]">{value?.fenicr?.cr}%</div>
+                            <div className="py-3 text-center border-l border-[#dedede] text-[#2F6FDB]">{value?.fenicr?.mo}%</div>
+                            <div className="py-3 text-center border-l border-[#dedede] text-[#2F6FDB]">{fe}%</div>
                         </div>
                         </div>
                     </div>
@@ -1175,32 +1175,32 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                     {/* Price Row */}
                     <div className="mb-5 mt-8">
-                        <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+                        <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white">
                         {/* Header */}
-                        <div className="grid grid-cols-4 bg-[#E9E2FF] text-[#2F6FDB] text-xs font-semibold">
+                        <div className="grid grid-cols-4 bg-[#E9E2FF] text-[#2F6FDB] text-xs">
                             <div className="py-2 text-center">Ni</div>
-                            <div className="py-2 text-center border-l border-[#D9ECFF]">Cr</div>
-                            <div className="py-2 text-center border-l border-[#D9ECFF]">Mo</div>
-                            <div className="py-2 text-center border-l border-[#D9ECFF]">Fe</div>
+                            <div className="py-2 text-center border-l border-[#dedede]">Cr</div>
+                            <div className="py-2 text-center border-l border-[#dedede]">Mo</div>
+                            <div className="py-2 text-center border-l border-[#dedede]">Fe</div>
                         </div>
 
                         {/* Values */}
-                        <div className="grid grid-cols-4 bg-white text-sm">
+                        <div className="grid grid-cols-4 bg-[#fafafa] text-sm">
                             <div className="py-3 text-center text-[#2F6FDB]">
                             {formatCurrency((value.general?.nilme * value.fenicr?.formulaNiPrice / 100).toFixed(2))}
                             </div>
 
-                            <div className="py-3 text-center border-l border-[#D9ECFF] text-[#F44336]">
+                            <div className="py-3 text-center border-l border-[#dedede] text-[#F44336]">
                             {formatCurrency((value.general?.chargeCrLb * value.general?.mt * value.fenicr?.crPriceArgus / 100).toFixed(2))}
                             </div>
 
-                            <div className="py-3 text-center border-l border-[#D9ECFF] text-[#F44336]">
+                            <div className="py-3 text-center border-l border-[#dedede] text-[#F44336]">
                             {formatCurrency((value.general?.MoOxideLb * value.fenicr?.moPriceArgus * value.general?.mt / 100).toFixed(2))}
                             </div>
 
                             <input
                             type="text"
-                            className="w-full text-center py-1 outline-none border-l border-[#D9ECFF] text-[#F44336] text-xs"
+                            className="w-full text-center py-1 outline-none border-l border-[#dedede] bg-[#fafafa] text-[#F44336] text-xs"
                             name="fePrice1"
                             value={focusedField === 'fePrice1'
                                 ? value.fenicr?.fePrice1
@@ -1220,15 +1220,15 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                     </div>
 
                     {/* Formula x Ni */}
-                    <div className="mb-3 mt-4 flex">
-                        <div className="w-36 rounded-xl overflow-hidden border border-[#D9ECFF] bg-white">
+                    <div className="mb-3 mt-5 flex">
+                        <div className="w-36 rounded-xl overflow-hidden border border-[#dedede] bg-white">
                         <div className="bg-[#FFDADA] text-[#F44336] text-xs py-2 text-center">
                             Formula x Ni
                         </div>
 
                         <input
                             type="text"
-                            className="w-full text-center py-1 outline-none text-xs text-[#F44336]"
+                            className="w-full text-center py-1 outline-none text-xs text-[#F44336] bg-[#fafafa] border-[#dedede]"
                             value={value?.fenicr?.formulaNiPrice + '%'}
                             name="formulaNiPrice"
                             onChange={(e) => handleChange(e, 'fenicr')}
@@ -1244,38 +1244,41 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
 
                     {/* Results */}
-                    <div className="grid grid-cols-3 mt-4 gap-2 mb-3">
+                    <div className="grid grid-cols-3 mt-5 gap-2 mb-3">
 
-                        <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
+                        <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white text-center">
                         <div className="bg-[#FFECEC] py-1 text-xs text-[#2F6FDB]">
                             Solids Price
                         </div>
-                        <div className="py-1 text-xs text-[#2F6FDB]">
+                        <div className="py-1 text-xs text-[#2F6FDB] border-t border-[#dedede]  bg-[#fafafa]">
                             {formatCurrency(solidsPrice1.toFixed(2))}
                         </div>
                         </div>
 
-                        <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
+                        <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white text-center">
                         <div className="bg-[#FFECEC] py-1 text-xs text-[#2F6FDB]">
                             Turnings Price
                         </div>
-                        <div className="py-1 text-xs text-[#2F6FDB]">
+                        <div className="py-1 text-xs text-[#2F6FDB] border-t border-[#dedede] bg-[#fafafa]">
                             {formatCurrency((solidsPrice1 * 0.9).toFixed(2))}
                         </div>
                         </div>
 
-                        <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
-                        <div className="bg-[#E9FFF1] py-1 text-xs text-[#2F6FDB]">
+                         <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white text-center">
+                        <div className="bg-[#E9FFF1] py-1">
+                        <p className="text-xs text-[#2F6FDB]">
                             Price / Euro
+                        </p>
                         </div>
-                        <div className="py-1 text-xs text-[#2F6FDB]">
+
+                        <div className="py-1 text-sm text-[#2F6FDB] border-t border-[#dedede] bg-[#fafafa]">
                             {formatCurrency((solidsPrice1 / value.general?.euroRate).toFixed(2), '€')}
                         </div>
-                        </div>
+                    </div>
 
                     </div>
 
-                    <div className="text-xs mt-8 text-[var(--port-gore)] space-y-1">
+                    <div className="text-xs mt-8 text-[#005b9f]  space-y-1 text-left">
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>

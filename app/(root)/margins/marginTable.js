@@ -50,40 +50,35 @@ const MarginTable = (props) => {
                             className="flex flex-wrap items-center gap-2 mb-2"
                             style={{
                                 background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))',
-                                borderBottom: '1px solid #E5E7EB',
                                 padding: '6px 8px',
                                 borderRadius: '12px',
                                 marginBottom: '8px',
                                 minHeight: '40px'
                             }}
                         >
-                            <DisclosureButton className="flex items-center transition-colors duration-150 hover:opacity-80">
-                                {!open
-                                    ? <IoAddCircleOutline 
-                                        className="text-lg" 
-                                        style={{ color: '#183d79', fontSize: '18px' }}
-                                      />
-                                    : <FiMinusCircle 
-                                        className="text-lg" 
-                                        style={{ color: '#183d79', fontSize: '18px' }}
-                                      />}
-                            </DisclosureButton>
+                            <div className="bg-[#e3f3ff] rounded-full px-3 py-1 flex items-center gap-2 w-fit">
 
-                            <span 
-                                className="rounded-full px-3 py-1 font-normal text-center shadow-sm"
-                                style={{
-                                    background: '#183d79',
-                                    color: '#FFFFFF',
-                                    fontSize: 'clamp(9px, 0.8vw, 11px)',
-                                    fontWeight: '400',
-                                    letterSpacing: '0.02em',
-                                    minWidth: '70px',
-                                    height: '26px',
-                                    lineHeight: '16px'
-                                }}
-                            >
-                                {`${month}-${year}`}
-                            </span>
+  <DisclosureButton className="flex items-center justify-center hover:opacity-80 transition-all">
+    {!open ? (
+      <IoAddCircleOutline
+        className="text-[14px]"
+        style={{ color: '#183d79' }}
+      />
+    ) : (
+      <FiMinusCircle
+        className="text-[14px]"
+        style={{ color: '#183d79' }}
+      />
+    )}
+  </DisclosureButton>
+
+  <span
+    className="text-[#183d79] text-[13px]"
+  >
+    {`${month}-${year}`}
+  </span>
+
+</div>
 
                             <div className="flex-1 min-w-[280px]">
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -91,8 +86,8 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal uppercase tracking-wider mb-0.5"
                                             style={{
-                                                color: '#6B7280',
-                                                fontSize: 'clamp(7px, 0.6vw, 8px)',
+                                                color: '#005b9f',
+                                                fontSize: 'clamp(11px, 0.6vw, 8px)',
                                                 letterSpacing: '0.05em',
                                                 lineHeight: '1.1'
                                             }}
@@ -102,8 +97,8 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal"
                                             style={{
-                                                color: '#1F2937',
-                                                fontSize: 'clamp(9px, 0.8vw, 11px)',
+                                                color: '#005b9f',
+                                                fontSize: 'clamp(10px, 0.8vw, 11px)',
                                                 fontWeight: '400',
                                                 lineHeight: '1.2'
                                             }}
@@ -123,8 +118,8 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal uppercase tracking-wider mb-0.5"
                                             style={{
-                                                color: '#6B7280',
-                                                fontSize: 'clamp(7px, 0.6vw, 8px)',
+                                                color: '#005b9f',
+                                                fontSize: 'clamp(11px, 0.6vw, 8px)',
                                                 letterSpacing: '0.05em',
                                                 lineHeight: '1.1'
                                             }}
@@ -134,8 +129,8 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal"
                                             style={{
-                                                color: '#1F2937',
-                                                fontSize: 'clamp(9px, 0.8vw, 11px)',
+                                                color: '#005b9f',
+                                                fontSize: 'clamp(10px, 0.8vw, 11px)',
                                                 fontWeight: '400',
                                                 lineHeight: '1.2'
                                             }}
@@ -156,8 +151,8 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal uppercase tracking-wider mb-0.5"
                                             style={{
-                                                color: '#6B7280',
-                                                fontSize: 'clamp(7px, 0.6vw, 8px)',
+                                                color: '#005b9f',
+                                                fontSize: 'clamp(11px, 0.6vw, 8px)',
                                                 letterSpacing: '0.05em',
                                                 lineHeight: '1.1'
                                             }}
@@ -167,8 +162,8 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal"
                                             style={{
-                                                color: '#1F2937',
-                                                fontSize: 'clamp(9px, 0.8vw, 11px)',
+                                                color: '#005b9f',
+                                                fontSize: 'clamp(10px, 0.8vw, 11px)',
                                                 fontWeight: '400',
                                                 lineHeight: '1.2'
                                             }}
@@ -188,8 +183,8 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal uppercase tracking-wider mb-0.5"
                                             style={{
-                                                color: '#6B7280',
-                                                fontSize: 'clamp(7px, 0.6vw, 8px)',
+                                                color: '#005b9f',
+                                                fontSize: 'clamp(11px, 0.6vw, 8px)',
                                                 letterSpacing: '0.05em',
                                                 lineHeight: '1.1'
                                             }}
@@ -199,8 +194,8 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal"
                                             style={{
-                                                color: '#1F2937',
-                                                fontSize: 'clamp(9px, 0.8vw, 11px)',
+                                                color: '#005b9f',
+                                                fontSize: 'clamp(10px, 0.8vw, 11px)',
                                                 fontWeight: '400',
                                                 lineHeight: '1.2'
                                             }}
@@ -220,7 +215,7 @@ const MarginTable = (props) => {
 
                             <div className="flex items-center gap-1.5">
                                 <button
-                                    className="px-3 py-1.5 rounded-lg font-normal shadow-sm transition-all duration-150 hover:opacity-90"
+                                    className="px-3 py-1.5 rounded-full font-normal transition-all duration-150 hover:opacity-90"
                                     style={{
                                         background: 'linear-gradient(135deg, #183d79, #1e40af)',
                                         color: '#FFFFFF',
@@ -249,7 +244,6 @@ const MarginTable = (props) => {
                                     title="Delete month"
                                     style={{
                                         color: '#ef4444',
-                                        border: '1px solid #fecaca',
                                         width: '28px',
                                         height: '28px',
                                         display: 'flex',

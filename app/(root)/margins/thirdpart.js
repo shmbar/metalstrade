@@ -10,9 +10,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
                 
                 .margins-table, .margins-table * {
-                    font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-                    font-size: 10px !important;
-           
+                    font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;           
                     transition-duration: 150ms !important;
                     transition-timing-function: ease-in-out !important;
                 }
@@ -23,6 +21,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                     background-color: #f9f9f9;
                     text-align: center;
                     vertical-align: middle;
+                  font-size: 10px !important;
                     padding: 6px;
                     border-radius: 4px;
                 }
@@ -39,10 +38,10 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
 
             {/* Title with consistent typography - same as newTable empty state */}
             <h1 
-                className="font-normal mb-2 margins-table"
+                className="mb-2 margins-table"
                 style={{ 
-                    color: '#1F2937',
-                    fontSize: 'clamp(12px, 1.0vw, 14px)',
+                    color: '#005b9f',
+                    fontSize: '15px',
                     fontWeight: '400'
                 }}
             >

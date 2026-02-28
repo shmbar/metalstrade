@@ -205,11 +205,13 @@ const MaterialTables = () => {
                                 </h1>
                             </div>
                             {/* Action Buttons */}
+                            <div className="border rounded-2xl p-3">
                             <div className="flex gap-2 sm:gap-4 flex-wrap mb-2">
-                                <Button className="bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)] hover:opacity-90 min-w-[100px] text-white" onClick={addTable}>
+                                <Button  className="bg-[#005b9f] border border-[var(--rock-blue)] text-white px-3 h-6 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
+ onClick={addTable}>
                                     Add Table
                                 </Button>
-                                <Button className="bg-white border-[var(--rock-blue)] text-[var(--port-gore)] min-w-[100px]" variant="outline" onClick={saveTable}>
+                                <Button   className="bg-[#e3f3ff] text-[#005b9f] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"variant="outline" onClick={saveTable}>
                                     Save
                                 </Button>
                             </div>
@@ -243,6 +245,7 @@ const MaterialTables = () => {
                                     />
                                 </div>
                             ) : null}
+                            </div>
                         </div>
                     </>
                 }

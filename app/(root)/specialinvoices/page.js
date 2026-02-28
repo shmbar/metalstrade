@@ -218,7 +218,7 @@ const SpecialInvoices = () => {
                             />
 
                             {/* Totals Section */}
-                            <div className='flex flex-col md:flex-row w-full gap-4 mt-6'>
+                            <div className='flex flex-col md:flex-row w-full gap-4 mt-6 '>
                                 <div className='w-full md:w-1/2'>
                                     <TableTotals
                                         data={totals}

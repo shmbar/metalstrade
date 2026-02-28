@@ -181,7 +181,6 @@ table {
   padding: 0.25rem 0.5rem !important;
   margin: 0 !important;
   box-sizing: border-box;
-  height: 2rem !important;
 }
 
 /* Utility class: add `.table-cell-uniform` to tables that require strict uniformity */

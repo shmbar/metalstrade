@@ -74,7 +74,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
     ];
 
     return (
-        <div className="w-full p-2 mt-6">
+        <div className="w-full p-1 ">
             {/* Import Poppins font and apply consistent styling exactly like newTable */}
             <style jsx global>{`
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -95,32 +95,19 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
             <div className="w-full flex justify-center">
                 <div className="w-full max-w-7xl">
                     {/* Desktop Layout */}
-                    <div className="hidden md:flex flex-row gap-4 justify-center stats-cards">
+                    <div className="hidden md:flex flex-row gap-8 justify-center stats-cards">
                         {cards.map((card, idx) => (
                             <div
                                 key={idx}
-                                className="stats-card flex flex-col items-center justify-center rounded-2xl shadow-lg border border-white/20 backdrop-blur-sm"
+                                className="stats-card flex flex-col items-center justify-center rounded-full shadow-lg border border-white/20 backdrop-blur-sm bg-white"
                                 style={{
-                                    background: card.bgGradient,
-                                    width: 'clamp(180px, 18vw, 220px)',
-                                    height: 'clamp(70px, 8vh, 90px)',
-                                    minWidth: '160px',
+                                    width: 'clamp(70px, 18vw, 150px)',
+                                    height: 'clamp(20px, 6vh, 60px)',
                                     boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1), 0 0 1px rgba(255, 255, 255, 0.2) inset',
                                 }}
                             >
-                                <span 
-                                    className="text-white font-normal mb-1 text-center px-2"
-                                    style={{
-                                        fontSize: 'clamp(9px, 0.8vw, 11px)',
-                                        fontWeight: '400',
-                                        letterSpacing: '0.02em',
-                                        textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
-                                    }}
-                                >
-                                    {card.label}
-                                </span>
                                 <div 
-                                    className="text-white font-normal text-center"
+                                    className="text-[#005b9f] font-normal text-center"
                                     style={{
                                         fontSize: 'clamp(11px, 1.0vw, 13px)',
                                         fontWeight: '400',
@@ -129,6 +116,18 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                 >
                                     {card.value}
                                 </div>
+                                <span 
+                                    className="text-[#005b9f] font-normal mb-1 text-center px-2"
+                                    style={{
+                                        fontSize: 'clamp(8px, 0.5vw, 8px)',
+                                        fontWeight: '400',
+                                        letterSpacing: '0.02em',
+                                        textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                                    }}
+                                >
+                                    {card.label}
+                                </span>
+                                
                             </div>
                         ))}
                     </div>

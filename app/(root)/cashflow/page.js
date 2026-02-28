@@ -754,7 +754,7 @@ return (
                     {userTitle === 'Admin' &&
                         <div className="w-full p-3 sm:p-4">
                             <div className="flex gap-2">
-                                <span className="responsiveTextInput items-center flex w-44 font-bold">Future</span>
+                                <span className="responsiveTextInput items-center flex w-44 text-[#005b9f]">Future</span>
                                 <label className="pl-1">{
                                     <NumericFormat
                                         value={incoming}
@@ -764,7 +764,7 @@ return (
                                         prefix={'$'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal'
+                                        className='responsiveTextTotal  !text-[#005b9f] font-normal'
                                     />
                                 }</label>
                             </div>
@@ -772,19 +772,19 @@ return (
                                 initialData?.map((z, i) => {
                                     return (
                                         <div className="flex gap-2 my-1" key={i}>
-                                            <input className="responsiveTextInput items-center flex outline-none w-44 truncate font-bold" value={z.title}
+                                            <input className="responsiveTextInput items-center flex outline-none w-44 truncate" value={z.title}
                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
-                                            <input className='input w-44 h-6 responsiveTextTotal font-bold'
+                                            <input className='input w-44 h-6 responsiveTextTotal'
                                                 value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
                                             <button onClick={() => delItem(i)}><MdDeleteOutline className="scale-110" /></button>
                                         </div>
                                     )
                                 })}
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 mt-4">
                                 <Tltip direction='bottom' tltpText='Save added data'>
                                     <button
                                         type="button"
-                                        className="blackButton h-6 mt-3 "
+                                    className="bg-[#005b9f] border border-[var(--rock-blue)] text-white px-3 h-7 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                         onClick={saveInitData}
                                     >
                                         Save
@@ -793,7 +793,7 @@ return (
                                 <Tltip direction='bottom' tltpText='Add new item above'>
                                     <button
                                         type="button"
-                                        className="whiteButton h-6 mt-3 "
+                                        className=" border border-[var(--rock-blue)] px-3 h-7 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                         onClick={addItem}
                                     >
                                         Add
@@ -804,11 +804,12 @@ return (
 
                     }
 
-                    <div className="flex flex-wrap gap-4 w-full">
-                        <div className="w-full max-w-screen-lg flex-1 min-w-[320px] border pr-4 border-t-8 border-[#11497c] rounded-t-xl">
+<div className="w-full border border-[#dedede] rounded-2xl overflow-hidden bg-white">
+  <div className="flex flex-wrap w-full">
+                            <div className="w-full max-w-screen-lg flex-1 min-w-[320px]">
                             <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="font-bold text-[#11497c] responsiveTextTitle">Stocks - Paid</span>
+                                    <span className="text-[#005b9f] responsiveTextTitle">Stocks - Paid</span>
                                 </div>
                                 <div className="flex p-1 justify-between">
                                     {
@@ -827,7 +828,7 @@ return (
                                         <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                        <div className="responsiveText items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                        <div className="responsiveText items-center font-normal text-[#545454] flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
                                                     </div>
@@ -841,7 +842,7 @@ return (
                                                             prefix={x.cur === 'us' ? '$' : '€'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText'
+                                                            className='responsiveText font-normal text-[#545454] '
                                                         />
                                                     </div>
                                                 </div>
@@ -856,11 +857,11 @@ return (
 
                                     )
                                 })}  
-                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
-                                    <div className="font-bold text-[#11497c]">
+                                <div className=" rounded-md py-0 px-1 mt-2 flex items-center justify-between responsiveTextTotal">
+                                    <div className=" text-[#005b9f] font-normal">
                                         Total
                                     </div>
-                                    <div className="font-bold text-[#11497c]">
+                                    <div className="text-[#005b9f] font-normal">
                                         {
                                             <NumericFormat
                                                 value={stockData1.reduce((total, obj) => {
@@ -872,7 +873,7 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='responsiveTextTotal'
+                                                className='responsiveTextTotal font-normal'
                                             />
                                         }
                                     </div>
@@ -884,7 +885,7 @@ return (
 
                             <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="font-bold text-[#11497c] responsiveTextTitle">Stocks - UnPaid</span>
+                                    <span className="text-[#005b9f] responsiveTextTitle">Stocks - UnPaid</span>
                                 </div>
                                 <div className="flex p-1 justify-between">
                                     {
@@ -904,7 +905,7 @@ return (
                                         <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                    <div className="responsiveText items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                    <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
                                                     </div>
@@ -918,7 +919,7 @@ return (
                                                             prefix={x.cur === 'us' ? '$' : '€'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText'
+                                                            className='responsiveText font-normal text-[#545454]'
                                                         />
                                                     </div>
                                                 </div>
@@ -931,11 +932,11 @@ return (
 
                                     )
                                 })}
-                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
-                                    <div className="font-bold text-[#11497c]">
+                                <div className="rounded-md py-0 px-1 mt-2  flex items-center justify-between responsiveTextTotal">
+                                    <div className="font-normal text-[#005b9f]">
                                         Total
                                     </div>
-                                    <div className="font-bold text-[#11497c]">
+                                    <div className="font-normal text-[#005b9f]">
                                         {
                                             <NumericFormat
                                                 value={stockData2.reduce((total, obj) => {
@@ -947,7 +948,7 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='responsiveTextTotal'
+                                                className='responsiveTextTotal font-normal'
                                             />
                                         }
                                     </div>
@@ -957,7 +958,7 @@ return (
 
                             <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="font-bold text-[#11497c] responsiveTextTitle">Clients - Payment</span>
+                                    <span className="text-[#005b9f] responsiveTextTitle">Clients - Payment</span>
                                 </div>
                                 <div className="flex p-1 justify-between">
                                     {
@@ -977,11 +978,11 @@ return (
                                         <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                    <div className="responsiveText items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                    <div className="responsiveText text-[#545454] font-normal items-center flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Client.Client.find(z => z.id === x.client)?.nname}
                                                     </div>
-                                                    <div className='leading-4 2xl:leading-6'>
+                                                    <div className='leading-4 2xl:leading-6 '>
                                                         <NumericFormat
                                                             value={x.debtBlnc}
                                                             displayType="text"
@@ -990,7 +991,7 @@ return (
                                                             prefix={x.cur === 'us' ? '$' : '€'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText'
+                                                            className='responsiveText font-normal text-[#545454]'
                                                         />
 
                                                     </div>
@@ -1002,11 +1003,11 @@ return (
                                         </div>
                                     )
                                 })}
-                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
-                                    <div className="font-bold text-[#11497c]">
+                                <div className="rounded-md py-0 px-1 mt-2 flex items-center justify-between responsiveTextTotal">
+                                    <div className=" text-[#005b9f] font-normal">
                                         Total
                                     </div>
-                                    <div className="font-bold text-[#11497c]">
+                                    <div className="text-[#005b9f] font-normal">
                                         {
                                             <NumericFormat
                                                 value={clientInvoices2.reduce((total, obj) => {
@@ -1027,7 +1028,7 @@ return (
 
                             <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="font-bold text-[#11497c] responsiveTextTitle">Clients - Balances</span>
+                                    <span className=" font-normal text-[#005b9f] responsiveTextTitle">Clients - Balances</span>
                                 </div>
                                 <div className="flex p-1 justify-between ">
                                     {
@@ -1047,7 +1048,7 @@ return (
                                         <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                    <div className="responsiveText items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                    <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Client.Client.find(z => z.id === x.client)?.nname}
                                                     </div>
@@ -1060,7 +1061,7 @@ return (
                                                             prefix={x.cur === 'us' ? '$' : '€'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText'
+                                                            className='responsiveText font-normal text-[#545454]'
                                                         />
 
                                                     </div>
@@ -1073,11 +1074,11 @@ return (
                                         )
                                     })}
 
-                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
-                                    <div className="font-bold text-[#11497c]">
+                                <div className="rounded-md py-0 px-1 mt-2 flex items-center justify-between responsiveTextTotal">
+                                    <div className="font-normal text-[#005b9f]">
                                         Total
                                     </div>
-                                    <div className="font-bold text-[#11497c]">
+                                    <div className=" text-[#005b9f]">
                                         {
                                             <NumericFormat
                                                 value={clientInvoices1.reduce((total, obj) => {
@@ -1089,7 +1090,7 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='responsiveTextTotal'
+                                                className='responsiveTextTotal font-normal'
                                             />
                                         }
                                     </div>
@@ -1100,18 +1101,18 @@ return (
                             <div>
                                 {
                                     userTitle === 'Admin' &&
-                                    <div className='mt-10 p-1'>
+                                    <div className='mt-4 p-1'>
                                         <div className='flex justify-between p-2'>
-                                            <span className="font-bold responsiveTextTitle">Financing</span>
+                                            <span className="text-[#005b9f] responsiveTextTitle">Financing</span>
                                             <button
                                                 type="button"
-                                                className="blackButton h-4  text-xs w-10 p-3"
+                                    className="bg-[#005b9f] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                                 onClick={() => setFinancedLeft([...financedLeft, { title: '', num: '' }])}
                                             >
                                                 Add
                                             </button>
                                         </div>
-                                        <div className="flex gap-1 mt-1 pt-2 flex-col">
+                                        <div className="py-0 px-3 mb-1 ">
                                             {
                                                 financedLeft?.map((z, i) => {
                                                     return (
@@ -1130,11 +1131,11 @@ return (
                                                 })}
                                         </div>
 
-                                        <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
-                                            <div className="font-bold text-[#11497c]">
+                                        <div className="rounded-md py-0 px-3 mt-2  flex items-center justify-between responsiveTextTotal">
+                                            <div className="font-normal text-[#005b9f]">
                                                 Total
                                             </div>
-                                            <div className="font-bold text-[#11497c]">
+                                            <div className="font-normal text-[#005b9f]">
                                                 {
                                                     <NumericFormat
                                                         value={Array.isArray(financedLeft) ? financedLeft.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
@@ -1155,11 +1156,11 @@ return (
                         </div>
 
 
-                        <div className="w-full max-w-screen-lg flex-1 min-w-[320px] border pl-4 border-t-8 border-[#11497c] rounded-t-xl">
+<div className="w-full flex-1 min-w-[320px] border-l border-[#dedede] pt-0">
 
-                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                            <div className="p-4  bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="font-bold text-[#11497c] responsiveTextTitle">Supplier - Payment</span>
+                                    <span className="text-[#005b9f] responsiveTextTitle">Supplier - Payment</span>
                                 </div>
                                 <div className="flex p-1 justify-between">
                                     {
@@ -1181,7 +1182,7 @@ return (
                                         <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                    <span className="responsiveText items-center flex outline-none whitespace-normal break-words w-full min-w-0"
+                                                    <span className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words w-full min-w-0"
                                                     >
                                                         {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                     </span>
@@ -1194,7 +1195,7 @@ return (
                                                             prefix={'$'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText'
+                                                            className='responsiveText font-normal text-[#545454]'
                                                         />
                                                     </div>
                                                 </div>
@@ -1208,11 +1209,11 @@ return (
 
                                     )
                                 })}
-                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
-                                    <div className="font-bold text-[#11497c]">
+                                <div className=" rounded-md py-0 px-1 mt-2 flex items-center justify-between responsiveTextTotal">
+                                    <div className="font-normal text-[#005b9f]">
                                         Total
                                     </div>
-                                    <div className="font-bold text-[#11497c]">
+                                    <div className="font-normal text-[#005b9f]">
                                         {
                                             <NumericFormat
                                                 value={supPayments2?.reduce((total, obj) => {
@@ -1224,7 +1225,7 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='responsiveTextTotal'
+                                                className='responsiveTextTotal font-normal'
                                             />
                                         }
                                     </div>
@@ -1234,7 +1235,7 @@ return (
 
                             <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="font-bold text-[#11497c] responsiveTextTitle">Supplier - Balances</span>
+                                    <span className="font-normal text-[#005b9f] responsiveTextTitle">Supplier - Balances</span>
                                 </div>
                                 <div className="flex p-1 justify-between">
                                     {
@@ -1256,7 +1257,7 @@ return (
                                         <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                    <span className="responsiveText items-center flex outline-none whitespace-normal break-words w-full min-w-0"
+                                                    <span className="responsiveText items-center font-normal text-[#545454] flex outline-none whitespace-normal break-words w-full min-w-0"
                                                     >
                                                         {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                     </span>
@@ -1269,7 +1270,7 @@ return (
                                                             prefix={'$'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText'
+                                                            className='responsiveText font-normal text-[#545454]'
                                                         />
                                                     </div>
                                                 </div>
@@ -1283,11 +1284,11 @@ return (
                                     )
                                 })}
 
-                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
-                                    <div className="font-bold text-[#11497c]">
+                                <div className=" rounded-md py-0 px-1 mt-2 flex items-center justify-between responsiveTextTotal">
+                                    <div className="font-normal text-[#11497c]">
                                         Total
                                     </div>
-                                    <div className="font-bold text-[#11497c]">
+                                    <div className="font-normal text-[#11497c]">
                                         {
                                             <NumericFormat
                                                 value={supPayments1?.reduce((total, obj) => {
@@ -1299,14 +1300,15 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
+                                                className="font-normal text-[#005b9f]"
                                             />
                                         }
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="p-2">
-                                <span className="font-bold flex items-center p-1 responsiveTextTitle">Expenses</span>
+                            <div className="p-4">
+                                <span className="font-normal text-[#005b9f] flex items-center responsiveTextTitle">Expenses</span>
                                 <div className="flex p-1 justify-between">
                                     {
                                         expensesSortName ?
@@ -1325,7 +1327,7 @@ return (
                                         <div className="flex items-center  text-slate-600 " key={i}>
                                             <MyAccordion title={
                                                 <div className="flex justify-between leading-4 2xl:leading-6 w-full">
-                                                    <div className="responsiveText items-center flex outline-none whitespace-normal break-words min-w-0"              >
+                                                    <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0"              >
                                                         {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                     </div>
 
@@ -1338,7 +1340,7 @@ return (
                                                             prefix={'$'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText'
+                                                            className='responsiveText font-normal text-[#545454]'
                                                         />
                                                     </div>
                                                 </div>
@@ -1351,11 +1353,11 @@ return (
 
                                     )
                                 })}
-                                <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
-                                    <div className="font-bold text-[#11497c]">
+                                <div className=" rounded-md py-0 px-1 mt-2  flex items-center justify-between responsiveTextTotal">
+                                    <div className="font-normal text-[#005b9f]">
                                         Total
                                     </div>
-                                    <div className="font-bold text-[#11497c]">
+                                    <div className="font-normal text-[#005b9f]">
 
                                         <NumericFormat
                                             value={expenses?.reduce((total, obj) => {
@@ -1367,6 +1369,7 @@ return (
                                             prefix='$'
                                             decimalScale='2'
                                             fixedDecimalScale
+                                            className="font-normal"
                                         />
 
                                     </div>
@@ -1378,10 +1381,10 @@ return (
                                     userTitle === 'Admin' &&
                                     <div className='mt-10 p-1'>
                                         <div className='flex justify-between'>
-                                            <span className="font-bold text-[#11497c] responsiveTextTitle">Financing</span>
+                                            <span className="font-normal text-[#005b9f] responsiveTextTitle">Financing</span>
                                             <button
                                                 type="button"
-                                                className="blackButton h-4  text-xs w-10 p-3"
+                                    className="bg-[#005b9f] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                                 onClick={() => setFinancedRight([...financedRight, { title: '', num: '' }])}
                                             >
                                                 Add
@@ -1404,11 +1407,11 @@ return (
                                                 })}
                                         </div>
 
-                                        <div className="bg-blue-100 rounded-md py-0 px-1 mt-2 border border-blue-200 flex items-center justify-between responsiveTextTotal">
-                                            <div className="font-bold text-[#11497c]">
+                                        <div className="rounded-md py-0 px-1 mt-2 flex items-center justify-between responsiveTextTotal">
+                                            <div className="font-normal text-[#005b9f]">
                                                 Total
                                             </div>
-                                            <div className="font-bold text-[#11497c]">
+                                            <div className="font-normal text-[#005b9f]">
                                                 {
                                                     <NumericFormat
                                                         value={Array.isArray(financedRight) ? financedRight.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
@@ -1418,6 +1421,7 @@ return (
                                                         prefix='$'
                                                         decimalScale='2'
                                                         fixedDecimalScale
+                                                        className="font-normal"
                                                     />
                                                 }
                                             </div>
@@ -1430,14 +1434,15 @@ return (
 
                         </div>
                     </div>
+                    </div>
                      {userTitle === 'Admin' && (
                 <div className="mt-2 w-full border-2 border-gray-300 rounded-lg p-2">
 
                     {/* TOTALS AND BALANCE IN ONE ROW */}
                     <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
                         
-                        <div className="flex justify-between items-center bg-blue-50 border-2 border-blue-300 rounded-lg px-4 py-0">
-                            <span className="font-bold text-[#11497c] responsiveTextTitle">
+                        <div className="flex justify-between items-center bg-[#d4eafc]  rounded-lg px-4 py-0">
+                            <span className="font-normal text-[#005b9f] responsiveTextTitle">
                                 Total (Left)
                             </span>
                             <NumericFormat
@@ -1448,11 +1453,12 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
+                                className="font-normal text-[#005b9f]"
                             />
                         </div>
 
                         <div className="flex justify-between items-center bg-[#11497c] text-white border-2 border-[#11497c] rounded-lg px-4 py-0 responsiveTextTotal">
-                            <span className="font-bold">
+                            <span className="font-normal">
                                 Balance
                             </span>
                             <NumericFormat
@@ -1463,12 +1469,12 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-bold"
+                                className="font-normal"
                             />
                         </div>
 
-                        <div className="flex justify-between items-center bg-blue-50 border-2 border-blue-300 rounded-lg px-4 py-0">
-                            <span className="font-bold text-[#11497c] responsiveTextTitle">
+                        <div className="flex justify-between items-center bg-[#d4eafc]  rounded-lg px-4 py-0">
+                            <span className="font-normal text-[#005b9f] responsiveTextTitle">
                                 Total (Right)
                             </span>
                             <NumericFormat
@@ -1479,6 +1485,7 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
+                                className="font-normal text-[#005b9f]"
                             />
                         </div>
 
@@ -1490,9 +1497,9 @@ return (
                             const key = `total${z}`;
                             return (
                                 <div className="flex gap-2 my-2" key={z}>
-                                    <span className="responsiveTextInput items-center flex w-20 font-bold">{z}</span>
+                                    <span className="responsiveTextInput items-center flex w-20 text-[#005b9f]">Total for {z}</span>
                                     <input
-                                        className='input w-44 h-6 responsiveTextTotal font-bold'
+                                        className='input w-44 h-6 responsiveTextTotal font-normal text-[11px]  text-[#005b9f] text-right p-2 bg-[#f9f9f9] border-[#dedede]'
                                         value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
                                         onChange={e => handleChange(e, z)}
                                     />

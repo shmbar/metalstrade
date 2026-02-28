@@ -11,12 +11,12 @@ import { Calendar } from "../../../../components/ui/calendar"
 
 const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
     return (
-        <div className="flex relative w-20 rounded-md bg-white border-0 border-b-2 border-blue-100 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-200 transition">
+        <div className="flex relative w-20 rounded-md bg-white border-0 border-blue-100 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-200 transition">
             <Popover className='flex'>
                 <PopoverTrigger asChild>
                     <Button
                         variant="ghost"
-                        className="h-6 p-1 justify-start text-left font-normal text-gray-600 text-xs bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="h-6 p-1 justify-start text-left font-normal text-[#005b9f] text-[11px] bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                     >
                         {props.value?.startDate ? dateFormat(props.value.startDate, 'dd.mm.yy') :
                             <span className=''>DD.MM.YY</span>}

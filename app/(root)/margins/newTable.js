@@ -47,10 +47,10 @@ import Tltip from "../../../components/tlTip";
 const COLUMN_CONFIGS = {
     'drag-handle': { width: 50, align: 'center', minWidth: 40 },
     'date': { width: 120, align: 'center', minWidth: 100 },
-    'purchase': { width: 100, align: 'right', minWidth: 80 },
+    'purchase': { width: 110, align: 'right', minWidth: 80 },
     'description': { width: 200, align: 'left', minWidth: 150 },
-    'supplier': { width: 150, align: 'left', minWidth: 120 },
-    'client': { width: 150, align: 'left', minWidth: 120 },
+    'supplier': { width: 150, align: 'left', minWidth: 150 },
+    'client': { width: 150, align: 'left', minWidth: 150 },
     'margin': { width: 110, align: 'right', minWidth: 90 },
     'totalMargin': { width: 130, align: 'right', minWidth: 110 },
     'shipped': { width: 100, align: 'right', minWidth: 80 },
@@ -60,146 +60,164 @@ const COLUMN_CONFIGS = {
     'del': { width: 50, align: 'center', minWidth: 40 },
 };
 
+
 const DraggableRow = ({ row, props, cName }) => {
+  let {
+    handleChangeDate,
+    handleCancelDate,
+    month,
+    handleChange,
+    deleteRow,
+    handleChangeSelect,
+    settings,
+    handleCheckBox
+  } = props;
 
-    let { handleChangeDate, handleCancelDate, month, handleChange, deleteRow,
-        handleChangeSelect, settings, handleCheckBox
-    } = props;
-    const { transform, transition, setNodeRef, isDragging } = useSortable({
-        id: row.original.id,
-    });
+  const { transform, transition, setNodeRef, isDragging } = useSortable({
+    id: row.original.id,
+  });
 
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition: transition,
-        opacity: isDragging ? 0.8 : 1,
-        zIndex: isDragging ? 1 : 0,
-        position: 'relative',
-    };
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.8 : 1,
+    zIndex: isDragging ? 1 : 0,
+    position: "relative",
+  };
 
-    const inputs = ['purchase', 'description', 'margin', 'shipped'];
-    const currs = ['margin', 'totalMargin', 'remaining'];
+  const inputs = ["purchase", "description", "margin", "shipped"];
+  const currs = ["margin", "totalMargin", "remaining"];
 
-    return (
-        <TableRow ref={setNodeRef} style={style} className="hover:bg-gray-50/50 transition-colors">
-            {row.getVisibleCells().map((cell) => {
-                const columnConfig = COLUMN_CONFIGS[cell.column.id] || {};
-                const cellWidth = columnConfig.width || 'auto';
-                const cellAlign = columnConfig.align || 'left';
-                
-                return (
-                    <TableCell 
-                        key={cell.id} 
-                        style={{ 
-                            width: cellWidth,
-                            minWidth: columnConfig.minWidth,
-                            maxWidth: columnConfig.width,
-                            height: '32px', // Fixed low height
-                            padding: '4px 8px', // Compact but readable padding
-                            verticalAlign: 'middle',
-                            lineHeight: '1.2'
-                        }} 
-                        className={cn(
-                            "align-middle",
-                            cellAlign === 'right' && 'text-right',
-                            cellAlign === 'center' && 'text-center'
-                        )}
-                    >
-                        {cell.column.id === 'drag-handle' ?
-                            <div className="flex items-center justify-center h-full">
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </div>
-                            :
-                            cell.column.id === 'date' ? (
-                                <div className="flex items-center justify-center h-full">
-                                    <DatePicker
-                                        props={cell}
-                                        handleChangeDate={handleChangeDate}
-                                        month={month}
-                                        handleCancelDate={handleCancelDate}
-                                    />
-                                </div>
-                            )
-                            :
-                            inputs.includes(cell.column.id) ?
-                                <Tltip 
-                                    direction='top' 
-                                    tltpText={(cName === 'ims' ? 'IMS: ' : 'GIS: ') + addComma(cell.getValue() / 2)} 
-                                    show={cell.column.id === 'margin' && row.original.gis}
-                                >
-                                    <div className="flex items-center justify-end w-full h-full">
-                                        <Input
-                                            props={cell}
-                                            handleChange={handleChange}
-                                            month={month}
-                                            name={cell.column.id}
-                                            styles={
-                                                cell.column.id === 'purchase' ? 'w-full max-w-[90px] text-right h-6 text-xs px-2' :
-                                                cell.column.id === 'description' ? 'w-full h-6 text-xs px-2' :
-                                                cell.column.id === 'margin' ? 'w-full max-w-[100px] text-right px-2 h-6 text-xs' :
-                                                cell.column.id === 'shipped' ? 'w-full max-w-[90px] text-right h-6 text-xs px-2' :
-                                                'w-full h-6 text-xs px-2'
-                                            }
-                                            addCur={currs.includes(cell.column.id)}
-                                        />
-                                    </div>
-                                </Tltip>
-                                :
-                                cell.column.id === 'del' ?
-                                    <div className='flex items-center justify-center w-full h-full'>
-                                        <MdDeleteOutline 
-                                            className="text-[var(--endeavour)] cursor-pointer hover:text-red-600 transition-colors"
-                                            style={{ fontSize: '16px' }}
-                                            onClick={(e) => deleteRow(e, cell.row.index, month)} 
-                                        />
-                                    </div>
-                                    :
-                                    cell.column.id === 'supplier' || cell.column.id === 'client' ?
-                                        <div className="w-full h-full flex items-center">
-                                            <SelectEnt
-                                                props={cell}
-                                                data={cell.column.id === 'supplier' ?
-                                                    settings.Supplier.Supplier : settings.Client.Client}
-                                                handleChangeSelect={handleChangeSelect}
-                                                month={month}
-                                                name={cell.column.id === 'supplier' ? "supplier" : "client"}
-                                                plHolder={cell.column.id === 'supplier' ? "Select Supplier" : "Select Client"}
-                                            />
-                                        </div>
-                                        :
-                                        cell.column.id === 'gis' ?
-                                            <div className='flex items-center justify-center w-full h-full'>
-                                                <CheckBox 
-                                                    size='size-4' 
-                                                    checked={cell.getValue() ?? false}
-                                                    onChange={() => handleCheckBox(!cell.getValue(), cell.row.index, month)} 
-                                                />
-                                            </div>
-                                            :
-                                            <div className="flex items-center justify-end w-full px-2 h-full">
-                                                <NumericFormat
-                                                    value={(cell.column.id === 'totalMargin' || cell.column.id === 'remaining') && row.original.gis ?
-                                                        cell.getValue() / 2 : cell.getValue()}
-                                                    displayType="text"
-                                                    thousandSeparator
-                                                    allowNegative={true}
-                                                    prefix={currs.includes(cell.column.id) ? '$' : ''}
-                                                    decimalScale={cell.getValue() !== 0 ? currs.includes(cell.column.id) ? 2 : 3 : 0}
-                                                    fixedDecimalScale
-                                                    style={{ 
-                                                        fontSize: '0.75rem', 
-                                                        color: 'var(--port-gore)',
-                                                        fontWeight: '400',
-                                                        lineHeight: '1.2'
-                                                    }}
-                                                />
-                                            </div>
-                        }
-                    </TableCell>
-                );
-            })}
-        </TableRow>
-    );
+  return (
+    <TableRow
+      ref={setNodeRef}
+      style={style}
+      className="hover:bg-gray-50/50 transition-colors"
+    >
+      {row.getVisibleCells().map((cell) => {
+        const columnConfig = COLUMN_CONFIGS[cell.column.id] || {};
+        const cellWidth = columnConfig.width || "auto";
+        const cellAlign = columnConfig.align || "left";
+
+        return (
+          <TableCell
+            key={cell.id}
+            style={{
+              width: cellWidth,
+              minWidth: columnConfig.minWidth,
+              maxWidth: columnConfig.width,
+              height: "32px",
+              padding: "6px 12px",
+              verticalAlign: "middle",
+            }}
+            className={cn(
+              cellAlign === "right" && "text-center",
+              cellAlign === "center" && "text-center"
+            )}
+          >
+            {cell.column.id === "drag-handle" ? (
+              <div className="flex items-center justify-center">
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </div>
+            ) : cell.column.id === "date" ? (
+              <div className="flex items-center justify-center">
+                <DatePicker
+                  props={cell}
+                  handleChangeDate={handleChangeDate}
+                  month={month}
+                  handleCancelDate={handleCancelDate}
+                />
+              </div>
+            ) : inputs.includes(cell.column.id) ? (
+              <Tltip
+                direction="top"
+                tltpText={
+                  (cName === "ims" ? "IMS: " : "GIS: ") +
+                  addComma(cell.getValue() / 2)
+                }
+                show={
+                  cell.column.id === "margin" && row.original.gis
+                }
+              >
+                <div className="flex items-center justify-end w-full">
+                  <Input
+                    props={cell}
+                    handleChange={handleChange}
+                    month={month}
+                    name={cell.column.id}
+                    styles={
+                      cell.column.id === "description"
+                        ? "text-center"
+                        : "text-center"
+                    }
+                    addCur={currs.includes(cell.column.id)}
+                  />
+                </div>
+              </Tltip>
+            ) : cell.column.id === "supplier" ||
+              cell.column.id === "client" ? (
+              <div className="flex items-center w-full">
+                <SelectEnt
+                  props={cell}
+                  data={
+                    cell.column.id === "supplier"
+                      ? settings.Supplier.Supplier
+                      : settings.Client.Client
+                  }
+                  handleChangeSelect={handleChangeSelect}
+                  month={month}
+                  name={
+                    cell.column.id === "supplier"
+                      ? "supplier"
+                      : "client"
+                  }
+                  plHolder={
+                    cell.column.id === "supplier"
+                      ? "Select Supplier"
+                      : "Select Client"
+                  }
+                />
+              </div>
+            ) : cell.column.id === "gis" ? (
+              <div className="flex items-center justify-center">
+                <CheckBox
+                  size="size-4"
+                  checked={cell.getValue() ?? false}
+                  onChange={() =>
+                    handleCheckBox(
+                      !cell.getValue(),
+                      cell.row.index,
+                      month
+                    )
+                  }
+                />
+              </div>
+            ) : (
+              <div className="flex items-center justify-end">
+                <NumericFormat
+                  value={cell.getValue()}
+                  displayType="text"
+                  thousandSeparator
+                  allowNegative
+                  prefix={
+                    currs.includes(cell.column.id) ? "$" : ""
+                  }
+                  decimalScale={
+                    currs.includes(cell.column.id) ? 2 : 3
+                  }
+                  fixedDecimalScale
+                  style={{
+                    fontSize: "12px",
+                    color: "#005b9f",
+                  }}
+                />
+              </div>
+            )}
+          </TableCell>
+        );
+      })}
+    </TableRow>
+  );
 };
 
 
@@ -325,29 +343,27 @@ const Customtable = (props) => {
                                         headerGroup.headers.map((header, idx, arr) => {
                                             const columnConfig = COLUMN_CONFIGS[header.column.id] || {};
                                             return (
-                                                <TableHead
-                                                    key={header.id}
-                                                    style={{ 
-                                                        width: columnConfig.width,
-                                                        minWidth: columnConfig.minWidth,
-                                                        maxWidth: columnConfig.width,
-                                                        height: '36px', // Compact header height
-                                                        padding: '6px 8px',
-                                                        fontSize: '0.75rem',
-                                                        fontWeight: '500',
-                                                        lineHeight: '1.2'
-                                                    }}
-                                                    className={cn(
-                                                        'bg-[#e3f3ff] text-[#183d79] border-b border-[var(--endeavour)]',
-                                                        idx === 0 ? 'rounded-tl-lg' : '',
-                                                        idx === arr.length - 1 ? 'rounded-tr-lg' : '',
-                                                        columnConfig.align === 'right' && 'text-right',
-                                                        columnConfig.align === 'center' && 'text-center',
-                                                        columnConfig.align === 'left' && 'text-left'
-                                                    )}
-                                                >
-                                                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                                                </TableHead>
+                                              <TableHead
+  key={header.id}
+  style={{
+    width: columnConfig.width,
+    minWidth: columnConfig.minWidth,
+    maxWidth: columnConfig.width,
+    height: '36px',
+    padding: '6px 12px',
+  }}
+  className={cn(
+    'bg-[#e3f3ff] text-[#183d79] border-b border-[var(--endeavour)]',
+    idx === 0 ? 'rounded-tl-lg' : '',
+    idx === arr.length - 1 ? 'rounded-tr-lg' : ''
+  )}
+>
+  <div className="w-full flex items-center justify-center text-[0.75rem] font-medium">
+    {header.isPlaceholder
+      ? null
+      : flexRender(header.column.columnDef.header, header.getContext())}
+  </div>
+</TableHead>
                                             );
                                         })
                                     )}
@@ -424,8 +440,8 @@ const Customtable = (props) => {
                                                                     decimalScale={currs.includes(accessorKey) ? 2 : 3}
                                                                     fixedDecimalScale
                                                                     style={{ 
-                                                                        fontSize: '0.75rem',
-                                                                        color: 'var(--port-gore)',
+                                                                        fontSize: '11px',
+                                                                        color: '#005b9f',
                                                                         fontWeight: '600',
                                                                         lineHeight: '1.2'
                                                                     }}
@@ -483,7 +499,7 @@ const Customtable = (props) => {
                                                         {typeof col.header === 'string' ? col.header : ''}
                                                     </span>
                                                     
-                                                    <div className="flex-1 flex justify-end items-center min-h-[20px]">
+                                                    <div className="flex-1 flex justify-end items-center">
                                                         {(() => {
                                                             if (col.accessorKey === 'date') {
                                                                 return (
@@ -495,32 +511,46 @@ const Customtable = (props) => {
                                                                     />
                                                                 );
                                                             }
-                                                            if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
-                                                                return (
-                                                                    <div className="w-full max-w-[140px]">
-                                                                        <SelectEnt 
-                                                                            props={{ row: { original: row } }} 
-                                                                            data={col.accessorKey === 'supplier' ? props.settings.Supplier.Supplier : props.settings.Client.Client} 
-                                                                            handleChangeSelect={props.handleChangeSelect} 
-                                                                            month={row.month} 
-                                                                            name={col.accessorKey} 
-                                                                            plHolder={col.accessorKey === 'supplier' ? 'Select Supplier' : 'Select Client'} 
-                                                                        />
-                                                                    </div>
-                                                                );
-                                                            }
-                                                            if (col.accessorKey === 'gis') {
-                                                                return (
-                                                                    <CheckBox 
-                                                                        size='size-4' 
-                                                                        checked={row.gis ?? false} 
-                                                                        onChange={() => props.handleCheckBox(!row.gis, rowIdx, row.month)} 
-                                                                    />
-                                                                );
-                                                            }
+if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
+  return (
+    <div className="w-full flex justify-center items-center">
+      <div className="w-full ">
+        <SelectEnt
+          props={{ row: { original: row } }}
+          data={
+            col.accessorKey === 'supplier'
+              ? props.settings.Supplier.Supplier
+              : props.settings.Client.Client
+          }
+          handleChangeSelect={props.handleChangeSelect}
+          month={row.month}
+          name={col.accessorKey}
+          plHolder={
+            col.accessorKey === 'supplier'
+              ? 'Select Supplier'
+              : 'Select Client'
+          }
+        />
+      </div>
+    </div>
+  );
+}
+                                                           if (col.accessorKey === 'gis') {
+  return (
+    <div className="flex items-center justify-center h-5">
+      <CheckBox
+        size="size-3"
+        checked={row.gis ?? false}
+        onChange={() =>
+          props.handleCheckBox(!row.gis, rowIdx, row.month)
+        }
+      />
+    </div>
+  );
+}
                                                             if (['purchase', 'description', 'margin', 'shipped'].includes(col.accessorKey)) {
                                                                 return (
-                                                                    <div className="w-full max-w-[140px]">
+                                                                    <div className="w-full max-w-[100px] bg-[#fafafa]">
                                                                         <Input 
                                                                             props={{ 
                                                                                 row: { original: row }, 
@@ -531,7 +561,7 @@ const Customtable = (props) => {
                                                                             month={row.month} 
                                                                             name={col.accessorKey} 
                                                                             styles={cn(
-                                                                                'w-full text-right text-xs h-6 px-2',
+                                                                                '',
                                                                                 col.accessorKey === 'description' && 'text-left'
                                                                             )}
                                                                             addCur={currs.includes(col.accessorKey)} 
