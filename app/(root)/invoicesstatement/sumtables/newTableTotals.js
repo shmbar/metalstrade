@@ -49,25 +49,21 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             }}>
             <div className="px-4 py-2.5"
                 style={{
-                    // background: '#eaf4ff',
-                    // borderBottom: '1px solid #e0e0e0',
-                    borderTopLeftRadius: '16px', // more rounded
+                    background: '#d4eafc',
+                    borderBottom: '1px solid #b8d8f2',
+                    borderTopLeftRadius: '16px',
                     borderTopRightRadius: '12px'
                 }}>
-                <p className="text-[#183d79] font-semibold uppercase"
+                <h3 className="text-[#0b3d6b] font-semibold text-center"
                     style={{
-                        fontSize: 'clamp(12px, 1vw, 15px)',
-                        letterSpacing: '0.05em'
+                        fontSize: 'clamp(11px, 1vw, 13px)',
+                        letterSpacing: '0.02em'
                     }}>
                     {getTtl(ttl, ln)}
-                </p>
+                </h3>
             </div>
             <div style={{
-                borderLeft: '8px solid #1D3D79',
-                borderTopLeftRadius: '32px',    // << more rounded left top
-                borderBottomLeftRadius: '32px', // << more rounded left bottom
-                borderTopRightRadius: '0px',
-                borderBottomRightRadius: '0px',
+               
                 overflow: 'hidden'
             }}>
                 {/* Desktop View */}
@@ -130,72 +126,72 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         </tbody>
                         <tfoot>
                             <tr style={{
-                                background: '#eaf4ff', // match header
+                                background: '#b8d8f2',
                                 fontWeight: 600
                             }}>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                <th className="relative px-2 py-2 text-left font-semibold"
                                     style={{
-                                    color: '#183d79',
-                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                    color: '#0b3d6b',
+                                    fontSize: 'clamp(11px, 1vw, 13px)',
                                     borderRight: '1px solid #e0e0e0'
                                     }}>
-                                    Total $
+                                    Total $:
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                <th className="relative px-2 py-2 text-left font-semibold"
                                     style={{
-                                    color: '#183d79',
-                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                    color: '#0b3d6b',
+                                    fontSize: 'clamp(11px, 1vw, 13px)',
                                     borderRight: '1px solid #e0e0e0'
                                     }}>
                                     {showAmount(usdTotals.invoices, 'usd')}
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                <th className="relative px-2 py-2 text-left font-semibold"
                                     style={{
-                                    color: '#183d79',
-                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                    color: '#0b3d6b',
+                                    fontSize: 'clamp(11px, 1vw, 13px)',
                                     borderRight: '1px solid #e0e0e0'
                                     }}>
                                     {showAmount(usdTotals.payments, 'usd')}
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                <th className="relative px-2 py-2 text-left font-semibold"
                                     style={{
-                                    color: '#183d79',
-                                    fontSize: 'clamp(10px, 1vw, 13px)'
+                                    color: '#0b3d6b',
+                                    fontSize: 'clamp(11px, 1vw, 13px)'
                                     }}>
                                     {showAmount(usdTotals.balance, 'usd')}
                                 </th>
                             </tr>
                             <tr style={{
-                                background: '#f9f9f9', borderTop: '1px solid #e0e0e0', borderBottom: '1px solid #e0e0e0'
+                                background: '#b8d8f2', borderTop: '1px solid #a0c8e8'
                             }}>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                <th className="relative px-2 py-2 text-left font-semibold"
                                     style={{
-                                    color: '#183d79',
-                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                    color: '#0b3d6b',
+                                    fontSize: 'clamp(11px, 1vw, 13px)',
                                     borderRight: '1px solid #e0e0e0'
                                     }}>
-                                    Total €
+                                    Total €:
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                <th className="relative px-2 py-2 text-left font-semibold"
                                     style={{
-                                    color: '#183d79',
-                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                    color: '#0b3d6b',
+                                    fontSize: 'clamp(11px, 1vw, 13px)',
                                     borderRight: '1px solid #e0e0e0'
                                     }}>
                                     {showAmount(eurTotals.invoices, 'eur')}
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                <th className="relative px-2 py-2 text-left font-semibold"
                                     style={{
-                                    color: '#183d79',
-                                    fontSize: 'clamp(10px, 1vw, 13px)',
+                                    color: '#0b3d6b',
+                                    fontSize: 'clamp(11px, 1vw, 13px)',
                                     borderRight: '1px solid #e0e0e0'
                                     }}>
                                     {showAmount(eurTotals.payments, 'eur')}
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-medium uppercase"
+                                <th className="relative px-2 py-2 text-left font-semibold"
                                     style={{
-                                    color: '#183d79',
-                                    fontSize: 'clamp(10px, 1vw, 13px)'
+                                    color: '#0b3d6b',
+                                    fontSize: 'clamp(11px, 1vw, 13px)'
                                     }}>
                                     {showAmount(eurTotals.balance, 'eur')}
                                 </th>
@@ -233,72 +229,72 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         ))}
                     </div>
                     {/* Mobile Total Sections */}
-                    <div className="border-t-2" style={{ background: '#f9f9f9', borderTop: '2px solid #e0e0e0' }}>
+                    <div className="border-t-2" style={{ background: '#b8d8f2', borderTop: '1px solid #a0c8e8' }}>
                         {/* USD Totals */}
-                        <div className="p-4 border-b" style={{ borderBottom: '1px solid #e0e0e0' }}>
+                        <div className="p-4 border-b" style={{ borderBottom: '1px solid #a0c8e8' }}>
                             <div className="space-y-2.5">
-                                <div className="pb-2 mb-2 border-b" style={{ borderColor: '#e0e0e0', background: '#d4eafc' }}>
+                                <div className="pb-2 mb-2">
                                     <span className="uppercase tracking-wide"
-                                        style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 700, color: '#183d79' }}>
+                                        style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: '#0b3d6b' }}>
                                         Total $ (USD)
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="uppercase" style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 600, color: '#183d79' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 600, color: '#0b3d6b' }}>
                                         {columns[1]?.header || 'Invoices'}
                                     </span>
-                                    <span style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 700, color: '#183d79' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: '#0b3d6b' }}>
                                         {showAmount(usdTotals.invoices, 'usd')}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="uppercase" style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 600, color: '#183d79' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 600, color: '#0b3d6b' }}>
                                         {columns[2]?.header || 'Payments'}
                                     </span>
-                                    <span style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 700, color: '#183d79' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: '#0b3d6b' }}>
                                         {showAmount(usdTotals.payments, 'usd')}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="uppercase" style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 600, color: '#183d79' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 600, color: '#0b3d6b' }}>
                                         {columns[3]?.header || 'Balance'}
                                     </span>
-                                    <span style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 700, color: '#183d79' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: '#0b3d6b' }}>
                                         {showAmount(usdTotals.balance, 'usd')}
                                     </span>
                                 </div>
                             </div>
                         </div>
                         {/* EUR Totals */}
-                        <div className="p-4" style={{ borderBottom: '1px solid #e0e0e0' }}>
+                        <div className="p-4" style={{ borderBottom: '1px solid #a0c8e8' }}>
                             <div className="space-y-2.5">
-                                <div className="pb-2 mb-2 border-b" style={{ borderColor: '#e0e0e0', background: '#d4eafc' }}>
+                                <div className="pb-2 mb-2">
                                     <span className="uppercase tracking-wide"
-                                        style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 700, color: '#183d79' }}>
+                                        style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: '#0b3d6b' }}>
                                         Total € (EUR)
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="uppercase" style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 600, color: '#183d79' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 600, color: '#0b3d6b' }}>
                                         {columns[1]?.header || 'Invoices'}
                                     </span>
-                                    <span style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 700, color: '#183d79' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: '#0b3d6b' }}>
                                         {showAmount(eurTotals.invoices, 'eur')}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="uppercase" style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 600, color: '#183d79' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 600, color: '#0b3d6b' }}>
                                         {columns[2]?.header || 'Payments'}
                                     </span>
-                                    <span style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 700, color: '#183d79' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: '#0b3d6b' }}>
                                         {showAmount(eurTotals.payments, 'eur')}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="uppercase" style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 600, color: '#183d79' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 600, color: '#0b3d6b' }}>
                                         {columns[3]?.header || 'Balance'}
                                     </span>
-                                    <span style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 700, color: '#183d79' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: '#0b3d6b' }}>
                                         {showAmount(eurTotals.balance, 'eur')}
                                     </span>
                                 </div>

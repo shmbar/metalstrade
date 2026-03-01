@@ -155,18 +155,29 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                 }
                 .custom-table, .custom-table *, .glass-table, .glass-table * {
                     font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-                    font-size: 10px !important;
                     transition-property: color, background-color, border-color, box-shadow !important;
                     transition-duration: 150ms !important;
                     transition-timing-function: ease-in-out !important;
                 }
-                .custom-table th, .custom-table td {
+
+                .custom-table th {
                     border: 1px solid #ccc;
                     background-color: #f9f9f9;
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
                     border-radius: 4px;
+                    font-size: 12px !important;
+                }
+
+                .custom-table td {
+                    border: 1px solid #ccc;
+                    background-color: #f9f9f9;
+                    text-align: center;
+                    vertical-align: middle;
+                    padding: 6px;
+                    border-radius: 4px;
+                    font-size: 11px !important;
                 }
                 .custom-table th {
                     background-color: #d4eafc;
@@ -178,7 +189,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
             `}</style>
 
             <div className="custom-table">
-                <div className="flex flex-col "
+                <div className="flex flex-col rounded-3xl shadow-xl glass-table"
                     style={{ 
                         boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset',
                     }}
@@ -214,18 +225,16 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                 <thead className="sticky top-0 z-10">
                                     {table.getHeaderGroups().map(hdGroup => (
                                         <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
-                                            {/* Add this th for select-all if needed */}
                                             {hdGroup.headers.map((header, idx) => (
                                                 <th
                                                     key={header.id}
-                                                    className={`px-2 py-2 uppercase ${header.column.id === 'select' ? 'text-left' : 'text-center'}`}
+                                                    className="font-poppins text-xs"
                                                     style={{
                                                         color: '#183d79',
                                                         minWidth: header.column.id === 'select' ? '50px' : '60px',
                                                         maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                                                        fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                         letterSpacing: '0.05em',
-                                                        textAlign: header.column.id === 'select' ? 'left' : 'center',
+                                                        textAlign: 'center',
                                                     }}
                                                 >
                                                     {flexRender(header.column.columnDef.header, header.getContext())}
@@ -267,55 +276,71 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                             {row.getVisibleCells().map((cell) => {
                                                 const isCompleted = cell.column.id === 'completed';
                                                 const isStatus = cell.column.id === 'status' && cell.getValue();
-                                                let bg = undefined;
-                                                if (isCompleted) bg = cell.getValue() ? '#00bf63' : '#eb3636';
-                                                if (isStatus) {
-                                                    if (cell.getValue() === 'Completed') bg = '#00bf63';
-                                                    else if (cell.getValue() === 'Incompleted') bg = '#eb3636';
+
+                                                // Badge config
+                                                let badgeConfig = null;
+                                                if (isCompleted) {
+                                                    badgeConfig = cell.getValue()
+                                                        ? { bg: '#00bf63', color: '#FFFFFF', label: 'Completed' }
+                                                        : { bg: '#eb3636', color: '#FFFFFF', label: 'Incompleted' };
+                                                }
+                                                if (isStatus && cell.getValue()) {
+                                                    if (cell.getValue() === 'Completed')
+                                                        badgeConfig = { bg: '#00bf63', color: '#FFFFFF', label: 'Completed' };
+                                                    else if (cell.getValue() === 'Incompleted')
+                                                        badgeConfig = { bg: '#eb3636', color: '#FFFFFF', label: 'Incompleted' };
+                                                    else if (cell.getValue() === 'Paid')
+                                                        badgeConfig = { bg: '#ceb8ff', color: '#1F2937', label: 'Paid' };
+                                                    else if (cell.getValue() === 'Unpaid')
+                                                        badgeConfig = { bg: '#c387b4', color: '#1F2937', label: 'Unpaid' };
                                                 }
 
                                                 return (
                                                     <td
                                                         key={cell.id}
-                                                        className={`px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect`}
+                                                        className="px-2 py-2 text-center"
                                                         style={{
-                                                            color: bg ? '#FFFFFF' : '#1F2937',
-                                                            backgroundColor: bg || undefined,
                                                             minWidth: cell.column.id === 'select' ? '50px' : '60px',
                                                             maxWidth: cell.column.id === 'select' ? '50px' : '110px',
-                                                            fontSize: 'clamp(11px, 1.0vw, 13px)',
-                                                            fontWeight: '400',
-                                                            zIndex: 1,
-                                                            willChange: 'background-color, color',
-                                                            padding: bg ? '6px' : undefined,
                                                         }}
                                                     >
-                                                        {isCompleted ? (
-                                                            <div className="w-full flex items-center justify-center">
-                                                                <span className="text-[11px] font-normal text-white">{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
+                                                        {(isCompleted || isStatus) && badgeConfig ? (
+                                                            <div className="flex justify-center">
+                                                                <div
+                                                                    className="px-3 py-1.5 rounded-lg text-[11px] font-normal"
+                                                                    style={{
+                                                                        backgroundColor: badgeConfig.bg,
+                                                                        color: badgeConfig.color,
+                                                                        border: '1px solid #cecece'
+                                                                    }}
+                                                                >
+                                                                    {badgeConfig.label}
+                                                                </div>
                                                             </div>
-                                                        ) : isStatus ? (
-                                                            <div className="w-full flex items-center justify-center">
-                                                                <span className="text-[11px] font-normal" style={{ color: bg ? '#FFFFFF' : undefined }}>{cell.getValue()}</span>
+                                                        ) : (isCompleted || isStatus) && !badgeConfig ? (
+                                                            <div className="flex justify-center">
+                                                                <div className="text-[11px] text-[#6B7280]">
+                                                                    { }
+                                                                </div>
                                                             </div>
                                                         ) : (
-                                                            <div className="w-full flex items-center justify-center">
-  <div
-    className="px-3 py-1.5 rounded-xl text-[11px] font-normal break-words"
-    style={{
-      background: 'linear-gradient(135deg, #FAFAFA, #F3F4F6)',
-      border: '1px solid #E5E7EB',
-      color: '#1F2937',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      maxWidth: '80%',
-      minWidth: '60px'
-    }}
-  >
-    {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}
-  </div>
-</div>
+                                                            <div className="flex justify-center">
+                                                                {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
+                                                                    <div
+                                                                        className="px-3 py-1.5 rounded-lg text-[11px] font-normal min-w-[70px]"
+                                                                        style={{
+                                                                            backgroundColor: '#f9f9f9',
+                                                                            border: '1px solid #cecece',
+                                                                        }}
+                                                                    >
+                                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="text-[11px] text-[#6B7280]">
+                                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         )}
                                                     </td>
                                                 )
@@ -396,12 +421,13 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                 <div 
                                                     className="px-3 py-2 flex items-center justify-between"
                                                     style={{ 
-                                                        background: '#bce1ff',
+                                                        background: 'linear-gradient(135deg, #6366F1, #9333EA, #0D9488)',
                                                     }}
                                                 >
                                                     <span 
                                                         className="font-normal"
                                                         style={{ 
+                                                            color: '#FFFFFF',
                                                             fontSize: 'clamp(9px, 0.8vw, 10px)',
                                                             textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                                                         }}
@@ -523,50 +549,42 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                         </div>
                     </div>
                     {/* FOOTER - Professional Style */}
-                    <div 
+                    <div
                         className="flex-shrink-0"
-                        style={{ 
+                        style={{
                             borderTop: '2px solid #E5E7EB',
-                            background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+                            background: '#FFFFFF'
                         }}
                     >
-                                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-2">
-                            <div className="w-full px-4 py-3">
-  <div className="flex items-center justify-between">
+                        <div className="w-full px-6 py-4">
+                            <div className="flex items-center justify-between">
 
-    {/* LEFT — Showing Range */}
-    <div
-      className="whitespace-nowrap font-normal"
-      style={{
-        color: '#6B7280',
-        fontSize: 'clamp(10px, 0.8vw, 12px)'
-      }}
-    >
-      {`${
-        table.getState().pagination.pageIndex *
-          table.getState().pagination.pageSize +
-        (table.getFilteredRowModel().rows.length ? 1 : 0)
-      }–${
-        table.getRowModel().rows.length +
-        table.getState().pagination.pageIndex *
-          table.getState().pagination.pageSize
-      } ${getTtl('of', ln)} ${
-        table.getFilteredRowModel().rows.length
-      }`}
-    </div>
+                                {/* LEFT — COUNT */}
+                                <div
+                                    className="text-sm font-medium"
+                                    style={{ color: '#6B7280' }}
+                                >
+                                    {`${
+                                        table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
+                                        (table.getFilteredRowModel().rows.length ? 1 : 0)
+                                    }–${
+                                        table.getRowModel().rows.length +
+                                        table.getState().pagination.pageIndex *
+                                        table.getState().pagination.pageSize
+                                    } of ${table.getFilteredRowModel().rows.length}`}
+                                </div>
 
-    {/* CENTER — Pagination */}
-    <div className="flex justify-center">
-      <Paginator table={table} />
-    </div>
+                                {/* CENTER — PAGINATOR */}
+                                <div className="flex justify-center">
+                                    <Paginator table={table} />
+                                </div>
 
-    {/* RIGHT — Rows Dropdown */}
-    <div className="flex justify-end">
-      <RowsIndicator table={table} />
-    </div>
+                                {/* RIGHT — ROWS */}
+                                <div className="flex justify-end">
+                                    <RowsIndicator table={table} />
+                                </div>
 
-  </div>
-</div>
+                            </div>
                         </div>
                     </div>
                 </div>

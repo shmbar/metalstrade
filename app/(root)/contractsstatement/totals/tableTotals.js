@@ -66,13 +66,19 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
             <div className="glass-table rounded-2xl shadow-lg border border-[#e0e0e0]">
                 {/* Header */}
                 <div className="flex justify-between items-center px-4 py-2 rounded-t-2xl" style={{
-                    borderBottom: '2px solid #E5E7EB',
-                    background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+                    background: '#d4eafc',
+                    borderBottom: '1px solid #b8d8f2'
                 }}>
-                    <p className="text-[#183d79] font-semibold text-[clamp(12px,1vw,15px)]">Summary</p>
+                    <h3 className="text-[#0b3d6b] font-semibold text-center w-full"
+                        style={{
+                            fontSize: 'clamp(11px, 1vw, 13px)',
+                            letterSpacing: '0.02em'
+                        }}>
+                        Summary
+                    </h3>
                 </div>
                 {/* Desktop Table */}
-                <div className="overflow-x-auto dashboard-scroll hidden md:block" style={{ borderLeft: '8px solid #1D3D79', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
+                <div className="overflow-x-auto dashboard-scroll hidden md:block">
                     <table className="custom-table w-full" style={{ tableLayout: 'auto' }}>
                         <thead className="sticky top-0 z-10">
                             {table1.getHeaderGroups().map(hdGroup =>
@@ -130,11 +136,11 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                             ))}
                         </tbody>
                         <tfoot>
-                            <tr style={{ borderTop: '2px solid #E5E7EB', background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))' }}>
-                                <th className="px-2 py-2 font-medium text-[#183d79] uppercase text-center" style={{textAlign:'center'}}>Total</th>
-                                <th className="px-2 py-2 font-medium text-[#183d79] uppercase text-center" style={{textAlign:'center'}}>{showAmount(data.reduce((sum, item) => sum + item.poWeight * 1, 0))}</th>
-                                <th className="px-2 py-2 font-medium text-[#183d79] uppercase text-center" style={{textAlign:'center'}}>{showAmount(data.reduce((sum, item) => sum + item.shiipedWeight * 1, 0))}</th>
-                                <th className="px-2 py-2 font-medium text-[#183d79] uppercase text-center" style={{textAlign:'center'}}>{showAmount(data.reduce((sum, item) => sum + item.remaining * 1, 0))}</th>
+                            <tr style={{ borderTop: '1px solid #b8d8f2', background: '#b8d8f2' }}>
+                                <th className="px-2 py-2 font-semibold text-[#0b3d6b] text-center" style={{textAlign:'center', fontSize: 'clamp(11px, 1vw, 13px)'}}>Total</th>
+                                <th className="px-2 py-2 font-semibold text-[#0b3d6b] text-center" style={{textAlign:'center', fontSize: 'clamp(11px, 1vw, 13px)'}}>{showAmount(data.reduce((sum, item) => sum + item.poWeight * 1, 0))}</th>
+                                <th className="px-2 py-2 font-semibold text-[#0b3d6b] text-center" style={{textAlign:'center', fontSize: 'clamp(11px, 1vw, 13px)'}}>{showAmount(data.reduce((sum, item) => sum + item.shiipedWeight * 1, 0))}</th>
+                                <th className="px-2 py-2 font-semibold text-[#0b3d6b] text-center" style={{textAlign:'center', fontSize: 'clamp(11px, 1vw, 13px)'}}>{showAmount(data.reduce((sum, item) => sum + item.remaining * 1, 0))}</th>
                             </tr>
                         </tfoot>
                     </table>
@@ -172,18 +178,18 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                         </div>
                     ))}
                     {/* Mobile Total Row */}
-                    <div className="rounded-2xl border-t border-[#E5E7EB] bg-[#eaf4ff] px-3 py-2 flex flex-col gap-1">
+                    <div className="rounded-2xl border-t border-[#b8d8f2] bg-[#b8d8f2] px-3 py-2 flex flex-col gap-1">
                         <div className="flex justify-between items-center">
-                            <span className="font-semibold text-[#183d79] text-xs uppercase">Total Quantity</span>
-                            <span className="font-semibold text-[#183d79] text-xs">{showAmount(data.reduce((sum, item) => sum + item.poWeight * 1, 0))}</span>
+                            <span className="font-semibold text-[#0b3d6b] text-xs">Total Quantity</span>
+                            <span className="font-semibold text-[#0b3d6b] text-xs">{showAmount(data.reduce((sum, item) => sum + item.poWeight * 1, 0))}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                            <span className="font-semibold text-[#183d79] text-xs uppercase">Total Shipped</span>
-                            <span className="font-semibold text-[#183d79] text-xs">{showAmount(data.reduce((sum, item) => sum + item.shiipedWeight * 1, 0))}</span>
+                            <span className="font-semibold text-[#0b3d6b] text-xs">Total Shipped</span>
+                            <span className="font-semibold text-[#0b3d6b] text-xs">{showAmount(data.reduce((sum, item) => sum + item.shiipedWeight * 1, 0))}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                            <span className="font-semibold text-[#183d79] text-xs uppercase">Total Remaining</span>
-                            <span className="font-semibold text-[#183d79] text-xs">{showAmount(data.reduce((sum, item) => sum + item.remaining * 1, 0))}</span>
+                            <span className="font-semibold text-[#0b3d6b] text-xs">Total Remaining</span>
+                            <span className="font-semibold text-[#0b3d6b] text-xs">{showAmount(data.reduce((sum, item) => sum + item.remaining * 1, 0))}</span>
                         </div>
                     </div>
                 </div>

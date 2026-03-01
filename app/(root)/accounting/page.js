@@ -561,59 +561,126 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {/* My Balance */}
-            <div className="bg-[#54A6E9] rounded-2xl p-4 text-white shadow-lg min-w-0">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <FaWallet className="text-white text-lg" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-white/80 text-xs">My Balance</p>
-                  <p className="text-lg font-bold truncate">{formatCurrency(totals.balance)}</p>
-                </div>
-              </div>
-            </div>
+          
+<div
+  style={{
+    background: '#dff0fb',          // light sky-blue strip — matches screenshot bg
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '16px',
+    padding: '10px 20px',
+    flexWrap: 'wrap',
+  }}
+  className="mb-6"
+>
 
-            {/* Income */}
-            <div className="bg-[#5FBEF8] rounded-2xl p-4 text-white shadow-lg min-w-0">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <FaArrowTrendUp className="text-white text-lg" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-white/80 text-xs">Income</p>
-                  <p className="text-lg font-bold truncate">{formatCurrency(totals.totalIncome)}</p>
-                </div>
-              </div>
-            </div>
+  {/* ── My Balance ── */}
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      background: '#ffffff',
+      borderRadius: '999px',
+      padding: '7px 18px',
+      border: '1.5px solid #bfdbfe',     // blue-200
+      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+      whiteSpace: 'nowrap',
+      flex: '1 1 0',
+      maxWidth: '220px',
+      minWidth: '140px',
+    }}
+  >
+    <FaWallet style={{ color: '#2563EB', fontSize: '17px', flexShrink: 0 }} />
+    <span style={{ color: '#2563EB', fontWeight: 700, fontSize: '14px' }}>
+      {formatCurrency(totals.balance)}
+    </span>
+    <span style={{ color: '#9CA3AF', fontSize: '11px', fontWeight: 400 }}>
+      My Balance
+    </span>
+  </div>
 
-            {/* Expense */}
-            <div className="bg-[#7DD3FC] rounded-2xl p-4 text-white shadow-lg min-w-0">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <FaArrowTrendDown className="text-white text-lg" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-white/80 text-xs">Expense</p>
-                  <p className="text-lg font-bold truncate">{formatCurrency(totals.totalExpense)}</p>
-                </div>
-              </div>
-            </div>
+  {/* ── Income ── */}
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      background: '#ffffff',
+      borderRadius: '999px',
+      padding: '7px 18px',
+      border: '1.5px solid #c7d2fe',     // indigo-200
+      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+      whiteSpace: 'nowrap',
+      flex: '1 1 0',
+      maxWidth: '220px',
+      minWidth: '140px',
+    }}
+  >
+    <FaArrowTrendUp style={{ color: '#6366F1', fontSize: '17px', flexShrink: 0 }} />
+    <span style={{ color: '#6366F1', fontWeight: 700, fontSize: '14px' }}>
+      {formatCurrency(totals.totalIncome)}
+    </span>
+    <span style={{ color: '#9CA3AF', fontSize: '11px', fontWeight: 400 }}>
+      Income
+    </span>
+  </div>
 
-            {/* Total Saving */}
-            <div className="bg-[#6366F1] rounded-2xl p-4 text-white shadow-lg min-w-0">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <FaPiggyBank className="text-white text-lg" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-white/80 text-xs">Total Saving</p>
-                  <p className="text-lg font-bold truncate">{formatCurrency(totals.savings)}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+  {/* ── Expense ── */}
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      background: '#ffffff',
+      borderRadius: '999px',
+      padding: '7px 18px',
+      border: '1.5px solid #fecaca',     // red-200
+      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+      whiteSpace: 'nowrap',
+      flex: '1 1 0',
+      maxWidth: '220px',
+      minWidth: '140px',
+    }}
+  >
+    <FaArrowTrendDown style={{ color: '#EF4444', fontSize: '17px', flexShrink: 0 }} />
+    <span style={{ color: '#EF4444', fontWeight: 700, fontSize: '14px' }}>
+      {formatCurrency(totals.totalExpense)}
+    </span>
+    <span style={{ color: '#9CA3AF', fontSize: '11px', fontWeight: 400 }}>
+      Expense
+    </span>
+  </div>
+
+  {/* ── Savings ── */}
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      background: '#ffffff',
+      borderRadius: '999px',
+      padding: '7px 18px',
+      border: '1.5px solid #a7f3d0',     // emerald-200
+      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+      whiteSpace: 'nowrap',
+      flex: '1 1 0',
+      maxWidth: '220px',
+      minWidth: '140px',
+    }}
+  >
+    <FaPiggyBank style={{ color: '#10B981', fontSize: '17px', flexShrink: 0 }} />
+    <span style={{ color: '#10B981', fontWeight: 700, fontSize: '14px' }}>
+      {formatCurrency(totals.savings)}
+    </span>
+    <span style={{ color: '#9CA3AF', fontSize: '11px', fontWeight: 400 }}>
+      Savings
+    </span>
+  </div>
+
+</div>
            {/* Full Table */}
           <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white">
             <h3 className="text-lg font-semibold text-[var(--port-gore)] mb-4">All Transactions</h3>
@@ -622,31 +689,31 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           </div>
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6 mt-3">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6 mt-3">
             {/* Last Transaction */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white xl:col-span-2">
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white">
               <h3 className="text-lg font-semibold text-[var(--port-gore)] mb-4">Last Transaction</h3>
               <div className="space-y-3">
                 {recentTransactions.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between py-2 border-b border-[var(--selago)] last:border-0">
+                  <div key={idx} className="flex items-center justify-between py-3 border-b border-[var(--selago)] last:border-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[var(--selago)] rounded-full flex items-center justify-center">
-                        <span className="text-[var(--endeavour)] text-sm font-semibold">
-                          {(item.clientExp || item.clientInv || 'N/A').charAt(0).toUpperCase()}
+                      <div className="w-10 h-10 bg-[var(--selago)] rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-[var(--endeavour)] text-sm font-bold">
+                          {(gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'N').charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-[var(--port-gore)]">
-                          {gQ(item.clientExp, 'Supplier', 'nname') || item.clientInv || 'Transaction'}
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-[var(--port-gore)] truncate">
+                          {gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'Transaction'}
                         </p>
-                        <p className="text-xs text-[var(--regent-gray)]">
+                        <p className="text-xs text-[var(--regent-gray)] mt-0.5">
                           {item.dateExp ? dateFormat(item.dateExp, 'dd mmm yyyy') : item.dateInv ? dateFormat(item.dateInv, 'dd mmm yyyy') : ''}
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs text-[var(--regent-gray)]">{item.expType || item.invType || ''}</p>
-                      <p className={`text-sm font-semibold ${item.amountInv ? 'text-emerald-500' : 'text-red-500'}`}>
+                    <div className="text-right flex-shrink-0 ml-2">
+                      <p className="text-xs text-[var(--regent-gray)] mb-0.5">{item.expType || item.invType || ''}</p>
+                      <p className={`text-sm font-bold ${item.amountInv ? 'text-emerald-500' : 'text-red-500'}`}>
                         {item.amountInv ? '+' : '-'}{formatCurrency(item.amountInv || item.amountExp || 0)}
                       </p>
                     </div>
@@ -660,21 +727,29 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
               <h3 className="text-lg font-semibold text-[var(--port-gore)] mb-4">Invoices Sent</h3>
               <div className="space-y-3">
                 {recentInvoices.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between py-2 border-b border-[var(--selago)] last:border-0">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[var(--rock-blue)]/30 rounded-full flex items-center justify-center">
-                        <span className="text-[var(--chathams-blue)] text-sm font-semibold">
-                          {(item.clientInv || 'C').charAt(0).toUpperCase()}
+                  <div key={idx} className="flex items-center justify-between py-3 border-b border-[var(--selago)] last:border-0">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="w-10 h-10 bg-[var(--rock-blue)]/20 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-[var(--chathams-blue)] text-sm font-bold">
+                          {(item.clientInvName || item.clientInv || 'C').charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-[var(--port-gore)]">{item.clientInv || 'Client'}</p>
-                        <p className="text-xs text-[var(--regent-gray)]">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-[var(--regent-gray)] mb-0.5">{item.saleInvoice || 'Invoice'}</p>
+                        <p className="text-sm font-semibold text-[var(--port-gore)] truncate">{item.clientInvName || item.clientInv || 'Client'}</p>
+                        <p className="text-xs text-[var(--regent-gray)] mt-0.5">
                           {item.dateInv ? dateFormat(item.dateInv, 'dd mmm yyyy') : ''}
                         </p>
                       </div>
                     </div>
-                    <p className="text-sm font-bold text-[var(--port-gore)]">{formatCurrency(item.amountInv || 0)}</p>
+                    <div className="text-right flex-shrink-0 ml-2">
+                      <p className="text-sm font-bold text-[var(--port-gore)] mb-1">{formatCurrency(item.amountInv || 0)}</p>
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                        idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {idx % 2 === 0 ? 'Paid' : 'Pending'}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -708,8 +783,8 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
               </div>
             </div>
             {/* Summary Stats */}
-            <div className="bg-gradient-to-br from-[var(--endeavour)] to-[var(--bunting)] rounded-2xl p-6 shadow-lg text-white overflow-hidden">
-              <h3 className="text-lg font-semibold mb-6">Financial Summary</h3>
+            <div className="bg-gradient-to-br from-[var(--endeavour)] to-[var(--bunting)] rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl text-white overflow-hidden">
+              <h3 className="text-lg font-semibold text-white mb-4">Financial Summary</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white/10 rounded-xl p-4 overflow-hidden">
                   <p className="text-white/70 text-xs mb-1">Total Transactions</p>
