@@ -118,6 +118,8 @@ const Customtable = ({
                             border-b
                             border-[#E5E7EB]
                             last:border-r-0
+                            font-normal
+                            font-poppins 
                         "
                     >
                       {header.column.getCanSort() ? (
@@ -169,6 +171,7 @@ const Customtable = ({
                         leading-none
                         text-center
                         truncate
+                        font-poppins 
                     "
                     >
                       {flexRender(

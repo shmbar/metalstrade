@@ -53,9 +53,9 @@ const Page = () => {
       <Toast />
       {loading && <Spin />}
       <div className=" p-1 md:p-4 mt-8 bg-white">
-        <div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold mt-4">{getTtl('Settings', ln)}</div>
+        <div className="text-[14px] mt-5 text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2">{getTtl('Settings', ln)}</div>
 
-        <div className="w-full px-2 sm:px-0">
+        <div className="w-full px-2 sm:px-0 mt-5">
           <TabGroup >
 <TabList
   className="
@@ -72,7 +72,7 @@ const Page = () => {
   key={z}
   className={({ selected }) =>
     classNames(
-      'px-6 py-1.5 text-sm font-["Poppins"] whitespace-nowrap transition-all text-[#005B9F] w-[140px]',
+      'px-6 py-1.5 text-xs font-poppins whitespace-nowrap transition-all text-[#005B9F] w-[140px]',
       'focus:outline-none',
       selected
         ? `

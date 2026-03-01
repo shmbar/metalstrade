@@ -233,8 +233,15 @@ const Customtable = ({
                     </div>
 
                     {/* DESKTOP */}
-                    <div className="hidden md:block">
-                        <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderLeft: '8px solid #1D3D79', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
+<div className="hidden md:block">
+  <div
+    className="overflow-auto dashboard-scroll rounded-3xl border border-[#cecece]"
+    style={{
+      maxHeight: dynamicMaxHeight,
+      borderLeft: '8px solid #1D3D79',
+      borderRadius: '24px'
+    }}
+  >                        <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight }}>
                             <table className="w-full" style={{ tableLayout: 'auto' }}>
 
                                 {/* THEAD - Multi-color gradient inspired by all cards */}
@@ -286,106 +293,97 @@ const Customtable = ({
                                 </thead>
 
                                 {/* TBODY - Professional rows with card-inspired hover */}
-                                <tbody>
-                                    {table.getRowModel().rows.map((row, rowIndex) => (
-                                        <tr
-                                            key={row.id}
-                                            onDoubleClick={() => SelectRow(row.original)}
-                                            tabIndex={0}
-                                            className="cursor-pointer"
-                                        >
-                                            {row.getVisibleCells().map((cell) => {
-                                                const isCompleted = cell.column.id === 'completed';
-                                                const isStatus = cell.column.id === 'status' && cell.getValue();
-                                                let bg = undefined;
-                                                if (isCompleted) bg = cell.getValue() ? '#00bf63' : '#eb3636';
-                                                if (isStatus) {
-                                                    if (cell.getValue() === 'Completed') bg = '#00bf63';
-                                                    else if (cell.getValue() === 'Incompleted') bg = '#eb3636';
-                                                }
+                              <tbody>
+  {table.getRowModel().rows.map((row) => (
+    <tr
+      key={row.id}
+      onDoubleClick={() => SelectRow(row.original)}
+      tabIndex={0}
+      className="cursor-pointer"
+    >
+      {row.getVisibleCells().map((cell) => {
+        const value = cell.getValue();
+        const hasValue =
+          value !== null &&
+          value !== undefined &&
+          value !== '';
 
-                                                return (
-                                                    <td
-                                                        key={cell.id}
-                                                        className={`px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect`}
-                                                        style={{
-                                                            color: bg ? '#FFFFFF' : '#1F2937',
-                                                            backgroundColor: bg || undefined,
-                                                            minWidth: cell.column.id === 'select' ? '50px' : '60px',
-                                                            maxWidth: cell.column.id === 'select' ? '50px' : '110px',
-                                                            fontSize: 'clamp(11px, 1.0vw, 13px)',
-                                                            fontWeight: '400',
-                                                            zIndex: 1,
-                                                            willChange: 'background-color, color',
-                                                            padding: bg ? '6px' : undefined,
-                                                        }}
-                                                    >
-                                                        {isCompleted ? (
-                                                            <div className="w-full flex items-center justify-center">
-                                                                <span className="text-[11px] font-normal text-white">{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
-                                                            </div>
-                                                        ) : isStatus ? (
-                                                            <div className="w-full flex items-center justify-center">
-                                                                <span className="text-[11px] font-normal" style={{ color: bg ? '#FFFFFF' : undefined }}>{cell.getValue()}</span>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
-                                                                {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}
-                                                            </div>
-                                                        )}
-                                                    </td>
-                                                )
-                                            })}
-                                        </tr>
-                                    ))}
-                                    {/* EMPTY STATE */}
-                                    {table.getRowModel().rows.length === 0 && (
-                                        <tr>
-                                            <td
-                                                colSpan={columnsWithSelection.length}
-                                                className="py-24 text-center"
-                                            >
-                                                <div className="flex flex-col items-center justify-center">
-                                                    <div 
-                                                        className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
-                                                        style={{ 
-                                                            background: 'linear-gradient(135deg, #6366F1, #A855F7)',
-                                                        }}
-                                                    >
-                                                        <svg 
-                                                            className="w-12 h-12" 
-                                                            style={{ color: '#FFFFFF' }}
-                                                            fill="none" 
-                                                            viewBox="0 0 24 24" 
-                                                            stroke="currentColor"
-                                                        >
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                        </svg>
-                                                    </div>
-                                                    <p 
-                                                        className="font-normal mb-2" 
-                                                        style={{ 
-                                                            color: '#1F2937',
-                                                            fontSize: 'clamp(12px, 1.0vw, 14px)' 
-                                                        }}
-                                                    >
-                                                        {getTtl('No data available', ln)}
-                                                    </p>
-                                                    <p 
-                                                        style={{ 
-                                                            color: '#6B7280',
-                                                            fontSize: 'clamp(10px, 0.9vw, 12px)' 
-                                                        }}
-                                                    >
-                                                        Try adjusting your filters or date range
-                                                    </p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
+        const isCompleted = cell.column.id === 'completed';
+        const isStatus = cell.column.id === 'status';
+
+        return (
+          <td
+            key={cell.id}
+            className="px-2 py-2 text-center"
+            style={{
+              minWidth: cell.column.id === 'select' ? '50px' : '60px',
+              maxWidth: cell.column.id === 'select' ? '50px' : '110px',
+            }}
+          >
+            {isCompleted ? (
+              <div className="flex justify-center">
+                <div
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-normal"
+                  style={{
+                    backgroundColor: value ? '#00bf63' : '#eb3636',
+                    color: '#FFFFFF',
+                    border: '1px solid #cecece'
+                  }}
+                >
+                  {value ? 'Completed' : 'Incompleted'}
+                </div>
+              </div>
+            ) : isStatus ? (
+              <div className="flex justify-center">
+                <div
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-normal"
+                  style={{
+                    backgroundColor:
+                      value === 'Paid'
+                        ? '#ceb8ff'
+                        : value === 'Unpaid'
+                        ? '#c387b4'
+                        : '#f9f9f9',
+                    border: value ? '1px solid #cecece' : 'none',
+                    color: '#1F2937'
+                  }}
+                >
+                  {value || '\u00A0'}
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-center">
+                {hasValue ? (
+                  <div
+                    className="px-3 py-1.5 rounded-lg text-[11px] font-normal min-w-[70px]"
+                    style={{
+                      backgroundColor:
+                        value === 'Paid'
+                          ? '#ceb8ff'
+                          : value === 'Not Paid'
+                          ? '#c387b4'
+                          : '#f9f9f9',
+                      border: '1px solid #cecece',
+                    }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </div>
+                ) : (
+                  <div className="text-[11px] text-[#6B7280]">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </div>
+                )}
+              </div>
+            )}
+          </td>
+        );
+      })}
+    </tr>
+  ))}
+</tbody>
 
                             </table>
+                        </div>
                         </div>
                     </div>
 
@@ -517,36 +515,44 @@ const Customtable = ({
                     </div>
 
                     {/* FOOTER - Professional Style */}
-                    <div 
-                        className="flex-shrink-0"
-                        style={{ 
-                            borderTop: '2px solid #E5E7EB',
-                            background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
-                        }}
-                    >
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-2">
-                            <div className="flex items-center">
-                                <Paginator table={table} />
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div 
-                                    className="whitespace-nowrap font-normal" 
-                                    style={{ 
-                                        color: '#6B7280',
-                                        fontSize: 'clamp(7px, 0.6vw, 9px)' 
-                                    }}
-                                >
-                                    {`${
-                                        table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
-                                        (table.getFilteredRowModel().rows.length ? 1 : 0)
-                                    } - ${
-                                        table.getRowModel().rows.length + table.getState().pagination.pageIndex * table.getState().pagination.pageSize
-                                    } ${getTtl('of', ln)} ${table.getFilteredRowModel().rows.length}`}
-                                </div>
-                                <RowsIndicator table={table} />
-                            </div>
-                        </div>
-                    </div>
+               <div
+  className="flex-shrink-0"
+  style={{
+    borderTop: '2px solid #E5E7EB',
+    background: '#FFFFFF'
+  }}
+>
+  <div className="w-full px-6 py-4">
+    <div className="flex items-center justify-between">
+
+      {/* LEFT — COUNT */}
+      <div
+        className="text-sm font-medium"
+        style={{ color: '#6B7280' }}
+      >
+        {`${
+          table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
+          (table.getFilteredRowModel().rows.length ? 1 : 0)
+        }–${
+          table.getRowModel().rows.length +
+          table.getState().pagination.pageIndex *
+          table.getState().pagination.pageSize
+        } of ${table.getFilteredRowModel().rows.length}`}
+      </div>
+
+      {/* CENTER — PAGINATOR */}
+      <div className="flex justify-center">
+        <Paginator table={table} />
+      </div>
+
+      {/* RIGHT — ROWS */}
+      <div className="flex justify-end">
+        <RowsIndicator table={table} />
+      </div>
+
+    </div>
+  </div>
+</div>
 
                 </div>
             </div>

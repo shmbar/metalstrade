@@ -299,19 +299,23 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                                 <span className="text-[11px] font-normal" style={{ color: bg ? '#FFFFFF' : undefined }}>{cell.getValue()}</span>
                                                             </div>
                                                         ) : (
-                                                            <div
-                                                                className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
-                                                                style={{
-                                                                    ...(isEditMode && {
-                                                                        backgroundColor: '#f9f9f9',
-                                                                        color: '#545454',
-                                                                        boxShadow: 'inset 0 0 0 1px #d1d1d1',
-                                                                        border: '  #d1d1d1',
-                                                                    }),
-                                                                }}
-                                                            >
-                                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                            </div>
+                                                            <div className="w-full flex items-center justify-center">
+  <div
+    className="px-3 py-1.5 rounded-xl text-[11px] font-normal break-words"
+    style={{
+      background: 'linear-gradient(135deg, #FAFAFA, #F3F4F6)',
+      border: '1px solid #E5E7EB',
+      color: '#1F2937',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      maxWidth: '80%',
+      minWidth: '60px'
+    }}
+  >
+    {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}
+  </div>
+</div>
                                                         )}
                                                     </td>
                                                 )
@@ -527,26 +531,42 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                         }}
                     >
                                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-2">
-                            <div className="flex items-center">
-                                <Paginator table={table} />
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div 
-                                    className="whitespace-nowrap font-normal" 
-                                    style={{ 
-                                        color: '#6B7280',
-                                                fontSize: 'clamp(7px, 0.6vw, 9px)' 
-                                    }}
-                                >
-                                    {`${
-                                        table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
-                                        (table.getFilteredRowModel().rows.length ? 1 : 0)
-                                    } - ${
-                                        table.getRowModel().rows.length + table.getState().pagination.pageIndex * table.getState().pagination.pageSize
-                                    } ${getTtl('of', ln)} ${table.getFilteredRowModel().rows.length}`}
-                                </div>
-                                <RowsIndicator table={table} />
-                            </div>
+                            <div className="w-full px-4 py-3">
+  <div className="flex items-center justify-between">
+
+    {/* LEFT — Showing Range */}
+    <div
+      className="whitespace-nowrap font-normal"
+      style={{
+        color: '#6B7280',
+        fontSize: 'clamp(10px, 0.8vw, 12px)'
+      }}
+    >
+      {`${
+        table.getState().pagination.pageIndex *
+          table.getState().pagination.pageSize +
+        (table.getFilteredRowModel().rows.length ? 1 : 0)
+      }–${
+        table.getRowModel().rows.length +
+        table.getState().pagination.pageIndex *
+          table.getState().pagination.pageSize
+      } ${getTtl('of', ln)} ${
+        table.getFilteredRowModel().rows.length
+      }`}
+    </div>
+
+    {/* CENTER — Pagination */}
+    <div className="flex justify-center">
+      <Paginator table={table} />
+    </div>
+
+    {/* RIGHT — Rows Dropdown */}
+    <div className="flex justify-end">
+      <RowsIndicator table={table} />
+    </div>
+
+  </div>
+</div>
                         </div>
                     </div>
                 </div>

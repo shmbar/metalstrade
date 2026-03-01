@@ -30,9 +30,9 @@ const columns =
       className="
         bg-[#e3f3ff]
         text-[#005B9F]
-        text-[13px]
+        text-xs
         font-medium
-        font-['Poppins']
+font-poppins 
         p-3
         text-center
         border-r border-[#E5E7EB]

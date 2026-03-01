@@ -440,36 +440,50 @@ const Customtable = ({
           </div>
 
           {/* FOOTER */}
-          <div
-            className="flex-shrink-0"
-            style={{
-              borderTop: '2px solid #E5E7EB',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
-            }}
-          >
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-2">
-              <div className="flex items-center">
-                <Paginator table={table} />
-              </div>
-              <div className="flex items-center gap-4">
-                <div
-                  className="whitespace-nowrap font-normal"
-                  style={{
-                    color: '#6B7280',
-                    fontSize: 'clamp(7px, 0.6vw, 9px)'
-                  }}
-                >
-                  {`${
-                    table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
-                    (table.getFilteredRowModel().rows.length ? 1 : 0)
-                  } - ${
-                    table.getRowModel().rows.length + table.getState().pagination.pageIndex * table.getState().pagination.pageSize
-                  } ${getTtl('of', ln)} ${table.getFilteredRowModel().rows.length}`}
-                </div>
-                <RowsIndicator table={table} />
-              </div>
-            </div>
-          </div>
+        <div
+  className="flex-shrink-0"
+  style={{
+    borderTop: '2px solid #E5E7EB',
+    background: '#ffffff'
+  }}
+>
+  <div className="w-full px-4 py-3">
+    <div className="grid grid-cols-3 items-center">
+
+      {/* LEFT — Showing Range */}
+      <div
+        className="whitespace-nowrap justify-self-start"
+        style={{
+          color: '#6B7280',
+          fontSize: 'clamp(10px, 0.8vw, 12px)'
+        }}
+      >
+        {`${
+          table.getState().pagination.pageIndex *
+            table.getState().pagination.pageSize +
+          (table.getFilteredRowModel().rows.length ? 1 : 0)
+        }–${
+          table.getRowModel().rows.length +
+          table.getState().pagination.pageIndex *
+            table.getState().pagination.pageSize
+        } ${getTtl('of', ln)} ${
+          table.getFilteredRowModel().rows.length
+        }`}
+      </div>
+
+      {/* CENTER — Pagination */}
+      <div className="justify-self-center">
+        <Paginator table={table} />
+      </div>
+
+      {/* RIGHT — Rows Dropdown */}
+      <div className="justify-self-end">
+        <RowsIndicator table={table} />
+      </div>
+
+    </div>
+  </div>
+</div>
         </div>
       </div>
     </div>

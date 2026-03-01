@@ -50,7 +50,6 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     text-align: center;
                 }
                 .glass-table th {
-                    background: #eaf4ff;
                     color: #183d79 !important;
                     font-weight: 600;
                     font-size: clamp(10px, 1vw, 12px); /* Lowered font size */
@@ -69,6 +68,18 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     color: #1a3353 !important;
                     transition: background 0.15s, color 0.15s;
                 }
+                    .glass-table th,
+.glass-table td {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.glass-table th {
+    border-top: 1px solid #e0e0e0;
+}
+
+.glass-table tr:last-child td {
+    border-bottom: none;
+}
             `}</style>
             {title && (
                 <div className="text-base font-bold text-[#1a3353] mb-3 pl-1 pt-2" style={{fontSize: 'clamp(10px, 1vw, 12px)'}}>
@@ -86,17 +97,31 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     </div>
                 )}
                 {/* LEFT ACCENT BORDER */}
-                <div style={{
-                    borderLeft: '8px solid #1D3D79',
-                    borderTopLeftRadius: '32px',
-                    borderBottomLeftRadius: '32px',
-                    borderTopRightRadius: '0px',
-                    borderBottomRightRadius: '0px',
-                    overflow: 'hidden'
+                <div className="" style={{
+                    
                 }}>
                     {/* Desktop Table View */}
-                    <div className="hidden sm:block overflow-hidden flex-1">
-                        <table className="w-full border-separate border-spacing-0 glass-table">
+     <div className="hidden sm:block flex-1 rounded-2xl ">
+
+  <div
+    className="rounded-2xl"
+    style={{
+      boxShadow: '0 3px 8px rgba(0,0,0,0.06)'
+    }}
+  >
+
+    {/* TITLE HEADER (BLUE SECTION) */}
+    <div
+      className="px-6 py-4 text-center font-semibold"
+      style={{
+        background: '#e3f3ff',
+        color: '#1d3d79',
+        fontSize: 'clamp(14px, 1vw, 16px)'
+      }}
+    >
+      {title}
+    </div>
+                        <table className="w-full glass-table">
                             <thead>
                                 {table1.getHeaderGroups().map(hdGroup => (
                                     <tr key={hdGroup.id}>
@@ -124,7 +149,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                         {row.getVisibleCells().map(cell => (
                                             <td key={cell.id}>
                                                 <Tltip direction='right' tltpText={expensesToolTip(row, expensesData, settings, filt)}>
-                                                    <span className="items-center flex outline-none whitespace-normal break-words cursor-default" style={{color:'#1a3353', fontSize:'clamp(12px,1vw,14px)'}}>
+                                                    <span className="items-center flex outline-none whitespace-normal break-words cursor-default" style={{color:'#005b9f', fontSize:'clamp(12px,1vw,14px)'}}>
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                     </span>
                                                 </Tltip>
@@ -158,6 +183,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                 </tr>
                             </tfoot>
                         </table>
+                    </div>
                     </div>
 
                     {/* Mobile Card View */}
