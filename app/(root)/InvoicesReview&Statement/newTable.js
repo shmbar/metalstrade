@@ -15,7 +15,7 @@ import {
   useReactTable
 } from "@tanstack/react-table";
 
-import { useEffect, useMemo, useState, useContext } from "react";
+import { Fragment, useEffect, useMemo, useState, useContext } from "react";
 import { TbSortDescending, TbSortAscending } from "react-icons/tb";
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
@@ -250,23 +250,46 @@ const Customtable = ({
                 {/* THEAD - Multi-color gradient inspired by all cards */}
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(hdGroup => (
-                    <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
-                      {hdGroup.headers.map((header, idx) => (
-                        <th
-                          key={header.id}
-                          className="font-poppins text-xs"
-                          style={{
-                            color: '#183d79',
-                            minWidth: header.column.id === 'select' ? '50px' : '60px',
-                            maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                            letterSpacing: '0.05em',
-                            textAlign: 'center',
-                          }}
-                        >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                        </th>
-                      ))}
-                    </tr>
+                    <Fragment key={hdGroup.id}>
+                      <tr style={{ background: '#cae6c6', borderBottom: '2px solid #a0c8e8' }}>
+                        {hdGroup.headers.map((header) => (
+                          <th
+                            key={`total-${header.id}`}
+                            className="font-poppins text-xs font-semibold"
+                            style={{
+                              color: '#0b3d6b',
+                              backgroundColor: '#cae6c6',
+                              minWidth: header.column.id === 'select' ? '50px' : '60px',
+                              maxWidth: header.column.id === 'select' ? '50px' : 'none',
+                              padding: '10px 8px',
+                              letterSpacing: '0.02em',
+                              textAlign: 'center',
+                              fontSize: '11px',
+                            }}
+                          >
+                            {(header.column.columnDef.ttlUS ?? header.column.columnDef.ttlEU ?? header.column.columnDef.ttl) || ''}
+                          </th>
+                        ))}
+                      </tr>
+
+                      <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                        {hdGroup.headers.map((header) => (
+                          <th
+                            key={header.id}
+                            className="font-poppins text-xs"
+                            style={{
+                              color: '#183d79',
+                              minWidth: header.column.id === 'select' ? '50px' : '60px',
+                              maxWidth: header.column.id === 'select' ? '50px' : 'none',
+                              letterSpacing: '0.05em',
+                              textAlign: 'center',
+                            }}
+                          >
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                          </th>
+                        ))}
+                      </tr>
+                    </Fragment>
                   ))}
                   {/* Filter Row */}
                   {filterOn && (

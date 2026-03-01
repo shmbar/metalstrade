@@ -119,6 +119,59 @@ const Customtable = ({
     onPaginationChange: setPagination,
   })
 
+  const totalsByColumn = useMemo(() => {
+    const rows = table.getFilteredRowModel().rows.map((row) => row.original || {})
+    if (rows.length === 0) return {}
+
+    const sum = (key) => rows.reduce((acc, row) => acc + (Number(row[key]) || 0), 0)
+
+    const totalContracts = sum('conValue')
+    const totalInvoices = sum('totalInvoices')
+    const totalDeviation = sum('deviation')
+    const totalPrepayment = sum('totalPrepayment1')
+    const totalPayments = sum('payments')
+    const totalExpenses = sum('expenses1')
+
+    const getTtlSample = (columnId) => {
+      const col = table.getAllLeafColumns().find((column) => column.id === columnId)
+      return col?.columnDef?.ttl
+    }
+
+    const inferCurrency = (sample) => {
+      if (typeof sample !== 'string') return 'USD'
+      if (sample.includes('€')) return 'EUR'
+      return 'USD'
+    }
+
+    const formatAmount = (value, sample) => {
+      const currency = inferCurrency(sample)
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: 2,
+      }).format(Number(value) || 0)
+    }
+
+    const prepaidPer = totalInvoices === 0
+      ? '-'
+      : `${((totalPrepayment / totalInvoices) * 100).toFixed(2)}%`
+
+    return {
+      order: <span className='font-medium'>{getTtl('Total', ln) + ':'}</span>,
+      conValue: formatAmount(totalContracts, getTtlSample('conValue')),
+      totalInvoices: formatAmount(totalInvoices, getTtlSample('totalInvoices')),
+      deviation: formatAmount(totalDeviation, getTtlSample('deviation')),
+      prepaidPer,
+      totalPrepayment1: formatAmount(totalPrepayment, getTtlSample('totalPrepayment1')),
+      inDebt: formatAmount(totalInvoices - totalPrepayment, getTtlSample('inDebt')),
+      payments: formatAmount(totalPayments, getTtlSample('payments')),
+      debtaftr: formatAmount(totalPrepayment - totalPayments, getTtlSample('debtaftr')),
+      debtBlnc: formatAmount(totalInvoices - totalPayments, getTtlSample('debtBlnc')),
+      expenses1: formatAmount(totalExpenses, getTtlSample('expenses1')),
+      profit: formatAmount(totalInvoices - totalContracts - totalExpenses, getTtlSample('profit')),
+    }
+  }, [table, data, globalFilter, columnFilters, ln])
+
   useEffect(() => {
     setFilteredData(table.getFilteredRowModel().rows.map(x => x.original))
   }, [globalFilter, columnFilters])
@@ -239,13 +292,38 @@ const Customtable = ({
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(hdGroup => (
                     <Fragment key={hdGroup.id}>
-                      <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                                            {/* Totals Row */}
+                                            <tr style={{ 
+                                              background: '#9ad4ff',
+                                              
+                                            }}>
+                                              {hdGroup.headers.map((header, idx) => (
+                                                <th
+                                                  key={`total-${header.id}`}
+                                                  className="font-poppins text-xs font-semibold"
+                                                  style={{
+                                                    color: '#0b3d6b',
+                                                    backgroundColor: '#9ad4ff',
+                                                    padding: '10px 8px',
+                                                    textAlign: 'center',
+                                                    fontSize: '11px',
+                                                    letterSpacing: '0.02em',
+                                                  }}
+                                                >
+                                                  {(totalsByColumn?.[header.column.id] ?? header.column.columnDef.ttl) || ''}
+                                                </th>
+                                              ))}
+                                            </tr>
+                      
+                                            {/* Header Row */}
+                      <tr style={{ background: '#D4EAFC' }}>
                         {hdGroup.headers.map(header => (
                           <th
                             key={header.id}
                             className="font-poppins text-xs"
                             style={{
                               color: '#183d79',
+                              backgroundColor: '#D4EAFC',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',
                               maxWidth: header.column.id === 'select' ? '50px' : 'none',
                               letterSpacing: '0.05em',
