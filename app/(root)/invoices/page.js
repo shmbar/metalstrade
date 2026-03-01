@@ -279,10 +279,37 @@ const Invoices = () => {
 			size: 120
 		},
 		{ 
-			accessorKey: 'cur', 
-			header: getTtl('Currency', ln),
-			size: 100
-		},
+    accessorKey: 'cur', 
+    header: '$/€',
+    cell: (props) => {
+        const val = props.getValue();
+        const isUSD = val === 'USD' || val === '$';
+        const isEUR = val === 'EUR' || val === '€';
+        const symbol = isUSD ? '$' : isEUR ? '€' : val;
+        const bg = isUSD ? '#c2e2bb' : isEUR ? '#d4eafc' : '#e5e7eb';
+        const color = '#11497c';
+        return (
+            <span
+                style={{
+                    backgroundColor: bg,
+                    color: color,
+                    borderRadius: '999px',
+                    padding: '3px 14px',
+                    fontWeight: 500,
+                    fontSize: '13px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minWidth: '36px',
+                    whiteSpace: 'nowrap',
+                }}
+            >
+                {symbol}
+            </span>
+        );
+    },
+    size: 100
+},
 		{ 
 			accessorKey: 'invType', 
 			header: getTtl('Invoice Type', ln),
