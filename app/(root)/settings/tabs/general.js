@@ -1,112 +1,453 @@
-'use client'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import { FiEdit } from 'react-icons/fi';
-import { MdDelete } from "react-icons/md";
-import Spinner from '../../../../components/spinner';
+import { MdOutlineSaveAs } from 'react-icons/md';
 import { UserAuth } from "../../../../contexts/useAuthContext";
+import Spinner from '../../../../components/spinner';
+//import Modal from '../../../../components/modalToProceed';
+import CBox from '../_components/combobox.js'
+import { getTtl } from '../../../../utils/languages'
+import Logos from './logos.js';
+import Tltip from '../../../../components/tlTip.js';
+
+export const getLng = () => {
+    return;
+}
+
+const languages = [{ lng: "English" }, { lng: "Русский" }]
 
 const General = () => {
-  const { compData } = useContext(SettingsContext);
-  const { uidCollection } = UserAuth();
+    const { compData, setCompData, updateCompanyData, setToast } = useContext(SettingsContext);
+    const { uidCollection } = UserAuth();
+    const ln = compData?.lng || 'English';
+    // const [invNum, setInvNum] = useState('')
 
-  if (!compData || Object.keys(compData).length === 0) {
-    return <Spinner />
-  }
+    //   const [isOpen, setIsOpen] = useState(false)
+    // const setNum = async () => {
+    //     let success = await saveDataSettings(uidCollection, 'invoiceNum', { num: invNum * 1 })
+    //     success && setToast({ show: true, text: 'New number is saved!', clr: 'success' })
+    // }
 
-const columns =
-  "[grid-template-columns:2fr_1fr_2fr_1fr_1fr_1fr_0.75fr_0.75fr]";
 
-  return (
-    <div className=" p-2  w-full">
-      <div className="border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-sm">
+    return (
+        <div>
+            {compData && Object.keys(compData).length === 0 ?
+                <Spinner />
+                : <>
+                    <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 flex flex-wrap md:flex-nowrap w-full space-x-4'>
+                                    <div className='gap-4 flex items-center w-full' >
+                            <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>
+                                {getTtl('cmpName', ln)}:</p>
+                                <input
+                                    type='input'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#979797]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
 
-        {/* TABLE GRID */}
-      <div className={`grid ${columns}`}>
-  {/* HEADER ROW */}
-  {["Name","Phone Number","Email","Title","User Created","Last Logged In","Edit","Save"].map((h, i) => (
-    <div
-      key={`h-${i}`}
-      className="
-        bg-[#e3f3ff]
-        text-[#005B9F]
-        text-[12px] font-poppins
-        font-semibold
-        p-3
-        text-center
-        border-r border-[#E5E7EB]
-        last:border-r-0
-      "
-    >
-      {h}
-    </div>
-  ))}
+                                    value={compData?.name || ''}
+                                    onChange={e => setCompData({ ...(compData || {}), name: e.target.value })}
+                                />
+                        </div>
 
-  {/* DATA ROW */}
-  {[
-    compData?.name,
-    compData?.phone,
-    compData?.email,
-    compData?.title || "Admin",
-    compData?.createdAt || "--",
-    compData?.lastLogin || "--"
-  ].map((val, idx) => (
-    <div
-      key={`d-${idx}`}
-      className="
-        bg-white
-        font-poppins 
-        p-3
-        border-t border-r border-[#E5E7EB]
-        last:border-r-0
-        flex justify-center items-center
-      "
-    >
-      <div
-        className="
-          px-4
-          h-8
-          flex items-center justify-center
-          bg-[#F4F6F8]
-          border border-[#E5E7EB]
-          rounded-lg
-          max-w-full
-          truncate
-          text-[11px]
-          font-normal
-          leading-none
-          font-poppins
-        "
-        title={typeof val === "string" ? val : ""}
-      >
-        {val}
-      </div>
-    </div>
-  ))}
+                                    <div className='gap-4 flex items-center w-full' >
+  <p className="text-sm font-normal  text-[#005b9f]">
+    {getTtl("lng", ln)}:
+  </p>
 
-  {/* EDIT */}
-  <div className="bg-white p-3 border-t border-r border-[#E5E7EB] flex justify-center items-center">
-    <button
-      type="button"
-      className="min-w-[56px] h-8 flex items-center justify-center bg-[#CDE8D3] rounded-full"
-    >
-      <FiEdit size={16} className="text-green-600" />
-    </button>
-  </div>
-
-  {/* SAVE (you called it Save in header, icon is delete previously — keep your icon choice) */}
-  <div className="bg-white p-3 border-t flex justify-center items-center">
-    <button
-      type="button"
-      className="min-w-[56px] h-8 flex items-center justify-center bg-[#F5CACA] rounded-full"
-    >
-      <MdDelete size={16} className="text-red-600" />
-    </button>
+  <div
+    className="
+      flex
+      items-center
+      w-full
+      h-8
+      px-4
+      rounded-full
+      border
+      text-[#979797]
+      border-[#E5E7EB]
+      bg-white
+      transition
+      focus-within:border-[#0A5DB8]
+      focus-within:ring-2
+      focus-within:ring-[#0A5DB8]/20
+    "
+  >
+    <CBox
+      languages={languages}
+      compData={compData}
+      setCompData={setCompData}
+      lang={languages.find(
+        x => x.lng === (compData?.lng || "English")
+      )}
+    />
   </div>
 </div>
-      </div>
-    </div>
-  )
+
+
+
+
+                    </div>
+
+                    <div className='border border-[#E5E7EB] p-4 rounded-lg mt-5'>
+                        <div className='grid grid-cols-2 gap-4'>
+                            <div className='col-span-12 sm:col-span-1'>
+                                <div className='flex flex-col gap-2 max-w-sm'>
+                                    <div className='gap-4 flex items-center' >
+                                        <p className='text-sm font-normal  text-[#005b9f]'>
+                                            {getTtl('street', ln)}:</p>
+                                        <input
+                                            type='input'
+className="
+  w-full
+  h-8
+  px-4
+    ml-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#979797]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
+                                            value={compData?.street || ''}
+                                            onChange={e => setCompData({ ...(compData || {}), street: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className='flex gap-4 items-center ' >
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>
+                                            {getTtl('city', ln)}: </p>
+                                        <input
+                                            type='input'
+className="
+  w-full
+  h-8
+  px-4
+  ml-7
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#979797]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
+                                            value={compData?.city || ''}
+                                            onChange={e => setCompData({ ...(compData || {}), city: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>
+                                            {getTtl('country', ln)}:</p>
+                                        <input
+                                            type='input'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#979797]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
+                                            value={compData?.country || ''}
+                                            onChange={e => setCompData({ ...(compData || {}), country: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>
+                                            {getTtl('zipCode', ln)}:</p>
+                                        <input
+                                            type='input'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#979797]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
+                                            value={compData?.zip || ''}
+                                            onChange={e => setCompData({ ...(compData || {}), zip: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col-span-12 sm:col-span-1'>
+                                <div className='flex flex-col gap-2 max-w-sm'>
+                                    <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>Reg No.:</p>
+                                        <input
+                                            type='input'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#979797]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
+                                            value={compData?.reg || ''}
+                                            onChange={e => setCompData({ ...(compData || {}), reg: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>VAT No.:</p>
+                                        <input
+                                            type='input'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#979797]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
+                                            value={compData?.vat || ''}
+                                            onChange={e => setCompData({ ...(compData || {}), vat: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>EORI No.:</p>
+                                        <input
+                                            type='input'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#979797]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+
+                                            value={compData?.eori || ''}
+                                            onChange={e => setCompData({ ...(compData || {}), eori: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div className='border border-[#E5E7EB] p-4 rounded-lg  mt-5 w-full'>
+                        <div className='grid grid-cols-2 gap-2 w-full'>
+                            <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
+                                <p className='text-sm font-normal whitespace-nowrap text-[#005b9f]'>
+                                    {getTtl('cmpemail', ln)}:</p>
+                                <input
+                                    type='input'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#979797]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+                                    value={compData?.email || ''}
+                                    onChange={e => setCompData({ ...(compData || {}), email: e.target.value })}
+                                />
+                            </div>
+                            <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
+                                <p className='text-sm font-normal whitespace-nowrap text-[#005b9f]'>
+                                    {getTtl('cmpwebsite', ln)}:</p>
+                                <input
+                                    type='input'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#979797]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+                                    value={compData?.website || ''}
+                                    onChange={e => setCompData({ ...(compData || {}), website: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div className=' border border-[#E5E7EB] p-4 rounded-lg  mt-5 w-full'>
+                        <div className='grid grid-cols-2 gap-2 w-full'>
+                            <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
+                                <p className='text-sm font-normal whitespace-nowrap   text-[#005b9f]'>
+                                    {getTtl('cmpPhone', ln)}:</p>
+                                <input
+                                    type='input'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#979797]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+                                    value={compData?.phone || ''}
+                                    onChange={e => setCompData({ ...(compData || {}), phone: e.target.value })}
+                                />
+                            </div>
+                            <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
+                                <p className='text-sm font-normal whitespace-nowrap   text-[#005b9f]'>
+                                    {getTtl('cmpMobile', ln)}:</p>
+                                <input
+                                    type='input'
+className="
+  w-full
+  h-8
+  px-4
+  rounded-full
+  border
+  border-[#E5E7EB]
+  bg-white
+  text-sm
+  text-[#979797]
+  outline-none
+  transition
+  focus:border-[#0A5DB8]
+  focus:ring-2
+  focus:ring-[#0A5DB8]/20
+"
+                                    value={compData?.mobile || ''}
+                                    onChange={e => setCompData({ ...(compData || {}), mobile: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* <div className=' border border-slate-300 p-4 rounded-lg  mt-5 w-full'>
+                        <Logos compData={compData} setCompData={setCompData} />
+                    </div> */}
+                    <div className="flex mt-3 ml-3">
+                        <Tltip direction='top' tltpText='Save/update company data'>
+                            <button
+                                    className="bg-[#005b9f] border border-[var(--rock-blue)] text-white px-4 h-8 text-xs rounded-xl hover:bg-[var(--selago)]/30 transition-all"
+                                onClick={() => updateCompanyData(uidCollection)}
+                            >
+                                {getTtl('save', ln)}
+                            </button>
+                        </Tltip>
+                    </div>
+                    {/*
+                    <div className='flex flex-wrap gap-4 border border-slate-300 p-4 rounded-lg  mt-5 max-w-3xl'>
+
+                        <div className='flex flex-wrap gap-4 items-center' >
+                            <p className='text-sm font-medium whitespace-nowrap text-slate-600'>Start Invoice Number From:</p>
+                            <input type='number' className='input max-w-[10rem] w-full  h-8' value={invNum}
+                                onChange={(e) => setInvNum(e.target.value)} />
+                        </div>
+
+
+                        <button
+                            className=" flex items-center justify-center text-white gap-1.5 border p-1 px-4
+         border-slate-400 bg-slate-400 rounded-md  text-sm text-white hover:bg-slate-500 shadow-lg"
+                            onClick={()=>setIsOpen(true)}
+                        >
+                            <MdOutlineSaveAs className='scale-110' />
+                            Set
+                        </button>
+
+                    </div> */}
+                </>}
+            {/*    <Modal isDeleteOpen={isOpen} setIsDeleteOpen={setIsOpen}
+                        ttl='Invoice Number' txt='To set a new number from which the next invoice will be received, please confirm to proceed.'
+                        doAction={setNum} />
+*/}
+        </div >
+    )
 }
 
 export default General
