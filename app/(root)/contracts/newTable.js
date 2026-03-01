@@ -324,6 +324,7 @@ const Customtable = ({
 
                         const isCompleted = cell.column.id === 'completed';
                         const isStatus = cell.column.id === 'status';
+                        const isCurrency = cell.column.id === 'cur';
 
                         return (
                           <td
@@ -367,7 +368,34 @@ const Customtable = ({
                               </div>
                             ) : (
                               <div className="flex justify-center">
-                                {hasValue ? (
+                                {isCurrency && hasValue ? (
+                                  (() => {
+                                    const val = String(value).trim();
+                                    const isUSD = val === 'USD' || val === '$' || val.toLowerCase() === 'us';
+                                    const isEUR = val === 'EUR' || val === '€' || val.toLowerCase() === 'eu';
+                                    const symbol = isUSD ? '$' : isEUR ? '€' : val;
+                                    const bg = isUSD ? '#c2e2bb' : isEUR ? '#d4eafc' : '#e5e7eb';
+
+                                    return (
+                                      <span
+                                        className="rounded-full text-[11px] font-medium"
+                                        style={{
+                                          backgroundColor: bg,
+                                          color: '#11497c',
+                                          borderRadius: '999px',
+                                          padding: '2px 12px',
+                                          minWidth: '30px',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          whiteSpace: 'nowrap',
+                                        }}
+                                      >
+                                        {symbol}
+                                      </span>
+                                    );
+                                  })()
+                                ) : hasValue ? (
                                   <div
                                     className="px-3 py-1.5 rounded-lg text-[11px] font-normal min-w-[70px]"
                                     style={{

@@ -210,7 +210,7 @@ useEffect(() => {
 		{ accessorKey: 'poSupplierOrder', header: getTtl('PoOrderNo', ln) },
 		  {
     accessorKey: 'cur',
-    header: getTtl('Currency', ln),
+		header: '$/€',
     cell: EditableSelectCell,
     meta: {
       options: settings.Currency?.Currency?.map(c => ({ value: c.id, label: c.cur })) ?? []

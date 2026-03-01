@@ -734,6 +734,8 @@ const Customtable = ({
   onCellUpdate,
   summaryUSD = { amount: '$ 0.00' },
   summaryEUR = { amount: '€ 1,580.00' },
+  // The column ID whose center the currency label should sit under (default: 'cur')
+  currencyColumnId = 'cur',
   // The column ID whose center the amount value should sit under (default: 'amount')
   amountColumnId = 'amount',
 }) => {
@@ -746,6 +748,7 @@ const Customtable = ({
   const [quickSumColumns, setQuickSumColumns]   = useState([])
   const [isEditMode, setIsEditMode]             = useState(false)
   const [rowSelection, setRowSelection]         = useState({})
+  const [currencyColCenter, setCurrencyColCenter] = useState(null) // px from left of table
   const [amountColCenter, setAmountColCenter]   = useState(null) // px from left of table
 
   const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 })
@@ -832,15 +835,21 @@ const Customtable = ({
     const wrapRect  = tableWrapRef.current.getBoundingClientRect()
     const visible   = table.getVisibleLeafColumns()
 
+    let nextCurrencyCenter = null
+    let nextAmountCenter = null
+
     visible.forEach((col, idx) => {
-      if (col.id !== amountColumnId) return
       const th = ths[idx]
       if (!th) return
       const rect   = th.getBoundingClientRect()
       // center of this th relative to the wrapper's left edge (account for scroll)
       const center = rect.left - wrapRect.left + tableWrapRef.current.scrollLeft + rect.width / 2
-      setAmountColCenter(center)
+      if (col.id === currencyColumnId) nextCurrencyCenter = center
+      if (col.id === amountColumnId) nextAmountCenter = center
     })
+
+    setCurrencyColCenter(nextCurrencyCenter)
+    setAmountColCenter(nextAmountCenter)
   }
 
   // Run after every paint so the header is in the DOM
@@ -853,7 +862,7 @@ const Customtable = ({
     const ro = new ResizeObserver(() => measureAmountCol())
     if (tableWrapRef.current) ro.observe(tableWrapRef.current)
     return () => ro.disconnect()
-  }, [table, amountColumnId, columnVisibility, quickSumEnabled])
+  }, [table, currencyColumnId, amountColumnId, columnVisibility, quickSumEnabled])
 
   const currentRows      = table.getRowModel().rows.length
   const dynamicMaxHeight = currentRows > 0
@@ -1024,6 +1033,17 @@ const Customtable = ({
                       }}>
                         Total $:
                       </span>
+                      {currencyColCenter !== null && (
+                        <span style={{
+                          position: 'absolute',
+                          left: `${currencyColCenter}px`,
+                          top: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          fontSize: '12px', fontWeight: '600', color: '#1d3d79', whiteSpace: 'nowrap',
+                        }}>
+                          USD
+                        </span>
+                      )}
                       {amountColCenter !== null && (
                         <span style={{
                           position: 'absolute',
@@ -1058,6 +1078,17 @@ const Customtable = ({
                       }}>
                         Total €:
                       </span>
+                      {currencyColCenter !== null && (
+                        <span style={{
+                          position: 'absolute',
+                          left: `${currencyColCenter}px`,
+                          top: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          fontSize: '12px', fontWeight: '600', color: '#1d3d79', whiteSpace: 'nowrap',
+                        }}>
+                          EUR
+                        </span>
+                      )}
                       {amountColCenter !== null && (
                         <span style={{
                           position: 'absolute',
@@ -1102,9 +1133,17 @@ const Customtable = ({
                     >
                       {row.getVisibleCells().map((cell) => {
                         const value       = cell.getValue()
+                        const options = cell.column.columnDef?.meta?.options || []
+                        const resolvedLabel = options.find((opt) => String(opt.value) === String(value))?.label ?? value
+                        const normalizedValue = String(resolvedLabel ?? '').trim().toLowerCase()
+                        const isPaidValue = normalizedValue === 'paid'
+                        const isUnpaidValue = normalizedValue === 'unpaid'
+                        const isUSDValue = ['us', 'usd', '$'].includes(normalizedValue)
+                        const isEURValue = ['eu', 'eur', '€'].includes(normalizedValue)
                         const isCompleted = cell.column.id === 'completed'
                         const isStatus    = cell.column.id === 'status' && value
                         const isPaid      = cell.column.id === 'paid'
+                        const isCurrency  = cell.column.id === 'cur'
                         const hasValue    = value !== null && value !== undefined && value !== ''
 
                         return (
@@ -1134,13 +1173,29 @@ const Customtable = ({
                                 <div className="px-3 py-1.5 rounded-lg text-[11px] font-normal min-w-[70px] text-center"
                                   style={{
                                     backgroundColor:
-                                      value === 'Paid'   ? '#ceb8ff' :
-                                      value === 'Unpaid' ? '#c387b4' : '#f9f9f9',
-                                    color: value === 'Paid' || value === 'Unpaid' ? '#1d3d79' : '#1F2937',
+                                      isUnpaidValue ? '#ff9ecd' :
+                                      isPaidValue ? '#d4a5ff' : '#f9f9f9',
+                                    color: isPaidValue || isUnpaidValue ? '#1d3d79' : '#1F2937',
                                     border: '1px solid #cecece',
-                                    fontWeight: value === 'Paid' || value === 'Unpaid' ? '600' : '400'
+                                    fontWeight: isPaidValue || isUnpaidValue ? '600' : '400'
                                   }}>
                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                </div>
+                              </div>
+                            ) : isCurrency && hasValue ? (
+                              <div className="flex justify-center">
+                                <div className="px-3 py-1.5 rounded-lg text-[11px] font-normal min-w-[62px] text-center"
+                                  style={{
+                                    backgroundColor:
+                                      isUSDValue ? '#b6dfb7' :
+                                      isEURValue ? '#bce1fe' : '#e5e7eb',
+                                    color: '#11497c',
+                                    border: '1px solid #cecece',
+                                    fontWeight: 600,
+                                  }}>
+                                  {isUSDValue ? '$' :
+                                   isEURValue ? '€' :
+                                   flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </div>
                               </div>
                             ) : (
@@ -1203,11 +1258,13 @@ const Customtable = ({
               <div className="flex items-center justify-between px-4 py-2"
                 style={{ backgroundColor: '#b7d1b5' }}>
                 <span style={{ fontSize: '12px', fontWeight: '600', color: '#1d3d79' }}>Total $:</span>
+                <span style={{ fontSize: '12px', fontWeight: '600', color: '#1d3d79' }}>USD</span>
                 <span style={{ fontSize: '12px', fontWeight: '700', color: '#1d3d79' }}>{summaryUSD.amount}</span>
               </div>
               <div className="flex items-center justify-between px-4 py-2"
                 style={{ backgroundColor: '#8db6d8' }}>
                 <span style={{ fontSize: '12px', fontWeight: '600', color: '#1d3d79' }}>Total €:</span>
+                <span style={{ fontSize: '12px', fontWeight: '600', color: '#1d3d79' }}>EUR</span>
                 <span style={{ fontSize: '12px', fontWeight: '700', color: '#1d3d79' }}>{summaryEUR.amount}</span>
               </div>
             </div>
@@ -1244,6 +1301,14 @@ const Customtable = ({
                   <div className="p-4 space-y-2.5">
                     {row.getVisibleCells().map((cell) => {
                       if (cell.column.id === 'select') return null
+                      const rawValue = cell.getValue()
+                      const options = cell.column.columnDef?.meta?.options || []
+                      const resolvedLabel = options.find((opt) => String(opt.value) === String(rawValue))?.label ?? rawValue
+                      const normalizedValue = String(resolvedLabel ?? '').trim().toLowerCase()
+                      const isPaidValue = normalizedValue === 'paid'
+                      const isUnpaidValue = normalizedValue === 'unpaid'
+                      const isUSDValue = ['us', 'usd', '$'].includes(normalizedValue)
+                      const isEURValue = ['eu', 'eur', '€'].includes(normalizedValue)
                       return (
                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
                           style={{ borderBottom: '1px solid #E5E7EB' }}>
@@ -1270,11 +1335,25 @@ const Customtable = ({
                               <div className="w-full px-2 py-2 rounded-md text-[11px] font-semibold flex items-center gap-2 justify-center shadow-sm"
                                 style={{
                                   backgroundColor:
-                                    cell.getValue() === 'Paid'   ? '#ceb8ff' :
-                                    cell.getValue() === 'Unpaid' ? '#c387b4' : '#f9f9f9',
-                                  color: '#1d3d79', border: '1px solid #cecece'
+                                    isUnpaidValue ? '#ff9ecd' :
+                                    isPaidValue ? '#d4a5ff' : '#f9f9f9',
+                                  color: '#1d3d79',
+                                  border: '1px solid #cecece'
                                 }}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </div>
+                            ) : cell.column.id === 'cur' && cell.getValue() ? (
+                              <div className="w-full px-2 py-2 rounded-md text-[11px] font-semibold flex items-center gap-2 justify-center shadow-sm"
+                                style={{
+                                  backgroundColor:
+                                    isUSDValue ? '#b6dfb7' :
+                                    isEURValue ? '#bce1fe' : '#e5e7eb',
+                                  color: '#11497c',
+                                  border: '1px solid #cecece'
+                                }}>
+                                {isUSDValue ? '$' :
+                                 isEURValue ? '€' :
+                                 flexRender(cell.column.columnDef.cell, cell.getContext())}
                               </div>
                             ) : (
                               flexRender(cell.column.columnDef.cell, cell.getContext())

@@ -1,763 +1,4 @@
-// 'use client';
-// import { useContext, useEffect, useMemo, useState } from 'react';
-// import { motion } from 'framer-motion';
-// import Spinner from '@components/spinner';
-// import { UserAuth } from "@contexts/useAuthContext"
-// import { SettingsContext } from "@contexts/useSettingsContext";
-// import Toast from '@components/toast.js'
-// import Spin from '@components/spinTable';
-// import {
-//   Chart as ChartJS,
-//   ArcElement,
-//   CategoryScale,
-//   LinearScale,
-//   BarElement,
-//   LineElement,
-//   PointElement,
-//   Title,
-//   Tooltip,
-//   Legend,
-//   Filler,
-// } from 'chart.js';
-// import { Bar, Line } from 'react-chartjs-2';
-// import { loadData, groupedArrayInvoice, getInvoices } from '@utils/utils'
-// import { setMonthsInvoices, calContracts } from './funcs'
-// import { getTtl } from '@utils/languages';
-// import DateRangePicker from '@components/dateRangePicker';
-// import TooltipComp from '@components/tooltip';
-// import MarketsTicker from '@components/Dashboard/MarketsTicker';
 
-// import { BarChartContracts, HorizontalBar } from './charts';
-
-// ChartJS.register(
-//   CategoryScale,
-//   ArcElement,
-//   LinearScale,
-//   BarElement,
-//   LineElement,
-//   PointElement,
-//   Title,
-//   Tooltip,
-//   Legend,
-//   Filler,
-// );
-
-// const fmtMoney = (n, decimals = 2) => {
-//   const num = typeof n === "string"
-//     ? Number(n.replace(/[^0-9.-]+/g, ""))
-//     : Number(n);
-
-//   if (!Number.isFinite(num)) return (0).toFixed(decimals);
-
-//   return num.toLocaleString("en-US", {
-//     minimumFractionDigits: decimals,
-//     maximumFractionDigits: decimals,
-//   });
-// };
-
-// const fmtK = (n, decimals = 2) => {
-//   const num = Number(n);
-//   if (!Number.isFinite(num)) return `$0.00K`;
-//   return `$${fmtMoney(num / 1000, decimals)}K`;
-// };
-
-// const fmtAutoKM = (n, decimals = 2) => {
-//   const num = Number(n);
-//   if (!Number.isFinite(num)) return "$0";
-
-//   if (Math.abs(num) >= 1_000_000) {
-//     return `$${fmtMoney(num / 1_000_000, decimals)}M`;
-//   }
-
-//   if (Math.abs(num) >= 1_000) {
-//     return `$${fmtMoney(num / 1_000, decimals)}K`;
-//   }
-
-//   return `$${fmtMoney(num, decimals)}`;
-// };
-
-// const loadInvoices = async (uidCollection, con) => {
-//   let yrs = [...new Set(con.invoices.map(x => x.date.substring(0, 4)))]
-//   let arrTmp = [];
-//   for (let i = 0; i < yrs.length; i++) {
-//     let yr = yrs[i]
-//     let tmpDt = [...new Set(con.invoices.filter(x => x.date.substring(0, 4) === yr).map(y => y.invoice))]
-//     let obj = { yr: yr, arrInv: tmpDt }
-//     arrTmp.push(obj)
-//   }
-
-//   let tmpInv = await getInvoices(uidCollection, 'invoices', arrTmp)
-//   return groupedArrayInvoice(tmpInv)
-// };
-
-// const sumObj = (obj) => Object.values(obj || {}).reduce((a, v) => a + (Number(v) || 0), 0);
-
-// function CardShell({ className = "", children }) {
-//   return (
-//     <motion.div
-//       className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}
-//       initial={{ opacity: 0, y: 30 }}
-//       animate={{ opacity: 1, y: 0 }}
-//       transition={{ duration: 0.5, ease: 'easeOut' }}
-//       whileHover={{ scale: 1.02, boxShadow: '0 8px 32px rgba(0,0,0,0.08)' }}
-//     >
-//       {children}
-//     </motion.div>
-//   );
-// }
-
-// function StatKpiCard({
-//   title,
-//   badgeText,
-//   value,
-//   chartData,
-//   chartColor = "rgba(255,255,255,0.92)",
-//   grad = "from-red-500 to-rose-600",
-//   icon,
-//   iconBg = '#fff',
-// }) {
-//   return (
-//     <motion.div
-//       className={`relative h-full min-h-[120px] rounded-xl overflow-hidden bg-gradient-to-br ${grad} shadow-md flex flex-col`}
-//       initial={{ opacity: 0, scale: 0.95 }}
-//       animate={{ opacity: 1, scale: 1 }}
-//       transition={{ duration: 0.5, ease: 'easeOut' }}
-//       whileHover={{ scale: 1.03, boxShadow: '0 8px 32px rgba(0,0,0,0.10)' }}
-//     >
-//       <div className="p-3 flex flex-col justify-between h-full">
-//         {/* Top Section - Icon, Title and Badge */}
-//         <div className="flex items-center justify-between">
-//           <div className="flex items-center gap-2">
-//             {icon && (
-//               <span className="inline-flex items-center justify-center rounded-full flex-shrink-0" style={{ background: iconBg, width: 28, height: 28 }}>
-//                 {icon}
-//               </span>
-//             )}
-//             <div className="text-white/90 text-[11px] font-medium leading-tight">
-//               {title}
-//             </div>
-//           </div>
-//           <div className="px-2 py-0.5 rounded-md text-[10px] bg-white/20 text-white flex-shrink-0">
-//             {badgeText}
-//           </div>
-//         </div>
-        
-//         {/* Middle Section - Left Aligned Value */}
-//         <div className="flex-1 flex items-center justify-start">
-//           <div className="text-2xl font-bold text-white">
-//             {value}
-//           </div>
-//         </div>
-        
-//         {/* Bottom Section - Chart */}
-//         <div className="h-[38px]">
-//           <Line
-//             data={{
-//               labels: Object.keys(chartData || {}).slice(0, 12),
-//               datasets: [{
-//                 data: Object.values(chartData || {}).slice(0, 12),
-//                 borderColor: chartColor,
-//                 borderWidth: 2,
-//                 tension: 0.4,
-//                 pointRadius: 0,
-//                 fill: false,
-//               }]
-//             }}
-//             options={{
-//               responsive: true,
-//               maintainAspectRatio: false,
-//               plugins: {
-//                 legend: { display: false },
-//                 tooltip: { enabled: false }
-//               },
-//               scales: {
-//                 x: { display: false },
-//                 y: { display: false }
-//               }
-//             }}
-//           />
-//         </div>
-//       </div>
-//     </motion.div>
-//   );
-// }
-
-// const Dash = () => {
-
-//   const { settings, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
-//   const { uidCollection } = UserAuth();
-
-//   const [dataInvoices, setDataInvoices] = useState([]);
-//   const [dataContracts, setDataContracts] = useState([]);
-//   const [dataExpenses, setDataExpenses] = useState([]);
-//   const [dataPL, setDataPL] = useState([]);
-//   const [dataPieSupps, setDataPieSupps] = useState([]);
-//   const [dataPieClnts, setDataPieClnts] = useState([]);
-
-//   useEffect(() => {
-
-//     const Load = async () => {
-
-//       const year = dateSelect?.start?.substring(0, 4) || new Date().getFullYear();
-//       setLoading(true);
-
-//       let dtContracts = await loadData(uidCollection, 'contracts', {
-//         start: dateSelect?.start || `${year}-01-01`,
-//         end: dateSelect?.end || `${year}-12-31`,
-//       });
-
-//       let dtConTmp = await Promise.all(
-//         dtContracts.map(async (x) => {
-//           const Invoices = await loadInvoices(uidCollection, x);
-//           return { ...x, invoicesData: Invoices };
-//         })
-//       );
-
-//       let tmpData = calContracts(dtConTmp, settings);
-
-//       setDataContracts(tmpData.accumulatedPmnt);
-//       setDataExpenses(tmpData.accumulatedExp);
-//       setDataPieSupps(tmpData.pieArrSupps);
-
-//       let arrInvoices = setMonthsInvoices(dtConTmp, settings);
-//       setDataInvoices(arrInvoices.accumulatedPmnt);
-//       setDataPieClnts(arrInvoices.pieArrClnts);
-
-//       const summedArr = Object.keys(tmpData.accumulatedPmnt).reduce((acc, key) => {
-//         acc[key] = tmpData.accumulatedPmnt[key] + tmpData.accumulatedExp[key];
-//         return acc;
-//       }, {});
-
-//       const tmpPL = Object.keys(arrInvoices.accumulatedPmnt).reduce((acc, key) => {
-//         acc[key] = arrInvoices.accumulatedPmnt[key] - summedArr[key];
-//         return acc;
-//       }, {});
-
-//       setDataPL(Object.values(tmpPL));
-
-//       setLoading(false);
-//     };
-
-//     Object.keys(settings).length !== 0 && Load();
-
-//   }, [dateSelect, settings, uidCollection, setLoading]);
-
-//   const currentYear = dateSelect?.start?.substring(0, 4) || new Date().getFullYear();
-
-//   const totalPL = useMemo(() => dataPL.reduce((a, v) => a + (Number(v) || 0), 0), [dataPL]);
-//   const totalInvoices = useMemo(() => sumObj(dataInvoices), [dataInvoices]);
-//   const totalContracts = useMemo(() => sumObj(dataContracts), [dataContracts]);
-//   const totalExpenses = useMemo(() => sumObj(dataExpenses), [dataExpenses]);
-
-//   // Prepare horizontal bar data objects (use real dataPie* sources)
-//   const hbSupps = HorizontalBar(dataPieSupps || {});
-//   const hbClnts = HorizontalBar(dataPieClnts || {});
-
-//   const getInitials = (name = '') =>
-//     name
-//       .toString()
-//       .split(' ')
-//       .map((s) => s[0] || '')
-//       .slice(0, 2)
-//       .join('')
-//       .toUpperCase();
-
-//   // Calculate chart heights so rows align with avatar/name list and values
-//   const avatarSize = 36; // px for rounded avatar
-//   const rowHeight = avatarSize + 8; // px per row (avatar + gap)
-//   const hbSuppsRows = (hbSupps.obj.labels || []).length || 1;
-//   const hbClntsRows = (hbClnts.obj.labels || []).length || 1;
-//   const hbSuppsHeight = Math.max(120, hbSuppsRows * rowHeight);
-//   const hbClntsHeight = Math.max(120, hbClntsRows * rowHeight);
-
-//   // Ensure chart dataset bar thickness roughly matches avatar size so bars align vertically
-//   const normalizeChartData = (chartObj) => {
-//     if (!chartObj) return chartObj;
-//     const ds = chartObj.datasets?.map((d) => ({
-//       ...d,
-//       barThickness: Math.max(8, Math.round(avatarSize * 0.55)),
-//       categoryPercentage: 0.75,
-//       barPercentage: 0.9,
-//     }));
-//     return { ...chartObj, datasets: ds };
-//   };
-
-//   const hbSuppsData = normalizeChartData(hbSupps.obj);
-//   const hbClntsData = normalizeChartData(hbClnts.obj);
-
-//   const makeChartOptions = (baseOptions, height) => {
-//     const base = baseOptions || {};
-//     const scales = base.scales || {};
-//     const y = scales.y || {};
-//     const x = scales.x || {};
-
-//     return {
-//       ...base,
-//       indexAxis: 'y',
-//       maintainAspectRatio: false,
-//       responsive: true,
-//       layout: {
-//         padding: {
-//           left: 0,
-//           right: 8,
-//           top: 8,
-//           bottom: 8,
-//         },
-//       },
-//       scales: {
-//         ...scales,
-//         y: {
-//           ...y,
-//           ticks: { display: false }, // hide labels (we render them to the left)
-//           grid: { display: false },
-//         },
-//         x: {
-//           ...x,
-//           grid: { color: (x.grid && x.grid.color) || '#f3f4f6' },
-//           ticks: {
-//             ...(x.ticks || {}),
-//             callback: (v) => fmtK(v),
-//             font: { size: 10 },
-//           },
-//         },
-//       },
-//     };
-//   };
-
-//   if (Object.keys(settings).length === 0) return <Spinner />;
-
-//   return (
-//     <div className="w-full ">
-//       <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px] min-h-screen ">
-//       <Toast />
-//       {loading && <Spin />}
-
-//       <motion.div className="mb-4" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
-//         <MarketsTicker />
-//       </motion.div>
-
-//       {/* HEADER */}
-//       <motion.div className="mb-5 flex items-center justify-between" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
-//         <div>
-//           <h1 className="text-xl font-bold text-gray-800">
-//             {getTtl('Dashboard', ln)}
-//           </h1>
-//           <p className="text-xs text-gray-500">
-//             Financial overview and analytics
-//           </p>
-//         </div>
-
-       
-//           <DateRangePicker />
-//           <TooltipComp txt="Select Dates Range" />
-        
-//       </motion.div>
-
-//       {/* MAIN GRID */}
-//       <motion.div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-5"
-//         initial={{ opacity: 0 }}
-//         animate={{ opacity: 1 }}
-//         transition={{ duration: 0.6, delay: 0.2 }}
-//       >
-
-//         {/* LEFT COLUMN */}
-//         <motion.div className="flex flex-col gap-4"
-//           initial={{ opacity: 0, x: -30 }}
-//           animate={{ opacity: 1, x: 0 }}
-//           transition={{ duration: 0.6, delay: 0.25 }}
-//         >
-
-//           {/* TOTAL REVENUE */}
-//           <CardShell>
-//             <div className="p-4">
-
-//               <div className="flex items-center justify-between mb-3">
-//                 <h3 className="text-sm font-semibold text-gray-800">
-//                   Total Revenue
-//                 </h3>
-
-//               </div>
-
-//               <div className="h-[200px]">
-//              <Bar
-//   data={{
-//     labels: Object.keys(dataInvoices),
-//     datasets: [
-//       {
-//         label: 'TotalIncome',
-//         data: Object.values(dataInvoices),
-//         backgroundColor: '#4F99FF', // Total Income
-//         borderRadius: 4,
-//         barThickness: 'flex',
-//         maxBarThickness: 18,
-//       },
-//       {
-//         label: 'TotalOutcome',
-//         data: Object.values(dataContracts),
-//         backgroundColor: '#1D3A8A', // Total Outcome
-//         borderRadius: 4,
-//         barThickness: 'flex',
-//         maxBarThickness: 18,
-//       }
-//     ]
-//   }}
-//   options={{
-//     responsive: true,
-//     maintainAspectRatio: false,
-//     plugins: { 
-//       legend: { 
-//         display: true,
-//         position: 'bottom',
-//         labels: {
-//           usePointStyle: true,
-//           pointStyle: 'circle',
-//           padding: 15,
-//           font: { size: 11 }
-//         }
-//       }
-//     },
-//     scales: {
-//       x: { 
-//         grid: { display: false },
-//         ticks: { font: { size: 10 } }
-//       },
-//       y: {
-//         grid: { color: '#f3f4f6' },
-//         ticks: {
-//           callback: (v) => fmtK(v),
-//           font: { size: 10 }
-//         }
-//       }
-//     }
-//   }}
-// />
-
-//               </div>
-
-//             </div>
-//           </CardShell>
-
-//           {/* SUPPLIERS */}
-//           <CardShell>
-//             <div className="p-4">
-//               <div className="flex justify-between mb-3">
-//                 <h3 className="text-sm font-semibold text-gray-800">
-//                   Contracts - $
-//                 </h3>
-//                 <span className="font-bold text-gray-800">
-//                   {fmtAutoKM(totalContracts)}
-//                 </span>
-//               </div>
-
-//               <div className="min-h-[200px]">
-//                 {(hbSupps.obj.labels || []).map((lbl, idx) => {
-//                   // Professional color palette for contracts
-//                   const colorPalette = [
-//                     '#0ea5e9', // Sky blue
-//                     '#38bdf8', // Light sky blue
-//                     '#7dd3fc', // Very light sky blue
-//                     '#6366f1'  // Indigo
-//                   ];
-//                   const color = hbSupps.obj.datasets?.[0]?.backgroundColor?.[idx] || colorPalette[idx % colorPalette.length];
-//                   const value = hbSuppsData?.datasets?.[0]?.data?.[idx] || 0;
-//                   const allValues = hbSuppsData?.datasets?.[0]?.data || [1];
-//                   const max = Math.max(...allValues);
-//                   const pct = max > 0 ? (value / max) * 100 : 0;
-
-//                   return (
-//                     <motion.div
-//                       key={idx}
-//                       className="flex items-center gap-3 mb-3"
-//                       initial={{ opacity: 0, x: -20 }}
-//                       animate={{ opacity: 1, x: 0 }}
-//                       transition={{ duration: 0.4, delay: idx * 0.07 }}
-//                     >
-//                       {/* Avatar */}
-//                       <motion.div
-//                         className="flex items-center justify-center rounded-full text-xs font-semibold text-white flex-shrink-0"
-//                         style={{ width: avatarSize, height: avatarSize, background: color }}
-//                         whileHover={{ scale: 1.1 }}
-//                         transition={{ type: 'spring', stiffness: 300 }}
-//                       >
-//                         {getInitials(lbl)}
-//                       </motion.div>
-
-//                       {/* Name */}
-//                       <div className="w-20 text-xs text-gray-700 truncate flex-shrink-0">
-//                         {lbl}
-//                       </div>
-
-//                       {/* Bar */}
-//                       <motion.div className="flex-1 min-w-0">
-//                         <motion.div
-//                           className="rounded-sm"
-//                           style={{
-//                             width: `${pct}%`,
-//                             height: 20,
-//                             background: color,
-//                             minWidth: '8px'
-//                           }}
-//                           initial={{ scaleX: 0 }}
-//                           animate={{ scaleX: 1 }}
-//                           transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
-//                           whileHover={{ scaleY: 1.1 }}
-//                         />
-//                       </motion.div>
-
-//                       {/* Value */}
-//                       <motion.div className="w-20 text-right text-xs text-gray-700 font-semibold flex-shrink-0"
-//                         initial={{ opacity: 0 }}
-//                         animate={{ opacity: 1 }}
-//                         transition={{ duration: 0.4, delay: idx * 0.09 }}
-//                       >
-//                         {fmtAutoKM(value)}
-//                       </motion.div>
-//                     </motion.div>
-//                   );
-//                 })}
-//               </div>
-//             </div>
-//           </CardShell>
-
-//        {/* CLIENTS */}
-//           <CardShell>
-//             <div className="p-4">
-//               <div className="flex justify-between mb-4">
-//                 <h3 className="text-sm font-semibold text-gray-800">
-//                   Co-signed - $
-//                 </h3>
-//                 <span className="font-bold text-gray-800">
-//                   {fmtAutoKM(totalInvoices)}
-//                 </span>
-//               </div>
-
-//               <div className="min-h-[200px]">
-//                 {(hbClnts.obj.labels || []).map((lbl, idx) => {
-//                   // Professional color palette for co-signed
-//                   const colorPalette = [
-//                     '#0ea5e9', // Sky blue
-//                     '#38bdf8', // Light sky blue
-//                     '#7dd3fc', // Very light sky blue
-//                     '#6366f1', // Indigo
-//                     '#818cf8'  // Light indigo
-//                   ];
-//                   const color = hbClnts.obj.datasets?.[0]?.backgroundColor?.[idx] || colorPalette[idx % colorPalette.length];
-//                   const value = hbClntsData?.datasets?.[0]?.data?.[idx] || 0;
-//                   const allValues = hbClntsData?.datasets?.[0]?.data || [1];
-//                   const max = Math.max(...allValues);
-//                   const pct = max > 0 ? (value / max) * 100 : 0;
-                  
-//                   return (
-//                     <motion.div
-//                       key={idx}
-//                       className="flex items-center gap-3 mb-3"
-//                       initial={{ opacity: 0, x: -20 }}
-//                       animate={{ opacity: 1, x: 0 }}
-//                       transition={{ duration: 0.4, delay: idx * 0.07 }}
-//                     >
-//                       {/* Avatar */}
-//                       <motion.div
-//                         className="flex items-center justify-center rounded-full text-xs font-semibold text-white flex-shrink-0"
-//                         style={{ width: avatarSize, height: avatarSize, background: color }}
-//                         whileHover={{ scale: 1.1 }}
-//                         transition={{ type: 'spring', stiffness: 300 }}
-//                       >
-//                         {getInitials(lbl)}
-//                       </motion.div>
-//                       {/* Name */}
-//                       <div className="w-20 text-xs text-gray-700 truncate flex-shrink-0">
-//                         {lbl}
-//                       </div>
-//                       {/* Bar */}
-//                       <motion.div className="flex-1 min-w-0">
-//                         <motion.div 
-//                           className="rounded-sm" 
-//                           style={{ 
-//                             width: `${pct}%`, 
-//                             height: 20, 
-//                             background: color,
-//                             minWidth: '8px'
-//                           }} 
-//                           initial={{ scaleX: 0 }}
-//                           animate={{ scaleX: 1 }}
-//                           transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
-//                           whileHover={{ scaleY: 1.1 }}
-//                         />
-//                       </motion.div>
-//                       {/* Value */}
-//                       <motion.div className="w-20 text-right text-xs text-gray-700 font-semibold flex-shrink-0"
-//                         initial={{ opacity: 0 }}
-//                         animate={{ opacity: 1 }}
-//                         transition={{ duration: 0.4, delay: idx * 0.09 }}
-//                       >
-//                         {fmtAutoKM(value)}
-//                       </motion.div>
-//                     </motion.div>
-//                   );
-//                 })}
-//               </div>
-//             </div>
-//           </CardShell>
-
-//         </motion.div>
-
-//         {/* RIGHT COLUMN */}
-//         <motion.div className="flex flex-col gap-4 h-full"
-//           initial={{ opacity: 0, x: 30 }}
-//           animate={{ opacity: 1, x: 0 }}
-//           transition={{ duration: 0.6, delay: 0.3 }}
-//         >
-//           {/* SALES OVERVIEW */}
-//           <CardShell>
-//             <div className="p-4">
-
-//               <div className="flex justify-between items-center mb-3">
-//                 <h3 className="text-sm font-semibold text-gray-800">
-//                   Sales Overview
-//                 </h3>
-              
-//               </div>
-
-//               <div className="h-[200px]">
-//               <Line
-//   data={{
-//     labels: Object.keys(dataInvoices),
-//     datasets: [
-//       {
-//         label: 'TotalSales',
-//         data: Object.values(dataInvoices),
-//         borderColor: '#4F99FF',
-//         backgroundColor: 'rgba(79, 153, 255, 0.15)',
-//         borderWidth: 2,
-//         tension: 0.4,
-//         fill: true,
-//         pointRadius: 3,
-//         pointBackgroundColor: '#4F99FF'
-//       },
-//       {
-//         label: 'TotalRevenue',
-//         data: Object.values(dataContracts),
-//         borderColor: '#1D3A8A',
-//         backgroundColor: 'rgba(29, 58, 138, 0.15)',
-//         borderWidth: 2,
-//         tension: 0.4,
-//         fill: true,
-//         pointRadius: 3,
-//         pointBackgroundColor: '#1D3A8A'
-//       }
-//     ]
-//   }}
-//   options={{
-//     responsive: true,
-//     maintainAspectRatio: false,
-//     plugins: { 
-//       legend: { 
-//         display: true,
-//         position: 'bottom',
-//         labels: {
-//           usePointStyle: true,
-//           pointStyle: 'circle',
-//           padding: 15,
-//           font: { size: 11 }
-//         }
-//       }
-//     },
-//     scales: {
-//       x: { 
-//         grid: { display: false },
-//         ticks: { font: { size: 10 } }
-//       },
-//       y: {
-//         grid: { color: '#f3f4f6' },
-//         ticks: { font: { size: 10 } }
-//       }
-//     }
-//   }}
-// />
-
-//               </div>
-
-//             </div>
-//           </CardShell>
-
-//           {/* KPI GRID */}
-//           <div className="grid grid-cols-2 gap-3 auto-rows-fr flex-1">
-
-
-
-//             <StatKpiCard 
-//               title="P&L" 
-//               badgeText="Profit" 
-//               value={fmtAutoKM(totalPL)} 
-//               chartData={dataPL} 
-//               grad="from-[#CE283D] to-[#892043]" 
-//               chartColor="rgba(255,255,255,0.95)"
-//               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><text x="8" y="16" fontSize="7" fill="#fff" fontFamily="Arial">$</text></svg>}
-//               iconBg="#CE283D"
-//             />
-//             <StatKpiCard 
-//               title="Invoices" 
-//               badgeText="Sales" 
-//               value={fmtAutoKM(totalInvoices)} 
-//               chartData={dataInvoices} 
-//               grad="from-[#C69C0B] to-[#837619]" 
-//               chartColor="rgba(255,255,255,0.95)"
-//               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#fff" strokeWidth="2"/><path d="M8 10h8M8 14h8" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M8 7h8" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M7 4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-//               iconBg="#C69C0B"
-//             />
-//             <StatKpiCard 
-//               title="Contracts & Expenses" 
-//               badgeText="Costs" 
-//               value={fmtAutoKM(totalContracts)} 
-//               chartData={dataContracts} 
-//               grad="from-[#3969F6] to-[#7A4756]" 
-//               chartColor="rgba(255,255,255,0.95)"
-//               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-//               iconBg="#3969F6"
-//             />
-//             <StatKpiCard 
-//               title="Sales Contracts" 
-//               badgeText="Sales" 
-//               value={fmtAutoKM(totalContracts)} 
-//               chartData={dataContracts} 
-//               grad="from-[#B62A62] to-[#684B68]" 
-//               chartColor="rgba(255,255,255,0.95)"
-//               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M12 12l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-//               iconBg="#B62A62"
-//             />
-//             <StatKpiCard 
-//               title="Expenses" 
-//               badgeText="Costs" 
-//               value={fmtAutoKM(totalExpenses)} 
-//               chartData={dataExpenses} 
-//               grad="from-[#3F7EC3] to-[#356F94]" 
-//               chartColor="rgba(255,255,255,0.95)"
-//               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M12 12l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-//               iconBg="#3F7EC3"
-//             />
-//             <StatKpiCard 
-//               title="Purchase Contracts" 
-//               badgeText="Purchases" 
-//               value={fmtAutoKM(totalInvoices)} 
-//               chartData={dataInvoices} 
-//               grad="from-[#56AFCB] to-[#3E8370]" 
-//               chartColor="rgba(255,255,255,0.95)"
-//               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="10" rx="2" stroke="#fff" strokeWidth="2"/><path d="M9 11h6" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M9 14h4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-//               iconBg="#56AFCB"
-//             />
-
-//           </div>
-
-//         </motion.div>
-
-//       </motion.div>
-
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default Dash;
 'use client';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
@@ -1007,7 +248,7 @@ function DebtSnapshotCard({ totalInvoices, totalContracts, totalExpenses, totalP
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-gray-800">Debt Snapshot</h3>
-          <div className="flex items-center gap-1 px-2 py-1 rounded-md border border-gray-200 bg-gray-50 text-[10px] text-gray-500">
+          {/* <div className="flex items-center gap-1 px-2 py-1 rounded-md border border-gray-200 bg-gray-50 text-[10px] text-gray-500">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="4" width="18" height="18" rx="2" stroke="#9ca3af" strokeWidth="2"/>
               <line x1="16" y1="2" x2="16" y2="6" stroke="#9ca3af" strokeWidth="2"/>
@@ -1015,7 +256,7 @@ function DebtSnapshotCard({ totalInvoices, totalContracts, totalExpenses, totalP
               <line x1="3" y1="10" x2="21" y2="10" stroke="#9ca3af" strokeWidth="2"/>
             </svg>
             {debtRange}
-          </div>
+          </div> */}
         </div>
 
         {/* 2x2 Metric Grid */}
@@ -1141,6 +382,8 @@ const Dash = () => {
       barThickness: Math.max(8, Math.round(avatarSize * 0.55)),
       categoryPercentage: 0.75,
       barPercentage: 0.9,
+      borderRadius: { topLeft: 999, topRight: 999, bottomLeft: 0, bottomRight: 0 },
+      borderSkipped: 'bottom',
     }));
     return { ...chartObj, datasets: ds };
   };
@@ -1249,7 +492,8 @@ const Dash = () => {
         label: 'TotalIncome',
         data: Object.values(dataInvoices),
         backgroundColor: '#4F99FF',
-        borderRadius: 4,
+        borderRadius: { topLeft: 999, topRight: 999, bottomLeft: 0, bottomRight: 0 },
+        borderSkipped: 'bottom',
         barThickness: 'flex',
         maxBarThickness: 18,
       },
@@ -1257,7 +501,8 @@ const Dash = () => {
         label: 'TotalOutcome',
         data: Object.values(dataContracts),
         backgroundColor: '#1D3A8A',
-        borderRadius: 4,
+        borderRadius: { topLeft: 999, topRight: 999, bottomLeft: 0, bottomRight: 0 },
+        borderSkipped: 'bottom',
         barThickness: 'flex',
         maxBarThickness: 18,
       }
@@ -1360,19 +605,25 @@ const Dash = () => {
 
                       {/* Bar */}
                       <motion.div className="flex-1 min-w-0">
-                        <motion.div
-                          className="rounded-sm"
-                          style={{
-                            width: `${pct}%`,
-                            height: 20,
-                            background: color,
-                            minWidth: '8px'
-                          }}
-                          initial={{ scaleX: 0 }}
-                          animate={{ scaleX: 1 }}
-                          transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
-                          whileHover={{ scaleY: 1.1 }}
-                        />
+                        <div className="w-full h-5 bg-gray-100 rounded-full overflow-hidden">
+                          <motion.div
+                            className="rounded-r-full h-full flex items-center pl-2"
+                            style={{
+                              width: `${pct}%`,
+                              background: color,
+                              minWidth: '42px',
+                              borderRadius: '0 9999px 9999px 0'
+                            }}
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
+                            whileHover={{ scaleY: 1.1 }}
+                          >
+                            <span className="text-[9px] font-semibold text-white/95 leading-none">
+                              {(max > 0 ? value / max : 0).toFixed(2)}
+                            </span>
+                          </motion.div>
+                        </div>
                       </motion.div>
 
                       {/* Value */}
@@ -1450,19 +701,25 @@ const Dash = () => {
                       </div>
                       {/* Bar */}
                       <motion.div className="flex-1 min-w-0">
-                        <motion.div 
-                          className="rounded-sm" 
-                          style={{ 
-                            width: `${pct}%`, 
-                            height: 20, 
-                            background: color,
-                            minWidth: '8px'
-                          }} 
-                          initial={{ scaleX: 0 }}
-                          animate={{ scaleX: 1 }}
-                          transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
-                          whileHover={{ scaleY: 1.1 }}
-                        />
+                        <div className="w-full h-5 bg-gray-100 rounded-full overflow-hidden">
+                          <motion.div 
+                            className="rounded-r-full h-full flex items-center pl-2" 
+                            style={{ 
+                              width: `${pct}%`, 
+                              background: color,
+                              minWidth: '42px',
+                              borderRadius: '0 9999px 9999px 0'
+                            }} 
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
+                            whileHover={{ scaleY: 1.1 }}
+                          >
+                            <span className="text-[9px] font-semibold text-white/95 leading-none">
+                              {(max > 0 ? value / max : 0).toFixed(2)}
+                            </span>
+                          </motion.div>
+                        </div>
                       </motion.div>
                       {/* Value */}
                       <motion.div className="w-20 text-right text-xs text-gray-700 font-semibold flex-shrink-0"
