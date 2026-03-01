@@ -207,7 +207,7 @@ const MaterialTables = () => {
                             {/* Action Buttons */}
                             <div className="border rounded-2xl p-3">
                             <div className="flex gap-2 sm:gap-4 flex-wrap mb-2">
-                                <Button  className="bg-[#005b9f] border border-[var(--rock-blue)] text-white px-3 h-6 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                <Button  className="bg-[#005b9f] border border-[var(--rock-blue)] text-white px-3 h-6 text-xs font-normal rounded-full hover:bg-[var(--selago)]/30 transition-all"
  onClick={addTable}>
                                     Add Table
                                 </Button>

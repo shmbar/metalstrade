@@ -126,18 +126,32 @@ const Customtable = ({
         }
         .custom-table, .custom-table *, .glass-table, .glass-table * {
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          font-size: 10px !important;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
         }
-        .custom-table th, .custom-table td {
+        .custom-table th {
           border: 1px solid #ccc;
           background-color: #f9f9f9;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
+          font-size: 12px !important;
+          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+
+        }
+         .custom-table td {
+          border: 1px solid #ccc;
+          background-color: #f9f9f9;
+          text-align: center;
+          vertical-align: middle;
+          padding: 6px;
+          border-radius: 4px;
+          font-size: 10px !important;
+          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+
+
         }
         .custom-table th {
           background-color: #d4eafc;
@@ -180,9 +194,7 @@ const Customtable = ({
                   {hdGroup.headers.map((header, idx) => (
                    <th
   key={header.id}
-  className={`px-2 py-2 uppercase ${
-    header.column.id === 'material' ? 'text-left' : 'text-center'
-  }`}
+  className={`px-2 py-2 uppercase text-center font-bold `}
   style={{
     backgroundColor:
       header.column.id === 'material' || header.column.id === 'kgs'
@@ -191,7 +203,6 @@ const Customtable = ({
     color: '#183d79',
     minWidth: header.column.id === 'material' ? '120px' : '60px',
     maxWidth: header.column.id === 'material' ? '150px' : 'none',
-    fontSize: 'clamp(10px, 1.0vw, 13px)',
     letterSpacing: '0.05em',
     textAlign: header.column.id === 'material' ? 'left' : 'center',
   }}
@@ -199,7 +210,7 @@ const Customtable = ({
                       {header.column.getCanSort() ? (
                         <div
                           onClick={header.column.getToggleSortingHandler()}
-                          className={`cursor-pointer flex items-center gap-1.5 ${header.column.id === 'material' ? 'justify-start' : 'justify-center'}`}
+                          className={`cursor-pointer flex items-center gap-1.5 justify-center font-bold font-poppins`}
                         >
                           {header.column.columnDef.header}
                           {{
@@ -208,7 +219,7 @@ const Customtable = ({
                           }[header.column.getIsSorted()]}
                         </div>
                       ) : (
-                        <span className="text-[13px] font-semibold text-[#183d79]">
+                        <span className="font-normal text-[#183d79] text-center">
                           {header.column.columnDef.header}
                         </span>
                       )}
@@ -239,28 +250,27 @@ const Customtable = ({
     color: '#1F2937',
     minWidth: cell.column.id === 'material' ? '120px' : '60px',
     maxWidth: cell.column.id === 'material' ? '150px' : '110px',
-    fontSize: 'clamp(11px, 1.0vw, 13px)',
     fontWeight: '400',
   }}
 >
                         {!isDel ? (
                          <div
-  className="
-    px-2 py-1
-    text-[11px]
-    font-normal
-    flex items-center justify-center
-    min-w-[70px]
-    text-center
-    whitespace-nowrap
-    rounded-lg
-    transition-all duration-200 ease-in-out
-  "
-  style={{
-    backgroundColor: '#f9f9f9',
-    border: '1px solid #cecece',
-  }}
->
+                          className="
+                            px-2 py-1
+                            text-[11px]
+                            font-normal
+                            flex items-center justify-center
+                            min-w-[70px]
+                            text-center
+                            whitespace-nowrap
+                            rounded-lg
+                            transition-all duration-200 ease-in-out
+                          "
+                          style={{
+                            backgroundColor: '#f9f9f9',
+                            border: '1px solid #cecece',
+                          }}
+                        >
                             <input
                               type={isMaterialOrKgs ? 'text' : 'number'}
                               className={`w-full border-none bg-transparent focus:outline-none text-center`}
@@ -268,7 +278,6 @@ const Customtable = ({
                               value={cell.column.id === 'kgs' ? formatNumber(cell.getContext().getValue()) : cell.getContext().getValue()}
                               style={{
                                 fontFamily: 'Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
-                                fontSize: 'clamp(11px, 1.0vw, 13px)',
                                 color: '#1F2937',
                                 background: 'transparent',
                                 textAlign: cell.column.id === 'material' ? 'left' : 'center'

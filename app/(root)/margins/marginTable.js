@@ -84,10 +84,9 @@ const MarginTable = (props) => {
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                     <div className="text-center">
                                         <div 
-                                            className="font-normal uppercase tracking-wider mb-0.5"
+                                            className="font-normal uppercase tracking-wider mb-0.5 text-xs font-poppins"
                                             style={{
                                                 color: '#005b9f',
-                                                fontSize: 'clamp(11px, 0.6vw, 8px)',
                                                 letterSpacing: '0.05em',
                                                 lineHeight: '1.1'
                                             }}
@@ -116,10 +115,9 @@ const MarginTable = (props) => {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-normal uppercase tracking-wider mb-0.5"
+                                            className="font-normal uppercase tracking-wider mb-0.5 text-xs font-poppins"
                                             style={{
                                                 color: '#005b9f',
-                                                fontSize: 'clamp(11px, 0.6vw, 8px)',
                                                 letterSpacing: '0.05em',
                                                 lineHeight: '1.1'
                                             }}
@@ -149,10 +147,9 @@ const MarginTable = (props) => {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-normal uppercase tracking-wider mb-0.5"
+                                            className="font-normal uppercase tracking-wider mb-0.5 text-xs font-poppins"
                                             style={{
                                                 color: '#005b9f',
-                                                fontSize: 'clamp(11px, 0.6vw, 8px)',
                                                 letterSpacing: '0.05em',
                                                 lineHeight: '1.1'
                                             }}
@@ -181,10 +178,9 @@ const MarginTable = (props) => {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-normal uppercase tracking-wider mb-0.5"
+                                            className="font-normal uppercase tracking-wider mb-0.5 text-xs font-poppins"
                                             style={{
                                                 color: '#005b9f',
-                                                fontSize: 'clamp(11px, 0.6vw, 8px)',
                                                 letterSpacing: '0.05em',
                                                 lineHeight: '1.1'
                                             }}

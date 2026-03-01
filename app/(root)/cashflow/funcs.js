@@ -294,12 +294,12 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
             <table>
                 <thead>
                     <tr className="border border-slate-300 p-2">
-                        <th className="text-left p-1 w-24 text-[#005b9f]">PO#</th>
-                        <th className="text-left p-1 text-[#005b9f]">Supplier</th>
-                        <th className="text-left p-1 w-40 text-[#005b9f]">Description</th>
-                        <th className="text-left p-1 text-[#005b9f]">Quantity</th>
-                        <th className="text-right p-1 text-[#005b9f]">Unit Price</th>
-                        <th className="text-right p-1 text-[#005b9f]">Total</th>
+                        <th className="text-left p-1 w-24 text-[#005b9f] font-normal">PO#</th>
+                        <th className="text-left p-1 text-[#005b9f] font-normal">Supplier</th>
+                        <th className="text-left p-1 w-40 text-[#005b9f] font-normal">Description</th>
+                        <th className="text-left p-1 text-[#005b9f] font-normal">Quantity</th>
+                        <th className="text-right p-1 text-[#005b9f] font-normal">Unit Price</th>
+                        <th className="text-right p-1 text-[#005b9f] font-normal">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -534,20 +534,20 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
     let filteredArr1 = tmp.filter(x => x.payments.length === 0)
 
     return (
-        <div className="max-h-[28rem] overflow-y-auto p-1 responsiveTextTable1 justify-center flex">
+        <div className=" w-full max-h-[28rem] overflow-y-auto p-1 responsiveTextTable1 justify-center flex">
             {type === 'PartPaid' &&
-                <div className="pt-1">
-                    <table>
+                <div className="pt-1 w-full">
+                    <table className="w-full">
                         <thead>
                             <tr className="border border-slate-300 ">
-                                <th className="text-left p-1 2xl:p-2  max-w-20 2xl:max-w-24 truncate text-[#005b9f]">PO#</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f]">Invoice</th>
-                                <th className="text-right p-1 2xl:p-2 text-[#005b9f]">Amount</th>
-                                <th className="text-right p-1 2xl:p-2 text-[#005b9f]">Payment</th>
-                                <th className="text-right p-1 2xl:p-2 text-[#005b9f]">Balance</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f]">ETD</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f]">ETA</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f]">Payment</th>
+                                <th className="text-left p-1 2xl:p-2  max-w-20 2xl:max-w-24 truncate text-[#005b9f] font-normal text-">PO#</th>
+                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Invoice</th>
+                                <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Amount</th>
+                                <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Payment</th>
+                                <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Balance</th>
+                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">ETD</th>
+                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">ETA</th>
+                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Payment</th>
                                 <th className="text-center px-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
@@ -673,15 +673,15 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
             }
 
             {type === 'InDebt' &&
-                <div className="pt-1">
-                    <table className="responsiveTextTable">
+                <div className="pt-1 w-full">
+                    <table className="responsiveTextTable w-full">
                         <thead>
                             <tr className="border border-slate-300 p-2">
-                                <th className="text-left p-1 2xl:p-2  w-28 text-[#005b9f]">PO#</th>
-                                <th className="text-left p-1 2xl:p-2 w-16 text-[#005b9f]">Invoice</th>
-                                <th className="text-right p-1 2xl:p-2 text-[#005b9f]">Amount</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f]">Prepayment</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f]">Payment</th>
+                                <th className="text-left p-1 2xl:p-2  w-28 text-[#005b9f] font-normal">PO#</th>
+                                <th className="text-left p-1 2xl:p-2 w-16 text-[#005b9f] font-normal">Invoice</th>
+                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Amount</th>
+                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Prepayment</th>
+                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Payment</th>
                                 <th className="text-center p-1 2xl:p-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
@@ -926,17 +926,17 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
     let type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt'
 
     return (
-        <div className="max-h-[28rem] overflow-y-auto responsiveTextTable pt-1 justify-center flex">
-            <table>
+        <div className="max-h-[28rem] overflow-y-auto responsiveTextTable pt-1 justify-center flex w-full">
+            <table className="w-full">
                 <thead>
                     <tr className="border border-slate-300">
-                        <th className="text-left p-1 2xl:p-2 text-[#005b9f]">PO#</th>
+                        <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
-                        <th className="text-left p-1 2xl:p-2 text-[#005b9f]">Invoice</th>
-                        <th className="text-right p-1 2xl:p-2 text-[#005b9f]">Value</th>
-                        <th className="text-right p-1 2xl:p-2 text-[#005b9f]">Payment</th>
-                        <th className="text-right p-1 2xl:p-2 text-[#005b9f]">Balance</th>
-                        <th className="text-right p-1 2xl:p-2 text-[#005b9f]">Payment</th>
+                        <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Invoice</th>
+                        <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Value</th>
+                        <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Payment</th>
+                        <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Balance</th>
+                        <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Payment</th>
                         <th>
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
@@ -1110,13 +1110,13 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
             <table>
                 <thead>
                     <tr className="border border-slate-300">
-                        <th className="text-left p-1 2xl:p-2 w-24 text-[#005b9f]">PO#</th>
+                        <th className="text-left p-1 2xl:p-2 w-24 text-[#005b9f] font-normal">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
-                        <th className="text-left p-1 2xl:p-2 text-[#005b9f]">Exp. Invoice</th>
-                        <th className="text-left p-1 2xl:p-2 text-[#005b9f]">Exp. Type</th>
-                        <th className="text-right p-1 2xl:p-2 text-[#005b9f]">Amount</th>
-                        <th className="text-left p-1 2xl:p-2 text-[#005b9f]">Date</th>
-                        <th className="text-left p-1 2xl:p-2 text-[#005b9f]">Payment</th>
+                        <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Exp. Invoice</th>
+                        <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Exp. Type</th>
+                        <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Amount</th>
+                        <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Date</th>
+                        <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Payment</th>
                         <th className="text-center p-1 2xl:p-2 py-0 text-[#005b9f]">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>

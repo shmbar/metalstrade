@@ -81,18 +81,14 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
     border-bottom: none;
 }
             `}</style>
-            {title && (
-                <div className="text-base font-bold text-[#1a3353] mb-3 pl-1 pt-2" style={{fontSize: 'clamp(10px, 1vw, 12px)'}}>
-                    {title}
-                </div>
-            )}
+           
             <div className="glass-table rounded-2xl shadow-lg border border-[#e0e0e0] p-2 sm:p-4 mb-6 w-full flex flex-col h-full"
                 style={{
                     borderRadius: '16px',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
                 }}>
                 {heading && (
-                    <div className="text-sm font-semibold text-[#1a3353] mb-3 sm:mb-4 pl-1 pt-1" style={{fontSize: 'clamp(10px, 1vw, 12px)'}}>
+                    <div className="text-xs font-normal font-poppins text-[#1a3353] mb-3 sm:mb-4 pl-1 pt-1" style={{fontSize: 'clamp(10px, 1vw, 12px)'}}>
                         {heading}
                     </div>
                 )}
@@ -112,11 +108,10 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
 
     {/* TITLE HEADER (BLUE SECTION) */}
     <div
-      className="px-6 py-4 text-center font-semibold"
+      className="px-6 py-4 text-center font-normal font-poppins "
       style={{
         background: '#e3f3ff',
-        color: '#1d3d79',
-        fontSize: 'clamp(14px, 1vw, 16px)'
+        color: '#1d3d79'
       }}
     >
       {title}
@@ -128,7 +123,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                         {hdGroup.headers.map(header => (
                                             <th key={header.id}>
                                                 {header.column.getCanSort() ? (
-                                                    <div onClick={header.column.getToggleSortingHandler()} className="text-xs flex cursor-pointer items-center gap-1 justify-center">
+                                                    <div onClick={header.column.getToggleSortingHandler()} className="text-xs flex cursor-pointer items-center gap-1 justify-center text-[#005b9f]">
                                                         {header.column.columnDef.header}
                                                         {{
                                                             asc: <TbSortAscending className="text-[#6366F1] scale-125" />, 
@@ -136,7 +131,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                                         }[header.column.getIsSorted()]}
                                                     </div>
                                                 ) : (
-                                                    <span className="text-xs" style={{color:'#183d79'}}>{header.column.columnDef.header}</span>
+                                                    <span className="text-xs" style={{color:'#005b9f'}}>{header.column.columnDef.header}</span>
                                                 )}
                                             </th>
                                         ))}

@@ -1145,7 +1145,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                 {/* SALES SECTION */}
                 <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-3 text-center">
-                <h3 className="text-base text-[#005b9f] mb-4">Sales</h3>
+                <h3 className="text-base text-[#005b9f] mb-4 ">Sales</h3>
 
                     {/* Composition */}
                     <div className="mb-5 mt-4">

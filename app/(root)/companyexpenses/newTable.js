@@ -139,13 +139,20 @@ const Customtable = ({
   return (
     <div className="w-full">
       <style jsx global>{`
-        .custom-table th,
+        .custom-table th {
+          border: 1px solid #d7d7d7;
+          text-align: center;
+          font-size: 12px !important;
+          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+
+        }
         .custom-table td {
           border: 1px solid #d7d7d7;
           text-align: center;
-          font-size: 12px;
-        }
+          font-size: 10px !important;
+          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 
+        }
         .header-blue {
           background-color: #d9e6f2;
           color: #1d3d79;
@@ -257,7 +264,7 @@ const Customtable = ({
               {table.getHeaderGroups().map(hdGroup => (
                 <tr key={hdGroup.id}>
                   {hdGroup.headers.map(header => (
-                    <th key={header.id} className="header-blue py-3 font-normal">
+                    <th key={header.id} className="header-blue py-3 font-bold font-poppins">
                       {flexRender(header.column.columnDef.header, header.getContext())}
                     </th>
                   ))}

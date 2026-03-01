@@ -30,9 +30,8 @@ const columns =
       className="
         bg-[#e3f3ff]
         text-[#005B9F]
-        text-xs
-        font-medium
-font-poppins 
+        text-[12px] font-poppins
+        font-semibold
         p-3
         text-center
         border-r border-[#E5E7EB]
@@ -56,6 +55,7 @@ font-poppins
       key={`d-${idx}`}
       className="
         bg-white
+        font-poppins 
         p-3
         border-t border-r border-[#E5E7EB]
         last:border-r-0
@@ -72,10 +72,10 @@ font-poppins
           rounded-lg
           max-w-full
           truncate
-          text-[12px]
+          text-[11px]
           font-normal
           leading-none
-          font-['Poppins']
+          font-poppins
         "
         title={typeof val === "string" ? val : ""}
       >

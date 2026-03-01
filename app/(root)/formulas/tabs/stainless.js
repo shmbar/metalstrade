@@ -620,7 +620,7 @@ const Stainless = ({ value, handleChange }) => {
                     <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white grid grid-cols-4">
                         {/* Ni */}
                         <div>
-                        <div className="bg-[#EAF4FF]  py-1 text-xs text-center text-[#2F6FDB] border-b border-[#dedede] font-semibold">
+                        <div className="bg-[#EAF4FF]  py-1 text-xs text-center text-[#2F6FDB] border-b border-[#dedede] font-normal">
                             Ni
                         </div>
                         <input
@@ -655,7 +655,7 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Cr */}
                         <div className="border-l border-[#dedede]">
-                        <div className="bg-[#EAF4FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-semibold">
+                        <div className="bg-[#EAF4FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-normal">
                             Cr
                         </div>
                         <input
@@ -690,7 +690,7 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Mo */}
                         <div className="border-l border-[#dedede]">
-                        <div className="bg-[#EAF4FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-semibold">
+                        <div className="bg-[#EAF4FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-normal">
                             Mo
                         </div>
                         <input
@@ -725,7 +725,7 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Fe */}
                         <div className="border-l border-[#dedede]">
-                        <div className="bg-[#EAF4FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-semibold">
+                        <div className="bg-[#EAF4FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-normal">
                             Fe
                         </div>
                         <input
@@ -741,14 +741,14 @@ const Stainless = ({ value, handleChange }) => {
 
                     {/* Price Row */}
                     <div className="mb-3 mt-4">
-                    <p className="text-sm font-medium text-gray-600 mb-2 text-center">
+                    <p className="text-sm font-normal text-gray-600 mb-2 text-center">
                         Price
                     </p>
 
                     <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white grid grid-cols-4">
                         {/* Ni */}
                         <div>
-                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-semibold">
+                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-normal">
                             Ni
                         </div>
                         <input
@@ -763,7 +763,7 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Cr */}
                         <div className="border-l border-[#D9ECFF]">
-                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-semibold">
+                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-normal">
                             Cr
                         </div>
                         <input
@@ -794,7 +794,7 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Mo */}
                         <div className="border-l border-[#D9ECFF]">
-                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-semibold">
+                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-normal">
                             Mo
                         </div>
                         <input
@@ -825,7 +825,7 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Fe */}
                         <div className="border-l border-[#D9ECFF]">
-                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-semibold">
+                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#D9ECFF] font-normal">
                             Fe
                         </div>
                         <input
@@ -966,7 +966,7 @@ const Stainless = ({ value, handleChange }) => {
                         { label: 'Fe', value: fe + '%' },
                         ].map((item, idx) => (
                         <div key={item.label} className={idx > 0 ? 'border-l border-[#D9ECFF]' : ''}>
-                            <div className="bg-[#EAF4FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#dedede] font-semibold">
+                            <div className="bg-[#EAF4FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#dedede] font-normal">
                             {item.label}
                             </div>
                             <div className="py-2 text-sm text-center bg-[#fafafa]">
@@ -980,12 +980,12 @@ const Stainless = ({ value, handleChange }) => {
 
                      {/* Price */}
                     <div className="mb-3 mt-4">
-                    <p className="text-sm font-medium text-gray-600 mb-2 text-center">Price</p>
+                    <p className="text-sm font-normal text-gray-600 mb-2 text-center">Price</p>
 
                     <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white grid grid-cols-4">
                         {/* Ni */}
                         <div>
-                        <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#dedede] font-semibold">
+                        <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#dedede] font-normal">
                             Ni
                         </div>
                         <div className="py-2 text-sm text-center text-[#2F6FDB] bg-[#fafafa]">
@@ -997,7 +997,7 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Cr */}
                         <div className="border-l border-[#D9ECFF]">
-                        <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#dedede] font-semibold">
+                        <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#dedede] font-normal">
                             Cr
                         </div>
                         <div className="py-2 text-sm text-center text-[#F44336] bg-[#fafafa]">
@@ -1009,7 +1009,7 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Mo */}
                         <div className="border-l border-[#D9ECFF]">
-                        <div className="bg-[#E9E2FF] text-center py-1 text-xs  text-[#2F6FDB] border-b border-[#dedede] font-semibold">
+                        <div className="bg-[#E9E2FF] text-center py-1 text-xs  text-[#2F6FDB] border-b border-[#dedede] font-normal">
                             Mo
                         </div>
                         <div className="py-2 text-sm text-center text-[#F44336] bg-[#fafafa]">
@@ -1021,7 +1021,7 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Fe (editable) */}
                         <div className="border-l border-[#D9ECFF]">
-                        <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#dedede] font-semibold">
+                        <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#dedede] font-normal">
                             Fe
                         </div>
                         <input

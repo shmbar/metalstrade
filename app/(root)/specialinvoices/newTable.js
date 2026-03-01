@@ -177,24 +177,34 @@ const Customtable = ({
                    to avoid any hover vibration (no transform transitions allowed). */
                 .custom-table, .custom-table *, .glass-table, .glass-table * {
                     font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-                    font-size: 10px !important;
                     transition-property: color, background-color, border-color, box-shadow !important;
                     transition-duration: 150ms !important;
                     transition-timing-function: ease-in-out !important;
                 }
 
                 /* Add border, background, and text alignment styles for table cells */
-                .custom-table th, .custom-table td {
+                .custom-table th{
+                    border: 1px solid #ccc;
+                    background-color: #f9f9f9;
+                    text-align: center;
+                    vertical-align: middle;
+                    padding: 6px;
+                    border-radius: 4px;;
+                    font-size: 11px !important;
+                }
+                    .custom-table td {
                     border: 1px solid #ccc;
                     background-color: #f9f9f9;
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
                     border-radius: 4px;
+                    font-size: 10px !important;
                 }
 
                 .custom-table th {
                     background-color: #d4eafc;
+                    
                 }
 
                 .custom-table td {
@@ -251,13 +261,12 @@ const Customtable = ({
                                             <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
                                                 {group.headers.map(header => (
                                                     <th
-                                                        key={header.id}
-                                                        className="px-2 py-2 uppercase"
+  key={header.id}
+  className="font-poppins text-xs"
                                                         style={{
                                                             color: '#183d79',
                                                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                                                             maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                                                            fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                             letterSpacing: '0.05em',
                                                             textAlign: 'center',
                                                         }}
@@ -273,7 +282,7 @@ const Customtable = ({
                                                     {group.headers.map(header => (
                                                         <th
                                                             key={header.id}
-                                                            className="px-2 py-1.5"
+                                                            className="px-2 py-1.5 font-bold text-xs font-poppins"
                                                             style={{
                                                                 backgroundColor: '#FFFFFF',
                                                                 borderBottom: '2px solid #E5E7EB',

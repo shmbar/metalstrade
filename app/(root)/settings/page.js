@@ -52,7 +52,7 @@ const Page = () => {
     <div className="container ">
       <Toast />
       {loading && <Spin />}
-      <div className=" p-1 md:p-4 mt-8 bg-white">
+      <div className=" p-1 md:p-4 mt-[5%] bg-white">
         <div className="text-[14px] mt-5 text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2">{getTtl('Settings', ln)}</div>
 
         <div className="w-full px-2 sm:px-0 mt-5">
@@ -60,6 +60,7 @@ const Page = () => {
 <TabList
   className="
     flex
+    ml-1
     gap-3
     bg-transparent
     pb-0
@@ -79,8 +80,8 @@ const Page = () => {
           rounded-t-xl 
           rounded-b-none
           shadow-sm
-text-black
-          bg-[#e3f3ff]
+text-white
+          bg-[#005b9f]
 
         `
         : `

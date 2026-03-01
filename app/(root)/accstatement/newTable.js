@@ -142,18 +142,27 @@ const Customtable = ({
         }
         .custom-table, .custom-table *, .glass-table, .glass-table * {
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          font-size: 10px !important;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
         }
-        .custom-table th, .custom-table td {
+        .custom-table th, {
           border: 1px solid #ccc;
           background-color: #f9f9f9;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
+          font-size: 12px !important;
+        }
+        .custom-table td {
+          border: 1px solid #ccc;
+          background-color: #f9f9f9;
+          text-align: center;
+          vertical-align: middle;
+          padding: 6px;
+          border-radius: 4px;
+          font-size: 10px !important;
         }
         .custom-table th {
           background-color: #d4eafc;
@@ -204,12 +213,11 @@ const Customtable = ({
                       {hdGroup.headers.map((header, idx) => (
                         <th
                           key={header.id}
-                          className={`px-2 py-2 uppercase ${header.column.id === 'select' ? 'text-left' : 'text-center'}`}
+                          className={`px-2 py-2 uppercase text-[12px] ${header.column.id === 'select' ? 'text-left' : 'text-center'}`}
                           style={{
                             color: '#183d79',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                             maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                            fontSize: 'clamp(10px, 1.0vw, 13px)',
                             letterSpacing: '0.05em',
                             textAlign: header.column.id === 'select' ? 'left' : 'center',
                           }}

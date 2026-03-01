@@ -157,21 +157,33 @@ const Customtable = ({
            to avoid any hover vibration (no transform transitions allowed). */
         .custom-table, .custom-table *, .glass-table, .glass-table * {
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          font-size: 10px !important;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
         }
 
         /* Add border, background, and text alignment styles for table cells */
-        .custom-table th, .custom-table td {
+        .custom-table th {
           border: 1px solid #ccc;
           background-color: #f9f9f9;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
+                              font-size: 12px !important;
+
         }
+          .custom-table td {
+          border: 1px solid #ccc;
+          background-color: #f9f9f9;
+          text-align: center;
+          vertical-align: middle;
+          padding: 6px;
+          border-radius: 4px;
+          font-size: 10px !important;
+
+        }
+
 
         .custom-table th {
           background-color: #d4eafc;
@@ -226,7 +238,7 @@ const Customtable = ({
                         {group.headers.map(header => (
                           <th
                             key={header.id}
-                            className="px-2 py-2 uppercase"
+                            className="px-2 py-2 uppercase   text-[#005B9F] font-poppins font-bold" 
                             style={{
                               color: '#183d79',
  width:
@@ -235,7 +247,6 @@ const Customtable = ({
     : header.column.id === 'select'
     ? '50px'
     : undefined,
-                              fontSize: 'clamp(10px, 1.0vw, 13px)',
                               letterSpacing: '0.05em',
                               textAlign: 'center',
                             }}
@@ -292,7 +303,7 @@ const Customtable = ({
                         return (
                           <td
                             key={cell.id}
-                            className={`px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect`}
+                            className={`px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect text-[11px]`}
                             style={{
                               color: bg ? '#FFFFFF' : '#1F2937',
                               backgroundColor: bg || undefined,
@@ -303,7 +314,6 @@ const Customtable = ({
     ? '50px'
     : undefined,
                               // maxWidth: cell.column.id === 'select' ? '50px' : '110px',
-                              fontSize: 'clamp(11px, 1.0vw, 13px)',
                               fontWeight: '400',
                               zIndex: 1,
                               willChange: 'background-color, color',

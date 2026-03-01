@@ -122,7 +122,7 @@ const Page = () => {
 
           <div className="bg-white rounded-2xl shadow-md p-2 mt-1 border border-slate-100">
             <div className="pb-3 px-5 mt-[8%]">
-              <div className="text-lg font-semibold text-[var(--port-gore)] mb-0 mt-0">
+              <div className="text-[14px] mt-5 mb-3 text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2">
                 Formulas
               </div>
 
@@ -136,6 +136,7 @@ const Page = () => {
         bg-transparent
         p-0
         pb-0
+        ml-2
         overflow-x-auto
       "
     >
@@ -144,7 +145,7 @@ const Page = () => {
           key={z}
           className={({ selected }) =>
             classNames(
-              'px-6 py-1.5 text-sm font-["Poppins"] whitespace-nowrap transition-all w-[140px]',
+              'px-6 py-1.5 text-xs  font-poppins whitespace-nowrap transition-all w-[140px]',
               'focus:outline-none',
               selected
                 ? `
