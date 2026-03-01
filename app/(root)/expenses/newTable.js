@@ -155,70 +155,64 @@ const Customtable = ({
   return (
     <div className="w-full">
       <style jsx global>{`
-        /* Import Poppins and set table font */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-
-        /* Professional gradient scrollbar matching cards */
-        .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-        .dashboard-scroll::-webkit-scrollbar-track { 
-          background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
-          border-radius: 6px; 
-        }
-        .dashboard-scroll::-webkit-scrollbar-thumb { 
-          background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
-          border-radius: 6px; 
-          /* border removed */
-        }
-        .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-          background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
-          /* border removed */
-        }
-
-        /* Glassmorphic professional table */
-        .glass-table {
-          background: linear-gradient(135deg, 
-            rgba(255, 255, 255, 0.85) 0%, 
-            rgba(250, 250, 250, 0.90) 50%,
-            rgba(255, 255, 255, 0.85) 100%
-          );
-          backdrop-filter: blur(16px) saturate(180%);
-          -webkit-backdrop-filter: blur(16px) saturate(180%);
-        }
-
-        /* Use Poppins for the table and limit transitions to non-transform properties
-           to avoid any hover vibration (no transform transitions allowed). */
-        .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          font-size: 10px !important;
-          transition-property: color, background-color, border-color, box-shadow !important;
-          transition-duration: 150ms !important;
-          transition-timing-function: ease-in-out !important;
-        }
-
-        /* Add border, background, and text alignment styles for table cells */
-        .custom-table th, .custom-table td {
-          border: 1px solid #ccc;
-          background-color: #f9f9f9;
-          text-align: center;
-          vertical-align: middle;
-          padding: 6px;
-          border-radius: 4px;
-        }
-
         .custom-table th {
-          background-color: #d4eafc;
+          border: 1px solid #d7d7d7;
+          text-align: center;
+          font-size: 12px !important;
+          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+
+        }
+        .custom-table td {
+          border: 1px solid #d7d7d7;
+          text-align: center;
+          font-size: 10px !important;
+          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+
+        }
+        .header-blue {
+          background-color: #d9e6f2;
+          color: #1d3d79;
         }
 
-        .custom-table td {
-          background-color: #fff;
-          border: 1px solid #e0e0e0;
+        .summary-green {
+          background-color: #b7d1b5;
+          color: #1d3d79;
+          font-weight: 600;
+        }
+
+        .summary-blue {
+          background-color: #8db6d8;
+          color: #1d3d79;
+          font-weight: 600;
+        }
+
+        .pagination-center {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .page-btn {
+          padding: 6px 12px;
+          border-radius: 8px;
+          font-weight: 500;
+        }
+
+        .page-active {
+          background-color: #1d3d79;
+          color: white;
+        }
+
+        .page-normal {
+          color: #1d3d79;
         }
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col rounded-3xl shadow-xl glass-table"
+        <div className="flex flex-col "
           style={{ 
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset',
+            boxShadow: '',
           }}
         >
 
@@ -247,191 +241,212 @@ const Customtable = ({
           </div>
 
           {/* DESKTOP */}
-          <div className="hidden md:block">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderLeft: '8px solid #1D3D79', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
-              <table className="w-full" style={{ tableLayout: 'auto' }}>
+          <div className="hidden md:block" >
+<div
+  className="overflow-auto dashboard-scroll rounded-3xl border border-[#d7d7d7] shadow-sm"
+  style={{
+    maxHeight: dynamicMaxHeight,
+    borderLeft: '8px solid #1D3D79',
+    borderRadius: '20px'
+  }}
+>
+                <table
+  className="w-full"
+  style={{
+    tableLayout: 'auto',
+    borderCollapse: 'separate',
+    borderSpacing: 0
+  }}
+>
+                   <thead>
+              <tr className="summary-green">
+                <th colSpan={columns.length}>
+                  <div className="grid grid-cols-4 w-full font-normal">
+                    <div className="text-left pl-6">Total $:</div>
+                    <div>$ 0.00</div>
+                    <div>$ 0.00</div>
+                    <div>$ 0.00</div>
+                  </div>
+                </th>
+              </tr>
 
-                {/* THEAD - Multi-color gradient inspired by all cards */}
-                <thead className="sticky top-0 z-10">
-                  {table.getHeaderGroups().map(hdGroup => (
-                    <Fragment key={hdGroup.id}>
-                      <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
-                        {hdGroup.headers.map(header => (
-                          <th
-                            key={header.id}
-                            className={`px-2 py-2 uppercase ${header.column.id === 'select' ? 'text-left' : 'text-center'}`}
-                            style={{
-                              color: '#183d79',
-                              minWidth: header.column.id === 'select' ? '50px' : '60px',
-                              maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                              fontSize: 'clamp(10px, 1.0vw, 13px)',
-                              letterSpacing: '0.05em',
-                              textAlign: header.column.id === 'select' ? 'left' : 'center',
-                            }}
-                          >
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                          </th>
-                        ))}
-                      </tr>
+              <tr className="summary-blue">
+                <th colSpan={columns.length}>
+                  <div className="grid grid-cols-4 w-full font-normal">
+                    <div className="text-left pl-6">Total €:</div>
+                    <div>€ 0.00</div>
+                    <div>€ 0.00</div>
+                    <div>€ 0.00</div>
+                  </div>
+                </th>
+              </tr>
 
-                      {/* Filter Row */}
-                      {filterOn && (
-                        <tr style={{ backgroundColor: '#FFFFFF' }}>
-                          {hdGroup.headers.map(header => (
-                            <th
-                              key={header.id}
-                              className="px-2 py-1.5"
-                              style={{
-                                backgroundColor: '#FFFFFF',
-                                borderBottom: '2px solid #E5E7EB',
-                                minWidth: header.column.id === 'select' ? '50px' : '90px',
-                                maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                              }}
-                            >
-                              {header.column.getCanFilter() && (
-                                <Filter column={header.column} table={table} filterOn={filterOn} />
-                              )}
-                            </th>
-                          ))}
-                        </tr>
-                      )}
-                    </Fragment>
+              {/* ======= HEADER ======= */}
+              {table.getHeaderGroups().map(hdGroup => (
+                <tr key={hdGroup.id}>
+                  {hdGroup.headers.map(header => (
+                    <th key={header.id} className="header-blue py-3 font-bold font-poppins">
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
                   ))}
-                </thead>
+                </tr>
+              ))}
+            </thead>
 
-                {/* TBODY - Professional rows with card-inspired hover */}
-                <tbody>
-                  {table.getRowModel().rows.map((row, rowIndex) => (
-                    <tr
-                      key={row.id}
-                      onDoubleClick={() => SelectRow(row.original)}
-                      tabIndex={0}
-                      className="cursor-pointer"
-                    >
-                      {row.getVisibleCells().map((cell) => {
-                        const isCompleted = cell.column.id === 'completed';
-                        const isStatus = cell.column.id === 'status' && cell.getValue();
+              <tbody>
+  {table.getRowModel().rows.map((row) => (
+    <tr
+      key={row.id}
+      onDoubleClick={() => SelectRow(row.original)}
+      tabIndex={0}
+      className="cursor-pointer"
+    >
+      {row.getVisibleCells().map((cell) => {
+        const value = cell.getValue();
+        const isCompleted = cell.column.id === 'completed';
+        const isStatus = cell.column.id === 'status' && value;
+        const isPaid = cell.column.id === 'paid';
 
-                        // Badge config — matches reference image
-                        let badgeConfig = null;
-                        if (isCompleted) {
-                          badgeConfig = cell.getValue()
-                            ? { bg: '#c5ffd5', color: '#1a7a3c', label: 'Completed' }
-                            : { bg: '#ffdbdb', color: '#b03030', label: 'Incompleted' };
-                        }
-                        if (isStatus && cell.getValue()) {
-                          if (cell.getValue() === 'Completed')
-                            badgeConfig = { bg: '#c5ffd5', color: '#1a7a3c', label: 'Completed' };
-                          else if (cell.getValue() === 'Incompleted')
-                            badgeConfig = { bg: '#ffdbdb', color: '#b03030', label: 'Incompleted' };
-                        }
+        const hasValue =
+          value !== null &&
+          value !== undefined &&
+          value !== '';
 
-                        return (
-                          <td
-                            key={cell.id}
-                            className="px-3 py-2 transition-colors duration-150 group/cell relative cell-hover-effect overflow-hidden"
-                            style={{
-                              color: '#1F2937',
-                              backgroundColor: 'transparent',
-                              minWidth: cell.column.id === 'select' ? '50px' : '60px',
-                              maxWidth: cell.column.id === 'select' ? '50px' : '110px',
-                              fontSize: 'clamp(11px, 1.0vw, 13px)',
-                              fontWeight: '400',
-                              zIndex: 1,
-                              willChange: 'background-color, color',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            {(isCompleted || isStatus) && badgeConfig ? (
-                              <div className="w-full flex items-center justify-start pl-1">
-                                <span
-                                  style={{
-                                    display: 'inline-block',
-                                    backgroundColor: badgeConfig.bg,
-                                    color: badgeConfig.color,
-                                    fontSize: 'clamp(10px, 0.85vw, 12px)',
-                                    fontWeight: '500',
-                                    padding: '4px 14px',
-                                    borderRadius: '999px',
-                                    whiteSpace: 'nowrap',
-                                    letterSpacing: '0.01em',
-                                  }}
-                                >
-                                  {badgeConfig.label}
-                                </span>
-                              </div>
-                            ) : (isCompleted || isStatus) && !badgeConfig ? (
-                              // empty cell — no value, show nothing (matches empty rows in image)
-                              <div className="w-full" />
-                            ) : (
-                              <div
-                                className="px-2 py-1 text-[11px] font-normal flex items-center justify-center text-center truncate border rounded-xl transition-all duration-200 ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
-                                style={{
-                                  backgroundColor: '#f9f9f9',
-                                  borderColor: '#d1d5db',
-                                  maxWidth: '100%',
-                                  ...(isEditMode && {
-                                    backgroundColor: '#f9f9f9',
-                                    color: '#545454',
-                                    boxShadow: 'inset 0 0 0 1px #d1d1d1',
-                                    borderColor: '#d1d1d1',
-                                  }),
-                                }}
-                              >
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                              </div>
-                            )}
-                          </td>
-                        )
-                      })}
-                    </tr>
-                  ))}
-                  {/* EMPTY STATE */}
-                  {table.getRowModel().rows.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={columnsWithSelection.length}
-                        className="py-24 text-center"
-                      >
-                        <div className="flex flex-col items-center justify-center">
-                          <div 
-                            className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
-                            style={{ 
-                              background: 'linear-gradient(135deg, #6366F1, #A855F7)',
-                            }}
-                          >
-                            <svg 
-                              className="w-12 h-12" 
-                              style={{ color: '#FFFFFF' }}
-                              fill="none" 
-                              viewBox="0 0 24 24" 
-                              stroke="currentColor"
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                          </div>
-                          <p 
-                            className="font-normal mb-2" 
-                            style={{ 
-                              color: '#1F2937',
-                              fontSize: 'clamp(12px, 1.0vw, 14px)' 
-                            }}
-                          >
-                            {getTtl('No data available', ln)}
-                          </p>
-                          <p 
-                            style={{ 
-                              color: '#6B7280',
-                              fontSize: 'clamp(10px, 0.9vw, 12px)' 
-                            }}
-                          >
-                            Try adjusting your filters or date range
-                          </p>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
+        return (
+          <td
+            key={cell.id}
+            className="px-2 py-2 text-center"
+            style={{
+              minWidth: cell.column.id === 'select' ? '50px' : '60px',
+              maxWidth: cell.column.id === 'select' ? '50px' : '110px',
+            }}
+          >
+            {isCompleted ? (
+              <div className="flex justify-center">
+                <div
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-normal"
+                  style={{
+                    backgroundColor: value ? '#00bf63' : '#eb3636',
+                    color: '#FFFFFF',
+                    border: '1px solid #cecece'
+                  }}
+                >
+                  {value ? 'Completed' : 'Incompleted'}
+                </div>
+              </div>
+            ) : isStatus ? (
+              <div className="flex justify-center">
+                <div
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-normal"
+                  style={{
+                    backgroundColor:
+                      value === 'Completed'
+                        ? '#00bf63'
+                        : '#eb3636',
+                    color: '#FFFFFF',
+                    border: '1px solid #cecece'
+                  }}
+                >
+                  {value}
+                </div>
+              </div>
+            ) : isPaid && hasValue ? (
+              <div className="flex justify-center">
+                <div
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-normal min-w-[70px] text-center"
+                  style={{
+                    backgroundColor:
+                      value === 'Paid'
+                        ? '#ceb8ff'
+                        : value === 'Unpaid'
+                        ? '#c387b4'
+                        : '#f9f9f9',
+                    color: value === 'Paid' || value === 'Unpaid' ? '#1d3d79' : '#1F2937',
+                    border: '1px solid #cecece',
+                    fontWeight: value === 'Paid' || value === 'Unpaid' ? '600' : '400'
+                  }}
+                >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-center">
+                {hasValue ? (
+                  <div
+                    className="px-3 py-1.5 rounded-lg text-[11px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
+                    style={{
+                      backgroundColor: '#f9f9f9',
+                      border: '1px solid #cecece',
+                      ...(isEditMode && {
+                        boxShadow: 'inset 0 0 0 1px #d1d1d1'
+                      })
+                    }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </div>
+                ) : (
+                  <div className="text-[11px] text-[#6B7280]">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </div>
+                )}
+              </div>
+            )}
+          </td>
+        );
+      })}
+    </tr>
+  ))}
+
+  {table.getRowModel().rows.length === 0 && (
+    <tr>
+      <td
+        colSpan={columnsWithSelection.length}
+        className="py-24 text-center"
+      >
+        <div className="flex flex-col items-center justify-center">
+          <div
+            className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, #6366F1, #A855F7)',
+            }}
+          >
+            <svg
+              className="w-12 h-12"
+              style={{ color: '#FFFFFF' }}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <p
+            className="font-normal mb-2"
+            style={{
+              color: '#1F2937',
+              fontSize: 'clamp(12px, 1.0vw, 14px)'
+            }}
+          >
+            {getTtl('No data available', ln)}
+          </p>
+          <p
+            style={{
+              color: '#6B7280',
+              fontSize: 'clamp(10px, 0.9vw, 12px)'
+            }}
+          >
+            Try adjusting your filters or date range
+          </p>
+        </div>
+      </td>
+    </tr>
+  )}
+</tbody>
 
               </table>
             </div>
@@ -516,7 +531,47 @@ const Customtable = ({
                               border: '1px solid #E5E7EB'
                             }}
                           >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            {cell.column.id === 'completed' ? (
+                              cell.getValue() ? (
+                                <div 
+                                      className="w-full px-2 py-2 rounded-md text-[11px] font-normal flex items-center gap-2 justify-center shadow-md"
+                                      style={{ 
+                                        backgroundColor: '#00bf63',
+                                        color: '#FFFFFF'
+                                      }}
+                                >
+                                  Completed
+                                </div>
+                              ) : (
+                                <div 
+                                  className="w-full px-2 py-2 rounded-md text-[11px] font-normal flex items-center gap-2 justify-center shadow-sm"
+                                  style={{ 
+                                    backgroundColor: '#eb3636',
+                                    color: '#FFFFFF'
+                                  }}
+                                >
+                                  Pending
+                                </div>
+                              )
+                            ) : cell.column.id === 'paid' && cell.getValue() ? (
+                              <div 
+                                className="w-full px-2 py-2 rounded-md text-[11px] font-semibold flex items-center gap-2 justify-center shadow-sm"
+                                style={{ 
+                                  backgroundColor:
+                                    cell.getValue() === 'Paid'
+                                      ? '#ceb8ff'
+                                      : cell.getValue() === 'Unpaid'
+                                      ? '#c387b4'
+                                      : '#f9f9f9',
+                                  color: '#1d3d79',
+                                  border: '1px solid #cecece'
+                                }}
+                              >
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </div>
+                            ) : (
+                              flexRender(cell.column.columnDef.cell, cell.getContext())
+                            )}
                           </div>
                         </div>
                       );
@@ -567,44 +622,55 @@ const Customtable = ({
             </div>
           </div>
 
-          {/* FOOTER - Professional Style */}
-          <div 
-            className="flex-shrink-0"
-            style={{ 
-              borderTop: '2px solid #E5E7EB',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
-            }}
-          >
-            <div className="flex flex-row items-center justify-between gap-2 px-4 py-2">
+         <div
+  className="flex-shrink-0"
+  style={{
+    borderTop: '2px solid #E5E7EB',
+    background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+  }}
+>
+  <div className="px-4 py-3">
 
-              {/* LEFT — "Showing X out of Y" */}
-              <div
-                className="whitespace-nowrap font-normal"
-                style={{
-                  color: '#1a56a4',
-                  fontSize: 'clamp(9px, 0.75vw, 11px)',
-                  minWidth: '120px',
-                }}
-              >
-                {`Showing ${
-                  table.getRowModel().rows.length
-                } out of ${
-                  table.getFilteredRowModel().rows.length
-                }`}
-              </div>
+    {/* TOP ROW */}
+    <div className="grid grid-cols-3 items-center">
 
-              {/* CENTER — Paginator (Previous | 1 2 3 4 | Next) */}
-              <div className="flex items-center justify-center flex-1">
-                <Paginator table={table} />
-              </div>
+      {/* LEFT — Showing Info */}
+      <div className="flex justify-start">
+        <div
+          className="whitespace-nowrap font-normal"
+          style={{
+            color: '#6B7280',
+            fontSize: 'clamp(7px, 0.6vw, 9px)'
+          }}
+        >
+          {`${
+            table.getState().pagination.pageIndex *
+              table.getState().pagination.pageSize +
+            (table.getFilteredRowModel().rows.length ? 1 : 0)
+          } - ${
+            table.getRowModel().rows.length +
+            table.getState().pagination.pageIndex *
+              table.getState().pagination.pageSize
+          } ${getTtl('of', ln)} ${
+            table.getFilteredRowModel().rows.length
+          }`}
+        </div>
+      </div>
 
-              {/* RIGHT — Rows selector */}
-              <div className="flex items-center justify-end" style={{ minWidth: '80px' }}>
-                <RowsIndicator table={table} />
-              </div>
+      {/* CENTER — Pagination */}
+      <div className="flex justify-center">
+        <Paginator table={table} />
+      </div>
 
-            </div>
-          </div>
+      {/* RIGHT — Rows Indicator */}
+      <div className="flex justify-end">
+        <RowsIndicator table={table} />
+      </div>
+
+    </div>
+
+  </div>
+</div>
 
         </div>
       </div>
