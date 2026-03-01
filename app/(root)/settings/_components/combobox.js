@@ -20,11 +20,11 @@ export default function Example({ languages, compData, setCompData, lang }) {
         <div className="relative my-1">
           <Listbox.Button className='cursor-default rounded-md
                      focus:outline-none text-sm 
-                   py-1 pl-3 pr-10 text-[var(--port-gore)] h-8 max-w-3xl w-32'>
+                   py-1 pr-10 text-[#979797] h-8 max-w-3xl w-32'>
             <span className="block truncate">{selected?.lng || ''}</span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <HiChevronUpDown
-                className="h-5 w-5 text-[var(--regent-gray)]"
+                className="h-5 w-5 text-[#979797]"
                 aria-hidden="true"
               />
             </span>
