@@ -332,7 +332,7 @@ const Customtable = ({
                             className="px-2 py-2 text-center"
                             style={{
                               minWidth: cell.column.id === 'select' ? '50px' : '60px',
-                              maxWidth: cell.column.id === 'select' ? '50px' : '110px',
+                              maxWidth: cell.column.id === 'select' ? '50px' : '150px',
                             }}
                           >
                             {isCompleted ? (
@@ -464,15 +464,15 @@ const Customtable = ({
                   }}
                 >
                   <div 
-                    className="px-3 py-2 flex items-center justify-between"
-                    style={{ 
-                      background: 'linear-gradient(135deg, #6366F1, #9333EA, #0D9488)',
-                    }}
+                    className="px-3 py-2 flex items-center justify-between bg-[#9ad4ff]"
+                    // style={{ 
+                    //   background: 'linear-gradient(135deg, #6366F1, #9333EA, #0D9488)',
+                    // }}
                   >
                     <span 
                       className="font-normal"
                       style={{ 
-                        color: '#FFFFFF',
+                        color: '#005b9f',
                         fontSize: 'clamp(9px, 0.8vw, 10px)',
                         textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                       }}

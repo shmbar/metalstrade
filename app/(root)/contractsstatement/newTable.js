@@ -1,5 +1,5 @@
-// 'use client'
 
+'use client'
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
   const style = document.createElement('style');
@@ -175,24 +175,31 @@ const Customtable = ({
           -webkit-backdrop-filter: blur(16px) saturate(180%);
         }
 
-        /* Use Poppins for the table and limit transitions to non-transform properties
-           to avoid any hover vibration (no transform transitions allowed). */
         .custom-table, .custom-table *, .glass-table, .glass-table * {
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          font-size: 10px !important;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
         }
 
-        /* Add border, background, and text alignment styles for table cells */
-        .custom-table th, .custom-table td {
+        .custom-table th {
           border: 1px solid #ccc;
           background-color: #f9f9f9;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
+          font-size: 11px !important;
+        }
+
+        .custom-table td {
+          border: 1px solid #ccc;
+          background-color: #f9f9f9;
+          text-align: center;
+          vertical-align: middle;
+          padding: 6px;
+          border-radius: 4px;
+          font-size: 10px !important;
         }
 
         .custom-table th {
@@ -203,6 +210,7 @@ const Customtable = ({
           background-color: #fff;
           border: 1px solid #e0e0e0;
         }
+
       `}</style>
 
       <div className="custom-table">
@@ -249,12 +257,11 @@ const Customtable = ({
                         {group.headers.map(header => (
                           <th
                             key={header.id}
-                            className="px-2 py-2 uppercase"
+                            className="font-poppins text-xs"
                             style={{
                               color: '#183d79',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',
                               maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                              fontSize: 'clamp(10px, 1.0vw, 13px)',
                               letterSpacing: '0.05em',
                               textAlign: 'center',
                             }}
@@ -304,68 +311,70 @@ const Customtable = ({
                       >
                         {row.getVisibleCells().map((cell) => {
                           const isCompleted = cell.column.id === 'completed';
-                          const isStatus = cell.column.id === 'status' && cell.getValue();
-                        
-                        // Badge config with light backgrounds
-                        let badgeConfig = null;
-                        if (isCompleted) {
-                          badgeConfig = cell.getValue()
-                            ? { bg: '#c5ffd5', color: '#1a7a3c', label: 'Completed' }
-                            : { bg: '#ffdbdb', color: '#b03030', label: 'Incompleted' };
-                        }
-                        if (isStatus && cell.getValue()) {
-                          if (cell.getValue() === 'Completed')
-                            badgeConfig = { bg: '#c5ffd5', color: '#1a7a3c', label: 'Completed' };
-                          else if (cell.getValue() === 'Incompleted')
-                            badgeConfig = { bg: '#ffdbdb', color: '#b03030', label: 'Incompleted' };
-                        }
+                          const isStatus = cell.column.id === 'status';
 
                         return (
                           <td
                             key={cell.id}
-                            className="px-3 py-2 transition-colors duration-150 group/cell relative cell-hover-effect overflow-hidden"
+                            className="px-2 py-2 text-center"
                             style={{
-                              color: '#1F2937',
-                              backgroundColor: 'transparent',
                               minWidth: cell.column.id === 'select' ? '50px' : '60px',
-                              maxWidth: cell.column.id === 'select' ? '50px' : '110px',
-                              fontSize: 'clamp(11px, 1.0vw, 13px)',
-                              fontWeight: '400',
-                              zIndex: 1,
-                              willChange: 'background-color, color',
-                              overflow: 'hidden',
+                              maxWidth: cell.column.id === 'select' ? '50px' : '150px',
                             }}
                           >
-                            {(isCompleted || isStatus) && badgeConfig ? (
-                              <div className="w-full flex items-center justify-start pl-1">
-                                <span
+                            {isCompleted ? (
+                              <div className="flex justify-center">
+                                <div
+                                  className="px-3 py-1.5 rounded-lg text-[11px] font-normal"
                                   style={{
-                                    display: 'inline-block',
-                                    backgroundColor: badgeConfig.bg,
-                                    color: badgeConfig.color,
-                                    fontSize: 'clamp(10px, 0.85vw, 12px)',
-                                    fontWeight: '500',
-                                    padding: '4px 14px',
-                                    borderRadius: '999px',
-                                    whiteSpace: 'nowrap',
-                                    letterSpacing: '0.01em',
+                                    backgroundColor: cell.getValue() ? '#00bf63' : '#eb3636',
+                                    color: '#FFFFFF',
+                                    border: '1px solid #cecece'
                                   }}
                                 >
-                                  {badgeConfig.label}
-                                </span>
+                                  {cell.getValue() ? 'Completed' : 'Incompleted'}
+                                </div>
                               </div>
-                            ) : (isCompleted || isStatus) && !badgeConfig ? (
-                              <div className="w-full" />
+                            ) : isStatus ? (
+                              <div className="flex justify-center">
+                                <div
+                                  className="px-3 py-1.5 rounded-lg text-[11px] font-normal"
+                                  style={{
+                                    backgroundColor:
+                                      cell.getValue() === 'Paid'
+                                        ? '#ceb8ff'
+                                        : cell.getValue() === 'Unpaid'
+                                        ? '#c387b4'
+                                        : '#f9f9f9',
+                                    border: cell.getValue() ? '1px solid #cecece' : 'none',
+                                    color: '#1F2937'
+                                  }}
+                                >
+                                  {cell.getValue() || '\u00A0'}
+                                </div>
+                              </div>
                             ) : (
-                              <div
-                                className="px-2 py-1 text-[11px] font-normal flex items-center justify-center text-center truncate border rounded-xl transition-all duration-200 ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
-                                style={{
-                                  backgroundColor: '#f9f9f9',
-                                  borderColor: '#d1d5db',
-                                  maxWidth: '100%',
-                                }}
-                              >
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              <div className="flex justify-center">
+                                {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
+                                  <div
+                                    className="px-3 py-1.5 rounded-lg text-[11px] font-normal min-w-[70px]"
+                                    style={{
+                                      backgroundColor:
+                                        cell.getValue() === 'Paid'
+                                          ? '#ceb8ff'
+                                          : cell.getValue() === 'Not Paid'
+                                          ? '#c387b4'
+                                          : '#f9f9f9',
+                                      border: '1px solid #cecece',
+                                    }}
+                                  >
+                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                  </div>
+                                ) : (
+                                  <div className="text-[11px] text-[#6B7280]">
+                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                  </div>
+                                )}
                               </div>
                             )}
                           </td>
@@ -375,25 +384,81 @@ const Customtable = ({
 
                       {/* Expanded SubRows */}
                       {row.getIsExpanded() && row.subRows && row.subRows.length > 0 && (
-                        <tr style={{ backgroundColor: '#FAFAFA' }}>
+                        <tr style={{ backgroundColor: '#FFFFFF' }}>
                           <td colSpan={row.getVisibleCells().length} className="p-0">
-                            <div className="p-4">
-                              <table className="w-full">
-                                <tbody>
-                                  {row.subRows.map(sub => (
-                                    <tr key={sub.id} style={{ borderBottom: '1px solid #E5E7EB' }} className="last:border-b-0">
-                                      {sub.getVisibleCells().map(cell => (
-                                        <td key={cell.id} className="px-2 py-2" style={{ fontSize: 'clamp(10px, 0.9vw, 12px)' }}>
-                                          <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border border-transparent transition-all duration-200 ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] rounded-xl hover:shadow-[inset_0_0_0_1px_#d1d1d1]">
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}
-                                          </div>
+                            <table className="w-full" style={{ tableLayout: 'auto' }}>
+                              <tbody>
+                                {row.subRows.map(sub => (
+                                  <tr key={sub.id} className="cursor-pointer">
+                                    {sub.getVisibleCells().map((cell) => {
+                                      const isCompleted = cell.column.id === 'completed';
+                                      const isStatus = cell.column.id === 'status';
+
+                                      return (
+                                        <td
+                                          key={cell.id}
+                                          className="px-2 py-2 text-center"
+                                          style={{
+                                            minWidth: cell.column.id === 'select' ? '50px' : '60px',
+                                            maxWidth: cell.column.id === 'select' ? '50px' : '150px',
+                                          }}
+                                        >
+                                          {isCompleted ? (
+                                            <div className="flex justify-center">
+                                              <div
+                                                className="px-3 py-1.5 rounded-lg text-[11px] font-normal"
+                                                style={{
+                                                  backgroundColor: cell.getValue() ? '#00bf63' : '#eb3636',
+                                                  color: '#FFFFFF',
+                                                  border: '1px solid #cecece'
+                                                }}
+                                              >
+                                                {cell.getValue() ? 'Completed' : 'Incompleted'}
+                                              </div>
+                                            </div>
+                                          ) : isStatus ? (
+                                            <div className="flex justify-center">
+                                              <div
+                                                className="px-3 py-1.5 rounded-lg text-[11px] font-normal"
+                                                style={{
+                                                  backgroundColor:
+                                                    cell.getValue() === 'Paid'
+                                                      ? '#ceb8ff'
+                                                      : cell.getValue() === 'Unpaid'
+                                                      ? '#c387b4'
+                                                      : '#f9f9f9',
+                                                  border: cell.getValue() ? '1px solid #cecece' : 'none',
+                                                  color: '#1F2937'
+                                                }}
+                                              >
+                                                {cell.getValue() || '\u00A0'}
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            <div className="flex justify-center">
+                                              <div
+                                                className="px-3 py-1.5 rounded-lg text-[11px] font-normal min-w-[70px]"
+                                                style={{
+                                                  backgroundColor:
+                                                    cell.getValue() === 'Paid'
+                                                      ? '#ceb8ff'
+                                                      : cell.getValue() === 'Not Paid'
+                                                      ? '#c387b4'
+                                                      : '#f9f9f9',
+                                                  border: '1px solid #cecece',
+                                                }}
+                                              >
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}
+                                              </div>
+                                            </div>
+                                          )}
                                         </td>
-                                      ))}
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
+                                      )
+                                    })}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </td>
                         </tr>
                       )}
@@ -467,16 +532,16 @@ const Customtable = ({
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
                   }}
                 >
-                  {/* Card Header - Light Blue */}
                   <div 
-                    className="px-3 py-2 flex items-center justify-between"
-                    style={{ 
-                      background: '#bce1ff',
-                    }}
+                    className="px-3 py-2 flex items-center justify-between bg-[#9ad4ff]"
+                    // style={{ 
+                    //   background: 'linear-gradient(135deg, #6366F1, #9333EA, #0D9488)',
+                    // }}
                   >
                     <span 
                       className="font-normal"
                       style={{ 
+                        color: '#005b9f',
                         fontSize: 'clamp(9px, 0.8vw, 10px)',
                         textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                       }}
@@ -535,42 +600,61 @@ const Customtable = ({
                     {row.getIsExpanded() && row.subRows && row.subRows.length > 0 && (
                       <div className="mt-3 pt-3" style={{ borderTop: '2px solid #E5E7EB' }}>
                         {row.subRows.map((sub, subIdx) => (
-                          <div key={sub.id} className="mb-3 p-3 rounded-lg" style={{ backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+                          <div 
+                            key={sub.id} 
+                            className="mb-3 p-3 rounded-lg" 
+                            style={{ 
+                              backgroundColor: '#F9FAFB', 
+                              border: '1px solid #E5E7EB',
+                              borderLeft: '3px solid #6366F1'
+                            }}
+                          >
                             <div 
-                              className="font-normal mb-2" 
+                              className="font-medium mb-2.5 pb-2" 
                               style={{ 
                                 color: '#6366F1',
-                                fontSize: 'clamp(7px, 0.7vw, 8px)',
-                                fontWeight: '600'
+                                fontSize: 'clamp(9px, 0.9vw, 11px)',
+                                fontWeight: '600',
+                                borderBottom: '1px solid #E5E7EB'
                               }}
                             >
                               Sub-item {subIdx + 1}
                             </div>
-                            {sub.getVisibleCells().map(cell => {
-                              if (cell.column.id === 'select') return null;
-                              return (
-                                <div key={cell.id} className="flex justify-between items-center py-1 min-h-[32px]">
-                                  <span 
-                                    className="font-normal uppercase pr-2"
-                                    style={{ 
-                                      color: '#6B7280',
-                                      fontSize: 'clamp(6px, 0.6vw, 7px)' 
-                                    }}
-                                  >
-                                    {cell.column.columnDef.header}
-                                  </span>
-                                  <span 
-                                    className="truncate"
-                                    style={{ 
-                                      fontSize: 'clamp(7px, 0.7vw, 9px)',
-                                      color: '#1F2937'
-                                    }}
-                                  >
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}
-                                  </span>
-                                </div>
-                              );
-                            })}
+                            <div className="space-y-2">
+                              {sub.getVisibleCells().map(cell => {
+                                if (cell.column.id === 'select') return null;
+                                const value = cell.getValue();
+                                const hasValue = value !== null && value !== undefined && value !== '';
+                                
+                                return (
+                                  <div key={cell.id} className="flex justify-between items-center py-1.5 min-h-[32px]">
+                                    <span 
+                                      className="font-medium uppercase pr-3"
+                                      style={{ 
+                                        color: '#6B7280',
+                                        fontSize: 'clamp(8px, 0.8vw, 9px)',
+                                        letterSpacing: '0.05em'
+                                      }}
+                                    >
+                                      {cell.column.columnDef.header}:
+                                    </span>
+                                    <span 
+                                      className="truncate text-right px-2 py-1 rounded"
+                                      style={{ 
+                                        fontSize: 'clamp(9px, 0.9vw, 11px)',
+                                        color: hasValue ? '#1F2937' : '#9CA3AF',
+                                        backgroundColor: '#FFFFFF',
+                                        border: '1px solid #E5E7EB',
+                                        fontWeight: '500',
+                                        minWidth: '60px'
+                                      }}
+                                    >
+                                      {hasValue ? flexRender(cell.column.columnDef.cell, cell.getContext()) : '—'}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -622,41 +706,42 @@ const Customtable = ({
           </div>
 
           {/* FOOTER - Professional Style */}
-          <div 
+          <div
             className="flex-shrink-0"
-            style={{ 
+            style={{
               borderTop: '2px solid #E5E7EB',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+              background: '#FFFFFF'
             }}
           >
-            <div className="flex flex-row items-center justify-between gap-2 px-4 py-2">
+            <div className="w-full px-6 py-4">
+              <div className="flex items-center justify-between">
 
-              {/* LEFT — "Showing X out of Y" */}
+              {/* LEFT — COUNT */}
               <div
-                className="whitespace-nowrap font-normal"
-                style={{
-                  color: '#1a56a4',
-                  fontSize: 'clamp(9px, 0.75vw, 11px)',
-                  minWidth: '120px',
-                }}
+                className="text-sm font-medium"
+                style={{ color: '#6B7280' }}
               >
-                {`Showing ${
-                  table.getRowModel().rows.length
-                } out of ${
-                  table.getFilteredRowModel().rows.length
-                }`}
+                {`${
+                  table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
+                  (table.getFilteredRowModel().rows.length ? 1 : 0)
+                }–${
+                  table.getRowModel().rows.length +
+                  table.getState().pagination.pageIndex *
+                  table.getState().pagination.pageSize
+                } of ${table.getFilteredRowModel().rows.length}`}
               </div>
 
-              {/* CENTER — Paginator (Previous | 1 2 3 4 | Next) */}
-              <div className="flex items-center justify-center flex-1">
+              {/* CENTER — PAGINATOR */}
+              <div className="flex justify-center">
                 <Paginator table={table} />
               </div>
 
-              {/* RIGHT — Rows selector */}
-              <div className="flex items-center justify-end" style={{ minWidth: '80px' }}>
+              {/* RIGHT — ROWS */}
+              <div className="flex justify-end">
                 <RowsIndicator table={table} />
               </div>
 
+              </div>
             </div>
           </div>
 

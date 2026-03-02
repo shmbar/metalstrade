@@ -301,7 +301,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                         className="px-2 py-2 text-center"
                                                         style={{
                                                             minWidth: cell.column.id === 'select' ? '50px' : '60px',
-                                                            maxWidth: cell.column.id === 'select' ? '50px' : '110px',
+                                                            maxWidth: cell.column.id === 'select' ? '50px' : '150px',
                                                         }}
                                                     >
                                                         {(isCompleted || isStatus) && badgeConfig ? (
@@ -420,14 +420,14 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                     {/* Card Header - Multi-gradient */}
                                                 <div 
                                                     className="px-3 py-2 flex items-center justify-between"
-                                                    style={{ 
-                                                        background: 'linear-gradient(135deg, #6366F1, #9333EA, #0D9488)',
-                                                    }}
+                                                    // style={{ 
+                                                    //     background: 'linear-gradient(135deg, #6366F1, #9333EA, #0D9488)',
+                                                    // }}
                                                 >
                                                     <span 
                                                         className="font-normal"
                                                         style={{ 
-                                                            color: '#FFFFFF',
+                                                            color: '#005b9f',
                                                             fontSize: 'clamp(9px, 0.8vw, 10px)',
                                                             textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                                                         }}
