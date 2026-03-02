@@ -30,7 +30,6 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
                 .glass-table, .glass-table * {
                     font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial !important;
-                    font-size: 10px !important; /* Lowered font size */
                     color: #1a3353;
                 }
                 .glass-table th, .glass-table td {
@@ -88,7 +87,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
                 }}>
                 {heading && (
-                    <div className="text-xs font-normal font-poppins text-[#1a3353] mb-3 sm:mb-4 pl-1 pt-1" style={{fontSize: 'clamp(10px, 1vw, 12px)'}}>
+                    <div className="font-normal font-poppins text-[#1a3353] mb-3 sm:mb-4 pl-1 pt-1">
                         {heading}
                     </div>
                 )}
@@ -97,25 +96,26 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     
                 }}>
                     {/* Desktop Table View */}
-     <div className="hidden sm:block flex-1 rounded-2xl ">
+                 <div className="hidden sm:block flex-1 rounded-2xl ">
 
-  <div
-    className="rounded-2xl"
-    style={{
-      boxShadow: '0 3px 8px rgba(0,0,0,0.06)'
-    }}
-  >
+                        <div
+                        className="rounded-2xl overflow-hidden border border-[#e0e0e0]"
+                        style={{
+                            borderRadius: '16px',
+                            boxShadow: '0 3px 8px rgba(0,0,0,0.06)',
+                            background: '#ffffff'
+                        }}
+                        >
 
-    {/* TITLE HEADER (BLUE SECTION) */}
-    <div
-      className="px-6 py-4 text-center font-normal font-poppins "
-      style={{
-        background: '#e3f3ff',
-        color: '#1d3d79'
-      }}
-    >
-      {title}
-    </div>
+                        <div
+                        className="px-6 py-4 text-center font-bold font-poppins text-[12px]"
+                        style={{
+                            background: '#e3f3ff',
+                            color: '#005b9f'
+                        }}
+                        >
+                        {title}
+                        </div>
                         <table className="w-full glass-table">
                             <thead>
                                 {table1.getHeaderGroups().map(hdGroup => (
@@ -123,15 +123,15 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                         {hdGroup.headers.map(header => (
                                             <th key={header.id}>
                                                 {header.column.getCanSort() ? (
-                                                    <div onClick={header.column.getToggleSortingHandler()} className="text-xs flex cursor-pointer items-center gap-1 justify-center text-[#005b9f]">
+                                                    <div onClick={header.column.getToggleSortingHandler()} className="text-[11px] flex cursor-pointer items-center gap-1 justify-center text-[#005b9f]">
                                                         {header.column.columnDef.header}
                                                         {{
-                                                            asc: <TbSortAscending className="text-[#6366F1] scale-125" />, 
-                                                            desc: <TbSortDescending className="text-[#6366F1] scale-125" />
+                                                            asc: <TbSortAscending className="text-[#005b9f] scale-125" />, 
+                                                            desc: <TbSortDescending className="text-[#005b9f] scale-125" />
                                                         }[header.column.getIsSorted()]}
                                                     </div>
                                                 ) : (
-                                                    <span className="text-xs" style={{color:'#005b9f'}}>{header.column.columnDef.header}</span>
+                                                    <span className="text-[11px]" style={{color:'#005b9f'}}>{header.column.columnDef.header}</span>
                                                 )}
                                             </th>
                                         ))}
@@ -144,7 +144,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                         {row.getVisibleCells().map(cell => (
                                             <td key={cell.id}>
                                                 <Tltip direction='right' tltpText={expensesToolTip(row, expensesData, settings, filt)}>
-                                                    <span className="items-center flex outline-none whitespace-normal break-words cursor-default" style={{color:'#005b9f', fontSize:'clamp(12px,1vw,14px)'}}>
+                                                    <span className="items-center flex outline-none whitespace-normal break-words cursor-default text-[11px]" style={{color:'#005b9f'}}>
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                     </span>
                                                 </Tltip>
