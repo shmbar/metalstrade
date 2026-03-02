@@ -237,20 +237,66 @@ const ContractModal = () => {
 
 
 	return (
-		<div className="px-1">
+		<div className="px-2">
 			{loading && <Spinner />}
-			<div className='grid grid-cols-12 gap-3 pt-1'>
-				<div className='col-span-12 md:col-span-2 border border-[var(--selago)] p-2 rounded-lg'>
+
+			<style jsx global>{`
+				.invoice-modal-form input.input,
+				.invoice-modal-form select,
+				.invoice-modal-form textarea {
+					height: 26px;
+					font-size: 10px;
+					padding: 0 6px;
+					font-weight: 400;
+					color: #0b3d6b;
+				}
+				.invoice-modal-form textarea {
+					height: auto;
+					padding: 4px 6px;
+				}
+				.invoice-modal-form .shadow-md,
+				.invoice-modal-form .shadow-lg {
+					box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+				}
+				.invoice-modal-form button.blackButton,
+				.invoice-modal-form button.whiteButton {
+					height: 26px;
+					font-size: 10px;
+					padding: 0 10px;
+					font-weight: 500;
+				}
+				.invoice-modal-form p,
+				.invoice-modal-form span,
+				.invoice-modal-form label {
+					font-size: 10px;
+					color: #0b3d6b;
+				}
+				.invoice-modal-form .text-sm {
+					font-size: 9px;
+				}
+				.invoice-modal-form .text-xs {
+					font-size: 8px;
+				}
+				.invoice-modal-form .font-semibold {
+					font-weight: 600;
+				}
+				.invoice-modal-form .font-medium {
+					font-weight: 500;
+				}
+			`}</style>
+
+			<div className='invoice-modal-form grid grid-cols-12 gap-3 pt-1'>
+				<div className='col-span-12 md:col-span-2 border border-gray-200 p-2 rounded-lg'>
 					<p className='text-sm text-[var(--port-gore)] font-medium'>{getTtl('Invoices', ln)}:</p>
 					{valueCon.invoices.length > 0 &&
-						<ul className="flex flex-col mt-1 overflow-auto ring-1 ring-[var(--selago)] rounded-lg divide-y" >
+						<ul className="flex flex-col mt-1 overflow-auto ring-1 ring-gray-200 rounded-lg divide-y" >
 							{valueCon.invoices.map((x, i) => {
 								return (
 									<li key={i} onClick={() => selectRow(i)}
 										className={`items-center py-1 px-1.5 text-[0.75rem] 
 										truncate 
-										${valueCon.invoices[i]['id'] === valueInv.id && 'font-medium bg-[var(--selago)] '}
-										${(isInvCreationCNFL && x.invType !== '1111') ? 'bg-[var(--selago)]/50 pointer-events-none cursor-not-allowed text-[var(--regent-gray)]' : 'cursor-pointer text-[var(--port-gore)]'}
+										${valueCon.invoices[i]['id'] === valueInv.id && 'font-medium bg-gray-50 '}
+										${(isInvCreationCNFL && x.invType !== '1111') ? 'bg-gray-50/50 pointer-events-none cursor-not-allowed text-[var(--regent-gray)]' : 'cursor-pointer text-[var(--port-gore)]'}
 								}
 									`}
 									>
@@ -260,7 +306,7 @@ const ContractModal = () => {
 							})}
 						</ul>}
 				</div>
-				<div className='col-span-12 md:col-span-3 border border-[var(--selago)] p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-3 border border-gray-200 p-2 rounded-lg'>
 					<p className='flex items-center text-sm font-medium'>{getTtl('Consignee', ln)}:</p>
 					<div>
 						{!fnl ?
@@ -287,7 +333,7 @@ const ContractModal = () => {
 						</>
 					)}
 				</div>
-				<div className='col-span-12 md:col-span-2 border border-[var(--selago)] p-2 rounded-lg flex flex-col'>
+				<div className='col-span-12 md:col-span-2 border border-gray-200 p-2 rounded-lg flex flex-col'>
 					<p className='text-sm text-[var(--port-gore)] font-medium indent-1'>{getTtl('Invoice Type', ln)}:</p>
 					{!fnl ?
 						<div>
@@ -302,7 +348,7 @@ const ContractModal = () => {
 				</div>
 				<div className='col-span-12 md:col-span-2 border border-[var(--selago)] p-2 rounded-lg flex flex-col'>
 					<p className='text-sm text-[var(--port-gore)] font-medium indent-1'>{getTtl('PO', ln)}#:</p>
-					{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col mt-1 ring-1 ring-[var(--selago)] rounded-lg divide-y divide-[var(--selago)]" >
+					{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col mt-1 ring-1 ring-gray-200 rounded-lg divide-y divide-gray-200" >
 						{poArr.map((x, i) => {
 							return (
 								<li key={i}
@@ -315,7 +361,7 @@ const ContractModal = () => {
 				</ul>}
 
 				</div>
-				<div className='col-span-12 md:col-span-3 border border-[var(--selago)] p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-3 border border-gray-200 p-2 rounded-lg'>
 					<div className='flex items-center pt-1'>
 						<p className='flex text-xs font-medium'>{getTtl('Date', ln)}:</p>
 						<div className='w-full px-2'>
@@ -359,7 +405,7 @@ const ContractModal = () => {
 
 
 			<div className='grid grid-cols-3 gap-3 pt-2'>
-				<div className='col-span-12 md:col-span-1 border border-[var(--selago)] p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-gray-200 p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex pt-1 text-sm font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -412,7 +458,7 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-[var(--selago)] p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-gray-200 p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
 						<div className='w-full md:w-44'>

@@ -119,8 +119,8 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
             <div className="flex flex-col w-full">
                 <div className="relative">
                     <div className="border rounded-lg  relative">
-                        <table className=" table-fixed min-w-full divide-y divide-[var(--selago)]">
-                            <thead className="bg-[var(--selago)]/50 ">
+                        <table className=" table-fixed min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50 ">
                                 <tr>
                                     <th scope="col" className=" w-1/12 py-1 pl-4 "></th>
                                     <th scope="col" className="w-1/12 px-1 py-1 text-left text-sm font-medium text-[var(--regent-gray)]"  >
@@ -135,7 +135,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[var(--selago)] relative">
+                            <tbody className="divide-y divide-gray-200 relative">
                                 {reOrderTableCon(value.productsData).map((obj, i) => {
                                     return (
                                         <tr key={i} className='relative'>

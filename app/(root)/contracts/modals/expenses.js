@@ -69,19 +69,19 @@ const Expenses = ({ showExpenses }) => {
 
 
     return valueExp && (
-        <div className={`z-10 relative mt-2 border border-[var(--selago)] rounded-lg 
+        <div className={`z-10 relative mt-2 border border-gray-200 rounded-lg 
         ${showExpenses ? 'flex animated-div' : 'hidden'}`}>
             <div className='grid grid-cols-4  gap-3 p-2 w-full'>
-                <div className='col-span-12 md:col-span-1 border border-[var(--selago)] rounded-lg p-2 h-fit'>
+                <div className='col-span-12 md:col-span-1 border border-gray-200 rounded-lg p-2 h-fit'>
                     <p className='text-sm text-[var(--port-gore)] font-medium'>{getTtl('Expenses', ln)}:</p>
                     {valueInv.expenses.length > 0 &&
-                        <ul className="flex flex-col mt-1 overflow-auto ring-1 ring-[var(--selago)] rounded-lg divide-y divide-[var(--selago)]" >
+                        <ul className="flex flex-col mt-1 overflow-auto ring-1 ring-gray-200 rounded-lg divide-y divide-gray-200" >
                             {valueInv.expenses.map((x, i) => {
                                 return (
                                     <li key={i} onClick={() => selectRow(i)}
                                         className={`items-center py-1 px-1.5 text-[0.75rem] text-[var(--port-gore)]
 									truncate cursor-pointer 
-									${valueInv.expenses[i]['id'] === valueExp.id && 'font-medium bg-[var(--selago)] '}`}>
+									${valueInv.expenses[i]['id'] === valueExp.id && 'font-medium bg-gray-50 '}`}>
                                         {x.expense}
                                     </li>
                                 )

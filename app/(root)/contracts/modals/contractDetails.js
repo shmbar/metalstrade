@@ -91,10 +91,58 @@ const ContractModal = () => {
 	}
 
 	return (
-		<div className="px-2 md:px-4 py-2">
+		<div className="px-3 md:px-4 py-3">
 
-			<div className='grid grid-cols-6 gap-4 pt-2'>
-				<div className='col-span-12 md:col-span-3 border border-[var(--selago)] p-3 rounded-xl bg-white shadow-sm'>
+			<style jsx global>{`
+				.contracts-modal-form input.input,
+				.contracts-modal-form select,
+				.contracts-modal-form textarea {
+					height: 26px;
+					font-size: 10px;
+					padding: 0 6px;
+					font-weight: 400;
+					color: #0b3d6b;
+				}
+				.contracts-modal-form textarea {
+					height: auto;
+					padding: 4px 6px;
+				}
+				.contracts-modal-form .shadow-md,
+				.contracts-modal-form .shadow-lg {
+					box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+				}
+				.contracts-modal-form button.blackButton,
+				.contracts-modal-form button.whiteButton {
+					height: 26px;
+					font-size: 10px;
+					padding: 0 10px;
+					font-weight: 500;
+				}
+				.contracts-modal-form p,
+				.contracts-modal-form span,
+				.contracts-modal-form label {
+					font-size: 10px;
+					color: #0b3d6b;
+				}
+				.contracts-modal-form .text-base {
+					font-size: 10px;
+				}
+				.contracts-modal-form .text-sm {
+					font-size: 9px;
+				}
+				.contracts-modal-form .text-xs {
+					font-size: 8px;
+				}
+				.contracts-modal-form .font-semibold {
+					font-weight: 600;
+				}
+				.contracts-modal-form .font-medium {
+					font-weight: 500;
+				}
+			`}</style>
+
+			<div className='contracts-modal-form grid grid-cols-6 gap-3 pt-1'>
+				<div className='col-span-12 md:col-span-3 border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
 					<div className='flex gap-4 items-center'>
 						<p className='flex pt-1 text-base font-semibold'>{getTtl('Supplier Name', ln)}:</p>
 						<div className='w-72'>
@@ -132,10 +180,10 @@ const ContractModal = () => {
 						</div>
 					}
 				</div>
-				<div className='hidden md:flex md:col-span-1 border border-[var(--selago)] p-3 rounded-xl bg-white shadow-sm'>
+				<div className='hidden md:flex md:col-span-1 border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
 
 				</div>
-				<div className='col-span-12 md:col-span-2 border border-[var(--selago)] p-3 rounded-xl bg-white shadow-sm'>
+				<div className='col-span-12 md:col-span-2 border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
 					<p className='flex items-center text-base font-semibold'>{getTtl('PoOrderNo', ln)}:</p>
 					<div className='w-full md:w-48 '>
 						<input className="input text-[16px] shadow-lg h-10 rounded-lg px-3" name='order' value={valueCon.order} onChange={handleValue} />
@@ -155,8 +203,8 @@ const ContractModal = () => {
 					</div>
 				</div>
 			</div>
-			<div className='grid grid-cols-3 gap-4 pt-3'>
-				<div className='col-span-12 md:col-span-1 border border-[var(--selago)] p-3 rounded-xl bg-white shadow-sm'>
+			<div className='grid grid-cols-3 gap-3 pt-2'>
+				<div className='col-span-12 md:col-span-1 border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex pt-1 text-sm font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -178,7 +226,7 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-[var(--selago)] p-3 rounded-xl bg-white shadow-sm'>
+				<div className='col-span-12 md:col-span-1 border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -201,7 +249,7 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-[var(--selago)] p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('Container Type', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -244,7 +292,7 @@ const ContractModal = () => {
 
 			<div className='grid grid-cols-4 gap-4 pt-3'>
 				<div className='col-span-12 md:col-span-3 '>
-					<div className='w-full border border-[var(--selago)] p-3 rounded-xl bg-white shadow-sm'>
+					<div className='w-full border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
 						<ProductsTable value={valueCon} setValue={setValueCon} currency={settings.Currency.Currency}
 							quantityTable={settings.Quantity.Quantity} setShowPoInvModal={setShowPoInvModal}
 							setShowStockModal={setShowStockModal} setToast={setToast} contractsData={contractsData}

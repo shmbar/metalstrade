@@ -34,17 +34,20 @@ const Modal = ({ isOpen, setIsOpen, title, children, w }) => {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <DialogPanel className={`w-full ${w == null ? 'max-w-7xl' : w} transform rounded-2xl
-                                 bg-white text-left align-middle shadow-xl transition-all border border-[var(--selago)]
+                                <DialogPanel className={`w-full ${w == null ? 'max-w-7xl' : w} transform rounded-xl
+                                 bg-white text-left align-middle shadow-lg transition-all border border-gray-200
                                  
                                  `}>
                                     <DialogTitle
                                         as="h3"
-                                        className="text-lg font-medium leading-5 text-[var(--port-gore)] border-b border-[var(--selago)] p-3 pl-6 pt-4"
+                                        className="text-sm font-semibold leading-tight text-[#183d79] border-b border-gray-200 p-2.5 pl-3 pt-2.5 pb-2.5"
                                     >
-                                        <div className='flex justify-between'>
-                                            <span>{title}</span>
-                                            <AiOutlineCloseCircle className='scale-150 text-[var(--regent-gray)] hover:text-[var(--endeavour)] cursor-pointer transition-colors'
+                                        <div className='flex justify-between items-center gap-3'>
+                                            <div className='flex items-center gap-2'>
+                                                <div className='w-0.5 h-4 bg-[#0b6eb6] rounded-full'></div>
+                                                <span>{title}</span>
+                                            </div>
+                                            <AiOutlineCloseCircle className='scale-110 text-gray-400 hover:text-[#0b6eb6] cursor-pointer transition-colors'
                                                 onClick={() => setIsOpen(false)} />
                                         </div>
 
