@@ -1,15 +1,15 @@
 import { useState, useRef, useEffect, useContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { NumericFormat } from 'react-number-format';
-import ChkBox from '../../../../components/checkbox.js'
+import ChkBox from '@components/checkbox.js'
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { MdDelete } from 'react-icons/md';
-import { getD, reOrderTableCon } from '../../../../utils/utils.js';
+import { getD, reOrderTableCon } from '@utils/utils.js';
 import { TbFileInvoice } from "react-icons/tb";
 import { TbBuildingWarehouse } from "react-icons/tb";
-import { CalculateNum } from '../../../../components/calculate';
-import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import { getTtl } from '../../../../utils/languages.js';
+import { CalculateNum } from '@components/calculate';
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getTtl } from '@utils/languages.js';
 
 const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvModal, setShowStockModal, setToast, contractsData }) => {
 
@@ -123,14 +123,14 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                             <thead className="bg-gray-50 ">
                                 <tr>
                                     <th scope="col" className=" w-1/12 py-1 pl-4 "></th>
-                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-sm font-medium text-[var(--regent-gray)]"  >
+                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-sm font-medium text-gray-500"  >
                                         #</th>
-                                    <th scope="col" className="w-6/12 px-1 py-1 text-left text-sm font-medium text-[var(--regent-gray)]" >
+                                    <th scope="col" className="w-6/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
                                         {getTtl('Description', ln)}  </th>
-                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left text-sm font-medium text-[var(--regent-gray)]" >
+                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
                                         <div>   {getTtl('Quantity', ln)} <span className='font-bold'>
                                             {q !== '' ? '(' + q + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-2/12 px-1 py-1 text-left text-sm font-medium text-[var(--regent-gray)]" >
+                                    <th scope="col" className="w-2/12 px-1 py-1 text-left text-sm font-medium text-gray-500" >
                                         <div>{getTtl('UnitPrice', ln)} <span className='font-bold'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
                                 </tr>
@@ -145,7 +145,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                 </div>
                                             </td>
                                             <td className="px-1 py-2 ">
-                                                <div className="flex items-center h-5 text-sm text-[var(--port-gore)]">
+                                                <div className="flex items-center h-5 text-sm text-gray-800">
                                                     {i + 1}
                                                 </div>
                                             </td>
@@ -155,7 +155,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                     <td
                                                         key={key}
                                                         data-label={key}
-                                                        className="px-1 py-1 text-sm text-[var(--port-gore)] whitespace-normal
+                                                        className="px-1 py-1 text-sm text-gray-800 whitespace-normal
                                                        tableStyle relative"
                                                         onClick={() => handleDoubleClick(obj, key)}
                                                     >
@@ -164,8 +164,8 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                             edit.header === key ? (
                                                             <div className='group relative  whitespace-normal'>
                                                                 <input
-                                                                    className="w-full border rounded-md border-[var(--rock-blue)] h-7 
-                                focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-sm text-[var(--port-gore)]"
+                                                                    className="w-full border rounded-md border-slate-400 h-7 
+                                focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-slate-500"
                                                                     onKeyDown={handleKeyPress}
                                                                     value={value1}
                                                                     maxLength={70}
@@ -175,7 +175,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                     type='text'
                                                                 />
                                                                 <span className={`absolute hidden ${key === 'unitPrc' && value1.substr(0, 1) === "=" ? 'group-hover:flex' : ''}
-                                                                 bottom-[30px] w-fit p-1 bg-[var(--port-gore)] rounded-md text-center
+                                                                 bottom-[30px] w-fit p-1  bg-slate-400 rounded-md text-center
                                                                   text-white text-xs z-50 whitespace-nowrap -left-0.5`}>
                                                                     {value1}</span>
                                                             </div>
@@ -221,7 +221,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                             {getTtl('Add', ln)}
                         </button>
                         <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
-    bg-[var(--port-gore)] rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-0.5">
+    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-0.5">
                             {getTtl('AddProduct', ln)}</span>
                     </div>
                     <div className='group relative whitespace-normal'>
@@ -233,7 +233,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                             {getTtl('Delete', ln)}
                         </button>
                         <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
-    bg-[var(--port-gore)] rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
+    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
                             {getTtl('DelProduct', ln)}</span>
                     </div>
                     <div className='group relative'>
@@ -248,14 +248,14 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                             {getTtl('Invoices', ln)}
                         </button>
                         <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
-    bg-[var(--port-gore)] rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
+    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
                             {getTtl('POInvoices', ln)}</span>
                     </div>
 
                     <div className='group relative'>
                         <button
                             className={`whiteButton py-1.5
-                            ${value.poInvoices.length === 0 ? 'opacity-70 bg-[var(--selago)] hover:bg-[var(--selago)]' : ''}`}
+                            ${value.poInvoices.length === 0 ? 'opacity-70 bg-slate-300 hover:bg-slate-300' : ''}`}
                             disabled={!checkIfAlllowed()}
                             onClick={() => setShowStockModal(true)}
                         >
@@ -263,7 +263,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                             {getTtl('Stocks', ln)}
                         </button>
                         <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
-    bg-[var(--port-gore)] rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
+    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
                             {getTtl('warehouse', ln)}</span>
                     </div>
 

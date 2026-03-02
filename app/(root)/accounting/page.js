@@ -569,9 +569,11 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '16px',
-    padding: '10px 20px',
+    gap: '20px',
+    padding: '10px 12px',
     flexWrap: 'wrap',
+    
+    margin: '0 auto',
   }}
   className="mb-6"
 >
@@ -584,13 +586,14 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       gap: '8px',
       background: '#ffffff',
       borderRadius: '999px',
-      padding: '7px 18px',
+      padding: '7px 14px',
       border: '1.5px solid #bfdbfe',     // blue-200
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       whiteSpace: 'nowrap',
-      flex: '1 1 0',
-      maxWidth: '220px',
+      flex: '1 1 160px',
+      maxWidth: '180px',
       minWidth: '140px',
+      width: '100%',
     }}
   >
     <FaWallet style={{ color: '#2563EB', fontSize: '17px', flexShrink: 0 }} />
@@ -610,13 +613,14 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       gap: '8px',
       background: '#ffffff',
       borderRadius: '999px',
-      padding: '7px 18px',
+      padding: '7px 14px',
       border: '1.5px solid #c7d2fe',     // indigo-200
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       whiteSpace: 'nowrap',
-      flex: '1 1 0',
-      maxWidth: '220px',
+      flex: '1 1 160px',
+      maxWidth: '180px',
       minWidth: '140px',
+      width: '100%',
     }}
   >
     <FaArrowTrendUp style={{ color: '#6366F1', fontSize: '17px', flexShrink: 0 }} />
@@ -636,13 +640,14 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       gap: '8px',
       background: '#ffffff',
       borderRadius: '999px',
-      padding: '7px 18px',
+      padding: '7px 14px',
       border: '1.5px solid #fecaca',     // red-200
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       whiteSpace: 'nowrap',
-      flex: '1 1 0',
-      maxWidth: '220px',
+      flex: '1 1 160px',
+      maxWidth: '180px',
       minWidth: '140px',
+      width: '100%',
     }}
   >
     <FaArrowTrendDown style={{ color: '#EF4444', fontSize: '17px', flexShrink: 0 }} />
@@ -662,13 +667,14 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       gap: '8px',
       background: '#ffffff',
       borderRadius: '999px',
-      padding: '7px 18px',
+      padding: '7px 14px',
       border: '1.5px solid #a7f3d0',     // emerald-200
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       whiteSpace: 'nowrap',
-      flex: '1 1 0',
-      maxWidth: '220px',
+      flex: '1 1 160px',
+      maxWidth: '180px',
       minWidth: '140px',
+      width: '100%',
     }}
   >
     <FaPiggyBank style={{ color: '#10B981', fontSize: '17px', flexShrink: 0 }} />
@@ -783,26 +789,26 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
               </div>
             </div>
             {/* Summary Stats */}
-            <div className="bg-gradient-to-br from-[var(--endeavour)] to-[var(--bunting)] rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl text-white overflow-hidden">
-              <h3 className="text-lg font-semibold text-white mb-4">Financial Summary</h3>
+            <div  className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl bg-white overflow-hidden">
+              <h3 className="text-lg font-semibold text-[var(--port-gore)] mb-4">Financial Summary</h3>
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/10 rounded-xl p-4 overflow-hidden">
-                  <p className="text-white/70 text-xs mb-1">Total Transactions</p>
-                  <p className="text-xl font-bold">{invoicesAccData.length}</p>
+                <div className="bg-[#EFEFEF] rounded-xl p-4 overflow-hidden border border-gray-200 shadow-sm">
+                  <p className="text-[var(--port-gore)] text-xs mb-1">Total Transactions</p>
+                  <p className="text-xl font-bold text-[var(--port-gore)]">{invoicesAccData.length}</p>
                 </div>
-                <div className="bg-white/10 rounded-xl p-4 overflow-hidden">
-                  <p className="text-white/70 text-xs mb-1">Avg. Transaction</p>
-                  <p className="text-xl font-bold truncate">
+                <div className="bg-[#EFEFEF] rounded-xl p-4 overflow-hidden border border-gray-200 shadow-sm">
+                  <p className="text-[var(--port-gore)] text-xs mb-1">Avg. Transaction</p>
+                  <p className="text-xl font-bold text-[var(--port-gore)] truncate">
                     {formatCurrency(invoicesAccData.length > 0 ? (totals.totalIncome + totals.totalExpense) / invoicesAccData.length : 0)}
                   </p>
                 </div>
-                <div className="bg-white/10 rounded-xl p-4 overflow-hidden">
-                  <p className="text-white/70 text-xs mb-1">Net Profit</p>
-                  <p className="text-xl font-bold truncate">{formatCurrency(totals.balance)}</p>
+                <div className="bg-[#EFEFEF] rounded-xl p-4 overflow-hidden border border-gray-200 shadow-sm">
+                  <p className="text-[var(--port-gore)] text-xs mb-1">Net Profit</p>
+                  <p className="text-xl font-bold text-[var(--port-gore)] truncate">{formatCurrency(totals.balance)}</p>
                 </div>
-                <div className="bg-white/10 rounded-xl p-4 overflow-hidden">
-                  <p className="text-white/70 text-xs mb-1">Profit Margin</p>
-                  <p className="text-xl font-bold">
+                <div className="bg-[#EFEFEF] rounded-xl p-4 overflow-hidden border border-gray-200 shadow-sm">
+                  <p className="text-[var(--port-gore)] text-xs mb-1">Profit Margin</p>
+                  <p className="text-xl font-bold text-[var(--port-gore)]">
                     {formatPercent(totals.totalIncome > 0 ? (totals.balance / totals.totalIncome) * 100 : 0)}
                   </p>
                 </div>

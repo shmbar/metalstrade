@@ -1,7 +1,7 @@
 import React from 'react'
 import { GiCheckMark } from 'react-icons/gi';
-import { UserAuth } from "../../../../../contexts/useAuthContext";
-import { getTtl } from '../../../../../utils/languages';
+import { UserAuth } from "@contexts/useAuthContext";
+import { getTtl } from '@utils/languages';
 
 const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln }) => {
 

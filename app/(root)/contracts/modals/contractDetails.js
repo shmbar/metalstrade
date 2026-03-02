@@ -1,9 +1,9 @@
 'use client'
 import { useContext, useEffect, useState } from 'react'
-import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import { ContractsContext } from "../../../../contexts/useContractsContext";
-import CBox from '../../../../components/combobox.js';
-import { getD, sortArr } from '../../../../utils/utils.js';
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { ContractsContext } from "@contexts/useContractsContext";
+import CBox from '@components/combobox.js'
+import { getD, sortArr } from '@utils/utils.js';
 import Datepicker from "react-tailwindcss-datepicker";
 import { Pdf } from './pdf/pdfContract.js';
 import ProductsTable from './productsTable.js';
@@ -16,20 +16,20 @@ import { VscArchive } from 'react-icons/vsc';
 import { HiDocumentDuplicate } from 'react-icons/hi';
 import { MdOutlineStorage } from 'react-icons/md';
 import { usePathname } from 'next/navigation';
-import ModalToDelete from '../../../../components/modalToProceed';
-import { validate, ErrDiv, reOrderTableCon } from '../../../../utils/utils'
-import { UserAuth } from "../../../../contexts/useAuthContext";
+import ModalToDelete from '@components/modalToProceed';
+import { validate, ErrDiv, reOrderTableCon } from '@utils/utils'
+import { UserAuth } from "@contexts/useAuthContext";
 import FilesModal from './filesModal.js'
 import PoInvModal from './poInvModal.js'
 import WhModal from './whModal.js'
 import { MdClear } from 'react-icons/md';
 import { RiRefreshLine } from "react-icons/ri";
-import { getTtl } from '../../../../utils/languages.js';
+import { getTtl } from '@utils/languages.js';
 import { BsTagsFill } from "react-icons/bs";
 import FinalSettlmentModal from './finalSettlmentModal.js';
-import CheckBox from '../../../../components/checkbox.js';
-import Tltip from '../../../../components/tlTip.js';
-import SelectStock from '../../../../components/comboboxSelectStock';
+import CheckBox from '@components/checkbox.js';
+import Tltip from '@components/tlTip.js';
+import SelectStock from '@components/comboboxSelectStock';
 
 const ContractModal = () => {
 
@@ -91,68 +91,20 @@ const ContractModal = () => {
 	}
 
 	return (
-		<div className="px-3 md:px-4 py-3">
+		<div className="px-1">
 
-			<style jsx global>{`
-				.contracts-modal-form input.input,
-				.contracts-modal-form select,
-				.contracts-modal-form textarea {
-					height: 26px;
-					font-size: 10px;
-					padding: 0 6px;
-					font-weight: 400;
-					color: #0b3d6b;
-				}
-				.contracts-modal-form textarea {
-					height: auto;
-					padding: 4px 6px;
-				}
-				.contracts-modal-form .shadow-md,
-				.contracts-modal-form .shadow-lg {
-					box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-				}
-				.contracts-modal-form button.blackButton,
-				.contracts-modal-form button.whiteButton {
-					height: 26px;
-					font-size: 10px;
-					padding: 0 10px;
-					font-weight: 500;
-				}
-				.contracts-modal-form p,
-				.contracts-modal-form span,
-				.contracts-modal-form label {
-					font-size: 10px;
-					color: #0b3d6b;
-				}
-				.contracts-modal-form .text-base {
-					font-size: 10px;
-				}
-				.contracts-modal-form .text-sm {
-					font-size: 9px;
-				}
-				.contracts-modal-form .text-xs {
-					font-size: 8px;
-				}
-				.contracts-modal-form .font-semibold {
-					font-weight: 600;
-				}
-				.contracts-modal-form .font-medium {
-					font-weight: 500;
-				}
-			`}</style>
-
-			<div className='contracts-modal-form grid grid-cols-6 gap-3 pt-1'>
-				<div className='col-span-12 md:col-span-3 border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
+			<div className='grid grid-cols-6 gap-3 pt-1'>
+				<div className='col-span-12 md:col-span-3 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex gap-4 items-center'>
-						<p className='flex pt-1 text-base font-semibold'>{getTtl('Supplier Name', ln)}:</p>
+						<p className='flex pt-1 text-sm font-medium'>{getTtl('Supplier Name', ln)}:</p>
 						<div className='w-72'>
 							<CBox data={sups} setValue={setValueCon} value={valueCon} name='supplier' classes='shadow-md' />
 							<ErrDiv field='supplier' errors={errors} ln={ln} />
 						</div>
 						<div className='items-center flex gap-1'>
-							<CheckBox size='h-5 w-5 md:h-6 md:w-6' checked={valueCon.showOriginSupplier ?? false}
+							<CheckBox size='size-5' checked={valueCon.showOriginSupplier ?? false}
 								onChange={() => setValueCon({ ...valueCon, showOriginSupplier: !valueCon.showOriginSupplier })} />
-							<span className='text-sm ml-1'>Original Supplier</span>
+							<span className='text-xs'>Original Supplier</span>
 						</div>
 
 					</div>
@@ -166,7 +118,7 @@ const ContractModal = () => {
 					)}
 					{valueCon.showOriginSupplier &&
 						<div className='flex items-center gap-2 w-[20rem]'>
-							<p className='flex p-1 pt-2 text-sm whitespace-nowrap font-semibold'>Original Supplier:</p>
+							<p className='flex p-1 pt-2 text-xs whitespace-nowrap font-medium'>Original Supplier:</p>
 							<SelectStock
 								data={sortArr(settings.Supplier.Supplier.filter(x => !x.deleted)
 									.map(z => ({ ...z, nname: z.nname.trim() })), 'nname')}
@@ -180,16 +132,16 @@ const ContractModal = () => {
 						</div>
 					}
 				</div>
-				<div className='hidden md:flex md:col-span-1 border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
+				<div className='hidden md:flex md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 
 				</div>
-				<div className='col-span-12 md:col-span-2 border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
-					<p className='flex items-center text-base font-semibold'>{getTtl('PoOrderNo', ln)}:</p>
+				<div className='col-span-12 md:col-span-2 border border-slate-300 p-2 rounded-lg'>
+					<p className='flex items-center text-sm font-medium'>{getTtl('PoOrderNo', ln)}:</p>
 					<div className='w-full md:w-48 '>
-						<input className="input text-[16px] shadow-lg h-10 rounded-lg px-3" name='order' value={valueCon.order} onChange={handleValue} />
+						<input className="input text-[15px] shadow-lg h-9" name='order' value={valueCon.order} onChange={handleValue} />
 						<ErrDiv field='order' errors={errors} ln={ln} />
 					</div>
-					<p className='flex items-center text-base mt-3 font-semibold'>{getTtl('Date', ln)}:</p>
+					<p className='flex items-center text-sm mt-3 font-medium'>{getTtl('Date', ln)}:</p>
 					<div className='w-full md:w-48 '>
 						<Datepicker useRange={false}
 							asSingle={true}
@@ -197,14 +149,14 @@ const ContractModal = () => {
 							popoverDirection='down'
 							onChange={handleDateChange}
 							displayFormat={"DD-MMM-YYYY"}
-							inputClassName='input w-full text-[16px] shadow-lg h-10 rounded-lg px-3'
+							inputClassName='input w-full text-[15px] shadow-lg h-9'
 						/>
 						<ErrDiv field='date' errors={errors} ln={ln} />
 					</div>
 				</div>
 			</div>
 			<div className='grid grid-cols-3 gap-3 pt-2'>
-				<div className='col-span-12 md:col-span-1 border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
+				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex pt-1 text-sm font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -226,7 +178,7 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
+				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -249,7 +201,7 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
+				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('Container Type', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -271,10 +223,10 @@ const ContractModal = () => {
 							</div>
 							:
 							<div className='flex pt-1 left-5 relative w-7/12'>
-								<input type='text' className="input text-[16px] shadow-lg h-10 text-sm w-full rounded-lg px-3" name='deltime'
+								<input type='text' className="input text-[15px] shadow-lg h-[1.86rem] text-xs w-full rounded-lg" name='deltime'
 									value={valueCon.deltime} onChange={handleValue} />
 								<button className='relative right-6 '>
-								<MdClear className="h-5 w-5 text-[var(--regent-gray)] hover:text-[var(--endeavour)]"
+									<MdClear className="h-5 w-5 text-gray-300  hover:text-gray-500"
 										onClick={caneclEditText} />
 								</button>
 							</div>
@@ -283,23 +235,23 @@ const ContractModal = () => {
 				</div>
 			</div>
 
-			<div className='mt-3 w-full border border-[var(--selago)] p-3 rounded-xl bg-white shadow-sm'>
+			<div className='mt-2 w-full border border-slate-300 p-2 rounded-lg'>
 				<p className='flex items-center text-sm font-medium'>{getTtl('Payment Terms', ln)}:</p>
 				<div className='w-full '>
 					<CBox data={settings['Payment Terms']['Payment Terms']} setValue={setValueCon} value={valueCon} name='termPmnt' classes='shadow-md' />
 				</div>
 			</div>
 
-			<div className='grid grid-cols-4 gap-4 pt-3'>
+			<div className='grid grid-cols-4 gap-3 pt-2'>
 				<div className='col-span-12 md:col-span-3 '>
-					<div className='w-full border border-gray-200 p-3 rounded-lg bg-white shadow-sm'>
+					<div className='w-full border border-slate-300 p-2 rounded-lg'>
 						<ProductsTable value={valueCon} setValue={setValueCon} currency={settings.Currency.Currency}
 							quantityTable={settings.Quantity.Quantity} setShowPoInvModal={setShowPoInvModal}
 							setShowStockModal={setShowStockModal} setToast={setToast} contractsData={contractsData}
 						/>
 					</div>
 				</div>
-				<div className='col-span-12 md:col-span-1 border border-[var(--selago)] p-3 rounded-xl bg-white shadow-sm'>
+				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex pt-1 text-sm font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -316,7 +268,8 @@ const ContractModal = () => {
 					<Tltip direction='bottom' tltpText='Contracts storage'>
 						<button
 							type="button"
-							className="blackButton mt-2" onClick={() => setShowFilesModal(true)}
+							className="mt-2 flex items-center gap-1 justify-center rounded-md border bg-slate-700 hover:bg-slate-400 px-3 py-1 text-sm font-medium 
+						text-white focus:outline-none" onClick={() => setShowFilesModal(true)}
 							disabled={!valueCon.id}
 						>
 							<MdOutlineStorage className='scale-0.9' />
@@ -326,24 +279,24 @@ const ContractModal = () => {
 				</div>
 			</div>
 
-			<div className='grid grid-cols-4 gap-4 pt-3'>
+			<div className='grid grid-cols-4 gap-3 pt-2'>
 				<div className='col-span-12 md:col-span-3 '>
-					<div className='mt-3 w-full border border-[var(--selago)] p-3 rounded-xl bg-white shadow-sm'>
+					<div className='mt-2 w-full border border-slate-300 p-2 rounded-lg'>
 						<Remarks settings={settings} value={valueCon} setValue={setValueCon} />
 					</div>
-					<div className='mt-3 w-full border border-[var(--selago)] p-3 rounded-xl bg-white shadow-sm'>
+					<div className='mt-2 w-full border border-slate-300 p-2 rounded-lg'>
 						<PriceRemarks value={valueCon} setValue={setValueCon} />
 					</div>
 				</div>
 				<div className='col-span-12 md:col-span-1 mt-1'>
-					<p className='flex text-base text-[var(--regent-gray)] font-semibold whitespace-nowrap mb-1'>{getTtl('Comments', ln)}:</p>
+					<p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="5" cols="60" name="comments"
-						className="input text-[16px] h-24 text-sm p-2 rounded-lg shadow-lg"
+						className="input text-[15px] h-24 text-xs p-1"
 						value={valueCon.comments} onChange={handleValue} />
-					<div className='flex leading-7 items-center gap-3 mt-2'>
-						<CheckBox size='h-5 w-5 md:h-6 md:w-6' checked={valueCon.completed ?? false}
+					<div className='flex leading-7 items-center gap-2'>
+						<CheckBox size='size-5' checked={valueCon.completed ?? false}
 							onChange={() => setValueCon({ ...valueCon, completed: !valueCon.completed })} />
-						<span className='text-base'>Contract completed</span>
+						<span className='text-sm'>Contract completed</span>
 					</div>
 				</div>
 
@@ -351,7 +304,7 @@ const ContractModal = () => {
 
 
 
-			<div className="text-lg font-semibold leading-5 text-[var(--port-gore)] p-4 pl-6 flex gap-4 flex-wrap justify-center md:justify-start ">
+			<div className="text-lg font-medium leading-5 text-gray-900 p-3 pl-6 flex gap-4 flex-wrap justify-center md:justify-start ">
 				<Tltip direction='top' tltpText='Save/Update contract'>
 					<button
 						type="button"

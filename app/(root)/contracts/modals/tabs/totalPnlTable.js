@@ -1,7 +1,7 @@
 import { useContext } from 'react';
-import { SettingsContext } from "../../../../../contexts/useSettingsContext";
-import { getD } from '../../../../../utils/utils'
-import { getTtl } from '../../../../../utils/languages';
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getD } from '@utils/utils'
+import { getTtl } from '@utils/languages';
 
 const Total = (data, name, val, mult, settings) => {
     let accumulatedTotalAmount = 0;

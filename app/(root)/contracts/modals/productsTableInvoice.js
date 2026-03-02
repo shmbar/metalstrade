@@ -1,19 +1,19 @@
 import { useState, useRef, useEffect, useContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { NumericFormat } from 'react-number-format';
-import ChkBox from '../../../../components/checkbox.js'
+import ChkBox from '@components/checkbox.js'
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { MdDelete } from 'react-icons/md';
-import { getD, sortArr } from '../../../../utils/utils.js';
-import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import CBox from '../../../../components/comboboxProductSelect'
-import CBox1 from '../../../../components/comboboxStockAvailability'
+import { getD, sortArr } from '@utils/utils.js';
+import { SettingsContext } from "@contexts/useSettingsContext";
+import CBox from '@components/comboboxProductSelect'
+import CBox1 from '@components/comboboxStockAvailability'
 
-import SlctOpt from '../../../../components/invoicePrdSlct'
-import { CalculateNum } from '../../../../components/calculate';
-import { getTtl } from '../../../../utils/languages';
+import SlctOpt from '@components/invoicePrdSlct'
+import { CalculateNum } from '@components/calculate';
+import { getTtl } from '@utils/languages';
 import { AiOutlineSafetyCertificate } from "react-icons/ai";
-import CheckBox from '../../../../components/checkbox.js';
+import CheckBox from '@components/checkbox.js';
 
 
 

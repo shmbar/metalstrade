@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import Customtable from '../../../../../components/tablePnl';
+import Customtable from '@components/tablePnl';
 import { useContext } from 'react';
-import { SettingsContext } from "../../../../../contexts/useSettingsContext";
-import CBox from '../../../../../components/comboboxPNL.js'
+import { SettingsContext } from "@contexts/useSettingsContext";
+import CBox from '@components/comboboxPNL.js'
 import Datepicker from "react-tailwindcss-datepicker";
 import { VscSaveAs } from 'react-icons/vsc';
-import { InvoiceContext } from "../../../../../contexts/useInvoiceContext";
-import { UserAuth } from "../../../../../contexts/useAuthContext";
-import { OutTurn, Finalizing, relStts } from '../../../../../components/const'
-import { getTtl } from '../../../../../utils/languages';
+import { InvoiceContext } from "@contexts/useInvoiceContext";
+import { UserAuth } from "@contexts/useAuthContext";
+import { OutTurn, Finalizing, relStts } from '@components/const'
+import { getTtl } from '@utils/languages';
 
 const PnlTables = ({ data, setPnlData, val, mult }) => {
 

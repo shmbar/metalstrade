@@ -1,11 +1,11 @@
 import { useEffect, useState, useContext } from 'react'
-import Modal from '../../../../components/modal.js'
-import { uploadFile, getAllfiles, deleteFile } from '../../../../utils/utils'
+import Modal from '@components/modal.js'
+import { uploadFile, getAllfiles, deleteFile } from '@utils/utils'
 import Link from 'next/link'
 import { VscArchive } from 'react-icons/vsc';
 import { FileUploader } from "react-drag-drop-files";
-import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import { getTtl } from '../../../../utils/languages';
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getTtl } from '@utils/languages';
 
 
 
@@ -48,15 +48,15 @@ const DataModal = ({ isOpen, setIsOpen, valueCon, setToast }) => {
             <div className='flex flex-wrap p-2 justify-between gap-2'>
 
                 <div className='max-w-md grow '>
-                    <ul className="flex flex-col mt-1 max-w-md overflow-auto max-h-80 ring-1 ring-[var(--selago)] rounded-lg divide-y" >
+                    <ul className="flex flex-col mt-1 max-w-md overflow-auto max-h-80 ring-1 ring-black/5 rounded-lg divide-y" >
                         {list.map((x, i) => {
                             return (
                                 <li key={i} className="justify-between flex items-center gap-x-2 py-2 px-4 text-xs
-                             text-[var(--port-gore)] hover:bg-[var(--selago)]">
+                             text-slate-700 hover:bg-slate-100">
                                     <Link href={x.url} target="_blank">
                                         <p className='text-xs'>{x.name}</p>
                                     </Link>
-                                    <VscArchive className='self-center flex scale-110 cursor-pointer font-medium text-[var(--endeavour)] drop-shadow-lg'
+                                    <VscArchive className='self-center flex scale-110 cursor-pointer font-medium text-blue-900 drop-shadow-lg'
                                         onClick={() => deletefiles(x.name)} />
                                 </li>
                             )

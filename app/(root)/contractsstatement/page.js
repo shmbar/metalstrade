@@ -475,7 +475,7 @@ const Contracts = () => {
 					<Toast />
 
 					{loading && <Spin />}
-					<div className="border border-[var(--selago)] rounded-xl p-4 mt-8 shadow-lg bg-white relative">
+					<div className="border border-[var(--selago)] rounded-xl p-4 mt-8  bg-white relative">
 						<div className='flex items-center justify-between flex-wrap pb-2'>
 							<div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Contracts Statement', ln)}</div>
 							<div className='flex group'>

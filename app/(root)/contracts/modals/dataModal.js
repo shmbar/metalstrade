@@ -1,4 +1,4 @@
-import Modal from '../../../../components/modal'
+import Modal from '@components/modal.js'
 import Tabs from './tabs/tabs'
 
 const DataModal = ({ isOpen, setIsOpen, title }) => {

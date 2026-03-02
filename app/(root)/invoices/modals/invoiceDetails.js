@@ -172,56 +172,10 @@ const InvoiceModal = () => {
 	}
 
 	return (
-		<div className="px-2">
+		<div className="px-1">
 			{loading && <Spinner />}
-
-			<style jsx global>{`
-				.invoices-standalone-form input.input,
-				.invoices-standalone-form select,
-				.invoices-standalone-form textarea {
-					height: 26px;
-					font-size: 10px;
-					padding: 0 6px;
-					font-weight: 400;
-					color: #0b3d6b;
-				}
-				.invoices-standalone-form textarea {
-					height: auto;
-					padding: 4px 6px;
-				}
-				.invoices-standalone-form .shadow-md,
-				.invoices-standalone-form .shadow-lg {
-					box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-				}
-				.invoices-standalone-form button.blackButton,
-				.invoices-standalone-form button.whiteButton {
-					height: 26px;
-					font-size: 10px;
-					padding: 0 10px;
-					font-weight: 500;
-				}
-				.invoices-standalone-form p,
-				.invoices-standalone-form span,
-				.invoices-standalone-form label {
-					font-size: 10px;
-					color: #0b3d6b;
-				}
-				.invoices-standalone-form .text-sm {
-					font-size: 9px;
-				}
-				.invoices-standalone-form .text-xs {
-					font-size: 8px;
-				}
-				.invoices-standalone-form .font-semibold {
-					font-weight: 600;
-				}
-				.invoices-standalone-form .font-medium {
-					font-weight: 500;
-				}
-			`}</style>
-
-			<div className='invoices-standalone-form grid grid-cols-12 gap-3 pt-1'>
-				<div className='col-span-12 md:col-span-3 border border-gray-200 p-2 rounded-lg'>
+			<div className='grid grid-cols-12 gap-3 pt-1'>
+				<div className='col-span-12 md:col-span-3 border border-[var(--selago)] p-2 rounded-lg'>
 					<p className='flex items-center text-sm text-[var(--port-gore)] font-medium'>{getTtl('Consignee', ln)}:</p>
 					<div>
 						{!fnl ?
@@ -248,7 +202,7 @@ const InvoiceModal = () => {
 						</>
 					)}
 				</div>
-				<div className='col-span-12 md:col-span-2 border border-gray-200 p-2 rounded-lg flex flex-col'>
+				<div className='col-span-12 md:col-span-2 border border-[var(--selago)] p-2 rounded-lg flex flex-col'>
 					<p className='text-sm text-[var(--port-gore)] font-medium indent-1'>{getTtl('Invoice Type', ln)}:</p>
 					{!fnl ?
 						<InvoiceType setSelected={selectInvType} plans={settings.InvTypes.InvTypes} value={valueInv} ln={ln} />
@@ -256,9 +210,9 @@ const InvoiceModal = () => {
 						<p className='pt-2 pl-1 text-xs text-[var(--port-gore)]'>{valueInv.invType}</p>
 					}
 				</div>
-				<div className='col-span-12 md:col-span-3 border border-gray-200 p-2 rounded-lg flex flex-col'>
-					<p className='text-sm text-[var(--port-gore)] font-medium'>{getTtl('Products', ln)}:</p>
-					{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col mt-1 ring-1 ring-gray-200 rounded-lg divide-y divide-gray-200" >
+				<div className='col-span-12 md:col-span-3 border border-[var(--selago)] p-2 rounded-lg flex flex-col'>
+					<p className='text-sm text-[var(--port-gore)] font-medium indent-1'>{getTtl('PO', ln)}#:</p>
+					{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col mt-1 ring-1 ring-[var(--selago)] rounded-lg divide-y divide-[var(--selago)]" >
 						{poArr.map((x, i) => {
 							return (
 								<li key={i}
@@ -271,7 +225,7 @@ const InvoiceModal = () => {
 					</ul>}
 
 				</div>
-				<div className='col-span-12 md:col-span-4 border border-gray-200 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-4 border border-[var(--selago)] p-2 rounded-lg'>
 					<div className='flex items-center pt-1'>
 						<p className='flex text-xs text-[var(--port-gore)] font-medium'>{getTtl('Date', ln)}:</p>
 						<div className='w-full px-2'>
@@ -314,7 +268,7 @@ const InvoiceModal = () => {
 
 
 			<div className='grid grid-cols-3 gap-3 pt-2'>
-				<div className='col-span-12 md:col-span-1 border border-gray-200 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-[var(--selago)] p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -366,7 +320,7 @@ const InvoiceModal = () => {
 					</div>
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-gray-200 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-[var(--selago)] p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -404,7 +358,7 @@ const InvoiceModal = () => {
 						</div>}
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-gray-200 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-[var(--selago)] p-2 rounded-lg'>
 					<div className={`flex gap-4 justify-between ${fnl ? 'py-0.5' : 'py-1.5'}`}>
 						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('totalNet', ln)}:</p>
 						<p className='text-sm pr-6 text-[var(--port-gore)]'>
@@ -447,7 +401,7 @@ const InvoiceModal = () => {
 			</div>
 
 			<div className='grid grid-cols-2 gap-3 mt-2'>
-				<div className='col-span-12 md:col-span-1 flex border border-gray-200 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 flex border border-[var(--selago)] p-2 rounded-lg'>
 					<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap '>{getTtl('Bank Account', ln)}:</p>
 					<div className='w-full pl-4'>
 						{!fnl ?
@@ -458,7 +412,7 @@ const InvoiceModal = () => {
 					</div>
 				</div>
 
-				<div className='hidden md:flex col-span-0 md:col-span-1 border border-gray-200 p-2 rounded-lg'>
+				<div className='hidden md:flex col-span-0 md:col-span-1 border border-[var(--selago)] p-2 rounded-lg'>
 
 					<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap '>HS Code:</p>
 					<div className='w-full pl-4'>
@@ -490,7 +444,7 @@ const InvoiceModal = () => {
 
 			<div className='grid grid-cols-8 gap-3 pt-2'>
 				<div className='col-span-12 md:col-span-7 '>
-					<div className='w-full border border-gray-200 p-2 rounded-lg'>
+					<div className='w-full border border-[var(--selago)] p-2 rounded-lg'>
 						<ProductsTable value={valueInv} setValue={setValueInv}
 							currency={settings.Currency.Currency} uidCollection={uidCollection}
 							settings={settings} setDeleteProducts={setDeleteProducts}
@@ -499,7 +453,7 @@ const InvoiceModal = () => {
 						/>
 					</div>
 				</div>
-				<div className='col-span-12 md:col-span-1 border border-gray-200 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-[var(--selago)] p-2 rounded-lg'>
 					<div className='gap-4'>
 						<p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
 						<div className='w-full '>
@@ -518,10 +472,10 @@ const InvoiceModal = () => {
 			</div>
 
 			<div className='grid grid-cols-8 gap-3 mt-2'>
-				<div className='col-span-12 md:col-span-5  w-full border border-gray-200 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-5  w-full border border-[var(--selago)] p-2 rounded-lg'>
 					<Remarks value={valueInv} setValue={setValueInv} ln={ln} />
 				</div>
-				<div className='col-span-12 md:col-span-3 h-fit border border-gray-200 p-2 py-1 pb-0 rounded-lg'>
+				<div className='col-span-12 md:col-span-3 h-fit border border-[var(--selago)] p-2 py-1 pb-0 rounded-lg'>
 					<p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="2" cols="60" name="comments"
 						className="input text-[15px] h-11 text-xs p-1"

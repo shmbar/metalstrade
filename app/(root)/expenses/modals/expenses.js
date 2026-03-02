@@ -38,50 +38,15 @@ const Expenses = () => {
 
     return (
         <div>
-            <style jsx global>{`
-                .expenses-form input.input,
-                .expenses-form select,
-                .expenses-form textarea {
-                    height: 26px;
-                    font-size: 10px;
-                    padding: 0 6px;
-                    font-weight: 400;
-                    color: #0b3d6b;
-                }
-                .expenses-form textarea {
-                    height: auto;
-                    padding: 4px 6px;
-                }
-                .expenses-form .shadow-md,
-                .expenses-form .shadow-lg {
-                    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-                }
-                .expenses-form button.blackButton,
-                .expenses-form button.whiteButton {
-                    height: 26px;
-                    font-size: 10px;
-                    padding: 0 10px;
-                    font-weight: 500;
-                }
-                .expenses-form p,
-                .expenses-form span,
-                .expenses-form label {
-                    font-size: 10px;
-                    color: #0b3d6b;
-                }
-                .expenses-form .text-xs {
-                    font-size: 9px;
-                }
-            `}</style>
-            
-            <div className='expenses-form z-10 relative mt-2 border border-gray-200 rounded-lg flex m-2 pb-6 bg-gray-50'>
+            <div className='z-10 relative mt-2 border border-[var(--rock-blue)] rounded-lg 
+       flex m-2 pb-6 bg-[var(--selago)]/30'>
 
                 <div className='grid grid-cols-12 gap-3 w-full p-2'>
                     <div className='col-span-12 md:col-span-4  px-2'>
                         <div>
                             <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Expense Invoice', ln)}</p>
-                            <div className='w-full'>
-                                <input className="input text-[15px] shadow-lg text-xs" name='expense' value={valueExp.expense} onChange={handleValue} />
+                            <div className='w-full '>
+                                <input className="input text-[15px] shadow-lg h-7 text-xs" name='expense' value={valueExp.expense} onChange={handleValue} />
                                 <ErrDiv field='expense' errors={errorsExp} />
                             </div>
                         </div>
@@ -93,14 +58,14 @@ const Expenses = () => {
                                 popoverDirection='down'
                                 onChange={handleDateChangeDate}
                                 displayFormat={"DD-MMM-YYYY"}
-                                inputClassName='input w-full text-[15px] shadow-lg text-xs z-20'
+                                inputClassName='input w-full text-[15px] shadow-lg h-7 text-xs z-20'
                             />
                             <ErrDiv field='date' errors={errorsExp} />
                         </div>
                         <div className='pt-2'>
                             <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Amount', ln)}:</p>
-                            <div className='w-full'>
-                                <input type='number' className="input text-[15px] shadow-lg text-xs" name='amount' value={valueExp.amount} onChange={handleValue} />
+                            <div className='w-full '>
+                                <input type='number' className="input text-[15px] shadow-lg h-7 text-xs" name='amount' value={valueExp.amount} onChange={handleValue} />
                                 <ErrDiv field='amount' errors={errorsExp} />
                             </div>
                         </div>
@@ -108,39 +73,39 @@ const Expenses = () => {
                     <div className='col-span-12 md:col-span-4  px-2'>
                         <div>
                             <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Vendor', ln)}:</p>
-                            <div className='w-full'>
-                                <CBox data={sups} setValue={setValueExp} value={valueExp} name='supplier' classes='shadow-md' />
+                            <div className='w-full '>
+                                <CBox data={sups} setValue={setValueExp} value={valueExp} name='supplier' classes='shadow-md -mt-1 h-7' classes1='max-h-48' />
                                 <ErrDiv field='supplier' errors={errorsExp} />
                             </div>
                         </div>
                         <div className='pt-1'>
                             <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Expense Type', ln)}:</p>
-                            <div className='w-full'>
-                                <CBox data={settings.Expenses.Expenses} setValue={setValueExp} value={valueExp} name='expType' classes='shadow-md' classes1='max-h-24' />
+                            <div className='w-full '>
+                                <CBox data={settings.Expenses.Expenses} setValue={setValueExp} value={valueExp} name='expType' classes='shadow-md  -mt-1 h-7' classes1='max-h-24' />
                                 <ErrDiv field='expType' errors={errorsExp} />
                             </div>
                         </div>
                         <div className='pt-1 gap-3 flex'>
-                            <div className='max-w-xs'>
+                            <div className='max-w-xs '>
                                 <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
                                 <div className='w-full'>
-                                    <CBox data={settings.Currency.Currency} setValue={setValueExp} value={valueExp} name='cur' classes='shadow-md' />
+                                    <CBox data={settings.Currency.Currency} setValue={setValueExp} value={valueExp} name='cur' classes='shadow-md -mt-1' />
                                     <ErrDiv field='cur' errors={errorsExp} />
                                 </div>
                             </div>
-                            <div className='max-w-xs'>
+                            <div className='max-w-xs '>
                                 <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Payment', ln)}:</p>
                                 <div className='w-full'>
-                                    <CBox data={settings.ExpPmnt.ExpPmnt} setValue={setValueExp} value={valueExp} name='paid' classes='shadow-md' />
+                                    <CBox data={settings.ExpPmnt.ExpPmnt} setValue={setValueExp} value={valueExp} name='paid' classes='shadow-md -mt-1' />
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className='col-span-12 md:col-span-4 px-2'>
+                    <div className='col-span-12 md:col-span-4  px-2'>
                         <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
                         <div>
                             <textarea rows="5" cols="60" name="comments"
-                                className="input text-[15px] shadow-lg text-xs p-1"
+                                className="input text-[15px] shadow-lg h-32 text-xs p-1"
                                 value={valueExp.comments} onChange={handleValue} />
                         </div>
 
@@ -150,7 +115,7 @@ const Expenses = () => {
             <div className='flex gap-4 m-2'>
             <Tltip direction='top' tltpText='Save/Update form'>
                 <button
-                    className="blackButton font-light"
+                    className=" blackButton py-1 font-light"
                     onClick={() => saveData_ExpenseExpenses(uidCollection, valueInv, setValueInv)}
                 >
                     <IoAddCircleOutline className='scale-110' />
@@ -159,7 +124,7 @@ const Expenses = () => {
                 </Tltip>
                 <Tltip direction='top' tltpText='Clear form'>
                 <button
-                    className="whiteButton"
+                    className="whiteButton py-1"
                     onClick={blankExpense}
                 >
                     <AiOutlineClear className='scale-110' />
@@ -168,7 +133,7 @@ const Expenses = () => {
                 </Tltip>
             </div>
 
-        </div>
+        </div >
 
 
     )

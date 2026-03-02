@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { ContractsContext } from "../../../../../contexts/useContractsContext";
-import { SettingsContext } from "../../../../../contexts/useSettingsContext";
-import { getD, getInvoices, loadStockData, sortArr } from '../../../../../utils/utils'
-import { UserAuth } from "../../../../../contexts/useAuthContext";
+import { ContractsContext } from "@contexts/useContractsContext";
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getD, getInvoices, loadStockData, sortArr } from '@utils/utils'
+import { UserAuth } from "@contexts/useAuthContext";
 import dateFormat from "dateformat";
-import { getTtl } from '../../../../../utils/languages';
+import { getTtl } from '@utils/languages';
 
 const frm = (val) => {
 

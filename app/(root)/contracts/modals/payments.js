@@ -1,20 +1,20 @@
 import { useContext, useState } from 'react'
 import Datepicker from "react-tailwindcss-datepicker";
-import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import { InvoiceContext } from "../../../../contexts/useInvoiceContext";
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { InvoiceContext } from "@contexts/useInvoiceContext";
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { MdPayments } from 'react-icons/md';
-import { ContractsContext } from "../../../../contexts/useContractsContext";
+import { ContractsContext } from "@contexts/useContractsContext";
 import dateFormat from "dateformat";
-import { UserAuth } from "../../../../contexts/useAuthContext";
+import { UserAuth } from "@contexts/useAuthContext";
 
-import ChkBox from '../../../../components/checkbox';
+import ChkBox from '@components/checkbox';
 import { VscSaveAs } from 'react-icons/vsc';
 import { v4 as uuidv4 } from 'uuid';
 import { VscArchive } from 'react-icons/vsc';
 import { usePathname } from 'next/navigation';
-import { getTtl } from '../../../../utils/languages';
-import Tltip from '../../../../components/tlTip';
+import { getTtl } from '@utils/languages';
+import Tltip from '@components/tlTip';
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -129,7 +129,7 @@ const Payments = ({ showPayments }) => {
 
     return (
 
-        <div className={`z-10 relative mt-2 border border-[var(--selago)] rounded-lg 
+        <div className={`z-10 relative mt-2 border border-slate-300 rounded-lg 
         ${showPayments ? 'flex animated-div' : 'hidden'}`}>
             <div className=' flex gap-3 p-2 w-full'>
 
@@ -143,7 +143,7 @@ const Payments = ({ showPayments }) => {
                                     <ChkBox checked={checkedItems.includes(x.id)} size='h-5 w-5' onChange={() => checkItem(x.id)} />
                                 </div>
                                 <div>
-                                    <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>{getTtl('Date', ln)}:</p>
+                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Date', ln)}:</p>
                                     <Datepicker useRange={false}
                                         asSingle={true}
                                         value={x.date}
@@ -154,12 +154,12 @@ const Payments = ({ showPayments }) => {
                                     />
                                 </div>
                                 <div >
-                                    <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>{getTtl('Actual Payment', ln)}:</p>
+                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Actual Payment', ln)}:</p>
                                     <div className='flex'>
                                         <input type='text' className="number-separator input text-[15px] shadow-lg h-[1.84rem] -mt-[0.03rem] text-xs" name='pmnt'
                                             value={addComma(x.pmnt)} onChange={e => handleValue(e, i)} />
                                         {i === 0 && <button className='relative right-6 '>
-                                            <MdPayments className='scale-125 text-[var(--endeavour)]' onClick={setPrepPayment} />
+                                            <MdPayments className='scale-125 text-slate-500' onClick={setPrepPayment} />
                                         </button>}
                                     </div>
                                 </div>

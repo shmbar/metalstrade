@@ -1,21 +1,21 @@
-import Modal from '../../../../components/modal.js'
+import Modal from '@components/modal.js'
 import { useContext, useState, useEffect } from 'react'
-import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import { ContractsContext } from "../../../../contexts/useContractsContext";
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { ContractsContext } from "@contexts/useContractsContext";
 import { IoAddCircleOutline } from 'react-icons/io5';
-import CBox from '../../../../components/comboboxWH'
+import CBox from '@components/comboboxWH'
 import Datepicker from "react-tailwindcss-datepicker";
-import { UserAuth } from "../../../../contexts/useAuthContext";
+import { UserAuth } from "@contexts/useAuthContext";
 
-import ChkBox from '../../../../components/checkbox';
+import ChkBox from '@components/checkbox';
 import { VscSaveAs } from 'react-icons/vsc';
 import { v4 as uuidv4 } from 'uuid';
 import { VscArchive } from 'react-icons/vsc';
-import { getD, loadStockData, sortArr, speciaInvoices, validate } from '../../../../utils/utils'
+import { getD, loadStockData, sortArr, speciaInvoices, validate } from '@utils/utils'
 import { TbFileInvoice } from "react-icons/tb";
-import { getTtl } from '../../../../utils/languages';
-import Tltip from '../../../../components/tlTip';
-import SelectStock from '../../../../components/comboboxSelectStock';
+import { getTtl } from '@utils/languages';
+import Tltip from '@components/tlTip';
+import SelectStock from '@components/comboboxSelectStock';
 
 function countDecimalDigits(inputString) {
 
@@ -222,13 +222,13 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 {data.map((x, i) => {
 
                     return (
-                        <div className='md:flex p-1 gap-2 border border-[var(--selago)] rounded-lg flex-wrap' key={x.id}>
+                        <div className='md:flex p-1 gap-2 border border-slate-300 rounded-lg flex-wrap' key={x.id}>
                             <div className='flex'>
                                 <div className='items-center flex pt-3 pr-2'>
                                     <ChkBox checked={checkedItems.includes(x.id)} size='h-5 w-5' onChange={() => checkItem(x.id)} />
                                 </div>
                                 <div className='md:max-w-52 w-full pt-2 md:pt-0'>
-                                    <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>{getTtl('Description', ln)}:</p>
+                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Description', ln)}:</p>
                                     <div className='flex flex-col'>
                                         <CBox data={valueCon.productsData.map(x => ({ id: x.id, description: x.description }))}
                                             setValue={setData} value={valueCon} dt={data} indx={i} name='description' classes='shadow-md h-7' />
@@ -239,14 +239,14 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
 
                             <div className='md:max-w-24 pt-2 md:pt-0'>
-                                <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>{getTtl('Quantity', ln)} {`(${getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')})`}</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Quantity', ln)} {`(${getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')})`}</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs" name='qnty'
                                         value={addComma(x.qnty, false)} onChange={e => handleValueQnty(e, i)} />
                                 </div>
                             </div>
                             <div className='md:max-w-24 pt-2 md:pt-0'>
-                                <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>{getTtl('Price', ln)}:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Price', ln)}:</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs" name='unitPrc'
                                         value={addComma(x.unitPrc, true)} placeholder="text"
@@ -255,15 +255,15 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='md:max-w-24 pt-2 md:pt-0'>
-                                <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>{getTtl('Total', ln)}:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Total', ln)}:</p>
                                 <div className='flex'>
-                                    <input type='text' disabled className="number-separator input text-[15px] border-[var(--selago)] h-7 text-xs" name='total'
+                                    <input type='text' disabled className="number-separator input text-[15px] border-slate-300 h-7 text-xs" name='total'
                                         value={addComma(x.total, true, 'total')} onChange={e => handleValue(e, i)} />
                                 </div>
                             </div>
 
                             <div className='md:max-w-36 pt-2 md:pt-0'>
-                                <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>{getTtl('PurchaseInv', ln)}#:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('PurchaseInv', ln)}#:</p>
                                 <div className='flex flex-col'>
                                     <CBox data={valueCon.poInvoices.map(x => ({ id: x.id, poInvoice: x.inv }))}
                                         setValue={setData} value={valueCon} dt={data} indx={i} name='poInvoice' classes='shadow-md h-7' />
@@ -271,7 +271,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='md:max-w-36 pt-2 md:pt-0'>
-                                <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>{getTtl('Arrival Date', ln)}:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Arrival Date', ln)}:</p>
                                 <div className='flex flex-col'>
                                     <Datepicker useRange={false}
                                         asSingle={true}
@@ -287,7 +287,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
 
                             <div className='md:max-w-44 pt-2 md:pt-0'>
-                                <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>{getTtl('Stock', ln)}:</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Stock', ln)}:</p>
                                 <div className='flex flex-col'>
                                     <SelectStock
                                         data={sortArr(settings.Stocks.Stocks.filter(x => !x.deleted)
@@ -302,7 +302,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='md:max-w-28 pt-2 md:pt-0'>
-                                <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>{getTtl('Status', ln)}</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Status', ln)}</p>
                                 <div className='flex flex-col'>
                                     <SelectStock data={statusArr}
                                         setValue={handleUpdateStatus}
@@ -317,7 +317,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='md:max-w-24 pt-2 md:pt-0'>
-                                <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>Sales Po#</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Sales Po#</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs truncate" name='salesPo'
                                         value={x.salesPo} placeholder="Sales Po#"
@@ -326,7 +326,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='md:max-w-40 pt-2 md:pt-0'>
-                                <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>{getTtl('Consignee', ln)}</p>
+                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Consignee', ln)}</p>
                                 <div className='flex flex-col'>
                                     <SelectStock data={sortArr(settings.Client.Client.filter(x => !x.deleted)
                                         .map(z => ({ ...z, nname: z.nname.trim() })), 'nname')}
@@ -352,7 +352,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </Tltip >
                             {x.spInv &&
                                 <div className='md:max-w-28 pt-2 md:pt-0'>
-                                    <p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>Comp. Name</p>
+                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Comp. Name</p>
                                     <div className='flex flex-col'>
                                         <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs truncate"
                                             name='compName' value={x.compName} onChange={e => handleValue1(e, i)} />
@@ -366,7 +366,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
 
             </div>
-            <div className='flex gap-4 p-2 border-t border-[var(--selago)]'>
+            <div className='flex gap-4 p-2 border-t'>
                 <button
                     className="blackButton py-1"
                     onClick={saveD}

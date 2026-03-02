@@ -269,8 +269,8 @@ export default function Sidebar() {
                               onMouseEnter={(e) => hoverOn(e, isActive)}
                               onMouseLeave={(e) => hoverOff(e, isActive)}
                             >
-                              <span style={{ width: 16, height: 16, display: "flex", alignItems: "center", flexShrink: 0 }}>
-                                <img src={`/logo/${getSvgIcon(link.item)}`} alt={link.item} style={{ width: 16, height: 16, objectFit: "contain" }} />
+                              <span style={{ width: 30, height: 30, display: "flex", alignItems: "center", flexShrink: 0 }}>
+                                <img src={`/logo/${getSvgIcon(link.item)}`} alt={link.item} style={{ width: 30, height: 30, objectFit: "contain" }} />
                               </span>
                               {!collapsed && (
                                 <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>

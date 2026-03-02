@@ -1,19 +1,19 @@
 import React from 'react'
 import { useContext, useEffect, useState } from 'react'
-import CBox from '../../../../../components/combobox.js'
-import { SettingsContext } from "../../../../../contexts/useSettingsContext";
-import { ContractsContext } from "../../../../../contexts/useContractsContext";
-import { getD, saveData, getInvoices, groupedArrayInvoice } from '../../../../../utils/utils'
+import CBox from '@components/combobox.js'
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { ContractsContext } from "@contexts/useContractsContext";
+import { getD, saveData, getInvoices, groupedArrayInvoice } from '@utils/utils'
 //import { ImCancelCircle } from "react-icons/im";
-import { UserAuth } from "../../../../../contexts/useAuthContext";
+import { UserAuth } from "@contexts/useAuthContext";
 import PnlTables from './pnlTables';
-import Switch from '../../../../../components/switch'
+import Switch from '@components/switch'
 import TotalPnlTable from './totalPnlTable'
-import { getCur } from '../../../../../components/exchangeApi';
+import { getCur } from '@components/exchangeApi';
 import { VscSaveAs } from 'react-icons/vsc';
 
 import TableIbvPurchs from './refPurchaseInvoices'
-import { getTtl } from '../../../../../utils/languages';
+import { getTtl } from '@utils/languages';
 
 const setNum = (value, contractValue, settings) => {
 

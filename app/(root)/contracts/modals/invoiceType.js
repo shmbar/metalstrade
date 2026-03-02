@@ -1,5 +1,5 @@
 import { RadioGroup } from '@headlessui/react'
-import { getTtl } from '../../../../utils/languages'
+import { getTtl } from '@utils/languages'
 
 
 export default function InvType({ setSelected, plans, value , ln}) {
@@ -22,10 +22,10 @@ export default function InvType({ setSelected, plans, value , ln}) {
                                 }
                                 className={({ active, checked }) =>
                                     `
-                  ${checked ? 'bg-gradient-to-r from-[var(--endeavour)] to-[var(--chathams-blue)] text-white' : 'bg-white border border-[var(--rock-blue)]'
+                  ${checked ? 'bg-slate-500 text-white' : 'bg-white border border-slate-400'
                                     } 
                                     ${(value.id !== '' && value.invType === '1111' && (plan.id === '2222' || plan.id === '3333')) ||
-                                        (value.id !== '' && (value.invType === '2222' || value.invType === '3333') && plan.id === '1111') ? 'bg-[var(--selago)] cursor-not-allowed' : 'cursor-pointer'}
+                                        (value.id !== '' && (value.invType === '2222' || value.invType === '3333') && plan.id === '1111') ? 'bg-gray-100 cursor-not-allowed' : 'cursor-pointer'}
                     relative flex rounded-md px-4 py-1.5 shadow-lg focus:outline-none`
                                 }
                             >
@@ -36,7 +36,7 @@ export default function InvType({ setSelected, plans, value , ln}) {
                                                 <div className="text-xs">
                                                     <RadioGroup.Label
                                                         as="p"
-                                                        className={`font-medium  ${checked ? 'text-white' : 'text-[var(--port-gore)]'
+                                                        className={`font-medium  ${checked ? 'text-white' : 'text-gray-900'
                                                             } 
                                                             `}
                                                     >

@@ -1,6 +1,6 @@
 'use client'
 import { jsPDF } from 'jspdf';
-import { getD } from '../../../../../utils/utils.js';
+import { getD } from '@utils/utils.js';
 import autoTable from 'jspdf-autotable'
 import dateFormat from "dateformat";
 

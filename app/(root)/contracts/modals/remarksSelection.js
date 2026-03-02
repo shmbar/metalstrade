@@ -2,10 +2,10 @@ import React, { useRef, useEffect, useContext } from 'react'
 import { MdDeleteOutline } from 'react-icons/md';
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { v4 as uuidv4 } from 'uuid';
-import CBox from '../../../../components/comboboxRemarks'
+import CBox from '@components/comboboxRemarks'
 import { MdClear } from 'react-icons/md';
-import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import { getTtl } from '../../../../utils/languages';
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getTtl } from '@utils/languages';
 
 const Remraks = ({ value, setValue, settings }) => {
 
@@ -39,12 +39,14 @@ const Remraks = ({ value, setValue, settings }) => {
                 <p className='flex items-center text-sm font-medium pl-2'>{getTtl('Remarks', ln)}:</p>
 
                 {!value.final && <div className='group relative '>
-                    <button className="blackButton h-7"
+                    <button className=" flex items-center justify-center gap-1.5 px-2 
+                    h-7 border border-slate-400 bg-slate-700 hover:bg-slate-400 rounded-md text-sm text-white 
+                 shadow-lg"
                         onClick={() => addItem()}>
                         <IoAddCircleOutline className='scale-110' /> {getTtl('Add', ln)}
                     </button>
                     <span className="absolute hidden group-hover:flex top-8 w-fit p-1
-    bg-[var(--port-gore)] rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-1.5">
+    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-1.5">
                         {getTtl('AddRemark', ln)}</span>
                 </div>}
 
@@ -53,7 +55,7 @@ const Remraks = ({ value, setValue, settings }) => {
             <ul className="flex flex-col mt-1">
                 {value.remarks.map((x, i) => {
                     return (
-                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-0.5 px-2 text-sm bg-white border border-[var(--selago)] text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg
+                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-0.5 px-2 text-sm  bg-white border text-gray-800 -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg
                         relative ">
                             {!x.isRmrkText ?
                                 <div className='w-full flex items-center gap-3'>
@@ -62,11 +64,11 @@ const Remraks = ({ value, setValue, settings }) => {
                                 </div>
                                 :
                                 <div className='flex pt-1 items-center w-full gap-x-3'>
-                                    <input type='text' className="input text-[15px] text-[var(--port-gore)] shadow-lg h-[1.86rem] text-xs w-full rounded-lg
+                                    <input type='text' className="input text-[15px] text-gray-800 shadow-lg h-[1.86rem] text-xs w-full rounded-lg
                                     truncate pr-10" name='rmrk'
                                         value={x.rmrk} onChange={(e) => handleValue(e, i)} />
                                     <button className='absolute right-10 '>
-                                        <MdClear className="size-5 text-[var(--regent-gray)] hover:text-[var(--endeavour)]"
+                                        <MdClear className="size-5 text-gray-300  hover:text-gray-500"
                                             onClick={() => caneclEditText(i)} />
                                     </button>
                                     <MdDeleteOutline className='scale-125 opacity-50 cursor-pointer' onClick={() => deleteItem(i)} />

@@ -4,8 +4,8 @@ import { MdDeleteOutline } from 'react-icons/md';
 import { useState } from 'react'
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { v4 as uuidv4 } from 'uuid';
-import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import { getTtl } from '../../../../utils/languages';
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getTtl } from '@utils/languages';
 
 const FinalRemarks = ({ value, setValue }) => {
 
@@ -58,17 +58,17 @@ const FinalRemarks = ({ value, setValue }) => {
     return (
         <div className={`${value?.finalSRemarks?.length>0 ? 'max-w-4xl' : 'max-w-xs'}`}>
             <div className='flex items-center justify-between'>
-                <p className='flex items-center text-sm font-medium pl-2 text-[var(--port-gore)]'>{getTtl('Remarks', ln)}:</p>
+                <p className='flex items-center text-sm font-medium pl-2'>{getTtl('Remarks', ln)}:</p>
 
                 <div className='group relative '>
-                    <button className="text-white flex items-center justify-center gap-1.5 px-2 
-                    h-7 border border-[var(--chathams-blue)] bg-gradient-to-r from-[var(--endeavour)] to-[var(--chathams-blue)] rounded-md text-sm
-                    hover:opacity-90 shadow-lg"
+                    <button className="text-white  flex items-center justify-center gap-1.5 px-2 
+                    h-7 border border-slate-400 bg-slate-700 rounded-md text-sm
+                    hover:bg-slate-400 shadow-lg"
                         onClick={() => addItem()}>
                         <IoAddCircleOutline className='scale-110' /> {getTtl('Add', ln)}
                     </button>
                     <span className="absolute hidden group-hover:flex top-8 w-fit p-1
-    bg-[var(--port-gore)] rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-1.5">
+    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-1.5">
                         {getTtl('AddFormula', ln)}</span>
                 </div>
 
@@ -78,11 +78,11 @@ const FinalRemarks = ({ value, setValue }) => {
 
                 {value?.finalSRemarks?.map((x, i) => {
                     return (
-                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-2 px-4 text-sm bg-white border border-[var(--selago)] text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg ">
+                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-2 px-4 text-sm  bg-white border text-gray-800 -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg ">
                             {edit.status && edit.id === x.id ?
                                 <input
-                                    className="w-full border rounded-md border-[var(--rock-blue)] h-7 
-focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-sm text-[var(--port-gore)]"
+                                    className="w-full border rounded-md border-slate-400 h-7 
+focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-slate-500"
                                     onKeyDown={handleKeyPress}
                                     value={value1}
                                     maxLength={140}
@@ -95,8 +95,8 @@ focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-sm text-[var(--p
                             }
 
                             {edit.id !== x.id && <div className='flex gap-4'>
-                                <BiEditAlt className='scale-125 text-[var(--regent-gray)] hover:text-[var(--endeavour)] cursor-pointer' onClick={() => editItem(x)} />
-                                <MdDeleteOutline className='scale-125 text-[var(--regent-gray)] hover:text-red-500 cursor-pointer' onClick={() => deleteItem(x)} />
+                                <BiEditAlt className='scale-125 opacity-50 cursor-pointer' onClick={() => editItem(x)} />
+                                <MdDeleteOutline className='scale-125 opacity-50 cursor-pointer' onClick={() => deleteItem(x)} />
                             </div>}
                         </li>
 

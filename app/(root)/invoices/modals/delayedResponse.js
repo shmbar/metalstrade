@@ -20,38 +20,24 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
     }
 
     return (
-        <div className='p-2'>
-            <style jsx global>{`
-                .delayed-response-table th {
-                    font-size: 9px;
-                    padding: 4px 8px;
-                }
-                .delayed-response-table td {
-                    font-size: 10px;
-                    padding: 4px 8px;
-                }
-                .delayed-response-table .text-sm {
-                    font-size: 10px;
-                }
-            `}</style>
-
-            <div className="overflow-x-auto">
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
-                    <table id='my-table' className="delayed-response-table table-fixed min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+        <div className='p-4'>
+            <div className=" overflow-x-auto">
+                <div className="border rounded-lg overflow-hidden">
+                    <table id='my-table' className=" table-fixed min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50 ">
                             <tr>
-                                <th scope="col" className="w-0/12 text-left font-medium text-gray-500">Customer</th>
-                                <th scope="col" className="w-0/12 text-left font-medium text-gray-500">
+                                <th scope="col" className=" w-0/12 py-1 px-4 text-left text-sm font-medium text-gray-500">Customer</th>
+                                <th scope="col" className="w-0/12 pr-1 py-1 text-left text-sm font-medium text-gray-500"  >
                                     Invoice</th>
-                                <th scope="col" className="w-0/12 text-left font-medium text-gray-500">
+                                <th scope="col" className="w-0/12 pr-1 py-1 text-left text-sm font-medium text-gray-500"  >
                                     ETA</th>
-                                <th scope="col" className="w-20 text-left font-medium text-gray-500 flex">
+                                <th scope="col" className="w-20 pr-1 py-1 text-left text-sm font-medium text-gray-500 flex "  >
                                     Days after ETA</th>
-                                <th scope="col" className="w-0/12 text-left font-medium text-gray-500">
+                                <th scope="col" className="w-0/12 pr-1 py-1 text-left text-sm font-medium text-gray-500"  >
                                     ETD</th>
-                                <th scope="col" className="w-20 text-left font-medium text-gray-500 flex">
+                                <th scope="col" className="w-20 pr-1 py-1 text-left text-sm font-medium text-gray-500 flex "  >
                                     Days after ETD</th>
-                                <th scope="col" className="w-20 text-left font-medium text-gray-500">
+                                <th scope="col" className="w-20 pr-1 py-1 text-left text-sm font-medium text-gray-500"  >
                                     Keep Alerting</th>
                             </tr>
                         </thead>
@@ -59,24 +45,24 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                             {alertArr.map((obj, i) => {
                                 return (
                                     <tr key={i}>
-                                        <td>
-                                            <div className="flex items-center text-sm">
+                                        <td className="py-2 pl-4">
+                                            <div className="flex items-center h-5 text-sm">
                                                 {settings.Client.Client.find(z => z.id === obj.client).nname}
 
                                             </div>
                                         </td>
-                                        <td>
-                                            <div className="flex items-center text-sm text-gray-800">
+                                        <td className="px-1 py-2">
+                                            <div className="flex items-center h-5 text-sm text-gray-800">
                                                 {obj.invoice}
                                             </div>
                                         </td>
-                                        <td>
-                                            <div className="flex items-center text-sm text-gray-800">
+                                        <td className="px-1 py-2">
+                                            <div className="flex items-center h-5 text-sm text-gray-800">
                                                 {dateFormat(obj.shipData?.eta?.endDate, 'dd-mmm-yy')}
                                             </div>
                                         </td>
-                                        <td>
-                                            <div className="flex items-center text-sm text-gray-800">
+                                        <td className="px-1 py-2">
+                                            <div className="flex items-center h-5 text-sm text-gray-800">
                                                 {(() => {
                                                     const date2 = new Date(obj.shipData?.eta?.endDate);
                                                     const today = new Date();
@@ -87,13 +73,13 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                                 })()}
                                             </div>
                                         </td>
-                                        <td>
-                                            <div className="flex items-center text-sm text-gray-800">
+                                        <td className="px-1 py-2">
+                                            <div className="flex items-center h-5 text-sm text-gray-800">
                                                 {obj.shipData?.etd?.endDate ? dateFormat(obj.shipData?.etd?.endDate , 'dd-mmm-yy'): '-'}
                                             </div>
                                         </td>
-                                        <td>
-                                            <div className="flex items-center text-sm text-gray-800">
+                                        <td className="px-1 py-2">
+                                            <div className="flex items-center h-5 text-sm text-gray-800">
                                                 {(() => {
 
                                                     const date2 = new Date(obj.shipData?.etd?.endDate);
@@ -104,8 +90,8 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                                 })()}
                                             </div>
                                         </td>
-                                        <td>
-                                            <div className="flex items-center text-sm text-gray-800">
+                                        <td className="px-1 py-2">
+                                            <div className="flex items-center h-5 text-sm text-gray-800">
                                                 <CheckBox checked={obj.alert} size='h-5 w-5' onChange={() => { setAlert(obj) }} />
                                             </div>
                                         </td>

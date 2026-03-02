@@ -1,11 +1,11 @@
 'use client'
 import { useContext, useEffect, useState } from 'react'
-import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import { InvoiceContext } from "../../../../contexts/useInvoiceContext";
-import { ContractsContext } from "../../../../contexts/useContractsContext";
-import { ExpensesContext } from "../../../../contexts/useExpensesContext";
-import CBox from '../../../../components/combobox.js'
-import { getD, loadInvoice, filteredArray } from '../../../../utils/utils.js';
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { InvoiceContext } from "@contexts/useInvoiceContext";
+import { ContractsContext } from "@contexts/useContractsContext";
+import { ExpensesContext } from "@contexts/useExpensesContext";
+import CBox from '@components/combobox.js'
+import { getD, loadInvoice, filteredArray } from '@utils/utils.js';
 import Datepicker from "react-tailwindcss-datepicker";
 import { Pdf } from './pdf/pdfInvoice.js';
 import { PdfFnlCncl } from './pdfInvoiceFnlCncl.js';
@@ -22,19 +22,19 @@ import { PiCopy } from 'react-icons/pi'
 import { MdOutlineWidgets } from 'react-icons/md'
 import { GiMoneyStack } from 'react-icons/gi'
 
-import ModalToDelete from '../../../../components/modalToProceed';
+import ModalToDelete from '@components/modalToProceed';
 import InvoiceType from './invoiceType.js'
 import { AiOutlineClear } from 'react-icons/ai';
-import { validate, ErrDiv, reOrderTableInv, loadDataSettings, loadStockDataPerDescription } from '../../../../utils/utils'
+import { validate, ErrDiv, reOrderTableInv, loadDataSettings, loadStockDataPerDescription } from '@utils/utils'
 import Expenses from './expenses'
 import Payments from './payments.js'
-import { UserAuth } from "../../../../contexts/useAuthContext";
-import Spinner from '../../../../components/spinner.js';
+import { UserAuth } from "@contexts/useAuthContext";
+import Spinner from '@components/spinner.js';
 import Remarks from './remarks.js';
 import { usePathname } from 'next/navigation';
 import { RiRefreshLine } from "react-icons/ri";
-import { getTtl } from '../../../../utils/languages.js';
-import Tltip from '../../../../components/tlTip.js';
+import { getTtl } from '@utils/languages.js';
+import Tltip from '@components/tlTip.js';
 
 const ContractModal = () => {
 
@@ -237,66 +237,21 @@ const ContractModal = () => {
 
 
 	return (
-		<div className="px-2">
+		<div className="px-1">
 			{loading && <Spinner />}
-
-			<style jsx global>{`
-				.invoice-modal-form input.input,
-				.invoice-modal-form select,
-				.invoice-modal-form textarea {
-					height: 26px;
-					font-size: 10px;
-					padding: 0 6px;
-					font-weight: 400;
-					color: #0b3d6b;
-				}
-				.invoice-modal-form textarea {
-					height: auto;
-					padding: 4px 6px;
-				}
-				.invoice-modal-form .shadow-md,
-				.invoice-modal-form .shadow-lg {
-					box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-				}
-				.invoice-modal-form button.blackButton,
-				.invoice-modal-form button.whiteButton {
-					height: 26px;
-					font-size: 10px;
-					padding: 0 10px;
-					font-weight: 500;
-				}
-				.invoice-modal-form p,
-				.invoice-modal-form span,
-				.invoice-modal-form label {
-					font-size: 10px;
-					color: #0b3d6b;
-				}
-				.invoice-modal-form .text-sm {
-					font-size: 9px;
-				}
-				.invoice-modal-form .text-xs {
-					font-size: 8px;
-				}
-				.invoice-modal-form .font-semibold {
-					font-weight: 600;
-				}
-				.invoice-modal-form .font-medium {
-					font-weight: 500;
-				}
-			`}</style>
-
-			<div className='invoice-modal-form grid grid-cols-12 gap-3 pt-1'>
-				<div className='col-span-12 md:col-span-2 border border-gray-200 p-2 rounded-lg'>
-					<p className='text-sm text-[var(--port-gore)] font-medium'>{getTtl('Invoices', ln)}:</p>
+			<div className='grid grid-cols-12 gap-3 pt-1'>
+				<div className='col-span-12 md:col-span-2  border border-slate-300 p-2 rounded-lg'>
+					<p className='text-sm text-slate-600 font-medium'>{getTtl('Invoices', ln)}:</p>
 					{valueCon.invoices.length > 0 &&
-						<ul className="flex flex-col mt-1 overflow-auto ring-1 ring-gray-200 rounded-lg divide-y" >
+						<ul className="flex flex-col mt-1 overflow-auto ring-1 ring-black/5 rounded-lg divide-y" >
 							{valueCon.invoices.map((x, i) => {
 								return (
 									<li key={i} onClick={() => selectRow(i)}
 										className={`items-center py-1 px-1.5 text-[0.75rem] 
-										truncate 
-										${valueCon.invoices[i]['id'] === valueInv.id && 'font-medium bg-gray-50 '}
-										${(isInvCreationCNFL && x.invType !== '1111') ? 'bg-gray-50/50 pointer-events-none cursor-not-allowed text-[var(--regent-gray)]' : 'cursor-pointer text-[var(--port-gore)]'}
+									truncate 
+									${valueCon.invoices[i]['id'] === valueInv.id && 'font-medium bg-slate-100 '}
+									${(isInvCreationCNFL && x.invType !== '1111') ? 'bg-gray-100 pointer-events-none cursor-not-allowed text-gray-400' : 'cursor-pointer text-slate-700'}
+								
 								}
 									`}
 									>
@@ -306,7 +261,7 @@ const ContractModal = () => {
 							})}
 						</ul>}
 				</div>
-				<div className='col-span-12 md:col-span-3 border border-gray-200 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-3 border border-slate-300 p-2 rounded-lg'>
 					<p className='flex items-center text-sm font-medium'>{getTtl('Consignee', ln)}:</p>
 					<div>
 						{!fnl ?
@@ -333,8 +288,8 @@ const ContractModal = () => {
 						</>
 					)}
 				</div>
-				<div className='col-span-12 md:col-span-2 border border-gray-200 p-2 rounded-lg flex flex-col'>
-					<p className='text-sm text-[var(--port-gore)] font-medium indent-1'>{getTtl('Invoice Type', ln)}:</p>
+				<div className='col-span-12 md:col-span-2 border border-slate-300 p-2 rounded-lg flex flex-col'>
+					<p className='text-sm text-slate-600 font-medium indent-1'>{getTtl('Invoice Type', ln)}:</p>
 					{!fnl ?
 						<div>
 							<InvoiceType setSelected={selectInvType} plans={settings.InvTypes.InvTypes} value={valueInv} ln={ln} />
@@ -346,22 +301,22 @@ const ContractModal = () => {
 						<p className='pt-2 pl-1 text-xs'>{valueInv.invType}</p>
 					}
 				</div>
-				<div className='col-span-12 md:col-span-2 border border-[var(--selago)] p-2 rounded-lg flex flex-col'>
-					<p className='text-sm text-[var(--port-gore)] font-medium indent-1'>{getTtl('PO', ln)}#:</p>
-					{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col mt-1 ring-1 ring-gray-200 rounded-lg divide-y divide-gray-200" >
+				<div className='col-span-12 md:col-span-2 border border-slate-300 p-2 rounded-lg flex flex-col'>
+					<p className='text-sm text-slate-600 font-medium indent-1'>{getTtl('PO', ln)}#:</p>
+					{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col mt-1 ring-1 ring-black/5 rounded-lg divide-y" >
 						{poArr.map((x, i) => {
 							return (
 								<li key={i}
-									className='items-center py-0.5 px-1.5 text-[0.8rem] text-[var(--port-gore)]
+									className='items-center py-0.5 px-1.5 text-[0.8rem] text-slate-700
 									truncate'>
 									{x}
 								</li>
 							)
 						})}
-				</ul>}
+					</ul>}
 
 				</div>
-				<div className='col-span-12 md:col-span-3 border border-gray-200 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-3 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex items-center pt-1'>
 						<p className='flex text-xs font-medium'>{getTtl('Date', ln)}:</p>
 						<div className='w-full px-2'>
@@ -405,7 +360,7 @@ const ContractModal = () => {
 
 
 			<div className='grid grid-cols-3 gap-3 pt-2'>
-				<div className='col-span-12 md:col-span-1 border border-gray-200 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex pt-1 text-sm font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -458,7 +413,7 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-gray-200 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -496,29 +451,29 @@ const ContractModal = () => {
 						</div>}
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-[var(--selago)] p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 					<div className={`flex gap-4 justify-between ${fnl ? 'py-0.5' : 'py-1.5'}`}>
 						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('totalNet', ln)}:</p>
-						<p className='text-sm pr-6 text-[var(--port-gore)]'>
+						<p className='text-sm pr-6 text-slate-700'>
 							{NetWTKgs}
 						</p>
 					</div>
 					{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
 						<div className={`flex gap-4 justify-between ${fnl ? 'py-0.5' : 'py-1.5'}`}>
-							<p className={`flex items-center text-sm ${(secondRule || fifthRule) && 'text-[var(--regent-gray)]'} font-medium whitespace-nowrap`}>{getTtl('totalTare', ln)}:</p>
-							<p className={`text-sm pr-6  ${parseInt(TotalTarre) < 0 ? 'text-red-400 font-medium' : 'text-[var(--port-gore)]'}`}>{secondRule || fifthRule ? '' : TotalTarre}</p>
+							<p className={`flex items-center text-sm ${(secondRule || fifthRule) && 'text-slate-400'} font-medium whitespace-nowrap`}>{getTtl('totalTare', ln)}:</p>
+							<p className={`text-sm pr-6  ${parseInt(TotalTarre) < 0 ? 'text-red-400 font-medium' : 'text-slate-700'}`}>{secondRule || fifthRule ? '' : TotalTarre}</p>
 						</div>
 					}
 
 					<div className={`flex gap-4 justify-between py-1.5`}>
-						<p className={`flex items-center text-sm font-medium whitespace-nowrap ${(fourthRule || fifthRule) && 'text-[var(--regent-gray)]'}`}>
+						<p className={`flex items-center text-sm font-medium whitespace-nowrap ${(fourthRule || fifthRule) && 'text-slate-400'}`}>
 							{thirdRule ? 'QTY Ingots' : getTtl('totalGross', ln)}:</p>
 						<div className='flex items-center text-sm font-medium whitespace-nowrap'>{(fourthRule || fifthRule) ? '' :
 							<div className='w-full  px-1'>
 								{!fnl ?
 									<input type='number' className="input text-[15px] shadow-lg h-7 text-xs" name='ttlGross' value={valueInv.ttlGross} onChange={handleValue} />
 									:
-									<p className='text-sm pr-5 text-[var(--port-gore)]'>{(valueInv.ttlGross * 1).toLocaleString(locale, options)}</p>
+									<p className='text-sm pr-5 text-slate-700'>{(valueInv.ttlGross * 1).toLocaleString(locale, options)}</p>
 								}
 							</div>
 						}</div>
@@ -526,13 +481,13 @@ const ContractModal = () => {
 
 					{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
 						<div className={`flex gap-4 justify-between py-1.5`}>
-							<p className={`flex items-center text-sm font-medium whitespace-nowrap ${(fourthRule || thirdRule) && 'text-[var(--regent-gray)]'}	`}>{getTtl('totalPack', ln)}:</p>
+							<p className={`flex items-center text-sm font-medium whitespace-nowrap ${(fourthRule || thirdRule) && 'text-slate-400'}	`}>{getTtl('totalPack', ln)}:</p>
 							<div className='flex items-center text-sm font-medium whitespace-nowrap'>{(fourthRule || thirdRule) ? '' :
 								<div className='w-full  px-1'>
 									{!fnl ?
 										<input type='text' className="input text-[15px] shadow-lg h-7 text-xs" name='ttlPackages' value={valueInv.ttlPackages} onChange={handleValue} />
 										:
-										<p className='text-sm pr-5 text-[var(--port-gore)]'>{valueInv.ttlPackages}</p>
+										<p className='text-sm pr-5 text-slate-700'>{valueInv.ttlPackages}</p>
 									}
 								</div>
 							}</div>
@@ -542,7 +497,7 @@ const ContractModal = () => {
 			</div>
 
 			<div className='grid grid-cols-2 gap-3 mt-2'>
-				<div className='col-span-12 md:col-span-1 flex border border-[var(--selago)] p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 flex border border-slate-300 p-2 rounded-lg'>
 					<p className='flex items-center text-sm font-medium whitespace-nowrap '>{getTtl('Bank Account', ln)}:</p>
 					<div className='w-full pl-4'>
 						{!fnl ?
@@ -553,7 +508,7 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='hidden md:flex col-span-0 md:col-span-1 border border-[var(--selago)] p-2 rounded-lg'>
+				<div className='hidden md:flex col-span-0 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 
 					<p className='flex items-center text-sm font-medium whitespace-nowrap '>HS Code:</p>
 					<div className='w-full pl-4'>
@@ -581,7 +536,7 @@ const ContractModal = () => {
 			</div>
 
 
-			<div className='w-full border border-[var(--selago)] p-2 rounded-lg mt-2'>
+			<div className='w-full border border-slate-300 p-2 rounded-lg mt-2'>
 				<ProductsTable value={valueInv} setValue={setValueInv}
 					currency={settings.Currency.Currency} uidCollection={uidCollection}
 					setDeleteProducts={setDeleteProducts} settings={settings}
@@ -592,12 +547,12 @@ const ContractModal = () => {
 
 
 			<div className='grid grid-cols-8 gap-3 mt-2'>
-				<div className='col-span-12 md:col-span-5 border border-[var(--selago)] p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-5  border border-slate-300 p-2 rounded-lg'>
 					<Remarks value={valueInv} setValue={setValueInv} ln={ln} />
 				</div>
 
-				<div className='col-span-12 md:col-span-2 border border-[var(--selago)] p-2 py-1 pb-0 rounded-lg'>
-					<p className='flex text-xs text-[var(--regent-gray)] font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
+				<div className='col-span-12 md:col-span-2  border border-slate-300 p-2 py-1 pb-0 rounded-lg'>
+					<p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="2" cols="60" name="comments"
 						className={`input text-[15px]  text-xs p-1`}
 						style={{ height: valueInv.remarks.length === 0 ? '40px' : valueInv.remarks.length * 40 + 'px' }}
@@ -606,7 +561,7 @@ const ContractModal = () => {
 					/>
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-[var(--selago)] p-2 rounded-lg gap-4'>
+				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg gap-4'>
 					<p className='flex text-xs font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
 					<div className='w-full '>
 						{!fnl ?
@@ -624,7 +579,7 @@ const ContractModal = () => {
 			<Expenses showExpenses={showExpenses} />
 			<Payments showPayments={showPayments} />
 
-			<div className="text-lg font-medium leading-5 text-[var(--port-gore)] p-3 pl-6 flex gap-4 flex-wrap justify-center md:justify-start ">
+			<div className="text-lg font-medium leading-5 text-gray-900 p-3 pl-6 flex gap-4 flex-wrap justify-center md:justify-start ">
 				{(!fnl && isSelectedInv) &&
 					<Tltip direction='top' tltpText='Save/Update invoice'>
 						<button
@@ -800,7 +755,8 @@ const ContractModal = () => {
 					<Tltip direction='top' tltpText='Paste invoice data'>
 						<button
 							type="button"
-							className="hidden md:flex whiteButton"
+							className="hidden md:flex items-center gap-2 justify-center rounded-md border bg-slate-200 px-4 py-2 text-sm font-medium 
+						text-blue-900 hover:bg-slate-300 focus:outline-none drop-shadow-lg"
 							onClick={() => paste_Invoice(uidCollection, valueCon, setValueCon, contractsData, setContractsData)}
 
 						>
