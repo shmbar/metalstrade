@@ -302,7 +302,7 @@ const Customtable = ({
             {isCompleted ? (
               <div className="flex justify-center">
                 <div
-                  className="px-3 py-1.5 rounded-lg text-[11px] font-normal"
+                  className="px-3 py-1.5 rounded-lg font-normal"
                   style={{
                     backgroundColor: value ? '#00bf63' : '#eb3636',
                     color: '#FFFFFF',

@@ -110,19 +110,16 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                     className="text-[#005b9f] font-normal text-center"
                                     style={{
                                         fontSize: 'clamp(11px, 1.0vw, 13px)',
-                                        fontWeight: '400',
-                                        textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
-                                    }}
+                                        fontWeight: '400'                                    }}
                                 >
                                     {card.value}
                                 </div>
                                 <span 
                                     className="text-[#005b9f] font-normal mb-1 text-center px-2"
                                     style={{
-                                        fontSize: 'clamp(8px, 0.5vw, 8px)',
+                                        fontSize: 'clamp(9px, 0.5vw, 9px)',
                                         fontWeight: '400',
-                                        letterSpacing: '0.02em',
-                                        textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                                        letterSpacing: '0.02em'
                                     }}
                                 >
                                     {card.label}
