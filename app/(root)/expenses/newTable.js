@@ -723,6 +723,8 @@ import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 
+const EMPTY_STATE_VIDEO_SRC = '/logo/no-data.mp4';
+
 const Customtable = ({
   data,
   columns,
@@ -750,6 +752,7 @@ const Customtable = ({
   const [rowSelection, setRowSelection]         = useState({})
   const [currencyColCenter, setCurrencyColCenter] = useState(null) // px from left of table
   const [amountColCenter, setAmountColCenter]   = useState(null) // px from left of table
+  const [isEmptyStateVideoError, setIsEmptyStateVideoError] = useState(false)
 
   const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 })
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
@@ -870,6 +873,25 @@ const Customtable = ({
     : '320px'
 
   const totalCols = columnsWithSelection.length
+
+  const renderEmptyStateMedia = () => {
+    if (!isEmptyStateVideoError) {
+      return (
+        <video
+          className="w-24 h-24 mb-5 rounded-2xl object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+          onError={() => setIsEmptyStateVideoError(true)}
+        >
+          <source src={EMPTY_STATE_VIDEO_SRC} type="video/mp4" />
+        </video>
+      );
+    }
+
+    return <div className="w-24 h-24 mb-5" />;
+  }
 
   /* ── Renders one flat summary bar ── */
   const renderSummaryBar = (bgColor, label, amountText) => (
@@ -1228,13 +1250,7 @@ const Customtable = ({
                       <td colSpan={totalCols} className="py-24 text-center"
                         style={{ border: 'none' }}>
                         <div className="flex flex-col items-center justify-center">
-                          <div className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
-                            style={{ background: 'linear-gradient(135deg,#6366F1,#A855F7)' }}>
-                            <svg className="w-12 h-12" style={{ color: '#FFFFFF' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                          </div>
+                          {renderEmptyStateMedia()}
                           <p className="font-normal mb-2"
                             style={{ color: '#1F2937', fontSize: 'clamp(12px,1.0vw,14px)' }}>
                             {getTtl('No data available', ln)}
@@ -1368,13 +1384,7 @@ const Customtable = ({
 
               {table.getRowModel().rows.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-24 px-3">
-                  <div className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
-                    style={{ background: 'linear-gradient(135deg,#6366F1,#A855F7)' }}>
-                    <svg className="w-12 h-12" style={{ color: '#FFFFFF' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
+                  {renderEmptyStateMedia()}
                   <p className="font-normal mb-2 text-center"
                     style={{ color: '#1F2937', fontSize: 'clamp(9px,0.8vw,10px)' }}>
                     {getTtl('No data available', ln)}

@@ -25,6 +25,8 @@ import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 
+const EMPTY_STATE_VIDEO_SRC = '/logo/no-data.mp4';
+
 const Customtable = ({
   data,
   columns,
@@ -53,6 +55,7 @@ const Customtable = ({
   const [quickSumEnabled, setQuickSumEnabled] = useState(false)
   const [quickSumColumns, setQuickSumColumns] = useState([])
   const [rowSelection, setRowSelection] = useState({})
+  const [isEmptyStateVideoError, setIsEmptyStateVideoError] = useState(false)
 
   const columnsWithSelection = useMemo(() => {
     if (!quickSumEnabled) return columns
@@ -118,6 +121,25 @@ const Customtable = ({
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
   })
+
+  const renderEmptyStateMedia = () => {
+    if (!isEmptyStateVideoError) {
+      return (
+        <video
+          className="w-24 h-24 mb-5 rounded-2xl object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+          onError={() => setIsEmptyStateVideoError(true)}
+        >
+          <source src={EMPTY_STATE_VIDEO_SRC} type="video/mp4" />
+        </video>
+      );
+    }
+
+    return <div className="w-24 h-24 mb-5" />;
+  }
 
   const totalsByColumn = useMemo(() => {
     const rows = table.getFilteredRowModel().rows.map((row) => row.original || {})
@@ -454,22 +476,7 @@ const Customtable = ({
                         className="py-24 text-center"
                       >
                         <div className="flex flex-col items-center justify-center">
-                          <div 
-                            className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
-                            style={{ 
-                              background: 'linear-gradient(135deg, #6366F1, #A855F7)',
-                            }}
-                          >
-                            <svg 
-                              className="w-12 h-12" 
-                              style={{ color: '#FFFFFF' }}
-                              fill="none" 
-                              viewBox="0 0 24 24" 
-                              stroke="currentColor"
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                          </div>
+                          {renderEmptyStateMedia()}
                           <p 
                             className="font-normal mb-2" 
                             style={{ 
@@ -584,22 +591,7 @@ const Customtable = ({
               {/* Empty state for mobile */}
               {table.getRowModel().rows.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-24 px-3">
-                  <div 
-                    className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
-                    style={{ 
-                      background: 'linear-gradient(135deg, #6366F1, #A855F7)',
-                    }}
-                  >
-                    <svg 
-                      className="w-12 h-12" 
-                      style={{ color: '#FFFFFF' }}
-                      fill="none" 
-                      viewBox="0 0 24 24" 
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
+                  {renderEmptyStateMedia()}
                   <p 
                     className="font-normal mb-2 text-center" 
                     style={{ 
