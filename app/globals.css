@@ -252,6 +252,18 @@ input::-webkit-inner-spin-button {
 }
 /* ========== End Custom Scrollbar ========== */
 
+/* ========== Radix Tooltip: no scroll, no max-width ========== */
+[data-radix-popper-content-wrapper] {
+  max-width: none !important;
+  overflow: visible !important;
+}
+
+[data-radix-popper-content-wrapper] > [data-side] {
+  max-width: none !important;
+  overflow: visible !important;
+}
+/* ========== End Radix Tooltip ========== */
+
 /******************************************/
 /* Only target disabled buttons inside the datepicker wrapper */
 .datepicker-wrapper button[disabled] {
