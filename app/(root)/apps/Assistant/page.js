@@ -13,7 +13,6 @@ import { HiOutlineDocumentText, HiOutlineCurrencyDollar } from "react-icons/hi";
 import { MdRestartAlt } from "react-icons/md";
 import { GrAttachment } from "react-icons/gr";
 import dateFormat from "dateformat";
-import Image from 'next/image';
 
 const quickActions = [
     { icon: <HiOutlineDocumentText className="w-3.5 h-3.5" />, text: "Show overdue invoices" },
@@ -236,11 +235,14 @@ const AssistantChat = () => {
                                     /* Empty state - greeting */
                                     <div className="flex flex-col items-center justify-center h-full py-16 px-4">
                                         <div className="mb-6">
-                                            <Image
-                                                src="/logo/Ai bot.svg"
-                                                alt="AI Assistant"
-                                                width={110}
-                                                height={110}
+                                            <video
+                                                src="/logo/asistan-3d.mp4"
+                                                width={140}
+                                                height={140}
+                                                autoPlay
+                                                loop
+                                                muted
+                                                playsInline
                                             />
                                         </div>
                                         <h2 className="text-2xl font-normal text-gray-500 mb-1">
