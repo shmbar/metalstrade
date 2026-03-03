@@ -204,7 +204,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
         .dashboard-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #6366F1, #4338CA); border-radius: 6px; border: 2px solid #F5F5F5; }
         .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #A855F7, #7E22CE); border-color: #FAFAFA; }
       `}</style>
-      <div 
+      <div
         className="w-full"
         style={{
           borderRadius: '24px',
@@ -212,14 +212,29 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
           overflow: 'hidden'
         }}
       >
-        {/* Header section matching newTable */}
-        <div 
-          className="flex-shrink-0"
-          style={{ 
-            borderBottom: '2px solid #E5E7EB',
+        {/* Title */}
+        <div
+          style={{
             background: '#d4eafc',
             borderTopLeftRadius: '24px',
-            borderTopRightRadius: '24px'
+            borderTopRightRadius: '24px',
+            padding: '10px 16px',
+            borderBottom: '1px solid #b8ddf8',
+            textAlign: 'center',
+            fontWeight: '600',
+            fontSize: '13px',
+            color: '#183d79',
+            letterSpacing: '0.03em'
+          }}
+        >
+          Summary - Stocks
+        </div>
+        {/* Header section matching newTable */}
+        <div
+          className="flex-shrink-0"
+          style={{
+            borderBottom: '2px solid #E5E7EB',
+            background: '#d4eafc',
           }}
         >
           <div className="overflow-x-auto dashboard-scroll">
