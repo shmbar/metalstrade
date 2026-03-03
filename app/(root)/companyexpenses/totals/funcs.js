@@ -127,13 +127,13 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                   transition: "background-color 150ms ease-in-out",
                 }}
               >
-                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px" }}>
+                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
                   {z.poSupplier?.order ?? "Comp. Exp."}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px" }}>
+                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
                   {z.expense}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px" }}>
+                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
                   {settings.Expenses.Expenses.find((q) => q.id === z.expType)?.expType}
                 </td>
                 <td
@@ -143,6 +143,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                     color: "#183d79",
                     fontWeight: 500,
                     fontSize: "11px",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   <NumericFormat
@@ -156,10 +157,10 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                     className="!text-[11px]"
                   />
                 </td>
-                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px" }}>
+                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
                   {dateFormat(z.date, "dd-mmm-yy")}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px" }}>
+                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
                   {z.paid === "111" ? "Paid" : "Unpaid"}
                 </td>
               </tr>
