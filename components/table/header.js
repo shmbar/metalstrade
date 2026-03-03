@@ -89,6 +89,7 @@ const Header = ({
           <div className='flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0'>
             
             {/* Quick Sum */}
+            {pathname !== '/materialtables' && (
             <div className="border border-[#005b9f] rounded-2xl px-2 flex items-center bg-white hover:border-gray-400 focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200 min-w-0 sm:h-7">
               <QuickSumControl
                 table={table}
@@ -99,6 +100,7 @@ const Header = ({
                 buttonClassName="font-normal text-xs whitespace-nowrap"
               />
             </div>
+            )}
 
             {/* Edit Mode */}
             {showEditButton && typeof setIsEditMode === 'function' && (
@@ -208,7 +210,7 @@ const Header = ({
 
         {/* DateRangePicker: Moves to new row on mobile, inline on desktop */}
         {/* <div className="w-full sm:w-auto flex-shrink-0"> */}
-          <DateRangePicker />
+          {pathname !== '/materialtables' && <DateRangePicker />}
         {/* </div> */}
       </div>
     </div>
