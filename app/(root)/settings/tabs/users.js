@@ -107,7 +107,7 @@ const Users = () => {
   return (
     <div className='border border-[var(--rock-blue)] p-4 rounded-lg flex flex-col w-full gap-4 '>
 
-      <div className='max-w-6xl z-0'>
+      <div className='max-w-6xl z-0 users-no-quicksum'>
         <Customtable data={data} columns={propDefaults} SelectRow={() => { }}
 							/* excellReport={EXD(invoicesData, settings, getTtl('Invoices', ln), ln)}*/ />
       </div>
@@ -134,6 +134,16 @@ const Users = () => {
         ttl={getTtl('delConfirmation', ln)} txt='The user will be deleted. Please confirm to proceed'
         doAction={() => deleteUser()}
       />
+
+      <style jsx global>{`
+        .users-no-quicksum .flex.flex-wrap.items-center.gap-1\.5.sm\:gap-2.min-w-0 > div:has(> div > button[title="Quick Sum"]) {
+          display: none !important;
+        }
+
+        .users-no-quicksum .relative.flex.items-center.w-full.max-w-\[240px\].rounded-2xl {
+          display: none !important;
+        }
+      `}</style>
     </div>
 
   )

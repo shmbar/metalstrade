@@ -1,36 +1,69 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useMemo, useState, useContext, useEffect } from "react";
 import List from "../../../../components/list";
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from "../../../../utils/languages";
 
 const Setup = () => {
   const { settings, updateSettings, ln } = useContext(SettingsContext);
   const [keyName, setKeyName] = useState("Container Type");
-  const [list, setList] = useState(settings[keyName] || []);
-  const { uidCollection } = UserAuth();
 
-  let listA = { ...settings };
-  delete listA["Supplier"];
-  delete listA["Client"];
-  delete listA["Bank Account"];
-  delete listA["InvTypes"];
-  delete listA["ExpPmnt"];
-  delete listA["Currency"];
-  delete listA["Stocks"];
+  const excludedKeys = useMemo(
+    () => new Set(["Supplier", "Client", "Bank Account", "InvTypes", "ExpPmnt", "Currency", "Stocks"]),
+    []
+  );
+
+  const listA = useMemo(() => {
+    return Object.keys(settings || {})
+      .filter((key) => !excludedKeys.has(key))
+      .filter((key) => {
+        const node = settings?.[key];
+        return node && typeof node === "object" && !Array.isArray(node) && Array.isArray(node?.[key]);
+      })
+      .sort();
+  }, [settings, excludedKeys]);
 
   useEffect(() => {
-    setList(settings[keyName] || []);
-  }, [settings, keyName]);
+    if (!listA.length) return;
+    if (!listA.includes(keyName)) {
+      setKeyName(listA[0]);
+    }
+  }, [listA, keyName]);
+
+  const list = settings?.[keyName]?.[keyName] || [];
+
+  const fieldByKey = {
+    "Container Type": "contType",
+    "Delivery Terms": "delTerm",
+    "Delivery Time": "delTime",
+    Expenses: "expType",
+    Hs: "hs",
+    Origin: "origin",
+    POD: "pod",
+    POL: "pol",
+    Packing: "packing",
+    "Payment Terms": "payTerm",
+    Quantity: "qty",
+    Remarks: "remarks",
+    Shipment: "shipment",
+    Size: "size",
+  };
+
+  const itemName =
+    Object.keys(list?.[0] || {}).find((key) => key !== "id" && key !== "deleted") || fieldByKey[keyName] || "value";
 
   const showList = (z) => {
     setKeyName(z);
-    setList(settings[z]);
   };
 
-  const updateList = (newArrList, updateServer) => {
-    const newObj = { ...list, [keyName]: newArrList };
-    updateSettings(uidCollection, newObj, keyName, updateServer);
+  const updateList = (newArrList) => {
+    const newObj = {
+      ...settings,
+      [keyName]: {
+        ...(settings?.[keyName] || {}),
+        [keyName]: newArrList,
+      },
+    };
+    updateSettings(newObj);
   };
 
   return (
@@ -47,9 +80,7 @@ const Setup = () => {
               py-2
             "
           >
-            {Object.keys(listA)
-              .sort()
-              .map((x, i) => (
+            {listA.map((x, i) => (
                 <li
                   key={i}
                   onClick={() => showList(x)}
@@ -78,7 +109,7 @@ const Setup = () => {
               list={list}
               ttl={keyName}
               updateList={updateList}
-              name={list["name"]}
+              name={itemName}
             />
           </div>
         </div>

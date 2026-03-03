@@ -46,7 +46,7 @@ const List = ({ list, updateList, ttl, name }) => {
 
     const addItem = () => {
         const newItem = { id: uuidv4(), [name]: '_New ' + ttl, deleted: false }
-        const newList = [...list, newItem];
+        const newList = [...(Array.isArray(list) ? list : []), newItem];
 
         updateList(newList, false);
         setIsNewItemAdded(true);
