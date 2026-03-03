@@ -13,7 +13,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={2} 
                 fixedDecimalScale 
-                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '400' }}
+                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #0ea5e9, #0284c7)'
         },
@@ -27,7 +27,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '400' }}
+                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #3abef8, #0ea5e9)'
         },
@@ -40,7 +40,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '400' }}
+                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #77d1fc, #3abef8)'
         },
@@ -54,7 +54,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '400' }}
+                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #6366f1, #4f46e5)'
         },
@@ -67,7 +67,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '400' }}
+                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #828df8, #6366f1)'
         },
@@ -107,18 +107,18 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                 }}
                             >
                                 <div 
-                                    className="text-[#005b9f] font-normal text-center"
+                                    className="text-[#005b9f] font-bold text-center"
                                     style={{
                                         fontSize: 'clamp(11px, 1.0vw, 13px)',
-                                        fontWeight: '400'                                    }}
+                                        fontWeight: '700'                                    }}
                                 >
                                     {card.value}
                                 </div>
                                 <span 
-                                    className="text-[#005b9f] font-normal mb-1 text-center px-2"
+                                    className="text-[#005b9f] font-bold mb-1 text-center px-2"
                                     style={{
                                         fontSize: 'clamp(9px, 0.5vw, 9px)',
-                                        fontWeight: '400',
+                                        fontWeight: '700',
                                         letterSpacing: '0.02em'
                                     }}
                                 >
@@ -155,7 +155,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                                 fontSize: 'clamp(8px, 0.7vw, 9px)',
                                                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
                                                 letterSpacing: '0.02em',
-                                                fontWeight: '400'
+                                                fontWeight: '700'
                                             }}
                                         >
                                             {card.label}
@@ -169,13 +169,13 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                             style={{ 
                                                 color: '#1F2937',
                                                 fontSize: 'clamp(10px, 0.9vw, 12px)',
-                                                fontWeight: '400'
+                                                fontWeight: '700'
                                             }}
                                         >
                                             {React.cloneElement(card.value, {
                                                 style: {
                                                     fontSize: 'clamp(10px, 0.9vw, 12px)',
-                                                    fontWeight: '400'
+                                                    fontWeight: '700'
                                                 }
                                             })}
                                         </div>
