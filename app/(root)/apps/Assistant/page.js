@@ -236,12 +236,11 @@ const AssistantChat = () => {
                                         <div className="mb-6">
                                             <video
                                                 src="/logo/asistan-3d.mp4"
-                                                width={140}
-                                                height={140}
                                                 autoPlay
                                                 loop
                                                 muted
                                                 playsInline
+                                                style={{ width: '140px', height: '140px', objectFit: 'contain' }}
                                             />
                                         </div>
                                         <h2 className="text-2xl font-normal text-gray-500 mb-1">
@@ -317,7 +316,7 @@ const AssistantChat = () => {
                             {/* Input Area */}
                             <div className="p-4 border-t border-[var(--selago)]" style={{ backgroundColor: '#ffffff' }}>
                                 {/* Input bar */}
-                                <div className="flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: '#ffffff' }}>
+                                <div className="flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: '#e8f5ff' }}>
                                     <GrAttachment className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                     <input
                                         ref={inputRef}
@@ -328,7 +327,7 @@ const AssistantChat = () => {
                                         onKeyDown={handleKeyDown}
                                         disabled={isLoading || dataLoading}
                                         className="flex-1 outline-none text-[var(--port-gore)] placeholder-gray-400 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                                        style={{ backgroundColor: '#ffffff' }}
+                                        style={{ backgroundColor: 'transparent' }}
                                     />
                                     <button
                                         onClick={() => handleSendMessage()}
