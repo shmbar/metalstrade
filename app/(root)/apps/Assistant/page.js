@@ -229,10 +229,10 @@ const AssistantChat = () => {
                             </div>
 
                             {/* Chat Area */}
-                            <div className="flex-1 overflow-y-auto bg-white">
+                            <div className="flex-1 overflow-y-auto bg-white" style={{ minHeight: 0 }}>
                                 {!hasMessages ? (
                                     /* Empty state - greeting */
-                                    <div className="flex flex-col items-center justify-center h-full py-16 px-4">
+                                    <div className="flex flex-col items-center justify-center py-16 px-4" style={{ minHeight: '400px' }}>
                                         <div className="mb-6">
                                             <video
                                                 src="/logo/asistan-3d.mp4"
@@ -268,17 +268,18 @@ const AssistantChat = () => {
                                                 <div
                                                     className={`max-w-[75%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed ${
                                                         message.role === 'user'
-                                                            ? 'bg-[var(--endeavour)] text-white rounded-br-sm'
+                                                            ? 'rounded-br-sm'
                                                             : message.isError
                                                                 ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-sm'
                                                                 : 'bg-[var(--selago)]/40 text-[var(--port-gore)] border border-[var(--selago)] rounded-bl-sm'
                                                     }`}
+                                                    style={message.role === 'user' ? { backgroundColor: '#e8f5ff', color: 'var(--port-gore)' } : {}}
                                                 >
                                                     <div
                                                         className="break-words"
                                                         dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
                                                     />
-                                                    <div className={`text-xs mt-1.5 text-right ${message.role === 'user' ? 'text-white/60' : 'text-gray-400'}`}>
+                                                    <div className="text-xs mt-1.5 text-right text-gray-400">
                                                         {message.time}
                                                     </div>
                                                 </div>
