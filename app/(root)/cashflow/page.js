@@ -7,12 +7,12 @@ import { getTtl } from "../../../utils/languages";
 import React, { useContext, useEffect, useState } from 'react'
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
-import { loadDataSettings, loadInvoice, loadMargins, loadStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, updateClientPayment, updateExpPayments } from "../../../utils/utils";
+import { loadData, loadDataSettings, loadInvoice, loadMargins, loadStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, updateClientPayment, updateExpPayments } from "../../../utils/utils";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
 import { MdDeleteOutline } from "react-icons/md";
 import { MdOutlineClose } from "react-icons/md";
-import { addComma, clientDetails, clientToolTip, expensesToolTip, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, stoclToolTip, supplierDetails, supplierToolTip } from "./funcs";
+import { addComma, clientDetails, clientToolTip, expensesToolTip, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, stocksUnSold, stoclToolTip, supplierDetails, supplierToolTip } from "./funcs";
 import Tltip from "../../../components/tlTip";
 import { FaSortAmountDown } from "react-icons/fa";
 import { FaSortAmountUpAlt } from "react-icons/fa";
@@ -57,6 +57,8 @@ const Cashflow = () => {
     const [stockData2, setStockData2] = useState([])
     const [stockDataAll, setStockDataAll] = useState([])
     const [stockDataNoPayment, setStockDataNoPayment] = useState([])
+    const [stockDataNoSold, setStockDataNoSold] = useState([])
+    const [stockDataAllArray, setStockDataAllArray] = useState([])
 
     const [clientInvoices1, setClientInvoices1] = useState([])
     const [clientInvoices2, setClientInvoices2] = useState([])
@@ -75,8 +77,10 @@ const Cashflow = () => {
 
     const [stocksSort, setStocksSort] = useState(true)
     const [stocksSort1, setStocksSort1] = useState(true)
+    const [stocksSort2, setStocksSort2] = useState(true)
     const [stocksSortName, setStocksSortName] = useState(false)
     const [stocksSortName1, setStocksSortName1] = useState(false)
+    const [stocksSortName2, setStocksSortName2] = useState(false)
 
     const [clientsData, setClientsData] = useState([])
     const [clientSort, setClientSort] = useState(true)
@@ -148,14 +152,27 @@ const Cashflow = () => {
 
             setIncoming(tmp);
 
+            let contractsData = (
+                await Promise.all(
+                    yr.map(year =>
+                        loadData(uidCollection, 'contracts', {
+                            start: `${year}-01-01`,
+                            end: `${year}-12-31`,
+                        })
+                    )
+                )
+            ).flat();
+
             //load stocks
-            let dataStock = await runStocks(uidCollection, settings)
+            let dataStock = await runStocks(uidCollection, settings, yr, contractsData)
             dataStock.result = dataStock.result.map(z => ({ ...z, stockName: settings.Stocks.Stocks.find(k => k.id === z.stock)?.stock }))
             dataStock.result1 = dataStock.result1.map(z => ({ ...z, stockName: settings.Stocks.Stocks.find(k => k.id === z.stock)?.stock }))
             setStockData1(dataStock.result.sort((a, b) => b.total - a.total))
             setStockData2(dataStock.result1.sort((a, b) => b.total - a.total))
-            setStockDataAll(dataStock.stocksArr)
+            setStockDataAll(dataStock.stocksArrWithPayment)
             setStockDataNoPayment(dataStock.stocksArrNoPayment)
+            setStockDataNoSold(dataStock.unSoldArrTitles)
+            setStockDataAllArray(dataStock.unSoldAll)
 
             //load invoices
             let invoices = await runInvoices(uidCollection, settings, yr)
@@ -167,7 +184,7 @@ const Cashflow = () => {
 
 
             //load payments to Suppliers
-            let supPayments = await runSupPayments(uidCollection, settings, yr)
+            let supPayments = await runSupPayments(uidCollection, settings, yr, contractsData)
             supPayments = supPayments.map(z => ({ ...z, suplierName: settings.Supplier.Supplier.find(a => a.id === z.supplier)?.nname, checked: false }))
             setsupPaymentsData(supPayments)
             setSupPayments1(getTotalsSupPayments(supPayments.filter(z => z.pmnt * 1 > 0)))
@@ -196,6 +213,9 @@ const Cashflow = () => {
                 stockData1.reduce((total, obj) => {
                     return total + (parseFloat(obj.total) || 0);
                 }, 0) +
+                stockData2.reduce((total, obj) => {
+                    return total + (parseFloat(obj.total) || 0);
+                }, 0) +
                 clientInvoices1.reduce((total, obj) => {
                     return total + (parseFloat(obj.debtBlnc) || 0);
                 }, 0) +
@@ -209,7 +229,7 @@ const Cashflow = () => {
 
         }
 
-    }, [financedLeft, initialData, incoming, stockData1, , clientInvoices2, clientInvoices1])
+    }, [financedLeft, initialData, incoming, stockData1, stockData2, clientInvoices2, clientInvoices1])
 
     useEffect(() => {
 
@@ -323,6 +343,26 @@ const Cashflow = () => {
         } else {
             setStockData2(stockData2.sort((a, b) => b.stockName.localeCompare(a.stockName)))
             setStocksSortName1(true)
+        }
+    }
+
+    const sortStocks2 = () => {
+        if (stocksSort2) {
+            setStockDataNoSold(stockDataNoSold.sort((a, b) => a.total - b.total))
+            setStocksSort2(false)
+        } else {
+            setStockDataNoSold(stockDataNoSold.sort((a, b) => b.total - a.total))
+            setStocksSort2(true)
+        }
+    }
+
+    const sortStocksName2 = () => {
+        if (stocksSortName2) {
+            setStockDataNoSold(stockDataNoSold.sort((a, b) => a.supplierName.localeCompare(b.supplierName)))
+            setStocksSortName2(false)
+        } else {
+            setStockDataNoSold(stockDataNoSold.sort((a, b) => b.supplierName.localeCompare(a.supplierName)))
+            setStocksSortName2(true)
         }
     }
 
@@ -770,8 +810,73 @@ return (
                         </button>
                     </div>
 
-                    {userTitle === 'Admin' &&
-                        <div className="w-full p-3 sm:p-4">
+
+{activeTab === 'unsold' ? (
+    <div className="w-full border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
+        <div className="text-[#005b9f] responsiveTextTitle mb-2 font-medium">Unsold Stocks</div>
+        <div className="flex p-1 justify-between mb-1">
+            {
+                stocksSortName2 ?
+                    <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName2()} />
+                    :
+                    <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName2()} />}
+            {
+                stocksSort2 ?
+                    <FaSortAmountDown className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortStocks2()} />
+                    :
+                    <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks2()} />}
+        </div>
+        {stockDataNoSold.length === 0 ? (
+            <div className="text-gray-400 text-sm py-4 text-center">No unsold stocks</div>
+        ) : (
+            <>
+                {stockDataNoSold.map((x, i) => (
+                    <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
+                        <MyAccordion title={
+                            <div className="flex w-full justify-between">
+                                <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0">
+                                    {x.supplierName}
+                                </div>
+                                <div className="leading-4 2xl:leading-6">
+                                    <NumericFormat
+                                        value={x.total || 0}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix={x.cur === 'us' ? '$' : '€'}
+                                        decimalScale='2'
+                                        fixedDecimalScale
+                                        className='responsiveText font-normal text-[#545454]'
+                                    />
+                                </div>
+                            </div>
+                        }>
+                            {stocksUnSold(x.supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
+                                setValueCon, setIsOpenCon, blankInvoice, router)}
+                        </MyAccordion>
+                    </div>
+                ))}
+
+                <div className="mt-2 pt-2 border-t border-[#b8ddf8] flex items-center justify-between">
+                    <div className="responsiveTextTitle text-[#005b9f] font-semibold">Total</div>
+                    <NumericFormat
+                        value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
+                        displayType="text"
+                        thousandSeparator
+                        allowNegative={true}
+                        prefix={'$'}
+                        decimalScale='2'
+                        fixedDecimalScale
+                        className='responsiveTextTitle text-[#005b9f] font-semibold'
+                    />
+                </div>
+            </>
+        )}
+    </div>
+) : (
+<div className="w-full border border-[#dedede] rounded-2xl overflow-hidden bg-white">
+  {userTitle === 'Admin' &&
+                        <div className="w-full p-3 sm:p-4 border-b border-[#dedede]">
                             <div className="flex gap-2">
                                 <span className="responsiveTextInput items-center flex w-44 text-[#005b9f]">Future</span>
                                 <label className="pl-1">{
@@ -822,40 +927,6 @@ return (
                         </div>
 
                     }
-
-{activeTab === 'unsold' ? (
-    <div className="w-full border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
-        <div className="text-[#005b9f] responsiveTextTitle mb-2 font-medium">Unsold Stocks</div>
-        {stockDataNoPayment.length === 0 ? (
-            <div className="text-gray-400 text-sm py-4 text-center">No unsold stocks</div>
-        ) : stockDataNoPayment.map((x, i) => (
-            <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
-                <MyAccordion title={
-                    <div className="flex w-full justify-between">
-                        <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0">
-                            {settings.Stocks?.Stocks?.find(z => z.id === x.stock)?.nname}
-                        </div>
-                        <div className="leading-4 2xl:leading-6">
-                            <NumericFormat
-                                value={x.total || x.amount || 0}
-                                displayType="text"
-                                thousandSeparator
-                                allowNegative={true}
-                                prefix={x.cur === 'us' ? '$' : '€'}
-                                decimalScale='2'
-                                fixedDecimalScale
-                                className='responsiveText font-normal text-[#545454]'
-                            />
-                        </div>
-                    </div>
-                }>
-                    {stoclToolTip(x.stock, stockDataNoPayment, settings, uidCollection, setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router)}
-                </MyAccordion>
-            </div>
-        ))}
-    </div>
-) : (
-<div className="w-full border border-[#dedede] rounded-2xl overflow-hidden bg-white">
   <div className="flex flex-wrap w-full">
                             <div className="w-full max-w-screen-lg flex-1 min-w-[320px]">
                             <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
@@ -1485,16 +1556,15 @@ return (
 
                         </div>
                     </div>
-                    </div>
-)}
-                     {userTitle === 'Admin' && (
+
+                    {userTitle === 'Admin' && (
                 <div className="mt-2 w-full border-2 border-gray-300 rounded-lg p-2">
 
                     {/* TOTALS AND BALANCE IN ONE ROW */}
                     <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
                         
                         <div className="flex justify-between items-center bg-[#d4eafc]  rounded-lg px-4 py-0">
-                            <span className="font-normal text-[#005b9f] responsiveTextTitle">
+                            <span className="font-normal text-[#005b9f] responsiveTextTitle whitespace-nowrap">
                                 Total (Left)
                             </span>
                             <NumericFormat
@@ -1505,12 +1575,12 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-normal text-[#005b9f]"
+                                className="font-normal text-[#005b9f] whitespace-nowrap"
                             />
                         </div>
 
                         <div className="flex justify-between items-center bg-[#11497c] text-white border-2 border-[#11497c] rounded-lg px-4 py-0 responsiveTextTotal">
-                            <span className="font-normal">
+                            <span className="font-normal whitespace-nowrap">
                                 Balance
                             </span>
                             <NumericFormat
@@ -1521,12 +1591,12 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-normal"
+                                className="font-normal whitespace-nowrap"
                             />
                         </div>
 
                         <div className="flex justify-between items-center bg-[#d4eafc]  rounded-lg px-4 py-0">
-                            <span className="font-normal text-[#005b9f] responsiveTextTitle">
+                            <span className="font-normal text-[#005b9f] responsiveTextTitle whitespace-nowrap">
                                 Total (Right)
                             </span>
                             <NumericFormat
@@ -1537,7 +1607,7 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-normal text-[#005b9f]"
+                                className="font-normal text-[#005b9f] whitespace-nowrap"
                             />
                         </div>
 
@@ -1549,7 +1619,7 @@ return (
                             const key = `total${z}`;
                             return (
                                 <div className="flex gap-2 my-2" key={z}>
-                                    <span className="responsiveTextInput items-center flex w-20 text-[#005b9f]">Total for {z}</span>
+                                    <span className="responsiveTextInput items-center flex w-28 text-[#005b9f] whitespace-nowrap">Total for {z}</span>
                                     <input
                                         className='input w-44 h-6 responsiveTextTotal font-normal text-[11px]  text-[#005b9f] text-right p-2 bg-[#f9f9f9] border-[#dedede]'
                                         value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
@@ -1564,10 +1634,13 @@ return (
             )}
 
         </div>
-    </>
-    }
+)}
+
+        </div>
+        </>
+        }
+        </div>
     </div>
-</div>
     )
 }
 export default Cashflow;

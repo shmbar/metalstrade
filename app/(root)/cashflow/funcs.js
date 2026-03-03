@@ -16,6 +16,7 @@ let propDefaults = [
     { accessorKey: 'order', },
     { accessorKey: 'date', },
     { accessorKey: 'supplier', },
+    { accessorKey: 'originSupplier', },
     { accessorKey: 'descriptionName', },
     { accessorKey: 'qnty', },
     { accessorKey: 'qTypeTable', },
@@ -42,7 +43,7 @@ function isNumber(str) {
 }
 
 
-export const runStocks = async (uidCollection, settings) => {
+export const runStocks = async (uidCollection, settings, yr, contractsData = []) => {
 
     let stockData = await loadAllStockData(uidCollection)
     stockData = stockData.filter(z => z.total !== 0).filter(x => x.draft === undefined || x.draft === false)
@@ -55,11 +56,44 @@ export const runStocks = async (uidCollection, settings) => {
             ...x,
             descriptionName: x.type === 'in' && x.description ?  //Contract Invoice
                 x.productsData.find(y => y.id === x.description)?.description :
-                x.isSelection ? x.productsData.find(y => y.id === x.descriptionId)?.description : // Invoice 
+                x.isSelection || x.mtrlStatus === 'select' ? x.productsData.find(y => y.id === x.descriptionId)?.description : // Invoice 
                     x.type === 'out' && x.moveType === "out" ? x.descriptionName :
                         x.descriptionText
         }))
 
+    const tmpArr10 = contractsData.flatMap(con =>
+        (con.productsData || []).map(prod => ({
+            ...prod,
+            order: con.order,
+            supplier: con.supplier,
+            originSupplier: con.originSupplier,
+            total: prod.qnty * prod.unitPrc,
+            cur: con.cur,
+            orderData: { date: con.date, id: con.id },
+        }))
+    ).filter(x => !x.import);
+
+    const ids = new Set(stockData.filter(x => x.type === 'in').map(i => i.description).filter(Boolean));
+    const unSoldAll = tmpArr10.filter(i => !ids.has(i.id));
+
+    const unSoldArrTitles = Object.values(
+        unSoldAll.reduce((acc, item) => {
+            if (!item?.order) return acc;
+
+            const supplier = item.supplier;
+            const supplierName = settings.Supplier.Supplier.find(z => z.id === item.supplier)?.nname;
+            const total = Number(item.total) || 0;
+            const cur = item.cur;
+
+            if (!acc[supplier]) {
+                acc[supplier] = { supplier, total: 0, cur, supplierName };
+            }
+
+            acc[supplier].total += total;
+
+            return acc;
+        }, {})
+    );
 
 
     let stocksArrData = [...new Set(stockData.map(x => x.stock))]
@@ -149,6 +183,7 @@ export const runStocks = async (uidCollection, settings) => {
     //Clean newArr from stocks with payment zero
 
     newArr = newArr.filter(x => !invoicesPaymentZero.map(q => q.id).includes(x.id))
+    const stocksArrWithPayment = [...newArr];
 
     //totals for newArr
     let tmpArr = newArr.map(x => ({ cur: x.cur, qTypeTable: x.qTypeTable, stock: x.stock, qnty: 0, total: 0 }))
@@ -211,7 +246,7 @@ export const runStocks = async (uidCollection, settings) => {
 
     const result1 = sumupResult1.filter(z => z.total !== 0);
 
-    return { result, result1, stocksArr, stocksArrNoPayment };
+    return { result, result1, stocksArrWithPayment, stocksArrNoPayment, unSoldArrTitles, unSoldAll };
 }
 
 
@@ -223,7 +258,10 @@ const moveToContracts = async (z, ent, uidCollection, setDateSelect,
         ent === 'client' ? z.poSupplier :
             ent === 'supplier' ? z.orderData :
                 ent === 'expense' ? { date: z.date, id: z.id } :
-                    ent === 'compexpense' ? { date: z.date, id: z.id } : null
+                    ent === 'compexpense' ? { date: z.date, id: z.id } :
+                        ent === 'stock1' ? z.contractData :
+                            ent === 'order' ? z.orderData :
+                                null
 
 
 
@@ -290,16 +328,17 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
     filteredArr = filteredArr.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return (
-        <div className="max-h-[28rem] overflow-y-auto responsiveTextTable pt-2 justify-center flex bg-white">
-            <table>
-                <thead>
-                    <tr className="border border-slate-300 p-2">
-                        <th className="text-left p-1 w-24 text-[#005b9f] font-normal">PO#</th>
-                        <th className="text-left p-1 text-[#005b9f] font-normal">Supplier</th>
-                        <th className="text-left p-1 w-40 text-[#005b9f] font-normal">Description</th>
-                        <th className="text-left p-1 text-[#005b9f] font-normal">Quantity</th>
-                        <th className="text-right p-1 text-[#005b9f] font-normal">Unit Price</th>
-                        <th className="text-right p-1 text-[#005b9f] font-normal">Total</th>
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable pt-1 bg-white ">
+            <table className="cashflow-detail-table w-full min-w-[640px] rounded-2xl  table-fixed">
+                <thead >
+                    <tr className="border border-slate-300 rounded-2xl bg-[#f0f8ff] p-2">
+                        <th className="text-left p-1 w-14 text-[#005b9f] font-normal">PO#</th>
+                        <th className="text-left p-1 w-20 text-[#005b9f] font-normal">Supplier</th>
+                        <th className="text-left p-1 w-20 text-[#005b9f] font-normal">Org Sup.</th>
+                        <th className="text-left p-1 w-28 max-w-28 text-[#005b9f] font-normal">Description</th>
+                        <th className="text-right p-1 w-16 text-[#005b9f] font-normal">Quantity</th>
+                        <th className="text-right p-1 w-20 text-[#005b9f] font-normal">Unit Price</th>
+                        <th className="text-right p-1 w-20 text-[#005b9f] font-normal">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -310,9 +349,12 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     {z.order}</td>
-                                <td className="text-left p-1 w-20 ">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td>
-                                <td className="text-left p-1 max-w-28 2xl:max-w-48 truncate" >{z.descriptionName}</td>
-                                <td className="text-left p-1">{
+                                <td className="text-left p-1 w-20"><span className="block truncate">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></td>
+                                <td className="text-left p-1 w-20"><span className="block truncate">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></td>
+                                <td className="text-left p-1 w-28 max-w-28">
+                                    <span className="block truncate">{z.descriptionName}</span>
+                                </td>
+                                <td className="text-right p-1">{
                                     <NumericFormat
                                         value={z.qnty}
                                         displayType="text"
@@ -363,6 +405,8 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                         <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
                         </th>
                         <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
+                        </th>
+                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
                             {
                                 <NumericFormat
                                     value={filteredArr.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0)}
@@ -387,6 +431,113 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
             </table>
         </div>
     )//stock; 
+}
+
+export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
+    setValueCon, setIsOpenCon, blankInvoice, router
+) => {
+
+    let filteredArr = stockDataAllArray.filter(z => z.supplier === supplier)
+
+    const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd')
+
+    return (
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable pt-1 bg-white border border-[#b8ddf8] rounded-lg">
+            <table className="cashflow-detail-table w-full min-w-[600px] border-collapse table-fixed">
+                <thead>
+                    <tr className="border border-slate-300 p-2">
+                        <th className="text-left p-1 w-14 text-[#005b9f] font-normal">PO#</th>
+                        <th className="text-left p-1 w-20 text-[#005b9f] font-normal">Org Sup.</th>
+                        <th className="text-left p-1 w-28 max-w-28 text-[#005b9f] font-normal">Description</th>
+                        <th className="text-right p-1 w-16 text-[#005b9f] font-normal">Quantity</th>
+                        <th className="text-right p-1 w-20 text-[#005b9f] font-normal">Unit Price</th>
+                        <th className="text-right p-1 w-20 text-[#005b9f] font-normal">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredArr.map((z, i) => {
+                        return (
+                            <tr className="border border-slate-300 p-2" key={i}>
+                                <td className="text-left p-1 cursor-pointer text-black"
+                                    onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
+                                        setValueCon, setIsOpenCon, blankInvoice, router)}>
+                                    {z.order}</td>
+                                <td className="text-left p-1 w-20"><span className="block truncate">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></td>
+                                <td className="text-left p-1 w-28 max-w-28">
+                                    <span className="block truncate">{z.description}</span>
+                                </td>
+                                <td className="text-right p-1">{
+                                    <NumericFormat
+                                        value={z.qnty}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        decimalScale='3'
+                                        fixedDecimalScale
+                                        className=''
+                                    />
+                                }</td>
+                                <td className="text-right p-1">{
+                                    <NumericFormat
+                                        value={z.unitPrc}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix={z.cur === 'us' ? '$' : '€'}
+                                        decimalScale='2'
+                                        fixedDecimalScale
+                                        className=''
+                                    />
+                                }</td>
+                                <td className="text-right p-1">{
+                                    <NumericFormat
+                                        value={z.total}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix={z.cur === 'us' ? '$' : '€'}
+                                        decimalScale='2'
+                                        fixedDecimalScale
+                                        className=''
+                                    />
+                                }</td>
+                            </tr>
+                        )
+                    })}
+
+                </tbody>
+                <tfoot>
+                    <tr className="border-t bg-[#e3f3ff] border border-slate-300">
+                        <th className="relative px-1 py-1 text-left font-medium text-gray-500 uppercase                                  ">
+                            Total
+                        </th>
+                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
+                        </th>
+                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
+                        </th>
+                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
+                            {
+                                <NumericFormat
+                                    value={filteredArr.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0)}
+                                    displayType="text"
+                                    thousandSeparator
+                                    allowNegative={true}
+                                    decimalScale='3'
+                                    fixedDecimalScale
+                                    className=''
+                                />
+                            }
+                        </th>
+                        <th className="relative p-1 text-right font-medium text-gray-500 uppercase">
+                        </th>
+                        <th className="relativep-2 p-1 text-right font-medium text-gray-500 uppercase">
+                            {ttl}
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    )
 }
 
 const makeGroup = (arr) => {
@@ -534,20 +685,20 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
     let filteredArr1 = tmp.filter(x => x.payments.length === 0)
 
     return (
-        <div className=" w-full max-h-[28rem] overflow-y-auto p-1 responsiveTextTable1 justify-center flex">
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto p-1 responsiveTextTable1 border border-[#b8ddf8] rounded-lg bg-white">
             {type === 'PartPaid' &&
                 <div className="pt-1 w-full">
-                    <table className="w-full">
+                    <table className="cashflow-detail-table w-full min-w-[980px] border-collapse">
                         <thead>
                             <tr className="border border-slate-300 ">
-                                <th className="text-left p-1 2xl:p-2  max-w-20 2xl:max-w-24 truncate text-[#005b9f] font-normal text-">PO#</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Invoice</th>
-                                <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Amount</th>
-                                <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Payment</th>
-                                <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Balance</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">ETD</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">ETA</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Payment</th>
+                                <th className="text-left p-1 2xl:p-1  max-w-20 2xl:max-w-24 truncate text-[#005b9f] font-normal text-">PO#</th>
+                                <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Invoice</th>
+                                <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Amount</th>
+                                <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Payment</th>
+                                <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Balance</th>
+                                <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">ETD</th>
+                                <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">ETA</th>
+                                <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Payment</th>
                                 <th className="text-center px-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
@@ -564,12 +715,12 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                             {filteredArr.map((z, i) => {
                                 return (
                                     <tr className="border border-slate-300" key={i}>
-                                        <td className="text-left p-1 2xl:p-2  cursor-pointer max-w-14 2xl:max-w-24 truncate"
+                                        <td className="text-left p-1 2xl:p-1  cursor-pointer max-w-14 2xl:max-w-24 truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
                                             {z.poSupplier?.order}</td>
-                                        <td className="text-left p-1 2xl:p-2  w-10">{z.invoice}</td>
-                                        <td className="text-right p-1 2xl:p-2">{
+                                        <td className="text-left p-1 2xl:p-1  w-10">{z.invoice}</td>
+                                        <td className="text-right p-1 2xl:p-1">{
                                             <NumericFormat
                                                 value={z.totalAmount}
                                                 displayType="text"
@@ -581,7 +732,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 className=''
                                             />
                                         }</td>
-                                        <td className="text-right p-1 2xl:p-2">{
+                                        <td className="text-right p-1 2xl:p-1">{
                                             <NumericFormat
                                                 value={z.payments.reduce((total, obj) => {
                                                     return total + obj.pmnt * 1;
@@ -595,7 +746,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 className=''
                                             />
                                         }</td>
-                                        <td className="text-right p-1 2xl:p-2">{
+                                        <td className="text-right p-1 2xl:p-1">{
                                             <NumericFormat
                                                 value={z.debtBlnc}
                                                 displayType="text"
@@ -607,9 +758,9 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 className=''
                                             />
                                         }</td>
-                                        <td className="text-left p-1 2xl:p-2">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
-                                        <td className="text-left p-1 2xl:p-2">{dateFormat(z.shipData?.eta?.startDate, 'dd.mm.yy')}</td>
-                                        <td className="text-center p-1 2xl:p-2 py-0">
+                                        <td className="text-left p-1 2xl:p-1">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
+                                        <td className="text-left p-1 2xl:p-1">{dateFormat(z.shipData?.eta?.startDate, 'dd.mm.yy')}</td>
+                                        <td className="text-center p-1 2xl:p-1 py-0">
                                             <Tltip direction='right' tltpText='Partial Payment'>
                                                 <div className='flex items-center justify-center'>
                                                     <DoalogModalClient obj={z}
@@ -618,7 +769,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 </div>
                                             </Tltip>
                                         </td>
-                                        <td className="text-center  p-1 2xl:p-2 py-0">
+                                        <td className="text-center  p-1 2xl:p-1 py-0">
                                             <Tltip direction='right' tltpText='Set full payment'>
                                                 <div className='flex items-center justify-center'>
                                                     <CheckBox size='size-5' checked={z.checked}
@@ -674,7 +825,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
 
             {type === 'InDebt' &&
                 <div className="pt-1 w-full">
-                    <table className="responsiveTextTable w-full">
+                    <table className="cashflow-detail-table responsiveTextTable w-full min-w-[760px] border-collapse">
                         <thead>
                             <tr className="border border-slate-300 p-2">
                                 <th className="text-left p-1 2xl:p-2  w-28 text-[#005b9f] font-normal">PO#</th>
@@ -847,21 +998,22 @@ export const addComma = (nStr) => {
 
 // Suppliers
 
-export const runSupPayments = async (uidCollection, settings, yr) => {
+export const runSupPayments = async (uidCollection, settings, yr, contractsData = null) => {
 
 
-    //  let dt = await loadData(uidCollection, 'contracts', { start: `${yr}-01-01`, end: `${yr}-12-31` });
-    let dt = await Promise.all(
-        yr.map(year =>
-            loadData(uidCollection, 'contracts', {
-                start: `${year}-01-01`,
-                end: `${year}-12-31`
-            })
-        )
-    );
+    let dt = contractsData;
+    if (!Array.isArray(dt)) {
+        dt = await Promise.all(
+            yr.map(year =>
+                loadData(uidCollection, 'contracts', {
+                    start: `${year}-01-01`,
+                    end: `${year}-12-31`
+                })
+            )
+        );
 
-    // Merge all the individual arrays into one
-    dt = [].concat(...dt);
+        dt = [].concat(...dt);
+    }
 
     let arr = []
 
@@ -869,6 +1021,7 @@ export const runSupPayments = async (uidCollection, settings, yr) => {
         contract.poInvoices.forEach(inv => {
             let obj = {
                 invValue: inv.invValue, pmnt: inv.pmnt, blnc: inv.blnc, supplier: contract.supplier,
+                originSupplier: contract.originSupplier,
                 order: contract.order, cur: contract.cur, invoice: inv.inv, euroToUSD: contract.euroToUSD,
                 orderData: { date: contract.date, id: contract.id },
                 id: inv.id
@@ -926,17 +1079,17 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
     let type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt'
 
     return (
-        <div className="max-h-[28rem] overflow-y-auto responsiveTextTable pt-1 justify-center flex w-full">
-            <table className="w-full">
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable pt-1 border border-[#b8ddf8] rounded-lg bg-white">
+            <table className="cashflow-detail-table w-full min-w-[760px] border-collapse">
                 <thead>
                     <tr className="border border-slate-300">
-                        <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">PO#</th>
+                        <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
-                        <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Invoice</th>
-                        <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Value</th>
-                        <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Payment</th>
-                        <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Balance</th>
-                        <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Payment</th>
+                        <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Invoice</th>
+                        <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Value</th>
+                        <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Payment</th>
+                        <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Balance</th>
+                        <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Payment</th>
                         <th>
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
@@ -953,13 +1106,13 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                     {filteredArr.map((z, i) => {
                         return (
                             <tr className="border border-slate-300" key={i}>
-                                <td className="text-left p-1 2xl:p-2 cursor-pointer"
+                                <td className="text-left p-1 2xl:p-1 cursor-pointer"
                                     onClick={() => moveToContracts(z, 'supplier', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}
                                 >{z.order}</td>
                                 {/* <td className="text-left p-2">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td> */}
-                                <td className="text-left p-1 2xl:p-2 2xl:max-w-24 truncate" >{z.invoice}</td>
-                                <td className="text-right p-1 2xl:p-2">{
+                                <td className="text-left p-1 2xl:p-1 2xl:max-w-24 truncate" >{z.invoice}</td>
+                                <td className="text-right p-1 2xl:p-1">{
                                     <NumericFormat
                                         value={z.invValue}
                                         displayType="text"
@@ -971,7 +1124,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                         className='responsiveTextTable'
                                     />
                                 }</td>
-                                <td className="text-right p-1 2xl:p-2">{
+                                <td className="text-right p-1 2xl:p-1">{
                                     <NumericFormat
                                         value={z.pmnt}
                                         displayType="text"
@@ -983,7 +1136,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                         className='responsiveTextTable'
                                     />
                                 }</td>
-                                <td className="text-right p-1 2xl:p-2">{
+                                <td className="text-right p-1 2xl:p-1">{
                                     <NumericFormat
                                         value={z.blnc}
                                         displayType="text"
@@ -995,14 +1148,14 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                         className='responsiveTextTable'
                                     />
                                 }</td>
-                                <td className="text-center p-1 2xl:p-2 py-0">
+                                <td className="text-center p-1 2xl:p-1 py-0">
                                     <Tltip direction='right' tltpText='Partial Payment'>
                                         <div className='flex items-center justify-center'>
                                             <DoalogModal obj={z} supplierPartialPayment={supplierPartialPayment} />
                                         </div>
                                     </Tltip>
                                 </td>
-                                <td className="text-center p-1 2xl:p-2 py-0">
+                                <td className="text-center p-1 2xl:p-1 py-0">
                                     <Tltip direction='right' tltpText='Set full payment'>
                                         <div className='flex items-center justify-center'>
                                             <CheckBox size='size-5' checked={z.checked}
@@ -1106,18 +1259,18 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
     let filteredArr = expensesAll.filter(z => z.supplier === supplier)
 
     return (
-        <div className="max-h-[28rem] overflow-y-auto pt-2 responsiveTextTable justify-center flex">
-            <table>
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto pt-1 responsiveTextTable border border-[#b8ddf8] rounded-lg bg-white">
+            <table className="cashflow-detail-table w-full min-w-[860px] border-collapse">
                 <thead>
                     <tr className="border border-slate-300">
-                        <th className="text-left p-1 2xl:p-2 w-24 text-[#005b9f] font-normal">PO#</th>
+                        <th className="text-left p-1 2xl:p-1 w-24 text-[#005b9f] font-normal">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
-                        <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Exp. Invoice</th>
-                        <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Exp. Type</th>
-                        <th className="text-right p-1 2xl:p-2 text-[#005b9f] font-normal">Amount</th>
-                        <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Date</th>
-                        <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Payment</th>
-                        <th className="text-center p-1 2xl:p-2 py-0 text-[#005b9f]">
+                        <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Exp. Invoice</th>
+                        <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Exp. Type</th>
+                        <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Amount</th>
+                        <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Date</th>
+                        <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Payment</th>
+                        <th className="text-center p-1 2xl:p-1 py-0 text-[#005b9f]">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
                                     {filteredArr.length > 0 && <CheckBox size='size-5' checked={!!toggleExp[filteredArr[0]?.supplier]}
@@ -1133,14 +1286,14 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                     {filteredArr.map((z, i) => {
                         return (
                             <tr className="border border-slate-300 " key={i}>
-                                <td className="text-left p-1 2xl:p-2 text-blue-700 cursor-pointer"
+                                <td className="text-left p-1 2xl:p-1 text-blue-700 cursor-pointer"
                                     onClick={() => moveToContracts(z, z.poSupplier ? 'expense' : 'compexpense', uidCollection, setDateSelect,
                                         setValueExp, setIsOpen, blankInvoice, router)}>
                                     {z.poSupplier?.order ?? 'Comp. Exp.'}</td>
                                 {/* <td className="text-left p-2">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td> */}
-                                <td className="text-left p-1 2xl:p-2" >{z.expense}</td>
-                                <td className="text-left p-1 2xl:p-2" >{settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType}</td>
-                                <td className="text-right p-1 2xl:p-2">{
+                                <td className="text-left p-1 2xl:p-1" >{z.expense}</td>
+                                <td className="text-left p-1 2xl:p-1" >{settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType}</td>
+                                <td className="text-right p-1 2xl:p-1">{
                                     <NumericFormat
                                         value={z.amount}
                                         displayType="text"
@@ -1152,13 +1305,13 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                                         className='responsiveTextTable'
                                     />
                                 }</td>
-                                <td className="text-left p-1 2xl:p-2">
+                                <td className="text-left p-1 2xl:p-1">
                                     {dateFormat(z.date, 'dd.mm.yy')}
                                 </td>
-                                <td className="text-left p-1 2xl:p-2">
+                                <td className="text-left p-1 2xl:p-1">
                                     {z.paid === '111' ? 'Paid' : 'Unpaid'}
                                 </td>
-                                <td className="text-center p-1 2xl:p-2">
+                                <td className="text-center p-1 2xl:p-1">
                                     <Tltip direction='right' tltpText='Set full payment'>
                                         <div className='flex items-center justify-center'>
                                             <CheckBox size='size-5' checked={z.checked}

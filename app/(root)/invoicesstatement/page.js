@@ -419,7 +419,7 @@ const Shipments = () => {
 
 
     return (
-       <div className="container mx-auto px-0 pb-8 md:pb-0 mt-16 md:mt-0">
+       <div className="container mx-auto px-0 pb-8 md:pb-0 mt-16 md:mt-20">
             {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
                 <div>
                     <Toast />

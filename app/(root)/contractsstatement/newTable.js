@@ -171,7 +171,7 @@ const Customtable = ({
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
  /* Professional gradient scrollbar matching cards */
-        .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+     .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
         .dashboard-scroll::-webkit-scrollbar-track { 
           background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
           border-radius: 6px; 
@@ -186,6 +186,7 @@ const Customtable = ({
           border-color: #F0F0F0;
         }
 
+
         /* Glassmorphic professional table */
         .glass-table {
           background: linear-gradient(135deg, 
@@ -193,8 +194,6 @@ const Customtable = ({
             rgba(250, 250, 250, 0.90) 50%,
             rgba(255, 255, 255, 0.85) 100%
           );
-          backdrop-filter: blur(16px) saturate(180%);
-          -webkit-backdrop-filter: blur(16px) saturate(180%);
         }
 
         .custom-table, .custom-table *, .glass-table, .glass-table * {

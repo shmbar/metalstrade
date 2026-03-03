@@ -104,7 +104,7 @@ const Page = () => {
 	}
 
 	return (
-		<div className="container mx-auto px-4 pb-6 md:pb-0 mt-6 md:mt-0">
+		<div className="container mx-auto px-4 pb-6 md:pb-0 mt-6 md:mt-20">
 			{Object.keys(settings).length === 0 ? <Spinner /> :
 				<>
 					<Toast />
@@ -218,7 +218,7 @@ const Page = () => {
 								</TabGroup>
 							</div>
 						</div>
-					</div>,o 
+					</div>
 				</>
 			}
 		</div>

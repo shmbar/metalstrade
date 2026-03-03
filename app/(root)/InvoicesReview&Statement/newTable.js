@@ -196,8 +196,6 @@ const Customtable = ({
             rgba(250, 250, 250, 0.90) 50%,
             rgba(255, 255, 255, 0.85) 100%
           );
-          backdrop-filter: blur(16px) saturate(180%);
-          -webkit-backdrop-filter: blur(16px) saturate(180%);
         }
         .custom-table, .custom-table *, .glass-table, .glass-table * {
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;

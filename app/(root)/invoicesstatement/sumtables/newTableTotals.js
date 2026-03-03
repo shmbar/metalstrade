@@ -49,7 +49,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             }}>
             <div className="px-4 py-2.5"
                 style={{
-                    background: '#d4eafc',
+                    background: '#e3f3ff',
                     borderBottom: '1px solid #b8d8f2',
                     borderTopLeftRadius: '16px',
                     borderTopRightRadius: '12px'
@@ -79,7 +79,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                                 fontSize: 'clamp(10px, 1vw, 13px)',
                                                 color: '#183d79',
                                                 letterSpacing: '0.05em',
-                                                background: '#d4eafc',
+                                                // background: '#e3f3ff',
                                                 borderRight: '1px solid #e0e0e0',
                                                 borderBottom: '1px solid #e0e0e0'
                                             }}>
@@ -126,7 +126,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         </tbody>
                         <tfoot>
                             <tr style={{
-                                background: '#b8d8f2',
+                                background: '#e3f3ff',
                                 fontWeight: 600
                             }}>
                                 <th className="relative px-2 py-2 text-left font-semibold"
@@ -162,7 +162,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                 </th>
                             </tr>
                             <tr style={{
-                                background: '#b8d8f2', borderTop: '1px solid #a0c8e8'
+                                background: '#e3f3ff', borderTop: '1px solid #a0c8e8'
                             }}>
                                 <th className="relative px-2 py-2 text-left font-semibold"
                                     style={{
