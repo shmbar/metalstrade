@@ -14,7 +14,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
 
   return (
     <div
-      className="max-h-[32rem] overflow-y-auto w-fit rounded-lg custom-tooltip-table"
+      className="w-fit rounded-lg custom-tooltip-table"
       style={{
         background: "#f6f9ff",
         border: "1px solid #e0e0e0",
