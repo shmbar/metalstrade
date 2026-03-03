@@ -4,7 +4,6 @@ import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import Spinner from '../../../../components/spinner';
 import Toast from '../../../../components/toast.js';
-import { getTtl } from '../../../../utils/languages';
 import { loadData } from '../../../../utils/utils';
 import { IoSend, IoRefresh } from "react-icons/io5";
 import { BsRobot, BsPerson, BsFileText, BsQuestionCircle, BsBoxSeam } from "react-icons/bs";
@@ -24,7 +23,7 @@ const quickActions = [
 ];
 
 const AssistantChat = () => {
-    const { settings, ln, dateSelect } = useContext(SettingsContext);
+    const { settings, dateSelect } = useContext(SettingsContext);
     const { uidCollection, user, userTitle } = UserAuth();
 
     // Get user display name: displayName from Firebase, fallback to userTitle
@@ -318,17 +317,18 @@ const AssistantChat = () => {
                             {/* Input Area */}
                             <div className="p-4 border-t border-[var(--selago)]" style={{ backgroundColor: '#ffffff' }}>
                                 {/* Input bar */}
-                                <div className="flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-xl px-3 py-2 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: '#ffffff' }}>
+                                <div className="flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: '#ffffff' }}>
                                     <GrAttachment className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                     <input
                                         ref={inputRef}
                                         type="text"
-                                        placeholder={getTtl('Ask me anything', ln)}
+                                        placeholder="Ask me anything"
                                         value={newMessage}
                                         onChange={(e) => setNewMessage(e.target.value)}
                                         onKeyDown={handleKeyDown}
                                         disabled={isLoading || dataLoading}
-                                        className="flex-1 outline-none text-[var(--port-gore)] placeholder-gray-400 text-sm disabled:opacity-50 disabled:cursor-not-allowed" style={{ backgroundColor: 'transparent' }}
+                                        className="flex-1 outline-none text-[var(--port-gore)] placeholder-gray-400 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                        style={{ backgroundColor: '#ffffff' }}
                                     />
                                     <button
                                         onClick={() => handleSendMessage()}
