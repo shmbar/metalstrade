@@ -6,9 +6,11 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
     filt === "reduced"
       ? expensesData.filter((z) => z.paid === "222")
       : expensesData;
-  filteredArr = filteredArr.filter(
-    (z) => z.supplier === row.original.supplier && z.cur === row.original.cur
-  );
+  const supplierName = row.original.supplier;
+  filteredArr = filteredArr.filter((z) => {
+    const name = settings?.Supplier?.Supplier?.find((q) => q.id === z.supplier)?.nname;
+    return name === supplierName && z.cur === row.original.cur;
+  });
 
   return (
     <div
