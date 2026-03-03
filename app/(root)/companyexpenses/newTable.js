@@ -147,7 +147,7 @@ const Customtable = ({
   const currentRows = table.getRowModel().rows.length;
   const dynamicMaxHeight = currentRows > 0
     ? `${Math.min(currentRows * 40 + 180, 700)}px`
-    : '320px';
+    : 'auto';
 
   return (
     <div className="w-full">
@@ -378,7 +378,7 @@ const Customtable = ({
     <tr>
       <td
         colSpan={columnsWithSelection.length}
-        className="py-24 text-center"
+        className="py-8 text-center"
       >
         <div className="flex flex-col items-center justify-center">
           {renderEmptyStateMedia()}
