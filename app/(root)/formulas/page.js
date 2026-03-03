@@ -199,7 +199,7 @@ const Page = () => {
 												</div>
 
 												<Button 
-													className='px-6 py-2 rounded bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] text-[var(--selago)] rounded font-medium text-sm mt-auto h-[40px]'
+													className='px-6 py-2 rounded-2xl bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] text-[var(--selago)] font-medium text-sm mt-auto h-[40px]'
 													onClick={saveData}
 												>
 													Save
