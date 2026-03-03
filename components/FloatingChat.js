@@ -3,7 +3,7 @@ import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { SettingsContext } from "../contexts/useSettingsContext";
 import { UserAuth } from "../contexts/useAuthContext";
 import { loadData } from '../utils/utils';
-import { MessageCircle, X, Send, Loader2, Trash2, Sparkles } from 'lucide-react';
+import { X, Send, Loader2, Trash2 } from 'lucide-react';
 import { BsRobot, BsPerson } from "react-icons/bs";
 import dateFormat from "dateformat";
 
@@ -404,70 +404,72 @@ const FloatingChat = () => {
             {chatOpen && (
                 <div style={{ zIndex: 99999 }} className="fixed bottom-4 right-4 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
                     {/* Header */}
-                    <div className="p-3 bg-gradient-to-r from-[var(--endeavour)] via-[var(--chathams-blue)] to-[var(--endeavour)] flex items-center justify-between">
+                    <div className="px-3 py-2.5 border-b border-[var(--selago)] flex items-center justify-between bg-white">
                         <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                                <Sparkles className="w-4 h-4 text-white" />
-                            </div>
-                            <div>
-                                <h3 className="text-white font-semibold text-sm">IMS Assistant</h3>
-                                <p className="text-white/70 text-xs">
-                                    {dataLoading ? 'Loading data...' : `${contractsData.length} contracts, ${invoicesData.length} invoices`}
-                                </p>
-                            </div>
+                            <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
+                            <span className="text-sm font-semibold text-[var(--port-gore)]">Assistant</span>
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2">
+                            {!dataLoading && (
+                                <div className="flex items-center gap-1.5">
+                                    <span className="px-2 py-0.5 bg-green-50 text-green-700 border border-green-200 rounded-full text-[10px] font-medium">
+                                        {contractsData.length} Contracts
+                                    </span>
+                                    <span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-[10px] font-medium">
+                                        {invoicesData.length} Invoices
+                                    </span>
+                                </div>
+                            )}
                             <button
                                 onClick={handleClearChat}
-                                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
-                                title="Clear chat"
+                                className="p-1 hover:text-[var(--endeavour)] text-gray-400 transition-colors"
+                                title="Reset chat"
                             >
-                                <Trash2 className="w-4 h-4 text-white/80" />
+                                <Trash2 className="w-3.5 h-3.5" />
                             </button>
                             <button
                                 onClick={() => setChatOpen(false)}
-                                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                                className="p-1 hover:text-[var(--endeavour)] text-gray-400 transition-colors"
                                 title="Close chat"
                             >
-                                <X className="w-4 h-4 text-white" />
+                                <X className="w-3.5 h-3.5" />
                             </button>
                         </div>
                     </div>
 
                     {/* Messages */}
-                    <div className="flex-1 overflow-y-auto p-3 bg-gray-50/50 space-y-3">
+                    <div className="flex-1 overflow-y-auto p-3 space-y-3" style={{ backgroundColor: '#ffffff' }}>
                         {messages.map((msg) => (
                             <div
                                 key={msg.id}
                                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                             >
                                 {msg.role === 'assistant' && (
-                                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--endeavour)] to-[var(--chathams-blue)] flex items-center justify-center mr-2 flex-shrink-0">
-                                        <BsRobot className="w-3.5 h-3.5 text-white" />
+                                    <div className="w-7 h-7 rounded-full bg-[var(--endeavour)]/10 flex items-center justify-center mr-2 flex-shrink-0 mt-1">
+                                        <BsRobot className="w-3.5 h-3.5 text-[var(--endeavour)]" />
                                     </div>
                                 )}
                                 <div
                                     className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
                                         msg.role === 'user'
-                                            ? 'bg-gradient-to-r from-[var(--endeavour)] to-[var(--chathams-blue)] text-white rounded-br-md'
+                                            ? 'rounded-br-sm'
                                             : msg.isError
-                                                ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-md'
-                                                : 'bg-white text-gray-700 shadow-sm border border-gray-100 rounded-bl-md'
+                                                ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-sm'
+                                                : 'bg-[var(--selago)]/40 text-[var(--port-gore)] border border-[var(--selago)] rounded-bl-sm'
                                     }`}
+                                    style={msg.role === 'user' ? { backgroundColor: '#e8f5ff', color: 'var(--port-gore)' } : {}}
                                 >
                                     <div
                                         className="break-words leading-relaxed"
                                         dangerouslySetInnerHTML={{ __html: formatMessageContent(msg.content) }}
                                     />
-                                    <span className={`text-[10px] mt-1 block text-right ${
-                                        msg.role === 'user' ? 'text-white/60' : 'text-gray-400'
-                                    }`}>
+                                    <span className="text-[10px] mt-1 block text-right text-gray-400">
                                         {msg.time}
                                     </span>
                                 </div>
                                 {msg.role === 'user' && (
-                                    <div className="w-7 h-7 rounded-full bg-[var(--port-gore)] flex items-center justify-center ml-2 flex-shrink-0">
-                                        <BsPerson className="w-3.5 h-3.5 text-white" />
+                                    <div className="w-7 h-7 rounded-full bg-[var(--port-gore)]/10 flex items-center justify-center ml-2 flex-shrink-0 mt-1">
+                                        <BsPerson className="w-3.5 h-3.5 text-[var(--port-gore)]" />
                                     </div>
                                 )}
                             </div>
@@ -493,10 +495,36 @@ const FloatingChat = () => {
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Quick Actions (only show initially) */}
-                    {messages.length <= 1 && !isLoading && (
-                        <div className="px-3 py-2 border-t border-gray-100 bg-white">
-                            <div className="flex flex-wrap gap-1.5">
+                    {/* Input + Quick Actions */}
+                    <div className="p-3 border-t border-[var(--selago)]" style={{ backgroundColor: '#ffffff' }}>
+                        {/* Input bar */}
+                        <div className="flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-3 py-2 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: '#e8f5ff' }}>
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder="Ask me anything"
+                                disabled={isLoading || dataLoading}
+                                className="flex-1 outline-none text-sm text-[var(--port-gore)] placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                                style={{ backgroundColor: 'transparent' }}
+                            />
+                            <button
+                                onClick={handleSendMessage}
+                                disabled={!newMessage.trim() || isLoading || dataLoading}
+                                className="p-1.5 bg-[var(--endeavour)] text-white rounded-lg hover:bg-[var(--chathams-blue)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+                            >
+                                {isLoading ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                    <Send className="w-3.5 h-3.5" />
+                                )}
+                            </button>
+                        </div>
+                        {/* Quick action chips */}
+                        {messages.length <= 1 && !isLoading && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
                                 {['Show overdue invoices', 'List contracts', 'How to create invoice?'].map((action) => (
                                     <button
                                         key={action}
@@ -504,40 +532,13 @@ const FloatingChat = () => {
                                             setNewMessage(action);
                                             setTimeout(() => handleSendMessage(), 100);
                                         }}
-                                        className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-xs text-gray-600 transition-colors"
+                                        className="px-2.5 py-1 bg-white border border-gray-200 rounded-full text-xs text-gray-600 hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
                                     >
                                         {action}
                                     </button>
                                 ))}
                             </div>
-                        </div>
-                    )}
-
-                    {/* Input */}
-                    <div className="p-3 border-t border-gray-200 bg-white">
-                        <div className="flex items-center gap-2">
-                            <input
-                                ref={inputRef}
-                                type="text"
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                placeholder="Ask me anything..."
-                                disabled={isLoading || dataLoading}
-                                className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[var(--endeavour)] focus:ring-1 focus:ring-[var(--endeavour)]/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                            />
-                            <button
-                                onClick={handleSendMessage}
-                                disabled={!newMessage.trim() || isLoading || dataLoading}
-                                className="p-2 bg-gradient-to-r from-[var(--endeavour)] to-[var(--chathams-blue)] text-white rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isLoading ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : (
-                                    <Send className="w-5 h-5" />
-                                )}
-                            </button>
-                        </div>
+                        )}
                     </div>
                 </div>
             )}
