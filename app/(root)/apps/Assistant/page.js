@@ -197,31 +197,37 @@ const AssistantChat = () => {
 
                             {/* Top Bar */}
                             <div className="px-4 py-2.5 border-b border-[var(--selago)] flex items-center justify-between bg-white">
+                                {/* Left - Assistant title */}
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
+                                    <span className="text-sm font-semibold text-[var(--port-gore)]">Assistant</span>
+                                </div>
+                                {/* Right - badges + reset */}
                                 <div className="flex items-center gap-3">
                                     {dataLoading ? (
-                                        <span className="text-xs text-gray-400">{getTtl('Loading...', ln)}</span>
+                                        <span className="text-xs text-gray-400">Loading...</span>
                                     ) : (
                                         <>
                                             <span className="px-3 py-1 bg-green-50 text-green-700 border border-green-200 rounded-full text-xs font-medium">
-                                                {contractsData.length} {getTtl('Contracts', ln)}
+                                                {contractsData.length} Contracts
                                             </span>
                                             <span className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-xs font-medium">
-                                                {invoicesData.length} {getTtl('Invoices', ln)}
+                                                {invoicesData.length} Invoices
                                             </span>
                                             <span className="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-xs font-medium">
-                                                {expensesData.length} {getTtl('Expenses', ln)}
+                                                {expensesData.length} Expenses
                                             </span>
                                         </>
                                     )}
+                                    <button
+                                        onClick={handleClearChat}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-[var(--endeavour)] border border-[var(--selago)] hover:border-[var(--endeavour)] rounded-lg transition-colors"
+                                        title="Reset conversation"
+                                    >
+                                        <MdRestartAlt className="w-4 h-4" />
+                                        Reset
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={handleClearChat}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-[var(--endeavour)] border border-[var(--selago)] hover:border-[var(--endeavour)] rounded-lg transition-colors"
-                                    title="Reset conversation"
-                                >
-                                    <MdRestartAlt className="w-4 h-4" />
-                                    Reset
-                                </button>
                             </div>
 
                             {/* Chat Area */}
