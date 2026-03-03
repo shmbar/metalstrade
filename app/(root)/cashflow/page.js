@@ -94,6 +94,7 @@ const Cashflow = () => {
     const [expensesSortName, setExpensesSortName] = useState(false)
 
     const [totalYrs, setTotalYrs] = useState([])
+    const [activeTab, setActiveTab] = useState('general')
     const router = useRouter();
 
     const [toggleClientPartial, setToggleClientPartial] = useState({})
@@ -805,6 +806,54 @@ return (
 
                     }
 
+                    {/* Tabs */}
+                    <div className="flex gap-2 mb-3">
+                        <button
+                            onClick={() => setActiveTab('general')}
+                            className={`px-4 py-1.5 text-xs rounded-full border transition-all font-medium ${activeTab === 'general' ? 'bg-[#11497c] text-white border-[#11497c]' : 'bg-white text-[#11497c] border-[#b8ddf8] hover:bg-[#d4eafc]'}`}
+                        >
+                            General Cashflow
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('unsold')}
+                            className={`px-4 py-1.5 text-xs rounded-full border transition-all font-medium ${activeTab === 'unsold' ? 'bg-[#11497c] text-white border-[#11497c]' : 'bg-white text-[#11497c] border-[#b8ddf8] hover:bg-[#d4eafc]'}`}
+                        >
+                            Unsold Stocks
+                        </button>
+                    </div>
+
+{activeTab === 'unsold' ? (
+    <div className="w-full border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
+        <div className="text-[#005b9f] responsiveTextTitle mb-2 font-medium">Unsold Stocks</div>
+        {stockDataNoPayment.length === 0 ? (
+            <div className="text-gray-400 text-sm py-4 text-center">No unsold stocks</div>
+        ) : stockDataNoPayment.map((x, i) => (
+            <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
+                <MyAccordion title={
+                    <div className="flex w-full justify-between">
+                        <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0">
+                            {settings.Stocks?.Stocks?.find(z => z.id === x.stock)?.nname}
+                        </div>
+                        <div className="leading-4 2xl:leading-6">
+                            <NumericFormat
+                                value={x.total || x.amount || 0}
+                                displayType="text"
+                                thousandSeparator
+                                allowNegative={true}
+                                prefix={x.cur === 'us' ? '$' : '€'}
+                                decimalScale='2'
+                                fixedDecimalScale
+                                className='responsiveText font-normal text-[#545454]'
+                            />
+                        </div>
+                    </div>
+                }>
+                    {stoclToolTip(x.stock, stockDataNoPayment, settings, uidCollection, setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router)}
+                </MyAccordion>
+            </div>
+        ))}
+    </div>
+) : (
 <div className="w-full border border-[#dedede] rounded-2xl overflow-hidden bg-white">
   <div className="flex flex-wrap w-full">
                             <div className="w-full max-w-screen-lg flex-1 min-w-[320px]">
@@ -826,7 +875,7 @@ return (
                                 </div>
                                 {stockData1.map((x, i) => {
                                     return (
-                                        <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
+                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
                                                         <div className="responsiveText items-center font-normal text-[#545454] flex outline-none whitespace-normal break-words min-w-0"
@@ -903,7 +952,7 @@ return (
 
                                 {stockData2.map((x, i) => {
                                     return (
-                                        <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
+                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
                                                     <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -976,7 +1025,7 @@ return (
 
                                 {clientInvoices2.map((x, i) => {
                                     return (
-                                        <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
+                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
                                                     <div className="responsiveText text-[#545454] font-normal items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1046,7 +1095,7 @@ return (
 
                                 {clientInvoices1.map((x, i) => {
                                     return (
-                                        <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
+                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
                                                     <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1180,7 +1229,7 @@ return (
 
                                 {supPayments2.map((x, i) => {
                                     return (
-                                        <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
+                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                     <span className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words w-full min-w-0"
@@ -1255,7 +1304,7 @@ return (
 
                                 {supPayments1.map((x, i) => {
                                     return (
-                                        <div className="bg-gray-100 rounded-xl py-0 px-1 mb-1 border border-gray-200" key={i}>
+                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                     <span className="responsiveText items-center font-normal text-[#545454] flex outline-none whitespace-normal break-words w-full min-w-0"
@@ -1325,7 +1374,7 @@ return (
 
                                 {expenses.map((x, i) => {
                                     return (
-                                        <div className="flex items-center  text-slate-600 " key={i}>
+                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex justify-between leading-4 2xl:leading-6 w-full">
                                                     <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0"              >
@@ -1436,6 +1485,7 @@ return (
                         </div>
                     </div>
                     </div>
+)}
                      {userTitle === 'Admin' && (
                 <div className="mt-2 w-full border-2 border-gray-300 rounded-lg p-2">
 
