@@ -28,7 +28,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
         transitionTimingFunction: "ease-in-out",
       }}
     >
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table style={{ width: "auto", borderCollapse: "collapse" }}>
         <thead>
           <tr
             style={{
@@ -39,7 +39,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
             <th
               style={{
                 textAlign: "left",
-                padding: "8px",
+                padding: "8px 16px 8px 8px",
                 color: "#183d79",
                 fontWeight: 600,
                 fontSize: "11px",
@@ -53,7 +53,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
             <th
               style={{
                 textAlign: "left",
-                padding: "8px",
+                padding: "8px 16px 8px 8px",
                 color: "#183d79",
                 fontWeight: 600,
                 fontSize: "11px",
@@ -67,7 +67,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
             <th
               style={{
                 textAlign: "left",
-                padding: "8px",
+                padding: "8px 16px 8px 8px",
                 color: "#183d79",
                 fontWeight: 600,
                 fontSize: "11px",
@@ -81,7 +81,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
             <th
               style={{
                 textAlign: "left",
-                padding: "8px",
+                padding: "8px 16px 8px 8px",
                 color: "#183d79",
                 fontWeight: 600,
                 fontSize: "11px",
@@ -95,7 +95,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
             <th
               style={{
                 textAlign: "left",
-                padding: "8px",
+                padding: "8px 16px 8px 8px",
                 color: "#183d79",
                 fontWeight: 600,
                 fontSize: "11px",
@@ -109,7 +109,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
             <th
               style={{
                 textAlign: "left",
-                padding: "8px",
+                padding: "8px 16px 8px 8px",
                 color: "#183d79",
                 fontWeight: 600,
                 fontSize: "11px",
@@ -133,19 +133,19 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                   transition: "background-color 150ms ease-in-out",
                 }}
               >
-                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
                   {z.poSupplier?.order ?? "Comp. Exp."}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
                   {z.expense}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
                   {settings.Expenses.Expenses.find((q) => q.id === z.expType)?.expType}
                 </td>
                 <td
                   style={{
                     textAlign: "left",
-                    padding: "8px",
+                    padding: "8px 16px 8px 8px",
                     color: "#183d79",
                     fontWeight: 500,
                     fontSize: "11px",
@@ -163,10 +163,10 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                     className="!text-[11px]"
                   />
                 </td>
-                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
                   {dateFormat(z.date, "dd-mmm-yy")}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
                   {z.paid === "111" ? "Paid" : "Unpaid"}
                 </td>
               </tr>
