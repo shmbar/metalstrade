@@ -220,7 +220,7 @@ const AssistantChat = () => {
                                     title="Reset conversation"
                                 >
                                     <MdRestartAlt className="w-4 h-4" />
-                                    {getTtl('Reset', ln)}
+                                    Reset
                                 </button>
                             </div>
 
@@ -229,20 +229,19 @@ const AssistantChat = () => {
                                 {!hasMessages ? (
                                     /* Empty state - greeting */
                                     <div className="flex flex-col items-center justify-center h-full py-16 px-4">
-                                        <div className="mb-4">
+                                        <div className="mb-6">
                                             <Image
                                                 src="/logo/Ai bot.svg"
                                                 alt="AI Assistant"
-                                                width={120}
-                                                height={120}
-                                                className="opacity-90"
+                                                width={110}
+                                                height={110}
                                             />
                                         </div>
-                                        <h2 className="text-2xl font-semibold text-[var(--port-gore)] mb-1">
-                                            {getTtl('Hi', ln)} {userName},
+                                        <h2 className="text-2xl font-normal text-gray-500 mb-1">
+                                            Hi {userName},
                                         </h2>
-                                        <p className="text-gray-500 text-base">
-                                            {getTtl('How can I help you today?', ln)}
+                                        <p className="text-gray-400 text-base">
+                                            How can I help you today?
                                         </p>
                                     </div>
                                 ) : (
