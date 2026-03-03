@@ -285,7 +285,7 @@ const Customtable = ({
                           style={{
                             color: '#1F2937',
                             minWidth: cell.column.id === 'select' ? '50px' : '60px',
-                            maxWidth: cell.column.id === 'select' ? '50px' : '110px',
+                            maxWidth: cell.column.id === 'select' ? '50px' : '150px',
                             fontSize: 'clamp(11px, 1.0vw, 13px)',
                             fontWeight: '400',
                             zIndex: 1,

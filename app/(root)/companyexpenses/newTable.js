@@ -309,7 +309,7 @@ const Customtable = ({
             className="px-2 py-2 text-center"
             style={{
               minWidth: cell.column.id === 'select' ? '50px' : '60px',
-              maxWidth: cell.column.id === 'select' ? '50px' : '110px',
+              maxWidth: cell.column.id === 'select' ? '50px' : '150px',
             }}
           >
             {isCompleted ? (

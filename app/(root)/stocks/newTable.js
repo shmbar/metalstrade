@@ -313,7 +313,7 @@ const Customtable = ({
     : cell.column.id === 'select'
     ? '50px'
     : undefined,
-                              // maxWidth: cell.column.id === 'select' ? '50px' : '110px',
+                              maxWidth: cell.column.id === 'select' ? '50px' : '150px',
                               fontWeight: '400',
                               zIndex: 1,
                               willChange: 'background-color, color',
