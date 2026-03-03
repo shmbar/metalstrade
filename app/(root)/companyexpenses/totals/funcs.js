@@ -45,6 +45,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 fontSize: "11px",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
+                whiteSpace: "nowrap",
               }}
             >
               PO#
@@ -58,6 +59,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 fontSize: "11px",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
+                whiteSpace: "nowrap",
               }}
             >
               Expense Invoice
@@ -71,6 +73,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 fontSize: "11px",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
+                whiteSpace: "nowrap",
               }}
             >
               Expense Type
@@ -84,6 +87,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 fontSize: "11px",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
+                whiteSpace: "nowrap",
               }}
             >
               Amount
@@ -97,6 +101,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 fontSize: "11px",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
+                whiteSpace: "nowrap",
               }}
             >
               Date
@@ -110,6 +115,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 fontSize: "11px",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
+                whiteSpace: "nowrap",
               }}
             >
               Payment
