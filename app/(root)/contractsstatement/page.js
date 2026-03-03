@@ -20,6 +20,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import DateRangePicker from '../../../components/dateRangePicker';
 import Tooltip from '../../../components/tooltip';
 import { Switch } from "../../..//components/ui/switch"
+import VideoLoader from '../../../components/videoLoader';
 
 
 const loadInvoices = async (uidCollection, con) => {
@@ -470,11 +471,11 @@ const Contracts = () => {
 
 	return (
 		<div className="container mx-auto px-0 pb-8 md:pb-0 mt-16 md:mt-0">
-			{Object.keys(settings).length === 0 ? <Spinner /> :
+			{Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
 				<>
 					<Toast />
 
-					{loading && <Spin />}
+					<VideoLoader loading={loading} fullScreen={true} />
 					<div className="border border-[var(--selago)] rounded-xl p-4 mt-8  bg-white relative">
 						<div className='flex items-center justify-between flex-wrap pb-2'>
 							<div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Contracts Statement', ln)}</div>

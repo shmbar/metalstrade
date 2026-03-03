@@ -13,6 +13,7 @@ import { getTtl } from "../../../utils/languages";
 import Users from './tabs/users'
 import { UserAuth } from '../../../contexts/useAuthContext'
 import Spin from '../../../components/spinTable';
+import VideoLoader from '../../../components/videoLoader';
 
 
 
@@ -51,7 +52,7 @@ const Page = () => {
   return (
     <div className="container ">
       <Toast />
-      {loading && <Spin />}
+      <VideoLoader loading={loading} fullScreen={true} />
       <div className=" p-1 md:p-4 mt-[5%] bg-white">
         <div className="text-[14px] mt-5 text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2">{getTtl('Settings', ln)}</div>
 

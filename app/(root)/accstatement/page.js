@@ -25,6 +25,7 @@ import { Button } from '../../../components/ui/button';
 import Datepicker from "react-tailwindcss-datepicker";
 // import { userAgentFromString } from '@node_modules/next/server';
 import { disabledDates } from './disabledDates';
+import VideoLoader from '../../../components/videoLoader';
 
 const fieldOrder = [
   "invoice",
@@ -314,7 +315,7 @@ const AccountStatement = () => {
   return (
     <div className="w-full " style={{ background: "#f8fbff" }}>
       <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
-        {Object.keys(settings).length === 0 ? <Spinner /> :
+        {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
           <>
             <Toast />
             {/* Main Card */}

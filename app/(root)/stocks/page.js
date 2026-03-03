@@ -6,6 +6,7 @@ import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { ContractsContext } from "../../../contexts/useContractsContext";
 import Toast from '../../../components/toast.js'
 import Spinner from '../../../components/spinner';
+import VideoLoader from '../../../components/videoLoader';
 import { UserAuth } from "../../../contexts/useAuthContext"
 import { loadStockData, filteredArray, loadAllStockData } from '../../../utils/utils'
 import Spin from '../../../components/spinTable';
@@ -314,10 +315,10 @@ const Stocks = () => {
   return (
     <div className="w-full " style={{ background: "#f8fbff" }}>
       <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
-        {Object.keys(settings).length === 0 ? <Spinner /> :
+        {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
           <>
             <Toast />
-            {loading && <Spin />}
+            <VideoLoader loading={loading} fullScreen={true} />
             {/* Main Card */}
             <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-gray-200 shadow-xl w-full backdrop-blur-[2px] bg-white">
               {/* Header Section */}

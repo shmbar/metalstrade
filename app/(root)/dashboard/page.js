@@ -3,6 +3,7 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import Spinner from '@components/spinner';
+import VideoLoader from '@components/videoLoader';
 import { UserAuth } from "@contexts/useAuthContext"
 import { SettingsContext } from "@contexts/useSettingsContext";
 import Toast from '@components/toast.js'
@@ -430,13 +431,13 @@ const Dash = () => {
     };
   };
 
-  if (Object.keys(settings).length === 0) return <Spinner />;
+  if (Object.keys(settings).length === 0) return <VideoLoader loading={true} fullScreen={true} />;
 
   return (
     <div className="w-full ">
       <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px] min-h-screen ">
       <Toast />
-      {loading && <Spin />}
+      <VideoLoader loading={loading} fullScreen={true} />
 
       <motion.div className="mb-4" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
         <MarketsTicker />

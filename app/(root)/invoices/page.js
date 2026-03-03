@@ -9,6 +9,7 @@ import { InvoiceContext } from "../../../contexts/useInvoiceContext";
 import { ContractsContext } from "../../../contexts/useContractsContext";
 import { ExpensesContext } from "../../../contexts/useExpensesContext";
 import Spinner from '../../../components/spinner';
+import VideoLoader from '../../../components/videoLoader';
 import { UserAuth } from "../../../contexts/useAuthContext"
 import { loadData, loadInvoice, loadStockDataPerDescription, filteredArray, sortArr, getD } from '../../../utils/utils'
 import Spin from '../../../components/spinTable';
@@ -487,7 +488,7 @@ const Invoices = () => {
 	return (
 		<div className="w-full " style={{ background: "#f8fbff" }}>
 			<div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
-				{Object.keys(settings).length === 0 ? <Spinner /> :
+				{Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
 					<>
 						<Toast />
 						{/* Main Card */}

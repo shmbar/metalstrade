@@ -12,6 +12,7 @@ import Stainless from "./tabs/stainless";
 import { Button } from "../../../components/ui/button";
 import { getCur } from "../../../components/exchangeApi";
 import dateFormat from "dateformat";
+import VideoLoader from '../../../components/videoLoader';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -114,14 +115,12 @@ const Page = () => {
   return (
     <div className="container mx-auto px-1 pb-2 md:pb-0 md:mt-0">
       {Object.keys(settings).length === 0 ? (
-        <Spinner />
+        <VideoLoader loading={true} fullScreen={true} />
       ) : (
         <>
           <Toast />
-          {loading && <Spinner />}
-
-          <div className="bg-white rounded-2xl shadow-md p-2 mt-1 border border-slate-100">
-            <div className="pb-3 px-5 mt-[8%]">
+          <VideoLoader loading={loading} fullScreen={true} />
+          <div className="pb-3 px-5 mt-[8%]">
               <div className="text-[14px] mt-5 mb-3 text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2">
                 Formulas
               </div>
@@ -203,9 +202,8 @@ const Page = () => {
     </div>
 
   </TabGroup>
-</div>
-            </div>
-          </div>
+        </div>
+      </div>
         </>
       )}
     </div>

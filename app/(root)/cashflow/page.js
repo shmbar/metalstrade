@@ -6,6 +6,7 @@ import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { getTtl } from "../../../utils/languages";
 import React, { useContext, useEffect, useState } from 'react'
 import Spin from '../../../components/spinTable';
+import VideoLoader from '../../../components/videoLoader';
 import { loadDataSettings, loadInvoice, loadMargins, loadStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, updateClientPayment, updateExpPayments } from "../../../utils/utils";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
@@ -738,10 +739,10 @@ const Cashflow = () => {
 return (
 	<div className="w-full" style={{ background: "#f8fbff" }}>
 		<div className="mx-auto max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
-			{Object.keys(settings).length === 0 ? <Spinner /> :
+			{Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
             <>
                 <Toast />
-                {loading && <Spin />}
+                <VideoLoader loading={loading} fullScreen={true} />
                 <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-gray-200 shadow-xl w-full backdrop-blur-[2px] bg-white">
                     <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
                         <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2">

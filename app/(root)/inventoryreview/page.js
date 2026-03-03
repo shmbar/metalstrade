@@ -10,6 +10,7 @@ import { getInvoices, getD, loadStockData } from '../../../utils/utils'
 import Spinner from '../../../components/spinner';
 import Toast from '../../../components/toast.js'
 import Spin from '../../../components/spinTable';
+import VideoLoader from '../../../components/videoLoader';
 import MyDetailsModal from '../contracts/modals/dataModal.js'
 import { ExpensesContext } from "../../../contexts/useExpensesContext";
 import { InvoiceContext } from "../../../contexts/useInvoiceContext";
@@ -212,10 +213,10 @@ const Inventory = () => {
 
     return (
         <div className="container mx-auto px-2 md:px-8 xl:px-10 mt-16 md:mt-0">
-            {Object.keys(settings).length === 0 ? <Spinner /> :
+            {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
                 <>
                     <Toast />
-                    {loading && <Spin />}
+                    <VideoLoader loading={loading} fullScreen={true} />
                     <div className="border border-slate-200 rounded-xl p-4 mt-8 shadow-md relative">
                         <div className='flex items-center justify-between flex-wrap'>
                             <div className="text-3xl p-1 pb-2 text-slate-500">{getTtl('Inventory Review', ln)}</div>

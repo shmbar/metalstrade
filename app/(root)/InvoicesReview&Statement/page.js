@@ -25,6 +25,7 @@ import Tooltip from '../../../components/tooltip';
 import { sumClients, sumSuppliers } from '../invoicesstatement/sumtables/sumTablesFuncs';
 import SumTableSupplier from '../invoicesstatement/sumtables/sumTablesSuppliers'
 import SumTableClient from '../invoicesstatement/sumtables/sumTablesClients'
+import VideoLoader from '../../../components/videoLoader';
 
 const TotalInvoicePayments = (data) => {
   let accumulatedPmnt = 0;
@@ -889,7 +890,7 @@ const Shipments = () => {
   return (
     <div className="w-full " style={{ background: "#f8fbff" }}>
       <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
-        {Object.keys(settings).length === 0 ? <Spinner /> :
+        {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
           <>
             <Toast />
             {/* Main Card */}

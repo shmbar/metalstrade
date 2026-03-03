@@ -13,6 +13,7 @@ import Spinner from '../../../components/spinner';
 import { UserAuth } from "../../../contexts/useAuthContext"
 import { getInvoices, groupedArrayInvoice, getExpenses } from '../../../utils/utils'
 import Spin from '../../../components/spinTable';
+import VideoLoader from '../../../components/videoLoader';
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import { OutTurn, Finalizing, relStts } from '../../../components/const'
@@ -419,7 +420,7 @@ const Shipments = () => {
 
     return (
        <div className="container mx-auto px-0 pb-8 md:pb-0 mt-16 md:mt-0">
-            {Object.keys(settings).length === 0 ? <Spinner /> :
+            {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
                 <div>
                     <Toast />
                     {/* {loading && <Spin />} */}

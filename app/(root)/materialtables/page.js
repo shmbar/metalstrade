@@ -6,6 +6,7 @@ import { Button } from "../../../components/ui/button"
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { getTtl } from "../../../utils/languages";
 import { useContext, useEffect, useState } from "react"
+import VideoLoader from '../../../components/videoLoader';
 import Table from './newTable'
 import TableTotals from './totals'
 import { v4 as uuidv4 } from 'uuid';
@@ -193,7 +194,7 @@ const MaterialTables = () => {
     return (
         <div className="w-full ">
             <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
-                {Object.keys(settings).length === 0 ? <Spinner /> :
+                {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
                     <>
                         <Toast />
                         {/* Main Card */}

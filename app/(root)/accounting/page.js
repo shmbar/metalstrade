@@ -7,6 +7,7 @@ import Toast from '../../../components/toast.js'
 import { InvoiceContext } from "../../../contexts/useInvoiceContext";
 
 import Spinner from '../../../components/spinner';
+import VideoLoader from '../../../components/videoLoader';
 import { UserAuth } from "../../../contexts/useAuthContext"
 import {
   loadData, sortArr, loadExpensesForAccounting, loadAdditionalCNFN,
@@ -547,10 +548,10 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
   return (
   <div className="w-full ">
     <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
-      {Object.keys(settings).length === 0 ? <Spinner /> :
+      {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
         <>
           <Toast />
-          {loading && <Spin />}
+          <VideoLoader loading={loading} fullScreen={true} />
 
           {/* Header Section */}
           <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>

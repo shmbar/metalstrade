@@ -12,6 +12,7 @@ import DateRangePicker from '../../../components/dateRangePicker';
 import Tooltip from '../../../components/tooltip';
 import Customtable from './newTable';
 import TableTotals from './totals/tableTotals';
+import VideoLoader from '../../../components/videoLoader';
 
 const SpecialInvoices = () => {
     const { settings, dateSelect, setDateYr, setLoading, loading, ln } = useContext(SettingsContext);
@@ -186,7 +187,7 @@ const SpecialInvoices = () => {
     return (
         <div className="w-full " style={{ background: "#f8fbff" }}>
             <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
-                {Object.keys(settings).length === 0 ? <Spinner /> :
+                {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
                     <>
                         {/* Main Card */}
                         <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-gray-200 shadow-xl w-full backdrop-blur-[2px] bg-white">
