@@ -60,8 +60,9 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         {/* TITLE */}
         <div
           style={{
-            borderBottom: '1px solid #e0e0e0',
-            padding: '12px 16px'
+            borderBottom: '1px solid #b8ddf8',
+            padding: '12px 16px',
+            background: '#d4eafc'
           }}
         >
           <p
