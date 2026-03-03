@@ -1,213 +1,228 @@
-"use client";
-import { useContext, useEffect, useState } from "react";
+
+'use client';
+import { useContext, useEffect, useState } from 'react';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
-import Toast from "../../../components/toast.js";
-import { loadDataSettings, saveDataSettings } from "../../../utils/utils";
-import Spinner from "../../../components/spinner";
-import { UserAuth } from "../../../contexts/useAuthContext";
-import { Tab, TabPanel, TabGroup, TabList, TabPanels } from "@headlessui/react";
-import Fenicr from "./tabs/fenicr";
-import SupperAlloys from "./tabs/supperalloys";
-import Stainless from "./tabs/stainless";
-import { Button } from "../../../components/ui/button";
-import { getCur } from "../../../components/exchangeApi";
+import Toast from '../../../components/toast.js'
+import { loadDataSettings, saveDataSettings } from '../../../utils/utils'
+import Spinner from '../../../components/spinner';
+import { UserAuth } from "../../../contexts/useAuthContext"
+import { Tab, TabPanel, TabGroup, TabList, TabPanels } from '@headlessui/react'
+import Fenicr from './tabs/fenicr';
+import SupperAlloys from './tabs/supperalloys';
+import Stainless from './tabs/stainless';
+import { Button } from '../../../components/ui/button';
+import { getCur } from '../../../components/exchangeApi';
 import dateFormat from "dateformat";
-import VideoLoader from '../../../components/videoLoader';
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
+	return classes.filter(Boolean).join(' ')
 }
 
 const Page = () => {
-  const { settings, setToast } = useContext(SettingsContext);
-  const { uidCollection } = UserAuth();
-  const [value, setValue] = useState({});
-  const [focusedField, setFocusedField] = useState(null);
-  const [loading, setLoading] = useState(true);
+	const { settings, setToast } = useContext(SettingsContext);
+	const { uidCollection } = UserAuth();
+	const [value, setValue] = useState({})
+	const [focusedField, setFocusedField] = useState(null);
+	const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        let data = await loadDataSettings(uidCollection, "formulasCalc");
+	useEffect(() => {
+		const loadData = async () => {
+			try {
+				setLoading(true);
+				let data = await loadDataSettings(uidCollection, 'formulasCalc')
+				
+				const timeoutId = setTimeout(() => {
+					if (!data?.general) {
+						setValue({ general: {} });
+						setLoading(false);
+					}
+				}, 5000);
+				
+				try {
+					let rate = await getCur(dateFormat(new Date(), 'yyyy-mm-dd'));
+					if (rate) {
+						data.general.euroRate = rate;
+					} else {
+						data.general.euroRate = data.general?.euroRate || 1.0;
+					}
+				} catch (error) {
+					console.error('Error fetching rate:', error);
+					data.general.euroRate = data.general?.euroRate || 1.0;
+				}
+				
+				setValue(data)
+				clearTimeout(timeoutId);
+			} catch (error) {
+				console.error('Error loading data:', error);
+				setValue({ general: {} });
+			} finally {
+				setLoading(false);
+			}
+		}
+		loadData()
+	}, [uidCollection])
 
-        const timeoutId = setTimeout(() => {
-          if (!data?.general) {
-            setValue({ general: {} });
-            setLoading(false);
-          }
-        }, 5000);
+	const handleChange = (e, type) => {
+		const { name, value: inputValue } = e.target;
+		const clean = inputValue.replace(/[^0-9.]/g, '');
+		setValue(prev => ({
+			...prev,
+			[type]: {
+				...prev[type],
+				[name]: clean,
+			},
+		}));
+	};
 
-        try {
-          let rate = await getCur(dateFormat(new Date(), "yyyy-mm-dd"));
-          if (rate) {
-            data.general.euroRate = rate;
-          } else {
-            data.general.euroRate = data.general?.euroRate || 1.0;
-          }
-        } catch (error) {
-          console.error("Error fetching rate:", error);
-          data.general.euroRate = data.general?.euroRate || 1.0;
-        }
+	const addComma = (nStr) => {
+		if (!nStr && nStr !== 0) return '$0';
+		nStr += '';
+		let [x1, x2 = ''] = nStr.split('.');
+		x2 = x2 ? '.' + x2 : '';
+		const rgx = /(\d+)(\d{3})/;
+		while (rgx.test(x1)) {
+			x1 = x1.replace(rgx, '$1,');
+		}
+		return '$' + x1 + x2;
+	};
 
-        setValue(data);
-        clearTimeout(timeoutId);
-      } catch (error) {
-        console.error("Error loading data:", error);
-        setValue({ general: {} });
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, [uidCollection]);
+	let tabs = ['FeNiCr', 'SuperAlloys', 'Stainless']
 
-  const handleChange = (e, type) => {
-    const { name, value: inputValue } = e.target;
-    const clean = (inputValue ?? "").toString().replace(/[^0-9.]/g, "");
-    setValue((prev) => ({
-      ...prev,
-      [type]: {
-        ...prev[type],
-        [name]: clean,
-      },
-    }));
-  };
+	const SetDiv = (x) => {
+		if (x === 0) {
+			return <Fenicr value={value} handleChange={handleChange} focusedField={focusedField} setFocusedField={setFocusedField} addComma={addComma} />
+		} else if (x === 1) {
+			return <SupperAlloys value={value} handleChange={handleChange} />
+		} else if (x === 2) {
+			return <Stainless value={value} handleChange={handleChange} />
+		}
+	}
 
-  const addComma = (nStr) => {
-    if (!nStr && nStr !== 0) return "$0";
-    nStr += "";
-    let [x1, x2 = ""] = nStr.split(".");
-    x2 = x2 ? "." + x2 : "";
-    const rgx = /(\d+)(\d{3})/;
-    while (rgx.test(x1)) {
-      x1 = x1.replace(rgx, "$1,");
-    }
-    return "$" + x1 + x2;
-  };
+	const saveData = async () => {
+		let result = await saveDataSettings(uidCollection, 'formulasCalc', value)
+		result && setToast({ show: true, text: 'Data is saved', clr: 'success' })
+	}
 
-  const tabs = ["FeNiCr", "SuperAlloys", "Stainless"];
+	return (
+		<div className="container mx-auto px-4 pb-6 md:pb-0 mt-6 md:mt-0">
+			{Object.keys(settings).length === 0 ? <Spinner /> :
+				<>
+					<Toast />
+					{loading && <Spinner />}
+					<div className="bg-white rounded-lg shadow-sm p-3 sm:p-5 mt-6">
+						<div className='pb-3'>
+							<div className="text-2xl font-semibold text-[var(--port-gore)] mb-4">Formulas</div>
 
-  const SetDiv = (x) => {
-    if (x === 0) {
-      return (
-        <Fenicr
-          value={value}
-          handleChange={handleChange}
-          focusedField={focusedField}
-          setFocusedField={setFocusedField}
-          addComma={addComma}
-        />
-      );
-    } else if (x === 1) {
-      return <SupperAlloys value={value} handleChange={handleChange} />;
-    } else if (x === 2) {
-      return <Stainless value={value} handleChange={handleChange} />;
-    }
-    return null;
-  };
+							<div className="w-full">
+								<TabGroup>
+									<TabList className="flex space-x-2 mb-4 border-b border-[var(--rock-blue)]">
+										{tabs.map((z) => (
+											<Tab
+												key={z}
+												className={({ selected }) =>
+													classNames(
+														'px-6 py-2.5 text-sm font-medium rounded-t-lg transition-colors',
+														'focus:outline-none',
+														selected
+															? 'bg-[var(--endeavour)] text-[var(--selago)]'
+															: 'bg-[var(--selago)] text-[var(--regent-gray)] hover:bg-[var(--rock-blue)]'
+													)
+												}
+											>
+												{z}
+											</Tab>
+										))}
+									</TabList>
+									
+									{value.general != null && !loading && (
+										<div className='bg-[var(--selago)] rounded-lg p-3 mb-4'>
+											<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3'>
+												<div className='flex flex-col'>
+													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>Ni LME</span>
+													<input 
+														type='text' 
+														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]' 
+														name='nilme'
+														onChange={(e) => handleChange(e, 'general')}
+														value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
+														onFocus={() => setFocusedField('nilme')}
+														onBlur={() => setFocusedField(null)}
+													/>
+												</div>
 
-  const saveData = async () => {
-    let result = await saveDataSettings(uidCollection, "formulasCalc", value);
-    result && setToast({ show: true, text: "Data is saved", clr: "success" });
-  };
+												<div className='flex flex-col'>
+													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>Mo Oxide - Lb</span>
+													<input 
+														type='text' 
+														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
+														value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
+														name='MoOxideLb' 
+														onChange={(e) => handleChange(e, 'general')}
+														onFocus={() => setFocusedField('MoOxideLb')}
+														onBlur={() => setFocusedField(null)}
+													/>
+												</div>
 
-  return (
-    <div className="container mx-auto px-1 pb-2 md:pb-0 md:mt-0">
-      {Object.keys(settings).length === 0 ? (
-        <VideoLoader loading={true} fullScreen={true} />
-      ) : (
-        <>
-          <Toast />
-          <VideoLoader loading={loading} fullScreen={true} />
-          <div className="pb-3 px-5 mt-[8%]">
-              <div className="text-[14px] mt-5 mb-3 text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2">
-                Formulas
-              </div>
+												<div className='flex flex-col'>
+													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>Charge Cr - Lb</span>
+													<input 
+														type='text' 
+														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
+														name='chargeCrLb' 
+														onChange={(e) => handleChange(e, 'general')}
+														value={focusedField === 'chargeCrLb' ? value.general?.chargeCrLb || '' : addComma(value.general?.chargeCrLb || '0')}
+														onFocus={() => setFocusedField('chargeCrLb')}
+														onBlur={() => setFocusedField(null)}
+													/>
+												</div>
 
-              <div className="w-full">
-  <TabGroup>
+												<div className='flex flex-col'>
+													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>1 MT</span>
+													<input 
+														type='text' 
+														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
+														value={(value.general?.mt || '0') + ' Lb'}
+														name='mt' 
+														onChange={(e) => handleChange(e, 'general')} 
+													/>
+												</div>
 
-    <TabList
-      className="
-        flex
-        gap-3
-        bg-transparent
-        p-0
-        pb-0
-        ml-2
-        overflow-x-auto
-      "
-    >
-      {tabs.map((z) => (
-        <Tab
-          key={z}
-          className={({ selected }) =>
-            classNames(
-              'px-6 py-1.5 text-xs  font-poppins whitespace-nowrap transition-all w-[140px]',
-              'focus:outline-none',
-              selected
-                ? `
-                  rounded-t-xl
-                  rounded-b-none
-                  shadow-sm
-                  text-white
-                  bg-[#005b9f]
-                `
-                : `
-                  bg-[#e3f3ff]
-                  text-[#0A5DB8]
-                  rounded-t-xl
-                  rounded-b-none
-                  hover:bg-[#E0E0E0]
-                `
-            )
-          }
-        >
-          {z}
-        </Tab>
-      ))}
-    </TabList>
+												<div className='flex flex-col'>
+													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>Euro / USD</span>
+													<input 
+														type='text' 
+														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]' 
+														value={(value.general?.euroRate || '0')}
+														name='euroRate' 
+														onChange={(e) => handleChange(e, 'general')} 
+													/>
+												</div>
 
-    {/* Panel Wrapper (Attached to Tabs) */}
-    <div
-      className="
-        relative
-        mt-[-1px]
-        rounded-xl
-        border border-[#E5E7EB]
-        bg-white
-        shadow-sm
-        p-3
-      "
-    >
-
-      {/* Your Existing Content */}
-      {value.general != null && !loading && (
-        <div className="flex items-center justify-center mt-4">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-10 items-center justify-center">
-            {/* Keep all your Ni / Mo / etc boxes here unchanged */}
-          </div>
-        </div>
-      )}
-
-      <TabPanels className="mt-2">
-        {tabs.map((tab, idx) => (
-          <TabPanel key={idx} className="focus:outline-none">
-            {!loading && value.general != null && SetDiv(idx)}
-          </TabPanel>
-        ))}
-      </TabPanels>
-
-    </div>
-
-  </TabGroup>
-        </div>
-      </div>
-        </>
-      )}
-    </div>
-  );
+												<Button 
+													className='px-6 py-2 rounded bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] text-[var(--selago)] rounded font-medium text-sm mt-auto h-[40px]'
+													onClick={saveData}
+												>
+													Save
+												</Button>
+											</div>
+										</div>
+									)}
+									
+									<TabPanels>
+										{tabs.map((tab, idx) => (
+											<TabPanel key={idx}>
+												{!loading && value.general != null && SetDiv(idx)}
+											</TabPanel>
+										))}
+									</TabPanels>
+								</TabGroup>
+							</div>
+						</div>
+					</div>,o 
+				</>
+			}
+		</div>
+	);
 };
 
 export default Page;
