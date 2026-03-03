@@ -33,17 +33,17 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
         <div className="w-full">
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="relative">
-                    <div className={`relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left 
-                     focus:outline-none sm:text-sm border border-[var(--rock-blue)] ${classes} items-center flex`}>
+                    <div className={`relative w-full cursor-default overflow-hidden rounded-2xl bg-white text-left 
+                     focus:outline-none sm:text-sm border border-[#005b9f] hover:border-[#005b9f] transition-colors h-8 ${classes} items-center flex`}>
                         <ComboboxInput
-                            className={cn('w-full pl-3 pr-10 text-md leading-5  focus:outline-none',
-                                selected[name] !== plcHolder ? 'text-slate-900' : 'text-slate-400')}
+                            className={cn('w-full py-2 pl-3 pr-10 text-xs leading-5 focus:outline-none',
+                                selected[name] !== plcHolder ? 'text-[#005b9f]' : 'text-[#005b9f]')}
                             displayValue={(value) => (value || {})[name] || selected ? selected[name] : plcHolder}
                             onChange={(event) => setQuery(event.target.value)}
                         />
                         <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
                             <HiChevronUpDown
-                                className="h-5 w-5 text-gray-400"
+                                className="h-5 w-5 text-[#005b9f]"
                                 aria-hidden="true"
                             />
                         </ComboboxButton>

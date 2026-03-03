@@ -18,7 +18,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                 value={props.getValue()}
                 onValueChange={(e) => handleChangeSelect(e, props.row.index, month, name)}
             >
-                <SelectTrigger className="shad-input h-8 text-xs w-36 border-[var(--rock-blue)] text-[var(--port-gore)] focus:ring-1 focus:ring-offset-0 focus:border-[var(--selago)] focus:ring-[var(--rock-blue)]">
+                <SelectTrigger className="h-8 text-xs w-36 border border-[#005b9f] text-[#005b9f] focus:ring-1 focus:ring-offset-0 focus:border-[#005b9f] focus:ring-[#005b9f] hover:border-[#005b9f] transition-colors rounded-2xl">
                     <SelectValue placeholder={plHolder} />
                 </SelectTrigger>
                 <SelectContent>
