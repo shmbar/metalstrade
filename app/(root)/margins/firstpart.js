@@ -117,7 +117,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                 <span 
                                     className="text-[#005b9f] font-bold mb-1 text-center px-2"
                                     style={{
-                                        fontSize: 'clamp(9px, 0.5vw, 9px)',
+                                        fontSize: '10px',
                                         fontWeight: '700',
                                         letterSpacing: '0.02em'
                                     }}
