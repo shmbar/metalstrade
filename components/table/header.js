@@ -55,7 +55,7 @@ const Header = ({
   );
 
   return (
-    <div className="sticky top-0 z-20">
+    <div className="sticky top-0 z-20 bg-gray-50">
       
       {/* Main Content - Single Row on Desktop, Two Rows on Mobile */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-2 gap-2">
@@ -65,16 +65,16 @@ const Header = ({
           
           {/* Search Box */}
           {pathname !== '/accounting' && (
-            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[#005b9f] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 focus-within:border-blue-400 hover:border-gray-400 shadow-sm transition-all duration-200">
+            <div className="flex items-center relative w-[120px] sm:w-[140px] h-8 border border-gray-300 rounded-lg bg-white focus-within:ring-1 focus-within:ring-blue-200 focus-within:border-blue-400 hover:border-gray-400 shadow-sm transition-all duration-200">
               <input
-                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[#005b9f] placeholder:text-[#005b9f] h-full text-xs rounded-2xl"
+                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-gray-700 placeholder:text-gray-400 h-full text-xs rounded-lg"
                 placeholder={getTtl('Search', ln)}
                 value={globalFilter ?? ''}
                 onChange={e => setGlobalFilter(e.target.value)}
                 type='text'
               />
               {globalFilter === '' ? (
-                <FaSearch className="text-gray-400 absolute right-3 top-1.5" style={{ fontSize: 14 }} />
+                <FaSearch className="text-gray-400 absolute right-3 top-2.5" style={{ fontSize: 14 }} />
               ) : (
                 <TiDeleteOutline 
                   className="text-gray-500 absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors" 
@@ -89,18 +89,16 @@ const Header = ({
           <div className='flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0'>
             
             {/* Quick Sum */}
-            {pathname !== '/materialtables' && (
-            <div className="border border-[#005b9f] rounded-2xl px-2 flex items-center bg-white hover:border-gray-400 focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200 min-w-0 sm:h-7">
+            <div className="border border-gray-300 rounded-lg px-2 flex items-center bg-white hover:border-gray-400 focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200 min-w-0 sm:h-8">
               <QuickSumControl
                 table={table}
                 enabled={quickSumEnabled}
                 setEnabled={setQuickSumEnabled}
                 selectedColumnIds={quickSumColumns}
                 setSelectedColumnIds={setQuickSumColumns}
-                buttonClassName="font-normal text-xs whitespace-nowrap"
+                buttonClassName="text-gray-700 font-medium text-xs whitespace-nowrap"
               />
             </div>
-            )}
 
             {/* Edit Mode */}
             {showEditButton && typeof setIsEditMode === 'function' && (
@@ -208,10 +206,22 @@ const Header = ({
           </div>
         </div>
 
-        {/* DateRangePicker: Moves to new row on mobile, inline on desktop */}
-        {/* <div className="w-full sm:w-auto flex-shrink-0"> */}
-          {pathname !== '/materialtables' && <DateRangePicker />}
-        {/* </div> */}
+        {/* Right Section: Dropdown + DateRangePicker */}
+        <div className='flex items-center gap-2 flex-wrap'>
+          {/* Stock Selector Dropdown */}
+          {cb && (
+            <div className='flex-shrink-0'>
+              {cb}
+            </div>
+          )}
+          
+          {/* DateRangePicker: Only on statement pages */}
+          {(pathname === '/invoicesstatement' || pathname === '/contractsstatement') && (
+            <div className='flex-shrink-0'>
+              <DateRangePicker />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
