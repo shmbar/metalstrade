@@ -753,6 +753,23 @@ return (
                             <YearSelect yr={yr} setYr={setYr} />
                         </div>
                     </div>
+
+                    {/* Tabs */}
+                    <div className="flex gap-2 mb-3">
+                        <button
+                            onClick={() => setActiveTab('general')}
+                            className={`px-4 py-1.5 text-xs rounded-full border transition-all font-medium ${activeTab === 'general' ? 'bg-[#11497c] text-white border-[#11497c]' : 'bg-white text-[#11497c] border-[#b8ddf8] hover:bg-[#d4eafc]'}`}
+                        >
+                            General Cashflow
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('unsold')}
+                            className={`px-4 py-1.5 text-xs rounded-full border transition-all font-medium ${activeTab === 'unsold' ? 'bg-[#11497c] text-white border-[#11497c]' : 'bg-white text-[#11497c] border-[#b8ddf8] hover:bg-[#d4eafc]'}`}
+                        >
+                            Unsold Stocks
+                        </button>
+                    </div>
+
                     {userTitle === 'Admin' &&
                         <div className="w-full p-3 sm:p-4">
                             <div className="flex gap-2">
@@ -805,22 +822,6 @@ return (
                         </div>
 
                     }
-
-                    {/* Tabs */}
-                    <div className="flex gap-2 mb-3">
-                        <button
-                            onClick={() => setActiveTab('general')}
-                            className={`px-4 py-1.5 text-xs rounded-full border transition-all font-medium ${activeTab === 'general' ? 'bg-[#11497c] text-white border-[#11497c]' : 'bg-white text-[#11497c] border-[#b8ddf8] hover:bg-[#d4eafc]'}`}
-                        >
-                            General Cashflow
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('unsold')}
-                            className={`px-4 py-1.5 text-xs rounded-full border transition-all font-medium ${activeTab === 'unsold' ? 'bg-[#11497c] text-white border-[#11497c]' : 'bg-white text-[#11497c] border-[#b8ddf8] hover:bg-[#d4eafc]'}`}
-                        >
-                            Unsold Stocks
-                        </button>
-                    </div>
 
 {activeTab === 'unsold' ? (
     <div className="w-full border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
