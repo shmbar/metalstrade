@@ -81,22 +81,22 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
         <div className="w-full">
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled} >
                 <div className="relative my-1">
-                    <div className={`relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left 
-                     focus:outline-none sm:text-sm border border-[var(--rock-blue)] ${classes}`}>
+                    <div className={`relative w-full cursor-default overflow-hidden rounded-2xl bg-white text-left 
+                     focus:outline-none sm:text-sm border border-[#005b9f] hover:border-[#005b9f] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
-                            className={`w-full py-1 pl-3 pr-10 text-xs ${classes2} leading-5 text-[var(--port-gore)] focus:outline-none`}
+                            className={`w-full py-2 pl-3 pr-10 text-xs ${classes2} leading-5 text-[#005b9f] focus:outline-none`}
                             displayValue={(value) => (data.find(y => y.id === value[name]) || {})[name] || value[name]}
                             onChange={(event) => setQuery(event.target.value)}
                         />
                         <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
                             {!dis && <MdClear
-                                className="size-5 text-[var(--selago)] hover:text-[var(--regent-gray)]"
+                                className="size-5 text-[#005b9f] hover:text-gray-600"
                                 aria-hidden="true"
                                 onClick={Cncl}
                             />}
 
                             <HiChevronUpDown
-                                className="h-5 w-5 text-[var(--regent-gray)]"
+                                className="h-5 w-5 text-[#005b9f]"
                                 aria-hidden="true"
                             />
                         </ComboboxButton>
