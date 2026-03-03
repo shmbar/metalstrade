@@ -86,12 +86,11 @@ text-white
 
         `
         : `
-          bg-[#ECECEC]
+          bg-[#e3f3ff]
           text-[#0A5DB8]
           rounded-t-xl
           rounded-b-none
           hover:bg-[#E0E0E0]
-                    bg-[#e3f3ff]
 
         `
     )

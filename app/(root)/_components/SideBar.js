@@ -42,13 +42,20 @@ export default function Sidebar() {
   const { setDates, compData } = useContext(SettingsContext);
   const { userTitle } = UserAuth();
   const ln = compData?.lng || "English";
-  const [openSections, setOpenSections] = useState({});
+  
+  const collapsibleSections = ["Shipments", "Statements", "Miscellaneous", "IMS Summary"];
+  
+  // Initialize all sections as open by default
+  const [openSections, setOpenSections] = useState(
+    collapsibleSections.reduce((acc, section) => {
+      acc[section] = true;
+      return acc;
+    }, {})
+  );
 
   const handleSectionToggle = (section) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
-
-  const collapsibleSections = ["Shipments", "Statements", "Miscellaneous", "IMS Summary"];
 
   const anyDropdownOpen = collapsibleSections.some((s) => openSections[s]);
 
