@@ -141,7 +141,7 @@ const Page = () => {
 													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>Ni LME</span>
 													<input 
 														type='text' 
-														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]' 
+														className='px-3 py-2 border border-[var(--rock-blue)] rounded-2xl text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]' 
 														name='nilme'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
@@ -154,7 +154,7 @@ const Page = () => {
 													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>Mo Oxide - Lb</span>
 													<input 
 														type='text' 
-														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
+														className='px-3 py-2 border border-[var(--rock-blue)] rounded-2xl text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
 														value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
 														name='MoOxideLb' 
 														onChange={(e) => handleChange(e, 'general')}
@@ -167,7 +167,7 @@ const Page = () => {
 													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>Charge Cr - Lb</span>
 													<input 
 														type='text' 
-														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
+														className='px-3 py-2 border border-[var(--rock-blue)] rounded-2xl text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
 														name='chargeCrLb' 
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'chargeCrLb' ? value.general?.chargeCrLb || '' : addComma(value.general?.chargeCrLb || '0')}
@@ -180,7 +180,7 @@ const Page = () => {
 													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>1 MT</span>
 													<input 
 														type='text' 
-														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
+														className='px-3 py-2 border border-[var(--rock-blue)] rounded-2xl text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
 														value={(value.general?.mt || '0') + ' Lb'}
 														name='mt' 
 														onChange={(e) => handleChange(e, 'general')} 
@@ -191,7 +191,7 @@ const Page = () => {
 													<span className='text-xs text-[var(--regent-gray)] mb-1.5 font-medium'>Euro / USD</span>
 													<input 
 														type='text' 
-														className='px-3 py-2 border border-[var(--rock-blue)] rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]' 
+														className='px-3 py-2 border border-[var(--rock-blue)] rounded-2xl text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]' 
 														value={(value.general?.euroRate || '0')}
 														name='euroRate' 
 														onChange={(e) => handleChange(e, 'general')} 
