@@ -14,19 +14,18 @@ const MarginTable = (props) => {
     let { month, year, addItem, uidCollection, openMonth } = props
     let data = props.items
 
-
     const saveOpenClose = (status) => {
         updateOpenMonth(uidCollection, month, year, status)
 
-        let newData=props.data.map(x=> x.month===month? {...x, openMonth:status}: x)
+        let newData = props.data.map(x => x.month === month ? { ...x, openMonth: status } : x)
         props.setData(newData)
     }
 
 
     return (
-        <Disclosure as="div" className="w-full mb-4 border border-slate-600 rounded-md" defaultOpen={openMonth}>
+        <Disclosure key={`${month}-${openMonth}`} as="div" className="w-full mb-4 border border-slate-600 rounded-md" defaultOpen={openMonth}>
             {({ open }) => {
-
+      
                 return (
                     <>
                         <div className="flex items-center gap-2 p-2 text-[0.8rem] w-full">

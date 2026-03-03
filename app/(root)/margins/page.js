@@ -60,7 +60,7 @@ let newItm = {
 const Margins = () => {
 
     const { settings, ln, setLoading, loading, setToast, compData } = useContext(SettingsContext);
-    const [yr, setYr] = useState()
+   const [yr, setYr] = useState(new Date().getFullYear());
     const { uidCollection } = UserAuth();
     const [data, setData] = useState([]);
     const [dataGIS, setDataGIS] = useState([]);
@@ -79,9 +79,6 @@ const Margins = () => {
 
     const cName = compData?.name?.slice(0, 3).toLowerCase()
 
-    useEffect(() => {
-        setYr(currentYear)
-    }, [])
 
     useEffect(() => {
 
@@ -377,6 +374,7 @@ const Margins = () => {
         result && setToast({ show: true, text: 'Data successfully saved!', clr: 'success' })
     }
 
+
     return (
         <div className="container mx-auto px-2 md:px-8 xl:px-10 mt-16 md:mt-0 pb-20">
 
@@ -420,13 +418,13 @@ const Margins = () => {
                         <div className="w-full p-2 mt-2">
                             <div className="w-full max-w-8xl divide-y  rounded-xl">
 
-                                {data.map(({ month, items, openMonth }) => {
+                                {data.map((x,i) => {
                                     return (
-                                        <div key={month}>
+                                        <div key={i}>
                                             <MarginTable
-                                                month={month}
+                                                month={x.month}
                                                 year={yr}
-                                                items={items}
+                                                items={x.items}
                                                 addItem={addItem}
                                                 handleChangeDate={handleChangeDate}
                                                 handleChange={handleChange}
@@ -439,7 +437,7 @@ const Margins = () => {
                                                 sensors={sensors}
                                                 handleCheckBox={handleCheckBox}
                                                 uidCollection={uidCollection}
-                                                openMonth={openMonth}
+                                                openMonth={x.openMonth}
                                                 data={data}
                                                 setData={setData}
                                             />

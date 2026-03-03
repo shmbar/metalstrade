@@ -2,11 +2,9 @@
 import { UserAuth } from '@contexts/useAuthContext';
 import { Dialog, Transition, DialogPanel, TransitionChild, DialogTitle } from '@headlessui/react'
 import { Fragment, useState, useEffect } from 'react'
-import { RiRefreshLine } from "react-icons/ri";
-import { IoMdArrowDropright } from "react-icons/io";
 import CheckBox from '@components/checkbox';
 import { completeUserEmail } from '@actions/validations';
-
+import { LoaderCircle, ChevronRight  } from 'lucide-react';
 
 export default function MyLoginModal({ isOpen, setIsOpen, openModal }) {
 
@@ -118,9 +116,9 @@ export default function MyLoginModal({ isOpen, setIsOpen, openModal }) {
 							text-sm px-5 py-3 text-center drop-shadow-2xl flex items-center justify-center gap-2 mb-2'
                                             >{(disabled && !err) ? 'Connecting' : 'Continue'}
                                                 {(disabled && !err) && <div className='animate-spin'>
-                                                    < RiRefreshLine className='scale-125' />
+                                                    < LoaderCircle size={16}/>
                                                 </div>}
-                                                {!disabled && <IoMdArrowDropright />}
+                                                {!disabled && <ChevronRight size={14} />}
                                             </button>
 
 

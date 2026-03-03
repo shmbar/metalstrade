@@ -15,7 +15,7 @@ import { Filter } from '../../../components/table/filters/filterFunc'
 import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
-
+import { ArrowUpNarrowWide , ArrowDownWideNarrow } from 'lucide-react';
 
 const Customtable = ({ data, columns, invisible, SelectRow, excellReport, cb, setFilteredData, ln }) => {
 
@@ -100,8 +100,8 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, cb, se
                                                             {header.column.columnDef.header}
                                                             {
                                                                 {
-                                                                    asc: <TbSortAscending className="text-slate-600 scale-125" />,
-                                                                    desc: <TbSortDescending className="text-slate-600 scale-125" />
+                                                                    asc: <ArrowUpNarrowWide size={12} className="text-slate-600 scale-125" />,
+                                                                    desc: <ArrowDownWideNarrow size={12} className="text-slate-600 scale-125" />
                                                                 }[header.column.getIsSorted()]
                                                             }
                                                         </div>

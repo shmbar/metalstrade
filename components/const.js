@@ -1,72 +1,63 @@
-import { DiBrackets } from "react-icons/di";
-import { TbFileInvoice } from "react-icons/tb";
-import { FaFileContract } from "react-icons/fa";
-import { TbShip } from "react-icons/tb";
-import { RiDashboardLine } from "react-icons/ri";
-import { BiBasket } from "react-icons/bi";
-import { VscPreview } from "react-icons/vsc";
-import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
-import { IoNewspaperOutline } from "react-icons/io5";
-import { HiOutlineDocumentChartBar } from "react-icons/hi2";
-import { MdOutlineWarehouse } from "react-icons/md";
-import { CgEreader } from "react-icons/cg";
-import { TbReportMoney } from "react-icons/tb";
-import { GiProfit } from "react-icons/gi";
 import { UserAuth } from "@contexts/useAuthContext";
-import { TbBrandCashapp } from "react-icons/tb";
-import { FaTableList } from "react-icons/fa6";
-import { RiFormula } from "react-icons/ri";
+import {
+    LayoutDashboard, ReceiptText, BookText, BanknoteArrowDown, Trello,
+    SquareKanban, BookType,
+    NotepadText, FileChartColumn, NotebookTabs, Warehouse,
+    BriefcaseBusiness, Table2,
+    UserStar, Coins, Sigma
+} from 'lucide-react';
+
 
 export const sideBar = () => {
     const { userTitle, gisAccount } = UserAuth(); // Assuming this is a hook that provides the user role
 
     const sb = [
         {
-            items: [{ item: 'Dashboard', img: <RiDashboardLine />, page: 'dashboard' }]
+            items: [{ item: 'Dashboard', img: <LayoutDashboard size={16} />, page: 'dashboard' }]
         },
         {
             ttl: 'Shipments',
             items: [
-                { item: 'Contracts', img: <FaFileContract className="scale-[0.8]" />, page: 'contracts' },
-                { item: 'Invoices', img: <TbFileInvoice />, page: 'invoices' },
-                { item: 'Expenses', img: <DiBrackets />, page: 'expenses' },
-                { item: 'Accounting', img: <CgEreader className="scale-[0.8]" />, page: 'accounting' },
+                { item: 'Contracts', img: <ReceiptText size={16} />, page: 'contracts' },
+                { item: 'Invoices', img: <BookText size={16} />, page: 'invoices' },
+                { item: 'Expenses', img: <BanknoteArrowDown size={16} />, page: 'expenses' },
+                { item: 'Accounting', img: <Trello size={16} />, page: 'accounting' },
             ]
         },
         {
             ttl: 'Review',
             items: [
-                { item: 'Contracts Review', img: <VscPreview />, page: 'contractsreview' },
-                { item: 'Invoices Review', img: <LiaFileInvoiceDollarSolid />, page: 'invoicesreview' },
+                { item: 'Contracts Review', img: <SquareKanban size={16} />, page: 'contractsreview' },
+                { item: 'Invoices Review', img: <BookType size={16} />, page: 'invoicesreview' },
                 //    { item: 'Inventory Review', img: <BiBasket />, page: 'inventoryreview' }
             ]
         },
         {
             ttl: 'Statements',
             items: [
-                { item: 'Contracts Statement', img: <IoNewspaperOutline />, page: 'contractsstatement' },
-                { item: 'Invoices Statement', img: <HiOutlineDocumentChartBar />, page: 'invoicesstatement' },
-                { item: 'Account Statement', img: <TbReportMoney className="scale-[1]" />, page: 'accstatement' },
-                { item: 'Stocks', img: <MdOutlineWarehouse />, page: 'stocks' }
+                { item: 'Contracts Statement', img: <NotepadText size={16} />, page: 'contractsstatement' },
+                { item: 'Invoices Statement', img: <FileChartColumn size={16} />, page: 'invoicesstatement' },
+                { item: 'Account Statement', img: <NotebookTabs size={16} />, page: 'accstatement' },
+                { item: 'Stocks', img: <Warehouse size={16} />, page: 'stocks' }
             ]
         },
         {
             ttl: 'Miscellaneous',
             items: [
-                { item: 'Misc Invoices', img: <TbFileInvoice />, page: 'specialinvoices' },
-                { item: 'Company Expenses', img: <DiBrackets />, page: 'companyexpenses' },
-                { item: 'Material Tables', img: <FaTableList className="scale-[0.8] text-slate-500" />, page: 'materialtables' },
+                { item: 'Misc Invoices', img: <BriefcaseBusiness size={16} />, page: 'specialinvoices' },
+                { item: 'Company Expenses', img: <ReceiptText size={16} />, page: 'companyexpenses' },
+                { item: 'Material Tables', img: <Table2 size={16} />, page: 'materialtables' },
             ]
         },
         {
             ttl: 'IMS Summary',
             items: [
                 ...(userTitle === 'Admin'
-                    ? [{ item: gisAccount ? 'Gis Admin' : 'Sharon Admin', img: <GiProfit className="scale-[0.8]" />, page: 'margins' }]
+                    ? [{ item: gisAccount ? 'Gis Admin' : 'Sharon Admin', img: <UserStar size={14} />, page: 'margins' }]
                     : []),
-                { item: 'Cashflow', img: <TbBrandCashapp className="scale-[0.8]" />, page: 'cashflow' },
+                { item: 'Cashflow', img: <Coins size={14} />, page: 'cashflow' },
                 ...(userTitle === 'Admin'
-                    ? [{ item: 'Formulas Calc', img: <RiFormula className="scale-[0.8]" />, page: 'formulas' }]
+                    ? [{ item: 'Formulas Calc', img: <Sigma size={14} />, page: 'formulas' }]
                     : []),
             ]
         }
