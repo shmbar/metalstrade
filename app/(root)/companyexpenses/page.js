@@ -238,7 +238,7 @@ const Expenses = () => {
                             />
 
                             {/* Action Button */}
-                           <div className="text-left pt-6 flex gap-4">
+                           <div className="text-left pt-3 flex gap-4">
                             <Tltip direction='bottom' tltpText='Create new Company Expense'>
                                 <button
                                 type="button"
@@ -252,12 +252,12 @@ const Expenses = () => {
                             </div>
 
                             {/* Totals Section */}
-                            <div className='flex gap-4 2xl:gap-20 flex-wrap'>
-                                <div className='pt-8 min-w-[350px] max-w-[400px] w-full'>
+                            <div className='flex gap-4 flex-wrap'>
+                                <div className='pt-3 min-w-[350px] max-w-[400px] w-full'>
                                     <TableTotals data={totals.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
                                         settings={settings} filt='reduced' title='Summary - Unpaid Company expenses' />
                                 </div>
-                                <div className='pt-8 min-w-[350px] max-w-[400px] w-full'>
+                                <div className='pt-3 min-w-[350px] max-w-[400px] w-full'>
                                     <TableTotals data={totalsAll.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
                                         settings={settings} filt='full' title='Summary' />
                                 </div>
