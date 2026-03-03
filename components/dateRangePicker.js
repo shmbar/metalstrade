@@ -93,7 +93,7 @@ const DateRangePicker = ({ displayLabel }) => {
             <div className="relative w-full">
                 <Datepicker
                     inputClassName="
-                        text-xs py-1.5 pl-7 pr-2
+                        text-xs py-2 pl-7 pr-8
                         w-full
                         bg-white
                         rounded-2xl
