@@ -1,16 +1,14 @@
 import { useContext, useState, useEffect, useTransition } from 'react'
-import { ExpensesContext } from "../../../../contexts/useExpensesContext";
+import { ExpensesContext } from "@contexts/useExpensesContext";
 import Datepicker from "react-tailwindcss-datepicker";
-import CBox from '../../../../components/combobox.js'
-import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { AiOutlineClear } from 'react-icons/ai';
-import { validate, ErrDiv } from '../../../../utils/utils'
-import { UserAuth } from "../../../../contexts/useAuthContext";
-import { getTtl } from '../../../../utils/languages';
-import Tltip from '../../../../components/tlTip';
-import { VscArchive } from 'react-icons/vsc';
-import { FaRegCopy } from "react-icons/fa";
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { validate, ErrDiv } from '@utils/utils'
+import { UserAuth } from "@contexts/useAuthContext";
+import { getTtl } from '@utils/languages';
+import Tltip from '@components/tlTip';
+import { Selector } from '@components/selectors/selectShad.js';
+import {Save, Eraser, Trash, Copy } from "lucide-react"
+import { Button } from '@components/ui/button';
 
 const Expenses = () => {
 
@@ -43,21 +41,35 @@ const Expenses = () => {
         setValueExp({ ...valueExp, dateRange: newValue, date: newValue.startDate })
     }
 
+    const handleChange = (e, name) => {
+        setValueExp(prev => {
+            const updated = { ...prev, [name]: e }
+            return updated
+        })
+    }
+
+
+    const clear = (name) => {
+        setValueExp(prev => ({
+            ...prev, [name]: '',
+        }))
+    }
+
     return (
         <div>
-            <div className='z-10 relative mt-2 border border-[var(--rock-blue)] rounded-lg 
+            <div className='z-10 relative mt-2 border border-slate-300 rounded-lg 
        flex m-2 pb-6'>
 
                 <div className='grid grid-cols-12 gap-3 w-full p-2'>
                     <div className='col-span-12 md:col-span-4  px-2'>
                         <div>
-                            <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Expense Invoice', ln)}</p>
+                            <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Expense Invoice', ln)}</p>
                             <div className='w-full '>
-                                <input className="input text-[15px] shadow-lg h-7 text-xs" name='expense' value={valueExp.expense} onChange={handleValue} />
+                                <input className="input shadow-lg h-8 text-xs" name='expense' value={valueExp.expense} onChange={handleValue} />
                                 <ErrDiv field='expense' errors={errorsExp} ln={ln} />
                             </div>
                         </div>
-                        <div className='pt-2'>
+                        <div className='pt-1'>
                             <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Date', ln)}:</p>
                             <Datepicker useRange={false}
                                 asSingle={true}
@@ -65,14 +77,14 @@ const Expenses = () => {
                                 popoverDirection='down'
                                 onChange={handleDateChangeDate}
                                 displayFormat={"DD-MMM-YYYY"}
-                                inputClassName='input w-full text-[15px] shadow-lg h-7 text-xs z-20'
+                                inputClassName='input w-full shadow-lg h-8 text-xs z-20'
                             />
                             <ErrDiv field='date' errors={errorsExp} ln={ln} />
                         </div>
-                        <div className='pt-2'>
+                        <div className='pt-1'>
                             <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Amount', ln)}:</p>
                             <div className='w-full '>
-                                <input type='number' className="input text-[15px] shadow-lg h-7 text-xs" name='amount' value={valueExp.amount} onChange={handleValue} />
+                                <input type='number' className="input shadow-lg h-8 text-xs" name='amount' value={valueExp.amount} onChange={handleValue} />
                                 <ErrDiv field='amount' errors={errorsExp} ln={ln} />
                             </div>
                         </div>
@@ -81,29 +93,41 @@ const Expenses = () => {
                         <div>
                             <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Vendor', ln)}:</p>
                             <div className='w-full '>
-                                <CBox data={sups} setValue={setValueExp} value={valueExp} name='supplier' classes='shadow-md -mt-1 h-7' classes1='max-h-48' />
+                                <Selector arr={sups} value={valueExp}
+                                    onChange={(e) => handleChange(e, 'supplier')}
+                                    name='supplier'
+                                    clear={clear} />
                                 <ErrDiv field='supplier' errors={errorsExp} ln={ln} />
                             </div>
                         </div>
                         <div className='pt-1'>
                             <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Expense Type', ln)}:</p>
                             <div className='w-full '>
-                                <CBox data={settings.Expenses.Expenses} setValue={setValueExp} value={valueExp} name='expType' classes='shadow-md  -mt-1 h-7' classes1='max-h-24' />
+                                <Selector arr={settings.Expenses.Expenses} value={valueExp}
+                                    onChange={(e) => handleChange(e, 'expType')}
+                                    name='expType'
+                                    clear={clear} />
                                 <ErrDiv field='expType' errors={errorsExp} ln={ln} />
                             </div>
                         </div>
                         <div className='pt-1 gap-3 flex'>
-                            <div className='max-w-xs '>
+                            <div className='flex-1'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
                                 <div className='w-full'>
-                                    <CBox data={settings.Currency.Currency} setValue={setValueExp} value={valueExp} name='cur' classes='shadow-md -mt-1' />
+                                    <Selector arr={settings.Currency.Currency} value={valueExp}
+                                        onChange={(e) => handleChange(e, 'cur')}
+                                        name='cur'
+                                        clear={clear} />
                                     <ErrDiv field='cur' errors={errorsExp} ln={ln} />
                                 </div>
                             </div>
-                            <div className='max-w-xs '>
+                            <div className='flex-1'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Payment', ln)}:</p>
                                 <div className='w-full'>
-                                    <CBox data={settings.ExpPmnt.ExpPmnt} setValue={setValueExp} value={valueExp} name='paid' classes='shadow-md -mt-1' />
+                                    <Selector arr={settings.ExpPmnt.ExpPmnt} value={valueExp}
+                                        onChange={(e) => handleChange(e, 'paid')}
+                                        name='paid'
+                                        clear={clear} />
                                 </div>
                             </div>
                         </div>
@@ -121,47 +145,49 @@ const Expenses = () => {
             </div>
             <div className='flex gap-4 m-2'>
                 <Tltip direction='top' tltpText='Save/Update form'>
-                    <button
-                        className=" blackButton py-1 font-light"
+                    <Button
+                        className='h-9'
                         onClick={saveExpense}
                         disabled={isPending}
                     >
-                        <IoAddCircleOutline className='scale-110' />
+                        <Save />
                         {getTtl('save', ln)}
-                    </button>
+                    </Button>
                 </Tltip>
                 <Tltip direction='top' tltpText='Clear form'>
-                    <button
-                        className="whiteButton py-1"
+                    <Button
+                        className="h-9"
+                        variant='outline'
                         onClick={blankExpense}
                     >
-                        <AiOutlineClear className='scale-110' />
+                        <Eraser />
                         {getTtl('Clear', ln)}
-                    </button>
+                    </Button>
                 </Tltip>
                 <Tltip direction='top' tltpText='Delete Expense'>
-                    <button
-                        className="whiteButton py-1"
+                    <Button
+                        className="h-9"
+                        variant='outline'
                         onClick={() => deleteCompExp(uidCollection)}
                     >
-                        <VscArchive className='scale-110' />
+                        <Trash />
                         {getTtl('Delete', ln)}
-                    </button>
+                    </Button>
                 </Tltip>
                 {valueExp.id !== '' &&
                     <Tltip direction='top' tltpText='Copy to misc invoices'>
-                        <button
-                            className="whiteButton py-1"
+                        <Button
+                            className="h-9"
+                            variant='outline'
                             onClick={() => copyTomisc(uidCollection)}
                         >
-                            <FaRegCopy className='scale-110' />
+                            <Copy/>
                             Copy to misc invoices
-                        </button>
+                        </Button>
                     </Tltip>
                 }
 
             </div>
-
         </div >
 
 

@@ -3,9 +3,9 @@ import { saveAs } from 'file-saver';
 import { Workbook } from 'exceljs';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import dateFormat from "dateformat";
-import { OutTurn, Finalizing, relStts } from '@components/const'
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
+
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
 const wb = new Workbook();
@@ -32,7 +32,7 @@ function getNumFmtForCurrency(currency) {
 }
 
 //{ font: { bold: true }
-export const EXD = (dataTable, settings, name, ln) => {
+export const EXD = (dataTable, settings, name, ln, valCur) => {
 
     const exportExcel = async () => {
 
@@ -42,31 +42,27 @@ export const EXD = (dataTable, settings, name, ln) => {
 
         sheet.columns = [
             { key: 'date', header: 'Date', width: 15, style: styles },
-            { key: 'order', header: 'PO#', width: 14, style: styles },
+            { key: 'order', header: 'PO#', width: 15, style: styles },
             { key: 'supplier', header: 'Supplier', width: 16, style: styles },
             { key: 'originSupplier', header: 'Original supplier', width: 16, style: styles },
-            { key: 'poWeight', header: 'PO Weight MT', width: 14, style: styles },
-            { key: 'description', header: 'Material', width: 20, style: styles },
-            { key: 'unitPrc', header: 'Purchase Price', width: 16, style: styles },
-            { key: 'salesPrice', header: 'Sales Price', width: 10, style: styles },
-            { key: 'shiipedWeight', header: 'Shipped Weight MT', width: 20, style: styles },
-            { key: 'remaining', header: 'Remaining Weight MT', width: 16, style: styles },
-            { key: 'client', header: 'Consignee', width: 16, style: styles },
-            { key: 'totalPo', header: 'PO Client', width: 16, style: styles },
-            { key: 'destination', header: 'Destination', width: 16, style: styles },
-            { key: 'comments', header: 'Comments/Status', width: 30, style: styles },
-
+            { key: 'conValue', header: 'Purchase Value', width: 15, style: styles },
+            { key: 'totalInvoices', header: 'Inv Value Sales', width: 15, style: styles },
+            { key: 'deviation', header: 'Deviation', width: 15, style: styles },
+            { key: 'prepaidPer', header: 'Prepaid %', width: 12, style: styles },
+            { key: 'totalPrepayment1', header: 'Prepaid Amount', width: 15, style: styles },
+            { key: 'inDebt', header: 'Initial Debt', width: 15, style: styles },
+            { key: 'payments', header: 'Actual Payment', width: 15, style: styles },
+            { key: 'debtaftr', header: 'Debt After Prepayment', width: 15, style: styles },
+            { key: 'debtBlnc', header: 'Debt Balance', width: 15, style: styles },
+            { key: 'expenses1', header: 'Expenses', width: 15, style: styles },
+            { key: 'profit', header: 'Profit', width: 15, style: styles },
         ];
-
-
 
         sheet.getRow(1).eachCell((cell, colNumber) => {
             if (cell.value) cell.fill = {
                 type: 'pattern',
                 pattern: 'solid',
-                fgColor: {
-                    argb: '3B66C5'
-                }
+                fgColor: { argb: '800080' }
             }
             cell.font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };  // Font color to white
         });
@@ -76,20 +72,21 @@ export const EXD = (dataTable, settings, name, ln) => {
             let item = dataTable[i]
 
             sheet.addRow({
-                date: dateFormat(item.date, 'dd-mmm-yy'),
+                date: dateFormat(item.dateRange.startDate, 'dd-mmm-yy'),
                 order: item.order,
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
-                originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier)?.nname,
-                poWeight: item.poWeight * 1,
-                description: item.description,
-                unitPrc: isNaN(item.unitPrc * 1) ? item.unitPrc : item.unitPrc * 1,
-                salesPrice: '',
-                shiipedWeight: item.shiipedWeight,
-                remaining: item.remaining,
-                client: item.client.map(x => x).join('\n'),
-                totalPo: item.totalPo.map(x => x).join('\n'),
-                destination: item.destination.map(x => x).join('\n'),
-                comments: item.comments,
+                originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier).nname,
+                conValue: valCur.cur === 'us' ? item.conValue : item.conValue / item.euroToUSD,
+                totalInvoices: valCur.cur === 'us' ? item.totalInvoices : item.totalInvoices / item.euroToUSD,
+                deviation: valCur.cur === 'us' ? item.deviation : item.deviation / item.euroToUSD,
+                prepaidPer: item.prepaidPer,
+                totalPrepayment1: valCur.cur === 'us' ? item.totalPrepayment1 : item.totalPrepayment1 / item.euroToUSD,
+                inDebt: valCur.cur === 'us' ? item.inDebt : item.inDebt / item.euroToUSD,
+                payments: valCur.cur === 'us' ? item.payments : item.payments / item.euroToUSD,
+                debtaftr: valCur.cur === 'us' ? item.debtaftr : item.debtaftr / item.euroToUSD,
+                debtBlnc: valCur.cur === 'us' ? item.debtBlnc : item.debtBlnc / item.euroToUSD,
+                expenses1: valCur.cur === 'us' ? item.expenses1 : item.expenses1 / item.euroToUSD,
+                profit: valCur.cur === 'us' ? item.profit : item.profit / item.euroToUSD,
             })
         }
 
@@ -104,25 +101,10 @@ export const EXD = (dataTable, settings, name, ln) => {
                     };
                 }
 
-                let cArr3 = [5, 9, 10]
-                if (cArr3.includes(colNumber) && rowNumber > 1) {
-                    let item = dataTable[rowNumber - 2]
-                    row.getCell(colNumber).numFmt = `#,##0.000;[Red]#,##0.00`
-                }
-
-
-                let cArr1 = [7]
-                if (cArr1.includes(colNumber) && rowNumber > 1) {
-                    let item = dataTable[rowNumber - 2]
-                    let sym = getNumFmtForCurrency(item.cur)
-                    row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]${sym}#,##0.00`
-                }
-
-                let cArr2 = [12, 13, 18, 19, 20, 23, 24]
-                if (cArr2.includes(colNumber) && rowNumber > 1) {
-                    let item = dataTable[rowNumber - 2]
-                    let sym = getNumFmtForCurrency(item.cur)
-                    row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]${sym}#,##0.00`
+                let cArr = [5, 6, 7, 9, 10, 11, 12, 13, 14, 15]
+                if (cArr.includes(colNumber) && rowNumber > 1) {
+                    let sym = getNumFmtForCurrency(valCur.cur)
+                    row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]-$#,##0.00`
                 }
             });
         });

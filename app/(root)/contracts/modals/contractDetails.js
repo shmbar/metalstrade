@@ -2,34 +2,25 @@
 import { useContext, useEffect, useState } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
-import CBox from '@components/combobox.js'
-import { getD, sortArr } from '@utils/utils.js';
 import Datepicker from "react-tailwindcss-datepicker";
 import { Pdf } from './pdf/pdfContract.js';
 import ProductsTable from './productsTable.js';
 import Remarks from './remarksSelection.js'
 import PriceRemarks from './priceRemarks.js'
-import { VscSaveAs } from 'react-icons/vsc';
-import { VscClose } from 'react-icons/vsc';
-import { FaFilePdf } from 'react-icons/fa';
-import { VscArchive } from 'react-icons/vsc';
-import { HiDocumentDuplicate } from 'react-icons/hi';
-import { MdOutlineStorage } from 'react-icons/md';
 import { usePathname } from 'next/navigation';
 import ModalToDelete from '@components/modalToProceed';
-import { validate, ErrDiv, reOrderTableCon } from '@utils/utils'
+import { validate, ErrDiv, reOrderTableCon, getD } from '@utils/utils'
 import { UserAuth } from "@contexts/useAuthContext";
 import FilesModal from './filesModal.js'
 import PoInvModal from './poInvModal.js'
 import WhModal from './whModal.js'
-import { MdClear } from 'react-icons/md';
-import { RiRefreshLine } from "react-icons/ri";
 import { getTtl } from '@utils/languages.js';
-import { BsTagsFill } from "react-icons/bs";
 import FinalSettlmentModal from './finalSettlmentModal.js';
 import CheckBox from '@components/checkbox.js';
 import Tltip from '@components/tlTip.js';
-import SelectStock from '@components/comboboxSelectStock';
+import { Selector } from '@components/selectors/selectShad';
+import { X, Save, LoaderCircle, FileText, Trash, Copy, SendToBack, Database } from "lucide-react"
+import { Button } from '@components/ui/button.jsx';
 
 const ContractModal = () => {
 
@@ -86,8 +77,34 @@ const ContractModal = () => {
 		setValueCon({ ...valueCon, 'isDeltimeText': false, 'deltime': '' })
 	}
 
-	const handleSuppleirtUpdate = (e, i) => {
-		setValueCon({ ...valueCon, originSupplier: e?.id });
+	const handleChange = (e, name) => {
+		setValueCon(prev => {
+			const updated = { ...prev, [name]: e }
+
+			if (name === "shpType" && e === "434") {
+				updated.contType = ""
+			}
+
+			if (name === "delTerm" && ["2345", "8768", "324"].includes(e)) {
+				updated.pod = ""
+			}
+
+
+			if (name === 'deltime' && e === 'EditTextDelTime') {
+				updated.deltime = ''
+				updated.isDeltimeText = true
+			}
+
+
+			return updated
+		})
+	}
+
+
+	const clear = (name) => {
+		setValueCon(prev => ({
+			...prev, [name]: '',
+		}))
 	}
 
 	return (
@@ -96,9 +113,12 @@ const ContractModal = () => {
 			<div className='grid grid-cols-6 gap-3 pt-1'>
 				<div className='col-span-12 md:col-span-3 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex gap-4 items-center'>
-						<p className='flex pt-1 text-sm font-medium'>{getTtl('Supplier Name', ln)}:</p>
+						<p className='flex pt-1 text-[13px] font-medium'>{getTtl('Supplier Name', ln)}:</p>
 						<div className='w-72'>
-							<CBox data={sups} setValue={setValueCon} value={valueCon} name='supplier' classes='shadow-md' />
+							<Selector arr={sups} value={valueCon}
+								onChange={(e) => handleChange(e, 'supplier')}
+								name='supplier'
+								clear={clear} />
 							<ErrDiv field='supplier' errors={errors} ln={ln} />
 						</div>
 						<div className='items-center flex gap-1'>
@@ -118,17 +138,15 @@ const ContractModal = () => {
 					)}
 					{valueCon.showOriginSupplier &&
 						<div className='flex items-center gap-2 w-[20rem]'>
-							<p className='flex p-1 pt-2 text-xs whitespace-nowrap font-medium'>Original Supplier:</p>
-							<SelectStock
-								data={sortArr(settings.Supplier.Supplier.filter(x => !x.deleted)
-									.map(z => ({ ...z, nname: z.nname.trim() })), 'nname')}
-								setValue={handleSuppleirtUpdate}
-								value={settings.Supplier.Supplier.find(z => z.id === valueCon.originSupplier)}
-								idx={0}
-								name='nname'
-								classes='shadow-md h-7'
-								plcHolder='Select Original Supplier'
-							/>
+							<p className='flex p-1 pt-2 items-center text-[13px] whitespace-nowrap font-medium'>Original Supplier:</p>
+							<Selector
+								arr={settings.Supplier.Supplier
+									.map(z => ({ ...z, originSupplier: z.id }))}
+								value={valueCon/*settings.Supplier.Supplier.find(x => x.id === valueCon.originSupplier)*/}
+								onChange={(e) => handleChange(e, 'originSupplier')}
+								name='originSupplier'
+								secondaryName='nname'
+								clear={clear} />
 						</div>
 					}
 				</div>
@@ -136,12 +154,12 @@ const ContractModal = () => {
 
 				</div>
 				<div className='col-span-12 md:col-span-2 border border-slate-300 p-2 rounded-lg'>
-					<p className='flex items-center text-sm font-medium'>{getTtl('PoOrderNo', ln)}:</p>
+					<p className='flex items-center text-[13px] font-medium'>{getTtl('PoOrderNo', ln)}:</p>
 					<div className='w-full md:w-48 '>
-						<input className="input text-[15px] shadow-lg h-9" name='order' value={valueCon.order} onChange={handleValue} />
+						<input className="input text-[12px] shadow-lg h-8" name='order' value={valueCon.order} onChange={handleValue} />
 						<ErrDiv field='order' errors={errors} ln={ln} />
 					</div>
-					<p className='flex items-center text-sm mt-3 font-medium'>{getTtl('Date', ln)}:</p>
+					<p className='flex items-center text-[13px] mt-3 font-medium'>{getTtl('Date', ln)}:</p>
 					<div className='w-full md:w-48 '>
 						<Datepicker useRange={false}
 							asSingle={true}
@@ -149,7 +167,7 @@ const ContractModal = () => {
 							popoverDirection='down'
 							onChange={handleDateChange}
 							displayFormat={"DD-MMM-YYYY"}
-							inputClassName='input w-full text-[15px] shadow-lg h-9'
+							inputClassName='input w-full text-[12px] shadow-lg h-8'
 						/>
 						<ErrDiv field='date' errors={errors} ln={ln} />
 					</div>
@@ -158,76 +176,100 @@ const ContractModal = () => {
 			<div className='grid grid-cols-3 gap-3 pt-2'>
 				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
-						<p className='flex pt-1 text-sm font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
+						<p className='flex pt-1 text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
 						<div className='w-full md:w-44'>
-							<CBox data={settings.Shipment.Shipment} setValue={setValueCon} value={valueCon} name='shpType' classes='shadow-md' />
+							<Selector arr={settings.Shipment.Shipment} value={valueCon}
+								onChange={(e) => handleChange(e, 'shpType')}
+								name='shpType'
+								clear={clear} />
 							<ErrDiv field='shpType' errors={errors} ln={ln} />
 						</div>
 					</div>
-					<div className='flex gap-4 justify-between'>
-						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('Origin', ln)}:</p>
+					<div className='flex gap-4 justify-between pt-1'>
+						<p className='flex text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('Origin', ln)}:</p>
 						<div className='w-full md:w-44'>
-							<CBox data={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]} setValue={setValueCon} value={valueCon} name='origin' classes='shadow-md' />
+							<Selector arr={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]} value={valueCon}
+								onChange={(e) => handleChange(e, 'origin')}
+								name='origin'
+								clear={clear} />
 						</div>
 					</div>
-					<div className='flex gap-4 justify-between'>
-						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('Delivery Terms', ln)}:</p>
+					<div className='flex gap-4 justify-between pt-1'>
+						<p className='flex text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('Delivery Terms', ln)}:</p>
 						<div className='w-full md:w-44'>
-							<CBox data={settings['Delivery Terms']['Delivery Terms']} setValue={setValueCon} value={valueCon} name='delTerm' classes='shadow-md' />
-						</div>
-					</div>
-				</div>
-
-				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
-					<div className='flex gap-4 justify-between'>
-						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
-						<div className='w-full md:w-44'>
-							<CBox data={settings.POL.POL} setValue={setValueCon} value={valueCon} name='pol' classes='shadow-md' />
-						</div>
-					</div>
-					<div className='flex gap-4 justify-between'>
-						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('POD', ln)}:</p>
-						<div className='w-full md:w-44'>
-							<CBox data={settings.POD.POD} setValue={setValueCon} value={valueCon} name='pod' classes='shadow-md'
-								disabled={firstRule}
-							/>
-						</div>
-					</div>
-					<div className='flex gap-4 justify-between'>
-						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('Packing', ln)}:</p>
-						<div className='w-full md:w-44'>
-							<CBox data={settings.Packing.Packing} setValue={setValueCon} value={valueCon} name='packing' classes='shadow-md' />
+							<Selector arr={settings['Delivery Terms']['Delivery Terms']} value={valueCon}
+								onChange={(e) => handleChange(e, 'delTerm')}
+								name='delTerm'
+								clear={clear} />
 						</div>
 					</div>
 				</div>
 
 				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
-						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('Container Type', ln)}:</p>
+						<p className='flex text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
 						<div className='w-full md:w-44'>
-							<CBox data={settings['Container Type']['Container Type']} setValue={setValueCon} value={valueCon} name='contType' classes='shadow-md'
-								disabled={secondRule} />
+							<Selector arr={settings.POL.POL} value={valueCon}
+								onChange={(e) => handleChange(e, 'pol')}
+								name='pol'
+								clear={clear} />
 						</div>
 					</div>
-					<div className='flex gap-4 justify-between'>
-						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('Size', ln)}:</p>
+					<div className='flex gap-4 justify-between pt-1'>
+						<p className='flex text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('POD', ln)}:</p>
 						<div className='w-full md:w-44'>
-							<CBox data={settings.Size.Size} setValue={setValueCon} value={valueCon} name='size' classes='shadow-md' />
+							<Selector arr={settings.POD.POD} value={valueCon}
+								onChange={(e) => handleChange(e, 'pod')}
+								name='pod'
+								clear={clear} disabled={firstRule} />
 						</div>
 					</div>
+					<div className='flex gap-4 justify-between pt-1'>
+						<p className='flex text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('Packing', ln)}:</p>
+						<div className='w-full md:w-44'>
+							<Selector arr={settings.Packing.Packing} value={valueCon}
+								onChange={(e) => handleChange(e, 'packing')}
+								name='packing'
+								clear={clear} />
+						</div>
+					</div>
+				</div>
+
+				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
-						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('Delivery Time', ln)}:</p>
+						<p className='flex text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('Container Type', ln)}:</p>
+						<div className='w-full md:w-44'>
+							<Selector arr={settings['Container Type']['Container Type']} value={valueCon}
+								onChange={(e) => handleChange(e, 'contType')}
+								name='contType' disabled={secondRule}
+								clear={clear} />
+						</div>
+					</div>
+					<div className='flex gap-4 justify-between pt-1'>
+						<p className='flex text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('Size', ln)}:</p>
+						<div className='w-full md:w-44'>
+							<Selector arr={settings.Size.Size} value={valueCon}
+								onChange={(e) => handleChange(e, 'size')}
+								name='size'
+								clear={clear} />
+						</div>
+					</div>
+					<div className='flex gap-4 justify-between pt-1'>
+						<p className='flex text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('Delivery Time', ln)}:</p>
 						{!valueCon.isDeltimeText ?
 							<div className='w-full md:w-44'>
-								<CBox data={[...settings['Delivery Time']['Delivery Time'], { deltime: '..Edit Text', id: 'EditTextDelTime' }]} setValue={setValueCon} value={valueCon} name='deltime' classes='shadow-md' />
+								<Selector arr={[...settings['Delivery Time']['Delivery Time'], { deltime: '..Edit Text', id: 'EditTextDelTime' }]}
+									value={valueCon}
+									onChange={(e) => handleChange(e, 'deltime')}
+									name='deltime'
+									clear={clear} />
 							</div>
 							:
 							<div className='flex pt-1 left-5 relative w-7/12'>
 								<input type='text' className="input text-[15px] shadow-lg h-[1.86rem] text-xs w-full rounded-lg" name='deltime'
 									value={valueCon.deltime} onChange={handleValue} />
 								<button className='relative right-6 '>
-									<MdClear className="h-5 w-5 text-gray-300  hover:text-gray-500"
-										onClick={caneclEditText} />
+									<X className="size-4 text-slate-500" onClick={caneclEditText} />
 								</button>
 							</div>
 						}
@@ -236,9 +278,12 @@ const ContractModal = () => {
 			</div>
 
 			<div className='mt-2 w-full border border-slate-300 p-2 rounded-lg'>
-				<p className='flex items-center text-sm font-medium'>{getTtl('Payment Terms', ln)}:</p>
+				<p className='flex items-center text-[13px] font-medium'>{getTtl('Payment Terms', ln)}:</p>
 				<div className='w-full '>
-					<CBox data={settings['Payment Terms']['Payment Terms']} setValue={setValueCon} value={valueCon} name='termPmnt' classes='shadow-md' />
+					<Selector arr={settings['Payment Terms']['Payment Terms']} value={valueCon}
+						onChange={(e) => handleChange(e, 'termPmnt')}
+						name='termPmnt'
+						clear={clear} />
 				</div>
 			</div>
 
@@ -253,28 +298,33 @@ const ContractModal = () => {
 				</div>
 				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
 					<div className='flex gap-4 justify-between'>
-						<p className='flex pt-1 text-sm font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
+						<p className='flex pt-1 text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
 						<div className='w-full md:w-44'>
-							<CBox data={settings.Currency.Currency} setValue={setValueCon} value={valueCon} name='cur' classes='shadow-md' />
+							<Selector arr={settings.Currency.Currency} value={valueCon}
+								onChange={(e) => handleChange(e, 'cur')}
+								name='cur'
+								clear={clear} />
 							<ErrDiv field='cur' errors={errors} ln={ln} />
 						</div>
 					</div>
-					<div className='flex gap-4 justify-between items-center'>
-						<p className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('Quantity', ln)}:</p>
+					<div className='flex gap-4 justify-between items-center pt-1'>
+						<p className='flex text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('Quantity', ln)}:</p>
 						<div className='w-full md:w-44'>
-							<CBox data={settings.Quantity.Quantity} setValue={setValueCon} value={valueCon} name='qTypeTable' classes='shadow-md' />
+							<Selector arr={settings.Quantity.Quantity} value={valueCon}
+								onChange={(e) => handleChange(e, 'qTypeTable')}
+								name='qTypeTable'
+								clear={clear} />
 						</div>
 					</div>
 					<Tltip direction='bottom' tltpText='Contracts storage'>
-						<button
-							type="button"
-							className="mt-2 flex items-center gap-1 justify-center rounded-md border bg-slate-700 hover:bg-slate-400 px-3 py-1 text-sm font-medium 
-						text-white focus:outline-none" onClick={() => setShowFilesModal(true)}
+						<Button
+							className="mt-2 h-8 text-xs"
+							onClick={() => setShowFilesModal(true)}
 							disabled={!valueCon.id}
 						>
-							<MdOutlineStorage className='scale-0.9' />
+							<Database />
 							{getTtl('Attachments', ln)}
-						</button>
+						</Button>
 					</Tltip>
 				</div>
 			</div>
@@ -306,34 +356,29 @@ const ContractModal = () => {
 
 			<div className="text-lg font-medium leading-5 text-gray-900 p-3 pl-6 flex gap-4 flex-wrap justify-center md:justify-start ">
 				<Tltip direction='top' tltpText='Save/Update contract'>
-					<button
-						type="button"
-						className="blackButton"
+					<Button
 						onClick={btnClck}
 						disabled={isButtonDisabled}
-
 					>
-						<VscSaveAs className='scale-110' />
+						<Save />
 						{isButtonDisabled ? getTtl('saving', ln) : getTtl('save', ln)}
-						{isButtonDisabled && <RiRefreshLine className='animate-spin' />}
-					</button>
+						{isButtonDisabled && <LoaderCircle className='animate-spin' />}
+					</Button>
 				</Tltip>
 				<Tltip direction='top' tltpText='Close form'>
-					<button
-						type="button"
-						className="whiteButton"
+					<Button
+						variant='outline'
 						onClick={() => setIsOpenCon(false)}
 					>
-						<VscClose className='scale-125' />
+						<X className='scale-125' />
 						{getTtl('Close', ln)}
-					</button>
+					</Button>
 				</Tltip>
 				<Tltip direction='top' tltpText='Create PDF document'>
-					<button
-						type="button"
-						className="whiteButton"
+					<Button
+						variant='outline'
 						onClick={() => Pdf(valueCon,
-							reOrderTableCon(valueCon.productsData).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
+							reOrderTableCon(valueCon.productsData.filter(x => !x.import)).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
 								.map((values, index) => {
 									const number = values[1]//.toFixed(3);
 									const number1 = values[2];
@@ -354,43 +399,44 @@ const ContractModal = () => {
 								})
 							, settings, compData, gisAccount)}
 					>
-						<FaFilePdf />
+						<FileText />
 						PDF
-					</button>
+					</Button>
 				</Tltip>
 				{valueCon.id !== '' &&
 					<Tltip direction='top' tltpText='Delete Contract'>
-						<button
-							type="button"
-							className="whiteButton"
+						<Button
+							variant='outline'
 							onClick={() => setIsDeleteOpen(true)}
 						>
-							<VscArchive className='scale-110' />
+							<Trash />
 							{getTtl('Delete', ln)}
-						</button>
+						</Button>
 					</Tltip>
 				}
 				{valueCon.id !== '' && showButton &&
 					<Tltip direction='top' tltpText='Duplicate Contract'>
-						<button
-							type="button"
-							className="hidden md:flex whiteButton" onClick={() => setIsDuplicateOpen(true)}
+						<Button
+							variant='outline'
+							className="hidden md:flex"
+							onClick={() => setIsDuplicateOpen(true)}
 
 						>
-							<HiDocumentDuplicate className='scale-125' />
+							<Copy />
 							{getTtl('Duplicate Contract', ln)}
-						</button>
+						</Button>
 					</Tltip>
 				}
 				<Tltip direction='top' tltpText='Create Final Settlement Invoice'>
-					<button
-						type="button"
-						className="hidden md:flex whiteButton" onClick={() => setShowFinalSettlmntModal(true)}
+					<Button
+						variant='outline'
+						className="hidden md:flex "
+						onClick={() => setShowFinalSettlmntModal(true)}
 
 					>
-						<BsTagsFill className='scale-125' />
+						<SendToBack />
 						{getTtl('FinalSettlmnt', ln)}
-					</button>
+					</Button>
 				</Tltip>
 			</div>
 			<ModalToDelete isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}

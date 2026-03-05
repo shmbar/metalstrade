@@ -2,21 +2,15 @@ import Modal from '@components/modal.js'
 import { useContext, useState, useEffect } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
-import { IoAddCircleOutline } from 'react-icons/io5';
-import CBox from '@components/comboboxWH'
-import Datepicker from "react-tailwindcss-datepicker";
 import { UserAuth } from "@contexts/useAuthContext";
 import { Pdf } from './pdf/pdfFinal.js';
 import ChkBox from '@components/checkbox';
-import { VscSaveAs } from 'react-icons/vsc';
-import { v4 as uuidv4 } from 'uuid';
-import { VscArchive } from 'react-icons/vsc';
 import { getD, loadStockData, validate, reOrderTableFinal } from '@utils/utils'
-import { TbFileInvoice } from "react-icons/tb";
 import { getTtl } from '@utils/languages';
-import { FaFilePdf } from 'react-icons/fa';
 import FinalSetRemarks from './finalSettlmentRemarks.js';
 import Tltip from '@components/tlTip.js';
+import { Save,FileText, } from "lucide-react"
+import { Button } from '@components/ui/button.jsx';
 
 function countDecimalDigits(inputString) {
 
@@ -40,7 +34,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
     const { valueCon, setValueCon, saveData_stocks } = useContext(ContractsContext);
     const { settings, setToast, ln, compData } = useContext(SettingsContext);
-    const { uidCollection , gisAccount} = UserAuth();
+    const { uidCollection, gisAccount } = UserAuth();
     const [checkedItems, setCheckedItems] = useState([]);
     const [data, setData] = useState([]);
     const [errors, setErrors] = useState([])
@@ -69,7 +63,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
     const handleValue = (e, i) => {
 
-    //    if (countDecimalDigits(e.target.value) > 3) return;
+        //    if (countDecimalDigits(e.target.value) > 3) return;
 
         let itm = data[i]
         if (e.target.name !== 'remark' && e.target.name !== 'descriptionText') {  //final quantity
@@ -212,18 +206,18 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
             <div className="text-lg font-medium leading-5 text-gray-900 px-3 flex gap-4 flex-wrap justify-center md:justify-start ">
                 <div className='flex gap-4 p-2'>
                     <Tltip direction='top' tltpText='Save/Update data'>
-                        <button
-                            className="blackButton py-1"
+                        <Button
+                            className='h-8 px-3'
                             onClick={saveD}
                         >
-                            <VscSaveAs className='scale-110' />
+                            <Save />
                             {getTtl('save', ln)}
-                        </button>
+                        </Button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Create PDF document'>
-                        <button
-                            type="button"
-                            className="whiteButton"
+                        <Button
+                            variant='outline'
+                            className='h-8 px-3'
                             onClick={() => Pdf(valueCon,
                                 reOrderTableFinal(data.filter(z => checkedItems.includes(z.id))).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
                                     .map((values, index) => {
@@ -264,9 +258,9 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 , settings, compData, data.filter(z => checkedItems.includes(z.id)), gisAccount)
                             }
                         >
-                            <FaFilePdf />
+                            <FileText />
                             PDF
-                        </button>
+                        </Button>
                     </Tltip>
                 </div>
 

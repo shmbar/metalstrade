@@ -765,19 +765,15 @@ export const loadMaterials = async (uidCollection) => {
 
 
 export const saveCashflow = async (uidCollection, yr, data) => {
-
-  const Ref = doc(db, uidCollection, "cashflow");
-  return await updateDoc(Ref, { [yr]: data }).then(() => {
-    return true;
-  });
+  const ref = doc(db, uidCollection, "cashflow");
+  await setDoc(ref, { [yr]: data }, { merge: true });
+  return true;
 }
 
 export const saveCashflowFinanced = async (uidCollection, data) => {
-
-  const Ref = doc(db, uidCollection, "cashflow");
-  return await updateDoc(Ref, { 'financed': data }).then(() => {
-    return true;
-  });
+  const ref = doc(db, uidCollection, "cashflow");
+  await setDoc(ref, { financed: data }, { merge: true });
+  return true;
 }
 
 export const updateClientPayment = async (uidCollection, inv) => {
@@ -869,4 +865,45 @@ export const updateContractField = async (
   await updateDoc(ref, patch);
 };
 
+export const loadContract = async (uidCollection, orderNum) => {
 
+  function extractYear(str) {
+    if (!/^\d{4}-?\d{2}/.test(str)) return null;
+
+    const yy = str[4] === "-"
+      ? str.slice(5, 7)
+      : str.slice(4, 6);
+
+    return 2000 + Number(yy);
+  }
+
+  const year = extractYear(orderNum);
+
+  const q = query(
+    collection(db, uidCollection, "data", `contracts_${year}`),
+    where("order", "==", orderNum)
+  );
+
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    console.log("No matching documents");
+    return [];
+  }
+
+  return querySnapshot.docs.map(doc => doc.data());
+};
+
+export const updateOpenMonth = async (uidCollection, month, year, open) => {
+
+  await setDoc(
+    doc(db,
+      uidCollection,
+      "margins",
+      String(year),
+      String(month)),
+    { openMonth: open, month: String(month) },
+    { merge: true }
+  );
+
+}

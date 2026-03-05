@@ -1,4 +1,4 @@
-import Modal from '../../../../components/modal.js'
+import Modal from '@components/modal.js'
 import Expense from './expenses'
 
 const DataModal = ({ isOpen, setIsOpen, title, }) => {

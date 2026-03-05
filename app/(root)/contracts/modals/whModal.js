@@ -2,20 +2,19 @@ import Modal from '@components/modal.js'
 import { useContext, useState, useEffect } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
-import { IoAddCircleOutline } from 'react-icons/io5';
-import CBox from '@components/comboboxWH'
 import Datepicker from "react-tailwindcss-datepicker";
 import { UserAuth } from "@contexts/useAuthContext";
 
 import ChkBox from '@components/checkbox';
-import { VscSaveAs } from 'react-icons/vsc';
 import { v4 as uuidv4 } from 'uuid';
-import { VscArchive } from 'react-icons/vsc';
-import { getD, loadStockData, sortArr, speciaInvoices, validate } from '@utils/utils'
-import { TbFileInvoice } from "react-icons/tb";
+import { getD, loadStockData, validate } from '@utils/utils'
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
-import SelectStock from '@components/comboboxSelectStock';
+import { Selector } from '@components/selectors/selectShad.js';
+import { Button } from '@components/ui/button.jsx';
+import {  Save, CirclePlus, ScrollText, Trash, } from "lucide-react";
+
+
 
 function countDecimalDigits(inputString) {
 
@@ -147,21 +146,9 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
         setData(data.map((z, index) => index === i ? { ...z, [e.target.name]: e.target.value } : z));
     }
 
-    const handleUpdateStock = (e, idx) => {
-        setData(data.map(z => z.id === idx.id ? { ...z, stock: e?.id } : z));
-    }
-
-    const handleUpdateStatus = (e, idx) => {
-        setData(data.map((z, i) => i === idx ? { ...z, status: e?.id } : z));
-    }
-
-    const handleClientUpdate = (e, idx) => {
-        setData(data.map((z, i) => i === idx ? { ...z, client: e?.id } : z));
-    }
-
-
     let newStock = {
-        id: uuidv4(), description: '', qnty: '', unitPrc: '', total: '', poInvoice: '', indDate: null, stock: '', spInv: false, compName: ''
+        id: uuidv4(), description: '', qnty: '', unitPrc: '', total: '', poInvoice: '', indDate: null, stock: '',
+        spInv: false, compName: '', status: '', client: ''
     }
 
     const addItem = () => {
@@ -215,6 +202,39 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
     const statusArr = [{ id: 'sold', status: 'Sold' }, { id: 'unsold', status: 'Unsold' }]
 
+
+    const handleChange = (e, name, indx) => {
+        if (name === 'description') {
+            const current = data[indx];
+
+            // unit price
+            let unitPrc = valueCon.productsData.find(q => q.id === e)?.unitPrc ?? 0;
+
+            unitPrc = isNaN(Number(unitPrc)) ? 0 : Number(unitPrc);
+
+            // calculate total
+            const qnty = current.qnty;
+            let total = current.total;
+
+            if (unitPrc !== "" && qnty !== "") {
+                total = qnty === "0" ? unitPrc : unitPrc * Number(qnty);
+            }
+
+            const updatedItem = { ...current, [name]: e, unitPrc, total, };
+
+            setData(prev =>
+                prev.map((item, i) => (i === indx ? updatedItem : item))
+            );
+
+        } else if (name === 'poInvoice' || name === 'stock' || name === 'status' || name === 'client') {
+            setData(prev =>
+                prev.map((item, i) =>
+                    i === indx ? { ...item, [name]: e } : item
+                )
+            );
+        }
+    }
+
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)}
             w={data.map(z => z.spInv).includes(true) ? 'max-w-[1660px]' : 'max-w-[1540px]'}>
@@ -229,9 +249,12 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 </div>
                                 <div className='md:max-w-52 w-full pt-2 md:pt-0'>
                                     <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Description', ln)}:</p>
-                                    <div className='flex flex-col'>
-                                        <CBox data={valueCon.productsData.map(x => ({ id: x.id, description: x.description }))}
-                                            setValue={setData} value={valueCon} dt={data} indx={i} name='description' classes='shadow-md h-7' />
+                                    <div className='flex flex-col w-36'>
+                                        <Selector
+                                            arr={valueCon.productsData} value={data[i]}
+                                            onChange={(e) => handleChange(e, 'description', i)}
+                                            name='description' classes='h-7'
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -264,9 +287,13 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
                             <div className='md:max-w-36 pt-2 md:pt-0'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('PurchaseInv', ln)}#:</p>
-                                <div className='flex flex-col'>
-                                    <CBox data={valueCon.poInvoices.map(x => ({ id: x.id, poInvoice: x.inv }))}
-                                        setValue={setData} value={valueCon} dt={data} indx={i} name='poInvoice' classes='shadow-md h-7' />
+                                <div className='flex flex-col w-36'>
+                                    <Selector
+                                        arr={valueCon.poInvoices.map(x => ({ id: x.id, poInvoice: x.inv }))}
+                                        value={data[i]}
+                                        onChange={(e) => handleChange(e, 'poInvoice', i)}
+                                        name='poInvoice' classes='h-7'
+                                    />
                                 </div>
                             </div>
 
@@ -288,30 +315,25 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
                             <div className='md:max-w-44 pt-2 md:pt-0'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Stock', ln)}:</p>
-                                <div className='flex flex-col'>
-                                    <SelectStock
-                                        data={sortArr(settings.Stocks.Stocks.filter(x => !x.deleted)
-                                            .map(z => ({ ...z, nname: z.nname.trim() })), 'nname')}
-                                        setValue={handleUpdateStock}
-                                        idx={x}
-                                        value={settings.Stocks.Stocks.find(z => z.id === x.stock)}
-                                        name='nname'
-                                        classes='shadow-md h-7'
-                                        plcHolder='Select stock' />
+                                <div className='flex flex-col w-36'>
+                                    <Selector
+                                        arr={settings.Stocks.Stocks}
+                                        value={data[i]}
+                                        onChange={(e) => handleChange(e, 'stock', i)}
+                                        name='stock' classes='h-7'
+                                        secondaryName='nname'
+                                    />
                                 </div>
                             </div>
 
                             <div className='md:max-w-28 pt-2 md:pt-0'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Status', ln)}</p>
-                                <div className='flex flex-col'>
-                                    <SelectStock data={statusArr}
-                                        setValue={handleUpdateStatus}
-                                        value={statusArr.find(z => z.id === x.status)}
-                                        dt={data}
-                                        idx={i}
-                                        name='status'
-                                        classes='shadow-md h-7'
-                                        plcHolder='Status'
+                                <div className='flex flex-col w-24'>
+                                    <Selector
+                                        arr={statusArr}
+                                        value={data[i]}
+                                        onChange={(e) => handleChange(e, 'status', i)}
+                                        name='status' classes='h-7'
                                     />
                                 </div>
                             </div>
@@ -327,16 +349,13 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
                             <div className='md:max-w-40 pt-2 md:pt-0'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Consignee', ln)}</p>
-                                <div className='flex flex-col'>
-                                    <SelectStock data={sortArr(settings.Client.Client.filter(x => !x.deleted)
-                                        .map(z => ({ ...z, nname: z.nname.trim() })), 'nname')}
-                                        setValue={handleClientUpdate}
-                                        value={settings.Client.Client.find(z => z.id === x.client)}
-                                        dt={data}
-                                        idx={i}
-                                        name='nname'
-                                        classes='shadow-md h-7'
-                                        plcHolder='Select Consignee'
+                                <div className='flex flex-col w-40'>
+                                    <Selector
+                                        arr={settings.Client.Client}
+                                        value={data[i]}
+                                        onChange={(e) => handleChange(e, 'client', i)}
+                                        name='client' classes='h-7'
+                                        secondaryName='nname'
                                     />
                                 </div>
                             </div>
@@ -367,36 +386,38 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
             </div>
             <div className='flex gap-4 p-2 border-t'>
-                <button
-                    className="blackButton py-1"
+                <Button
+                    className="h-8 px-3"
                     onClick={saveD}
                 >
-                    <VscSaveAs className='scale-110' />
+                    <Save />
                     {getTtl('save', ln)}
-                </button>
-                <button
-                    className="whiteButton py-1"
+                </Button>
+                <Button
+                    className="h-8 px-3"
+                    variant='outline'
                     onClick={addItem}
                 >
-                    <IoAddCircleOutline className='scale-110' />
+                    <CirclePlus />
                     {getTtl('Add', ln)}
-                </button>
+                </Button>
 
-
-                <button
-                    className="whiteButton py-1"
+                <Button
+                    className="h-8 px-3"
+                    variant='outline'
                     onClick={deleteItems}
                 >
-                    <VscArchive className='scale-110' />
+                    <Trash />
                     {getTtl('Delete', ln)}
-                </button>
-                <button
-                    className="whiteButton py-1"
+                </Button>
+                <Button
+                    className="h-8 px-3"
+                    variant='outline'
                     onClick={openInvoicesModal}
                 >
-                    <TbFileInvoice className='scale-110' />
+                    <ScrollText />
                     {getTtl('Invoices', ln)}
-                </button>
+                </Button>
             </div>
         </Modal>
     )

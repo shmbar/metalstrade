@@ -250,10 +250,10 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     //Total Net WT Kgs:
     const options = { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 2 };
     const locale = 'en-US';
-    const NetWTKgsTmp = (value.productsDataInvoice.map(x => x.qnty)
-        .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000);
+    const NetWTKgsTmp = (value.productsDataInvoice.filter(q => q.qnty !== 's').map(x => x.qnty)
+        .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000) || '';
     const NetWTKgs = NetWTKgsTmp.toLocaleString(locale, options);
-
+    console.log(NetWTKgs)
     doc.setFont('PoppinsB', 'bold');
     doc.text('Total Net WT Kgs:', 138, 92);
     doc.setFont('Poppins', 'normal');

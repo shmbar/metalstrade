@@ -1,22 +1,24 @@
-import Modal from '../../../components/modal.js'
+import Modal from '@components/modal.js'
 import { useContext, useState } from 'react'
-import { SettingsContext } from "../../../contexts/useSettingsContext";
-import CBox from '../../../components/combobox'
-import Switch from '../../../components/switch'
-import { UserAuth } from "../../../contexts/useAuthContext";
+import { SettingsContext } from "@contexts/useSettingsContext";
+import Switch from '@components/switch'
+import { UserAuth } from "@contexts/useAuthContext";
 import dateFormat from "dateformat";
 
 import { v4 as uuidv4 } from 'uuid';
-import { VscArchive } from 'react-icons/vsc';
-import { getD, loadInvoice, saveStockIn } from '../../../utils/utils'
-import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
-import { FaFileContract } from "react-icons/fa";
+import { getD, loadInvoice, saveStockIn } from '@utils/utils'
 import ShipTable from './shipmentsTable'
-import { getTtl } from '../../../utils/languages';
+import { getTtl } from '@utils/languages';
 import { useRouter } from 'next/navigation.js';
-import { ContractsContext } from '../../../contexts/useContractsContext';
-import Tltip from '../../../components/tlTip';
-import { InvoiceContext } from '../../../contexts/useInvoiceContext';
+import { ContractsContext } from '@contexts/useContractsContext';
+import Tltip from '@components/tlTip';
+import { InvoiceContext } from '@contexts/useInvoiceContext';
+import { Selector } from '@components/selectors/selectShad';
+import { FilePen, Archive, FileText   } from "lucide-react"
+import { Button } from '@components/ui/button.jsx';
+
+
+
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -185,14 +187,27 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
             }
 
         }
-       
+
         setValueCon(contract);
         blankInvoice();
-        
+
         router.push("/contracts");
 
         setIsOpenCon(true)
 
+    }
+
+    const handleChange = (e, name) => {
+        setNewItemStock(prev => {
+            return { ...prev, [name]: e }
+        })
+    }
+
+
+    const clear = (name) => {
+        setNewItemStock(prev => ({
+            ...prev, [name]: '',
+        }))
     }
 
     return (
@@ -233,23 +248,27 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
             <div className={` ${showBlock ? 'flex' : 'hidden'} flex  gap-4 p-2 m-2 border border-slate-300 rounded-lg`}>
                 <div className='flex flex-col'>
                     <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Weight', ln)}</p>
-                    <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs w-24" name='qnty'
+                    <input type='text' className="number-separator input shadow-lg h-8 text-xs w-24" name='qnty'
                         value={addComma(newItemStock.qnty, false)} onChange={e => handleValueQnty1(e)} />
                 </div>
-                <div className='flex flex-col'>
+                <div className='flex flex-col w-48'>
                     <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Stock', ln)}:</p>
-                    <CBox data={settings.Stocks.Stocks}
-                        setValue={setNewItemStock} value={newItemStock} name='stock' classes='shadow-md h-7 -mt-1' />
+
+                    <Selector arr={settings.Stocks.Stocks} value={newItemStock}
+                        onChange={(e) => handleChange(e, 'stock')}
+                        name='stock'
+                        clear={clear} />
+
                 </div>
-                <div className=' flex items-end bottom-1 relative'>
-                    <button
-                        className="whiteButton w-full flex py-1.5 text-xs"
+                <div className=' flex items-end relative '>
+                    <Button
+                        className='h-8 text-xs'
                         onClick={moveStock}
                         disabled={item.stock === newItemStock.stock}
                     >
-                        <FaArrowUpRightFromSquare className='scale-110' />
+                        <FilePen />
                         {getTtl('Move to new Stock', ln)}
-                    </button>
+                    </Button>
                 </div>
 
             </div>
@@ -259,22 +278,22 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
 
             <div className='flex gap-4 p-2 border-t'>
                 <Tltip direction='top' tltpText='Move item to a diffrent stock'>
-                    <button
-                        className="blackButton py-1.5 text-xs"
+                    <Button
+                        className="h-8 text-xs"
                         onClick={moveItems}
                     >
-                        <VscArchive className='scale-110' />
+                        <Archive />
                         {getTtl('Change Stock', ln)}
-                    </button>
+                    </Button>
                 </Tltip>
                 <Tltip direction='top' tltpText='View the contract for this item'>
-                    <button
-                        className="blackButton py-1.5 text-xs"
+                    <Button
+                       className="h-8 text-xs"
                         onClick={() => moveToContracts()}
                     >
-                        <FaFileContract className='scale-110' />
+                        <FileText />
                         {getTtl('Contract', ln)}
-                    </button>
+                    </Button>
                 </Tltip>
             </div>
 

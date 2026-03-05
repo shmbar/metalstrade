@@ -6,10 +6,11 @@ import {
     validate, saveData, delDoc, updatePoSupplierInv, updatePoSupplierExp,
     updateDocumentContract, saveStockIn, delStock,
     speciaInvoices,
-} from '../utils/utils'
-import { SettingsContext } from "../contexts/useSettingsContext";
-import { getCur } from '../components/exchangeApi'
-import { getTtl } from '../utils/languages';
+    loadStockData,
+} from '@utils/utils'
+import { SettingsContext } from "@contexts/useSettingsContext";
+import { getCur } from '@components/exchangeApi'
+import { getTtl } from '@utils/languages';
 //import { revalidatePath } from 'next/cache';
 
 const newContract = {
@@ -92,7 +93,6 @@ const useContractsState = (props) => {
             let tmpValue = {}
 
             let tmpEuToUs = await getCur(valueCon.dateRange.startDate)
-            if (tmpEuToUs === undefined || tmpEuToUs === null) tmpEuToUs = 1;
 
 
             if (indx !== -1) { //update
@@ -174,6 +174,16 @@ const useContractsState = (props) => {
 
             let success = await saveData(uidCollection, 'contracts', valueCon)
             success && setToast({ show: true, text: getTtl('Payments successfully saved!', ln), clr: 'success' })
+
+            let stockData = valueCon.stock.length > 0 ? await loadStockData(uidCollection, 'id', valueCon.stock) : []
+            if (stockData.length > 0) {
+                let tmpdata = stockData.map(x => ({
+                    ...x, poInvoices: valueCon.poInvoices
+                }))
+
+                await saveStockIn(uidCollection, tmpdata)
+            }
+
         },
         saveData_PoInvoices: async (uidCollection, newValCon) => {
 
@@ -197,6 +207,7 @@ const useContractsState = (props) => {
                 order: valueCon.order, cur: valueCon.cur, poInvoices: valueCon.poInvoices,
                 qTypeTable: valueCon.qTypeTable,
                 contractData: { id: valueCon.id, date: valueCon.dateRange.startDate }, type: 'in',
+                originSupplier: valueCon.originSupplier || null
             }))
 
 
@@ -209,7 +220,9 @@ const useContractsState = (props) => {
 
             let success = await saveData(uidCollection, 'contracts', tmp)
 
-            /////////////////////////////
+
+            
+             ///////////////Special Invoices//////////////
             let newData = tmpdata.filter(q => q.spInv).map(z => {
                 let aa = z.poInvoices.find(a => a.id === z.poInvoice);
                 let bb = z.productsData.find(a => a.id === z.description);
@@ -220,9 +233,10 @@ const useContractsState = (props) => {
                         invoice: aa?.inv, id: z.id,
                         salesInvoice: aa?.invRef[0] || '',
                         description: bb?.description,
-                        cur:valueCon.cur,
+                        cur: valueCon.cur,
                         qnty: z.qnty, unitPrc: z.unitPrc, total: z.total,
                         paidNotPaid: (aa?.pmnt * 1 / aa?.invValue * 1) > 0.95 ? 'Paid' : 'Not Paid',
+                          originSupplier: valueCon.originSupplier
                     })
             })
             await speciaInvoices(uidCollection, newData)

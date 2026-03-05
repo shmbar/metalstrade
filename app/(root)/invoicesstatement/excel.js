@@ -1,12 +1,11 @@
 import React from 'react'
 import { saveAs } from 'file-saver';
 import { Workbook } from 'exceljs';
-// import removed: SiMicrosoft not available
+import { SiMicrosoftexcel } from 'react-icons/si';
 import dateFormat from "dateformat";
-import { OutTurn, Finalizing, relStts } from '../../../components/const'
-import { getTtl } from '../../../utils/languages';
-import Tltip from '../../../components/tlTip';
-import { FileSpreadsheet } from 'lucide-react';
+import { OutTurn, Finalizing, relStts } from '@components/const'
+import { getTtl } from '@utils/languages';
+import Tltip from '@components/tlTip';
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
 const wb = new Workbook();
@@ -56,6 +55,7 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
 
         sheet.columns = [
             { key: 'supplier', header: 'Supplier', width: 16, style: styles },
+            { key: 'originSupplier', header: 'Original supplier', width: 16, style: styles },
             { key: 'supInvoices', header: 'Supplier inv', width: 16, style: styles },
             { key: 'expType', header: 'Invoice Type', width: 14, style: styles },
             { key: 'invAmount', header: 'Invoices amount', width: 14, style: styles },
@@ -96,6 +96,7 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
 
             sheet.addRow({
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier)?.nname,
+                originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier)?.nname,
                 supInvoices: Array.isArray(item.supInvoices) ? item.supInvoices.map(x => x).join('\n') : item.supInvoices,
                 expType: item.expType !== 'Commercial' ? gQ(item.expType, 'Expenses', 'expType') : 'Commercial',
                 invAmount: item.invAmount * 1,
@@ -129,10 +130,10 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
                     };
                 }
 
-                let cArr1 = [4, 5, 6, 10, 12, 13]
+                let cArr1 = [5, 6, 7, 11, 13, 14]
                 if (cArr1.includes(colNumber) && rowNumber > 1) {
                     let item = dataTable[rowNumber - 2]
-                    let sym = colNumber < 10 ? getNumFmtForCurrency(item.cur) : getNumFmtForCurrency(item.curInvoice)
+                    let sym = colNumber < 11 ? getNumFmtForCurrency(item.cur) : getNumFmtForCurrency(item.curInvoice)
                     row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]${sym}#,##0.00`
                 }
 
@@ -164,7 +165,7 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
                     }
 
 
-                    if (obj.type === 'con' && obj.totalPrepayment1 > 0 && colNumber < 13 && colNumber > 6) {
+                    if (obj.type === 'con' && obj.totalPrepayment1 > 0 && colNumber < 14 && colNumber > 7) {
                         cell.fill = {
                             type: 'pattern',
                             pattern: 'solid',
@@ -174,7 +175,7 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
                         }
                     }
 
-                    if (obj.type === 'con' && obj.totalInvoices > 0 && obj.inDebt === 0 && colNumber === 13) {
+                    if (obj.type === 'con' && obj.totalInvoices > 0 && obj.inDebt === 0 && colNumber === 14) {
                         cell.fill = {
                             type: 'pattern',
                             pattern: 'solid',
@@ -229,7 +230,7 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
         sheet.eachRow((row, rowNumber) => {
             row.eachCell((cell, colNumber) => {
 
-                let cArr1 = [4, 5, 6, 10, 12, 13]
+                let cArr1 = [5, 6, 7, 11, 13, 14]
                 if (cArr1.includes(colNumber) && rowNumber > startSummary) {
                     let item = colNumber <= 6 ? dtSumSupplers[rowNumber - startSummary - 1] : dtSumClients[rowNumber - startSummary - 1]
                     let sym = getNumFmtForCurrency1(item.cur)
@@ -252,7 +253,7 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
                     className="hover:bg-slate-200 text-slate-700 justify-center w-10 h-10 inline-flex
      items-center text-sm rounded-full  hover:drop-shadow-md focus:outline-none"
                 >
-                    <FileSpreadsheet className="w-5 h-5" style={{ color: 'var(--endeavour)' }} strokeWidth={2} />
+                    <SiMicrosoftexcel className="scale-[1.4] text-gray-500" />
                 </div>
             </Tltip>
         </div>

@@ -3,20 +3,18 @@
 import { useContext, useState, useEffect } from 'react'
 import { ExpensesContext } from "@contexts/useExpensesContext";
 import Datepicker from "react-tailwindcss-datepicker";
-import CBox from '@components/combobox.js'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { InvoiceContext } from "@contexts/useInvoiceContext";
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { MdDelete } from 'react-icons/md';
 import ModalToDelete from '@components/modalToProceed';
 import { validate, ErrDiv, loadInvoice } from '@utils/utils'
 import { UserAuth } from "@contexts/useAuthContext";
-import { MdOutlineWidgets } from 'react-icons/md'
 import { ContractsContext } from "@contexts/useContractsContext";
 import { usePathname } from 'next/navigation'
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
-
+import { Selector } from '@components/selectors/selectShad';
+import { Save, Eraser, Trash } from "lucide-react"
+import { Button } from '@components/ui/button';
 
 const Expenses = ({ showExpenses }) => {
 
@@ -67,6 +65,20 @@ const Expenses = ({ showExpenses }) => {
         }
     }, [])
 
+    const handleChange = (e, name) => {
+        setValueExp(prev => {
+            const updated = { ...prev, [name]: e }
+            return updated
+        })
+    }
+
+
+    const clear = (name) => {
+        setValueExp(prev => ({
+            ...prev, [name]: '',
+        }))
+    }
+
 
     return valueExp && (
         <div className={`z-10 relative mt-2 border border-slate-300 rounded-lg 
@@ -93,11 +105,11 @@ const Expenses = ({ showExpenses }) => {
                             <div>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Expense Invoice', ln)}:</p>
                                 <div className='w-full '>
-                                    <input className="input text-[15px] shadow-lg h-7 text-xs" name='expense' value={valueExp.expense} onChange={handleValue} />
+                                    <input className="input shadow-lg h-8 text-xs" name='expense' value={valueExp.expense} onChange={handleValue} />
                                     <ErrDiv field='expense' errors={errorsExp} />
                                 </div>
                             </div>
-                            <div className='pt-2'>
+                            <div className='pt-1'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Date', ln)}:</p>
                                 <Datepicker useRange={false}
                                     asSingle={true}
@@ -105,14 +117,14 @@ const Expenses = ({ showExpenses }) => {
                                     popoverDirection='up'
                                     onChange={handleDateChangeDate}
                                     displayFormat={"DD-MMM-YYYY"}
-                                    inputClassName='input w-full text-[15px] shadow-lg h-7 text-xs z-20'
+                                    inputClassName='input w-full shadow-lg h-8 text-xs z-20'
                                 />
                                 <ErrDiv field='date' errors={errorsExp} />
                             </div>
-                            <div className='pt-2'>
+                            <div className='pt-1'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Amount', ln)}:</p>
                                 <div className='w-full '>
-                                    <input type='number' className="input text-[15px] shadow-lg h-7 text-xs" name='amount' value={valueExp.amount} onChange={handleValue} />
+                                    <input type='number' className="input shadow-lg h-8 text-xs" name='amount' value={valueExp.amount} onChange={handleValue} />
                                     <ErrDiv field='amount' errors={errorsExp} />
                                 </div>
                             </div>
@@ -121,29 +133,42 @@ const Expenses = ({ showExpenses }) => {
                             <div>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Vendor', ln)}:</p>
                                 <div className='w-full '>
-                                    <CBox data={sups} setValue={setValueExp} value={valueExp} name='supplier' classes='shadow-md -mt-1 h-7' classes1='max-h-48' />
+                                    <Selector arr={sups} value={valueExp}
+                                        onChange={(e) => handleChange(e, 'supplier')}
+                                        name='supplier'
+                                        clear={clear} />
+
                                     <ErrDiv field='supplier' errors={errorsExp} />
                                 </div>
                             </div>
                             <div className='pt-1'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Expense Type', ln)}:</p>
                                 <div className='w-full '>
-                                    <CBox data={settings.Expenses.Expenses} setValue={setValueExp} value={valueExp} name='expType' classes='shadow-md  -mt-1 h-7' classes1='max-h-24' />
+                                    <Selector arr={settings.Expenses.Expenses} value={valueExp}
+                                        onChange={(e) => handleChange(e, 'expType')}
+                                        name='expType'
+                                        clear={clear} />
                                     <ErrDiv field='expType' errors={errorsExp} />
                                 </div>
                             </div>
                             <div className='pt-1 gap-3 flex'>
-                                <div className='max-w-xs '>
+                                <div className='flex-1'>
                                     <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
                                     <div className='w-full'>
-                                        <CBox data={settings.Currency.Currency} setValue={setValueExp} value={valueExp} name='cur' classes='shadow-md -mt-1' />
+                                        <Selector arr={settings.Currency.Currency} value={valueExp}
+                                            onChange={(e) => handleChange(e, 'cur')}
+                                            name='cur'
+                                            clear={clear} />
                                         <ErrDiv field='cur' errors={errorsExp} />
                                     </div>
                                 </div>
-                                <div className='max-w-xs '>
+                                <div className='flex-1'>
                                     <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Payment', ln)}:</p>
                                     <div className='w-full'>
-                                        <CBox data={settings.ExpPmnt.ExpPmnt} setValue={setValueExp} value={valueExp} name='paid' classes='shadow-md -mt-1' />
+                                        <Selector arr={settings.ExpPmnt.ExpPmnt} value={valueExp}
+                                            onChange={(e) => handleChange(e, 'paid')}
+                                            name='paid'
+                                            clear={clear} />
                                     </div>
                                 </div>
                             </div>
@@ -157,33 +182,35 @@ const Expenses = ({ showExpenses }) => {
                             </div>
                             <div className='flex gap-3 m-2 flex-wrap'>
                                 <Tltip direction='top' tltpText='Save/Update form'>
-                                    <button
-                                        className="blackButton py-1 font-light"
+                                    <Button
+                                        className="h-7 px-2"
                                         onClick={() => saveData_ExpenseInInvoice(uidCollection, valueInv, setValueInv, invoicesData, setInvoicesData, contractsData,
                                             setContractsData, valueCon)}
                                     >
-                                        <IoAddCircleOutline className='scale-110' />
+                                        <Save />
                                         {getTtl('save', ln)}
-                                    </button>
+                                    </Button>
                                 </Tltip>
                                 <Tltip direction='top' tltpText='Set New Expense'>
-                                    <button
-                                        className=" whiteButton py-1 "
+                                    <Button
+                                        className="h-7 px-2"
+                                        variant='outline'
                                         onClick={blankExpense}
                                     >
-                                        <MdOutlineWidgets className='scale-110' />
-                                        {getTtl('New', ln)}
-                                    </button>
+                                        <Eraser />
+                                        {getTtl('Clear', ln)}
+                                    </Button>
                                 </Tltip>
                                 {valueExp.id !== '' &&
                                     <Tltip direction='top' tltpText='Delete Expense'>
-                                        <button
-                                            className="whiteButton py-1"
+                                        <Button
+                                            className="h-7 px-2"
+                                            variant='outline'
                                             onClick={() => setIsDeleteOpen(true)}
                                         >
-                                            <MdDelete className='scale-110' />
+                                            <Trash />
                                             {getTtl('Delete', ln)}
-                                        </button>
+                                        </Button>
                                     </Tltip>
                                 }
                                 <ModalToDelete isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}

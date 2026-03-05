@@ -96,6 +96,9 @@ const Stocks = () => {
         filterVariant: 'selectSupplier',
       },
     },
+    {
+      accessorKey: 'originSupplier', header: 'Original supplier',
+    },
     { accessorKey: 'stock', header: getTtl('warehouse', ln) },
     { accessorKey: 'descriptionName', header: getTtl('Description', ln), cell: (props) => <p className='w-20 md:w-64 text-wrap'>{props.getValue()}</p> },
     { accessorKey: 'qnty', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props)}</p> },
@@ -135,20 +138,24 @@ const Stocks = () => {
         {
           ...x,
           descriptionName: x.type === 'in' && x.description ?  //Contract Invoice
-            x.productsData.find(y => y.id === x.description)['description'] :
-            x.isSelection ? x.productsData.find(y => y.id === x.descriptionId)?.['description'] : // Invoice 
+            x.productsData.find(y => y.id === x.description)?.description :
+            x.mtrlStatus === "select" || x.isSelection ? x.productsData.find(y => y.id === x.descriptionId)?.description : // Invoice
               x.type === 'out' && x.moveType === "out" ? x.descriptionName :
                 x.descriptionText,
         }))
 
 
-      let destcriptionArr = [...new Set(stockData.map(x => (x.description || x.descriptionId)))]
+      let tempArr = stockData.filter(q => q.stock !== '').map(x => ({ stock: x.stock, description: x.description || x.descriptionId }))
+      //Remove duplicates
+      tempArr = Array.from(new Map(tempArr.map(item => [`${item.stock}|${item.description}`, item])).values());
 
       let fieldValues = propDefaults.map(item => item.accessorKey);
 
-      for (const key in destcriptionArr) {
-        let filteredstockData = stockData.filter(x => ((x.description === destcriptionArr[key]) ||
-          (x.descriptionId === destcriptionArr[key])))
+      for (const key in tempArr) {
+
+        let item = tempArr[key];
+        let filteredstockData = stockData.filter(x => ((x.description === item.description ||
+          x.descriptionId === item.description) && x.stock === item.stock))
 
         filteredstockData = filteredArray(filteredstockData) //Filter Original invoices if there is final invoice
 
@@ -287,7 +294,7 @@ const Stocks = () => {
 
 
 
-  let invisible = ['date'].reduce((acc, key) => {
+  let invisible = ['date', 'originSupplier'].reduce((acc, key) => {
     acc[key] = false;
     return acc;
   }, {});
@@ -301,6 +308,7 @@ const Stocks = () => {
       let formattedRow = {
         ...row,
         supplier: row.supplier !== '-' ? gQ(row.supplier, 'Supplier', 'nname') : '-',
+        originSupplier: gQ(row.originSupplier, 'Supplier', 'nname'),
         cur: gQ(row.cur, 'Currency', 'cur'),
         stock: gQ(row.stock, 'Stocks', 'nname'),
         qTypeTable: gQ(row.qTypeTable, 'Quantity', 'qTypeTable'),
