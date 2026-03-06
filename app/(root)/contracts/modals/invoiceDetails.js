@@ -338,7 +338,7 @@ const ContractModal = () => {
 										popoverDirection='down'
 										onChange={handleDateChangeDate}
 										displayFormat={"DD-MMM-YYYY"}
-										inputClassName='input w-full text-[15px] shadow-lg h-7 text-xs'
+										inputClassName='input w-full shadow-lg h-7 text-xs'
 									/>
 									<ErrDiv field='date' errors={errors} ln={ln} />
 								</>
@@ -411,7 +411,7 @@ const ContractModal = () => {
 								popoverDirection='down'
 								onChange={handleDateChangeDelvrDate}
 								displayFormat={"DD-MMM-YYYY"}
-								inputClassName='input w-full text-[15px] shadow-lg h-8 text-xs'
+								inputClassName='input w-full shadow-lg h-8 text-xs'
 							/>
 						</div>
 					</div>
@@ -550,7 +550,7 @@ const ContractModal = () => {
 				<div className='col-span-12 md:col-span-2  border border-slate-300 p-2 py-1 pb-0 rounded-lg'>
 					<p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="2" cols="60" name="comments"
-						className={`input text-[15px]  text-xs p-1`}
+						className={`input  text-xs p-1`}
 						style={{ height: valueInv.remarks.length === 0 ? '40px' : valueInv.remarks.length * 40 + 'px' }}
 						value={valueInv.comments}
 						onChange={handleValue}

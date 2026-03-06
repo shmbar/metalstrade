@@ -264,14 +264,14 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             <div className='md:max-w-24 pt-2 md:pt-0'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Quantity', ln)} {`(${getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')})`}</p>
                                 <div className='flex flex-col'>
-                                    <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs" name='qnty'
+                                    <input type='text' className="number-separator input shadow-lg h-7 text-xs" name='qnty'
                                         value={addComma(x.qnty, false)} onChange={e => handleValueQnty(e, i)} />
                                 </div>
                             </div>
                             <div className='md:max-w-24 pt-2 md:pt-0'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Price', ln)}:</p>
                                 <div className='flex flex-col'>
-                                    <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs" name='unitPrc'
+                                    <input type='text' className="number-separator input shadow-lg h-7 text-xs" name='unitPrc'
                                         value={addComma(x.unitPrc, true)} placeholder="text"
                                         onChange={e => handleValuePmnt(e, i)} />
                                 </div>
@@ -280,7 +280,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             <div className='md:max-w-24 pt-2 md:pt-0'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Total', ln)}:</p>
                                 <div className='flex'>
-                                    <input type='text' disabled className="number-separator input text-[15px] border-slate-300 h-7 text-xs" name='total'
+                                    <input type='text' disabled className="number-separator input border-slate-300 h-7 text-xs" name='total'
                                         value={addComma(x.total, true, 'total')} onChange={e => handleValue(e, i)} />
                                 </div>
                             </div>
@@ -306,7 +306,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                         popoverDirection='down'
                                         onChange={e => handleDateChange(e, i)}
                                         displayFormat={"DD-MMM-YYYY"}
-                                        inputClassName='input w-full text-[15px] shadow-lg h-7 text-xs'
+                                        inputClassName='input w-full shadow-lg h-7 text-xs'
                                     />
                                 </div>
                             </div>
@@ -341,7 +341,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             <div className='md:max-w-24 pt-2 md:pt-0'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Sales Po#</p>
                                 <div className='flex flex-col'>
-                                    <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs truncate" name='salesPo'
+                                    <input type='text' className="number-separator input shadow-lg h-7 text-xs truncate" name='salesPo'
                                         value={x.salesPo} placeholder="Sales Po#"
                                         onChange={e => handleValue1(e, i)} />
                                 </div>
@@ -373,7 +373,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 <div className='md:max-w-28 pt-2 md:pt-0'>
                                     <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Comp. Name</p>
                                     <div className='flex flex-col'>
-                                        <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs truncate"
+                                        <input type='text' className="number-separator input shadow-lg h-7 text-xs truncate"
                                             name='compName' value={x.compName} onChange={e => handleValue1(e, i)} />
                                     </div>
                                 </div>

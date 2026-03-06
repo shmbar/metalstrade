@@ -244,9 +244,16 @@ const Invoices = () => {
 			},
 			size: 130
 		},
-		{ 
-			accessorKey: 'origin', 
+		{
+			accessorKey: 'origin',
 			header: getTtl('Origin', ln),
+			cell: EditableSelectCell,
+			meta: {
+				options: settings.Origin?.Origin?.map(o => ({
+					value: o.id,
+					label: o.origin
+				})) ?? []
+			},
 			size: 120
 		},
 		{

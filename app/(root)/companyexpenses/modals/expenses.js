@@ -136,7 +136,7 @@ const Expenses = () => {
                         <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
                         <div>
                             <textarea rows="5" cols="60" name="comments"
-                                className="input text-[15px] shadow-lg h-32 text-xs p-1"
+                                className="input shadow-lg h-32 text-xs p-1"
                                 value={valueExp.comments} onChange={handleValue} />
                         </div>
 

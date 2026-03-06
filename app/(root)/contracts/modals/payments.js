@@ -150,13 +150,13 @@ const Payments = ({ showPayments }) => {
                                         popoverDirection='up'
                                         onChange={e => handleValueDate(e, i)}
                                         displayFormat={"DD-MMM-YYYY"}
-                                        inputClassName='input w-full text-[15px] shadow-lg h-7 text-xs z-20'
+                                        inputClassName='input w-full shadow-lg h-7 text-xs z-20'
                                     />
                                 </div>
                                 <div >
                                     <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Actual Payment', ln)}:</p>
                                     <div className='flex'>
-                                        <input type='text' className="number-separator input text-[15px] shadow-lg h-[1.84rem] -mt-[0.03rem] text-xs" name='pmnt'
+                                        <input type='text' className="number-separator input shadow-lg h-[1.84rem] -mt-[0.03rem] text-xs" name='pmnt'
                                             value={addComma(x.pmnt)} onChange={e => handleValue(e, i)} />
                                         {i === 0 && <button className='relative right-6 '>
                                             <MdPayments className='scale-125 text-slate-500' onClick={setPrepPayment} />

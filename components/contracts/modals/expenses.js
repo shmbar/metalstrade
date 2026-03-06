@@ -93,7 +93,7 @@ const Expenses = ({ showExpenses }) => {
                             <div>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Expense Invoice', ln)}:</p>
                                 <div className='w-full '>
-                                    <input className="input text-[15px] shadow-lg h-7 text-xs" name='expense' value={valueExp.expense} onChange={handleValue} />
+                                    <input className="input shadow-lg h-7 text-xs" name='expense' value={valueExp.expense} onChange={handleValue} />
                                     <ErrDiv field='expense' errors={errorsExp} />
                                 </div>
                             </div>
@@ -105,14 +105,14 @@ const Expenses = ({ showExpenses }) => {
                                     popoverDirection='up'
                                     onChange={handleDateChangeDate}
                                     displayFormat={"DD-MMM-YYYY"}
-                                    inputClassName='input w-full text-[15px] shadow-lg h-7 text-xs z-20'
+                                    inputClassName='input w-full shadow-lg h-7 text-xs z-20'
                                 />
                                 <ErrDiv field='date' errors={errorsExp} />
                             </div>
                             <div className='pt-2'>
                                 <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Amount', ln)}:</p>
                                 <div className='w-full '>
-                                    <input type='number' className="input text-[15px] shadow-lg h-7 text-xs" name='amount' value={valueExp.amount} onChange={handleValue} />
+                                    <input type='number' className="input shadow-lg h-7 text-xs" name='amount' value={valueExp.amount} onChange={handleValue} />
                                     <ErrDiv field='amount' errors={errorsExp} />
                                 </div>
                             </div>
@@ -152,7 +152,7 @@ const Expenses = ({ showExpenses }) => {
                             <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
                             <div>
                                 <textarea rows="5" cols="60" name="comments"
-                                    className="input text-[15px] shadow-lg h-24 text-xs p-1"
+                                    className="input shadow-lg h-24 text-xs p-1"
                                     value={valueExp.comments} onChange={handleValue} />
                             </div>
                             <div className='flex gap-3 m-2 flex-wrap'>

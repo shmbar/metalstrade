@@ -237,7 +237,7 @@ const InvoiceModal = () => {
 										popoverDirection='down'
 										onChange={handleDateChangeDate}
 										displayFormat={"DD-MMM-YYYY"}
-										inputClassName='input w-full text-[15px] shadow-lg h-7 text-xs'
+										inputClassName='input w-full shadow-lg h-7 text-xs'
 									/>
 									<ErrDiv field='date' errors={errors} />
 								</>
@@ -311,7 +311,7 @@ const InvoiceModal = () => {
 									popoverDirection='up'
 									onChange={handleDateChangeDelvrDate}
 									displayFormat={"DD-MMM-YYYY"}
-									inputClassName='input w-full text-[15px] shadow-lg h-7 text-xs'
+									inputClassName='input w-full shadow-lg h-7 text-xs'
 								/>
 								:
 								<p className='pl-1 text-sm'>{valueInv.delDate}</p>
@@ -376,7 +376,7 @@ const InvoiceModal = () => {
 						<div className='flex items-center text-sm font-medium whitespace-nowrap'>{(fourthRule || fifthRule) ? '' :
 							<div className='w-full  px-1'>
 								{!fnl ?
-									<input className="input text-[15px] shadow-lg h-7 text-xs" name='ttlGross' value={valueInv.ttlGross} onChange={handleValue} />
+									<input className="input shadow-lg h-7 text-xs" name='ttlGross' value={valueInv.ttlGross} onChange={handleValue} />
 									:
 									<p className='text-sm pr-5 text-[var(--port-gore)]'>{(valueInv.ttlGross * 1).toLocaleString(locale, options)}</p>
 								}
@@ -389,7 +389,7 @@ const InvoiceModal = () => {
 							<div className='flex items-center text-sm font-medium whitespace-nowrap'>{(fourthRule || thirdRule) ? '' :
 								<div className='w-full  px-1'>
 									{!fnl ?
-										<input className="input text-[15px] shadow-lg h-7 text-xs" name='ttlPackages' value={valueInv.ttlPackages} onChange={handleValue} />
+										<input className="input shadow-lg h-7 text-xs" name='ttlPackages' value={valueInv.ttlPackages} onChange={handleValue} />
 										:
 										<p className='text-sm pr-5 text-[var(--port-gore)]'>{valueInv.ttlPackages}</p>
 									}
@@ -478,7 +478,7 @@ const InvoiceModal = () => {
 				<div className='col-span-12 md:col-span-3 h-fit border border-[var(--selago)] p-2 py-1 pb-0 rounded-lg'>
 					<p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="2" cols="60" name="comments"
-						className="input text-[15px] h-11 text-xs p-1"
+						className="input h-11 text-xs p-1"
 						value={valueInv.comments}
 						onChange={handleValue}
 					/>

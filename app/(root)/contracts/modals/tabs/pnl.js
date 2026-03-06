@@ -161,7 +161,7 @@ const PNL = () => {
             <p className='text-[0.8rem] items-center flex text-slate-800 font-medium'>
               {setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
 
-            {/*edit ? <input className="input w-20 text-[15px] shadow-lg h-5 text-xs" value={newContractValue} onChange={(e) => setNewContrctValue(e.target.value)} onKeyDown={handleKeyPress} /> :
+            {/*edit ? <input className="input w-20 shadow-lg h-5 text-xs" value={newContractValue} onChange={(e) => setNewContrctValue(e.target.value)} onKeyDown={handleKeyPress} /> :
               <div className='group flex gap-1'>
                 <p className='text-[0.8rem] items-center flex text-slate-800 font-medium'>{setNum(valCur, newContractValue * mult, settings)}</p>
                 <ImCancelCircle className='hidden group-hover:block cursor-pointer text-slate-600 hover:block' onClick={setNewValue} />

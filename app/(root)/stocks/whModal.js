@@ -221,25 +221,25 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
 
                 <div className='col-span-12 md:col-span-1 flex flex-col'>
                     <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Weight', ln)}</p>
-                    <input type='text' disabled className="number-separator input text-[15px] h-7 text-xs" name='qnty'
+                    <input type='text' disabled className="number-separator input h-7 text-xs" name='qnty'
                         value={addComma(item.qnty, false)} onChange={() => { }} />
                 </div>
                 <div className='col-span-12 md:col-span-1 flex flex-col'>
                     <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Price', ln)}:</p>
-                    <input type='text' disabled className="number-separator input text-[15px] h-7 text-xs" name='unitPrc'
+                    <input type='text' disabled className="number-separator input h-7 text-xs" name='unitPrc'
                         value={item.unitPrc ? addComma(item.unitPrc, true) : '-'} onChange={e => handleValuePmnt(e)} />
                 </div>
 
                 <div className='col-span-12 md:col-span-2 flex flex-col'>
                     <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Total', ln)}:</p>
-                    <input type='text' disabled className="number-separator input text-[15px] h-7 text-xs" name='total'
+                    <input type='text' disabled className="number-separator input h-7 text-xs" name='total'
                         value={item.total === '-' ? item.total : addComma((item.total * 1).toFixed(2), true)} />
                 </div>
 
                 <div className='col-span-12 md:col-span-3 flex flex-col'>
                     <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap '>{getTtl('Stock', ln)}:</p>
                     <input type='text' disabled value={getD(settings.Stocks.Stocks, item, 'stock')}
-                        className='input text-[15px] h-7 text-xs truncate' />
+                        className='input h-7 text-xs truncate' />
                 </div>
             </div>
 

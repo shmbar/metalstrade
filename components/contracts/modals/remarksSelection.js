@@ -64,7 +64,7 @@ const Remraks = ({ value, setValue, settings }) => {
                                 </div>
                                 :
                                 <div className='flex pt-1 items-center w-full gap-x-3'>
-                                    <input type='text' className="input text-[15px] text-gray-800 shadow-lg h-[1.86rem] text-xs w-full rounded-lg
+                                    <input type='text' className="input text-gray-800 shadow-lg h-[1.86rem] text-xs w-full rounded-lg
                                     truncate pr-10" name='rmrk'
                                         value={x.rmrk} onChange={(e) => handleValue(e, i)} />
                                     <button className='absolute right-10 '>

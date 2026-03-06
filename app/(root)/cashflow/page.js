@@ -900,7 +900,7 @@ return (
                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
                                             <input className='input w-44 h-6 responsiveTextTotal'
                                                 value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
-                                            <button onClick={() => delItem(i)}><MdDeleteOutline className="scale-110" /></button>
+                                            <button onClick={() => delItem(i)} className="border border-red-300 text-red-500 px-1.5 h-7 rounded-full hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
                                         </div>
                                     )
                                 })}
@@ -908,7 +908,7 @@ return (
                                 <Tltip direction='bottom' tltpText='Save added data'>
                                     <button
                                         type="button"
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 h-7 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 h-7 text-xs rounded-full hover:opacity-90 transition-all"
                                         onClick={saveInitData}
                                     >
                                         Save
@@ -917,7 +917,7 @@ return (
                                 <Tltip direction='bottom' tltpText='Add new item above'>
                                     <button
                                         type="button"
-                                        className=" border border-[var(--rock-blue)] px-3 h-7 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                        className="border border-[var(--rock-blue)] text-[var(--endeavour)] px-3 h-7 text-xs rounded-full hover:bg-[var(--selago)] transition-all"
                                         onClick={addItem}
                                     >
                                         Add

@@ -18,9 +18,9 @@ export default function Example({ languages, compData, setCompData, lang }) {
     <div className="w-full">
       <Listbox value={selected} onChange={(e) => setSelection(e)}>
         <div className="relative my-1">
-          <Listbox.Button className='cursor-default rounded-md
-                     focus:outline-none text-sm 
-                   py-1 pr-10 text-[#979797] h-8 max-w-3xl w-32'>
+          <Listbox.Button className='cursor-pointer rounded-full border border-[#E5E7EB] bg-white
+                     focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20 text-sm
+                   py-1 pl-3 pr-10 text-[var(--port-gore)] h-8 max-w-3xl w-32 transition-all hover:border-[var(--rock-blue)]'>
             <span className="block truncate">{selected?.lng || ''}</span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <HiChevronUpDown

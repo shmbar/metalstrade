@@ -266,7 +266,7 @@ const ContractModal = () => {
 							</div>
 							:
 							<div className='flex pt-1 left-5 relative w-7/12'>
-								<input type='text' className="input text-[15px] shadow-lg h-[1.86rem] text-xs w-full rounded-lg" name='deltime'
+								<input type='text' className="input shadow-lg h-[1.86rem] text-xs w-full rounded-lg" name='deltime'
 									value={valueCon.deltime} onChange={handleValue} />
 								<button className='relative right-6 '>
 									<X className="size-4 text-slate-500" onClick={caneclEditText} />
@@ -341,7 +341,7 @@ const ContractModal = () => {
 				<div className='col-span-12 md:col-span-1 mt-1'>
 					<p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="5" cols="60" name="comments"
-						className="input text-[15px] h-24 text-xs p-1"
+						className="input h-24 text-xs p-1"
 						value={valueCon.comments} onChange={handleValue} />
 					<div className='flex leading-7 items-center gap-2'>
 						<CheckBox size='size-5' checked={valueCon.completed ?? false}

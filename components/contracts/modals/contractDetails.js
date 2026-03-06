@@ -138,7 +138,7 @@ const ContractModal = () => {
 				<div className='col-span-12 md:col-span-2 border border-slate-300 p-2 rounded-lg'>
 					<p className='flex items-center text-sm font-medium'>{getTtl('PoOrderNo', ln)}:</p>
 					<div className='w-full md:w-48 '>
-						<input className="input text-[15px] shadow-lg h-9" name='order' value={valueCon.order} onChange={handleValue} />
+						<input className="input shadow-lg h-9" name='order' value={valueCon.order} onChange={handleValue} />
 						<ErrDiv field='order' errors={errors} ln={ln} />
 					</div>
 					<p className='flex items-center text-sm mt-3 font-medium'>{getTtl('Date', ln)}:</p>
@@ -149,7 +149,7 @@ const ContractModal = () => {
 							popoverDirection='down'
 							onChange={handleDateChange}
 							displayFormat={"DD-MMM-YYYY"}
-							inputClassName='input w-full text-[15px] shadow-lg h-9'
+							inputClassName='input w-full shadow-lg h-9'
 						/>
 						<ErrDiv field='date' errors={errors} ln={ln} />
 					</div>
@@ -223,7 +223,7 @@ const ContractModal = () => {
 							</div>
 							:
 							<div className='flex pt-1 left-5 relative w-7/12'>
-								<input type='text' className="input text-[15px] shadow-lg h-[1.86rem] text-xs w-full rounded-lg" name='deltime'
+								<input type='text' className="input shadow-lg h-[1.86rem] text-xs w-full rounded-lg" name='deltime'
 									value={valueCon.deltime} onChange={handleValue} />
 								<button className='relative right-6 '>
 									<MdClear className="h-5 w-5 text-gray-300  hover:text-gray-500"
@@ -291,7 +291,7 @@ const ContractModal = () => {
 				<div className='col-span-12 md:col-span-1 mt-1'>
 					<p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="5" cols="60" name="comments"
-						className="input text-[15px] h-24 text-xs p-1"
+						className="input h-24 text-xs p-1"
 						value={valueCon.comments} onChange={handleValue} />
 					<div className='flex leading-7 items-center gap-2'>
 						<CheckBox size='size-5' checked={valueCon.completed ?? false}

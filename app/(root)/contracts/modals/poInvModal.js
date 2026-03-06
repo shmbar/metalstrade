@@ -295,25 +295,25 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                     <div className='gap-3 flex'>
                                         <div className=''>
                                             <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'> {getTtl('PurchaseInv', ln)}#:</p>
-                                            <input type='text' className="number-separator input text-[15px] h-7  shadow-lg text-xs" name='inv'
+                                            <input type='text' className="number-separator input h-7  shadow-lg text-xs" name='inv'
                                                 value={x.inv} onChange={e => handleValue(e, x)} />
                                         </div>
                                         <div className=''>
                                             <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('InvoiceValue', ln)}:</p>
-                                            <input type='text' className="number-separator input text-[15px] h-7 shadow-lg text-xs" name='invValue'
+                                            <input type='text' className="number-separator input h-7 shadow-lg text-xs" name='invValue'
                                                 value={addComma(x.invValue, true)} onChange={e => handleValue(e, x)} />
                                         </div>
                                         <div className=''>
                                             <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>
                                                 Total Payment:
                                             </p>
-                                            <input type='text' className="number-separator input border-slate-300 text-[15px] h-7 text-xs" name='pmnt'
+                                            <input type='text' className="number-separator input border-slate-300 h-7 text-xs" name='pmnt'
                                                 value={addComma(x.pmnt, true)} disabled />
                                         </div>
                                         <div className=''>
                                             <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Balance', ln)}:</p>
                                             <div className='flex pr-3'>
-                                                <input type='text' disabled className="number-separator input border-slate-300 text-[15px] h-7 text-xs" name='blnc'
+                                                <input type='text' disabled className="number-separator input border-slate-300 h-7 text-xs" name='blnc'
                                                     value={addComma(x.blnc, true)} />
                                                 <div className='group relative'>
                                                     <ArrowBigRight className='text-slate-500 ml-3 cursor-pointer' onClick={switchToStocks} />
@@ -348,7 +348,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                             popoverDirection='down'
                                                             onChange={e => handleDateChange(e, x, y)}
                                                             displayFormat={"DD-MMM-YYYY"}
-                                                            inputClassName='input w-full text-[15px] shadow-lg h-7 text-xs'
+                                                            inputClassName='input w-full shadow-lg h-7 text-xs'
                                                         />
                                                     </div>
                                                 </div>
@@ -356,7 +356,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                 <div className=''>
                                                     <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Payment %:</p>
                                                     <div className='flex'>
-                                                        <input type='text' className="number-separator input text-[15px] h-7  shadow-lg text-xs w-20" name='pmntPerc'
+                                                        <input type='text' className="number-separator input h-7  shadow-lg text-xs w-20" name='pmntPerc'
                                                             value={y.pmntPerc} onChange={e => handleValuePerc(e, x, y)} />
                                                         <span className='relative right-6 text-slate-600 items-center flex'>%</span>
                                                     </div>
@@ -367,7 +367,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                         {getTtl('Payment', ln)}:
                                                     </p>
                                                     <div className='flex'>
-                                                        <input type='text' className="number-separator input text-[15px] shadow-lg h-7 text-xs w-28" name='pmnt'
+                                                        <input type='text' className="number-separator input shadow-lg h-7 text-xs w-28" name='pmnt'
                                                             value={addComma(y.pmnt, true)} onChange={e => handleValuePmnt(e, x, y)} />
                                                     </div>
                                                 </div>

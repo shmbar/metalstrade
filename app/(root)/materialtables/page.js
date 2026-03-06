@@ -43,18 +43,25 @@ const MaterialTables = () => {
     const [totals, setTotals] = useState({})
     const { uidCollection } = UserAuth();
 
+    const fmtNum = (v) => {
+        if (v == null || v === '') return '';
+        const n = Number(v);
+        if (isNaN(n)) return v;
+        return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+    };
+
     let propDefaults = Object.keys(settings).length === 0 ? [] : [
         { accessorKey: 'material', header: 'Material', cell: (props) => <p>{props.getValue()}</p> },
-        { accessorKey: 'kgs', header: 'Kgs', cell: (props) => <p className=" max-w-10">{props.getValue()}</p> },
-        { accessorKey: 'ni', header: 'Ni', cell: (props) => <p>{props.getValue()}</p> },
-        { accessorKey: 'cr', header: 'Cr', cell: (props) => <p>{props.getValue()}</p> },
-        { accessorKey: 'cu', header: 'Cu', cell: (props) => <p>{props.getValue()}</p> },
-        { accessorKey: 'mo', header: 'Mo', cell: (props) => <p>{props.getValue()}</p> },
-        { accessorKey: 'w', header: 'W', cell: (props) => <p>{props.getValue()}</p> },
-        { accessorKey: 'co', header: 'Co', cell: (props) => <p>{props.getValue()}</p> },
-        { accessorKey: 'nb', header: 'Nb', cell: (props) => <p>{props.getValue()}</p> },
-        { accessorKey: 'fe', header: 'Fe', cell: (props) => <p>{props.getValue()}</p> },
-        { accessorKey: 'ti', header: 'Ti', cell: (props) => <p>{props.getValue()}</p> },
+        { accessorKey: 'kgs', header: 'Kgs', cell: (props) => <p className=" max-w-10">{fmtNum(props.getValue())}</p> },
+        { accessorKey: 'ni', header: 'Ni', cell: (props) => <p>{fmtNum(props.getValue())}</p> },
+        { accessorKey: 'cr', header: 'Cr', cell: (props) => <p>{fmtNum(props.getValue())}</p> },
+        { accessorKey: 'cu', header: 'Cu', cell: (props) => <p>{fmtNum(props.getValue())}</p> },
+        { accessorKey: 'mo', header: 'Mo', cell: (props) => <p>{fmtNum(props.getValue())}</p> },
+        { accessorKey: 'w', header: 'W', cell: (props) => <p>{fmtNum(props.getValue())}</p> },
+        { accessorKey: 'co', header: 'Co', cell: (props) => <p>{fmtNum(props.getValue())}</p> },
+        { accessorKey: 'nb', header: 'Nb', cell: (props) => <p>{fmtNum(props.getValue())}</p> },
+        { accessorKey: 'fe', header: 'Fe', cell: (props) => <p>{fmtNum(props.getValue())}</p> },
+        { accessorKey: 'ti', header: 'Ti', cell: (props) => <p>{fmtNum(props.getValue())}</p> },
         { accessorKey: 'del', header: '', cell: (props) => <div><MdDeleteOutline className='text-slate-400 cursor-pointer' /></div> },
 
     ]

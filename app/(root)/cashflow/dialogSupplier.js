@@ -115,14 +115,14 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                                     popoverDirection="down"
                                     onChange={(val) => setDate(val)}
                                     displayFormat={"DD-MMM-YYYY"}
-                                    inputClassName="input w-full text-[15px] shadow-lg h-7 text-xs"
+                                    inputClassName="input w-full shadow-lg h-7 text-xs"
                                 />
                             )}
                         </div>
                         <div className="flex items-start md:items-end">
                             <label className='text-sm justify-start flex'>%</label>
                             <div className='flex'>
-                                <input type='text' className="pr-3 number-separator input text-[15px] h-7 shadow-sm text-xs w-20 md:w-14" name='invValue'
+                                <input type='text' className="pr-3 number-separator input h-7 shadow-sm text-xs w-20 md:w-14" name='invValue'
                                     value={perc} onChange={e => handleValuePerc(e)} />
                                 <span className='ml-2 text-slate-600 flex items-center'>%</span>
 
@@ -132,7 +132,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                             <label className="text-sm justify-start flex">Amount</label>
                             <input
                                 type="text"
-                                className="number-separator input text-[15px] h-7 shadow-sm text-xs w-full"
+                                className="number-separator input h-7 shadow-sm text-xs w-full"
                                 value={addComma(pmnt)}
                                 onChange={handleValuePmnt}
                             />

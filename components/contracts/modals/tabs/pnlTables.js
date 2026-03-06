@@ -131,7 +131,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                         {dataValue[i].rcvd === '1234' &&
                             <div className='p-1 space-x-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
                                 <div className='text-xs text-gray-800 items-center flex text-[0.7rem] text-nowrap'>Outturn Amount:</div>
-                                <input type='text' className="number-separator input text-[15px] shadow-lg h-6 text-xs max-w-44"
+                                <input type='text' className="number-separator input shadow-lg h-6 text-xs max-w-44"
                                     name='outrnamnt' value={addComma(dataValue[i].outrnamnt, i)} onChange={e => handleValue(e, i)} />
                             </div>
                         }
@@ -152,7 +152,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                                 popoverDirection='up'
                                 onChange={(e) => handleDate(e, 'etd', i)}
                                 displayFormat={"DD-MMM-YYYY"}
-                                inputClassName='input w-full text-[15px] shadow-lg h-6 text-xs'
+                                inputClassName='input w-full shadow-lg h-6 text-xs'
                             />
                         </div>
                         <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
@@ -163,7 +163,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                                 popoverDirection='up'
                                 onChange={(e) => handleDate(e, 'eta', i)}
                                 displayFormat={"DD-MMM-YYYY"}
-                                inputClassName='input w-full text-[15px] shadow-lg h-6 text-xs'
+                                inputClassName='input w-full shadow-lg h-6 text-xs'
                             />
                         </div>
 
