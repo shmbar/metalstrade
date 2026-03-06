@@ -12,28 +12,28 @@ import Image from 'next/image';
 import Tltip from "../../components/tlTip";
 import { MdDeleteOutline } from "react-icons/md";
 import { GrDocumentPdf } from "react-icons/gr";
-import QuickSumControl from './quicksum/QuickSumControl';
+import { QuickSumButton, QuickSumTotals } from './quicksum/QuickSumControl';
 import DateRangePicker from '../../components/dateRangePicker';
 
-const Header = ({ 
-  data, 
-  cb, 
-  cb1, 
-  type, 
+const Header = ({
+  data,
+  cb,
+  cb1,
+  type,
   excellReport,
-  globalFilter, 
-  setGlobalFilter, 
-  table, 
-  filterIcon, 
-  resetFilterTable, 
-  addMaterial, 
-  delTable, 
-  table1, 
+  globalFilter,
+  setGlobalFilter,
+  table,
+  filterIcon,
+  resetFilterTable,
+  addMaterial,
+  delTable,
+  table1,
   runPdf,
-  tableModes, 
+  tableModes,
   datattl,
   isEditMode,
-  setIsEditMode, 
+  setIsEditMode,
   quickSumEnabled = false,
   setQuickSumEnabled = () => {},
   quickSumColumns = [],
@@ -42,7 +42,7 @@ const Header = ({
 
   const { ln } = useContext(SettingsContext);
   const pathname = usePathname();
-  
+
   const editEnabledRoutes = [
     '/invoices',
     '/expenses',
@@ -56,13 +56,13 @@ const Header = ({
 
   return (
     <div className="sticky top-0 z-20">
-      
+
       {/* Main Content - Single Row on Desktop, Two Rows on Mobile */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-2 gap-2">
-        
+
         {/* Left Section: Search + All Action Icons */}
         <div className='flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0 flex-1'>
-          
+
           {/* Search Box */}
           {pathname !== '/accounting' && (
             <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--endeavour)] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 focus-within:border-blue-400 hover:border-gray-400 shadow-sm transition-all duration-200">
@@ -76,8 +76,8 @@ const Header = ({
               {globalFilter === '' ? (
                 <FaSearch className="text-gray-400 absolute right-3 top-1.5" style={{ fontSize: 14 }} />
               ) : (
-                <TiDeleteOutline 
-                  className="text-gray-500 absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors" 
+                <TiDeleteOutline
+                  className="text-gray-500 absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors"
                   onClick={() => setGlobalFilter('')}
                   style={{ fontSize: 16 }}
                 />
@@ -87,6 +87,17 @@ const Header = ({
 
           {/* All Action Icons */}
           <div className='flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0'>
+
+            {/* Quick Sum Button - inline with other icons */}
+            {pathname !== '/materialtables' && (
+              <QuickSumButton
+                table={table}
+                enabled={quickSumEnabled}
+                setEnabled={setQuickSumEnabled}
+                selectedColumnIds={quickSumColumns}
+                setSelectedColumnIds={setQuickSumColumns}
+              />
+            )}
 
             {/* Edit Mode */}
             {showEditButton && typeof setIsEditMode === 'function' && (
@@ -98,13 +109,13 @@ const Header = ({
                   }`}
                   title={isEditMode ? 'Editing ON' : 'Edit'}
                 >
-                  <Image 
-                    src="/logo/edit.svg" 
-                    alt="Edit" 
-                    width={16} 
-                    height={16} 
-                    className="w-4 h-4 object-cover" 
-                    priority 
+                  <Image
+                    src="/logo/edit.svg"
+                    alt="Edit"
+                    width={16}
+                    height={16}
+                    className="w-4 h-4 object-cover"
+                    priority
                   />
                 </div>
               </Tltip>
@@ -122,13 +133,13 @@ const Header = ({
                 aria-label={getTtl('Ask question', ln) || 'Ask question'}
                 title={getTtl('Ask question', ln) || 'Ask question'}
               >
-                <Image 
-                  src="/logo/chat.svg" 
-                  alt="Chat" 
-                  width={16} 
-                  height={16} 
-                  className="w-4 h-4 object-cover" 
-                  priority 
+                <Image
+                  src="/logo/chat.svg"
+                  alt="Chat"
+                  width={16}
+                  height={16}
+                  className="w-4 h-4 object-cover"
+                  priority
                 />
               </div>
             </Tltip>
@@ -168,7 +179,7 @@ const Header = ({
                     <GrAddCircle style={{ fontSize: 16 }} />
                   </button>
                 </Tltip>
-                
+
                 <Tltip direction='bottom' tltpText='Export to PDF'>
                   <button
                     onClick={() => runPdf(table1)}
@@ -212,15 +223,13 @@ const Header = ({
         </div>
       </div>
 
-      {/* Quick Sum - separate row to avoid overlapping with controls */}
-      {pathname !== '/materialtables' && (
+      {/* Quick Sum Totals - separate row below, only shows when rows selected */}
+      {pathname !== '/materialtables' && quickSumEnabled && (
         <div className="px-2 pb-1">
-          <QuickSumControl
+          <QuickSumTotals
             table={table}
             enabled={quickSumEnabled}
-            setEnabled={setQuickSumEnabled}
             selectedColumnIds={quickSumColumns}
-            setSelectedColumnIds={setQuickSumColumns}
           />
         </div>
       )}
