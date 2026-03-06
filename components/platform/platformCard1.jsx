@@ -112,12 +112,12 @@ export function PlatformCard1() {
             
             <div className="flex space-x-6 w-full justify-center">
               <div className="text-center">
-                <p className="text-sm font-bold text-[#002159]">62%</p>
+                <p className="text-sm font-bold text-[var(--port-gore)]">62%</p>
                 <p className="text-xs text-gray-400">July</p>
               </div>
               <div className="w-px h-8 bg-gray-200" />
               <div className="text-center">
-                <p className="text-sm font-bold text-[#002159]">38%</p>
+                <p className="text-sm font-bold text-[var(--port-gore)]">38%</p>
                 <p className="text-xs text-gray-400">August</p>
               </div>
             </div>

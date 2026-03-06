@@ -10,7 +10,7 @@ const blogPosts = [
     content: 'Explore how digital tools are revolutionizing the metals trade industry, improving efficiency and transparency.\n\nFull article content goes here...'
     ,date: 'December 1, 2025',
     author: 'Admin',
-    icon: <FaRegNewspaper size={36} className="text-[var(--blue-600)] mb-4" />,
+    icon: <FaRegNewspaper size={36} className="text-[var(--endeavour)] mb-4" />,
   },
   {
     slug: 'managing-inventory-2025',
@@ -18,7 +18,7 @@ const blogPosts = [
     content: 'Learn the best practices for inventory management in the modern era, tailored for metal traders.\n\nFull article content goes here...'
     ,date: 'November 20, 2025',
     author: 'Team IMS',
-    icon: <FaChartLine size={36} className="text-[var(--blue-600)] mb-4" />,
+    icon: <FaChartLine size={36} className="text-[var(--endeavour)] mb-4" />,
   },
   {
     slug: 'contract-automation',
@@ -26,7 +26,7 @@ const blogPosts = [
     content: 'A deep dive into how contract automation can save time and reduce errors in your trading operations.\n\nFull article content goes here...'
     ,date: 'November 10, 2025',
     author: 'Guest Author',
-    icon: <FaCogs size={36} className="text-[var(--blue-600)] mb-4" />,
+    icon: <FaCogs size={36} className="text-[var(--endeavour)] mb-4" />,
   },
   {
     slug: 'future-of-metals',
@@ -34,7 +34,7 @@ const blogPosts = [
     content: 'Industry leaders share their insights on what the future holds for metals trading and technology.\n\nFull article content goes here...'
     ,date: 'October 28, 2025',
     author: 'Industry Expert',
-    icon: <FaUserTie size={36} className="text-[var(--blue-600)] mb-4" />,
+    icon: <FaUserTie size={36} className="text-[var(--endeavour)] mb-4" />,
   },
   {
     slug: 'innovations-logistics',
@@ -42,7 +42,7 @@ const blogPosts = [
     content: 'Discover the latest innovations in logistics that are streamlining the metals supply chain.\n\nFull article content goes here...'
     ,date: 'October 15, 2025',
     author: 'IMS Team',
-    icon: <FaLightbulb size={36} className="text-[var(--blue-600)] mb-4" />,
+    icon: <FaLightbulb size={36} className="text-[var(--endeavour)] mb-4" />,
   },
   {
     slug: 'global-market-trends-2025',
@@ -50,7 +50,7 @@ const blogPosts = [
     content: 'A comprehensive look at the global market trends affecting the metals industry this year.\n\nFull article content goes here...'
     ,date: 'October 1, 2025',
     author: 'Market Analyst',
-    icon: <FaGlobe size={36} className="text-[var(--blue-600)] mb-4" />,
+    icon: <FaGlobe size={36} className="text-[var(--endeavour)] mb-4" />,
   },
 ];
 

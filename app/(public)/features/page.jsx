@@ -141,7 +141,7 @@ export default function FeaturesPage() {
             <>
               {/* TEXT BLOCK */}
               <div>
-                <h3 className="text-3xl font-bold text-[#002159] mb-4">
+                <h3 className="text-3xl font-bold text-[var(--port-gore)] mb-4">
                   {feature.title}
                 </h3>
                 <p className="text-gray-600 text-lg leading-relaxed mb-6">
@@ -191,9 +191,9 @@ export default function FeaturesPage() {
               <div
                 className="
                   relative h-80 w-full rounded-2xl
-                  bg-gradient-to-br from-[#E9F1FF] to-[#F7FAFF]
-                  shadow-xl shadow-blue-100
-                  border border-blue-200/40
+                  bg-gradient-to-br from-[var(--selago)] to-white
+                  shadow-xl shadow-[var(--selago)]
+                  border border-[var(--rock-blue)]/40
                   flex items-center justify-center
                   overflow-hidden
                   transition-all duration-300
@@ -206,7 +206,7 @@ export default function FeaturesPage() {
 
               {/* TEXT BLOCK */}
               <div>
-                <h3 className="text-3xl font-bold text-[#002159] mb-4">
+                <h3 className="text-3xl font-bold text-[var(--port-gore)] mb-4">
                   {feature.title}
                 </h3>
                 <p className="text-gray-600 text-lg leading-relaxed mb-6">

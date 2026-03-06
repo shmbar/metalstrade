@@ -38,7 +38,7 @@
 //               <div className="bg-blue-100 rounded-xl h-96 flex items-center justify-center">
 //                 <div className="text-center">
 //                   <svg
-//                     className="w-20 h-20 mx-auto mb-4 text-blue-600 opacity-50"
+//                     className="w-20 h-20 mx-auto mb-4 text-[var(--endeavour)] opacity-50"
 //                     fill="none"
 //                     stroke="currentColor"
 //                     viewBox="0 0 24 24"
@@ -50,7 +50,7 @@
 //                       d="M13 10V3L4 14h7v7l9-11h-7z"
 //                     />
 //                   </svg>
-//                   <p className="text-blue-600 opacity-75">Innovation</p>
+//                   <p className="text-[var(--endeavour)] opacity-75">Innovation</p>
 //                 </div>
 //               </div>
 //             </div>
@@ -215,7 +215,7 @@ export default function AboutPage() {
 
           {/* INNER CORE */}
           <div className="absolute inset-10 bg-white rounded-full shadow-xl flex items-center justify-center">
-            <Target className="w-20 h-20 text-blue-600" strokeWidth={1.8} />
+            <Target className="w-20 h-20 text-[var(--endeavour)]" strokeWidth={1.8} />
           </div>
 
         </div>
@@ -233,7 +233,7 @@ export default function AboutPage() {
 
     {/* Header */}
     <div className="text-center max-w-3xl mx-auto mb-20">
-      <h2 className="text-4xl font-bold text-[#002159] mb-6">Core Values</h2>
+      <h2 className="text-4xl font-bold text-[var(--port-gore)] mb-6">Core Values</h2>
       <p className="text-gray-600 text-lg leading-relaxed">
         Principles that drive our culture, our decisions, and the experiences we create.
       </p>
@@ -300,7 +300,7 @@ export default function AboutPage() {
     
     {/* Heading */}
     <div className="text-center max-w-3xl mx-auto mb-20">
-      <h2 className="text-4xl font-bold text-[#002159] mb-6">
+      <h2 className="text-4xl font-bold text-[var(--port-gore)] mb-6">
         Why Businesses Choose Us
       </h2>
       <p className="text-gray-500 text-lg">

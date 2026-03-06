@@ -112,7 +112,7 @@ export default function SignInPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="abc@gmail.com"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0055FF] focus:border-transparent transition-all text-gray-800 placeholder-gray-400"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)] focus:border-transparent transition-all text-gray-800 placeholder-gray-400"
                     />
                   </div>
 
@@ -126,7 +126,7 @@ export default function SignInPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder="Enter your password"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0055FF] focus:border-transparent transition-all text-gray-800 placeholder-gray-400 pr-12"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)] focus:border-transparent transition-all text-gray-800 placeholder-gray-400 pr-12"
                       />
                       <button
                         type="button"

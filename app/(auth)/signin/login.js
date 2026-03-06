@@ -64,7 +64,7 @@ export default function SignInPage() {
   return (
     <div className="w-full bg-white min-h-screen font-sans">
       <main>
-        <section className="relative bg-gradient-to-br from-[#0055FF] via-[#0044CC] to-[#0033AA] text-white overflow-hidden min-h-screen flex items-center justify-center py-6">
+        <section className="relative bg-gradient-to-br from-[var(--endeavour)] via-[var(--rock-blue)] to-[var(--port-gore)] text-white overflow-hidden min-h-screen flex items-center justify-center py-6">
           
           {/* Sign In Card */}
           <div className="container px-4 relative z-20 py-8">
@@ -80,7 +80,7 @@ export default function SignInPage() {
                 <div className="text-center mb-8 pt-6">
                   <div className="inline-block">
                     <div className="flex items-center justify-center gap-1">
-                      <span className="text-4xl font-bold text-[#0055FF]">IMS</span>
+                      <span className="text-4xl font-bold text-[var(--endeavour)]">IMS</span>
                     </div>
                     <p className="text-xs text-gray-500 tracking-[0.2em] mt-1">METALS & ALLOYS</p>
                   </div>
@@ -110,7 +110,7 @@ export default function SignInPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="abc@gmail.com"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0055FF] focus:border-transparent transition-all text-gray-800 placeholder-gray-400"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)] focus:border-transparent transition-all text-gray-800 placeholder-gray-400"
                     />
                   </div>
 
@@ -126,7 +126,7 @@ export default function SignInPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder="Enter your password"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0055FF] focus:border-transparent transition-all text-gray-800 placeholder-gray-400 pr-12"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)] focus:border-transparent transition-all text-gray-800 placeholder-gray-400 pr-12"
                       />
                       <button
                         type="button"
@@ -159,7 +159,7 @@ export default function SignInPage() {
 
                   {/* Forgot */}
                   <div className="flex justify-end">
-                    <a href="#" className="text-sm text-[#0055FF] hover:text-[#0044DD] transition-colors">
+                    <a href="#" className="text-sm text-[var(--endeavour)] hover:text-[var(--port-gore)] transition-colors">
                       Forgot Password?
                     </a>
                   </div>
@@ -168,7 +168,7 @@ export default function SignInPage() {
                   <button
                     onClick={handleSubmit}
                     disabled={disabled && !err}
-                    className="w-full bg-[#0055FF] text-white py-3 rounded-md font-medium hover:bg-[#0044DD] transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                    className="w-full bg-[var(--endeavour)] text-white py-3 rounded-md font-medium hover:bg-[var(--port-gore)] transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                   >
                     {(disabled && !err) ? 'Connecting' : 'Sign In'}
                     {(disabled && !err) && <div className="animate-spin"><RiRefreshLine className="scale-125" /></div>}
@@ -180,7 +180,7 @@ export default function SignInPage() {
                 <div className="text-center mt-6">
                   <p className="text-sm text-gray-600">
                     Don&#39;t have an account?{' '}
-                    <a href="#" className="text-[#0055FF] hover:text-[#0044DD] font-medium transition-colors">
+                    <a href="#" className="text-[var(--endeavour)] hover:text-[var(--port-gore)] font-medium transition-colors">
                       Register
                     </a>
                   </p>
