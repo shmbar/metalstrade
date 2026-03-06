@@ -13,30 +13,11 @@ export default function Footer() {
               <div className="inline-flex items-center justify-center  rounded w-16 h-16 mb-6">
                 <span className="text-white font-bold text-2xl">IMS</span>
               </div>
-              
+
               {/* Description */}
               <p className="text-white/80 text-xs leading-relaxed mb-8">
                 IMS provides innovative solutions for businesses worldwide, helping them grow with technology and expertise.
               </p>
-            </div>
-            
-            {/* Social Icons */}
-            <div className="flex gap-3">
-              <a href="#" className="w-9 h-9 bg-[var(--rock-blue)]/40 hover:bg-[var(--rock-blue)]/60 rounded flex items-center justify-center transition-colors text-white text-sm font-semibold">
-                🌐
-              </a>
-              <a href="#" className="w-9 h-9 bg-[var(--rock-blue)]/40 hover:bg-[var(--rock-blue)]/60 rounded flex items-center justify-center transition-colors text-white text-xs font-bold">
-                f
-              </a>
-              <a href="#" className="w-9 h-9 bg-[var(--rock-blue)]/40 hover:bg-[var(--rock-blue)]/60 rounded flex items-center justify-center transition-colors text-white text-xs font-bold">
-                𝕏
-              </a>
-              <a href="#" className="w-9 h-9 bg-[var(--rock-blue)]/40 hover:bg-[var(--rock-blue)]/60 rounded flex items-center justify-center transition-colors text-white text-xs font-bold">
-                G
-              </a>
-              <a href="#" className="w-9 h-9 bg-[var(--rock-blue)]/40 hover:bg-[var(--rock-blue)]/60 rounded flex items-center justify-center transition-colors text-white text-xs font-bold">
-                in
-              </a>
             </div>
           </div>
 
@@ -44,11 +25,9 @@ export default function Footer() {
           <div>
             <h4 className="font-bold text-white mb-8 text-sm">Product</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Landing Page</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Features</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Documentation</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Referral Program</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Pricing</a></li>
+              <li><a href="/landing" className="text-white/70 hover:text-white transition-colors text-xs">Landing Page</a></li>
+              <li><a href="/features" className="text-white/70 hover:text-white transition-colors text-xs">Features</a></li>
+              <li><a href="/pricing" className="text-white/70 hover:text-white transition-colors text-xs">Pricing</a></li>
             </ul>
           </div>
 
@@ -56,11 +35,9 @@ export default function Footer() {
           <div>
             <h4 className="font-bold text-white mb-8 text-sm">Company</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">About IMS</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Careers</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Customers</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Contact Us</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Partners</a></li>
+              <li><a href="/about" className="text-white/70 hover:text-white transition-colors text-xs">About IMS</a></li>
+              <li><a href="/contact" className="text-white/70 hover:text-white transition-colors text-xs">Contact Us</a></li>
+              <li><a href="/blog" className="text-white/70 hover:text-white transition-colors text-xs">Blog</a></li>
             </ul>
           </div>
 
@@ -68,11 +45,8 @@ export default function Footer() {
           <div>
             <h4 className="font-bold text-white mb-8 text-sm">Resources</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Blog</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Help Center</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Guides</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">API Documentation</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Community</a></li>
+              <li><a href="/blog" className="text-white/70 hover:text-white transition-colors text-xs">Blog</a></li>
+              <li><a href="/features" className="text-white/70 hover:text-white transition-colors text-xs">Features</a></li>
             </ul>
           </div>
 
@@ -80,10 +54,8 @@ export default function Footer() {
           <div>
             <h4 className="font-bold text-white mb-8 text-sm">Legal</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Privacy Policy</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Terms of Service</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Cookie Policy</a></li>
-              <li><a href="#" className="text-white/70 hover:text-white transition-colors text-xs">Data Protection</a></li>
+              <li><a href="/about" className="text-white/70 hover:text-white transition-colors text-xs">Privacy Policy</a></li>
+              <li><a href="/about" className="text-white/70 hover:text-white transition-colors text-xs">Terms of Service</a></li>
             </ul>
           </div>
         </div>
@@ -91,7 +63,7 @@ export default function Footer() {
         {/* Divider */}
         <div className="border-t border-white/10 pt-8">
           <p className="text-white/60 text-xs text-center">
-            © 2025 IMS Inc. All rights reserved.
+            © {new Date().getFullYear()} IMS Inc. All rights reserved.
           </p>
         </div>
       </div>

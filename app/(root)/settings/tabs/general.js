@@ -68,6 +68,7 @@ className="
 
   <div
     className="
+      relative
       flex
       items-center
       w-full
@@ -79,6 +80,7 @@ className="
       border-[#E5E7EB]
       bg-white
       transition
+      overflow-visible
       focus-within:border-[#0A5DB8]
       focus-within:ring-2
       focus-within:ring-[#0A5DB8]/20

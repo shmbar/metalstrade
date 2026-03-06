@@ -36,7 +36,7 @@ body,
   }
 
   .input {
-    @apply w-full border rounded-lg border-[var(--rock-blue)] h-10 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-sm text-[var(--port-gore)] bg-white;
+    @apply w-full border rounded-lg border-[var(--rock-blue)] h-10 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-xs text-[var(--port-gore)] bg-white;
   }
 
   .dashBox {
@@ -82,7 +82,7 @@ body,
   }
 
   .responsiveTextTitle {
-    @apply text-[0.75rem] 2xl:text-sm break-words min-w-0 whitespace-normal;
+    @apply text-sm 2xl:text-base break-words min-w-0 whitespace-normal;
   }
 
   .responsiveTextTotal {

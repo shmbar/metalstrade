@@ -18,8 +18,12 @@ export default function ContactForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Placeholder for API integration
-    console.log(formData);
+    const to = 'sharon@ims-tech.io';
+    const subject = encodeURIComponent(formData.subject || 'Contact Form Inquiry');
+    const body = encodeURIComponent(
+      `Name: ${formData.name}\nEmail: ${formData.email}\n\n${formData.message}`
+    );
+    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
     setSubmitted(true);
     setFormData({ name: '', email: '', subject: '', message: '' });
   };

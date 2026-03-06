@@ -24,12 +24,9 @@ export default function MyLayout({
 		return <Spinner />;
 	}
 
-	// Step 2: If not logged in, redirect to /signin
+	// Step 2: If not logged in, auth context handles redirect to /signin
 	if (!user) {
-		if (typeof window !== 'undefined') {
-			window.location.href = '/signin';
-		}
-		return null;
+		return <Spinner />;
 	}
 
 	// Step 3: If user is accounting and not on /accounting, show nothing

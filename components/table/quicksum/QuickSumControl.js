@@ -211,11 +211,16 @@ export default function QuickSumControl({
                   <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--port-gore)] ml-2">
             <span className="font-medium">{selectedCount} selected</span>
 
-            {(totals || []).map((t) => (
-              <span key={t.id} className="bg-white rounded-md px-2 py-1 text-xs whitespace-nowrap">
-                {t.id}: {t.total.toFixed(2)}
-              </span>
-            ))}
+            {(totals || []).map((t) => {
+              const col = table.getAllColumns().find(c => c.id === t.id);
+              const label = col?.columnDef?.header || t.id;
+              const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(t.total);
+              return (
+                <span key={t.id} className="bg-white rounded-md px-2 py-1 text-xs whitespace-nowrap">
+                  {label}: {formatted}
+                </span>
+              );
+            })}
 
             <button
               type="button"

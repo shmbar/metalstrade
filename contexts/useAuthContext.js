@@ -14,7 +14,7 @@ const AuthContext = createContext()
 
 const AuthContextProvider = ({ children }) => {
 
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(undefined)
   const [err, setErr] = useState(null)
   const router = useRouter()
   const [loadingPage, setLoadingPage] = useState(true);

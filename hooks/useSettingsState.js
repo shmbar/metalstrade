@@ -39,7 +39,12 @@ function useSettingsState() {
     // Save company data to Firestore
     const updateCompanyData = async (uidCollection) => {
         if (!uidCollection) return;
-        await saveDataSettings(uidCollection, 'cmpnyData', compData);
+        try {
+            await saveDataSettings(uidCollection, 'cmpnyData', compData);
+            setToast({ show: true, text: 'Company data saved successfully!', clr: 'success' });
+        } catch (error) {
+            setToast({ show: true, text: 'Failed to save company data', clr: 'fail' });
+        }
     };
     return {
         settings,
