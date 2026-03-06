@@ -328,7 +328,7 @@ const Customtable = ({
             ) : isStatus ? (
               <div className="flex justify-center">
                 <div
-                  className="px-3 py-1.5 rounded-lg text-[11px] font-normal"
+                  className="px-3 py-1.5 rounded-full text-[11px] font-normal"
                   style={{
                     backgroundColor:
                       value === 'Completed'
@@ -345,7 +345,7 @@ const Customtable = ({
               <div className="flex justify-center">
                 {hasValue ? (
                   <div
-                    className="px-3 py-1.5 rounded-lg text-[11px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
+                    className="px-3 py-1.5 rounded-full text-[11px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
                     style={{
                       backgroundColor:
                         value === 'Paid'
