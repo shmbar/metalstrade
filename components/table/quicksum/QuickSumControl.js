@@ -219,7 +219,7 @@ export function QuickSumTotals({
         const label = col?.columnDef?.header || t.id;
         const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(t.total);
         return (
-          <span key={t.id} className="bg-white border border-[var(--selago)] rounded-md px-2 py-0.5 text-[11px] whitespace-nowrap font-medium">
+          <span key={t.id} className="bg-white border border-[var(--selago)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
             {label}: <span className="text-[var(--endeavour)]">{formatted}</span>
           </span>
         );
