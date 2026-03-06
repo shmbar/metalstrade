@@ -227,7 +227,7 @@ const Customtable = ({
 
           {/* DESKTOP */}
           <div className="hidden md:block">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: '700px', borderLeft: '8px solid #1D3D79', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
+            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: '700px', borderLeft: '8px solid var(--chathams-blue)', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
               <table className="w-full" style={{ tableLayout: 'auto' }}>
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(hdGroup => (
@@ -237,7 +237,7 @@ const Customtable = ({
                           key={header.id}
                           className={`px-2 py-2 uppercase text-[12px] ${header.column.id === 'select' ? 'text-left' : 'text-center'}`}
                           style={{
-                            color: '#183d79',
+                            color: 'var(--chathams-blue)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                             maxWidth: header.column.id === 'select' ? '50px' : 'none',
                             letterSpacing: '0.05em',

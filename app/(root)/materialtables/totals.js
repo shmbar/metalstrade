@@ -112,7 +112,7 @@ const Customtable = ({ data, columns }) => {
                                             key={header.id}
                                             className={`px-2 py-2 uppercase ${header.id === 'material' ? 'text-left' : 'text-center'}`}
                                             style={{
-                                                color: '#183d79',
+                                                color: 'var(--chathams-blue)',
                                                 minWidth: header.id === 'material' ? '120px' : '60px',
                                                 maxWidth: header.id === 'material' ? '200px' : '90px',
                                                 letterSpacing: '0.05em',

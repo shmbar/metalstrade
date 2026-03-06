@@ -22,16 +22,16 @@ export const expensesToolTip = (row, expensesData, settings) => {
                     <tr style={{
                         border: 'none',
                         background: 'linear-gradient(90deg, #bce1ff 0%, #d4eafc 100%)',
-                        color: '#183d79',
+                        color: 'var(--chathams-blue)',
                         fontWeight: 500,
                         fontSize: 'clamp(7px, 0.7vw, 10px)'
                     }}>
-                        <th style={{ textAlign: 'center', padding: '4px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', borderTopLeftRadius: '12px', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', whiteSpace: 'normal' }}>PO#</th>
-                        <th style={{ textAlign: 'center', padding: '4px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', whiteSpace: 'normal' }}>Description</th>
-                        <th style={{ textAlign: 'center', padding: '4px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', whiteSpace: 'normal' }}>Quantity</th>
-                        <th style={{ textAlign: 'center', padding: '4px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', whiteSpace: 'normal' }}>Shipped Weight</th>
-                        <th style={{ textAlign: 'center', padding: '4px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', whiteSpace: 'normal' }}>Remaining Weight</th>
-                        <th style={{ textAlign: 'center', padding: '4px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', borderTopRightRadius: '12px', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', whiteSpace: 'normal' }}>Amount</th>
+                        <th style={{ textAlign: 'center', padding: '4px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', borderTopLeftRadius: '12px', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', whiteSpace: 'normal' }}>PO#</th>
+                        <th style={{ textAlign: 'center', padding: '4px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', whiteSpace: 'normal' }}>Description</th>
+                        <th style={{ textAlign: 'center', padding: '4px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', whiteSpace: 'normal' }}>Quantity</th>
+                        <th style={{ textAlign: 'center', padding: '4px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', whiteSpace: 'normal' }}>Shipped Weight</th>
+                        <th style={{ textAlign: 'center', padding: '4px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', whiteSpace: 'normal' }}>Remaining Weight</th>
+                        <th style={{ textAlign: 'center', padding: '4px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', borderTopRightRadius: '12px', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word', whiteSpace: 'normal' }}>Amount</th>
                     </tr>
                 </thead>
                 <tbody>

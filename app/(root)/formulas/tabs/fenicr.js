@@ -921,7 +921,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 mt-3">
                 {/* COST SECTION */}
                 <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-3 text-center">
-                    <h3 className="text-base text-[#005b9f] mb-4">Cost</h3>
+                    <h3 className="text-base text-[var(--endeavour)] mb-4">Cost</h3>
                     
                     {/* Composition */}
                     <div className="mb-5 mt-4">
@@ -1137,7 +1137,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                     </div>
 
 
-                    <div className='text-xs mt-8 text-[#005b9f] space-y-1 text-left'>
+                    <div className='text-xs mt-8 text-[var(--endeavour)] space-y-1 text-left'>
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>
@@ -1145,7 +1145,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                 {/* SALES SECTION */}
                 <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-3 text-center">
-                <h3 className="text-base text-[#005b9f] mb-4 ">Sales</h3>
+                <h3 className="text-base text-[var(--endeavour)] mb-4 ">Sales</h3>
 
                     {/* Composition */}
                     <div className="mb-5 mt-4">
@@ -1278,7 +1278,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                     </div>
 
-                    <div className="text-xs mt-8 text-[#005b9f]  space-y-1 text-left">
+                    <div className="text-xs mt-8 text-[var(--endeavour)]  space-y-1 text-left">
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>

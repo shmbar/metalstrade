@@ -63,17 +63,17 @@ const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, clas
         <div className="w-full">
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="my-1">
-                    <div className={`relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left \n                     focus:outline-none sm:text-sm border border-[#005b9f] hover:border-[#005b9f] transition-colors h-8 ${classes}`}
+                    <div className={`relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left \n                     focus:outline-none sm:text-sm border border-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}
                         >
                         <Combobox.Input
-                            className="w-full py-2 pl-3 pr-10 text-xs leading-5 text-[#005b9f] focus:outline-none "
+                            className="w-full py-2 pl-3 pr-10 text-xs leading-5 text-[var(--endeavour)] focus:outline-none "
                             displayValue={() => (data.find(y => y.id === value.productsDataInvoice[indx][name]) || {})['description'] ||
                                 selected['description']}
                             onChange={(event) => setQuery(event.target.value)}
                         />
                         <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
                             <HiChevronUpDown
-                                className="h-5 w-5 text-[#005b9f]"
+                                className="h-5 w-5 text-[var(--endeavour)]"
                                 aria-hidden="true"
                             />
                         </ComboboxButton>

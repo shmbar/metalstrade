@@ -277,7 +277,7 @@ const Customtable = ({
               className="overflow-auto dashboard-scroll rounded-3xl border border-[#cecece]"
               style={{
                 maxHeight: dynamicMaxHeight,
-                borderLeft: '8px solid #1D3D79',
+                borderLeft: '8px solid var(--chathams-blue)',
                 borderRadius: '24px'
               }}
             >
@@ -293,7 +293,7 @@ const Customtable = ({
                           key={header.id}
                           className="font-poppins text-xs"
                           style={{
-                            color: '#183d79',
+                            color: 'var(--chathams-blue)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                             maxWidth: header.column.id === 'select' ? '50px' : 'none',
                             letterSpacing: '0.05em',
@@ -403,7 +403,7 @@ const Customtable = ({
                                         className="rounded-full text-[11px] font-medium"
                                         style={{
                                           backgroundColor: bg,
-                                          color: '#11497c',
+                                          color: 'var(--chathams-blue)',
                                           borderRadius: '999px',
                                           padding: '2px 12px',
                                           minWidth: '30px',
@@ -489,7 +489,7 @@ const Customtable = ({
                     <span 
                       className="font-normal"
                       style={{ 
-                        color: '#005b9f',
+                        color: 'var(--endeavour)',
                         fontSize: 'clamp(9px, 0.8vw, 10px)',
                         textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                       }}

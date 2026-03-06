@@ -49,14 +49,14 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     text-align: center;
                 }
                 .glass-table th {
-                    color: #183d79 !important;
+                    color: var(--chathams-blue) !important;
                     font-weight: 600;
                     font-size: clamp(10px, 1vw, 12px); /* Lowered font size */
                     letter-spacing: 0.05em;
                 }
                 .glass-table tfoot th, .glass-table tfoot td {
                     background: #eaf4ff;
-                    color: #183d79 !important;
+                    color: var(--chathams-blue) !important;
                     font-weight: 600;
                     font-size: clamp(10px, 1vw, 12px); /* Lowered font size */
                     text-align: center !important;
@@ -111,7 +111,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         className="px-6 py-4 text-center font-bold font-poppins text-[12px]"
                         style={{
                             background: '#e3f3ff',
-                            color: '#005b9f'
+                            color: 'var(--endeavour)'
                         }}
                         >
                         {title}
@@ -123,15 +123,15 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                         {hdGroup.headers.map(header => (
                                             <th key={header.id}>
                                                 {header.column.getCanSort() ? (
-                                                    <div onClick={header.column.getToggleSortingHandler()} className="text-[11px] flex cursor-pointer items-center gap-1 justify-center text-[#005b9f]">
+                                                    <div onClick={header.column.getToggleSortingHandler()} className="text-[11px] flex cursor-pointer items-center gap-1 justify-center text-[var(--endeavour)]">
                                                         {header.column.columnDef.header}
                                                         {{
-                                                            asc: <TbSortAscending className="text-[#005b9f] scale-125" />, 
-                                                            desc: <TbSortDescending className="text-[#005b9f] scale-125" />
+                                                            asc: <TbSortAscending className="text-[var(--endeavour)] scale-125" />, 
+                                                            desc: <TbSortDescending className="text-[var(--endeavour)] scale-125" />
                                                         }[header.column.getIsSorted()]}
                                                     </div>
                                                 ) : (
-                                                    <span className="text-[11px]" style={{color:'#005b9f'}}>{header.column.columnDef.header}</span>
+                                                    <span className="text-[11px]" style={{color:'var(--endeavour)'}}>{header.column.columnDef.header}</span>
                                                 )}
                                             </th>
                                         ))}
@@ -144,7 +144,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                         {row.getVisibleCells().map(cell => (
                                             <td key={cell.id}>
                                                 <Tltip direction='right' tltpText={expensesToolTip(row, expensesData, settings, filt)}>
-                                                    <span className="items-center flex outline-none whitespace-normal break-words cursor-default text-[11px]" style={{color:'#005b9f'}}>
+                                                    <span className="items-center flex outline-none whitespace-normal break-words cursor-default text-[11px]" style={{color:'var(--endeavour)'}}>
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                     </span>
                                                 </Tltip>
@@ -188,7 +188,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                 {row.getVisibleCells().map(cell => (
                                     <div key={cell.id} className="flex justify-between items-start py-2 border-b border-[#e0e0e0] last:border-b-0">
                                         <span className="font-semibold uppercase w-2/5 flex-shrink-0"
-                                            style={{color:'#183d79', fontSize:'clamp(10px,0.9vw,12px)'}}>
+                                            style={{color:'var(--chathams-blue)', fontSize:'clamp(10px,0.9vw,12px)'}}>
                                             {cell.column.columnDef.header}
                                         </span>
                                         <Tltip direction='left' tltpText={expensesToolTip(row, expensesData, settings, filt)}>
@@ -206,9 +206,9 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         <div className="rounded-lg p-4 mt-4 space-y-3 glass-table" style={{background:'#eaf4ff', border: '1px solid #e0e0e0'}}>
                             <div className="flex justify-between items-center">
                                 <span className="font-bold uppercase"
-                                    style={{color:'#183d79', fontSize:'clamp(10px,1vw,12px)'}}>Total $</span>
+                                    style={{color:'var(--chathams-blue)', fontSize:'clamp(10px,1vw,12px)'}}>Total $</span>
                                 <span className="font-bold"
-                                    style={{color:'#183d79', fontSize:'clamp(10px,1vw,12px)'}}>
+                                    style={{color:'var(--chathams-blue)', fontSize:'clamp(10px,1vw,12px)'}}>
                                     {showAmount(
                                         data.filter(item => item.cur === "us").reduce((sum, item) => sum * 1 + item.total * 1, 0),
                                         'usd'
@@ -217,9 +217,9 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                             </div>
                             <div className="flex justify-between items-center border-t border-[#e0e0e0] pt-3">
                                 <span className="font-bold uppercase"
-                                    style={{color:'#183d79', fontSize:'clamp(10px,1vw,12px)'}}>Total €</span>
+                                    style={{color:'var(--chathams-blue)', fontSize:'clamp(10px,1vw,12px)'}}>Total €</span>
                                 <span className="font-bold"
-                                    style={{color:'#183d79', fontSize:'clamp(10px,1vw,12px)'}}>
+                                    style={{color:'var(--chathams-blue)', fontSize:'clamp(10px,1vw,12px)'}}>
                                     {showAmount(
                                         data.filter(item => item.cur === "eu").reduce((sum, item) => sum + item.total, 0),
                                         'eur'

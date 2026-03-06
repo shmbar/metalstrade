@@ -38,7 +38,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                                 style={{
                                     textAlign: 'center',
                                     padding: '3px 2px', // Compact padding
-                                    color: '#183d79',
+                                    color: 'var(--chathams-blue)',
                                     fontWeight: 600,
                                     fontSize: '9px', // Smaller font
                                     letterSpacing: '0.05em',
@@ -98,7 +98,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                             <td style={{
                                 textAlign: 'center',
                                 padding: '3px 2px',
-                                color: '#183d79',
+                                color: 'var(--chathams-blue)',
                                 fontWeight: 500,
                                 wordBreak: 'break-word',
                                 fontSize: '9px',
@@ -113,7 +113,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                                     fixedDecimalScale
                                     style={{
                                         fontSize: '9px',
-                                        color: '#183d79',
+                                        color: 'var(--chathams-blue)',
                                         fontWeight: 500,
                                         wordBreak: 'break-word',
                                     }}

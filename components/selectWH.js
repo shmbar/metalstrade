@@ -18,7 +18,7 @@ const SelectHW = ({ data, value, setValue, idx, name }) => {
                 value={value?.id ?? ''}
                 onValueChange={(e) => setValue(e, idx)}
             >
-                <SelectTrigger className="h-8 text-xs border border-[#005b9f] text-[#005b9f] focus:ring-1 focus:ring-offset-0 focus:border-[#005b9f] focus:ring-[#005b9f] hover:border-[#005b9f] transition-colors">
+                <SelectTrigger className="h-8 text-xs border border-[var(--endeavour)] text-[var(--endeavour)] focus:ring-1 focus:ring-offset-0 focus:border-[var(--endeavour)] focus:ring-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors">
                     <SelectValue placeholder="Select stock" />
                 </SelectTrigger>
                 <SelectContent>

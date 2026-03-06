@@ -228,7 +228,7 @@ const Customtable = ({
 
           {/* DESKTOP */}
           <div className="hidden md:block">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderLeft: '8px solid #1D3D79', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
+            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderLeft: '8px solid var(--chathams-blue)', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
 <table className="w-full" style={{ tableLayout: 'fixed' }}>
                 {/* THEAD - Multi-color gradient inspired by all cards */}
                 <thead className="sticky top-0 z-10">
@@ -238,9 +238,9 @@ const Customtable = ({
                         {group.headers.map(header => (
                           <th
                             key={header.id}
-                            className="px-2 py-2 uppercase   text-[#005B9F] font-poppins font-bold" 
+                            className="px-2 py-2 uppercase   text-[var(--endeavour)] font-poppins font-bold" 
                             style={{
-                              color: '#183d79',
+                              color: 'var(--chathams-blue)',
  width:
   header.column.columnDef.header === 'Description'
     ? '140px'
@@ -430,7 +430,7 @@ const Customtable = ({
                     <span 
                       className="font-normal"
                       style={{ 
-                        color: '#005b9f',
+                        color: 'var(--endeavour)',
                         fontSize: 'clamp(9px, 0.8vw, 10px)',
                         textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                       }}

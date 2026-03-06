@@ -384,7 +384,7 @@ const Margins = () => {
                             
                             {/* Header Section */}
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-                                <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+                                <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
                                     {getTtl('Margins', ln)}
                                 </h1>
                                 
@@ -410,7 +410,7 @@ const Margins = () => {
                             <div className="rounded-2xl border border-gray-200">
                            <div className="p-2 flex gap-3 mt-3">
                                 <button
-                                    className="bg-[#e3f3ff] text-[#005b9f] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
+                                    className="bg-[#e3f3ff] text-[var(--endeavour)] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
                                     disabled={data.length >= 12}
                                     onClick={addMonth}
                                 >
@@ -418,7 +418,7 @@ const Margins = () => {
                                 </button>
 
                                 <button
-                                    className="bg-[#005b9f] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                     onClick={saveData}
                                 >
                                     Save

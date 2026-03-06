@@ -55,3 +55,28 @@
 - #16 (Stocks) — logic merged, needs testing with real data
 - #17 (Margins) — structure looks correct, needs visual check
 - #5 (Assistant) — requires business decision from Sharon
+
+---
+
+## Color Scheme Consolidation
+
+### Summary
+Replaced all hardcoded blue hex values with CSS variables across 77 files (387 replacements).
+
+### Mapping Applied
+| Hardcoded | Replaced With | Occurrences |
+|-----------|--------------|-------------|
+| `#005b9f` / `#005B9F` | `var(--endeavour)` | 208 |
+| `#11497c` | `var(--chathams-blue)` | 30 |
+| `#183d79` / `#1D3D79` | `var(--chathams-blue)` | 151 |
+
+### Skipped
+- **`#28264f`** (12 occurrences) — All in Chart.js tooltip configs (`titleColor`, `bodyColor`) which require raw hex values, plus the CSS variable definition in `globals.css`
+- **SVG files** in `public/logo/` — Icon assets, not theme-related
+- **`#0055FF`** variants in auth/signin pages — Intentionally different blue for login design
+- **Grays/whites** (`#e0e0e0`, `#E5E7EB`, `#F8F8F8`, etc.) — Not part of the blue theme
+
+### Impact
+- Zero visual changes (same colors, just referenced via CSS variables)
+- Future theme changes now only require updating `app/globals.css` `:root` variables
+- See `tasks/color-consolidation.md` for the full plan

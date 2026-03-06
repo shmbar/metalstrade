@@ -201,7 +201,7 @@
 //               left: '14px',
 //               fontSize: '12px',
 //               fontWeight: '600',
-//               color: '#1d3d79',
+//               color: 'var(--chathams-blue)',
 //               whiteSpace: 'nowrap',
 //             }}>
 //               {label}
@@ -215,7 +215,7 @@
 //                 transform: 'translateX(-50%)',
 //                 fontSize: '11px',
 //                 fontWeight: '600',
-//                 color: '#1d3d79',
+//                 color: 'var(--chathams-blue)',
 //                 whiteSpace: 'nowrap',
 //               }}>
 //                 {currency}
@@ -230,7 +230,7 @@
 //                 transform: 'translateX(-50%)',
 //                 fontSize: '11px',
 //                 fontWeight: '700',
-//                 color: '#1d3d79',
+//                 color: 'var(--chathams-blue)',
 //                 whiteSpace: 'nowrap',
 //               }}>
 //                 {amount}
@@ -276,7 +276,7 @@
 //         /* ── Blue header row ── */
 //         .header-blue {
 //           background-color: #d9e6f2;
-//           color: #1d3d79;
+//           color: var(--chathams-blue);
 //         }
 
 //         /* ── Empty tbody rows — invisible ── */
@@ -290,8 +290,8 @@
 //         /* ── Pagination ── */
 //         .pagination-center { display: flex; justify-content: center; align-items: center; gap: 10px; }
 //         .page-btn   { padding: 6px 12px; border-radius: 8px; font-weight: 500; }
-//         .page-active { background-color: #1d3d79; color: white; }
-//         .page-normal { color: #1d3d79; }
+//         .page-active { background-color: var(--chathams-blue); color: white; }
+//         .page-normal { color: var(--chathams-blue); }
 //       `}</style>
 
 //       <div className="custom-table">
@@ -326,7 +326,7 @@
 //               className="overflow-auto dashboard-scroll"
 //               style={{
 //                 maxHeight: dynamicMaxHeight,
-//                 borderLeft: '8px solid #1D3D79',
+//                 borderLeft: '8px solid var(--chathams-blue)',
 //                 borderRadius: '20px',
 //                 border: '1px solid #d7d7d7',
 //                 position: 'relative',
@@ -349,7 +349,7 @@
 //                       }}
 //                     >
 //                       <div style={{ position: 'relative', width: '100%', height: '34px', display: 'flex', alignItems: 'center' }}>
-//                         <span style={{ position: 'absolute', left: '14px', fontSize: '12px', fontWeight: '600', color: '#1d3d79', whiteSpace: 'nowrap' }}>
+//                         <span style={{ position: 'absolute', left: '14px', fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }}>
 //                           Total $:
 //                         </span>
 //                         {colPositions.currency && (
@@ -357,7 +357,7 @@
 //                             position: 'absolute',
 //                             left: `${colPositions.currency.left + colPositions.currency.width / 2}px`,
 //                             transform: 'translateX(-50%)',
-//                             fontSize: '11px', fontWeight: '600', color: '#1d3d79', whiteSpace: 'nowrap',
+//                             fontSize: '11px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
 //                           }}>
 //                             {summaryUSD.currency}
 //                           </span>
@@ -367,7 +367,7 @@
 //                             position: 'absolute',
 //                             left: `${colPositions.amount.left + colPositions.amount.width / 2}px`,
 //                             transform: 'translateX(-50%)',
-//                             fontSize: '11px', fontWeight: '700', color: '#1d3d79', whiteSpace: 'nowrap',
+//                             fontSize: '11px', fontWeight: '700', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
 //                           }}>
 //                             {summaryUSD.amount}
 //                           </span>
@@ -389,7 +389,7 @@
 //                       }}
 //                     >
 //                       <div style={{ position: 'relative', width: '100%', height: '34px', display: 'flex', alignItems: 'center' }}>
-//                         <span style={{ position: 'absolute', left: '14px', fontSize: '12px', fontWeight: '600', color: '#1d3d79', whiteSpace: 'nowrap' }}>
+//                         <span style={{ position: 'absolute', left: '14px', fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }}>
 //                           Total €:
 //                         </span>
 //                         {colPositions.currency && (
@@ -397,7 +397,7 @@
 //                             position: 'absolute',
 //                             left: `${colPositions.currency.left + colPositions.currency.width / 2}px`,
 //                             transform: 'translateX(-50%)',
-//                             fontSize: '11px', fontWeight: '600', color: '#1d3d79', whiteSpace: 'nowrap',
+//                             fontSize: '11px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
 //                           }}>
 //                             {summaryEUR.currency}
 //                           </span>
@@ -407,7 +407,7 @@
 //                             position: 'absolute',
 //                             left: `${colPositions.amount.left + colPositions.amount.width / 2}px`,
 //                             transform: 'translateX(-50%)',
-//                             fontSize: '11px', fontWeight: '700', color: '#1d3d79', whiteSpace: 'nowrap',
+//                             fontSize: '11px', fontWeight: '700', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
 //                           }}>
 //                             {summaryEUR.amount}
 //                           </span>
@@ -480,7 +480,7 @@
 //                                     backgroundColor:
 //                                       value === 'Paid'   ? '#ceb8ff' :
 //                                       value === 'Unpaid' ? '#c387b4' : '#f9f9f9',
-//                                     color: value === 'Paid' || value === 'Unpaid' ? '#1d3d79' : '#1F2937',
+//                                     color: value === 'Paid' || value === 'Unpaid' ? 'var(--chathams-blue)' : '#1F2937',
 //                                     border: '1px solid #cecece',
 //                                     fontWeight: value === 'Paid' || value === 'Unpaid' ? '600' : '400'
 //                                   }}>
@@ -546,15 +546,15 @@
 //             <div className="mb-2">
 //               <div className="flex items-center justify-between px-4 py-2"
 //                 style={{ backgroundColor: '#b7d1b5' }}>
-//                 <span style={{ fontSize: '12px', fontWeight: '600', color: '#1d3d79' }}>Total $:</span>
-//                 <span style={{ fontSize: '11px', fontWeight: '600', color: '#1d3d79' }}>{summaryUSD.currency}</span>
-//                 <span style={{ fontSize: '11px', fontWeight: '700', color: '#1d3d79' }}>{summaryUSD.amount}</span>
+//                 <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total $:</span>
+//                 <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryUSD.currency}</span>
+//                 <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
 //               </div>
 //               <div className="flex items-center justify-between px-4 py-2"
 //                 style={{ backgroundColor: '#8db6d8' }}>
-//                 <span style={{ fontSize: '12px', fontWeight: '600', color: '#1d3d79' }}>Total €:</span>
-//                 <span style={{ fontSize: '11px', fontWeight: '600', color: '#1d3d79' }}>{summaryEUR.currency}</span>
-//                 <span style={{ fontSize: '11px', fontWeight: '700', color: '#1d3d79' }}>{summaryEUR.amount}</span>
+//                 <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total €:</span>
+//                 <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.currency}</span>
+//                 <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
 //               </div>
 //             </div>
 
@@ -618,7 +618,7 @@
 //                                   backgroundColor:
 //                                     cell.getValue() === 'Paid'   ? '#ceb8ff' :
 //                                     cell.getValue() === 'Unpaid' ? '#c387b4' : '#f9f9f9',
-//                                   color: '#1d3d79', border: '1px solid #cecece'
+//                                   color: 'var(--chathams-blue)', border: '1px solid #cecece'
 //                                 }}>
 //                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
 //                               </div>
@@ -915,7 +915,7 @@ const Customtable = ({
           transform: 'translateY(-50%)',
           fontSize: '12px',
           fontWeight: '600',
-          color: '#1d3d79',
+          color: 'var(--chathams-blue)',
           whiteSpace: 'nowrap',
         }}>
           {label}
@@ -930,7 +930,7 @@ const Customtable = ({
             transform: 'translate(-50%, -50%)',
             fontSize: '12px',
             fontWeight: '700',
-            color: '#1d3d79',
+            color: 'var(--chathams-blue)',
             whiteSpace: 'nowrap',
           }}>
             {amountText}
@@ -978,7 +978,7 @@ const Customtable = ({
         /* ── Header blue ── */
         .header-blue {
           background-color: #d9e6f2;
-          color: #1d3d79;
+          color: var(--chathams-blue);
         }
 
         /* Paid/Unpaid never wraps */
@@ -988,8 +988,8 @@ const Customtable = ({
 
         .pagination-center { display:flex; justify-content:center; align-items:center; gap:10px; }
         .page-btn   { padding:6px 12px; border-radius:8px; font-weight:500; }
-        .page-active { background-color:#1d3d79; color:white; }
-        .page-normal { color:#1d3d79; }
+        .page-active { background-color:var(--chathams-blue); color:white; }
+        .page-normal { color:var(--chathams-blue); }
       `}</style>
 
       <div className="custom-table">
@@ -1024,7 +1024,7 @@ const Customtable = ({
               className="overflow-auto dashboard-scroll"
               style={{
                 maxHeight: dynamicMaxHeight,
-                borderLeft: '8px solid #1D3D79',
+                borderLeft: '8px solid var(--chathams-blue)',
                 borderRadius: '20px',
                 border: '1px solid #d7d7d7',
                 position: 'relative',
@@ -1051,7 +1051,7 @@ const Customtable = ({
                       <span style={{
                         position: 'absolute', left: '14px', top: '50%',
                         transform: 'translateY(-50%)',
-                        fontSize: '12px', fontWeight: '600', color: '#1d3d79', whiteSpace: 'nowrap',
+                        fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                       }}>
                         Total $:
                       </span>
@@ -1061,7 +1061,7 @@ const Customtable = ({
                           left: `${currencyColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '12px', fontWeight: '600', color: '#1d3d79', whiteSpace: 'nowrap',
+                          fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           USD
                         </span>
@@ -1072,7 +1072,7 @@ const Customtable = ({
                           left: `${amountColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '12px', fontWeight: '700', color: '#1d3d79', whiteSpace: 'nowrap',
+                          fontSize: '12px', fontWeight: '700', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           {summaryUSD.amount}
                         </span>
@@ -1096,7 +1096,7 @@ const Customtable = ({
                       <span style={{
                         position: 'absolute', left: '14px', top: '50%',
                         transform: 'translateY(-50%)',
-                        fontSize: '12px', fontWeight: '600', color: '#1d3d79', whiteSpace: 'nowrap',
+                        fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                       }}>
                         Total €:
                       </span>
@@ -1106,7 +1106,7 @@ const Customtable = ({
                           left: `${currencyColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '12px', fontWeight: '600', color: '#1d3d79', whiteSpace: 'nowrap',
+                          fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           EUR
                         </span>
@@ -1117,7 +1117,7 @@ const Customtable = ({
                           left: `${amountColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '12px', fontWeight: '700', color: '#1d3d79', whiteSpace: 'nowrap',
+                          fontSize: '12px', fontWeight: '700', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           {summaryEUR.amount}
                         </span>
@@ -1197,7 +1197,7 @@ const Customtable = ({
                                     backgroundColor:
                                       isUnpaidValue ? '#ff9ecd' :
                                       isPaidValue ? '#d4a5ff' : '#f9f9f9',
-                                    color: isPaidValue || isUnpaidValue ? '#1d3d79' : '#1F2937',
+                                    color: isPaidValue || isUnpaidValue ? 'var(--chathams-blue)' : '#1F2937',
                                     border: '1px solid #cecece',
                                     fontWeight: isPaidValue || isUnpaidValue ? '600' : '400'
                                   }}>
@@ -1211,7 +1211,7 @@ const Customtable = ({
                                     backgroundColor:
                                       isUSDValue ? '#b6dfb7' :
                                       isEURValue ? '#bce1fe' : '#e5e7eb',
-                                    color: '#11497c',
+                                    color: 'var(--chathams-blue)',
                                     border: '1px solid #cecece',
                                     fontWeight: 600,
                                   }}>
@@ -1273,15 +1273,15 @@ const Customtable = ({
             <div className="mb-2">
               <div className="flex items-center justify-between px-4 py-2"
                 style={{ backgroundColor: '#b7d1b5' }}>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: '#1d3d79' }}>Total $:</span>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: '#1d3d79' }}>USD</span>
-                <span style={{ fontSize: '12px', fontWeight: '700', color: '#1d3d79' }}>{summaryUSD.amount}</span>
+                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total $:</span>
+                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)' }}>USD</span>
+                <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
               </div>
               <div className="flex items-center justify-between px-4 py-2"
                 style={{ backgroundColor: '#8db6d8' }}>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: '#1d3d79' }}>Total €:</span>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: '#1d3d79' }}>EUR</span>
-                <span style={{ fontSize: '12px', fontWeight: '700', color: '#1d3d79' }}>{summaryEUR.amount}</span>
+                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total €:</span>
+                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)' }}>EUR</span>
+                <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
               </div>
             </div>
 
@@ -1353,7 +1353,7 @@ const Customtable = ({
                                   backgroundColor:
                                     isUnpaidValue ? '#ff9ecd' :
                                     isPaidValue ? '#d4a5ff' : '#f9f9f9',
-                                  color: '#1d3d79',
+                                  color: 'var(--chathams-blue)',
                                   border: '1px solid #cecece'
                                 }}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -1364,7 +1364,7 @@ const Customtable = ({
                                   backgroundColor:
                                     isUSDValue ? '#b6dfb7' :
                                     isEURValue ? '#bce1fe' : '#e5e7eb',
-                                  color: '#11497c',
+                                  color: 'var(--chathams-blue)',
                                   border: '1px solid #cecece'
                                 }}>
                                 {isUSDValue ? '$' :

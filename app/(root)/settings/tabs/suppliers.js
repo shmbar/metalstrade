@@ -85,7 +85,7 @@ const Suppliers = () => {
         <div className=' p-2  rounded-lg flex flex-col md:flex-row w-full gap-4 '>
 
             <div className=' p-4 rounded-lg mt-1 shadow-md w-[28%] bg-[#e3f3ff]'>
-                <p className='flex items-center text-sm font-medium pl-2 text-[#005B9F] '>{getTtl('Suppliers', ln)}:</p>
+                <p className='flex items-center text-sm font-medium pl-2 text-[var(--endeavour)] '>{getTtl('Suppliers', ln)}:</p>
                 <ul className="flex flex-col mt-2 max-h-80 overflow-auto p-2">
                           {sortArr((settings.Supplier?.Supplier || []).filter(q => !q.deleted), 'supplier').map((x, i) => {
                         return (
@@ -99,7 +99,7 @@ const Suppliers = () => {
                                 text-xs 
                                 rounded-xl
                                 transition-all duration-200
-                                text-[#005B9F] 
+                                text-[var(--endeavour)] 
                                 ${value.id === x.id
                                 ? 'bg-white shadow-sm font-medium'
                                 : 'bg-transparent hover:bg-white/20'}
@@ -123,20 +123,20 @@ const Suppliers = () => {
                     <Tltip direction='top' tltpText='Update supplier data'>
                         <button className='supplierButton py-1 bg-[#efefef]' 
                             onClick={updateList}>
-                            <FiUpload className='scale-125 text-[#005B9F]' />
+                            <FiUpload className='scale-125 text-[var(--endeavour)]' />
                             {getTtl('Update', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Delete supplier'>
                         <button className='supplierButton py-1' onClick={() => setIsDeleteOpen(true)}
                             disabled={!value.id}>
-                            <MdDeleteOutline className='scale-125 text-[#005B9F]' />  {getTtl('Delete', ln)}
+                            <MdDeleteOutline className='scale-125 text-[var(--endeavour)]' />  {getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Clear form'>
                         <button className='supplierButton py-1'
                             onClick={clickClear}>
-                            <RiEraserLine className='scale-125 text-[#005B9F]' />{getTtl('Clear', ln)}
+                            <RiEraserLine className='scale-125 text-[var(--endeavour)]' />{getTtl('Clear', ln)}
                         </button>
                     </Tltip>
                 </div>

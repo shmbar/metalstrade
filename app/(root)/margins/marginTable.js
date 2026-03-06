@@ -62,18 +62,18 @@ const MarginTable = (props) => {
     {!open ? (
       <IoAddCircleOutline
         className="text-[14px]"
-        style={{ color: '#183d79' }}
+        style={{ color: 'var(--chathams-blue)' }}
       />
     ) : (
       <FiMinusCircle
         className="text-[14px]"
-        style={{ color: '#183d79' }}
+        style={{ color: 'var(--chathams-blue)' }}
       />
     )}
   </DisclosureButton>
 
   <span
-    className="text-[#183d79] text-[13px]"
+    className="text-[var(--chathams-blue)] text-[13px]"
   >
     {`${month}-${year}`}
   </span>
@@ -86,7 +86,7 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal uppercase tracking-wider mb-0.5 text-xs font-poppins"
                                             style={{
-                                                color: '#005b9f',
+                                                color: 'var(--endeavour)',
                                                 letterSpacing: '0.05em',
                                                 lineHeight: '1.1'
                                             }}
@@ -96,7 +96,7 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal"
                                             style={{
-                                                color: '#005b9f',
+                                                color: 'var(--endeavour)',
                                                 fontSize: 'clamp(10px, 0.8vw, 11px)',
                                                 fontWeight: '400',
                                                 lineHeight: '1.2'
@@ -117,7 +117,7 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal uppercase tracking-wider mb-0.5 text-xs font-poppins"
                                             style={{
-                                                color: '#005b9f',
+                                                color: 'var(--endeavour)',
                                                 letterSpacing: '0.05em',
                                                 lineHeight: '1.1'
                                             }}
@@ -127,7 +127,7 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal"
                                             style={{
-                                                color: '#005b9f',
+                                                color: 'var(--endeavour)',
                                                 fontSize: 'clamp(10px, 0.8vw, 11px)',
                                                 fontWeight: '400',
                                                 lineHeight: '1.2'
@@ -149,7 +149,7 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal uppercase tracking-wider mb-0.5 text-xs font-poppins"
                                             style={{
-                                                color: '#005b9f',
+                                                color: 'var(--endeavour)',
                                                 letterSpacing: '0.05em',
                                                 lineHeight: '1.1'
                                             }}
@@ -159,7 +159,7 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal"
                                             style={{
-                                                color: '#005b9f',
+                                                color: 'var(--endeavour)',
                                                 fontSize: 'clamp(10px, 0.8vw, 11px)',
                                                 fontWeight: '400',
                                                 lineHeight: '1.2'
@@ -180,7 +180,7 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal uppercase tracking-wider mb-0.5 text-xs font-poppins"
                                             style={{
-                                                color: '#005b9f',
+                                                color: 'var(--endeavour)',
                                                 letterSpacing: '0.05em',
                                                 lineHeight: '1.1'
                                             }}
@@ -190,7 +190,7 @@ const MarginTable = (props) => {
                                         <div 
                                             className="font-normal"
                                             style={{
-                                                color: '#005b9f',
+                                                color: 'var(--endeavour)',
                                                 fontSize: 'clamp(10px, 0.8vw, 11px)',
                                                 fontWeight: '400',
                                                 lineHeight: '1.2'
@@ -213,7 +213,7 @@ const MarginTable = (props) => {
                                 <button
                                     className="px-3 py-1.5 rounded-full font-normal transition-all duration-150 hover:opacity-90"
                                     style={{
-                                        background: 'linear-gradient(135deg, #183d79, #1e40af)',
+                                        background: 'linear-gradient(135deg, var(--chathams-blue), #1e40af)',
                                         color: '#FFFFFF',
                                         fontSize: 'clamp(8px, 0.7vw, 10px)',
                                         fontWeight: '400',

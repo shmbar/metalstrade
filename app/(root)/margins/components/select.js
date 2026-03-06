@@ -24,7 +24,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
       rounded-full
       px-3
       text-[11px]
-      text-[#005b9f]
+      text-[var(--endeavour)]
       border border-[#cecece]
       focus:border-blue-400
       focus:ring-1

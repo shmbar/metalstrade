@@ -36,16 +36,16 @@ export const detailsToolTip = (row, data, settings, dataTable,) => {
                     <tr style={{
                         border: 'none',
                         background: 'linear-gradient(90deg, #bce1ff 0%, #d4eafc 100%)',
-                        color: '#183d79',
+                        color: 'var(--chathams-blue)',
                         fontWeight: 500,
                         fontSize: 'clamp(10px, 1vw, 13px)'
                     }}>
-                        <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', borderTopLeftRadius: '12px' }}>PO#</th>
-                        <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0' }}>Supplier</th>
-                        <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0' }}>Description</th>
-                        <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0' }}>Quantity</th>
-                        <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0' }}>Unit Price</th>
-                        <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', borderTopRightRadius: '12px' }}>Total</th>
+                        <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', borderTopLeftRadius: '12px' }}>PO#</th>
+                        <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0' }}>Supplier</th>
+                        <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0' }}>Description</th>
+                        <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0' }}>Quantity</th>
+                        <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0' }}>Unit Price</th>
+                        <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', borderTopRightRadius: '12px' }}>Total</th>
                     </tr>
                 </thead>
                 <tbody>

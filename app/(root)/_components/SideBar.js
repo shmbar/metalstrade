@@ -177,8 +177,8 @@ export default function Sidebar() {
       >
         <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
           {collapsed
-            ? <path d="M8 5l5 5-5 5" stroke="#11497c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            : <path d="M12 5l-5 5 5 5" stroke="#11497c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            ? <path d="M8 5l5 5-5 5" stroke="var(--chathams-blue)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            : <path d="M12 5l-5 5 5 5" stroke="var(--chathams-blue)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           }
         </svg>
       </button>

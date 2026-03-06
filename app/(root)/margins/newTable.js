@@ -208,7 +208,7 @@ const DraggableRow = ({ row, props, cName }) => {
                   fixedDecimalScale
                   style={{
                     fontSize: "12px",
-                    color: "#005b9f",
+                    color: "var(--endeavour)",
                   }}
                 />
               </div>
@@ -353,7 +353,7 @@ const Customtable = (props) => {
     padding: '6px 12px',
   }}
   className={cn(
-    'bg-[#e3f3ff] text-[#183d79] border-b border-[var(--endeavour)]',
+    'bg-[#e3f3ff] text-[var(--chathams-blue)] border-b border-[var(--endeavour)]',
     idx === 0 ? 'rounded-tl-lg' : '',
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
@@ -441,7 +441,7 @@ const Customtable = (props) => {
                                                                     fixedDecimalScale
                                                                     style={{ 
                                                                         fontSize: '11px',
-                                                                        color: '#005b9f',
+                                                                        color: 'var(--endeavour)',
                                                                         fontWeight: '600',
                                                                         lineHeight: '1.2'
                                                                     }}
@@ -469,7 +469,7 @@ const Customtable = (props) => {
                                     {/* Compact Card Header */}
                                     <div className="bg-[#e3f3ff] px-3 py-2 border-b border-[var(--selago)] flex justify-between items-center min-h-[32px]">
                                         <span 
-                                            className="font-medium text-[#183d79]"
+                                            className="font-medium text-[var(--chathams-blue)]"
                                             style={{ fontSize: '0.75rem', lineHeight: '1.2' }}
                                         >
                                             Entry #{rowIdx + 1}

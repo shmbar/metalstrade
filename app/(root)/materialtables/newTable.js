@@ -200,7 +200,7 @@ const Customtable = ({
       header.column.id === 'material' || header.column.id === 'kgs'
         ? '#d4eafc'
         : '#ffdbdb',
-    color: '#183d79',
+    color: 'var(--chathams-blue)',
     minWidth: header.column.id === 'material' ? '120px' : '60px',
     maxWidth: header.column.id === 'material' ? '150px' : 'none',
     letterSpacing: '0.05em',
@@ -214,12 +214,12 @@ const Customtable = ({
                         >
                           {header.column.columnDef.header}
                           {{
-                            asc: <TbSortAscending className="text-[#183d79] w-4 h-4" />,
-                            desc: <TbSortDescending className="text-[#183d79] w-4 h-4" />
+                            asc: <TbSortAscending className="text-[var(--chathams-blue)] w-4 h-4" />,
+                            desc: <TbSortDescending className="text-[var(--chathams-blue)] w-4 h-4" />
                           }[header.column.getIsSorted()]}
                         </div>
                       ) : (
-                        <span className="font-normal text-[#183d79] text-center">
+                        <span className="font-normal text-[var(--chathams-blue)] text-center">
                           {header.column.columnDef.header}
                         </span>
                       )}
@@ -323,7 +323,7 @@ const Customtable = ({
             color:
               idx < 2
                 ? '#6B7280'   // 👈 gray text for first two
-                : '#183d79',  // normal blue text for others
+                : 'var(--chathams-blue)',  // normal blue text for others
             fontSize: 'clamp(10px, 1.0vw, 13px)',
             textAlign: header.id === 'material' ? 'left' : 'center',
             border: '1px solid #cecece'

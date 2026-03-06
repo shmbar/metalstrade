@@ -662,7 +662,7 @@ const SupperAlloys = ({ value, handleChange }) => {
 
         return value.supperalloys != null ? (
         <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-2">
-          <h3 className='text-sm text-[#005b9f] mb-2 text-center'>Cost</h3>
+          <h3 className='text-sm text-[var(--endeavour)] mb-2 text-center'>Cost</h3>
             
             {/* Composition */}
             <div className="mb-3">
@@ -672,7 +672,7 @@ const SupperAlloys = ({ value, handleChange }) => {
 
             <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white">
                 {/* Header */}
-                <div className="grid grid-cols-9 bg-[#fafafa] text-[#005b9f] text-xs">
+                <div className="grid grid-cols-9 bg-[#fafafa] text-[var(--endeavour)] text-xs">
                 {elementLabels.map((label, idx) => (
                   <div
                   key={label}

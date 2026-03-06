@@ -609,7 +609,7 @@ const Stainless = ({ value, handleChange }) => {
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 items-start">
                 {/* COST SECTION */}
                 <div className="w-full bg-white rounded-xl border border-[#D9ECFF] shadow-sm p-3 text-center">
-                    <h3 className='text-base text-[#005b9f] mb-3'>Cost</h3>
+                    <h3 className='text-base text-[var(--endeavour)] mb-3'>Cost</h3>
                     
                     {/* Composition */}
                     <div className="mb-3">
@@ -945,7 +945,7 @@ const Stainless = ({ value, handleChange }) => {
 
                     </div>
 
-                    <div className='text-xs text-[#005b9f]  space-y-1 text-left'>
+                    <div className='text-xs text-[var(--endeavour)]  space-y-1 text-left'>
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>
@@ -953,7 +953,7 @@ const Stainless = ({ value, handleChange }) => {
 
                 {/* SALES SECTION */}
                 <div className="w-full bg-white rounded-xl border border-[#D9ECFF] shadow-sm p-3 text-center">
-                    <h3 className='text-base text-[#005b9f] mb-3'>Sales</h3>
+                    <h3 className='text-base text-[var(--endeavour)] mb-3'>Sales</h3>
                     {/* Composition (Read-only) */}
                     <div className="mb-3">
                     <p className="text-sm text-gray-600 mb-2 text-center">Composition</p>
@@ -1120,7 +1120,7 @@ const Stainless = ({ value, handleChange }) => {
                     </div>
 
 
-                    <div className='text-xs text-[#005b9f]  space-y-1 text-left'>
+                    <div className='text-xs text-[var(--endeavour)]  space-y-1 text-left'>
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>

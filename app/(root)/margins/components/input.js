@@ -36,12 +36,12 @@ export const Input = ({ props, handleChange, month, name, styles, addCur }) => {
         rounded-full
         px-3
         !text-[11px]
-        !text-[#005b9f]
+        !text-[var(--endeavour)]
         border border-[#d9d9d9]
         outline-none
         focus:ring-1
-        focus:ring-[#005b9f]
-        focus:border-[#005b9f]
+        focus:ring-[var(--endeavour)]
+        focus:border-[var(--endeavour)]
         shadow-none
         transition
         `

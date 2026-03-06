@@ -144,7 +144,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
     const thStyle = {
         textAlign: 'center',
         padding: '3px 2px',
-        color: '#183d79',
+        color: 'var(--chathams-blue)',
         fontWeight: 600,
         fontSize: '9px',
         letterSpacing: '0.05em',
@@ -166,7 +166,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
     };
     const tdAmountStyle = {
         ...tdStyle,
-        color: '#183d79',
+        color: 'var(--chathams-blue)',
         fontWeight: 500,
     };
 

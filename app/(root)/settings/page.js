@@ -54,7 +54,7 @@ const Page = () => {
       <Toast />
       <VideoLoader loading={loading} fullScreen={true} />
       <div className=" p-1 md:p-4 mt-[5%] bg-white">
-        <div className="text-[14px] mt-5 text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2">{getTtl('Settings', ln)}</div>
+        <div className="text-[14px] mt-5 text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Settings', ln)}</div>
 
         <div className="w-full px-2 sm:px-0 mt-5">
           <TabGroup >
@@ -74,7 +74,7 @@ const Page = () => {
   key={z}
   className={({ selected }) =>
     classNames(
-      'px-6 py-1.5 text-xs font-poppins whitespace-nowrap transition-all text-[#005B9F] w-[140px]',
+      'px-6 py-1.5 text-xs font-poppins whitespace-nowrap transition-all text-[var(--endeavour)] w-[140px]',
       'focus:outline-none',
       selected
         ? `
@@ -82,7 +82,7 @@ const Page = () => {
           rounded-b-none
           shadow-sm
 text-white
-          bg-[#005b9f]
+          bg-[var(--endeavour)]
 
         `
         : `

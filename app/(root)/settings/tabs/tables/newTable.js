@@ -112,7 +112,7 @@ const Customtable = ({
                             px-6
                             py-4
                             text-sm
-                            text-[#005b9f]
+                            text-[var(--endeavour)]
                             text-center
                             border-r
                             border-b
@@ -131,10 +131,10 @@ const Customtable = ({
                           {
                             {
                               asc: (
-                                <TbSortAscending className="text-[#005b9f] scale-110" />
+                                <TbSortAscending className="text-[var(--endeavour)] scale-110" />
                               ),
                               desc: (
-                                <TbSortDescending className="text-[#005b9f] scale-110" />
+                                <TbSortDescending className="text-[var(--endeavour)] scale-110" />
                               ),
                             }[header.column.getIsSorted()]
                           }
@@ -187,7 +187,7 @@ const Customtable = ({
         </div>
         <div className="flex items-center justify-between p-3 border-[#E5E7EB] bg-white rounded-b-lg">
           {/* LEFT — Showing text */}
-          <div className="hidden lg:flex text-[#005b9f] text-[0.72rem]">
+          <div className="hidden lg:flex text-[var(--endeavour)] text-[0.72rem]">
             {`${getTtl("Showing", ln)} ${
               table.getState().pagination.pageIndex *
                 table.getState().pagination.pageSize +

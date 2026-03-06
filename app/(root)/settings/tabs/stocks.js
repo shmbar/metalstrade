@@ -102,7 +102,7 @@ const Stocks = () => {
         <div className=' p-4 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
              <div className="md:px-5 w-[27%] flex-shrink-0 rounded-lg p-2
                                       bg-[#e3f3ff]">
-                                 <p className='flex items-center text-sm font-medium pl-2 text-[#005B9F] whitespace-nowrap'>{getTtl('Stocks', ln)}:</p>
+                                 <p className='flex items-center text-sm font-medium pl-2 text-[var(--endeavour)] whitespace-nowrap'>{getTtl('Stocks', ln)}:</p>
             
                                   <ul
                                     className="
@@ -114,7 +114,7 @@ const Stocks = () => {
                                      {sortArr(settings?.Stocks?.Stocks ?? [], 'stock').map((x, i) => {
                         return (
                             <li key={i} onClick={() => SelectStock(x)}
-                                className={`whitespace-nowrap cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[#005B9F]
+                                className={`whitespace-nowrap cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--endeavour)]
                                 ${value.id === x.id && 'font-medium bg-white'}`}>
                                 {x.stock}
 

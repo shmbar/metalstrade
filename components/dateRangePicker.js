@@ -65,7 +65,7 @@ const DateRangePicker = ({ displayLabel }) => {
 
             /* Force text styling */
             .react-tailwindcss-datepicker input {
-                color: #11497c !important;
+                color: var(--chathams-blue) !important;
                 font-size: 0.75rem !important;
             }
 
@@ -97,10 +97,10 @@ const DateRangePicker = ({ displayLabel }) => {
                         w-full
                         bg-white
                         rounded-2xl
-                        border border-[#005b9f]
+                        border border-[var(--endeavour)]
                         shadow-sm
                         cursor-pointer
-                        hover:border-[#005b9f]
+                        hover:border-[var(--endeavour)]
                         focus:outline-none
                         focus:ring-1 focus:ring-blue-200
                         tracking-normal
@@ -145,7 +145,7 @@ const DateRangePicker = ({ displayLabel }) => {
 
                 <FaRegCalendarAlt
                     className="absolute left-2 top-1/2 -translate-y-1/2 text-xs pointer-events-none"
-                    style={{ color: "#11497c" }}
+                    style={{ color: "var(--chathams-blue)" }}
                 />
             </div>
         </div>

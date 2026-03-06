@@ -125,7 +125,7 @@ export default function QuickSumControl({
       <button
         type="button"
         onClick={toggleEnabled}
-        className={`px-2 py-0.5 rounded-md text-[11px] font-normal transition-all flex items-center text-[#005b9f]
+        className={`px-2 py-0.5 rounded-md text-[11px] font-normal transition-all flex items-center text-[var(--endeavour)]
           ${enabled ? 'bg-[var(--endeavour)] text-white' : 'bg-white text-[var(--port-gore)] hover:bg-[var(--selago)] text-[11px]'}`}
         title="Quick Sum"
       >

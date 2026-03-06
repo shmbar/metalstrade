@@ -87,7 +87,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                                         <th key={header.id}
                                             className="px-2 py-2 uppercase text-center"
                                             style={{
-                                                color: '#183d79',
+                                                color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                 fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                 letterSpacing: '0.05em',

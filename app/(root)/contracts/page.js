@@ -298,7 +298,7 @@ const Contracts = () => {
 						
 						{/* Header Section */}
 						<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-							<h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+							<h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
 								{getTtl('Contracts', ln)}
 							</h1>
 							
@@ -331,7 +331,7 @@ const Contracts = () => {
 								type="button"
 								onClick={addNewContract}
 								style={{ fontSize: '12px' }}
-								className="text-white bg-[#11497c] focus:outline-none font-poppins rounded-lg text-base px-5 py-2 shadow-lg gap-2 items-center flex justify-center transition-all duration-200 hover:scale-105 border border-indigo-200/60 responsiveTextInput whitespace-nowrap"
+								className="text-white bg-[var(--chathams-blue)] focus:outline-none font-poppins rounded-lg text-base px-5 py-2 shadow-lg gap-2 items-center flex justify-center transition-all duration-200 hover:scale-105 border border-indigo-200/60 responsiveTextInput whitespace-nowrap"
 							>
 								<TbLayoutGridAdd className="text-lg flex-shrink-0" />
 								<span>{getTtl('New Contract', ln)}</span>
@@ -342,7 +342,7 @@ const Contracts = () => {
 								type="button"
 								onClick={() => router.push('/analysis')}
 								style={{ fontSize: '12px' }}
-								className="text-white bg-[#11497c] focus:outline-none font-poppins rounded-lg text-base px-5 py-2 shadow-lg gap-2 items-center flex justify-center transition-all duration-200 hover:scale-105 border border-indigo-200/60 responsiveTextInput whitespace-nowrap"
+								className="text-white bg-[var(--chathams-blue)] focus:outline-none font-poppins rounded-lg text-base px-5 py-2 shadow-lg gap-2 items-center flex justify-center transition-all duration-200 hover:scale-105 border border-indigo-200/60 responsiveTextInput whitespace-nowrap"
 							>
 								<IoAnalyticsOutline className="text-lg flex-shrink-0" />
 								<span>{getTtl('Weight Analysis', ln)}</span>

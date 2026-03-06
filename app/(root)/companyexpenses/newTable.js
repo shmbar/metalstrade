@@ -168,18 +168,18 @@ const Customtable = ({
         }
         .header-blue {
           background-color: #d9e6f2;
-          color: #1d3d79;
+          color: var(--chathams-blue);
         }
 
         .summary-green {
           background-color: #b7d1b5;
-          color: #1d3d79;
+          color: var(--chathams-blue);
           font-weight: 600;
         }
 
         .summary-blue {
           background-color: #8db6d8;
-          color: #1d3d79;
+          color: var(--chathams-blue);
           font-weight: 600;
         }
 
@@ -197,12 +197,12 @@ const Customtable = ({
         }
 
         .page-active {
-          background-color: #1d3d79;
+          background-color: var(--chathams-blue);
           color: white;
         }
 
         .page-normal {
-          color: #1d3d79;
+          color: var(--chathams-blue);
         }
       `}</style>
 
@@ -239,7 +239,7 @@ const Customtable = ({
   className="overflow-auto dashboard-scroll rounded-3xl border border-[#d7d7d7] shadow-sm"
   style={{
     maxHeight: dynamicMaxHeight,
-    borderLeft: '8px solid #1D3D79',
+    borderLeft: '8px solid var(--chathams-blue)',
     borderRadius: '20px'
   }}
 >                <table

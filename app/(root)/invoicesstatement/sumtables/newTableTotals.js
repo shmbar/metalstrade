@@ -77,7 +77,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                             className="relative px-6 py-2 text-left font-medium uppercase"
                                             style={{
                                                 fontSize: 'clamp(10px, 1vw, 13px)',
-                                                color: '#183d79',
+                                                color: 'var(--chathams-blue)',
                                                 letterSpacing: '0.05em',
                                                 // background: '#e3f3ff',
                                                 borderRight: '1px solid #e0e0e0',
@@ -88,8 +88,8 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                                     {header.column.columnDef.header}
                                                     {(() => {
                                                         const sorted = header.column.getIsSorted();
-                                                        if (sorted === 'asc') return <TbSortAscending className="text-[#183d79] scale-125" />;
-                                                        if (sorted === 'desc') return <TbSortDescending className="text-[#183d79] scale-125" />;
+                                                        if (sorted === 'asc') return <TbSortAscending className="text-[var(--chathams-blue)] scale-125" />;
+                                                        if (sorted === 'desc') return <TbSortDescending className="text-[var(--chathams-blue)] scale-125" />;
                                                         return null;
                                                     })()}
                                                 </div>
@@ -108,7 +108,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                             className="px-6 py-2 items-center"
                                             style={{
                                                 fontSize: 'clamp(10px, 1vw, 13px)',
-                                                color: cell.column.id === 'amount' ? '#183d79' : '#1F2937',
+                                                color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : '#1F2937',
                                                 fontWeight: cell.column.id === 'amount' ? 500 : 400,
                                                 textAlign: cell.column.id === 'amount' ? 'right' : 'left',
                                                 borderRight: '1px solid #e0e0e0',
@@ -209,13 +209,13 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                         {row.getVisibleCells().map((cell) => (
                                             <div key={cell.id} className="flex justify-between items-start gap-4">
                                                 <span className="uppercase tracking-wide flex-shrink-0 min-w-[100px]"
-                                                    style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 600, color: '#183d79', letterSpacing: '0.05em' }}>
+                                                    style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 600, color: 'var(--chathams-blue)', letterSpacing: '0.05em' }}>
                                                     {cell.column.columnDef.header}
                                                 </span>
                                                 <span style={{
                                                     fontSize: 'clamp(10px, 1vw, 13px)',
                                                     fontWeight: cell.column.id === 'amount' ? 500 : 400,
-                                                    color: cell.column.id === 'amount' ? '#183d79' : '#1F2937',
+                                                    color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : '#1F2937',
                                                     textAlign: cell.column.id === 'amount' ? 'right' : 'left',
                                                     wordBreak: 'break-word'
                                                 }}>

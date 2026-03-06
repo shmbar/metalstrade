@@ -201,18 +201,18 @@ const MaterialTables = () => {
                         <div className="rounded-2xl p-3 sm:p-5 mt-2 border-0 shadow-xl w-full backdrop-blur-[2px] bg-white relative max-w-7xl mx-auto">
                             {/* Header Section */}
                             <div className="flex items-center justify-between flex-wrap gap-2 pb-2">
-                                <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+                                <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
                                     {getTtl('Material Tables', ln)}
                                 </h1>
                             </div>
                             {/* Action Buttons */}
                             <div className="border rounded-2xl p-3">
                             <div className="flex gap-2 sm:gap-4 flex-wrap mb-2">
-                                <Button  className="bg-[#005b9f] border border-[var(--rock-blue)] text-white px-3 h-6 text-xs font-normal rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                <Button  className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 h-6 text-xs font-normal rounded-full hover:bg-[var(--selago)]/30 transition-all"
  onClick={addTable}>
                                     Add Table
                                 </Button>
-                                <Button   className="bg-[#e3f3ff] text-[#005b9f] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"variant="outline" onClick={saveTable}>
+                                <Button   className="bg-[#e3f3ff] text-[var(--endeavour)] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"variant="outline" onClick={saveTable}>
                                     Save
                                 </Button>
                             </div>

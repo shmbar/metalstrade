@@ -65,9 +65,9 @@ const Header = ({
           
           {/* Search Box */}
           {pathname !== '/accounting' && (
-            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[#005b9f] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 focus-within:border-blue-400 hover:border-gray-400 shadow-sm transition-all duration-200">
+            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--endeavour)] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 focus-within:border-blue-400 hover:border-gray-400 shadow-sm transition-all duration-200">
               <input
-                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[#005b9f] placeholder:text-[#005b9f] h-full text-xs rounded-2xl"
+                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full text-xs rounded-2xl"
                 placeholder={getTtl('Search', ln)}
                 value={globalFilter ?? ''}
                 onChange={e => setGlobalFilter(e.target.value)}
@@ -90,7 +90,7 @@ const Header = ({
             
             {/* Quick Sum */}
             {pathname !== '/materialtables' && (
-            <div className="border border-[#005b9f] rounded-2xl px-2 flex items-center bg-white hover:border-gray-400 focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200 min-w-0 sm:h-7">
+            <div className="border border-[var(--endeavour)] rounded-2xl px-2 flex items-center bg-white hover:border-gray-400 focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200 min-w-0 sm:h-7">
               <QuickSumControl
                 table={table}
                 enabled={quickSumEnabled}

@@ -332,13 +332,13 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
             <table className="cashflow-detail-table w-full min-w-[640px] rounded-2xl  table-fixed">
                 <thead >
                     <tr className="border border-slate-300 rounded-2xl bg-[#f0f8ff] p-2">
-                        <th className="text-left p-1 w-14 text-[#005b9f] font-normal">PO#</th>
-                        <th className="text-left p-1 w-20 text-[#005b9f] font-normal">Supplier</th>
-                        <th className="text-left p-1 w-20 text-[#005b9f] font-normal">Org Sup.</th>
-                        <th className="text-left p-1 w-28 max-w-28 text-[#005b9f] font-normal">Description</th>
-                        <th className="text-right p-1 w-16 text-[#005b9f] font-normal">Quantity</th>
-                        <th className="text-right p-1 w-20 text-[#005b9f] font-normal">Unit Price</th>
-                        <th className="text-right p-1 w-20 text-[#005b9f] font-normal">Total</th>
+                        <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">PO#</th>
+                        <th className="text-left p-1 w-20 text-[var(--endeavour)] font-normal">Supplier</th>
+                        <th className="text-left p-1 w-20 text-[var(--endeavour)] font-normal">Org Sup.</th>
+                        <th className="text-left p-1 w-28 max-w-28 text-[var(--endeavour)] font-normal">Description</th>
+                        <th className="text-right p-1 w-16 text-[var(--endeavour)] font-normal">Quantity</th>
+                        <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Unit Price</th>
+                        <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -446,12 +446,12 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
             <table className="cashflow-detail-table w-full min-w-[600px] border-collapse table-fixed">
                 <thead>
                     <tr className="border border-slate-300 p-2">
-                        <th className="text-left p-1 w-14 text-[#005b9f] font-normal">PO#</th>
-                        <th className="text-left p-1 w-20 text-[#005b9f] font-normal">Org Sup.</th>
-                        <th className="text-left p-1 w-28 max-w-28 text-[#005b9f] font-normal">Description</th>
-                        <th className="text-right p-1 w-16 text-[#005b9f] font-normal">Quantity</th>
-                        <th className="text-right p-1 w-20 text-[#005b9f] font-normal">Unit Price</th>
-                        <th className="text-right p-1 w-20 text-[#005b9f] font-normal">Total</th>
+                        <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">PO#</th>
+                        <th className="text-left p-1 w-20 text-[var(--endeavour)] font-normal">Org Sup.</th>
+                        <th className="text-left p-1 w-28 max-w-28 text-[var(--endeavour)] font-normal">Description</th>
+                        <th className="text-right p-1 w-16 text-[var(--endeavour)] font-normal">Quantity</th>
+                        <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Unit Price</th>
+                        <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -691,14 +691,14 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                     <table className="cashflow-detail-table w-full min-w-[980px] border-collapse">
                         <thead>
                             <tr className="border border-slate-300 ">
-                                <th className="text-left p-1 2xl:p-1  max-w-20 2xl:max-w-24 truncate text-[#005b9f] font-normal text-">PO#</th>
-                                <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Invoice</th>
-                                <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Amount</th>
-                                <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Payment</th>
-                                <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Balance</th>
-                                <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">ETD</th>
-                                <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">ETA</th>
-                                <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Payment</th>
+                                <th className="text-left p-1 2xl:p-1  max-w-20 2xl:max-w-24 truncate text-[var(--endeavour)] font-normal text-">PO#</th>
+                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Invoice</th>
+                                <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
+                                <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
+                                <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Balance</th>
+                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">ETD</th>
+                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">ETA</th>
+                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
                                 <th className="text-center px-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
@@ -828,11 +828,11 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                     <table className="cashflow-detail-table responsiveTextTable w-full min-w-[760px] border-collapse">
                         <thead>
                             <tr className="border border-slate-300 p-2">
-                                <th className="text-left p-1 2xl:p-2  w-28 text-[#005b9f] font-normal">PO#</th>
-                                <th className="text-left p-1 2xl:p-2 w-16 text-[#005b9f] font-normal">Invoice</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Amount</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Prepayment</th>
-                                <th className="text-left p-1 2xl:p-2 text-[#005b9f] font-normal">Payment</th>
+                                <th className="text-left p-1 2xl:p-2  w-28 text-[var(--endeavour)] font-normal">PO#</th>
+                                <th className="text-left p-1 2xl:p-2 w-16 text-[var(--endeavour)] font-normal">Invoice</th>
+                                <th className="text-left p-1 2xl:p-2 text-[var(--endeavour)] font-normal">Amount</th>
+                                <th className="text-left p-1 2xl:p-2 text-[var(--endeavour)] font-normal">Prepayment</th>
+                                <th className="text-left p-1 2xl:p-2 text-[var(--endeavour)] font-normal">Payment</th>
                                 <th className="text-center p-1 2xl:p-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
@@ -1083,13 +1083,13 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
             <table className="cashflow-detail-table w-full min-w-[760px] border-collapse">
                 <thead>
                     <tr className="border border-slate-300">
-                        <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">PO#</th>
+                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
-                        <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Invoice</th>
-                        <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Value</th>
-                        <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Payment</th>
-                        <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Balance</th>
-                        <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Payment</th>
+                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Invoice</th>
+                        <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Value</th>
+                        <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
+                        <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Balance</th>
+                        <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
                         <th>
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
@@ -1263,14 +1263,14 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
             <table className="cashflow-detail-table w-full min-w-[860px] border-collapse">
                 <thead>
                     <tr className="border border-slate-300">
-                        <th className="text-left p-1 2xl:p-1 w-24 text-[#005b9f] font-normal">PO#</th>
+                        <th className="text-left p-1 2xl:p-1 w-24 text-[var(--endeavour)] font-normal">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
-                        <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Exp. Invoice</th>
-                        <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Exp. Type</th>
-                        <th className="text-right p-1 2xl:p-1 text-[#005b9f] font-normal">Amount</th>
-                        <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Date</th>
-                        <th className="text-left p-1 2xl:p-1 text-[#005b9f] font-normal">Payment</th>
-                        <th className="text-center p-1 2xl:p-1 py-0 text-[#005b9f]">
+                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Exp. Invoice</th>
+                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Exp. Type</th>
+                        <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
+                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Date</th>
+                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
+                        <th className="text-center p-1 2xl:p-1 py-0 text-[var(--endeavour)]">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
                                     {filteredArr.length > 0 && <CheckBox size='size-5' checked={!!toggleExp[filteredArr[0]?.supplier]}

@@ -40,7 +40,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
               style={{
                 textAlign: "left",
                 padding: "8px 16px 8px 8px",
-                color: "#183d79",
+                color: "var(--chathams-blue)",
                 fontWeight: 600,
                 fontSize: "11px",
                 letterSpacing: "0.05em",
@@ -54,7 +54,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
               style={{
                 textAlign: "left",
                 padding: "8px 16px 8px 8px",
-                color: "#183d79",
+                color: "var(--chathams-blue)",
                 fontWeight: 600,
                 fontSize: "11px",
                 letterSpacing: "0.05em",
@@ -68,7 +68,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
               style={{
                 textAlign: "left",
                 padding: "8px 16px 8px 8px",
-                color: "#183d79",
+                color: "var(--chathams-blue)",
                 fontWeight: 600,
                 fontSize: "11px",
                 letterSpacing: "0.05em",
@@ -82,7 +82,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
               style={{
                 textAlign: "left",
                 padding: "8px 16px 8px 8px",
-                color: "#183d79",
+                color: "var(--chathams-blue)",
                 fontWeight: 600,
                 fontSize: "11px",
                 letterSpacing: "0.05em",
@@ -96,7 +96,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
               style={{
                 textAlign: "left",
                 padding: "8px 16px 8px 8px",
-                color: "#183d79",
+                color: "var(--chathams-blue)",
                 fontWeight: 600,
                 fontSize: "11px",
                 letterSpacing: "0.05em",
@@ -110,7 +110,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
               style={{
                 textAlign: "left",
                 padding: "8px 16px 8px 8px",
-                color: "#183d79",
+                color: "var(--chathams-blue)",
                 fontWeight: 600,
                 fontSize: "11px",
                 letterSpacing: "0.05em",
@@ -146,7 +146,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                   style={{
                     textAlign: "left",
                     padding: "8px 16px 8px 8px",
-                    color: "#183d79",
+                    color: "var(--chathams-blue)",
                     fontWeight: 500,
                     fontSize: "11px",
                     whiteSpace: "nowrap",

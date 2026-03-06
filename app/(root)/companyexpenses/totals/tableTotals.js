@@ -66,7 +66,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           }}
         >
           <p
-            className="text-[#005b9f] uppercase font-bold text-center"
+            className="text-[var(--endeavour)] uppercase font-bold text-center"
             style={{
               fontSize: 'clamp(11px, 1vw, 11px)',
               letterSpacing: '0.05em'
@@ -88,7 +88,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           <div
             style={{
               fontWeight: 600,
-              color: '#005b9f'
+              color: 'var(--endeavour)'
             }}
                       className="!text-[12px]"
 
@@ -100,7 +100,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
             className="!text-[12px]"
             style={{
               fontWeight: 600,
-              color: '#005b9f'
+              color: 'var(--endeavour)'
             }}
           >
             Amount
@@ -130,7 +130,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                         : 'truncate text-[10px]'
                     }
                     style={{
-                      color: cell.column.id === 'amount' ? '#183d79' : '#1F2937',
+                      color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : '#1F2937',
                       fontWeight: cell.column.id === 'amount' ? 500 : 400
                     }}
                   >
@@ -152,7 +152,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         >
           <div
             className="flex justify-between font-semibold"
-            style={{ color: '#183d79' }}
+            style={{ color: 'var(--chathams-blue)' }}
           >
             <span>Total $</span>
             <span>
@@ -165,7 +165,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
 
           <div
             className="flex justify-between font-semibold mt-1"
-            style={{ color: '#183d79' }}
+            style={{ color: 'var(--chathams-blue)' }}
           >
             <span>Total €</span>
             <span>

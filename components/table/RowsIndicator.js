@@ -14,15 +14,15 @@ const RowsIndicator = ({ table }) => {
 
 	return (
 		<div className="py-1 px-1 md:px-4 self-center flex items-center space-x-2 m-auto md:m-0">
-			<span className="text-[#005b9f] text-[0.72rem]">Rows:</span>
+			<span className="text-[var(--endeavour)] text-[0.72rem]">Rows:</span>
 			<Menu as="div" className="relative inline-block">
 				<MenuButton
-					className="inline-flex w-full justify-center border border-[#005b9f]/50 rounded-lg px-4 py-1 text-[0.72rem] font-medium text-[var(--port-gore)]
+					className="inline-flex w-full justify-center border border-[var(--endeavour)]/50 rounded-lg px-4 py-1 text-[0.72rem] font-medium text-[var(--port-gore)]
 									hover:border-[var(--endeavour)] transition-colors"
 				>
-					<span className='items-center flex pt-[2px] text-[#005b9f]'>{table.getState().pagination.pageSize}</span>
+					<span className='items-center flex pt-[2px] text-[var(--endeavour)]'>{table.getState().pagination.pageSize}</span>
 					<HiMiniChevronUpDown
-						className="ml-2 -mr-1 mt-0.5 h-4 w-4 text-[#005b9f]"
+						className="ml-2 -mr-1 mt-0.5 h-4 w-4 text-[var(--endeavour)]"
 						aria-hidden="true"
 					/>
 				</MenuButton>

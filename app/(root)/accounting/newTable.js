@@ -245,7 +245,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
 
           {/* DESKTOP */}
           <div className="hidden md:block">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderLeft: '8px solid #1D3D79', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
+            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderLeft: '8px solid var(--chathams-blue)', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
               <table className="w-full" style={{ tableLayout: 'auto' }}>
 
                 {/* THEAD - Multi-color gradient inspired by all cards */}
@@ -258,7 +258,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                             key={header.id}
                             className="font-poppins text-xs"
                             style={{
-                              color: '#183d79',
+                              color: 'var(--chathams-blue)',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',
                               maxWidth: header.column.id === 'select' ? '50px' : 'none',
                               letterSpacing: '0.05em',
@@ -439,7 +439,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                     <span 
                       className="font-normal"
                       style={{ 
-                        color: '#005b9f',
+                        color: 'var(--endeavour)',
                         fontSize: 'clamp(9px, 0.8vw, 10px)',
                         textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                       }}

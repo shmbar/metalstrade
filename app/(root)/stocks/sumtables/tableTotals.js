@@ -69,7 +69,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 key={`${currency}-${index}`}
                 className="px-2 py-2 transition-colors duration-150 group/cell relative"
                 style={{
-                  color: '#183d79',
+                  color: 'var(--chathams-blue)',
                   minWidth: '60px',
                   maxWidth: '110px',
                   fontSize: 'clamp(11px, 1.0vw, 13px)',
@@ -223,7 +223,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             textAlign: 'center',
             fontWeight: '600',
             fontSize: '13px',
-            color: '#183d79',
+            color: 'var(--chathams-blue)',
             letterSpacing: '0.03em'
           }}
         >
@@ -247,7 +247,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                       key={header.id}
                       className="px-2 py-2 uppercase text-center"
                       style={{
-                        color: '#183d79',
+                        color: 'var(--chathams-blue)',
                         minWidth: '60px',
                         fontSize: 'clamp(10px, 1.0vw, 13px)',
                         letterSpacing: '0.05em',

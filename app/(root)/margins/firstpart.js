@@ -107,7 +107,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                 }}
                             >
                                 <div 
-                                    className="text-[#005b9f] font-bold text-center"
+                                    className="text-[var(--endeavour)] font-bold text-center"
                                     style={{
                                         fontSize: 'clamp(11px, 1.0vw, 13px)',
                                         fontWeight: '700'                                    }}
@@ -115,7 +115,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                     {card.value}
                                 </div>
                                 <span 
-                                    className="text-[#005b9f] font-bold mb-1 text-center px-2"
+                                    className="text-[var(--endeavour)] font-bold mb-1 text-center px-2"
                                     style={{
                                         fontSize: '10px',
                                         fontWeight: '700',

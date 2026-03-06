@@ -96,7 +96,7 @@ const Clients = () => {
         <div className='p-2 rounded-lg flex flex-col md:flex-row w-full gap-4 '>
               <div className="md:px-5 w-[27%] flex-shrink-0 rounded-lg p-2
                           bg-[#e3f3ff]">
-                                <p className='flex items-center text-sm font-medium pl-2 text-[#005B9F] mt-2'>{getTtl('Clients', ln)}:</p>
+                                <p className='flex items-center text-sm font-medium pl-2 text-[var(--endeavour)] mt-2'>{getTtl('Clients', ln)}:</p>
 
                       <ul
                         className="
@@ -108,7 +108,7 @@ const Clients = () => {
                          {sortArr((settings.Client?.Client || []).filter(q => !q.deleted), 'client').map((x, i) => {
                         return (
                             <li key={i} onClick={() => SelectClient(x)}
-                                className={`whitespace-nowrap cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[#005B9F]    rounded-full
+                                className={`whitespace-nowrap cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--endeavour)]    rounded-full
 
                                 ${value.id === x.id && 'font-medium bg-white'}`}>
                                 {x.client}
@@ -128,20 +128,20 @@ const Clients = () => {
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update client data'>
-                        <button className='supplierButton py-1 bg-[#e3f3ff] border-none text-[#005b9f]'
+                        <button className='supplierButton py-1 bg-[#e3f3ff] border-none text-[var(--endeavour)]'
                             onClick={updateList}>
                             <BiEditAlt className='scale-125' />
                             {getTtl('Update', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Delete client'>
-                        <button className='supplierButton py-1 bg-[#e3f3ff] border-none text-[#005b9f]' onClick={() => setIsDeleteOpen(true)}
+                        <button className='supplierButton py-1 bg-[#e3f3ff] border-none text-[var(--endeavour)]' onClick={() => setIsDeleteOpen(true)}
                             disabled={!value.id}>
                             <MdDeleteOutline className='scale-125' />{getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Clear form'>
-                        <button className='supplierButton py-1 bg-[#e3f3ff] border-none text-[#005b9f]'
+                        <button className='supplierButton py-1 bg-[#e3f3ff] border-none text-[var(--endeavour)]'
                             onClick={clickClear}>
                             <AiOutlineClear className='scale-125' />{getTtl('Clear', ln)}
                         </button>

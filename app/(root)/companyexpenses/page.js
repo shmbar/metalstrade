@@ -216,7 +216,7 @@ const Expenses = () => {
                         <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-gray-200 shadow-xl w-full backdrop-blur-[2px] bg-white">
                             {/* Header Section */}
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-                                <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+                                <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
                                     {getTtl('Company Expenses', ln)}
                                 </h1>
                                 {/* <div className='flex items-center gap-2 group'>
@@ -243,7 +243,7 @@ const Expenses = () => {
                                 <button
                                 type="button"
                                 onClick={addNewExpense}
-                                className="flex items-center gap-2 bg-[#005b9f] border border-[var(--rock-blue)] text-white px-4 py-1.5 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                className="flex items-center gap-2 bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-4 py-1.5 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                 >
                                 <TbLayoutGridAdd className="w-4 h-4" />
                                 <span>New Expense</span>

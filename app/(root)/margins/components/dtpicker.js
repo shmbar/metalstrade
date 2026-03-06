@@ -16,7 +16,7 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
                 <PopoverTrigger asChild>
                     <Button
                         variant="ghost"
-                        className="h-6 p-1 justify-start text-left font-normal text-[#005b9f] text-[11px] bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="h-6 p-1 justify-start text-left font-normal text-[var(--endeavour)] text-[11px] bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                     >
                         {props.value?.startDate ? dateFormat(props.value.startDate, 'dd.mm.yy') :
                             <span className=''>DD.MM.YY</span>}

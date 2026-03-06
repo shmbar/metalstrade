@@ -35,7 +35,7 @@ const General = () => {
                 : <>
                     <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 flex flex-wrap md:flex-nowrap w-full space-x-4'>
                                     <div className='gap-4 flex items-center w-full' >
-                            <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>
+                            <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>
                                 {getTtl('cmpName', ln)}:</p>
                                 <input
                                     type='input'
@@ -62,7 +62,7 @@ className="
                         </div>
 
                                     <div className='gap-4 flex items-center w-full' >
-  <p className="text-sm font-normal  text-[#005b9f]">
+  <p className="text-sm font-normal  text-[var(--endeavour)]">
     {getTtl("lng", ln)}:
   </p>
 
@@ -107,7 +107,7 @@ className="
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2 max-w-sm'>
                                     <div className='gap-4 flex items-center' >
-                                        <p className='text-sm font-normal  text-[#005b9f]'>
+                                        <p className='text-sm font-normal  text-[var(--endeavour)]'>
                                             {getTtl('street', ln)}:</p>
                                         <input
                                             type='input'
@@ -134,7 +134,7 @@ className="
                                         />
                                     </div>
                                     <div className='flex gap-4 items-center ' >
-                                        <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>
                                             {getTtl('city', ln)}: </p>
                                         <input
                                             type='input'
@@ -161,7 +161,7 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>
                                             {getTtl('country', ln)}:</p>
                                         <input
                                             type='input'
@@ -187,7 +187,7 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>
                                             {getTtl('zipCode', ln)}:</p>
                                         <input
                                             type='input'
@@ -217,7 +217,7 @@ className="
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2 max-w-sm'>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>Reg No.:</p>
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>Reg No.:</p>
                                         <input
                                             type='input'
 className="
@@ -242,7 +242,7 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>VAT No.:</p>
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>VAT No.:</p>
                                         <input
                                             type='input'
 className="
@@ -267,7 +267,7 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='text-sm font-normal whitespace-nowrap  text-[#005b9f]'>EORI No.:</p>
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>EORI No.:</p>
                                         <input
                                             type='input'
 className="
@@ -302,7 +302,7 @@ className="
                     <div className='border border-[#E5E7EB] p-4 rounded-lg  mt-5 w-full'>
                         <div className='grid grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='text-sm font-normal whitespace-nowrap text-[#005b9f]'>
+                                <p className='text-sm font-normal whitespace-nowrap text-[var(--endeavour)]'>
                                     {getTtl('cmpemail', ln)}:</p>
                                 <input
                                     type='input'
@@ -327,7 +327,7 @@ className="
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='text-sm font-normal whitespace-nowrap text-[#005b9f]'>
+                                <p className='text-sm font-normal whitespace-nowrap text-[var(--endeavour)]'>
                                     {getTtl('cmpwebsite', ln)}:</p>
                                 <input
                                     type='input'
@@ -358,7 +358,7 @@ className="
                     <div className=' border border-[#E5E7EB] p-4 rounded-lg  mt-5 w-full'>
                         <div className='grid grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='text-sm font-normal whitespace-nowrap   text-[#005b9f]'>
+                                <p className='text-sm font-normal whitespace-nowrap   text-[var(--endeavour)]'>
                                     {getTtl('cmpPhone', ln)}:</p>
                                 <input
                                     type='input'
@@ -383,7 +383,7 @@ className="
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='text-sm font-normal whitespace-nowrap   text-[#005b9f]'>
+                                <p className='text-sm font-normal whitespace-nowrap   text-[var(--endeavour)]'>
                                     {getTtl('cmpMobile', ln)}:</p>
                                 <input
                                     type='input'
@@ -416,7 +416,7 @@ className="
                     <div className="flex mt-3 ml-3">
                         <Tltip direction='top' tltpText='Save/update company data'>
                             <button
-                                    className="bg-[#005b9f] border border-[var(--rock-blue)] text-white px-4 h-8 text-xs rounded-xl hover:bg-[var(--selago)]/30 transition-all"
+                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-4 h-8 text-xs rounded-xl hover:bg-[var(--selago)]/30 transition-all"
                                 onClick={() => updateCompanyData(uidCollection)}
                             >
                                 {getTtl('save', ln)}

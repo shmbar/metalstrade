@@ -36,17 +36,17 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                     <tr style={{
                         border: 'none',
                         background: 'linear-gradient(90deg, #bce1ff 0%, #d4eafc 100%)',
-                        color: '#183d79',
+                        color: 'var(--chathams-blue)',
                         fontWeight: 600,
                         fontSize: 'clamp(13px, 1vw, 15px)'
                     }}>
-                        <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', borderTopLeftRadius: '12px', whiteSpace: 'normal' }}>PO#</th>
-                        {/* <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0' }}>Supplier</th> */}
-                        <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', whiteSpace: 'normal' }}>Invoice</th>
-                        <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', whiteSpace: 'normal' }}>Description</th>
-                        <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', whiteSpace: 'normal' }}>Amount</th>
-                        <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', whiteSpace: 'normal' }}>Date</th>
-                        <th style={{ textAlign: 'center', padding: '8px', color: '#183d79', fontWeight: 600, border: '1px solid #e0e0e0', borderTopRightRadius: '12px', whiteSpace: 'normal' }}>Payment</th>
+                        <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', borderTopLeftRadius: '12px', whiteSpace: 'normal' }}>PO#</th>
+                        {/* <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0' }}>Supplier</th> */}
+                        <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', whiteSpace: 'normal' }}>Invoice</th>
+                        <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', whiteSpace: 'normal' }}>Description</th>
+                        <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', whiteSpace: 'normal' }}>Amount</th>
+                        <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', whiteSpace: 'normal' }}>Date</th>
+                        <th style={{ textAlign: 'center', padding: '8px', color: 'var(--chathams-blue)', fontWeight: 600, border: '1px solid #e0e0e0', borderTopRightRadius: '12px', whiteSpace: 'normal' }}>Payment</th>
                     </tr>
                 </thead>
                 <tbody>

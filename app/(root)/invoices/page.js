@@ -288,7 +288,7 @@ const Invoices = () => {
         const isEUR = val === 'EUR' || val === '€';
         const symbol = isUSD ? '$' : isEUR ? '€' : val;
         const bg = isUSD ? '#c2e2bb' : isEUR ? '#d4eafc' : '#e5e7eb';
-        const color = '#11497c';
+        const color = 'var(--chathams-blue)';
         return (
             <span
                 style={{
@@ -496,7 +496,7 @@ const Invoices = () => {
 							
 							{/* Header Section */}
 							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-								<h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
+								<h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
 									{getTtl('Invoices', ln)}
 								</h1>
 								{/* <div className='flex items-center gap-2 group'>
