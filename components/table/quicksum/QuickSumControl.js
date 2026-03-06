@@ -211,7 +211,7 @@ export function QuickSumTotals({
   if (selectedCount === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 text-xs text-[var(--port-gore)] border border-[var(--endeavour)] rounded-2xl bg-white px-3 py-1.5 shadow-sm">
+    <div className="inline-flex flex-wrap items-center gap-1.5 text-xs text-[var(--port-gore)] border border-[var(--endeavour)] rounded-2xl bg-white px-3 py-1.5 shadow-sm">
       <span className="font-semibold text-[var(--endeavour)]">{selectedCount} selected</span>
       <span className="text-[var(--rock-blue)]">|</span>
       {(totals || []).map((t) => {
