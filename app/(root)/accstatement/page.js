@@ -325,23 +325,22 @@ const AccountStatement = () => {
                 <h1 className="text-[14px] text-[#11497c] font-poppins responsiveTextTitle border-l-4 border-[#11497c] pl-2" style={{ fontSize: '14px' }}>
                   {getTtl('Account Statement', ln)}
                 </h1>
-                {/* <div className='flex group datepicker-wrapper'>
+                <div className='flex group datepicker-wrapper'>
                   <Datepicker
-                    inputClassName='border border-slate-300 text-sm/6 p-1 px-1.5 rounded-lg text-slate-500 w-60
+                    inputClassName='border border-slate-300 text-xs p-1 px-1.5 rounded-lg text-slate-500 w-60
                       focus:outline-none cursor-pointer z-0 bg-white'
                     useRange={false}
                     asSingle={true}
                     value={valueDate}
                     onChange={handleDateChange}
-                    displayFormat={"01-01-YY - DD-MM-YY"}
+                    displayFormat={"DD-MMM-YY"}
                     placeholder="Select date"
                     showShortcuts={false}
                     readOnly={true}
                     containerClassName="z-20 relative"
                     disabledDates={disabledDates}
                   />
-                  <Tooltip txt='Select Date' />
-                </div> */}
+                </div>
               </div>
 
               {/* Table Component */}
