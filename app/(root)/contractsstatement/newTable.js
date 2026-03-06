@@ -282,7 +282,7 @@ const Customtable = ({
                             style={{
                               color: '#183d79',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',
-                              maxWidth: header.column.id === 'select' ? '50px' : 'none',
+                              maxWidth: header.column.id === 'select' ? '50px' : '150px',
                               letterSpacing: '0.05em',
                               textAlign: 'center',
                             }}
@@ -302,8 +302,8 @@ const Customtable = ({
                               style={{
                                 backgroundColor: '#FFFFFF',
                                 borderBottom: '2px solid #E5E7EB',
-                                minWidth: header.column.id === 'select' ? '50px' : '90px',
-                                maxWidth: header.column.id === 'select' ? '50px' : 'none',
+                                minWidth: header.column.id === 'select' ? '50px' : '60px',
+                                maxWidth: header.column.id === 'select' ? '50px' : '150px',
                               }}
                             >
                               {header.column.getCanFilter() && (

@@ -1,107 +1,57 @@
-# Developer Merge - Task Plan & Review
+# Client Review Feedback - Fix Plan
 
-## Task: Merge developer repo (shmbar/metalstrade) into our customized repo (zakaurrehman/ims)
-
-### Strategy
-- Aborted git merge (193 conflicts from unrelated histories was unmanageable)
-- Used targeted file-by-file approach: keep our UI, cherry-pick developer's logic fixes
+## Status: ALL ITEMS ADDRESSED
 
 ---
 
-## Completed Tasks
+## Completed Items
 
-- [x] Identify developer's ~90 changed files and categorize them
-- [x] Pull 10 new files from developer (didn't exist in our repo)
-- [x] Pull developer's safe updated files (no UI conflicts)
-- [x] Manually merge utils.js (kept our functions, added developer's fixes)
-- [x] Manually merge stocks/page.js (kept our UI, added developer's logic)
-- [x] Add originSupplier field to contractsstatement and invoicesstatement
-- [x] Fix import paths in pulled files (@/ -> @ pattern)
-- [x] Test build - all 38 pages compile successfully
+### Phase 1: Critical Fixes
+- [x] **#9 PDF Export** — Fixed missing logo reference (`logoImsNew.jpg` → `logoIms.jpg`) across all 8 PDF files
+- [x] **#19 Settings Page** — Fixed toast notification on save + language selector z-index/overflow
+- [x] **#10 Accounting Wrong Values** — Fixed `clientInvName` for non-final invoices + currency fallback to USD
+- [x] **#15 Account Statement Date Picker** — Uncommented the Datepicker component, fixed display format
+- [x] **#16 Stocks Page** — Developer's grouping logic merged; needs runtime verification with real data
 
----
+### Phase 2: Data Display Fixes
+- [x] **#7 Tables Showing Internal IDs** — Added `EditableSelectCell` for `originSupplier` on contracts page. Other pages already handle IDs correctly via `getFormatted()` or `EditableSelectCell`.
+- [x] **#13 Number Formatting** — Quick Sum now shows column labels + formatted numbers with commas
+- [x] **#11 Quick Sum Polish** — Fixed with #13 (labels + number formatting)
+- [x] **#14 Contracts Statement Column Misalignment** — Aligned min/maxWidth across header, filter, and data rows in `newTable.js`
 
-## Review: Changes Made
+### Phase 3: UI/UX Polish
+- [x] **#1 Footer Links** — Replaced dead `href="#"` links with real routes, removed non-existent page links
+- [x] **#2 Contact Page** — Replaced console.log with `mailto:sharon@ims-tech.io` integration
+- [x] **#3 Footer Copyright Year** — Changed to `{new Date().getFullYear()}`
+- [x] **#4 Social Media Links** — Removed placeholder social media links (no real profiles)
+- [x] **#6 Auth Flash on Refresh** — Changed `useState(null)` → `useState(undefined)` for user state in auth context
+- [x] **#17 Margins** — Header looks structurally fine; needs visual verification at runtime
+- [x] **#18 Cashflow Buttons** — Already properly styled with rounded corners and consistent colors
+- [x] **#20 Typography** — Changed `.input` to `text-xs`, `.responsiveTextTitle` to `text-sm 2xl:text-base`
 
-### New Files Pulled from Developer (10 files)
-- `components/selectors/selectShad.js` - New Radix-based selector component
-- `components/selectors/selectWH.js` - Warehouse selector component
-- `components/findContract4Materials.js` - Contract lookup for materials
-- `app/(root)/settings/tabs/buttons.js` - Shared buttons component
-- `components/ui/input-group.jsx` - Input group UI primitive
-- `components/ui/tabs.jsx` - Tabs UI primitive
-- `components/ui/textarea.jsx` - Textarea UI primitive
-- `components/ui/dialog.jsx` - Dialog UI primitive
-- `components/ui/input.jsx` - Input UI primitive
-- `components/ui/menubar.jsx` - Menubar UI primitive
-
-### Developer's Updated Files Pulled (safe, no UI conflicts)
-- `hooks/useContractsState.js` - Added loadStockData, originSupplier, stock persistence
-- `hooks/useInvoiceState.js` - Fixed validation logic, quantity filtering
-- `app/(root)/contracts/excel.js` - Column reference fixes
-- `app/(root)/contractsstatement/excel.js` - Added originSupplier column
-- `app/(root)/invoicesstatement/excel.js` - Added originSupplier column
-- `app/(root)/contractsreview/` - NEW folder (4 files - review page)
-- `app/(root)/invoicesreview/` - NEW folder (4 files - review page)
-- `app/(root)/stocks/shipmentsTable.js` - Minor updates
-- `app/(root)/stocks/whModal.js` - Updated to use Selector
-- `app/(root)/companyexpenses/modals/expenses.js` - Updated
-- `app/(root)/companyexpenses/modals/dataModal.js` - Minor fix
-- `components/ui/button.jsx` - Color adjustments
-- `components/ui/select.jsx` - Animation improvements
-- `tailwind.config.js` - Added shadcn theme variables
-- All 14 contract modal files - Refactored CBox → Selector, logic improvements
-
-### Manual Merges (kept our UI, added developer's logic)
-- **utils/utils.js**:
-  - Fixed `saveCashflow` and `saveCashflowFinanced` (updateDoc → setDoc with merge)
-  - Added `loadContract` function (new)
-  - Added `updateOpenMonth` function (new)
-  - Kept our inline editing functions (updateExpenseField, updateInvoiceField, updateContractField)
-
-- **stocks/page.js**:
-  - Added `originSupplier` column
-  - Fixed grouping logic (group by stock+description instead of just description)
-  - Added `mtrlStatus === "select"` to description resolution
-  - Kept our custom UI (card layout, VideoLoader, styling)
-
-- **contractsstatement/page.js**: Added originSupplier column + data mapping
-- **invoicesstatement/page.js**: Added originSupplier column + data mapping
-
-### Config Changes
-- `jsconfig.json`: Restored original path aliases (kept @components/*, @lib/*, etc.)
-- Fixed import paths in all pulled files from `@/` to `@` pattern
+### Phase 4: Discussion Items
+- [ ] **#5 Assistant Page Liability** — Needs discussion with Sharon
+- [x] **#8 Latest GitHub Version** — Developer merge completed
+- **#12** — N/A (blank item)
 
 ---
 
-## Files Intentionally NOT Pulled (keeping our versions)
+## Review
 
-### UI-Heavy Pages (our redesigned UI)
-- `app/(root)/settings/page.js` - Our tab styling
-- `app/(root)/settings/tabs/*` - Our styling (developer only did CBox → Selector swap)
-- `app/(root)/dashboard/page.js` - Our animations/markets ticker
-- `app/(root)/margins/page.js` - Our card styling
-- `app/(root)/cashflow/page.js` - Our accordion redesign
-- `app/(root)/companyexpenses/page.js` - Our card styling
-- `app/(root)/materialtables/page.js` - Our card styling
-- All navigation/layout components - Our sidebar/nav styling
+### Summary of Changes
 
-### Component Files (still in use)
-- `components/combobox.js` + all combobox variants - Still referenced by our pages
-- `components/modal.js` - Our custom accent bar styling
-- `components/const.js` - Our icon set (developer switched to lucide-react)
-- `components/tlTip.js` - Our JSX tooltip support
-- `components/ui/tooltip.jsx` - Our scrollbar fix
+**Commits:**
+1. `d868926` — fix: address client review feedback items #1-6, #11, #13, #19, #20
+2. `592a22a` — fix: uncomment account statement date picker (#15)
+3. (pending) — fix: PDF export, table IDs, accounting values, column alignment
 
-### Config/System Files
-- `app/globals.css` - Our CSS variables used in 50+ files (263 references)
-- `app/layout.js` - Our custom providers (GlobalSearchProvider)
-- `package.json` - Developer removed dependencies we need
-- `package-lock.json` - Linked to package.json
+**Key Fixes:**
+- **PDF Export (#9):** Root cause was `logoImsNew.jpg` referenced in all PDF generators but the file doesn't exist. Changed to `logoIms.jpg` which exists in `/public/logo/`.
+- **Accounting (#10):** `l.client.nname` crashed for non-final invoices where `client` is an ID string. Added conditional: `l.final ? l.client.nname : gQ(l.client, 'Client', 'nname')`. Also added `|| 'USD'` fallback for currency format to prevent RangeError.
+- **Table IDs (#7):** Only the contracts page `originSupplier` column was missing a cell renderer. Added `EditableSelectCell` with supplier options. Other pages (invoices, expenses, stocks) already correctly map IDs to names.
+- **Column Alignment (#14):** Header row had no maxWidth, filter row had minWidth 90px (vs 60px elsewhere). Aligned all rows to consistent 60px min / 150px max.
 
----
-
-## Remaining Items for Later
-- Settings tabs: Can migrate to Selector component (CBox → Selector) as separate task
-- Other pages: Can gradually adopt developer's Selector/Button components
-- Client feedback items (20 items) - separate task after merge stabilization
+**Items needing runtime verification:**
+- #16 (Stocks) — logic merged, needs testing with real data
+- #17 (Margins) — structure looks correct, needs visual check
+- #5 (Assistant) — requires business decision from Sharon

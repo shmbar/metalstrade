@@ -163,7 +163,17 @@ const Contracts = () => {
 				})) ?? []
 			}
 		},
-		{ accessorKey: 'originSupplier', header: 'Original supplier' },
+		{
+			accessorKey: 'originSupplier',
+			header: 'Original supplier',
+			cell: EditableSelectCell,
+			meta: {
+				options: settings.Supplier?.Supplier?.map(s => ({
+					value: s.id,
+					label: s.nname
+				})) ?? []
+			}
+		},
 		{
 			accessorKey: 'shpType',
 			header: getTtl('Shipment', ln),

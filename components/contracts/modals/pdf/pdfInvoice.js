@@ -46,7 +46,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     const header = () => {
         gisAccount ?
             doc.addImage('/logo/gisLogo.jpg', "JPEG", 8, 10, 50, 25) :
-            doc.addImage('/logo/logoImsNew.jpg', "JPEG", 10, 10, 50, 25);
+            doc.addImage('/logo/logoIms.jpg', "JPEG", 10, 10, 50, 25);
 
 
         doc.setTextColor(32, 55, 100)

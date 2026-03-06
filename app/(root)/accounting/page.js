@@ -168,8 +168,8 @@ const { upsertSourceItems } = useGlobalSearch();
         let item = {
           dateInv: l.final ? l.date : l.dateRange.endDate,
           saleInvoice: l.invoice + getprefixInv(l),
-          clientInv: l.client,              // store ID
-clientInvName: l.client.nname,    // for display
+          clientInv: l.final ? l.client.id || l.client : l.client,              // store ID
+clientInvName: l.final ? l.client.nname : gQ(l.client, 'Client', 'nname'),    // for display
           amountInv: l.totalAmount,
           invType: getprefixInv1(l),
           invoice: l.invoice,
@@ -314,7 +314,7 @@ useEffect(() => {
 
     return x.row.original.expInvoice ? new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: x.row.original.curEX,
+      currency: x.row.original.curEX || 'USD',
       minimumFractionDigits: 2
     }).format(x.getValue()) : ''
   }
@@ -323,7 +323,7 @@ useEffect(() => {
 
     return x.row.original.saleInvoice ? new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: x.row.original.curINV,
+      currency: x.row.original.curINV || 'USD',
       minimumFractionDigits: 2
     }).format(x.getValue()) : ''
   }
