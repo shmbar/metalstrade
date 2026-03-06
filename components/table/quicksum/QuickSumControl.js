@@ -121,121 +121,122 @@ export default function QuickSumControl({
   };
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      <button
-        type="button"
-        onClick={toggleEnabled}
-        className={`px-2 py-0.5 rounded-md text-[11px] font-normal transition-all flex items-center text-[var(--endeavour)]
-          ${enabled ? 'bg-[var(--endeavour)] text-white' : 'bg-white text-[var(--port-gore)] hover:bg-[var(--selago)] text-[11px]'}`}
-        title="Quick Sum"
-      >
-        Quick Sum
-      </button>
+    <div className="flex flex-col gap-1">
+      {/* Controls row: toggle + columns button */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={toggleEnabled}
+          className={`px-2 py-0.5 rounded-md text-[11px] font-normal transition-all flex items-center
+            ${enabled ? 'bg-[var(--endeavour)] text-white' : 'bg-white text-[var(--port-gore)] hover:bg-[var(--selago)]'}`}
+          title="Quick Sum"
+        >
+          Quick Sum
+        </button>
 
-      {enabled && (
-        <div className="relative">
+        {enabled && (
+          <div className="relative">
+            <button
+              ref={triggerRef}
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              className="px-2 py-0.5 rounded-md text-[11px] font-medium transition-all bg-white text-[var(--port-gore)] border border-[var(--rock-blue)]/50 hover:border-[var(--endeavour)]"
+              title="Choose columns"
+            >
+              Columns ▾
+            </button>
+
+            {open && portalNode && createPortal(
+              <>
+                <div
+                  style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, zIndex: 999998, background: 'transparent' }}
+                  onClick={() => setOpen(false)}
+                />
+                <div
+                  style={dropdownStyle}
+                  className="bg-white border border-[var(--selago)] rounded-xl shadow-lg p-3"
+                >
+                  <div className="text-sm font-medium text-[var(--port-gore)] mb-2 pl-1">
+                    Select numeric columns
+                  </div>
+
+                  {numericCols.length === 0 ? (
+                    <div className="text-sm text-[var(--port-gore)] p-2">
+                      No numeric columns detected.
+                    </div>
+                  ) : (
+                    <div className="max-h-56 overflow-auto">
+                      {numericCols.map((c) => (
+                        <label
+                          key={c.id}
+                          className="flex items-center gap-2 text-xs py-2 px-2 cursor-pointer hover:bg-[var(--selago)]/50 rounded-lg transition-colors"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={(selectedColumnIds || []).includes(c.id)}
+                            onChange={() => toggleCol(c.id)}
+                            className="w-4 h-4 accent-[var(--endeavour)] rounded"
+                          />
+                          <span className="truncate text-[var(--port-gore)]">{c.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-2 pt-2 border-t border-[var(--selago)] flex items-center justify-between">
+                    <button
+                      type="button"
+                      className="text-xs text-[var(--endeavour)] hover:underline"
+                      onClick={() => setSelectedColumnIds([])}
+                    >
+                      Clear columns
+                    </button>
+
+                    <button
+                      type="button"
+                      className="text-xs text-[var(--endeavour)] hover:underline"
+                      onClick={() => setOpen(false)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </>,
+              portalNode
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Totals row: separate line below controls */}
+      {enabled && selectedCount > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-[var(--port-gore)] bg-[var(--selago)]/40 rounded-lg px-2 py-1">
+          <span className="font-semibold text-[var(--endeavour)]">{selectedCount} selected</span>
+          <span className="text-[var(--rock-blue)]">|</span>
+          {(totals || []).map((t) => {
+            const col = table.getAllColumns().find(c => c.id === t.id);
+            const label = col?.columnDef?.header || t.id;
+            const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(t.total);
+            return (
+              <span key={t.id} className="bg-white border border-[var(--selago)] rounded-md px-2 py-0.5 text-[11px] whitespace-nowrap font-medium">
+                {label}: <span className="text-[var(--endeavour)]">{formatted}</span>
+              </span>
+            );
+          })}
           <button
-            ref={triggerRef}
             type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="px-2 py-1 rounded-md text-xs font-medium transition-all bg-white text-[var(--port-gore)] border border-[var(--rock-blue)]/50 hover:border-[var(--endeavour)]"
-            title="Choose columns"
+            className="text-[11px] underline text-[var(--endeavour)] ml-1"
+            onClick={() => table.resetRowSelection()}
           >
-            Columns ▾
+            Clear rows
           </button>
-
-          {open && portalNode && createPortal(
-            <>
-              <div 
-                style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, zIndex: 999998, background: 'transparent' }} 
-                onClick={() => setOpen(false)} 
-              />
-              <div 
-                style={dropdownStyle}
-                className="bg-white border border-[var(--selago)] rounded-xl shadow-lg p-3"
-              >
-                <div className="text-sm font-medium text-[var(--port-gore)] mb-2 pl-1">
-                  Select numeric columns
-                </div>
-
-                {numericCols.length === 0 ? (
-                  <div className="text-sm text-[var(--port-gore)] p-2">
-                    No numeric columns detected.
-                  </div>
-                ) : (
-                  <div className="max-h-56 overflow-auto">
-                    {numericCols.map((c) => (
-                      <label
-                        key={c.id}
-                        className="flex items-center gap-2 text-xs py-2 px-2 cursor-pointer hover:bg-[var(--selago)]/50 rounded-lg transition-colors"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={(selectedColumnIds || []).includes(c.id)}
-                          onChange={() => toggleCol(c.id)}
-                          className="w-4 h-4 accent-[var(--endeavour)] rounded"
-                        />
-                        <span className="truncate text-[var(--port-gore)]">{c.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-
-                <div className="mt-2 pt-2 border-t border-[var(--selago)] flex items-center justify-between">
-                  <button
-                    type="button"
-                    className="text-xs text-[var(--endeavour)] hover:underline"
-                    onClick={() => setSelectedColumnIds([])}
-                  >
-                    Clear columns
-                  </button>
-
-                  <button
-                    type="button"
-                    className="text-xs text-[var(--endeavour)] hover:underline"
-                    onClick={() => setOpen(false)}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </>,
-            portalNode
-          )}
         </div>
       )}
-
-      {/* Totals display (compact) */}
-      {enabled ? (
-        selectedCount > 0 ? (
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--port-gore)] ml-2">
-            <span className="font-medium">{selectedCount} selected</span>
-
-            {(totals || []).map((t) => {
-              const col = table.getAllColumns().find(c => c.id === t.id);
-              const label = col?.columnDef?.header || t.id;
-              const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(t.total);
-              return (
-                <span key={t.id} className="bg-white rounded-md px-2 py-1 text-xs whitespace-nowrap">
-                  {label}: {formatted}
-                </span>
-              );
-            })}
-
-            <button
-              type="button"
-              className="text-xs underline text-[var(--port-gore)]"
-              onClick={() => table.resetRowSelection()}
-            >
-              Clear rows
-            </button>
-          </div>
-        ) : (
-          <span className="text-xs text-[var(--port-gore)] opacity-60 ml-2">
-            Select rows to see Quick Sum
-          </span>
-        )
-      ) : null}
+      {enabled && selectedCount === 0 && (
+        <span className="text-[11px] text-[var(--port-gore)] opacity-60">
+          Select rows to see Quick Sum
+        </span>
+      )}
     </div>
   );
 }

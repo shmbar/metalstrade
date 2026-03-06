@@ -87,20 +87,6 @@ const Header = ({
 
           {/* All Action Icons */}
           <div className='flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0'>
-            
-            {/* Quick Sum */}
-            {pathname !== '/materialtables' && (
-            <div className="border border-[var(--endeavour)] rounded-2xl px-2 flex items-center bg-white hover:border-gray-400 focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200 min-w-0 sm:h-7">
-              <QuickSumControl
-                table={table}
-                enabled={quickSumEnabled}
-                setEnabled={setQuickSumEnabled}
-                selectedColumnIds={quickSumColumns}
-                setSelectedColumnIds={setQuickSumColumns}
-                buttonClassName="font-normal text-xs whitespace-nowrap"
-              />
-            </div>
-            )}
 
             {/* Edit Mode */}
             {showEditButton && typeof setIsEditMode === 'function' && (
@@ -216,7 +202,7 @@ const Header = ({
               {cb}
             </div>
           )}
-          
+
           {/* DateRangePicker: Removed from Stocks and Settings only - shown on all other pages */}
           {(pathname !== '/stocks' && pathname !== '/settings') && (
             <div className='flex-shrink-0'>
@@ -225,6 +211,19 @@ const Header = ({
           )}
         </div>
       </div>
+
+      {/* Quick Sum - separate row to avoid overlapping with controls */}
+      {pathname !== '/materialtables' && (
+        <div className="px-2 pb-1">
+          <QuickSumControl
+            table={table}
+            enabled={quickSumEnabled}
+            setEnabled={setQuickSumEnabled}
+            selectedColumnIds={quickSumColumns}
+            setSelectedColumnIds={setQuickSumColumns}
+          />
+        </div>
+      )}
     </div>
   );
 };
