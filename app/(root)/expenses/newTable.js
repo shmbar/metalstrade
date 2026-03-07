@@ -455,7 +455,7 @@
 //                           <td key={cell.id} className="px-2 py-2 text-center">
 //                             {isCompleted ? (
 //                               <div className="flex justify-center">
-//                                 <div className="px-3 py-1.5 rounded-full text-[11px] font-normal"
+//                                 <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
 //                                   style={{
 //                                     backgroundColor: value ? '#00bf63' : '#eb3636',
 //                                     color: '#FFFFFF', border: '1px solid #cecece'
@@ -465,7 +465,7 @@
 //                               </div>
 //                             ) : isStatus ? (
 //                               <div className="flex justify-center">
-//                                 <div className="px-3 py-1.5 rounded-full text-[11px] font-normal"
+//                                 <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
 //                                   style={{
 //                                     backgroundColor: value === 'Completed' ? '#00bf63' : '#eb3636',
 //                                     color: '#FFFFFF', border: '1px solid #cecece'
@@ -475,7 +475,7 @@
 //                               </div>
 //                             ) : isPaid && hasValue ? (
 //                               <div className="flex justify-center">
-//                                 <div className="px-3 py-1.5 rounded-full text-[11px] font-normal min-w-[70px] text-center"
+//                                 <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px] text-center"
 //                                   style={{
 //                                     backgroundColor:
 //                                       value === 'Paid'   ? '#ceb8ff' :
@@ -490,7 +490,7 @@
 //                             ) : (
 //                               <div className="flex justify-center">
 //                                 {hasValue ? (
-//                                   <div className="px-3 py-1.5 rounded-full text-[11px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
+//                                   <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
 //                                     style={{
 //                                       backgroundColor: '#f9f9f9',
 //                                       border: '1px solid #cecece',
@@ -1172,7 +1172,7 @@ const Customtable = ({
                           <td key={cell.id} className="px-2 py-2 text-center">
                             {isCompleted ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1.5 rounded-full text-[11px] font-normal"
+                                <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
                                   style={{
                                     backgroundColor: value ? '#00bf63' : '#eb3636',
                                     color: '#FFFFFF', border: '1px solid #cecece'
@@ -1182,7 +1182,7 @@ const Customtable = ({
                               </div>
                             ) : isStatus ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1.5 rounded-full text-[11px] font-normal"
+                                <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
                                   style={{
                                     backgroundColor: value === 'Completed' ? '#00bf63' : '#eb3636',
                                     color: '#FFFFFF', border: '1px solid #cecece'
@@ -1192,7 +1192,7 @@ const Customtable = ({
                               </div>
                             ) : isPaid && hasValue ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1.5 rounded-full text-[11px] font-normal min-w-[70px] text-center"
+                                <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px] text-center"
                                   style={{
                                     backgroundColor:
                                       isUnpaidValue ? '#ff9ecd' :
@@ -1206,7 +1206,7 @@ const Customtable = ({
                               </div>
                             ) : isCurrency && hasValue ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1.5 rounded-full text-[11px] font-normal min-w-[62px] text-center"
+                                <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[62px] text-center"
                                   style={{
                                     backgroundColor:
                                       isUSDValue ? '#b6dfb7' :
@@ -1223,7 +1223,7 @@ const Customtable = ({
                             ) : (
                               <div className="flex justify-center">
                                 {hasValue ? (
-                                  <div className="px-3 py-1.5 rounded-full text-[11px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
+                                  <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
                                     style={{
                                       backgroundColor: '#f9f9f9',
                                       border: '1px solid #cecece',

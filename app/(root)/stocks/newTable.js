@@ -331,7 +331,7 @@ const Customtable = ({
                             ) : (
  <div className="w-full flex items-center justify-center">
   <div
-    className="px-3 py-1.5 rounded-full text-[11px] font-normal break-words"
+    className="px-3 py-1.5 rounded-xl text-[11px] font-normal break-words"
     style={{
       background: 'linear-gradient(135deg, #FAFAFA, #F3F4F6)',
       border: '1px solid #E5E7EB',

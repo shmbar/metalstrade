@@ -379,7 +379,7 @@ const Customtable = ({
                             {(isCompleted || isStatus) && badgeConfig ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-3 py-1.5 rounded-full text-[11px] font-normal"
+                                  className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
                                   style={{
                                     backgroundColor: badgeConfig.bg,
                                     color: badgeConfig.color,
@@ -399,7 +399,7 @@ const Customtable = ({
                               <div className="flex justify-center">
                                 {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
                                   <div
-                                    className="px-3 py-1.5 rounded-full text-[11px] font-normal min-w-[70px]"
+                                    className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px]"
                                     style={{
                                       backgroundColor: '#f9f9f9',
                                       border: '1px solid #cecece',
