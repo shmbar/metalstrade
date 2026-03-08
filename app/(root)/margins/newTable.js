@@ -353,7 +353,7 @@ const Customtable = (props) => {
     padding: '6px 12px',
   }}
   className={cn(
-    'bg-[#e3f3ff] text-[var(--chathams-blue)] border-b border-[var(--endeavour)]',
+    'bg-[var(--selago)] text-[var(--chathams-blue)] border-b border-[var(--endeavour)]',
     idx === 0 ? 'rounded-tl-lg' : '',
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
@@ -467,7 +467,7 @@ const Customtable = (props) => {
                                     className="rounded-lg border border-[var(--selago)] bg-white shadow-sm overflow-hidden"
                                 >
                                     {/* Compact Card Header */}
-                                    <div className="bg-[#e3f3ff] px-3 py-2 border-b border-[var(--selago)] flex justify-between items-center min-h-[32px]">
+                                    <div className="bg-[var(--selago)] px-3 py-2 border-b border-[var(--selago)] flex justify-between items-center min-h-[32px]">
                                         <span 
                                             className="font-medium text-[var(--chathams-blue)]"
                                             style={{ fontSize: '0.75rem', lineHeight: '1.2' }}

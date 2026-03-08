@@ -219,7 +219,7 @@ const MaterialTables = () => {
  onClick={addTable}>
                                     Add Table
                                 </Button>
-                                <Button   className="bg-[#e3f3ff] text-[var(--endeavour)] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"variant="outline" onClick={saveTable}>
+                                <Button   className="bg-[var(--selago)] text-[var(--endeavour)] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"variant="outline" onClick={saveTable}>
                                     Save
                                 </Button>
                             </div>

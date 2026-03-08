@@ -44,11 +44,11 @@ const Page = () => {
                                     key={z}
                                     className={({ selected }) =>
                                         classNames(
-                                            'w-full rounded-lg py-1 text-xs font-medium leading-4 ',
-                                            'ring-white ring-opacity-60 focus:outline-none focus:ring-1',
+                                            'w-full rounded-full py-1.5 text-xs font-medium leading-4 transition-colors',
+                                            'focus:outline-none',
                                             selected
-                                                ? 'text-white bg-slate-500 shadow'
-                                                : 'text-slate-600 hover:bg-slate-400 hover:text-white border border-slate-400'
+                                                ? 'text-white bg-[var(--endeavour)] shadow-sm'
+                                                : 'text-[var(--endeavour)] hover:bg-[var(--selago)] border border-[var(--rock-blue)]'
                                         )
                                     }
                                 >

@@ -38,7 +38,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
       className="bg-white rounded-xl shadow border overflow-hidden"
       style={{
         width: TABLE_WIDTH,
-        borderColor: '#e0e0e0',
+        borderColor: 'var(--selago)',
         borderWidth: 1,
         borderRadius: '16px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
@@ -62,7 +62,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           style={{
             borderBottom: '1px solid #b8ddf8',
             padding: '12px 16px',
-            background: '#d4eafc'
+            background: 'var(--selago)'
           }}
         >
           <p
@@ -81,8 +81,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           className="grid grid-cols-[1fr_auto] px-4 py-2"
           style={{
             background: '#ffffff',
-            borderTop: '1px solid #e0e0e0',
-            borderBottom: '1px solid #e0e0e0'
+            borderTop: '1px solid var(--selago)',
+            borderBottom: '1px solid var(--selago)'
           }}
         >
           <div
@@ -118,7 +118,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
               <div
                 className="grid grid-cols-[1fr_auto] px-4 py-2.5 items-center hover:bg-[#f9f9f9] transition text-[10px]"
                 style={{
-                  borderBottom: '1px solid #e0e0e0'
+                  borderBottom: '1px solid var(--selago)'
                 }}
               >
                 {row.getVisibleCells().map((cell) => (
@@ -146,8 +146,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         <div
           className="px-4 py-3"
           style={{
-            borderTop: '1px solid #e0e0e0',
-            background: '#eaf4ff'
+            borderTop: '1px solid var(--selago)',
+            background: 'var(--selago)'
           }}
         >
           <div

@@ -30,13 +30,13 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
                 .glass-table, .glass-table * {
                     font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial !important;
-                    color: #1a3353;
+                    color: var(--chathams-blue);
                 }
                 .glass-table th, .glass-table td {
                     text-align: center !important;
                     vertical-align: middle !important;
                     padding: 8px 6px !important;
-                    border: 1px solid #e0e0e0;
+                    border: 1px solid var(--selago);
                     background: #fff;
                     font-size: clamp(10px, 1vw, 12px); /* Lowered font size */
                 }
@@ -55,7 +55,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     letter-spacing: 0.05em;
                 }
                 .glass-table tfoot th, .glass-table tfoot td {
-                    background: #eaf4ff;
+                    background: var(--selago);
                     color: var(--chathams-blue) !important;
                     font-weight: 600;
                     font-size: clamp(10px, 1vw, 12px); /* Lowered font size */
@@ -63,17 +63,17 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     vertical-align: middle !important;
                 }
                 .glass-table tbody tr:hover td {
-                    background: #e3eafc !important;
-                    color: #1a3353 !important;
+                    background: var(--selago) !important;
+                    color: var(--chathams-blue) !important;
                     transition: background 0.15s, color 0.15s;
                 }
                     .glass-table th,
 .glass-table td {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--selago);
 }
 
 .glass-table th {
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--selago);
 }
 
 .glass-table tr:last-child td {
@@ -81,13 +81,13 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
 }
             `}</style>
            
-            <div className="glass-table rounded-2xl shadow-lg border border-[#e0e0e0] p-2 sm:p-4 mb-6 w-full flex flex-col h-full"
+            <div className="glass-table rounded-2xl shadow-lg border border-[var(--selago)] p-2 sm:p-4 mb-6 w-full flex flex-col h-full"
                 style={{
                     borderRadius: '16px',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
                 }}>
                 {heading && (
-                    <div className="font-normal font-poppins text-[#1a3353] mb-3 sm:mb-4 pl-1 pt-1">
+                    <div className="font-normal font-poppins text-[var(--chathams-blue)] mb-3 sm:mb-4 pl-1 pt-1">
                         {heading}
                     </div>
                 )}
@@ -99,7 +99,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                  <div className="hidden sm:block flex-1 rounded-2xl ">
 
                         <div
-                        className="rounded-2xl overflow-hidden border border-[#e0e0e0]"
+                        className="rounded-2xl overflow-hidden border border-[var(--selago)]"
                         style={{
                             borderRadius: '16px',
                             boxShadow: '0 3px 8px rgba(0,0,0,0.06)',
@@ -110,7 +110,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         <div
                         className="px-6 py-4 text-center font-bold font-poppins text-[12px]"
                         style={{
-                            background: '#e3f3ff',
+                            background: 'var(--selago)',
                             color: 'var(--endeavour)'
                         }}
                         >
@@ -184,16 +184,16 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     {/* Mobile Card View */}
                     <div className="block sm:hidden space-y-3 glass-table">
                         {table1.getRowModel().rows.map(row => (
-                            <div key={row.id} className="bg-white border border-[#e0e0e0] rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+                            <div key={row.id} className="bg-white border border-[var(--selago)] rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
                                 {row.getVisibleCells().map(cell => (
-                                    <div key={cell.id} className="flex justify-between items-start py-2 border-b border-[#e0e0e0] last:border-b-0">
+                                    <div key={cell.id} className="flex justify-between items-start py-2 border-b border-[var(--selago)] last:border-b-0">
                                         <span className="font-semibold uppercase w-2/5 flex-shrink-0"
                                             style={{color:'var(--chathams-blue)', fontSize:'clamp(10px,0.9vw,12px)'}}>
                                             {cell.column.columnDef.header}
                                         </span>
                                         <Tltip direction='left' tltpText={expensesToolTip(row, expensesData, settings, filt)}>
                                             <span className="text-right w-3/5 break-words"
-                                                style={{color:'#1a3353', fontSize:'clamp(10px,1vw,12px)'}}>
+                                                style={{color:'var(--chathams-blue)', fontSize:'clamp(10px,1vw,12px)'}}>
                                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                             </span>
                                         </Tltip>
@@ -203,7 +203,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         ))}
                         
                         {/* Mobile Totals */}
-                        <div className="rounded-lg p-4 mt-4 space-y-3 glass-table" style={{background:'#eaf4ff', border: '1px solid #e0e0e0'}}>
+                        <div className="rounded-lg p-4 mt-4 space-y-3 glass-table" style={{background:'var(--selago)', border: '1px solid var(--selago)'}}>
                             <div className="flex justify-between items-center">
                                 <span className="font-bold uppercase"
                                     style={{color:'var(--chathams-blue)', fontSize:'clamp(10px,1vw,12px)'}}>Total $</span>
@@ -215,7 +215,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                     )}
                                 </span>
                             </div>
-                            <div className="flex justify-between items-center border-t border-[#e0e0e0] pt-3">
+                            <div className="flex justify-between items-center border-t border-[var(--selago)] pt-3">
                                 <span className="font-bold uppercase"
                                     style={{color:'var(--chathams-blue)', fontSize:'clamp(10px,1vw,12px)'}}>Total €</span>
                                 <span className="font-bold"

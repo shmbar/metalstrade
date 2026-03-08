@@ -1,208 +1,217 @@
-# Comments 1 — Fix Plan
+# Comments 2 — Design Polish (Canva Alignment)
 
 ## Status: IMPLEMENTATION COMPLETE
 
 ---
 
+## Client Complaints Summary
+1. Fonts don't align/match — suggests Calibri
+2. Cell selection has no opacity/highlight feedback
+3. Colors don't match Canva design
+4. Sizes and spacing off
+5. Too much side scrolling
+6. Cashflow page design looks bad
+7. Delayed notification design not fresh
+8. Overall polish lacking
+
+---
+
+## Canva Design Analysis (29 screenshots reviewed)
+
+### Design Language from Canva:
+- **Sidebar:** Solid blue (#0066CC / endeavour blue), white text, active item = white bg with blue text, rounded-xl items
+- **Header:** Light blue-ish background (#e3f3ff), user avatar right side, icons (search, notification, calendar, comparison)
+- **Tables:** Clean white background, light blue header row (selago/light blue), subtle borders, rounded-xl cell values, alternating row subtle tint
+- **Totals rows:** Green-tinted (Total $) and blue-tinted (Total €) gradient bars at top of tables
+- **Buttons:** Blue gradient (endeavour), rounded-xl, "Quick Sum" pill button, "+ New Contracts" pill
+- **Pagination:** "Showing 12 out of 100", numbered page buttons, "Rows: 09" selector
+- **Dropdowns:** Clean white bg, selected item highlighted in blue, subtle shadow
+- **Status pills:** "Incompleted" = red outline pill, "Completed" = green outline pill, "Draft" = blue pill, "Paid/Unpaid" = green/red gradient pills
+- **Summary cards:** Rounded bordered cards below tables with totals
+- **Settings tabs:** Horizontal pill tabs, active = filled blue, inactive = outline
+- **Formulas page:** Card-based layout with Cost/Sale composition tables, pink-tinted editable rows, green result pills
+- **Cashflow:** Two-column layout, section headers in blue text, expandable stock detail tables, financing section with Add button
+- **Margin:** Summary cards at top, accordion months, totals tables at bottom
+
+---
+
 ## Items to Fix
 
-### 1. Remove Pricing page and all references
-**Files to DELETE:**
-- `app/(public)/pricing/page.jsx`
-- `components/Pricing/pricing.jsx`, `pricingCard.jsx`, `pricingContent.jsx`, `pricingFeatures.jsx`
-
-**Files to EDIT:**
-- `components/index.js` lines 7-11 — Remove pricing exports
-- `components/Footer/footer.jsx` line 30 — Remove pricing link
-- `app/(public)/landing/page.jsx` lines 6, 17 — Remove Pricing import and `<Pricing />`
-- `contexts/useAuthContext.js` line 42 — Remove `/pricing` from publicRoutes
-
-**Already handled (no action):** navbar links/menu (commented out), app/page.js (commented out)
+### 1. Table cell selection highlight/opacity
+**Client complaint:** "Cell selection has no opacity" — when clicking a cell to edit, there's no visual feedback
+**Canva shows:** Selected/active cells have a subtle blue border or light blue background tint
+**Files:** `components/table/inlineEditing/EditableCell.js`, `EditableSelectCell.js`
+**Action:** Add a light blue background (`bg-[var(--selago)]` or `bg-blue-50/50`) when cell is in edit mode, with a subtle border highlight
 
 ---
 
-### 2. Tables showing internal IDs instead of values
-**Previously fixed:** invoices (origin), contracts (originSupplier)
-**Needs runtime verification** — EditableSelectCell already tries to look up labels via `options.find()`. The issue is whether `meta.options` is always populated.
-**Action:** Verify at runtime. No code change without seeing actual broken columns.
+### 2. Table header row styling
+**Canva shows:** Table headers have a light blue background gradient, bold text, centered alignment
+**Current:** Headers use `text-[var(--port-gore)]` with `border-b border-[var(--rock-blue)]` — may be close but needs verification
+**Files:** `components/table/tableComp.js` or wherever table headers render
+**Action:** Ensure header row has `bg-[var(--selago)]` background, proper font weight, centered text matching Canva
 
 ---
 
-### 3. Selectors/dropdowns need cleaner design
-**Files:**
-- `components/table/inlineEditing/EditableSelectCell.js` — Uses hardcoded colors (`#F9F9F9`, `bg-blue-100`, `text-blue-900`) instead of theme variables
-- `app/(root)/settings/_components/combobox.js` — Already fixed (rounded-full, endeavour focus)
-- `components/combobox.js` — Already uses themed colors
-- `components/comboboxSelectStock.js` — Already uses themed colors
-
-**Action:** Fix EditableSelectCell to use theme variables (`--endeavour`, `--selago`, `--port-gore`).
+### 3. Table row hover effect
+**Canva shows:** Clean alternating rows or hover highlight
+**Current:** May lack hover feedback
+**Files:** Table row component
+**Action:** Add subtle hover: `hover:bg-[var(--selago)]/30` on table rows
 
 ---
 
-### 4. Rounded shapes restoration
-**Status:** Already fixed in prior commits. Table cells use `rounded-xl`. No action needed.
+### 4. Status pills styling
+**Canva shows:** "Incompleted" = red text with red border pill, "Completed" = green text with green border pill, "Paid" = green gradient pill, "Unpaid" = red/pink gradient pill, "Draft" = blue pill
+**Current:** May use rounded-xl but colors might not match
+**Files:** Pages that render status columns (contracts, invoices, expenses, etc.)
+**Action:** Verify status pill colors match Canva — red outline for incomplete, green outline for completed
 
 ---
 
-### 5. Table editing — fields need selectors not plain text
-**Invoices page** (`app/(root)/invoices/page.js`):
-- `pol` (line ~274), `pod` (line ~280), `packing` (line ~286) — use EditableCell, should use EditableSelectCell
-
-**Contracts page** (`app/(root)/contracts/page.js`):
-- `pol` (~210), `pod` (~211), `packing` (~212), `contType` (~213), `size` (~214), `deltime` (~215) — use EditableCell, should use EditableSelectCell
-
-**Action:** Change to EditableSelectCell with `meta.options` from settings (POL, POD, Packing, ContainerType, Size, DeliveryTime).
+### 5. Cashflow page layout polish
+**Client complaint:** "Cashflow page design is really ugly looking"
+**Canva (21.png):** Two-column layout with section headers in blue, expandable stock tables, clean borders, financing section
+**Files:** `app/(root)/cashflow/page.js`
+**Action:** Review spacing, section headers, table borders, and overall layout. Ensure section titles use `text-[var(--endeavour)]` font-semibold. Clean up margins/padding.
 
 ---
 
-### 6. Excel export icon too large on some pages
-**Files with old oversized styling (`scale-[1.4] text-gray-500`):**
-- `app/(root)/contracts/excel.js` line 132
-- `app/(root)/contractsstatement/excel.js` line 156
-- `app/(root)/invoicesstatement/excel.js` line 256
-- `app/(root)/contractsreview/excel.js` line 138
-- `app/(root)/invoicesreview/excel.js` line 235
-- `components/contracts/excel.js` line 132 (uses SiMicrosoftoffice)
-
-**Correct styling:** `<FileSpreadsheet className="w-5 h-5" style={{ color: 'var(--endeavour)' }} strokeWidth={2} />`
-
-**Also fix wrapper divs** with `size-10` → remove size-10 (header.js wraps in `w-8 h-8`).
+### 6. Quick Sum button and toolbar spacing
+**Canva shows:** "Quick Sum" as a pill button next to search, toolbar icons evenly spaced, date range picker on right
+**Current:** May have slightly different spacing
+**Files:** `components/table/header.js`
+**Action:** Verify toolbar matches Canva spacing — search box, Quick Sum pill, icon row, date picker. Minor tweaks if needed.
 
 ---
 
-### 7. Invoice Import button not working
-**Finding:** No import button exists in invoices page. Not implemented.
-**Action:** Needs user clarification — is this a missing feature to build?
+### 7. Pagination styling
+**Canva shows:** "Showing 12 out of 100" in blue text left, numbered page buttons (active = filled blue circle), "Rows: 09" selector right
+**Current:** Has pagination but styling may differ
+**Files:** `components/table/tableComp.js` or pagination component
+**Action:** Ensure pagination text color is `text-[var(--endeavour)]`, active page is blue filled circle, rows selector matches
 
 ---
 
-### 8. Invoice three-dot dialog wrong language
-**Finding:** No three-dot menu exists in invoices page.
-**Action:** Needs user clarification — which dialog/page is this?
+### 8. Settings tabs styling
+**Canva (25-29):** Horizontal pill tabs — active tab = filled blue (`bg-[var(--endeavour)]` white text), inactive = just text
+**Current:** Settings uses tab components
+**Files:** `app/(root)/settings/page.js` or settings tab component
+**Action:** Verify tab styling matches Canva — active is filled blue pill, inactive is plain text
 
 ---
 
-### 9. Accounting page NaN values
-**File:** `app/(root)/accounting/page.js`
-**Root causes:**
-1. `formatCurrency()` (line 462) — no NaN guard before `Intl.NumberFormat.format()`
-2. Totals (lines 392-393) — `(item.amountInv || 0)` doesn't catch NaN strings
-3. Excel export (accounting/excel.js line 116) — `item.amountExp * 1` can produce NaN
-
-**Action:** Add `Number()` coercion + `isNaN` guards in formatCurrency, totals, and excel.
+### 9. Summary cards below tables
+**Canva shows:** Rounded bordered cards with "Summary" title, clean table layout inside, Total rows in blue/green text
+**Current:** Summary sections exist but may need polish
+**Files:** Various statement pages, expenses, misc invoices
+**Action:** Verify summary card borders are `border-[var(--selago)]`, rounded-xl, totals text in `text-[var(--endeavour)]`
 
 ---
 
-### 10. Contracts statement column misalignment when expanded
-**File:** `app/(root)/contractsstatement/newTable.js`
-**Root cause:** Nested table (line 409) uses `tableLayout: 'auto'` which calculates widths independently from parent.
-**Previously fixed** min/maxWidth alignment. May need `tableLayout: 'fixed'` on nested table.
-**Action:** Verify at runtime. Apply tableLayout fix if still misaligned.
+### 10. Formulas page styling
+**Canva (22-24):** Card-based with Cost/Sale sections, pink/salmon editable input rows, green result pills, formula indicator pills
+**Files:** `app/(root)/formulas/` or `app/(root)/formulascalc/`
+**Action:** Verify formula page matches Canva — pink input rows, green output pills, proper card layout
 
 ---
 
-### 11. Account statement bottom date selector should be removed
-**File:** `app/(root)/accstatement/page.js`
-**Finding:** Lines 328-343 contain a Datepicker (single date, validates 15th/last day). Line 18 imports unused DateRangePicker.
-**Action:** Needs user clarification — is this the date picker to remove, or was this the one previously uncommented as a fix?
+### 11. Margin/Sharon Admin page styling
+**Canva (20):** Top summary cards with $ values, accordion-style month sections, Totals and Totals GIS tables at bottom
+**Files:** `app/(root)/margin/` or `app/(root)/sharonadmin/`
+**Action:** Verify summary cards, accordion styling, totals tables match Canva
 
 ---
 
-### 12. Stock page — selector not updated, screen flicker on selection
-**File:** `app/(root)/stocks/page.js`
-**Root causes:**
-1. `setLoading(true)` on line 126 clears table content during async fetch → visible flicker
-2. `CB()` function (line 345) recreated on every render → dropdown resets
-3. useEffect on line 80-82 unconditionally resets selectedStock on mount
-
-**Action:** Don't clear data during fetch (show stale data with loading indicator). Memoize CB or move outside render.
+### 12. Material Tables page
+**Canva (19):** Colored element columns (Ni, Cr, Cu, Mo, W, Co, Nb, Fe, Ti) with blue headers, pink summary row, blue total row
+**Files:** `app/(root)/materialtables/page.js`
+**Action:** Verify element column colors and summary/total row styling match Canva
 
 ---
 
-### 13. Sharon admin panel — latest updates, monthly date picker broken
-**Finding:** "Sharon admin panel" likely refers to Account Statement page (`accstatement`). Monthly date picker validates to 15th/last day of month.
-**Action:** Needs user clarification on what "latest updates not included" means.
+### 13. Contract detail modal
+**Canva (6):** Modal with tabs (Contract, Invoices, Shipment Tracking, Inventory), form fields with dropdowns, products table, action buttons at bottom
+**Files:** Contract detail dialog component
+**Action:** Verify modal tab styling, form layout, products table styling match Canva
 
 ---
-
-### 14. Cashflow — button styling, financing additions not visible
-**File:** `app/(root)/cashflow/page.js`
-**Finding:** Financing section gated by `userTitle === 'Admin'` (line 1225). Dialog buttons in `dialogClient.js` line 69 use old `bg-slate-500` styling.
-**Action:** Fix dialog button styling to match theme. Financing visibility is by design (Admin only) — verify with user.
-
----
-
-### 15. Settings — language selector, selectors, toast, buttons, Users modal
-**Current state:**
-- Language selector: Already fixed
-- Toast: Works correctly
-- Users modal Title selector: Uses `components/combobox.js` (already themed)
-- Settings general tab inputs: Use inline `h-8 rounded-full text-[#979797]` — inconsistent with global `.input` class
-
-**Action:** Minor — settings general tab input styling could be unified, but this is a larger design system change. Verify with user if needed.
-
----
-
-### 16. Input field typography hierarchy + consistent input design
-**Status:** Previously fixed — `.input` uses `text-xs`, titles use `text-sm`.
-**Known inconsistencies:** Settings general tab uses `h-8` + `text-sm`, Users modal uses `h-7`, Cashflow uses `h-6`.
-**Action:** These height variations appear intentional for different contexts. No change unless user specifically requests unification.
 
 ---
 
 ## Priority Order
 
-### Phase 1: Quick Fixes — DONE
-- [x] **#1** Remove Pricing page and references — Deleted files, removed exports from `components/index.js`, removed `/pricing` from publicRoutes in `useAuthContext.js`
-- [x] **#6** Fix Excel icon size — Changed `scale-[1.4] text-gray-500` to `w-5 h-5 color:var(--endeavour)` in 6 excel.js files (contracts, contractsstatement, invoicesstatement, contractsreview, invoicesreview, components/contracts). Also removed `size-10` from wrapper divs in 3 more files.
-- [x] **#9** Fix accounting NaN guard — Added NaN guard to `formatCurrency()` and `formatCurrencyFull()`. Changed totals to use `Number()` coercion. Fixed excel export `amountExp * 1` → `Number(amountExp) || 0`.
-- [x] **#3** Fix EditableSelectCell theme colors — Changed dropdown bg from `#F9F9F9` to `bg-white`, ring from `ring-black` to `ring-[var(--selago)]`, option colors from `bg-blue-100/text-blue-900` to `bg-[var(--selago)]/text-[var(--endeavour)]`, check icon from `text-blue-700` to `text-[var(--endeavour)]`, selector icon from `text-gray-400` to `text-[var(--rock-blue)]`.
+### Phase 1: High-Impact Visual Fixes (client's main complaints)
+- [x] **#1** Cell selection highlight
+- [x] **#2** Table header row styling
+- [x] **#3** Table row hover effect
+- [x] **#5** Cashflow page polish
 
-### Phase 2: Feature Fixes — DONE
-- [x] **#5** Change plain text fields to selectors — Invoices: changed `pol`, `pod`, `packing` from EditableCell to EditableSelectCell with settings options. Contracts: changed `pol`, `pod`, `packing`, `contType`, `size`, `deltime` from EditableCell to EditableSelectCell with settings options.
-- [x] **#14** Fix cashflow dialog button styling — Changed `bg-slate-500` to `bg-[var(--endeavour)] hover:opacity-90` in both `dialogClient.js` and `dialogSupplier.js` (trigger + save buttons). Fixed financing Add buttons hover from `hover:bg-[var(--selago)]/30` to `hover:opacity-90`.
-- [x] **#12** Fix stock page flicker — Only show full-page loader on initial load (when data is empty). Memoized `CB()` selector with `useMemo` to prevent dropdown recreation on every render.
+### Phase 2: Table & Component Polish
+- [x] **#4** Status pills styling
+- [x] **#6** Toolbar/Quick Sum spacing
+- [x] **#7** Pagination styling
+- [x] **#9** Summary cards polish
 
-### Phase 3: GitHub Investigation Results
-Checked client repo at github.com/shmbar/metalstrade — these items do NOT exist in client codebase either:
-- [x] **#7** Invoice Import button — Does NOT exist in client repo. Not a missing feature.
-- [x] **#8** Invoice three-dot dialog — Does NOT exist in client repo. Not a missing feature.
-- [x] **#11** Account statement date selector — Client repo has same single Datepicker in header. No "bottom" date selector exists.
-- [x] **#13** Sharon admin panel — No separate admin panel. Financing section is Admin-gated in both repos (by design).
-- [x] **#2** Tables showing IDs — Client repo uses same `getFormatted()` pattern. Both repos convert IDs to values the same way.
-- [x] **#10** Contracts statement alignment — Previously fixed. Client repo has similar structure.
-- [x] **#15** Settings styling — Client repo uses Shadcn `Selector` + `Button` components with `input` class and `h-8`. Our code already uses themed comboboxes. Language selector already fixed.
-- [x] **#16** Input typography — Client repo has same `h-7`/`h-8` variations. This is intentional per context.
-- [x] **#4** Rounded shapes — Already fixed in prior commits (rounded-xl).
+### Phase 3: Page-Specific Fixes
+- [x] **#8** Settings tabs
+- [x] **#10** Formulas page
+- [x] **#11** Margin page
+- [x] **#12** Material Tables
+- [x] **#13** Contract detail modal
 
 ---
 
-## Review
+## Notes
+- Font: Client mentioned Calibri but Canva designs appear to use a clean sans-serif (likely the current Poppins/system font). The designs don't show a serif or distinctly different font. We should NOT change the font unless explicitly confirmed — Poppins looks clean and professional.
+- Side scrolling: This is inherent to tables with many columns. The Canva designs show the same width. We should ensure `min-width` constraints are reasonable but this is largely a data density issue.
+- Each fix should be minimal — only change what's needed to match Canva.
 
-### Summary of Changes Made
+---
 
-**Files Modified:**
-1. `components/index.js` — Removed Pricing component exports
-2. `contexts/useAuthContext.js` — Removed `/pricing` from publicRoutes
-3. `app/(root)/contracts/excel.js` — Fixed Excel icon size
-4. `app/(root)/contractsstatement/excel.js` — Fixed Excel icon size
-5. `app/(root)/invoicesstatement/excel.js` — Fixed Excel icon size (via linter)
-6. `app/(root)/contractsreview/excel.js` — Fixed Excel icon size (via linter)
-7. `app/(root)/invoicesreview/excel.js` — Fixed Excel icon size (via linter)
-8. `components/contracts/excel.js` — Fixed Excel icon size (SiMicrosoftoffice)
-9. `app/(root)/materialtables/excel.js` — Fixed wrapper div size
-10. `app/(root)/accounting/page.js` — Added NaN guards + Number() coercion in totals
-11. `app/(root)/accounting/excel.js` — Fixed NaN in amountExp export
-12. `components/table/inlineEditing/EditableSelectCell.js` — Theme colors
-13. `app/(root)/contracts/page.js` — Changed 6 columns to EditableSelectCell
-14. `app/(root)/invoices/page.js` — Changed 3 columns to EditableSelectCell
-15. `app/(root)/cashflow/dialogClient.js` — Fixed button styling
-16. `app/(root)/cashflow/dialogSupplier.js` — Fixed button styling
-17. `app/(root)/cashflow/page.js` — Fixed financing Add button hover
-18. `app/(root)/stocks/page.js` — Fixed flicker + memoized selector
+## Review — Changes Made
 
-### Items Not Requiring Changes (verified via client GitHub)
-- #7, #8: Features don't exist in original codebase
-- #11, #13: Working as designed
-- #2, #10, #15, #16: Already working correctly or previously fixed
-- #4: Already fixed in prior commits
+### Files Modified:
+
+**Core Table System (affects all pages with tables):**
+- `components/contracts/newTable.js` — Table header bg-selago, row hover effect, cell edit highlight (selago + rock-blue), status pills (outline style), footer text "Showing X out of Y" in blue
+- `components/table/inlineEditing/EditableCell.js` — Focus ring on editable input (endeavour blue)
+- `components/table/header.js` — Toolbar icon hover uses selago instead of gray-100, edit mode toggle uses theme colors
+- `components/table/Paginator.js` — Active page button rounded-full (circle), endeavour blue, Previous/Next text color
+- `components/modal.js` — Modal border selago, accent bar endeavour, close hover endeavour
+
+**Cashflow Page:**
+- `app/(root)/cashflow/page.js` — All #dedede borders → selago, #545454 text → port-gore, totals container rounded-xl with selago border, input borders use rock-blue
+
+**Summary Tables (5 files):**
+- `app/(root)/expenses/totals/tableTotals.js` — Header bg selago, border rock-blue, text chathams-blue, borders selago
+- `app/(root)/contractsstatement/totals/tableTotals.js` — Same color replacements
+- `app/(root)/invoicesstatement/sumtables/newTableTotals.js` — Same color replacements
+- `app/(root)/specialinvoices/totals/tableTotals.js` — Same color replacements
+- `app/(root)/companyexpenses/totals/tableTotals.js` — Same color replacements
+
+**Page-Specific:**
+- `app/(root)/settings/page.js` — Tabs rounded-full pill style, active = endeavour bg, inactive = hover selago
+- `app/(root)/formulas/page.js` — Tabs rounded-full pill style matching settings
+- `app/(root)/margins/page.js` — #e3f3ff → selago
+- `app/(root)/margins/marginTable.js` — #e3f3ff → selago
+- `app/(root)/margins/newTable.js` — #e3f3ff → selago
+- `app/(root)/margins/thirdpart.js` — #d4eafc/#e0e0e0 → selago
+- `app/(root)/materialtables/page.js` — #e3f3ff → selago
+- `app/(root)/materialtables/newTable.js` — #d4eafc/#e0e0e0/#E5E7EB → selago
+- `app/(root)/contracts/modals/tabs/tabs.js` — Tab pills rounded-full, endeavour/selago/rock-blue theme
+
+### Summary of Changes:
+1. **Cell edit highlight** — Edit mode cells now show light blue background (selago) with rock-blue border. Focused inputs get endeavour ring.
+2. **Table headers** — Light blue background (selago) with rock-blue bottom border, font-semibold.
+3. **Row hover** — Subtle selago/30 hover with border-bottom separator.
+4. **Status pills** — Changed from solid colored background to outlined pill style (green/red border + text, light bg).
+5. **Cashflow** — All hardcoded grays replaced with theme variables. Cleaner borders and spacing.
+6. **Pagination** — Active page is filled blue circle (rounded-full), text uses endeavour blue.
+7. **Summary cards** — All hardcoded blues/grays replaced with CSS variables (selago, rock-blue, chathams-blue).
+8. **Settings/Formulas tabs** — Pill-shaped (rounded-full), active = filled blue, inactive = text only.
+9. **Contract modal** — Theme-consistent borders, accent bar, close button hover.
+10. **Material Tables** — Hardcoded colors → theme variables.
+11. **Margin pages** — Hardcoded colors → theme variables.
+
+### Build Status: PASSES (no errors)

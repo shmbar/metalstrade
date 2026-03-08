@@ -395,7 +395,7 @@ const Margins = () => {
                                     <Tooltip txt='Select year' />
                                 </div>
                             </div>
-                            <div className="rounded-2xl bg-[#e3f3ff] py-2">
+                            <div className="rounded-2xl bg-[var(--selago)] py-2">
                             {/* Stats Section */}
                             <FirstPart
                                 incoming={incoming}
@@ -410,7 +410,7 @@ const Margins = () => {
                             <div className="rounded-2xl border border-gray-200">
                            <div className="p-2 flex gap-3 mt-3">
                                 <button
-                                    className="bg-[#e3f3ff] text-[var(--endeavour)] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
+                                    className="bg-[var(--selago)] text-[var(--endeavour)] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
                                     disabled={data.length >= 12}
                                     onClick={addMonth}
                                 >

@@ -252,15 +252,15 @@ const Customtable = ({
             <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderLeft: '8px solid var(--chathams-blue)', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
               <table className="w-full" style={{ tableLayout: 'auto' }}>
 
-                {/* THEAD - Multi-color gradient inspired by all cards */}
+                {/* THEAD */}
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(hdGroup => (
                     <Fragment key={hdGroup.id}>
-                      <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                      <tr style={{ backgroundColor: 'var(--selago)', borderBottom: '1px solid var(--rock-blue)' }}>
                         {hdGroup.headers.map(header => (
                           <th
                             key={header.id}
-                            className="px-2 py-2 uppercase"
+                            className="px-2 py-2.5 uppercase font-semibold"
                             style={{
                               color: 'var(--chathams-blue)',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',
@@ -307,7 +307,8 @@ const Customtable = ({
                       key={row.id}
                       onDoubleClick={() => SelectRow(row.original)}
                       tabIndex={0}
-                      className="cursor-pointer"
+                      className="cursor-pointer hover:bg-[var(--selago)]/30 transition-colors duration-150"
+                      style={{ borderBottom: '1px solid #f0f0f0' }}
                     >
                       {row.getVisibleCells().map((cell) => {
                         const isCompleted = cell.column.id === 'completed';
@@ -322,37 +323,31 @@ const Customtable = ({
                         return (
                           <td
                             key={cell.id}
-                            className={`px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect`}
+                            className={`px-2 py-2 transition-colors duration-150 group/cell relative`}
                             style={{
-                              color: bg ? '#FFFFFF' : '#1F2937',
-                              backgroundColor: bg || undefined,
+                              color: '#1F2937',
                               minWidth: cell.column.id === 'select' ? '50px' : '60px',
                               maxWidth: cell.column.id === 'select' ? '50px' : '150px',
                               fontSize: 'clamp(11px, 1.0vw, 13px)',
                               fontWeight: '400',
-                              zIndex: 1,
-                              willChange: 'background-color, color',
-                              padding: bg ? '6px' : undefined,
                             }}
                           >
                             {isCompleted ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="text-[11px] font-normal text-white">{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
+                                <span className={`text-[11px] font-medium px-3 py-1 rounded-full border ${cell.getValue() ? 'text-green-600 border-green-400 bg-green-50' : 'text-red-500 border-red-400 bg-red-50'}`}>{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
                               </div>
                             ) : isStatus ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="text-[11px] font-normal" style={{ color: bg ? '#FFFFFF' : undefined }}>{cell.getValue()}</span>
+                                <span className={`text-[11px] font-medium px-3 py-1 rounded-full border ${cell.getValue() === 'Completed' ? 'text-green-600 border-green-400 bg-green-50' : cell.getValue() === 'Incompleted' ? 'text-red-500 border-red-400 bg-red-50' : 'text-[var(--endeavour)] border-[var(--rock-blue)] bg-[var(--selago)]'}`}>{cell.getValue()}</span>
                               </div>
                             ) : (
                                <div
-                                className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
+                                className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out fade-in"
                                 style={{
-                                  // Apply hover effect styles when edit mode is on
                                   ...(isEditMode && {
-                                    backgroundColor: '#f9f9f9',
-                                    color: '#545454',
-                                    boxShadow: 'inset 0 0 0 1px #d1d1d1',
-                                    border: '  #d1d1d1',
+                                    backgroundColor: 'var(--selago)',
+                                    color: 'var(--port-gore)',
+                                    boxShadow: 'inset 0 0 0 1px var(--rock-blue)',
                                   }),
                                 }}
                               >
@@ -545,32 +540,27 @@ const Customtable = ({
             </div>
           </div>
 
-          {/* FOOTER - Professional Style */}
-          <div 
+          {/* FOOTER */}
+          <div
             className="flex-shrink-0"
-            style={{ 
-              borderTop: '2px solid #E5E7EB',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+            style={{
+              borderTop: '1px solid var(--selago)',
+              backgroundColor: '#FFFFFF'
             }}
           >
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-2">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-3 py-2.5">
               <div className="flex items-center">
                 <Paginator table={table} />
               </div>
               <div className="flex items-center gap-4">
-                <div 
-                  className="whitespace-nowrap font-normal" 
-                  style={{ 
-                    color: '#6B7280',
-                    fontSize: 'clamp(7px, 0.6vw, 9px)' 
+                <div
+                  className="whitespace-nowrap font-medium"
+                  style={{
+                    color: 'var(--endeavour)',
+                    fontSize: 'clamp(9px, 0.8vw, 12px)'
                   }}
                 >
-                  {`${
-                    table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
-                    (table.getFilteredRowModel().rows.length ? 1 : 0)
-                  } - ${
-                    table.getRowModel().rows.length + table.getState().pagination.pageIndex * table.getState().pagination.pageSize
-                  } ${getTtl('of', ln)} ${table.getFilteredRowModel().rows.length}`}
+                  {`${getTtl('Showing', ln)} ${table.getRowModel().rows.length} ${getTtl('out of', ln)} ${table.getFilteredRowModel().rows.length}`}
                 </div>
                 <RowsIndicator table={table} />
               </div>

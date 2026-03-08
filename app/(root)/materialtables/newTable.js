@@ -154,11 +154,11 @@ const Customtable = ({
 
         }
         .custom-table th {
-          background-color: #d4eafc;
+          background-color: var(--selago);
         }
         .custom-table td {
           background-color: #fff;
-          border: 1px solid #e0e0e0;
+          border: 1px solid var(--selago);
         }
       `}</style>
 
@@ -166,7 +166,7 @@ const Customtable = ({
       {showHeader && (
         <div className="flex-shrink-0"
           style={{
-            borderBottom: '2px solid #E5E7EB',
+            borderBottom: '2px solid var(--selago)',
             background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
           }}>
           <Header 
@@ -198,7 +198,7 @@ const Customtable = ({
   style={{
     backgroundColor:
       header.column.id === 'material' || header.column.id === 'kgs'
-        ? '#d4eafc'
+        ? 'var(--selago)'
         : '#ffdbdb',
     color: 'var(--chathams-blue)',
     minWidth: header.column.id === 'material' ? '120px' : '60px',
@@ -317,7 +317,7 @@ const Customtable = ({
             backgroundColor:
               idx >= 2
                 ? isMaterialOrKgs
-                  ? '#d4eafc'
+                  ? 'var(--selago)'
                   : '#ffdbdb'
                 : '#f9f9f9',
             color:
@@ -349,7 +349,7 @@ const Customtable = ({
               className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
               style={{
                 backgroundColor: '#FFFFFF',
-                border: '1px solid #E5E7EB',
+                border: '1px solid var(--selago)',
               }}
             >
               <div
@@ -375,7 +375,7 @@ const Customtable = ({
                     <div
                       key={cell.id}
                       className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-                      style={{ borderBottom: '1px solid #E5E7EB' }}
+                      style={{ borderBottom: '1px solid var(--selago)' }}
                     >
                       <div
                         className="uppercase tracking-wider font-normal"
@@ -392,7 +392,7 @@ const Customtable = ({
                           color: '#1F2937',
                           background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                           fontSize: 'clamp(8px, 0.7vw, 10px)',
-                          border: '1px solid #E5E7EB'
+                          border: '1px solid var(--selago)'
                         }}
                       >
                         <input

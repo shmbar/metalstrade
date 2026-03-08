@@ -38,10 +38,10 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
       className="bg-white rounded-xl shadow border overflow-hidden"
       style={{
         width: TABLE_WIDTH,
-        borderColor: '#e0e0e0',
+        borderColor: 'var(--selago)',
         borderWidth: 1,
         borderRadius: '16px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
       }}
     >
       <style jsx global>{`
@@ -59,12 +59,12 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         {/* HEADER */}
         <div
           style={{
-            background: '#d4eafc',
+            background: 'var(--selago)',
             padding: '12px 16px',
-            borderBottom: '1px solid #b8d8f2'
+            borderBottom: '1px solid var(--rock-blue)'
           }}
         >
-          <h3 className="text-[#0b3d6b] font-semibold text-center"
+          <h3 className="text-[var(--chathams-blue)] font-semibold text-center"
             style={{
               fontSize: 'clamp(11px, 1vw, 13px)',
               letterSpacing: '0.02em'
@@ -92,9 +92,9 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
               >
                 <div className="grid grid-cols-[1fr_auto] px-4 py-2.5 items-center hover:bg-[#f9f9f9] transition"
                   style={{
-                    borderBottom: '1px solid #e0e0e0',
-                    borderRight: '1px solid #e0e0e0',
-                    borderLeft: '1px solid #e0e0e0',
+                    borderBottom: '1px solid var(--selago)',
+                    borderRight: '1px solid var(--selago)',
+                    borderLeft: '1px solid var(--selago)',
                     background: '#ffffff'
                   }}>
                   {row.getVisibleCells().map((cell, idx) => (
@@ -106,10 +106,10 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                           : 'truncate'
                       }
                       style={{
-                        color: cell.column.id === 'amount' ? '#0b3d6b' : '#1F2937',
+                        color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : '#1F2937',
                         fontSize: 'clamp(11px, 1vw, 13px)',
                         fontWeight: cell.column.id === 'amount' ? 500 : 400,
-                        borderRight: idx === 0 ? '1px solid #e0e0e0' : undefined // right border for first col
+                        borderRight: idx === 0 ? '1px solid var(--selago)' : undefined // right border for first col
                       }}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -123,14 +123,14 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           {/* TOTALS */}
           <div className="px-4 py-2.5"
             style={{
-              borderTop: '1px solid #b8d8f2',
-              background: '#b8d8f2',
-              borderLeft: '1px solid #e0e0e0',
-              borderRight: '1px solid #e0e0e0',
-              borderBottom: '1px solid #e0e0e0'
+              borderTop: '1px solid var(--rock-blue)',
+              background: 'var(--rock-blue)',
+              borderLeft: '1px solid var(--selago)',
+              borderRight: '1px solid var(--selago)',
+              borderBottom: '1px solid var(--selago)'
             }}>
             <div className="flex justify-between font-semibold"
-              style={{ color: '#0b3d6b', fontSize: 'clamp(11px, 1vw, 13px)' }}>
+              style={{ color: 'var(--chathams-blue)', fontSize: 'clamp(11px, 1vw, 13px)' }}>
               <span>Total $:</span>
               <span>
                 {showAmount(
@@ -140,7 +140,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
               </span>
             </div>
             <div className="flex justify-between font-semibold mt-2"
-              style={{ color: '#0b3d6b', fontSize: 'clamp(11px, 1vw, 13px)' }}>
+              style={{ color: 'var(--chathams-blue)', fontSize: 'clamp(11px, 1vw, 13px)' }}>
               <span>Total €:</span>
               <span>
                 {showAmount(

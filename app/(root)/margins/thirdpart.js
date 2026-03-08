@@ -27,12 +27,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                 }
 
                 .margins-table th {
-                    background-color: #d4eafc;
+                    background-color: var(--selago);
                 }
 
                 .margins-table td {
                     background-color: #fff;
-                    border: 1px solid #e0e0e0;
+                    border: 1px solid var(--selago);
                 }
             `}</style>
 
@@ -62,7 +62,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                     className="flex-shrink-0"
                     style={{ 
                         borderBottom: '2px solid #E5E7EB',
-                        background: '#d4eafc',
+                        background: 'var(--selago)',
                         borderTopLeftRadius: '24px',
                         borderTopRightRadius: '24px'
                     }}
@@ -169,7 +169,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl  transition-all duration-200 ease-in-out  bg-[#e3f3ff]   fade-in">
+                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl  transition-all duration-200 ease-in-out  bg-[var(--selago)]   fade-in">
                                                     {z.month + "-" + yr}
                                                 </div>
                                             </td>

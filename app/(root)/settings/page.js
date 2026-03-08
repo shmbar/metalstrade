@@ -78,20 +78,15 @@ const Page = () => {
       'focus:outline-none',
       selected
         ? `
-          rounded-t-xl 
-          rounded-b-none
+          rounded-full
           shadow-sm
-text-white
+          text-white
           bg-[var(--endeavour)]
-
         `
         : `
-          bg-[#e3f3ff]
-          text-[#0A5DB8]
-          rounded-t-xl
-          rounded-b-none
-          hover:bg-[#E0E0E0]
-
+          text-[var(--endeavour)]
+          rounded-full
+          hover:bg-[var(--selago)]
         `
     )
   }
@@ -106,7 +101,7 @@ text-white
     relative
     mt-[-1px]
     rounded-xl
-    border border-[#E5E7EB]
+    border border-[var(--selago)]
     bg-white
     shadow-sm
     p-3

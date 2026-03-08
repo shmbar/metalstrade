@@ -115,17 +115,17 @@ const Page = () => {
 
 							<div className="w-full">
 								<TabGroup>
-									<TabList className="flex space-x-2 mb-4 border-b border-[var(--rock-blue)]">
+									<TabList className="flex space-x-2 mb-4">
 										{tabs.map((z) => (
 											<Tab
 												key={z}
 												className={({ selected }) =>
 													classNames(
-														'px-6 py-2.5 text-sm font-medium rounded-t-lg transition-colors',
+														'px-6 py-2 text-sm font-medium rounded-full transition-colors',
 														'focus:outline-none',
 														selected
-															? 'bg-[var(--endeavour)] text-[var(--selago)]'
-															: 'bg-[var(--selago)] text-[var(--regent-gray)] hover:bg-[var(--rock-blue)]'
+															? 'bg-[var(--endeavour)] text-white shadow-sm'
+															: 'text-[var(--endeavour)] hover:bg-[var(--selago)]'
 													)
 												}
 											>

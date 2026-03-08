@@ -56,7 +56,7 @@ const MarginTable = (props) => {
                                 minHeight: '40px'
                             }}
                         >
-                            <div className="bg-[#e3f3ff] rounded-full px-3 py-1 flex items-center gap-2 w-fit">
+                            <div className="bg-[var(--selago)] rounded-full px-3 py-1 flex items-center gap-2 w-fit">
 
   <DisclosureButton className="flex items-center justify-center hover:opacity-80 transition-all">
     {!open ? (

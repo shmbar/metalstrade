@@ -784,7 +784,7 @@ return (
             <>
                 <Toast />
                 <VideoLoader loading={loading} fullScreen={true} />
-                <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-gray-200 shadow-xl w-full backdrop-blur-[2px] bg-white">
+                <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--selago)] shadow-lg w-full bg-white">
                     <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
                         <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
                             {getTtl('Cashflow', ln)}
@@ -834,7 +834,7 @@ return (
                     <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                         <MyAccordion title={
                             <div className="flex w-full justify-between">
-                                <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0">
+                                <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
                                     {x.supplierName}
                                 </div>
                                 <div className="leading-4 2xl:leading-6">
@@ -846,7 +846,7 @@ return (
                                         prefix={x.cur === 'us' ? '$' : '€'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveText font-normal text-[#545454]'
+                                        className='responsiveText font-normal text-[var(--port-gore)]'
                                     />
                                 </div>
                             </div>
@@ -874,9 +874,9 @@ return (
         )}
     </div>
 ) : (
-<div className="w-full border border-[#dedede] rounded-2xl overflow-hidden bg-white">
+<div className="w-full border border-[var(--selago)] rounded-2xl overflow-hidden bg-white">
   {userTitle === 'Admin' &&
-                        <div className="w-full p-3 sm:p-4 border-b border-[#dedede]">
+                        <div className="w-full p-3 sm:p-4 border-b border-[var(--selago)]">
                             <div className="flex gap-2">
                                 <span className="responsiveTextInput items-center flex w-44 text-[var(--endeavour)]">Future</span>
                                 <label className="pl-1">{
@@ -950,7 +950,7 @@ return (
                                         <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                        <div className="responsiveText items-center font-normal text-[#545454] flex outline-none whitespace-normal break-words min-w-0"
+                                                        <div className="responsiveText items-center font-normal text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
                                                     </div>
@@ -964,7 +964,7 @@ return (
                                                             prefix={x.cur === 'us' ? '$' : '€'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[#545454] '
+                                                            className='responsiveText font-normal text-[var(--port-gore)] '
                                                         />
                                                     </div>
                                                 </div>
@@ -1027,7 +1027,7 @@ return (
                                         <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                    <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                    <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
                                                     </div>
@@ -1041,7 +1041,7 @@ return (
                                                             prefix={x.cur === 'us' ? '$' : '€'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[#545454]'
+                                                            className='responsiveText font-normal text-[var(--port-gore)]'
                                                         />
                                                     </div>
                                                 </div>
@@ -1100,7 +1100,7 @@ return (
                                         <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                    <div className="responsiveText text-[#545454] font-normal items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                    <div className="responsiveText text-[var(--port-gore)] font-normal items-center flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Client.Client.find(z => z.id === x.client)?.nname}
                                                     </div>
@@ -1113,7 +1113,7 @@ return (
                                                             prefix={x.cur === 'us' ? '$' : '€'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[#545454]'
+                                                            className='responsiveText font-normal text-[var(--port-gore)]'
                                                         />
 
                                                     </div>
@@ -1170,7 +1170,7 @@ return (
                                         <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                    <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                    <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Client.Client.find(z => z.id === x.client)?.nname}
                                                     </div>
@@ -1183,7 +1183,7 @@ return (
                                                             prefix={x.cur === 'us' ? '$' : '€'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[#545454]'
+                                                            className='responsiveText font-normal text-[var(--port-gore)]'
                                                         />
 
                                                     </div>
@@ -1304,7 +1304,7 @@ return (
                                         <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                    <span className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words w-full min-w-0"
+                                                    <span className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words w-full min-w-0"
                                                     >
                                                         {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                     </span>
@@ -1317,7 +1317,7 @@ return (
                                                             prefix={'$'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[#545454]'
+                                                            className='responsiveText font-normal text-[var(--port-gore)]'
                                                         />
                                                     </div>
                                                 </div>
@@ -1379,7 +1379,7 @@ return (
                                         <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                    <span className="responsiveText items-center font-normal text-[#545454] flex outline-none whitespace-normal break-words w-full min-w-0"
+                                                    <span className="responsiveText items-center font-normal text-[var(--port-gore)] flex outline-none whitespace-normal break-words w-full min-w-0"
                                                     >
                                                         {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                     </span>
@@ -1392,7 +1392,7 @@ return (
                                                             prefix={'$'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[#545454]'
+                                                            className='responsiveText font-normal text-[var(--port-gore)]'
                                                         />
                                                     </div>
                                                 </div>
@@ -1449,7 +1449,7 @@ return (
                                         <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex justify-between leading-4 2xl:leading-6 w-full">
-                                                    <div className="responsiveText font-normal text-[#545454] items-center flex outline-none whitespace-normal break-words min-w-0"              >
+                                                    <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"              >
                                                         {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                     </div>
 
@@ -1462,7 +1462,7 @@ return (
                                                             prefix={'$'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[#545454]'
+                                                            className='responsiveText font-normal text-[var(--port-gore)]'
                                                         />
                                                     </div>
                                                 </div>
@@ -1558,7 +1558,7 @@ return (
                     </div>
 
                     {userTitle === 'Admin' && (
-                <div className="mt-2 w-full border-2 border-gray-300 rounded-lg p-2">
+                <div className="mt-2 w-full border border-[var(--selago)] rounded-xl p-3">
 
                     {/* TOTALS AND BALANCE IN ONE ROW */}
                     <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
@@ -1621,7 +1621,7 @@ return (
                                 <div className="flex gap-2 my-2" key={z}>
                                     <span className="responsiveTextInput items-center flex w-28 text-[var(--endeavour)] whitespace-nowrap">Total for {z}</span>
                                     <input
-                                        className='input w-44 h-6 responsiveTextTotal font-normal text-[11px]  text-[var(--endeavour)] text-right p-2 bg-[#f9f9f9] border-[#dedede]'
+                                        className='input w-44 h-6 responsiveTextTotal font-normal text-[11px]  text-[var(--endeavour)] text-right p-2 bg-white border-[var(--rock-blue)]'
                                         value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
                                         onChange={e => handleChange(e, z)}
                                     />

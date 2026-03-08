@@ -104,8 +104,8 @@ const Header = ({
               <Tltip direction="bottom" tltpText={isEditMode ? 'Editing ON' : 'Edit'}>
                 <div
                   onClick={() => setIsEditMode(prev => !prev)}
-                  className={`w-8 h-8 inline-flex items-center justify-center rounded hover:bg-gray-100 cursor-pointer transition-colors ${
-                    isEditMode ? 'bg-blue-100 text-blue-700' : 'text-gray-600'
+                  className={`w-8 h-8 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer transition-colors ${
+                    isEditMode ? 'bg-[var(--selago)] text-[var(--endeavour)]' : 'text-gray-600'
                   }`}
                   title={isEditMode ? 'Editing ON' : 'Edit'}
                 >
@@ -129,7 +129,7 @@ const Header = ({
                     window.dispatchEvent(new CustomEvent('ims:openChat'));
                   }
                 }}
-                className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-gray-100 cursor-pointer text-gray-600 transition-colors"
+                className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-gray-600 transition-colors"
                 aria-label={getTtl('Ask question', ln) || 'Ask question'}
                 title={getTtl('Ask question', ln) || 'Ask question'}
               >
@@ -145,20 +145,20 @@ const Header = ({
             </Tltip>
 
             {/* Column Filter */}
-            <div className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-gray-100 cursor-pointer text-gray-600 transition-colors">
+            <div className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-gray-600 transition-colors">
               <ColFilter table={table} iconClassName="text-gray-600" iconSize={16} />
             </div>
 
             {/* Excel Report */}
             {excellReport && (
-              <div className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-gray-100 cursor-pointer text-gray-600 transition-colors">
+              <div className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-gray-600 transition-colors">
                 {excellReport}
               </div>
             )}
 
             {/* Filter Icon */}
             {filterIcon && (
-              <div className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-gray-100 cursor-pointer text-gray-600 transition-colors">
+              <div className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-gray-600 transition-colors">
                 {filterIcon}
               </div>
             )}
@@ -174,7 +174,7 @@ const Header = ({
                 <Tltip direction='bottom' tltpText='Add new material'>
                   <button
                     onClick={addMaterial}
-                    className="w-8 h-8 hover:bg-gray-100 text-gray-600 inline-flex items-center justify-center rounded focus:outline-none transition-colors"
+                    className="w-8 h-8 hover:bg-[var(--selago)] text-gray-600 inline-flex items-center justify-center rounded focus:outline-none transition-colors"
                   >
                     <GrAddCircle style={{ fontSize: 16 }} />
                   </button>
@@ -183,7 +183,7 @@ const Header = ({
                 <Tltip direction='bottom' tltpText='Export to PDF'>
                   <button
                     onClick={() => runPdf(table1)}
-                    className="w-8 h-8 hover:bg-gray-100 text-gray-600 inline-flex items-center justify-center rounded focus:outline-none transition-colors"
+                    className="w-8 h-8 hover:bg-[var(--selago)] text-gray-600 inline-flex items-center justify-center rounded focus:outline-none transition-colors"
                   >
                     <GrDocumentPdf style={{ fontSize: 16 }} />
                   </button>
