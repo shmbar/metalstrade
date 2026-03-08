@@ -389,8 +389,8 @@ useEffect(() => {
 
   // Calculate totals from data
   const totals = useMemo(() => {
-    const totalIncome = invoicesAccData.reduce((sum, item) => sum + (item.amountInv || 0), 0);
-    const totalExpense = invoicesAccData.reduce((sum, item) => sum + (item.amountExp || 0), 0);
+    const totalIncome = invoicesAccData.reduce((sum, item) => sum + (Number(item.amountInv) || 0), 0);
+    const totalExpense = invoicesAccData.reduce((sum, item) => sum + (Number(item.amountExp) || 0), 0);
     const balance = totalIncome - totalExpense;
     return { totalIncome, totalExpense, balance, savings: balance > 0 ? balance * 0.2 : 0 };
   }, [invoicesAccData]);
@@ -460,6 +460,7 @@ useEffect(() => {
   }, [invoicesAccData]);
 
   const formatCurrency = (amount) => {
+    if (amount == null || isNaN(amount)) return '$0';
     const absAmount = Math.abs(amount);
     const sign = amount < 0 ? '-' : '';
     
@@ -481,6 +482,7 @@ useEffect(() => {
   };
 
   const formatCurrencyFull = (amount) => {
+    if (amount == null || isNaN(amount)) return '$0.00';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',

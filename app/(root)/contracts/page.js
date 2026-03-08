@@ -207,12 +207,36 @@ const Contracts = () => {
 				})) ?? []
 			}
 		},
-		{ accessorKey: 'pol', header: getTtl('POL', ln), cell: EditableCell },
-		{ accessorKey: 'pod', header: getTtl('POD', ln), cell: EditableCell },
-		{ accessorKey: 'packing', header: getTtl('Packing', ln), cell: EditableCell },
-		{ accessorKey: 'contType', header: getTtl('Container Type', ln), cell: EditableCell },
-		{ accessorKey: 'size', header: getTtl('Size', ln), cell: EditableCell },
-		{ accessorKey: 'deltime', header: getTtl('Delivery Time', ln), cell: EditableCell },
+		{
+			accessorKey: 'pol', header: getTtl('POL', ln),
+			cell: EditableSelectCell,
+			meta: { options: settings.POL?.POL?.map(p => ({ value: p.id, label: p.pol })) ?? [] }
+		},
+		{
+			accessorKey: 'pod', header: getTtl('POD', ln),
+			cell: EditableSelectCell,
+			meta: { options: settings.POD?.POD?.map(p => ({ value: p.id, label: p.pod })) ?? [] }
+		},
+		{
+			accessorKey: 'packing', header: getTtl('Packing', ln),
+			cell: EditableSelectCell,
+			meta: { options: settings.Packing?.Packing?.map(p => ({ value: p.id, label: p.packing })) ?? [] }
+		},
+		{
+			accessorKey: 'contType', header: getTtl('Container Type', ln),
+			cell: EditableSelectCell,
+			meta: { options: settings['Container Type']?.['Container Type']?.map(c => ({ value: c.id, label: c.contType })) ?? [] }
+		},
+		{
+			accessorKey: 'size', header: getTtl('Size', ln),
+			cell: EditableSelectCell,
+			meta: { options: settings.Size?.Size?.map(s => ({ value: s.id, label: s.size })) ?? [] }
+		},
+		{
+			accessorKey: 'deltime', header: getTtl('Delivery Time', ln),
+			cell: EditableSelectCell,
+			meta: { options: settings['Delivery Time']?.['Delivery Time']?.map(d => ({ value: d.id, label: d.deltime })) ?? [] }
+		},
 		{
 			accessorKey: 'cur',
 			header: getTtl('Currency', ln),

@@ -39,7 +39,7 @@ const AuthContextProvider = ({ children }) => {
   // On mount or route change, if not authenticated, redirect to sign-in
     // Robust: Only redirect after Firebase auth state is loaded
     useEffect(() => {
-      const publicRoutes = ['/', '/about', '/contact', '/signin', '/signin', '/blog', '/features', '/pricing', '/landing'];
+      const publicRoutes = ['/', '/about', '/contact', '/signin', '/signin', '/blog', '/features', '/landing'];
       if (loadingPage) return; // Wait for Firebase to finish checking
       if (!user) {
         if (!publicRoutes.includes(pathName)) {

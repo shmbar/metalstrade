@@ -268,22 +268,25 @@ const Invoices = () => {
 			},
 			size: 140
 		},
-		{ 
-			accessorKey: 'pol', 
-			header: getTtl('POL', ln), 
-			cell: EditableCell,
+		{
+			accessorKey: 'pol',
+			header: getTtl('POL', ln),
+			cell: EditableSelectCell,
+			meta: { options: settings.POL?.POL?.map(p => ({ value: p.id, label: p.pol })) ?? [] },
 			size: 100
 		},
-		{ 
-			accessorKey: 'pod', 
-			header: getTtl('POD', ln), 
-			cell: EditableCell,
+		{
+			accessorKey: 'pod',
+			header: getTtl('POD', ln),
+			cell: EditableSelectCell,
+			meta: { options: settings.POD?.POD?.map(p => ({ value: p.id, label: p.pod })) ?? [] },
 			size: 100
 		},
-		{ 
-			accessorKey: 'packing', 
-			header: getTtl('Packing', ln), 
-			cell: EditableCell,
+		{
+			accessorKey: 'packing',
+			header: getTtl('Packing', ln),
+			cell: EditableSelectCell,
+			meta: { options: settings.Packing?.Packing?.map(p => ({ value: p.id, label: p.packing })) ?? [] },
 			size: 120
 		},
 		{ 

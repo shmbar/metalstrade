@@ -1228,7 +1228,7 @@ return (
                                             <span className="text-[var(--endeavour)] responsiveTextTitle">Financing</span>
                                             <button
                                                 type="button"
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
                                                 onClick={() => setFinancedLeft([...financedLeft, { title: '', num: '' }])}
                                             >
                                                 Add
@@ -1506,7 +1506,7 @@ return (
                                             <span className="font-normal text-[var(--endeavour)] responsiveTextTitle">Financing</span>
                                             <button
                                                 type="button"
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
                                                 onClick={() => setFinancedRight([...financedRight, { title: '', num: '' }])}
                                             >
                                                 Add

@@ -139,7 +139,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
     >
       <Listbox.Options
         static
-        className="z-[9999] max-h-48 overflow-auto rounded-xl bg-[#F9F9F9] py-1 text-xs shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none border border-gray-200 custom-scrollbar"
+        className="z-[9999] max-h-48 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-[var(--selago)] focus:outline-none border border-[var(--selago)] custom-scrollbar"
         style={{
           position: "absolute",
           ...(dropUp
@@ -158,14 +158,14 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
               key={o.value}
               className={({ active, selected }) =>
                 `relative cursor-pointer select-none py-2 pl-4 pr-4 rounded-lg text-left
-                ${selected ? 'bg-blue-100 text-blue-900 dropdown-option-selected' : active ? 'bg-blue-50 text-blue-900' : 'text-gray-900'}`
+                ${selected ? 'bg-[var(--selago)] text-[var(--endeavour)] dropdown-option-selected' : active ? 'bg-[var(--selago)]/50 text-[var(--port-gore)]' : 'text-[var(--port-gore)]'}`
               }
               value={o.value}
             >
               {({ selected }) => (
                 <div className="flex items-center gap-x-2">
                   {selected ? (
-                    <span className="text-blue-700">
+                    <span className="text-[var(--endeavour)]">
                       <HiCheck className="h-4 w-4" aria-hidden="true" />
                     </span>
                   ) : null}
@@ -201,7 +201,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
               {selectedOption?.label ?? ""}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              <HiSelector className="h-4 w-4 text-gray-400" aria-hidden="true" />
+              <HiSelector className="h-4 w-4 text-[var(--rock-blue)]" aria-hidden="true" />
             </span>
           </Listbox.Button>
           {/* Render dropdown in portal to avoid clipping */}

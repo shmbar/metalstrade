@@ -113,7 +113,7 @@ export const EXD = (dataTable, settings, name, ln) => {
                 dateExp: item.dateExp && dateFormat(item.dateExp, 'dd-mmm-yy'),
                 expInvoice: item.expInvoice == null || item.expInvoice == '' ? '' : isNumber(item.expInvoice) ? item.expInvoice * 1 : item.expInvoice,
                 clientExp: item.clientExp ? settings.Supplier.Supplier.find(q => q.id === item.clientExp)?.nname : '',
-                amountExp: item.amountExp && item.amountExp * 1,
+                amountExp: item.amountExp ? Number(item.amountExp) || 0 : '',
                 expType: item.expType && item.expType === 'Purchase' ? 'Purchase' : settings.Expenses.Expenses.find(q => q.id === item.expType)?.expType,
 
                 dateInv: item.dateInv == null ? '' : dateFormat(item.dateInv, 'dd-mmm-yy'),

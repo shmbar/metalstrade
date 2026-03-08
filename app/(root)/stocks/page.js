@@ -1,5 +1,5 @@
 'use client';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import Customtable from './newTable';
 import MyDetailsModal from './whModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -123,7 +123,8 @@ const Stocks = () => {
   useEffect(() => {
     const loadtStocks = async () => {
 
-      setLoading(true)
+      // Only show full-page loader on initial load (no data yet)
+      if (data.length === 0) setLoading(true)
       let stockData = null;
 
       if (selectedStock.stock !== 'allStocks') {
@@ -320,6 +321,8 @@ const Stocks = () => {
   }
 
 
+  const stockSelector = useMemo(() => CB(settings, handleSelectStock, selectedStock), [settings, selectedStock]);
+
   return (
     <div className="w-full " style={{ background: "#f8fbff" }}>
       <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
@@ -342,7 +345,7 @@ const Stocks = () => {
                   data={getFormatted(data)}
                   columns={propDefaults}
                   SelectRow={SelectRow}
-                  cb={CB(settings, handleSelectStock, selectedStock)}
+                  cb={stockSelector}
                   type='stock'
                   invisible={invisible}
                   excellReport={EXD(

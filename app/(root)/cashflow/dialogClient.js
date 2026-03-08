@@ -66,7 +66,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button className="h-5 2xl:h-6 px-1 2xl:px-2 text-xs bg-slate-500">
+                <Button className="h-5 2xl:h-6 px-1 2xl:px-2 text-xs bg-[var(--endeavour)] hover:opacity-90">
                     <MdPayments className="scale-[0.8] 2xl:scale-[1]"/>
                 </Button>
             </PopoverTrigger>
@@ -116,7 +116,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
                 </div>
 
                 <div className="flex justify-end pt-3">
-                    <Button className="px-2 h-7 bg-slate-500" onClick={handleSave}>
+                    <Button className="px-2 h-7 bg-[var(--endeavour)] hover:opacity-90" onClick={handleSave}>
                         Save
                     </Button>
                 </div>
