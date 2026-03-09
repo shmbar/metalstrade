@@ -52,7 +52,7 @@ body,
   }
 
   .blackButton {
-    @apply bg-gradient-to-r from-[var(--endeavour)] to-[var(--chathams-blue)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-xl border-0 px-3 py-2 text-sm font-medium focus:outline-none shadow-lg transition-all
+    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-2 text-sm font-medium focus:outline-none shadow-lg transition-all
   }
 
   .whiteButton {
