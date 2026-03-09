@@ -16,7 +16,7 @@ const MarginTable = (props) => {
     const remaining = data.reduce((sum, row) => sum + (row?.gis ? Number(row?.remaining) / 2 || 0 : Number(row?.remaining) || 0), 0);
 
     return (
-        <div className="w-full p-1 mt-3">
+        <div className="w-full">
             {/* Import Poppins font and apply consistent styling exactly like newTable */}
             <style jsx global>{`
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -33,14 +33,11 @@ const MarginTable = (props) => {
                 as="div" 
                 className="margin-card w-full overflow-visible"
                 style={{
-                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(250, 250, 250, 0.90) 50%, rgba(255, 255, 255, 0.85) 100%)',
-                    backdropFilter: 'blur(16px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-                    borderRadius: '16px',
+                    background: '#ffffff',
+                    borderRadius: '12px',
                     border: '1px solid #E5E7EB',
-                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.06), 0 0 1px rgba(99, 102, 241, 0.08) inset',
-                    marginBottom: '4px',
-                    padding: '8px'
+                    marginBottom: '0px',
+                    padding: '4px 8px'
                 }}
             >
                 {({ open }) => (
@@ -50,13 +47,13 @@ const MarginTable = (props) => {
                             className="flex flex-wrap items-center gap-2 mb-2"
                             style={{
                                 background: '#ffffff',
-                                padding: '6px 8px',
-                                borderRadius: '12px',
-                                marginBottom: '8px',
-                                minHeight: '40px'
+                                padding: '2px 4px',
+                                borderRadius: '8px',
+                                marginBottom: '0px',
+                                minHeight: '32px'
                             }}
                         >
-                            <div className="bg-white rounded-full px-3 py-1 flex items-center gap-2 w-fit">
+                            <div className="bg-[#dbeeff] rounded-full px-3 py-1 flex items-center gap-2 w-fit">
 
   <DisclosureButton className="flex items-center justify-center hover:opacity-80 transition-all">
     {!open ? (
