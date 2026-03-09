@@ -155,14 +155,14 @@ const Customtable = ({
         .custom-table th {
           border: 1px solid #d7d7d7;
           text-align: center;
-          font-size: 12px !important;
+          font-size: 13px !important;
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 
         }
         .custom-table td {
           border: 1px solid #d7d7d7;
           text-align: center;
-          font-size: 10px !important;
+          font-size: 12px !important;
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 
         }
@@ -345,7 +345,7 @@ const Customtable = ({
               <div className="flex justify-center">
                 {hasValue ? (
                   <div
-                    className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
+                    className="px-3 py-1.5 rounded-xl text-[12px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
                     style={{
                       backgroundColor:
                         value === 'Paid'
@@ -362,7 +362,7 @@ const Customtable = ({
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </div>
                 ) : (
-                  <div className="text-[11px] text-[#6B7280]">
+                  <div className="text-[12px] text-[#6B7280]">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </div>
                 )}
