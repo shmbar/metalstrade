@@ -135,7 +135,7 @@ const SpecialInvoices = () => {
             cell: (props) => <p>{showAmount(props)}</p>,
         },
         {
-            accessorKey: 'paidNotPaid', header: 'Paid/Unpaid',
+            accessorKey: 'paidNotPaid', header: 'Status',
             meta: {
                 filterVariant: 'paidNotPaid',
             },
@@ -228,6 +228,7 @@ const SpecialInvoices = () => {
                                         settings={settings}
                                         title='Summary - Unpaid invoices'
                                         filt='reduced'
+                                        totalsOnly={true}
                                     />
                                 </div>
                                 <div className='w-full md:w-1/2'>

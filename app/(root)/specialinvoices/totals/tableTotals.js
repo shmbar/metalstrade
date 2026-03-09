@@ -7,7 +7,7 @@ import '../../contracts/style.css'
 import Tltip from "../../../../components/tlTip"
 import { expensesToolTip } from "./funcs"
 
-const Customtable = ({ data, columns, expensesData, settings, title, filt, heading }) => {
+const Customtable = ({ data, columns, expensesData, settings, title, filt, heading, totalsOnly }) => {
     const table1 = useReactTable({
         columns, 
         data,
@@ -55,7 +55,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     letter-spacing: 0.05em;
                 }
                 .glass-table tfoot th, .glass-table tfoot td {
-                    background: var(--selago);
+                    background: #dbeeff;
                     color: var(--chathams-blue) !important;
                     font-weight: 600;
                     font-size: clamp(10px, 1vw, 12px); /* Lowered font size */
@@ -110,49 +110,53 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         <div
                         className="px-6 py-4 text-center font-bold font-poppins text-[12px]"
                         style={{
-                            background: 'var(--selago)',
+                            background: '#dbeeff',
                             color: 'var(--endeavour)'
                         }}
                         >
                         {title}
                         </div>
                         <table className="w-full glass-table">
-                            <thead>
-                                {table1.getHeaderGroups().map(hdGroup => (
-                                    <tr key={hdGroup.id}>
-                                        {hdGroup.headers.map(header => (
-                                            <th key={header.id}>
-                                                {header.column.getCanSort() ? (
-                                                    <div onClick={header.column.getToggleSortingHandler()} className="text-[11px] flex cursor-pointer items-center gap-1 justify-center text-[var(--endeavour)]">
-                                                        {header.column.columnDef.header}
-                                                        {{
-                                                            asc: <TbSortAscending className="text-[var(--endeavour)] scale-125" />, 
-                                                            desc: <TbSortDescending className="text-[var(--endeavour)] scale-125" />
-                                                        }[header.column.getIsSorted()]}
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-[11px]" style={{color:'var(--endeavour)'}}>{header.column.columnDef.header}</span>
-                                                )}
-                                            </th>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </thead>
-                            <tbody>
-                                {table1.getRowModel().rows.map(row => (
-                                    <tr key={row.id} className='cursor-pointer'>
-                                        {row.getVisibleCells().map(cell => (
-                                            <td key={cell.id}>
-                                                <Tltip direction='right' tltpText={expensesToolTip(row, expensesData, settings, filt)}>
-                                                    <span className="items-center flex outline-none whitespace-normal break-words cursor-default text-[11px]" style={{color:'var(--endeavour)'}}>
-                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                    </span>
-                                                </Tltip>
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
+                            {!totalsOnly && (
+                                <thead>
+                                    {table1.getHeaderGroups().map(hdGroup => (
+                                        <tr key={hdGroup.id}>
+                                            {hdGroup.headers.map(header => (
+                                                <th key={header.id}>
+                                                    {header.column.getCanSort() ? (
+                                                        <div onClick={header.column.getToggleSortingHandler()} className="text-[11px] flex cursor-pointer items-center gap-1 justify-center text-[var(--endeavour)]">
+                                                            {header.column.columnDef.header}
+                                                            {{
+                                                                asc: <TbSortAscending className="text-[var(--endeavour)] scale-125" />,
+                                                                desc: <TbSortDescending className="text-[var(--endeavour)] scale-125" />
+                                                            }[header.column.getIsSorted()]}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-[11px]" style={{color:'var(--endeavour)'}}>{header.column.columnDef.header}</span>
+                                                    )}
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </thead>
+                            )}
+                            {!totalsOnly && (
+                                <tbody>
+                                    {table1.getRowModel().rows.map(row => (
+                                        <tr key={row.id} className='cursor-pointer'>
+                                            {row.getVisibleCells().map(cell => (
+                                                <td key={cell.id}>
+                                                    <Tltip direction='right' tltpText={expensesToolTip(row, expensesData, settings, filt)}>
+                                                        <span className="items-center flex outline-none whitespace-normal break-words cursor-default text-[11px]" style={{color:'var(--endeavour)'}}>
+                                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                        </span>
+                                                    </Tltip>
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            )}
                             <tfoot>
                                 <tr>
                                     <th>
