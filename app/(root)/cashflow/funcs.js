@@ -329,7 +329,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
 
     return (
         <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
-            <table className="cashflow-detail-table w-full min-w-[640px] table-fixed">
+            <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr className="bg-[#f0f8ff]">
                         <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">PO#</th>
@@ -443,7 +443,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
 
     return (
         <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
-            <table className="cashflow-detail-table w-full min-w-[600px] table-fixed">
+            <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr className="bg-[#f0f8ff]">
                         <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">PO#</th>
@@ -688,7 +688,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
         <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable1 bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             {type === 'PartPaid' &&
                 <div className="pt-1 w-full">
-                    <table className="cashflow-detail-table w-full min-w-[980px]">
+                    <table className="cashflow-detail-table w-full table-auto">
                         <thead>
                             <tr className="bg-[#f0f8ff]">
                                 <th className="text-left p-1 2xl:p-1  max-w-20 2xl:max-w-24 truncate text-[var(--endeavour)] font-normal text-">PO#</th>
@@ -825,7 +825,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
 
             {type === 'InDebt' &&
                 <div className="pt-1 w-full">
-                    <table className="cashflow-detail-table responsiveTextTable w-full min-w-[760px]">
+                    <table className="cashflow-detail-table responsiveTextTable w-full table-auto">
                         <thead>
                             <tr className="bg-[#f0f8ff]">
                                 <th className="text-left p-1 2xl:p-2  w-28 text-[var(--endeavour)] font-normal">PO#</th>
@@ -1080,7 +1080,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
 
     return (
         <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
-            <table className="cashflow-detail-table w-full min-w-[760px]">
+            <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr className="bg-[#f0f8ff]">
                         <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">PO#</th>
@@ -1260,7 +1260,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
 
     return (
         <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
-            <table className="cashflow-detail-table w-full min-w-[860px]">
+            <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr className="bg-[#f0f8ff]">
                         <th className="text-left p-1 2xl:p-1 w-24 text-[var(--endeavour)] font-normal">PO#</th>
