@@ -304,6 +304,7 @@ const Customtable = ({
           value !== '';
 
         const isSelect = cell.column.id === 'select';
+        const isCur = cell.column.id === 'cur';
         return (
           <td
             key={cell.id}
@@ -346,7 +347,9 @@ const Customtable = ({
               </div>
             ) : (
               <div className="flex justify-center">
-                {hasValue ? (
+                {isCur ? (
+                  flexRender(cell.column.columnDef.cell, cell.getContext())
+                ) : hasValue ? (
                   <div
                     className="px-3 py-1.5 rounded-xl text-[10px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
                     style={{
