@@ -48,91 +48,100 @@ const DateRangePicker = ({ displayLabel }) => {
         const style = document.createElement("style");
         style.id = styleId;
         style.textContent = `
-            /* Popup container — rounded, shadow, themed */
-            .react-tailwindcss-datepicker [role="dialog"] {
+            /* ── Popup wrapper: rounded + themed border + shadow ── */
+            .react-tailwindcss-datepicker-container > div:not(:first-child),
+            .shadow-sm.border.border-gray-300.px-1.py-0\\.5.bg-white.rounded-lg {
                 border-radius: 1.25rem !important;
                 border: 1px solid #b8ddf8 !important;
-                box-shadow: 0 8px 32px rgba(3,102,174,0.12) !important;
+                box-shadow: 0 8px 32px rgba(3,102,174,0.13) !important;
                 overflow: hidden !important;
-                z-index: 10 !important;
             }
 
-            /* Input wrapper */
-            .react-tailwindcss-datepicker > div {
-                border-radius: 1rem !important;
-            }
-            .react-tailwindcss-datepicker input,
-            .react-tailwindcss-datepicker input:focus,
-            .react-tailwindcss-datepicker > div:focus-within {
+            /* ── Input: remove shadow on focus ── */
+            .react-tailwindcss-datepicker-container input {
                 box-shadow: none !important;
-                outline: none !important;
-            }
-            .react-tailwindcss-datepicker input {
                 color: var(--chathams-blue) !important;
                 font-size: 0.75rem !important;
             }
 
-            /* Month/year header — pill shape with light blue bg */
-            .react-tailwindcss-datepicker [role="dialog"] .font-semibold.text-lg,
-            .react-tailwindcss-datepicker [role="dialog"] h5 {
+            /* ── Month/Year header pill ── */
+            .flex.items-center.space-x-1\\.5.border.border-gray-300.rounded-md.px-2.py-1\\.5 {
                 background: #dbeeff !important;
+                border: 1px solid #b8ddf8 !important;
                 border-radius: 999px !important;
-                padding: 4px 16px !important;
                 color: var(--chathams-blue) !important;
-                font-size: 13px !important;
             }
 
-            /* Nav prev/next buttons — rounded */
-            .react-tailwindcss-datepicker [role="dialog"] button[type="button"] {
+            /* ── Nav chevron buttons ── */
+            .rounded-full.p-\\[0\\.45rem\\] {
                 border-radius: 999px !important;
             }
-            .react-tailwindcss-datepicker [role="dialog"] button[type="button"]:hover {
+            .rounded-full.p-\\[0\\.45rem\\]:hover {
                 background: #dbeeff !important;
             }
 
-            /* Day-of-week header row */
-            .react-tailwindcss-datepicker [role="dialog"] .grid.grid-cols-7 > div:first-child,
-            .react-tailwindcss-datepicker [role="dialog"] .text-center.font-medium {
+            /* ── Month/Year text buttons (uppercase label) ── */
+            .tracking-wide.px-3.py-\\[0\\.55rem\\].uppercase.hover\\:bg-gray-100.rounded-md {
+                border-radius: 999px !important;
+                color: var(--chathams-blue) !important;
+            }
+            .tracking-wide.px-3.py-\\[0\\.55rem\\].uppercase.hover\\:bg-gray-100.rounded-md:hover {
+                background: #dbeeff !important;
+            }
+
+            /* ── Week header row ── */
+            .grid.grid-cols-7.border-b.border-gray-300.py-2 {
+                border-color: #e8f0f8 !important;
+            }
+            .grid.grid-cols-7.border-b.border-gray-300.py-2 > div {
                 color: var(--chathams-blue) !important;
                 font-size: 11px !important;
+                font-weight: 600 !important;
             }
 
-            /* Individual day cells */
-            .react-tailwindcss-datepicker [role="dialog"] button[role="button"],
-            .react-tailwindcss-datepicker [role="dialog"] .day-btn {
+            /* ── Day cells container ── */
+            .grid.grid-cols-7.gap-y-0\\.5.my-1 > div {
+                border-radius: 999px !important;
+            }
+
+            /* ── Individual day buttons ── */
+            .flex.items-center.justify-center.w-12.h-12,
+            .flex.items-center.justify-center.w-10.h-10,
+            .flex.items-center.justify-center.lg\\:w-10.lg\\:h-10 {
                 border-radius: 999px !important;
                 font-size: 12px !important;
-                color: #1F2937 !important;
             }
-            .react-tailwindcss-datepicker [role="dialog"] button[role="button"]:hover {
+            .flex.items-center.justify-center.w-12.h-12:hover,
+            .flex.items-center.justify-center.lg\\:w-10.lg\\:h-10:hover {
                 background: #dbeeff !important;
                 color: var(--chathams-blue) !important;
             }
 
-            /* Selected / today day */
-            .react-tailwindcss-datepicker [role="dialog"] .bg-blue-500,
-            .react-tailwindcss-datepicker [role="dialog"] [class*="bg-blue-5"] {
-                background-color: var(--endeavour) !important;
+            /* ── Selected day (start/end) — override rounded-r-full / rounded-l-full to full circle ── */
+            .rounded-r-full, .rounded-l-full {
                 border-radius: 999px !important;
-                color: #fff !important;
             }
 
-            /* Range highlight */
-            .react-tailwindcss-datepicker [role="dialog"] .bg-blue-100,
-            .react-tailwindcss-datepicker [role="dialog"] [class*="bg-blue-1"] {
+            /* ── Range highlight days ── */
+            .bg-blue-100 {
                 background-color: #dbeeff !important;
-                color: var(--chathams-blue) !important;
             }
 
-            /* Shortcuts panel */
-            .react-tailwindcss-datepicker [role="dialog"] ul li button {
+            /* ── Shortcuts list items ── */
+            .whitespace-nowrap.w-1\\/2.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded,
+            .whitespace-nowrap.lg\\:w-auto.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded {
                 border-radius: 999px !important;
-                font-size: 12px !important;
                 color: var(--endeavour) !important;
-                padding: 4px 12px !important;
+                font-size: 12px !important;
             }
-            .react-tailwindcss-datepicker [role="dialog"] ul li button:hover {
+            .whitespace-nowrap.w-1\\/2.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded:hover,
+            .whitespace-nowrap.lg\\:w-auto.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded:hover {
                 background: #dbeeff !important;
+            }
+
+            /* ── Divider between shortcuts and calendar ── */
+            .md\\:border-b.mb-3.border-gray-300 {
+                border-color: #e8f0f8 !important;
             }
         `;
         document.head.appendChild(style);
@@ -167,6 +176,7 @@ const DateRangePicker = ({ displayLabel }) => {
                         tracking-normal
                         leading-tight
                     "
+                    primaryColor="blue"
                     useRange={false}
                     value={value}
                     onChange={handleValueChange}
