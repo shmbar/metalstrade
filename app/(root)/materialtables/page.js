@@ -2,7 +2,6 @@
 
 import Spinner from "../../../components/spinner";
 import Toast from "../../../components/toast";
-import { Button } from "../../../components/ui/button"
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { getTtl } from "../../../utils/languages";
 import { useContext, useEffect, useState } from "react"
@@ -212,19 +211,8 @@ const MaterialTables = () => {
                                     {getTtl('Material Tables', ln)}
                                 </h1>
                             </div>
-                            {/* Action Buttons */}
-                            <div className="border rounded-2xl p-3">
-                            <div className="flex gap-2 sm:gap-4 flex-wrap mb-2">
-                                <Button  className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 h-6 text-xs font-normal rounded-full hover:bg-[var(--selago)]/30 transition-all"
- onClick={addTable}>
-                                    Add Table
-                                </Button>
-                                <Button   className="bg-[var(--selago)] text-[var(--endeavour)] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"variant="outline" onClick={saveTable}>
-                                    Save
-                                </Button>
-                            </div>
                             {/* Table(s) */}
-                            <div className="w-full overflow-x-auto mt-4">
+                            <div className="w-full overflow-x-auto mt-2">
                                 {data.map(table => (
                                     <div key={table.id} className="mb-4 rounded-2xl border border-[var(--selago)] shadow-sm overflow-hidden">
                                     <Table
@@ -232,6 +220,8 @@ const MaterialTables = () => {
                                         table1={table}
                                         columns={propDefaults}
                                         addMaterial={() => addMaterial(table)}
+                                        addTable={addTable}
+                                        saveTable={saveTable}
                                         editCell={editCell}
                                         delMaterial={delMaterial}
                                         delTable={delTable}
@@ -256,7 +246,6 @@ const MaterialTables = () => {
                                 </div>
                                 </div>
                             ) : null}
-                            </div>
                         </div>
                     </>
                 }

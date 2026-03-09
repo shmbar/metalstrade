@@ -8,15 +8,17 @@ import Header from "../../../components/table/header"
 import { Filter } from "../../../components/table/filters/filterFunc"
 import { SettingsContext } from "../../../contexts/useSettingsContext"
 
-const Customtable = ({ 
-  data, 
-  columns, 
-  excellReport, 
-  addMaterial, 
-  editCell, 
-  table1, 
-  delMaterial, 
-  delTable, 
+const Customtable = ({
+  data,
+  columns,
+  excellReport,
+  addMaterial,
+  addTable,
+  saveTable,
+  editCell,
+  table1,
+  delMaterial,
+  delTable,
   runPdf,
   showHeader = true,
   showFooter = true,
@@ -168,13 +170,15 @@ const Customtable = ({
             borderBottom: '2px solid var(--selago)',
             background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
           }}>
-          <Header 
-            globalFilter={globalFilter} 
+          <Header
+            globalFilter={globalFilter}
             setGlobalFilter={setGlobalFilter}
-            table={table} 
+            table={table}
             excellReport={excellReport}
             type='mTable'
             addMaterial={addMaterial}
+            addTable={addTable}
+            saveTable={saveTable}
             delTable={delTable}
             table1={table1}
             runPdf={runPdf}
