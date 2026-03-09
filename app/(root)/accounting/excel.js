@@ -195,8 +195,7 @@ export const EXD = (dataTable, settings, name, ln) => {
         <div className='relative'>
             <Tltip direction='bottom' tltpText={getTtl('Excel', ln)}>
                 <div onClick={() => exportExcel()}
-                    className="text-slate-700 justify-center w-10 h-10 inline-flex
-     items-center text-sm rounded-full   focus:outline-none relative hover:drop-shadow-md hover:bg-slate-200"
+                    className="justify-center w-8 h-8 inline-flex items-center text-sm rounded-full focus:outline-none relative hover:drop-shadow-md hover:bg-[var(--selago)]"
                 >
                     <FileSpreadsheet className="w-5 h-5" style={{ color: 'var(--endeavour)' }} strokeWidth={2} />
                 </div>

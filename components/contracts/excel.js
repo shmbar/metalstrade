@@ -1,7 +1,7 @@
 import { saveAs } from 'file-saver';
 import { Workbook } from 'exceljs';
 import Tooltip from '@components/tooltip';
-import { SiMicrosoftoffice } from 'react-icons/si';
+import { FileSpreadsheet } from 'lucide-react';
 import dateFormat from "dateformat";
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
@@ -126,10 +126,9 @@ export const EXD = (dataTable, settings, name, ln) => {
         <div>
             <Tltip direction='bottom' tltpText={getTtl('Excel', ln)}>
                 <div onClick={() => exportExcel()}
-                    className="hover:bg-gray-100 text-gray-600 justify-center inline-flex
-     items-center text-sm rounded hover:drop-shadow-md focus:outline-none"
+                    className="hover:bg-[var(--selago)] justify-center w-8 h-8 inline-flex items-center text-sm rounded-full hover:drop-shadow-md focus:outline-none"
                 >
-                    <SiMicrosoftoffice className="w-5 h-5" style={{ color: 'var(--endeavour)' }} />
+                    <FileSpreadsheet className="w-5 h-5" style={{ color: 'var(--endeavour)' }} strokeWidth={2} />
                 </div>
             </Tltip>
         </div>
