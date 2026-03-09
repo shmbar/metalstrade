@@ -960,13 +960,14 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                     {/* Price Row */}
                     <div className="mb-2 mt-2">
                     <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white">
-                        <div className="grid grid-cols-4 bg-[#E9E2FF] text-[#2F6FDB] text-xs">
+                        <div className="grid grid-cols-5 bg-[#E9E2FF] text-[#2F6FDB] text-xs">
                             <div className="py-1.5 text-center">Ni</div>
                             <div className="py-1.5 text-center border-l border-[#dedede]">Cr</div>
                             <div className="py-1.5 text-center border-l border-[#dedede]">Mo</div>
                             <div className="py-1.5 text-center border-l border-[#dedede]">Fe</div>
+                            <div className="py-1.5 text-center border-l border-[#dedede]">Ni LME</div>
                         </div>
-                        <div className="grid grid-cols-4 bg-white text-xs">
+                        <div className="grid grid-cols-5 bg-white text-xs">
                             <input readOnly className="w-full text-center py-2 bg-white outline-none text-[#2F6FDB]"
                                 value={formatCurrency((value.general?.nilme * value.fenicr?.formulaNiCost / 100).toFixed(2))}
                             />
@@ -988,6 +989,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                                 onFocus={() => setFocusedField("fePrice")}
                                 onBlur={(e) => { setFocusedField(null); const num = parseFloat(e.target.value.replace(/[^0-9.]/g, "")); if (!isNaN(num)) handleChange({ target: { name: e.target.name, value: num.toFixed(2) } }, "fenicr"); }}
                             />
+                            <div className="w-full text-center py-2 border-l border-[#dedede] bg-[#fafafa] text-[#2F6FDB]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
                         </div>
                     </div>
                     </div>
@@ -1052,13 +1054,14 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                     {/* Price Row */}
                     <div className="mb-2 mt-2">
                         <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white">
-                            <div className="grid grid-cols-4 bg-[#E9E2FF] text-[#2F6FDB] text-xs">
+                            <div className="grid grid-cols-5 bg-[#E9E2FF] text-[#2F6FDB] text-xs">
                                 <div className="py-1.5 text-center">Ni</div>
                                 <div className="py-1.5 text-center border-l border-[#dedede]">Cr</div>
                                 <div className="py-1.5 text-center border-l border-[#dedede]">Mo</div>
                                 <div className="py-1.5 text-center border-l border-[#dedede]">Fe</div>
+                                <div className="py-1.5 text-center border-l border-[#dedede]">Ni LME</div>
                             </div>
-                            <div className="grid grid-cols-4 bg-[#fafafa] text-xs">
+                            <div className="grid grid-cols-5 bg-[#fafafa] text-xs">
                                 <div className="py-2 text-center text-[#2F6FDB]">{formatCurrency((value.general?.nilme * value.fenicr?.formulaNiPrice / 100).toFixed(2))}</div>
                                 <div className="py-2 text-center border-l border-[#dedede] text-[#F44336]">{formatCurrency((value.general?.chargeCrLb * value.general?.mt * value.fenicr?.crPriceArgus / 100).toFixed(2))}</div>
                                 <div className="py-2 text-center border-l border-[#dedede] text-[#F44336]">{formatCurrency((value.general?.MoOxideLb * value.fenicr?.moPriceArgus * value.general?.mt / 100).toFixed(2))}</div>
@@ -1069,6 +1072,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                                     onBlur={(e) => { setFocusedField(null); const num = parseFloat(e.target.value.replace(/[^0-9.]/g, "")); if (!isNaN(num)) handleChange({ target: { name: 'fePrice1', value: num.toFixed(2) } }, 'fenicr'); }}
                                     onChange={(e) => handleChange(e, 'fenicr')}
                                 />
+                                <div className="w-full text-center py-2 border-l border-[#dedede] bg-[#fafafa] text-[#2F6FDB]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
                             </div>
                         </div>
                     </div>

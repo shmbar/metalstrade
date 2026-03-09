@@ -199,11 +199,10 @@ const Page = () => {
 												</div>
 
 												<div
-													className='flex flex-col rounded-xl border border-[var(--rock-blue)] overflow-hidden min-w-[80px] cursor-pointer bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] transition-colors'
+													className='flex items-center justify-center rounded-xl border border-[var(--rock-blue)] overflow-hidden min-w-[80px] px-5 cursor-pointer bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] transition-colors self-stretch'
 													onClick={saveData}
 												>
-													<span className='text-xs text-white bg-[var(--chathams-blue)] text-center py-1 font-medium'>Action</span>
-													<span className='px-3 py-1.5 text-sm font-semibold text-white text-center'>Save</span>
+													<span className='text-sm font-semibold text-white'>Save</span>
 												</div>
 											</div>
 										</div>
