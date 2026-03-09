@@ -198,12 +198,13 @@ const Page = () => {
 													/>
 												</div>
 
-												<Button
-													className='px-5 py-1.5 rounded-full bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] text-[var(--selago)] font-medium text-sm h-[36px]'
+												<div
+													className='flex flex-col rounded-xl border border-[var(--rock-blue)] overflow-hidden min-w-[80px] cursor-pointer bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] transition-colors'
 													onClick={saveData}
 												>
-													Save
-												</Button>
+													<span className='text-xs text-white bg-[var(--chathams-blue)] text-center py-1 font-medium'>Action</span>
+													<span className='px-3 py-1.5 text-sm font-semibold text-white text-center'>Save</span>
+												</div>
 											</div>
 										</div>
 									)}
