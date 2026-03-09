@@ -131,8 +131,8 @@ const Customtable = ({
           transition-timing-function: ease-in-out !important;
         }
         .custom-table th {
-          border: 1px solid #ccc;
-          background-color: #f9f9f9;
+          border: 1px solid var(--rock-blue);
+          background-color: var(--selago);
           text-align: center;
           vertical-align: middle;
           padding: 6px;
@@ -142,8 +142,8 @@ const Customtable = ({
 
         }
          .custom-table td {
-          border: 1px solid #ccc;
-          background-color: #f9f9f9;
+          border: 1px solid var(--rock-blue);
+          background-color: #ffffff;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
@@ -267,8 +267,8 @@ const Customtable = ({
                             transition-all duration-200 ease-in-out
                           "
                           style={{
-                            backgroundColor: '#f9f9f9',
-                            border: '1px solid #cecece',
+                            backgroundColor: '#ffffff',
+                            border: '1px solid var(--rock-blue)',
                           }}
                         >
                             <input
@@ -326,7 +326,7 @@ const Customtable = ({
                 : 'var(--chathams-blue)',  // normal blue text for others
             fontSize: 'clamp(10px, 1.0vw, 13px)',
             textAlign: header.id === 'material' ? 'left' : 'center',
-            border: '1px solid #cecece'
+            border: '1px solid var(--rock-blue)'
           }}
         >
           {calculateFooterTotals(header)}
