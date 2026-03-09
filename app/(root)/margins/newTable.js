@@ -103,11 +103,8 @@ const DraggableRow = ({ row, props, cName }) => {
           <TableCell
             key={cell.id}
             style={{
-              width: cellWidth,
-              minWidth: columnConfig.minWidth,
-              maxWidth: columnConfig.width,
               height: "32px",
-              padding: "6px 12px",
+              padding: "4px 6px",
               verticalAlign: "middle",
             }}
             className={cn(
@@ -335,8 +332,8 @@ const Customtable = (props) => {
             <div className="flex flex-col relative w-full">
                 <div className="rounded-lg border border-[var(--selago)] overflow-visible relative shadow-sm">
                     {/* Desktop Table - Compact Heights */}
-                    <div className="overflow-x-auto hidden sm:block">
-                        <Table className="relative w-full table-fixed" style={{ borderSpacing: '0 1px' }}>
+                    <div className="hidden sm:block">
+                        <Table className="relative w-full" style={{ borderSpacing: '0 1px', tableLayout: 'auto' }}>
                             <TableHeader>
                                 <TableRow>
                                     {table.getHeaderGroups().map((headerGroup) =>
@@ -346,11 +343,8 @@ const Customtable = (props) => {
                                               <TableHead
   key={header.id}
   style={{
-    width: columnConfig.width,
-    minWidth: columnConfig.minWidth,
-    maxWidth: columnConfig.width,
     height: '36px',
-    padding: '6px 12px',
+    padding: '4px 6px',
   }}
   className={cn(
     'bg-[#dbeeff] text-[var(--endeavour)] border-b border-[var(--endeavour)]',
@@ -414,12 +408,9 @@ const Customtable = (props) => {
                                                 return (
                                                     <TableCell
                                                         key={`footer-${footer.id}`}
-                                                        style={{ 
-                                                            width: columnConfig.width,
-                                                            minWidth: columnConfig.minWidth,
-                                                            maxWidth: columnConfig.width,
-                                                            height: '36px', // Compact footer height
-                                                            padding: '6px 8px',
+                                                        style={{
+                                                            height: '36px',
+                                                            padding: '4px 6px',
                                                             verticalAlign: 'middle'
                                                         }}
                                                         className={cn(
