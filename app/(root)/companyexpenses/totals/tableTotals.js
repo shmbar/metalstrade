@@ -11,7 +11,7 @@ import {
 import Tltip from "../../../../components/tlTip"
 import { expensesToolTip } from "./funcs"
 
-const TABLE_WIDTH = "340px"
+const TABLE_WIDTH = "100%"
 
 const Customtable = ({ data, columns, expensesData, settings, title, filt }) => {
 
@@ -66,7 +66,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           }}
         >
           <p
-            className="text-[var(--endeavour)] uppercase font-bold text-center"
+            className="text-[var(--endeavour)] font-bold text-center"
             style={{
               fontSize: 'clamp(11px, 1vw, 11px)',
               letterSpacing: '0.05em'

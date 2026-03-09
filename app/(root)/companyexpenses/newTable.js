@@ -351,7 +351,7 @@ const Customtable = ({
                         value === 'Paid'
                           ? '#ceb8ff'
                           : value === 'Unpaid'
-                          ? '#c387b4'
+                          ? '#ceb8ff'
                           : '#f9f9f9',
                       border: '1px solid #cecece',
                       ...(isEditMode && {

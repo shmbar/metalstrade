@@ -133,7 +133,7 @@ const Expenses = () => {
         { accessorKey: 'expense', header: getTtl('Expense Invoice', ln) + '#' },
         { accessorKey: 'expType', header: getTtl('Expense Type', ln) },
         {
-            accessorKey: 'paid', header: getTtl('Paid / Unpaid', ln), meta: {
+            accessorKey: 'paid', header: getTtl('Status', ln), meta: {
                 filterVariant: 'paidNotPaidExp',
             },
             filterFn: caseInsensitiveEquals,
@@ -252,12 +252,12 @@ const Expenses = () => {
                             </div>
 
                             {/* Totals Section */}
-                            <div className='flex gap-4 2xl:gap-20 flex-wrap'>
-                                <div className='pt-8 min-w-[350px] max-w-[400px] w-full'>
+                            <div className='flex gap-4 flex-wrap'>
+                                <div className='pt-8 flex-1 min-w-[300px]'>
                                     <TableTotals data={totals.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
                                         settings={settings} filt='reduced' title='Summary - Unpaid Company expenses' />
                                 </div>
-                                <div className='pt-8 min-w-[350px] max-w-[400px] w-full'>
+                                <div className='pt-8 flex-1 min-w-[300px]'>
                                     <TableTotals data={totalsAll.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
                                         settings={settings} filt='full' title='Summary' />
                                 </div>
