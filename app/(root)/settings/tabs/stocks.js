@@ -100,7 +100,7 @@ const Stocks = () => {
 
     return (
         <div className=' p-4 rounded-2xl flex flex-col md:flex-row w-full gap-4 '>
-             <div className="md:px-5 w-[27%] flex-shrink-0 rounded-2xl p-2
+             <div className="md:px-5 w-full md:w-[27%] flex-shrink-0 rounded-2xl p-2
                                       bg-[#e3f3ff]">
                                  <p className='flex items-center text-sm font-medium pl-2 text-[var(--endeavour)] whitespace-nowrap'>{getTtl('Stocks', ln)}:</p>
             
@@ -123,7 +123,7 @@ const Stocks = () => {
                     })}
                                   </ul>
                                 </div>
-            <div className='flex flex-col   w-[88%] bg-[#f7f7f7]  p-5 rounded-2xl'>
+            <div className='flex flex-col   w-full bg-[#f7f7f7]  p-5 rounded-2xl'>
                 <div className='pb-2 rounded-2xl mt-1 w-full gap-4 flex flex-wrap h-fit'>
                     <Tltip direction='top' tltpText='Add new stock'>
                         <button className={`supplierAddButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}

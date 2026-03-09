@@ -84,7 +84,7 @@ const Suppliers = () => {
     return (
         <div className=' p-2  rounded-2xl flex flex-col md:flex-row w-full gap-4 '>
 
-            <div className=' p-4 rounded-2xl mt-1 shadow-md w-[28%] bg-[#e3f3ff]'>
+            <div className=' p-4 rounded-2xl mt-1 shadow-md w-full md:w-[28%] bg-[#e3f3ff]'>
                 <p className='flex items-center text-sm font-medium pl-2 text-[var(--endeavour)] '>{getTtl('Suppliers', ln)}:</p>
                 <ul className="flex flex-col mt-2 max-h-80 overflow-auto p-2">
                           {sortArr((settings.Supplier?.Supplier || []).filter(q => !q.deleted), 'supplier').map((x, i) => {
@@ -112,7 +112,7 @@ const Suppliers = () => {
                 </ul>
             </div>
 
-            <div className='flex flex-col w-[80%] bg-[#f7f7f7]  p-5 rounded-2xl'>
+            <div className='flex flex-col w-full bg-[#f7f7f7]  p-5 rounded-2xl'>
                 <div className='pb-4 mt-1  w-full gap-8 flex flex-wrap'>
                     <Tltip direction='top' tltpText='Add new supplier'>
                         <button className={`supplierAddButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}

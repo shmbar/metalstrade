@@ -104,7 +104,7 @@ const Setup = () => {
 
         {/* RIGHT PANEL */}
         <div className="w-full md:w-[70%] md:px-4 pt-4 md:pt-0 rounded-2xl bg-[#f7f7f7] ">
-          <div className=" p-4 rounded-2xl mt-5 shadow-md bg-white w-[50%]">
+          <div className=" p-4 rounded-2xl mt-5 shadow-md bg-white w-full md:w-[50%]">
             <List
               list={list}
               ttl={keyName}

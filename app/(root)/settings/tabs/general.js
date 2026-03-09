@@ -103,9 +103,9 @@ className="
                     </div>
 
                     <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-5'>
-                        <div className='grid grid-cols-2 gap-4'>
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='col-span-12 sm:col-span-1'>
-                                <div className='flex flex-col gap-2 max-w-sm'>
+                                <div className='flex flex-col gap-2'>
                                     <div className='gap-4 flex items-center' >
                                         <p className='text-sm font-normal  text-[var(--endeavour)]'>
                                             {getTtl('street', ln)}:</p>
@@ -215,7 +215,7 @@ className="
                                 </div>
                             </div>
                             <div className='col-span-12 sm:col-span-1'>
-                                <div className='flex flex-col gap-2 max-w-sm'>
+                                <div className='flex flex-col gap-2'>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
                                         <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>Reg No.:</p>
                                         <input
@@ -300,7 +300,7 @@ className="
 
 
                     <div className='border border-[#E5E7EB] p-4 rounded-2xl  mt-5 w-full'>
-                        <div className='grid grid-cols-2 gap-2 w-full'>
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
                                 <p className='text-sm font-normal whitespace-nowrap text-[var(--endeavour)]'>
                                     {getTtl('cmpemail', ln)}:</p>
@@ -356,7 +356,7 @@ className="
 
 
                     <div className=' border border-[#E5E7EB] p-4 rounded-2xl  mt-5 w-full'>
-                        <div className='grid grid-cols-2 gap-2 w-full'>
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
                                 <p className='text-sm font-normal whitespace-nowrap   text-[var(--endeavour)]'>
                                     {getTtl('cmpPhone', ln)}:</p>
