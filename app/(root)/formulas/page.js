@@ -104,7 +104,7 @@ const Page = () => {
 	}
 
 	return (
-		<div className="container mx-auto px-4 pb-6 md:pb-0 mt-6 md:mt-20">
+		<div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
 			{Object.keys(settings).length === 0 ? <Spinner /> :
 				<>
 					<Toast />
