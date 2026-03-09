@@ -78,21 +78,21 @@ const List = ({ list, updateList, ttl, name }) => {
     return (
         <div className='w-full'>
             <div className='flex items-center justify-between'>
-                <p className='flex items-center text-sm font-medium pl-2 text-slate-700' >{ttl!=='Hs' ? getTtl(ttl, ln): ttl}:</p>
+                <p className='flex items-center text-sm font-medium pl-2 text-[var(--endeavour)]' >{ttl!=='Hs' ? getTtl(ttl, ln): ttl}:</p>
                 <button className="blackButton py-1"
                     onClick={() => addItem()}>
                     <IoAddCircleOutline className='scale-110' /> {getTtl('Add', ln)}
                 </button>
             </div>
 
-            <ul ref={containerRef} className="flex flex-col mt-1 overflow-auto max-h-80 ring-1 ring-black/5 rounded-lg divide-y" >
+            <ul ref={containerRef} className="flex flex-col mt-1 overflow-auto max-h-80 ring-1 ring-black/5 rounded-2xl divide-y" >
                 {displayList.filter(q => !q.deleted).map((x, i) => {
                     return (
-                        <li key={i} className="justify-between flex items-center gap-x-2 py-2 px-4 text-xs text-slate-700">
+                        <li key={i} className="justify-between flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--endeavour)]">
                             {edit.status && edit.id === x.id ?
                                 <input
-                                    className="w-full border rounded-md border-slate-400 h-7 
-focus:outline-0 focus:border-slate-600 indent-1.5 text-xs text-slate-500"
+                                    className="w-full border rounded-full border-[var(--endeavour)] h-7
+focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-xs text-[var(--endeavour)]"
                                     onKeyDown={handleKeyPress}
                                     value={value1}
                                     onChange={(e) =>
@@ -104,8 +104,8 @@ focus:outline-0 focus:border-slate-600 indent-1.5 text-xs text-slate-500"
                             }
 
                             {edit.id !== x.id && <div className='flex gap-4'>
-                                <BiEditAlt className='scale-125 opacity-50 cursor-pointer' onClick={() => editItem(x)} />
-                                <MdDeleteOutline className='scale-125 opacity-50 cursor-pointer' onClick={() => deleteItem(x)} />
+                                <BiEditAlt className='scale-125 text-green-500 cursor-pointer hover:text-green-700' onClick={() => editItem(x)} />
+                                <MdDeleteOutline className='scale-125 text-red-500 cursor-pointer hover:text-red-700' onClick={() => deleteItem(x)} />
                             </div>}
                         </li>
                     )
