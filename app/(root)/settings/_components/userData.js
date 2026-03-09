@@ -20,7 +20,7 @@ const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, di
             <p className='flex text-sm font-medium whitespace-nowrap pt-1'>{title}:</p>
             <div className='w-full '>
                 <input
-                    className="input text-[12px] shadow-lg h-7"
+                    className="input text-[12px] shadow-lg h-7 !rounded-full"
                     type={type}
                     name={name}
                     value={value[name] || ''}  // Dynamically bind value
