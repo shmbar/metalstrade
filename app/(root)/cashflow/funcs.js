@@ -328,7 +328,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
     filteredArr = filteredArr.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable pt-1 bg-white">
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full min-w-[640px] table-fixed">
                 <thead>
                     <tr className="bg-[#f0f8ff]">
@@ -442,7 +442,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
     const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd')
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable pt-1 bg-white">
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full min-w-[600px] table-fixed">
                 <thead>
                     <tr className="bg-[#f0f8ff]">
@@ -685,7 +685,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
     let filteredArr1 = tmp.filter(x => x.payments.length === 0)
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto p-1 responsiveTextTable1 bg-white">
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable1 bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             {type === 'PartPaid' &&
                 <div className="pt-1 w-full">
                     <table className="cashflow-detail-table w-full min-w-[980px]">
@@ -1079,7 +1079,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
     let type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt'
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable pt-1 bg-white">
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full min-w-[760px]">
                 <thead>
                     <tr className="bg-[#f0f8ff]">
@@ -1259,7 +1259,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
     let filteredArr = expensesAll.filter(z => z.supplier === supplier)
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto pt-1 responsiveTextTable bg-white">
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full min-w-[860px]">
                 <thead>
                     <tr className="bg-[#f0f8ff]">
