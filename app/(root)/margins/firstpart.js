@@ -99,11 +99,11 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                         {cards.map((card, idx) => (
                             <div
                                 key={idx}
-                                className="stats-card flex flex-col items-center justify-center rounded-full shadow-lg border border-[var(--rock-blue)]/30 backdrop-blur-sm bg-[var(--selago)]"
+                                className="stats-card flex flex-col items-center justify-center rounded-full shadow-lg border border-white/20 backdrop-blur-sm bg-white"
                                 style={{
                                     width: 'clamp(70px, 18vw, 150px)',
                                     height: 'clamp(20px, 6vh, 60px)',
-                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+                                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1), 0 0 1px rgba(255, 255, 255, 0.2) inset',
                                 }}
                             >
                                 <div 

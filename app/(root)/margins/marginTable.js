@@ -49,14 +49,14 @@ const MarginTable = (props) => {
                         <div 
                             className="flex flex-wrap items-center gap-2 mb-2"
                             style={{
-                                background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))',
+                                background: '#dbeeff',
                                 padding: '6px 8px',
                                 borderRadius: '12px',
                                 marginBottom: '8px',
                                 minHeight: '40px'
                             }}
                         >
-                            <div className="bg-[var(--selago)] rounded-full px-3 py-1 flex items-center gap-2 w-fit">
+                            <div className="bg-white rounded-full px-3 py-1 flex items-center gap-2 w-fit">
 
   <DisclosureButton className="flex items-center justify-center hover:opacity-80 transition-all">
     {!open ? (

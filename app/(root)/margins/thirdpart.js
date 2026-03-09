@@ -27,7 +27,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                 }
 
                 .margins-table th {
-                    background-color: var(--selago);
+                    background-color: #dbeeff;
+                    color: var(--endeavour);
                 }
 
                 .margins-table td {
