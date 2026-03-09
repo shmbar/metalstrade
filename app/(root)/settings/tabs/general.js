@@ -33,7 +33,7 @@ const General = () => {
             {compData && Object.keys(compData).length === 0 ?
                 <Spinner />
                 : <>
-                    <div className='border border-[#E5E7EB] p-4 rounded-lg mt-1 flex flex-wrap md:flex-nowrap w-full space-x-4'>
+                    <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-1 flex flex-wrap md:flex-nowrap w-full space-x-4'>
                                     <div className='gap-4 flex items-center w-full' >
                             <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>
                                 {getTtl('cmpName', ln)}:</p>
@@ -102,7 +102,7 @@ className="
 
                     </div>
 
-                    <div className='border border-[#E5E7EB] p-4 rounded-lg mt-5'>
+                    <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-5'>
                         <div className='grid grid-cols-2 gap-4'>
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2 max-w-sm'>
@@ -299,7 +299,7 @@ className="
 
 
 
-                    <div className='border border-[#E5E7EB] p-4 rounded-lg  mt-5 w-full'>
+                    <div className='border border-[#E5E7EB] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
                                 <p className='text-sm font-normal whitespace-nowrap text-[var(--endeavour)]'>
@@ -355,7 +355,7 @@ className="
                     </div>
 
 
-                    <div className=' border border-[#E5E7EB] p-4 rounded-lg  mt-5 w-full'>
+                    <div className=' border border-[#E5E7EB] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
                                 <p className='text-sm font-normal whitespace-nowrap   text-[var(--endeavour)]'>
@@ -410,13 +410,13 @@ className="
                         </div>
                     </div>
 
-                    {/* <div className=' border border-slate-300 p-4 rounded-lg  mt-5 w-full'>
+                    {/* <div className=' border border-slate-300 p-4 rounded-2xl  mt-5 w-full'>
                         <Logos compData={compData} setCompData={setCompData} />
                     </div> */}
                     <div className="flex mt-3 ml-3">
                         <Tltip direction='top' tltpText='Save/update company data'>
                             <button
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-4 h-8 text-xs rounded-xl hover:bg-[var(--selago)]/30 transition-all"
+                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-4 h-8 text-xs rounded-full hover:opacity-90 transition-all"
                                 onClick={() => updateCompanyData(uidCollection)}
                             >
                                 {getTtl('save', ln)}
@@ -424,7 +424,7 @@ className="
                         </Tltip>
                     </div>
                     {/*
-                    <div className='flex flex-wrap gap-4 border border-slate-300 p-4 rounded-lg  mt-5 max-w-3xl'>
+                    <div className='flex flex-wrap gap-4 border border-slate-300 p-4 rounded-2xl  mt-5 max-w-3xl'>
 
                         <div className='flex flex-wrap gap-4 items-center' >
                             <p className='text-sm font-medium whitespace-nowrap text-slate-600'>Start Invoice Number From:</p>

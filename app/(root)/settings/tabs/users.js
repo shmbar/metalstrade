@@ -113,7 +113,7 @@ const Users = () => {
 
 
   return (
-    <div className='border border-[var(--rock-blue)] p-4 rounded-lg flex flex-col w-full gap-4 '>
+    <div className='border border-[var(--rock-blue)] p-4 rounded-2xl flex flex-col w-full gap-4 '>
 
       <div className='max-w-6xl z-0 users-no-quicksum'>
         <Customtable data={data} columns={propDefaults} SelectRow={() => { }}

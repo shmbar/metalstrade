@@ -75,7 +75,7 @@ const Setup = () => {
           <ul
             className="
               flex flex-col overflow-auto mt-1
-              ring-1 ring-black/5 rounded-lg
+              ring-1 ring-black/5 rounded-2xl
               bg-[#e3f3ff]
               py-2
             "
@@ -103,8 +103,8 @@ const Setup = () => {
         {/* divider line stays */}
 
         {/* RIGHT PANEL */}
-        <div className="w-full md:w-[70%] md:px-4 pt-4 md:pt-0 rounded-lg bg-[#f7f7f7] ">
-          <div className=" p-4 rounded-md mt-5 shadow-md bg-white w-[50%]">
+        <div className="w-full md:w-[70%] md:px-4 pt-4 md:pt-0 rounded-2xl bg-[#f7f7f7] ">
+          <div className=" p-4 rounded-2xl mt-5 shadow-md bg-white w-[50%]">
             <List
               list={list}
               ttl={keyName}
