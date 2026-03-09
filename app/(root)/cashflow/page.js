@@ -929,11 +929,11 @@ return (
                     }
   <div className="flex flex-wrap w-full">
                             <div className="w-full max-w-screen-lg flex-1 min-w-[320px]">
-                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[var(--endeavour)] responsiveTextTitle">Stocks - Paid</span>
+                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="text-[var(--endeavour)] text-xs font-medium">Stocks - Paid</span>
                                 </div>
-                                <div className="flex p-1 justify-between">
+                                <div className="flex py-0 px-1 justify-between">
                                     {
                                         stocksSortName ?
                                             <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} />
@@ -1005,11 +1005,11 @@ return (
 
 
 
-                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[var(--endeavour)] responsiveTextTitle">Stocks - UnPaid</span>
+                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="text-[var(--endeavour)] text-xs font-medium">Stocks - UnPaid</span>
                                 </div>
-                                <div className="flex p-1 justify-between">
+                                <div className="flex py-0 px-1 justify-between">
                                     {
                                         stocksSortName1 ?
                                             <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} />
@@ -1078,11 +1078,11 @@ return (
                             </div>
 
 
-                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[var(--endeavour)] responsiveTextTitle">Clients - Payment</span>
+                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="text-[var(--endeavour)] text-xs font-medium">Clients - Payment</span>
                                 </div>
-                                <div className="flex p-1 justify-between">
+                                <div className="flex py-0 px-1 justify-between">
                                     {
                                         clientSortName1 ?
                                             <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} />
@@ -1148,11 +1148,11 @@ return (
                             </div>
 
 
-                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="font-normal text-[var(--endeavour)] responsiveTextTitle">Clients - Balances</span>
+                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="text-[var(--endeavour)] text-xs font-medium">Clients - Balances</span>
                                 </div>
-                                <div className="flex p-1 justify-between ">
+                                <div className="flex py-0 px-1 justify-between">
                                     {
                                         clientSortName ?
                                             <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} />
@@ -1223,9 +1223,9 @@ return (
                             <div>
                                 {
                                     userTitle === 'Admin' &&
-                                    <div className='mt-4 p-1'>
+                                    <div className='mt-1 p-1'>
                                         <div className='flex justify-between p-2'>
-                                            <span className="text-[var(--endeavour)] responsiveTextTitle">Financing</span>
+                                            <span className="text-[var(--endeavour)] text-xs font-medium">Financing</span>
                                             <button
                                                 type="button"
                                     className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
@@ -1280,11 +1280,11 @@ return (
 
 <div className="w-full flex-1 min-w-[320px] border-l border-[#dedede] pt-0">
 
-                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[var(--endeavour)] responsiveTextTitle">Supplier - Payment</span>
+                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="text-[var(--endeavour)] text-xs font-medium">Supplier - Payment</span>
                                 </div>
-                                <div className="flex p-1 justify-between">
+                                <div className="flex py-0 px-1 justify-between">
                                     {
                                         supPmntssSortName1 ?
                                             <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} />
@@ -1355,11 +1355,11 @@ return (
                             </div>
 
 
-                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="font-normal text-[var(--endeavour)] responsiveTextTitle">Supplier - Balances</span>
+                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="text-[var(--endeavour)] text-xs font-medium">Supplier - Balances</span>
                                 </div>
-                                <div className="flex p-1 justify-between">
+                                <div className="flex py-0 px-1 justify-between">
                                     {
                                         supPmntssSortName ?
                                             <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} />
@@ -1429,9 +1429,9 @@ return (
                                 </div>
                             </div>
 
-                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <span className="font-normal text-[var(--endeavour)] flex items-center responsiveTextTitle">Expenses</span>
-                                <div className="flex p-1 justify-between">
+                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                                <span className="text-[var(--endeavour)] flex items-center text-xs font-medium">Expenses</span>
+                                <div className="flex py-0 px-1 justify-between">
                                     {
                                         expensesSortName ?
                                             <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} />
@@ -1498,12 +1498,12 @@ return (
                                 </div>
                             </div>
 
-                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 {
                                     userTitle === 'Admin' &&
-                                    <div className='mt-4 p-1'>
+                                    <div className='mt-1 p-1'>
                                         <div className='flex justify-between'>
-                                            <span className="font-normal text-[var(--endeavour)] responsiveTextTitle">Financing</span>
+                                            <span className="text-[var(--endeavour)] text-xs font-medium">Financing</span>
                                             <button
                                                 type="button"
                                     className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
