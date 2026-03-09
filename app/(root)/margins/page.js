@@ -455,7 +455,7 @@ const Margins = () => {
                             </div>
 
                             {/* Summary Sections */}
-                            <div className='flex gap-6 overflow-x-auto'>
+                            <div className='flex flex-col lg:flex-row gap-6'>
                                 <ThirdPart
                                     data={data}
                                     remaining={remaining}
