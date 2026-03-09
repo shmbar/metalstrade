@@ -271,24 +271,20 @@ const Customtable = ({
                                 {/* THEAD - Multi-color gradient inspired by all cards */}
                                 <thead className="sticky top-0 z-10">
                                     {/* Total $ row */}
-                                    <tr style={{ backgroundColor: '#b7d1b5' }}>
-                                        <th colSpan={columnsWithSelection.length} style={{ padding: '6px 16px' }}>
-                                            <div className="grid grid-cols-4 w-full font-normal text-[10px]" style={{ color: '#1a3a1a', fontWeight: 600 }}>
-                                                <div className="text-left">Total $:</div>
-                                                <div>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.total * 1 || 0) : s; }, 0))}</div>
-                                                <div>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(table.getSelectedRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.total * 1 || 0) : s; }, 0))}</div>
-                                                <div>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.total * 1 || 0) : s; }, 0))}</div>
+                                    <tr>
+                                        <th colSpan={columnsWithSelection.length} style={{ backgroundColor: '#b7d1b5', padding: '6px 16px' }}>
+                                            <div className="flex justify-between w-full font-normal text-[10px]" style={{ color: '#1a3a1a', fontWeight: 600 }}>
+                                                <span>Total $:</span>
+                                                <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.total * 1 || 0) : s; }, 0))}</span>
                                             </div>
                                         </th>
                                     </tr>
                                     {/* Total € row */}
-                                    <tr style={{ backgroundColor: '#8db6d8' }}>
-                                        <th colSpan={columnsWithSelection.length} style={{ padding: '6px 16px' }}>
-                                            <div className="grid grid-cols-4 w-full font-normal text-[10px]" style={{ color: 'var(--chathams-blue)', fontWeight: 600 }}>
-                                                <div className="text-left">Total €:</div>
-                                                <div>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.total * 1 || 0) : s; }, 0))}</div>
-                                                <div>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(table.getSelectedRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.total * 1 || 0) : s; }, 0))}</div>
-                                                <div>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.total * 1 || 0) : s; }, 0))}</div>
+                                    <tr>
+                                        <th colSpan={columnsWithSelection.length} style={{ backgroundColor: '#8db6d8', padding: '6px 16px' }}>
+                                            <div className="flex justify-between w-full font-normal text-[10px]" style={{ color: 'var(--chathams-blue)', fontWeight: 600 }}>
+                                                <span>Total €:</span>
+                                                <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.total * 1 || 0) : s; }, 0))}</span>
                                             </div>
                                         </th>
                                     </tr>
