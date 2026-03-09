@@ -929,7 +929,7 @@ return (
                     }
   <div className="flex flex-wrap w-full">
                             <div className="w-full max-w-screen-lg flex-1 min-w-[320px]">
-                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[var(--endeavour)] responsiveTextTitle">Stocks - Paid</span>
                                 </div>
@@ -1005,7 +1005,7 @@ return (
 
 
 
-                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[var(--endeavour)] responsiveTextTitle">Stocks - UnPaid</span>
                                 </div>
@@ -1078,7 +1078,7 @@ return (
                             </div>
 
 
-                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[var(--endeavour)] responsiveTextTitle">Clients - Payment</span>
                                 </div>
@@ -1148,9 +1148,9 @@ return (
                             </div>
 
 
-                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className=" font-normal text-[var(--endeavour)] responsiveTextTitle">Clients - Balances</span>
+                                    <span className="font-normal text-[var(--endeavour)] responsiveTextTitle">Clients - Balances</span>
                                 </div>
                                 <div className="flex p-1 justify-between ">
                                     {
@@ -1280,7 +1280,7 @@ return (
 
 <div className="w-full flex-1 min-w-[320px] border-l border-[#dedede] pt-0">
 
-                            <div className="p-4  bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[var(--endeavour)] responsiveTextTitle">Supplier - Payment</span>
                                 </div>
@@ -1355,7 +1355,7 @@ return (
                             </div>
 
 
-                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="font-normal text-[var(--endeavour)] responsiveTextTitle">Supplier - Balances</span>
                                 </div>
@@ -1498,10 +1498,10 @@ return (
                                 </div>
                             </div>
 
-                            <div className="p-4 bg-white   mb-0.5 flex flex-col justify-between min-h-[140px] cf-card">
+                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
                                 {
                                     userTitle === 'Admin' &&
-                                    <div className='mt-10 p-1'>
+                                    <div className='mt-4 p-1'>
                                         <div className='flex justify-between'>
                                             <span className="font-normal text-[var(--endeavour)] responsiveTextTitle">Financing</span>
                                             <button
@@ -1563,7 +1563,7 @@ return (
                     {/* TOTALS AND BALANCE IN ONE ROW */}
                     <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
                         
-                        <div className="flex justify-between items-center bg-[#d4eafc]  rounded-lg px-4 py-0">
+                        <div className="flex justify-between items-center bg-[#d4eafc] rounded-lg px-4 py-2">
                             <span className="font-normal text-[var(--endeavour)] responsiveTextTitle whitespace-nowrap">
                                 Total (Left)
                             </span>
@@ -1579,7 +1579,7 @@ return (
                             />
                         </div>
 
-                        <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-lg px-4 py-0 responsiveTextTotal">
+                        <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-lg px-4 py-2 responsiveTextTotal">
                             <span className="font-normal whitespace-nowrap">
                                 Balance
                             </span>
@@ -1595,7 +1595,7 @@ return (
                             />
                         </div>
 
-                        <div className="flex justify-between items-center bg-[#d4eafc]  rounded-lg px-4 py-0">
+                        <div className="flex justify-between items-center bg-[#d4eafc] rounded-lg px-4 py-2">
                             <span className="font-normal text-[var(--endeavour)] responsiveTextTitle whitespace-nowrap">
                                 Total (Right)
                             </span>
