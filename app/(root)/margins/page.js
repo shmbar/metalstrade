@@ -455,7 +455,7 @@ const Margins = () => {
                             </div>
 
                             {/* Summary Sections */}
-                            <div className='flex gap-6'>
+                            <div className='flex flex-wrap gap-6'>
                                 <ThirdPart
                                     data={data}
                                     remaining={remaining}
