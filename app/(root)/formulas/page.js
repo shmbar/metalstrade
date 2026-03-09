@@ -109,7 +109,7 @@ const Page = () => {
 				<>
 					<Toast />
 					{loading && <Spinner />}
-					<div className="bg-white rounded-2xl p-3 sm:p-4 mt-6">
+					<div className="bg-white rounded-2xl p-3 sm:p-4 mt-6 border border-[var(--selago)]">
 						<div className='pb-2'>
 							<div className="text-xl font-semibold text-[var(--port-gore)] mb-3 border-l-4 border-[var(--chathams-blue)] pl-2">Formulas</div>
 
