@@ -28,7 +28,7 @@ const Clients = () => {
     const addItem = async () => {
 
         //validation
-        let errs = validate(value, ['client', 'nname', 'adrs1', 'adrs2', 'adrs3'])
+        let errs = validate(value, ['client', 'nname', 'street', 'city', 'country'])
         setErrors(errs)
         const isNotFilled = Object.values(errs).includes(true); //all filled
 
@@ -43,7 +43,7 @@ const Clients = () => {
     };
 
     const updateList = () => {
-        let errs = validate(value, ['client', 'nname', 'adrs1', 'adrs2', 'adrs3'])
+        let errs = validate(value, ['client', 'nname', 'street', 'city', 'country'])
         setErrors(errs)
         const isNotFilled = Object.values(errs).includes(true); //all filled
 

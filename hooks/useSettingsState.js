@@ -27,8 +27,24 @@ function useSettingsState() {
     const [toast, setToast] = useState({ show: false, text: '', clr: 'success' });
 
     // Setter for updating settings
-    const updateSettings = (newSettings) => {
-        setSettings((prev) => ({ ...prev, ...newSettings }));
+    // Called as updateSettings(newObj) for in-memory only
+    // Called as updateSettings(uidCollection, newObj, key, save) to also persist to Firestore
+    const updateSettings = async (uidOrObj, newObj, key, save) => {
+        if (typeof uidOrObj === 'string' && newObj && key) {
+            // 4-arg form: persist to Firestore
+            setSettings((prev) => ({ ...prev, [key]: newObj }));
+            if (save) {
+                try {
+                    await saveDataSettings(uidOrObj, key, newObj);
+                    setToast({ show: true, text: 'Saved successfully!', clr: 'success' });
+                } catch (e) {
+                    setToast({ show: true, text: 'Failed to save', clr: 'fail' });
+                }
+            }
+        } else {
+            // 1-arg form: in-memory merge only
+            setSettings((prev) => ({ ...prev, ...uidOrObj }));
+        }
     };
 
     // Setter for updating compData (language, etc.)

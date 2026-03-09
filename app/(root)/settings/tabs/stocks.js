@@ -111,7 +111,7 @@ const Stocks = () => {
                                       py-2
                                     "
                                   >
-                                     {sortArr(settings?.Stocks?.Stocks ?? [], 'stock').map((x, i) => {
+                                     {sortArr((settings?.Stocks?.Stocks ?? []).filter(x => !x.deleted), 'stock').map((x, i) => {
                         return (
                             <li key={i} onClick={() => SelectStock(x)}
                                 className={`whitespace-nowrap cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--endeavour)]
