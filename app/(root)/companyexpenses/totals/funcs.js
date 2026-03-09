@@ -14,18 +14,16 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
 
   return (
     <div
-      className="w-fit rounded-2xl custom-tooltip-table"
+      className="w-fit custom-tooltip-table"
       style={{
         background: "#f6f9ff",
-        border: "1px solid #e0e0e0",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        border: "1px solid #b8ddf8",
+        borderRadius: "16px",
+        overflow: "hidden",
+        boxShadow: "0 4px 16px rgba(3,102,174,0.12)",
         fontFamily:
           "'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
         fontSize: "10px",
-        transitionProperty:
-          "color, background-color, border-color, box-shadow",
-        transitionDuration: "150ms",
-        transitionTimingFunction: "ease-in-out",
       }}
     >
       <table style={{ width: "auto", borderCollapse: "collapse" }}>
