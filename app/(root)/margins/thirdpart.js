@@ -4,7 +4,7 @@ import { NumericFormat } from "react-number-format";
 const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr, title }) => {
 
     return (
-        <div className="w-full p-2 mt-6">
+        <div className="w-full p-2 mt-2">
             {/* Import Poppins font and apply consistent styling exactly like newTable */}
             <style jsx global>{`
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -78,13 +78,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                 <thead className="sticky top-0 z-10">
                                     <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
                                         <th
-                                            className="px-2 py-2 uppercase text-center"
+                                            className="px-2 py-2 text-center"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                 fontSize: 'clamp(10px, 1.0vw, 13px)',
-                                                letterSpacing: '0.05em',
-                                                textAlign: 'center',
+                                                                                                textAlign: 'center',
                                                 borderRadius: '12px',
                                                 border: '1px solid #b8ddf8'
                                             }}
@@ -92,13 +91,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Months
                                         </th>
                                         <th
-                                            className="px-2 py-2 uppercase text-center"
+                                            className="px-2 py-2 text-center"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                 fontSize: 'clamp(10px, 1.0vw, 13px)',
-                                                letterSpacing: '0.05em',
-                                                textAlign: 'center',
+                                                                                                textAlign: 'center',
                                                 borderRadius: '12px',
                                                 border: '1px solid #b8ddf8'
                                             }}
@@ -106,13 +104,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Purchased quantity (MT)
                                         </th>
                                         <th
-                                            className="px-2 py-2 uppercase text-center"
+                                            className="px-2 py-2 text-center"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                 fontSize: 'clamp(10px, 1.0vw, 13px)',
-                                                letterSpacing: '0.05em',
-                                                textAlign: 'center',
+                                                                                                textAlign: 'center',
                                                 borderRadius: '12px',
                                                 border: '1px solid #b8ddf8'
                                             }}
@@ -120,13 +117,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Profit
                                         </th>
                                         <th
-                                            className="px-2 py-2 uppercase text-center"
+                                            className="px-2 py-2 text-center"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                 fontSize: 'clamp(10px, 1.0vw, 13px)',
-                                                letterSpacing: '0.05em',
-                                                textAlign: 'center',
+                                                                                                textAlign: 'center',
                                                 borderRadius: '12px',
                                                 border: '1px solid #b8ddf8'
                                             }}
@@ -134,13 +130,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Outstanding shipment
                                         </th>
                                         <th
-                                            className="px-2 py-2 uppercase text-center"
+                                            className="px-2 py-2 text-center"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                 fontSize: 'clamp(10px, 1.0vw, 13px)',
-                                                letterSpacing: '0.05em',
-                                                textAlign: 'center',
+                                                                                                textAlign: 'center',
                                                 borderRadius: '12px',
                                                 border: '1px solid #b8ddf8'
                                             }}
@@ -447,7 +442,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             style={{ borderBottom: '1px solid #E5E7EB' }}
                                         >
                                             <div 
-                                                className="uppercase tracking-wider font-normal" 
+                                                className="font-medium" 
                                                 style={{ 
                                                     color: '#6B7280',
                                                     fontSize: 'clamp(6px, 0.6vw, 7px)' 
@@ -473,7 +468,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             style={{ borderBottom: '1px solid #E5E7EB' }}
                                         >
                                             <div 
-                                                className="uppercase tracking-wider font-normal" 
+                                                className="font-medium" 
                                                 style={{ 
                                                     color: '#6B7280',
                                                     fontSize: 'clamp(6px, 0.6vw, 7px)' 
@@ -506,7 +501,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             style={{ borderBottom: '1px solid #E5E7EB' }}
                                         >
                                             <div 
-                                                className="uppercase tracking-wider font-normal" 
+                                                className="font-medium" 
                                                 style={{ 
                                                     color: '#6B7280',
                                                     fontSize: 'clamp(6px, 0.6vw, 7px)' 
@@ -572,7 +567,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         style={{ borderBottom: '1px solid #E5E7EB' }}
                                     >
                                         <div 
-                                            className="uppercase tracking-wider font-normal" 
+                                            className="font-medium" 
                                             style={{ 
                                                 color: '#6B7280',
                                                 fontSize: 'clamp(6px, 0.6vw, 7px)' 
@@ -605,7 +600,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         style={{ borderBottom: '1px solid #E5E7EB' }}
                                     >
                                         <div 
-                                            className="uppercase tracking-wider font-normal" 
+                                            className="font-medium" 
                                             style={{ 
                                                 color: '#6B7280',
                                                 fontSize: 'clamp(6px, 0.6vw, 7px)' 
@@ -639,7 +634,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         style={{ borderBottom: '1px solid #E5E7EB' }}
                                     >
                                         <div 
-                                            className="uppercase tracking-wider font-normal" 
+                                            className="font-medium" 
                                             style={{ 
                                                 color: '#6B7280',
                                                 fontSize: 'clamp(6px, 0.6vw, 7px)' 
@@ -671,7 +666,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         className="flex flex-col space-y-1.5"
                                     >
                                         <div 
-                                            className="uppercase tracking-wider font-normal" 
+                                            className="font-medium" 
                                             style={{ 
                                                 color: '#6B7280',
                                                 fontSize: 'clamp(6px, 0.6vw, 7px)' 

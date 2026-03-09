@@ -115,7 +115,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                     {card.value}
                                 </div>
                                 <span 
-                                    className="text-[var(--endeavour)] font-bold mb-1 text-center px-2"
+                                    className="text-[var(--endeavour)] font-normal mb-1 text-center px-2"
                                     style={{
                                         fontSize: '10px',
                                         fontWeight: '700',

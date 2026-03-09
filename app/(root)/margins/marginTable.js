@@ -84,11 +84,10 @@ const MarginTable = (props) => {
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                     <div className="text-center">
                                         <div 
-                                            className="font-normal uppercase tracking-wider mb-0.5 text-xs font-poppins"
+                                            className="font-medium mb-0.5 text-xs font-poppins"
                                             style={{
                                                 color: 'var(--endeavour)',
-                                                letterSpacing: '0.05em',
-                                                lineHeight: '1.1'
+                                                                                                lineHeight: '1.1'
                                             }}
                                         >
                                             Qty (MT)
@@ -115,11 +114,10 @@ const MarginTable = (props) => {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-normal uppercase tracking-wider mb-0.5 text-xs font-poppins"
+                                            className="font-medium mb-0.5 text-xs font-poppins"
                                             style={{
                                                 color: 'var(--endeavour)',
-                                                letterSpacing: '0.05em',
-                                                lineHeight: '1.1'
+                                                                                                lineHeight: '1.1'
                                             }}
                                         >
                                             Total Margin
@@ -147,11 +145,10 @@ const MarginTable = (props) => {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-normal uppercase tracking-wider mb-0.5 text-xs font-poppins"
+                                            className="font-medium mb-0.5 text-xs font-poppins"
                                             style={{
                                                 color: 'var(--endeavour)',
-                                                letterSpacing: '0.05em',
-                                                lineHeight: '1.1'
+                                                                                                lineHeight: '1.1'
                                             }}
                                         >
                                             Open Ship
@@ -178,11 +175,10 @@ const MarginTable = (props) => {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-normal uppercase tracking-wider mb-0.5 text-xs font-poppins"
+                                            className="font-medium mb-0.5 text-xs font-poppins"
                                             style={{
                                                 color: 'var(--endeavour)',
-                                                letterSpacing: '0.05em',
-                                                lineHeight: '1.1'
+                                                                                                lineHeight: '1.1'
                                             }}
                                         >
                                             Remaining
