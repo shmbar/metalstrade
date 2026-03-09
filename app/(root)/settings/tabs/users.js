@@ -52,11 +52,23 @@ const Users = () => {
       enableColumnFilter: false
     },
     {
-      accessorKey: 'edit', header: 'Edit ', cell: (props) => <div>{<LiaEdit className='scale-[1.5]' onClick={() => Edit(props)} />}</div>,
+      accessorKey: 'edit', header: 'Edit ', cell: (props) => (
+        <div className="flex justify-center">
+          <button onClick={() => Edit(props)} className="flex items-center justify-center w-7 h-7 rounded-full bg-green-100 hover:bg-green-200 transition-colors">
+            <LiaEdit className='text-green-600 scale-[1.3]' />
+          </button>
+        </div>
+      ),
       enableColumnFilter: false
     },
     {
-      accessorKey: 'delete', header: 'Delete ', cell: (props) => <div>{<RiDeleteBin5Line className='scale-[1.4]' onClick={() => Delete(props)} />}</div>,
+      accessorKey: 'delete', header: 'Delete ', cell: (props) => (
+        <div className="flex justify-center">
+          <button onClick={() => Delete(props)} className="flex items-center justify-center w-7 h-7 rounded-full bg-red-100 hover:bg-red-200 transition-colors">
+            <RiDeleteBin5Line className='text-red-500 scale-[1.2]' />
+          </button>
+        </div>
+      ),
       enableColumnFilter: false
     },
   ];
@@ -116,7 +128,7 @@ const Users = () => {
         <button
           type="button"
           onClick={addNewUser}
-          className="blackButton focus:outline-none font-medium rounded-lg text-xs px-3 py-2 text-center drop-shadow-xl gap-1.5 items-center flex"
+          className="bg-[var(--endeavour)] text-white focus:outline-none font-medium rounded-full text-xs px-4 py-2 text-center gap-1.5 items-center flex hover:opacity-90 transition-all"
         >
           <TbLayoutGridAdd className="scale-110" />
           Add New User
