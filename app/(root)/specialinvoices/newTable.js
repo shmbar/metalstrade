@@ -278,7 +278,7 @@ const Customtable = ({
                                             <tr>
                                                 {cols.map((col, i) => {
                                                     const bg = '#b7d1b5';
-                                                    const style = { backgroundColor: bg, padding: '6px 8px', color: '#1a3a1a', fontWeight: 600, fontSize: '10px', textAlign: 'center', border: '1px solid #a8c9a6' };
+                                                    const style = { backgroundColor: bg, padding: '6px 8px', color: '#1a3a1a', fontWeight: 600, fontSize: '10px', textAlign: 'center', border: 'none' };
                                                     if (i === 0) return <th key={col.id} style={{ ...style, textAlign: 'left' }}>Total $:</th>;
                                                     if (col.id === 'qnty') return <th key={col.id} style={style}>{usdWeight % 1 === 0 ? usdWeight : usdWeight.toFixed(2)}</th>;
                                                     if (col.id === 'total') return <th key={col.id} style={style}>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(usdTotal)}</th>;
@@ -296,7 +296,7 @@ const Customtable = ({
                                             <tr>
                                                 {cols.map((col, i) => {
                                                     const bg = '#8db6d8';
-                                                    const style = { backgroundColor: bg, padding: '6px 8px', color: 'var(--chathams-blue)', fontWeight: 600, fontSize: '10px', textAlign: 'center', border: '1px solid #7aaac8' };
+                                                    const style = { backgroundColor: bg, padding: '6px 8px', color: 'var(--chathams-blue)', fontWeight: 600, fontSize: '10px', textAlign: 'center', border: 'none' };
                                                     if (i === 0) return <th key={col.id} style={{ ...style, textAlign: 'left' }}>Total €:</th>;
                                                     if (col.id === 'qnty') return <th key={col.id} style={style}>{eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)}</th>;
                                                     if (col.id === 'total') return <th key={col.id} style={style}>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal)}</th>;
