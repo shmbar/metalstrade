@@ -30,14 +30,14 @@ const Page = () => {
 			try {
 				setLoading(true);
 				let data = await loadDataSettings(uidCollection, 'formulasCalc')
-				
+
 				const timeoutId = setTimeout(() => {
 					if (!data?.general) {
 						setValue({ general: {} });
 						setLoading(false);
 					}
 				}, 5000);
-				
+
 				try {
 					let rate = await getCur(dateFormat(new Date(), 'yyyy-mm-dd'));
 					if (rate) {
@@ -49,7 +49,7 @@ const Page = () => {
 					console.error('Error fetching rate:', error);
 					data.general.euroRate = data.general?.euroRate || 1.0;
 				}
-				
+
 				setValue(data)
 				clearTimeout(timeoutId);
 			} catch (error) {
@@ -136,12 +136,12 @@ const Page = () => {
 
 									{value.general != null && !loading && (
 										<div className='bg-[var(--selago)] rounded-xl p-2.5 mb-3'>
-											<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2'>
-												<div className='flex flex-col'>
-													<span className='text-xs text-[var(--regent-gray)] mb-1 font-medium'>Ni LME</span>
+											<div className='flex flex-wrap items-end gap-2'>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[110px] flex-1'>
+													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Ni LME</span>
 													<input
 														type='text'
-														className='px-3 py-1.5 border border-[var(--rock-blue)] rounded-full text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
+														className='px-3 py-1.5 text-sm font-semibold text-[#F44336] text-center bg-white focus:outline-none'
 														name='nilme'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
@@ -150,11 +150,11 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col'>
-													<span className='text-xs text-[var(--regent-gray)] mb-1 font-medium'>Mo Oxide - Lb</span>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[110px] flex-1'>
+													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Mo Oxide - Lb</span>
 													<input
 														type='text'
-														className='px-3 py-1.5 border border-[var(--rock-blue)] rounded-full text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
+														className='px-3 py-1.5 text-sm font-semibold text-[#F44336] text-center bg-white focus:outline-none'
 														value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
 														name='MoOxideLb'
 														onChange={(e) => handleChange(e, 'general')}
@@ -163,11 +163,11 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col'>
-													<span className='text-xs text-[var(--regent-gray)] mb-1 font-medium'>Charge Cr - Lb</span>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[110px] flex-1'>
+													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Charge Cr - Lb</span>
 													<input
 														type='text'
-														className='px-3 py-1.5 border border-[var(--rock-blue)] rounded-full text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
+														className='px-3 py-1.5 text-sm font-semibold text-[#F44336] text-center bg-white focus:outline-none'
 														name='chargeCrLb'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'chargeCrLb' ? value.general?.chargeCrLb || '' : addComma(value.general?.chargeCrLb || '0')}
@@ -176,22 +176,22 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col'>
-													<span className='text-xs text-[var(--regent-gray)] mb-1 font-medium'>1 MT</span>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[110px] flex-1'>
+													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>1 MT</span>
 													<input
 														type='text'
-														className='px-3 py-1.5 border border-[var(--rock-blue)] rounded-full text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
+														className='px-3 py-1.5 text-sm font-semibold text-center bg-white focus:outline-none'
 														value={(value.general?.mt || '0') + ' Lb'}
 														name='mt'
 														onChange={(e) => handleChange(e, 'general')}
 													/>
 												</div>
 
-												<div className='flex flex-col'>
-													<span className='text-xs text-[var(--regent-gray)] mb-1 font-medium'>Euro / USD</span>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[110px] flex-1'>
+													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Euro / USD</span>
 													<input
 														type='text'
-														className='px-3 py-1.5 border border-[var(--rock-blue)] rounded-full text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]'
+														className='px-3 py-1.5 text-sm font-semibold text-[#F44336] text-center bg-white focus:outline-none'
 														value={(value.general?.euroRate || '0')}
 														name='euroRate'
 														onChange={(e) => handleChange(e, 'general')}
@@ -199,7 +199,7 @@ const Page = () => {
 												</div>
 
 												<Button
-													className='px-5 py-1.5 rounded-full bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] text-[var(--selago)] font-medium text-sm mt-auto h-[36px]'
+													className='px-5 py-1.5 rounded-full bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] text-[var(--selago)] font-medium text-sm h-[36px]'
 													onClick={saveData}
 												>
 													Save
@@ -207,7 +207,7 @@ const Page = () => {
 											</div>
 										</div>
 									)}
-									
+
 									<TabPanels>
 										{tabs.map((tab, idx) => (
 											<TabPanel key={idx}>
