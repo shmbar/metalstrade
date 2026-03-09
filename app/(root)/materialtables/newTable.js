@@ -143,10 +143,10 @@ const Customtable = ({
         }
          .custom-table td {
           border: none !important;
-          background-color: #ffffff;
+          background-color: transparent !important;
           text-align: center;
           vertical-align: middle;
-          padding: 2px 4px;
+          padding: 3px 4px;
           font-size: 10px !important;
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
         }
@@ -178,15 +178,18 @@ const Customtable = ({
       {/* Desktop Table */}
       <div className="hidden sm:block custom-table">
         <div className="overflow-auto dashboard-scroll rounded-2xl" style={{ maxHeight: '700px' }}>
-          <table className="w-full p-1" style={{ tableLayout: 'auto' }}>
+          <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'collapse' }}>
             {/* THEAD */}
             <thead className="sticky top-0 z-10">
               {table.getHeaderGroups().map(hdGroup => (
-                <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
-                  {hdGroup.headers.map((header, idx) => (
+                <tr key={hdGroup.id}>
+                  {hdGroup.headers.map((header, idx) => {
+                    const isFirst = idx === 0
+                    const isLast = idx === hdGroup.headers.length - 1
+                    return (
                    <th
   key={header.id}
-  className={`px-2 py-2 uppercase text-center font-bold `}
+  className={`px-2 py-2 uppercase text-center font-bold`}
   style={{
     backgroundColor:
       header.column.id === 'material' || header.column.id === 'kgs'
@@ -197,6 +200,8 @@ const Customtable = ({
     maxWidth: header.column.id === 'material' ? '150px' : 'none',
     letterSpacing: '0.05em',
     textAlign: header.column.id === 'material' ? 'left' : 'center',
+    borderTopLeftRadius: isFirst ? '12px' : '0',
+    borderTopRightRadius: isLast ? '12px' : '0',
   }}
 >
                       {header.column.getCanSort() ? (
@@ -221,7 +226,8 @@ const Customtable = ({
                         </div>
                       )}
                     </th>
-                  ))}
+                   )
+                  })}
                 </tr>
               ))}
             </thead>
@@ -244,7 +250,8 @@ const Customtable = ({
     maxWidth: cell.column.id === 'material' ? '150px' : '110px',
     fontWeight: '400',
     border: 'none',
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
+    padding: '3px 4px',
   }}
 >
                         {!isDel ? (
@@ -300,8 +307,10 @@ const Customtable = ({
 <tfoot>
   <tr>
     {table.getHeaderGroups()[0].headers.map((header, idx) => {
-      const isMaterialOrKgs =
-        header.id === 'material' || header.id === 'kgs'
+      const isMaterialOrKgs = header.id === 'material' || header.id === 'kgs'
+      const totalCols = table.getHeaderGroups()[0].headers.length
+      const isFirst = idx === 0
+      const isLast = idx === totalCols - 1
 
       return (
         <td
@@ -314,7 +323,9 @@ const Customtable = ({
             textAlign: header.id === 'material' ? 'left' : 'center',
             border: 'none',
             padding: '8px 6px',
-            fontWeight: '600'
+            fontWeight: '600',
+            borderBottomLeftRadius: isFirst ? '12px' : '0',
+            borderBottomRightRadius: isLast ? '12px' : '0',
           }}
         >
           {calculateFooterTotals(header)}
