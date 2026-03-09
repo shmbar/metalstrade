@@ -410,7 +410,7 @@ const Margins = () => {
                             <div className="rounded-2xl border border-gray-200">
                            <div className="p-2 flex gap-3 mt-3">
                                 <button
-                                    className="bg-[var(--selago)] text-[var(--endeavour)] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
+                                    className="bg-[#dbeeff] text-[var(--endeavour)] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
                                     disabled={data.length >= 12}
                                     onClick={addMonth}
                                 >
