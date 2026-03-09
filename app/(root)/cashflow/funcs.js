@@ -810,7 +810,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                 </th>
                                 <th className="relative  text-center font-normal text-gray-500 uppercase">
                                     <div className='flex items-center justify-center'>
-                                        <Button className='h-6 2xl:h-7 p-1 2xl:p-2 bg-slate-500'
+                                        <Button className='h-6 2xl:h-7 p-1 2xl:p-2 bg-transparent hover:bg-[#e8f0f8] shadow-none border-0 text-[var(--endeavour)]'
                                             onClick={() => savePmntClient(filteredArr[0]?.client)}
                                             disabled={filteredArr.length === 0}>
                                             <Save className="scale-[0.8] 2xl:scale-100" />
@@ -907,7 +907,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                 <th></th>
                                 <th className="relative text-left font-medium text-gray-500 uppercase">
                                     <div className='flex items-center justify-center'>
-                                        <Button className='h-6 2xl:h-7 p-1 2xl:p-2 bg-slate-500'
+                                        <Button className='h-6 2xl:h-7 p-1 2xl:p-2 bg-transparent hover:bg-[#e8f0f8] shadow-none border-0 text-[var(--endeavour)]'
                                             onClick={() => savePmntClient(filteredArr1[0]?.client)}
                                             disabled={filteredArr1.length === 0}>
                                             <Save className="scale-[0.8] 2xl:scale-100" />
@@ -1188,7 +1188,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                         </th>
                         <th className="relative  text-right font-medium text-gray-500 uppercase">
                             <div className='flex items-center justify-center'>
-                                <Button className='h-6 2xl:h-7 p-1 2xl:p-2 bg-slate-500'
+                                <Button className='h-6 2xl:h-7 p-1 2xl:p-2 bg-transparent hover:bg-[#e8f0f8] shadow-none border-0 text-[var(--endeavour)]'
                                     onClick={() => savePmntSupplier(filteredArr)}
                                     disabled={filteredArr.length === 0}> <Save className="scale-[0.8] 2xl:scale-100" />
                                 </Button>
@@ -1351,7 +1351,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                         </th>
                         <th className="relative p-1 2xl:p-2 text-right text-[0.8rem] font-medium text-gray-500 uppercase">
                             <div className='flex items-center justify-center'>
-                                <Button className='h-6 2xl:h-7 p-1 2xl:p-2 bg-slate-500'
+                                <Button className='h-6 2xl:h-7 p-1 2xl:p-2 bg-transparent hover:bg-[#e8f0f8] shadow-none border-0 text-[var(--endeavour)]'
                                     onClick={() => savePmntExp(filteredArr)}
                                     disabled={filteredArr.length === 0}>
                                     <Save className="scale-[0.8] 2xl:scale-100" />
