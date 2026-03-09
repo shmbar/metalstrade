@@ -84,10 +84,9 @@ const Customtable = ({
     return average !== 'NaN' ? formatNumber(average) : ''
   }
 
-  // Column color: blue for material/kgs, pink for elements
+  // Column color: blue for material/kgs, pink for elements (del same as pink to keep seamless band)
   const getColBg = (columnId) => {
     if (columnId === 'material' || columnId === 'kgs') return '#dbeafe'
-    if (columnId === 'del') return 'transparent'
     return '#ffdbdb'
   }
 
@@ -271,6 +270,8 @@ const Customtable = ({
                           textAlign: header.id === 'material' ? 'left' : 'center',
                           border: 'none',
                           whiteSpace: 'nowrap',
+                          borderTopLeftRadius: isFirst ? '10px' : '0',
+                          borderTopRightRadius: isLast ? '10px' : '0',
                           borderBottomLeftRadius: isFirst ? '10px' : '0',
                           borderBottomRightRadius: isLast ? '10px' : '0',
                         }}
