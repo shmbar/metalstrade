@@ -281,13 +281,37 @@ const Customtable = ({
 
               {/* ======= HEADER ======= */}
               {table.getHeaderGroups().map(hdGroup => (
-                <tr key={hdGroup.id}>
-                  {hdGroup.headers.map(header => (
-                    <th key={header.id} className="header-blue py-3 font-bold font-poppins">
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
-                </tr>
+                <Fragment key={hdGroup.id}>
+                  <tr>
+                    {hdGroup.headers.map(header => (
+                      <th key={header.id} className="header-blue py-3 font-bold font-poppins">
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                      </th>
+                    ))}
+                  </tr>
+
+                  {/* Filter Row */}
+                  {filterOn && (
+                    <tr style={{ backgroundColor: '#FFFFFF' }}>
+                      {hdGroup.headers.map(header => (
+                        <th
+                          key={header.id}
+                          className="px-2 py-1.5"
+                          style={{
+                            backgroundColor: '#FFFFFF',
+                            borderBottom: '2px solid #E5E7EB',
+                            minWidth: header.column.id === 'select' ? '40px' : '90px',
+                            maxWidth: header.column.id === 'select' ? '40px' : 'none',
+                          }}
+                        >
+                          {header.column.getCanFilter() && (
+                            <Filter column={header.column} table={table} filterOn={filterOn} />
+                          )}
+                        </th>
+                      ))}
+                    </tr>
+                  )}
+                </Fragment>
               ))}
             </thead>
                 
