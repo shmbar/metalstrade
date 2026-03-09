@@ -26,9 +26,9 @@ const Customtable = ({
 }) => {
   const [globalFilter, setGlobalFilter] = useState('')
   const [filterOn, setFilterOn] = useState(false)
-  const [{ pageIndex, pageSize }, setPagination] = useState({ 
-    pageIndex: 0, 
-    pageSize: 25 
+  const [{ pageIndex, pageSize }, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 25
   })
   const [columnFilters, setColumnFilters] = useState([])
 
@@ -36,7 +36,7 @@ const Customtable = ({
   const { ln } = useContext(SettingsContext)
 
   const table = useReactTable({
-    columns, 
+    columns,
     data,
     getCoreRowModel: getCoreRowModel(),
     state: {
@@ -84,81 +84,27 @@ const Customtable = ({
     return average !== 'NaN' ? formatNumber(average) : ''
   }
 
-  // Cell helpers
-  const getCellWidthClass = (columnId) => {
-    if (columnId === 'material') return 'min-w-[120px] lg:min-w-[150px]'
-    if (columnId === 'kgs') return 'min-w-[100px] lg:min-w-[120px]'
-    return 'min-w-[80px] lg:min-w-[90px]'
+  // Column color: blue for material/kgs, pink for elements
+  const getColBg = (columnId) => {
+    if (columnId === 'material' || columnId === 'kgs') return '#dbeafe'
+    if (columnId === 'del') return 'transparent'
+    return '#ffdbdb'
   }
-  const getTextAlignClass = (columnId) => columnId === 'material' ? 'text-left' : 'text-center'
 
-  // Fade-in animation for badges (as in contracts table)
-  if (typeof window !== 'undefined') {
-    const style = document.createElement('style');
-    style.innerHTML = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`;
-    document.head.appendChild(style);
-  }
+  const headers = table.getHeaderGroups()[0]?.headers ?? []
+  const totalCols = headers.length
 
   return (
     <div className="w-full">
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-        .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-        .dashboard-scroll::-webkit-scrollbar-track { 
-          background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
-          border-radius: 6px; 
-        }
-        .dashboard-scroll::-webkit-scrollbar-thumb { 
-          background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
-          border-radius: 6px; 
-          border: 2px solid #F8F8F8;
-        }
-        .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-          background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
-          border-color: #F0F0F0;
-        }
-        .glass-table {
-          background: linear-gradient(135deg, 
-            rgba(255, 255, 255, 0.85) 0%, 
-            rgba(250, 250, 250, 0.90) 50%,
-            rgba(255, 255, 255, 0.85) 100%
-          );
-          backdrop-filter: blur(16px) saturate(180%);
-          -webkit-backdrop-filter: blur(16px) saturate(180%);
-        }
-        .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          transition-property: color, background-color, border-color, box-shadow !important;
-          transition-duration: 150ms !important;
-          transition-timing-function: ease-in-out !important;
-        }
-        .custom-table th {
-          border: none;
-          background-color: var(--selago);
-          text-align: center;
-          vertical-align: middle;
-          padding: 8px 6px;
-          font-size: 12px !important;
-          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-        }
-         .custom-table td {
-          border: none !important;
-          background-color: transparent !important;
-          text-align: center;
-          vertical-align: middle;
-          padding: 3px 4px;
-          font-size: 10px !important;
-          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-        }
-      `}</style>
-
       {/* Header Controls */}
       {showHeader && (
-        <div className="flex-shrink-0"
+        <div
+          className="flex-shrink-0"
           style={{
             borderBottom: '2px solid var(--selago)',
             background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
-          }}>
+          }}
+        >
           <Header
             globalFilter={globalFilter}
             setGlobalFilter={setGlobalFilter}
@@ -176,124 +122,128 @@ const Customtable = ({
       )}
 
       {/* Desktop Table */}
-      <div className="hidden sm:block custom-table">
-        <div className="overflow-auto dashboard-scroll rounded-2xl" style={{ maxHeight: '700px' }}>
-          <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'collapse' }}>
-            {/* THEAD */}
-            <thead className="sticky top-0 z-10">
+      <div className="hidden sm:block">
+        <div className="overflow-auto" style={{ maxHeight: '700px' }}>
+          <table
+            className="w-full"
+            style={{
+              tableLayout: 'auto',
+              borderCollapse: 'separate',
+              borderSpacing: 0,
+              fontFamily: 'Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+            }}
+          >
+            {/* THEAD — seamless colored band */}
+            <thead>
               {table.getHeaderGroups().map(hdGroup => (
                 <tr key={hdGroup.id}>
                   {hdGroup.headers.map((header, idx) => {
                     const isFirst = idx === 0
                     const isLast = idx === hdGroup.headers.length - 1
+                    const isDel = header.column.id === 'del'
                     return (
-                   <th
-  key={header.id}
-  className={`px-2 py-2 uppercase text-center font-bold`}
-  style={{
-    backgroundColor:
-      header.column.id === 'material' || header.column.id === 'kgs'
-        ? 'var(--selago)'
-        : '#ffdbdb',
-    color: 'var(--chathams-blue)',
-    minWidth: header.column.id === 'material' ? '120px' : '60px',
-    maxWidth: header.column.id === 'material' ? '150px' : 'none',
-    letterSpacing: '0.05em',
-    textAlign: header.column.id === 'material' ? 'left' : 'center',
-    borderTopLeftRadius: isFirst ? '12px' : '0',
-    borderTopRightRadius: isLast ? '12px' : '0',
-  }}
->
-                      {header.column.getCanSort() ? (
-                        <div
-                          onClick={header.column.getToggleSortingHandler()}
-                          className={`cursor-pointer flex items-center gap-1.5 justify-center font-bold font-poppins`}
-                        >
-                          {header.column.columnDef.header}
-                          {{
-                            asc: <TbSortAscending className="text-[var(--chathams-blue)] w-4 h-4" />,
-                            desc: <TbSortDescending className="text-[var(--chathams-blue)] w-4 h-4" />
-                          }[header.column.getIsSorted()]}
-                        </div>
-                      ) : (
-                        <span className="font-normal text-[var(--chathams-blue)] text-center">
-                          {header.column.columnDef.header}
-                        </span>
-                      )}
-                      {header.column.getCanFilter() && (
-                        <div>
+                      <th
+                        key={header.id}
+                        style={{
+                          backgroundColor: getColBg(header.column.id),
+                          color: 'var(--chathams-blue)',
+                          padding: '8px 10px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          textAlign: header.column.id === 'material' ? 'left' : 'center',
+                          letterSpacing: '0.04em',
+                          whiteSpace: 'nowrap',
+                          borderTop: 'none',
+                          borderBottom: 'none',
+                          borderLeft: 'none',
+                          borderRight: 'none',
+                          borderTopLeftRadius: isFirst ? '10px' : '0',
+                          borderTopRightRadius: isLast ? '10px' : '0',
+                          minWidth: header.column.id === 'material' ? '120px' : header.column.id === 'del' ? '40px' : '70px',
+                          maxWidth: header.column.id === 'material' ? '160px' : 'none',
+                        }}
+                      >
+                        {isDel ? null : (
+                          header.column.getCanSort() ? (
+                            <div
+                              onClick={header.column.getToggleSortingHandler()}
+                              className="cursor-pointer flex items-center gap-1 justify-center"
+                              style={{ justifyContent: header.column.id === 'material' ? 'flex-start' : 'center' }}
+                            >
+                              {header.column.columnDef.header}
+                              {{
+                                asc: <TbSortAscending className="w-3.5 h-3.5" />,
+                                desc: <TbSortDescending className="w-3.5 h-3.5" />,
+                              }[header.column.getIsSorted()]}
+                            </div>
+                          ) : (
+                            <span>{header.column.columnDef.header}</span>
+                          )
+                        )}
+                        {header.column.getCanFilter() && (
                           <Filter column={header.column} table={table} filterOn={filterOn} />
-                        </div>
-                      )}
-                    </th>
-                   )
+                        )}
+                      </th>
+                    )
                   })}
                 </tr>
               ))}
             </thead>
 
-            {/* TBODY */}
-            <tbody>
-              {table.getRowModel().rows.map((row, rowIdx) => (
-                <tr key={row.id} className="cursor-pointer">
-                  {row.getVisibleCells().map(cell => {
-                    const isMaterialOrKgs = cell.column.id === 'material' || cell.column.id === 'kgs'
+            {/* TBODY — pill cells on white background */}
+            <tbody style={{ backgroundColor: '#ffffff' }}>
+              {table.getRowModel().rows.map((row) => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => {
                     const isDel = cell.column.id === 'del'
+                    const isMaterialOrKgs = cell.column.id === 'material' || cell.column.id === 'kgs'
                     return (
-                    <td
-  key={cell.id}
-  data-label={cell.column.columnDef.header}
-  className="px-1 py-1 transition-colors duration-150 group/cell relative"
-  style={{
-    color: '#1F2937',
-    minWidth: cell.column.id === 'material' ? '120px' : '60px',
-    maxWidth: cell.column.id === 'material' ? '150px' : '110px',
-    fontWeight: '400',
-    border: 'none',
-    backgroundColor: 'transparent',
-    padding: '3px 4px',
-  }}
->
-                        {!isDel ? (
-                         <div
-                          className="
-                            px-2 py-1
-                            text-[11px]
-                            font-normal
-                            flex items-center justify-center
-                            min-w-[70px]
-                            text-center
-                            whitespace-nowrap
-                            rounded-xl
-                            transition-all duration-200 ease-in-out
-                          "
-                          style={{
-                            backgroundColor: '#ffffff',
-                            border: '1px solid var(--rock-blue)',
-                          }}
-                        >
+                      <td
+                        key={cell.id}
+                        style={{
+                          backgroundColor: '#ffffff',
+                          padding: '3px 4px',
+                          border: 'none',
+                          verticalAlign: 'middle',
+                        }}
+                      >
+                        {isDel ? (
+                          <div className="flex justify-center items-center px-1 py-1">
+                            <button
+                              onClick={() => delMaterial(table1, cell)}
+                              className="cursor-pointer transition-colors duration-150 hover:text-red-700"
+                            >
+                              <MdDeleteOutline className="w-[18px] h-[18px] text-red-500" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div
+                            style={{
+                              backgroundColor: '#ffffff',
+                              border: '1px solid #c7d7e8',
+                              borderRadius: '8px',
+                              padding: '3px 8px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: cell.column.id === 'material' ? 'flex-start' : 'center',
+                              minWidth: cell.column.id === 'material' ? '110px' : '60px',
+                              minHeight: '26px',
+                            }}
+                          >
                             <input
                               type={isMaterialOrKgs ? 'text' : 'number'}
-                              className={`w-full border-none bg-transparent focus:outline-none text-center`}
+                              className="w-full border-none bg-transparent focus:outline-none"
                               onChange={(e) => editCell(table1, e, cell)}
                               value={cell.column.id === 'kgs' ? formatNumber(cell.getContext().getValue()) : cell.getContext().getValue()}
                               style={{
                                 fontFamily: 'Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+                                fontSize: '11px',
                                 color: '#1F2937',
                                 background: 'transparent',
-                                textAlign: cell.column.id === 'material' ? 'left' : 'center'
+                                textAlign: cell.column.id === 'material' ? 'left' : 'center',
                               }}
                             />
                           </div>
-                        ) : (
-                          <div className="flex justify-center items-center px-2 py-1.5">
-  <button
-    onClick={() => delMaterial(table1, cell)}
-    className="cursor-pointer transition-colors duration-150 hover:text-red-700"
-  >
-    <MdDeleteOutline className="w-[18px] h-[18px] text-red-600" />
-  </button>
-</div>
                         )}
                       </td>
                     )
@@ -302,96 +252,78 @@ const Customtable = ({
               ))}
             </tbody>
 
-            {/* TFOOT - Footer Totals */}
+            {/* TFOOT — seamless colored band */}
             {showFooter && (
-<tfoot>
-  <tr>
-    {table.getHeaderGroups()[0].headers.map((header, idx) => {
-      const isMaterialOrKgs = header.id === 'material' || header.id === 'kgs'
-      const totalCols = table.getHeaderGroups()[0].headers.length
-      const isFirst = idx === 0
-      const isLast = idx === totalCols - 1
-
-      return (
-        <td
-          key={header.id}
-          className="px-2 py-2 font-bold"
-          style={{
-            backgroundColor: isMaterialOrKgs ? 'var(--selago)' : '#ffdbdb',
-            color: 'var(--chathams-blue)',
-            fontSize: 'clamp(10px, 1.0vw, 13px)',
-            textAlign: header.id === 'material' ? 'left' : 'center',
-            border: 'none',
-            padding: '8px 6px',
-            fontWeight: '600',
-            borderBottomLeftRadius: isFirst ? '12px' : '0',
-            borderBottomRightRadius: isLast ? '12px' : '0',
-          }}
-        >
-          {calculateFooterTotals(header)}
-        </td>
-      )
-    })}
-  </tr>
-</tfoot>
+              <tfoot>
+                <tr>
+                  {headers.map((header, idx) => {
+                    const isFirst = idx === 0
+                    const isLast = idx === totalCols - 1
+                    return (
+                      <td
+                        key={header.id}
+                        style={{
+                          backgroundColor: getColBg(header.id),
+                          color: 'var(--chathams-blue)',
+                          padding: '8px 10px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          textAlign: header.id === 'material' ? 'left' : 'center',
+                          border: 'none',
+                          whiteSpace: 'nowrap',
+                          borderBottomLeftRadius: isFirst ? '10px' : '0',
+                          borderBottomRightRadius: isLast ? '10px' : '0',
+                        }}
+                      >
+                        {calculateFooterTotals(header)}
+                      </td>
+                    )
+                  })}
+                </tr>
+              </tfoot>
             )}
           </table>
         </div>
       </div>
 
-      {/* Mobile Table/Card View */}
+      {/* Mobile Card View */}
       <div className="sm:hidden">
-        <div className="overflow-y-auto dashboard-scroll px-2 py-2 space-y-2" style={{ maxHeight: '700px' }}>
+        <div className="overflow-y-auto px-2 py-2 space-y-2" style={{ maxHeight: '700px' }}>
           {table.getRowModel().rows.map((row, rowIndex) => (
             <div
               key={row.id}
-              className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
-              style={{
-                backgroundColor: '#FFFFFF',
-                border: '1px solid var(--selago)',
-              }}
+              className="rounded-2xl overflow-hidden shadow-md"
+              style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--selago)' }}
             >
               <div
-                className="px-3 py-2 flex items-center justify-between"
-                style={{
-                  background: '#bce1ff',
-                }}
+                className="px-3 py-2"
+                style={{ background: '#dbeafe' }}
               >
-                <span
-                  className="font-normal"
-                  style={{
-                    fontSize: 'clamp(9px, 0.8vw, 10px)',
-                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
-                  }}
-                >
+                <span style={{ fontSize: '10px', color: 'var(--chathams-blue)', fontWeight: '500' }}>
                   Row {rowIndex + 1}
                 </span>
               </div>
-              <div className="p-4 space-y-2.5">
+              <div className="p-3 space-y-2">
                 {row.getVisibleCells().map((cell) => {
-                  if (cell.column.id === 'del') return null;
+                  if (cell.column.id === 'del') return null
                   return (
                     <div
                       key={cell.id}
-                      className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
+                      className="flex flex-col space-y-1 pb-2 last:pb-0"
                       style={{ borderBottom: '1px solid var(--selago)' }}
                     >
-                      <div
-                        className="uppercase tracking-wider font-normal"
-                        style={{
-                          color: '#6B7280',
-                          fontSize: 'clamp(6px, 0.6vw, 7px)'
-                        }}
-                      >
+                      <div style={{ color: '#6B7280', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         {cell.column.columnDef.header}
                       </div>
                       <div
-                        className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
                         style={{
-                          color: '#1F2937',
-                          background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
-                          fontSize: 'clamp(8px, 0.7vw, 10px)',
-                          border: '1px solid var(--selago)'
+                          backgroundColor: '#ffffff',
+                          border: '1px solid #c7d7e8',
+                          borderRadius: '8px',
+                          padding: '4px 8px',
+                          minHeight: '28px',
+                          display: 'flex',
+                          alignItems: 'center',
                         }}
                       >
                         <input
@@ -401,15 +333,14 @@ const Customtable = ({
                           value={cell.column.id === 'kgs' ? formatNumber(cell.getContext().getValue()) : cell.getContext().getValue()}
                           style={{
                             fontFamily: 'Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
-                            fontSize: 'clamp(8px, 0.7vw, 10px)',
+                            fontSize: '11px',
                             color: '#1F2937',
                             background: 'transparent',
-                            textAlign: cell.column.id === 'material' ? 'left' : 'center'
                           }}
                         />
                       </div>
                     </div>
-                  );
+                  )
                 })}
               </div>
             </div>
