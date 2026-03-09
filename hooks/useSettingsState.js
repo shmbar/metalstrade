@@ -31,16 +31,16 @@ function useSettingsState() {
     // Called as updateSettings(uidCollection, newObj, key, save) to also persist to Firestore
     const updateSettings = async (uidOrObj, newObj, key, save) => {
         if (typeof uidOrObj === 'string' && newObj && key) {
-            // 4-arg form: persist to Firestore
-            setSettings((prev) => ({ ...prev, [key]: newObj }));
-            if (save) {
-                try {
-                    await saveDataSettings(uidOrObj, key, newObj);
-                    setToast({ show: true, text: 'Saved successfully!', clr: 'success' });
-                } catch (e) {
-                    setToast({ show: true, text: 'Failed to save', clr: 'fail' });
+            // 4-arg form: update state and persist full settings to 'settings' doc
+            setSettings((prev) => {
+                const merged = { ...prev, [key]: newObj };
+                if (save) {
+                    saveDataSettings(uidOrObj, 'settings', merged)
+                        .then(() => setToast({ show: true, text: 'Saved successfully!', clr: 'success' }))
+                        .catch(() => setToast({ show: true, text: 'Failed to save', clr: 'fail' }));
                 }
-            }
+                return merged;
+            });
         } else {
             // 1-arg form: in-memory merge only
             setSettings((prev) => ({ ...prev, ...uidOrObj }));
