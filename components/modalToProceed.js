@@ -55,12 +55,12 @@ const MyModal = ({ isDeleteOpen, setIsDeleteOpen, ttl, txt, doAction }) => {
                 <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <DialogTitle
                     as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900"
+                    className="text-lg font-medium leading-6 text-[var(--endeavour)]"
                   >
                     {ttl}
                   </DialogTitle>
                   <div className="mt-2">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-[var(--endeavour)]">
                       {txt}
                     </p>
                   </div>
@@ -68,17 +68,17 @@ const MyModal = ({ isDeleteOpen, setIsDeleteOpen, ttl, txt, doAction }) => {
                   <div className="mt-4 gap-4 flex">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-slate-700 px-3 py-1 text-sm font-medium text-white hover:bg-slate-400 focus:outline-none"
+                      className="inline-flex justify-center rounded-full border border-transparent bg-[var(--endeavour)] px-4 py-1.5 text-sm font-medium text-white hover:opacity-90 focus:outline-none transition-all"
                       onClick={confirmDel}
                     >
-                      {getTtl('Confirm', ln)} 
+                      {getTtl('Confirm', ln)}
                     </button>
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-slate-700 bg-white px-3 py-1 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                      className="inline-flex justify-center rounded-full border border-[var(--endeavour)] bg-white px-4 py-1.5 text-sm font-medium text-[var(--endeavour)] hover:bg-[var(--selago)] focus:outline-none transition-all"
                       onClick={closeModal}
                     >
-                        {getTtl('Cancel', ln)} 
+                        {getTtl('Cancel', ln)}
                     </button>
                   </div>
                 </DialogPanel>

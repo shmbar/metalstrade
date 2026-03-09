@@ -59,7 +59,7 @@ body,
     @apply bg-white border-[var(--rock-blue)] hover:bg-[var(--selago)] text-[var(--port-gore)] flex items-center gap-2 justify-center rounded-xl border px-3 py-2 text-sm font-medium focus:outline-none shadow-md transition-colors
   }
     .supplierButton {
-    @apply bg-[#efefef] hover:bg-[var(--selago)] text-[#737373] flex items-center gap-2 justify-center rounded-full border px-3 py-2 text-xs focus:outline-none shadow-md transition-colors
+    @apply bg-white hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border border-[var(--endeavour)] px-3 py-2 text-xs focus:outline-none shadow-md transition-colors
   }
    .supplierAddButton {
     @apply bg-[var(--endeavour)] hover:bg-[var(--selago)] text-white flex items-center gap-2 justify-center rounded-full border px-3 py-2 text-xs focus:outline-none shadow-md transition-colors

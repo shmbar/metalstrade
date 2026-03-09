@@ -128,20 +128,20 @@ const Clients = () => {
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update client data'>
-                        <button className='supplierButton py-1 bg-[#e3f3ff] border-none text-[var(--endeavour)]'
+                        <button className='supplierButton py-1'
                             onClick={updateList}>
                             <BiEditAlt className='scale-125' />
                             {getTtl('Update', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Delete client'>
-                        <button className='supplierButton py-1 bg-[#e3f3ff] border-none text-[var(--endeavour)]' onClick={() => setIsDeleteOpen(true)}
+                        <button className='supplierButton py-1' onClick={() => setIsDeleteOpen(true)}
                             disabled={!value.id}>
                             <MdDeleteOutline className='scale-125' />{getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Clear form'>
-                        <button className='supplierButton py-1 bg-[#e3f3ff] border-none text-[var(--endeavour)]'
+                        <button className='supplierButton py-1'
                             onClick={clickClear}>
                             <AiOutlineClear className='scale-125' />{getTtl('Clear', ln)}
                         </button>
