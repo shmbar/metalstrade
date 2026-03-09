@@ -662,11 +662,11 @@ const SupperAlloys = ({ value, handleChange }) => {
 
         return value.supperalloys != null ? (
         <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-2">
-          <h3 className='text-sm text-[var(--endeavour)] mb-2 text-center'>Cost</h3>
-            
+          <h3 className='text-sm font-medium text-[var(--endeavour)] mb-1.5 text-center'>Cost</h3>
+
             {/* Composition */}
-            <div className="mb-3">
-            <p className="text-sm text-[#979797] mb-2 text-center">
+            <div className="mb-2">
+            <p className="text-xs text-[#979797] mb-1 text-center">
                 Composition
             </p>
 
@@ -726,8 +726,8 @@ const SupperAlloys = ({ value, handleChange }) => {
             </div>
 
             {/* Price / Lbs */}
-            <div className="mb-3">
-            <p className="text-sm text-[#979797] mb-2 text-center">
+            <div className="mb-2">
+            <p className="text-xs text-[#979797] mb-1 text-center">
                 Price / Lbs
             </p>
 
@@ -799,91 +799,58 @@ const SupperAlloys = ({ value, handleChange }) => {
             </div>
             </div>
 
-<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-2">
 
   {/* LEFT — COST RESULTS */}
   <div>
-
+    {/* Formula Intrinsic */}
+    <div className="mb-2 flex">
+      <div className="w-32 rounded-xl overflow-hidden border border-[#dedede] bg-white">
+        <div className="bg-[#FFDADA] text-[#F44336] text-xs py-1.5 text-center">Formula Intrinsic</div>
+        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[#F44336] border-t border-[#dedede] bg-[#fafafa]"
+          value={(value?.supperalloys?.formulaIntsCost || '0') + '%'} name="formulaIntsCost"
+          onChange={(e) => handleChange({ target: { name: 'formulaIntsCost', value: e.target.value.replace('%', '') } }, 'supperalloys')}
+          onBlur={(e) => { const n = parseFloat(e.target.value.replace('%', '')); if (!isNaN(n)) handleChange({ target: { name: 'formulaIntsCost', value: n.toFixed(2) } }, 'supperalloys'); }}
+        />
+      </div>
+    </div>
     {/* Top two */}
     <div className="grid grid-cols-2 gap-2 mb-2">
-      <div className="w-[65%] mx-auto">
-        <ResultBox
-          title="Solids Price"
-          bg="#FFECEC"
-          value={formatCurrency(
-            (solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100).toFixed(2)
-          )}
-        />
-      </div>
-
-      <div className="w-[65%] mx-auto">
-        <ResultBox
-          title="Price per MT"
-          bg="#FFECEC"
-          value={formatCurrency(
-            (solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 * value.general.mt).toFixed(2)
-          )}
-        />
-      </div>
+      <ResultBox title="Solids Price" bg="#FFECEC" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100).toFixed(2))} />
+      <ResultBox title="Price per MT" bg="#FFECEC" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 * value.general.mt).toFixed(2))} />
     </div>
-
     {/* Bottom centered */}
     <div className="flex justify-center">
-      <div className="w-[35%]">
-        <ResultBox
-          title="Price / Euro"
-          bg="#E9FFF1"
-          value={formatCurrency(
-            (solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 / value.general?.euroRate).toFixed(2),
-            "€"
-          )}
-        />
+      <div className="w-[50%]">
+        <ResultBox title="Price / Euro" bg="#E9FFF1" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 / value.general?.euroRate).toFixed(2), "€")} />
       </div>
     </div>
-
   </div>
-
 
   {/* RIGHT — PRICE RESULTS */}
   <div>
-
+    {/* Formula Intrinsic */}
+    <div className="mb-2 flex">
+      <div className="w-32 rounded-xl overflow-hidden border border-[#dedede] bg-white">
+        <div className="bg-[#FFDADA] text-[#F44336] text-xs py-1.5 text-center">Formula Intrinsic</div>
+        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[#F44336] border-t border-[#dedede] bg-[#fafafa]"
+          value={(value?.supperalloys?.formulaIntsPrice || '0') + '%'} name="formulaIntsPrice"
+          onChange={(e) => handleChange({ target: { name: 'formulaIntsPrice', value: e.target.value.replace('%', '') } }, 'supperalloys')}
+          onBlur={(e) => { const n = parseFloat(e.target.value.replace('%', '')); if (!isNaN(n)) handleChange({ target: { name: 'formulaIntsPrice', value: n.toFixed(2) } }, 'supperalloys'); }}
+        />
+      </div>
+    </div>
     {/* Top two */}
     <div className="grid grid-cols-2 gap-2 mb-2">
-      <div className="w-[65%] mx-auto">
-        <ResultBox
-          title="Solids Price"
-          bg="#EAF4FF"
-          value={formatCurrency(
-            (solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100).toFixed(2)
-          )}
-        />
-      </div>
-
-      <div className="w-[65%] mx-auto">
-        <ResultBox
-          title="Price per MT"
-          bg="#EAF4FF"
-          value={formatCurrency(
-            (solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 * value.general.mt).toFixed(2)
-          )}
-        />
-      </div>
+      <ResultBox title="Solids Price" bg="#EAF4FF" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100).toFixed(2))} />
+      <ResultBox title="Price per MT" bg="#EAF4FF" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 * value.general.mt).toFixed(2))} />
     </div>
-
     {/* Bottom centered */}
     <div className="flex justify-center">
-      <div className="w-[35%]">
-        <ResultBox
-          title="Price / Euro"
-          bg="#E9FFF1"
-          value={formatCurrency(
-            (solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 / value.general?.euroRate).toFixed(2),
-            "€"
-          )}
-        />
+      <div className="w-[50%]">
+        <ResultBox title="Price / Euro" bg="#E9FFF1" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 / value.general?.euroRate).toFixed(2), "€")} />
       </div>
     </div>
-
   </div>
 
 </div>
