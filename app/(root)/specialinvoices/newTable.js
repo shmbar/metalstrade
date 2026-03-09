@@ -282,7 +282,7 @@ const Customtable = ({
                                                     if (i === 0) return <th key={col.id} style={{ ...style, textAlign: 'left' }}>Total $:</th>;
                                                     if (col.id === 'qnty') return <th key={col.id} style={style}>{usdWeight % 1 === 0 ? usdWeight : usdWeight.toFixed(2)}</th>;
                                                     if (col.id === 'total') return <th key={col.id} style={style}>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(usdTotal)}</th>;
-                                                    return <th key={col.id} style={{ ...style, color: 'transparent' }}>-</th>;
+                                                    return <th key={col.id} style={style}></th>;
                                                 })}
                                             </tr>
                                         );
@@ -300,7 +300,7 @@ const Customtable = ({
                                                     if (i === 0) return <th key={col.id} style={{ ...style, textAlign: 'left' }}>Total €:</th>;
                                                     if (col.id === 'qnty') return <th key={col.id} style={style}>{eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)}</th>;
                                                     if (col.id === 'total') return <th key={col.id} style={style}>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal)}</th>;
-                                                    return <th key={col.id} style={{ ...style, color: 'transparent' }}>-</th>;
+                                                    return <th key={col.id} style={style}></th>;
                                                 })}
                                             </tr>
                                         );
