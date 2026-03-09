@@ -303,13 +303,16 @@ const Customtable = ({
           value !== undefined &&
           value !== '';
 
+        const isSelect = cell.column.id === 'select';
         return (
           <td
             key={cell.id}
             className="px-2 py-2 text-center"
             style={{
-              minWidth: cell.column.id === 'select' ? '50px' : '60px',
-              maxWidth: cell.column.id === 'select' ? '50px' : '150px',
+              minWidth: isSelect ? '40px' : '60px',
+              maxWidth: isSelect ? '40px' : '150px',
+              width: isSelect ? '40px' : undefined,
+              verticalAlign: 'middle',
             }}
           >
             {isCompleted ? (
