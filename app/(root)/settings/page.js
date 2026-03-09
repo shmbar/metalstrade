@@ -53,7 +53,7 @@ const Page = () => {
     <div className="container ">
       <Toast />
       <VideoLoader loading={loading} fullScreen={true} />
-      <div className=" p-1 md:p-4 mt-[5%] bg-white">
+      <div className="p-1 md:p-4 mt-[5%] bg-white rounded-2xl border border-[var(--selago)] shadow-sm">
         <div className="text-[14px] mt-5 text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Settings', ln)}</div>
 
         <div className="w-full px-2 sm:px-0 mt-5">
