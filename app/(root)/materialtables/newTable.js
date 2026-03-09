@@ -184,7 +184,7 @@ const Customtable = ({
 
       {/* Desktop Table */}
       <div className="hidden sm:block custom-table">
-        <div className="overflow-auto dashboard-scroll rounded-2xl " style={{ maxHeight: '700px'}}>
+        <div className="overflow-auto dashboard-scroll rounded-2xl" style={{ maxHeight: '700px' }}>
           <table className="w-full p-1" style={{ tableLayout: 'auto' }}>
             {/* THEAD */}
             <thead className="sticky top-0 z-10">
@@ -315,16 +315,8 @@ const Customtable = ({
           key={header.id}
           className="px-2 py-2 font-bold"
           style={{
-            backgroundColor:
-              idx >= 2
-                ? isMaterialOrKgs
-                  ? 'var(--selago)'
-                  : '#ffdbdb'
-                : '#f9f9f9',
-            color:
-              idx < 2
-                ? '#6B7280'   // 👈 gray text for first two
-                : 'var(--chathams-blue)',  // normal blue text for others
+            backgroundColor: isMaterialOrKgs ? 'var(--selago)' : '#ffdbdb',
+            color: 'var(--chathams-blue)',
             fontSize: 'clamp(10px, 1.0vw, 13px)',
             textAlign: header.id === 'material' ? 'left' : 'center',
             border: '1px solid var(--rock-blue)'

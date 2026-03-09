@@ -226,9 +226,9 @@ const MaterialTables = () => {
                             {/* Table(s) */}
                             <div className="w-full overflow-x-auto mt-4">
                                 {data.map(table => (
+                                    <div key={table.id} className="mb-4 rounded-2xl border border-[var(--selago)] shadow-sm overflow-hidden">
                                     <Table
                                         data={table.data}
-                                        key={table.id}
                                         table1={table}
                                         columns={propDefaults}
                                         addMaterial={() => addMaterial(table)}
@@ -238,11 +238,13 @@ const MaterialTables = () => {
                                         runPdf={runPdf}
                                         excellReport={EXD(table.data)}
                                     />
+                                    </div>
                                 ))}
                             </div>
                             {/* Totals Section */}
                             {(data.length && !Object.values(totals).some(value => isNaN(value))) ? (
-                                <div className="w-full pt-8 overflow-x-auto">
+                                <div className="w-full pt-4 overflow-x-auto">
+                                <div className="rounded-2xl border border-[var(--selago)] shadow-sm overflow-hidden">
                                     <TableTotals
                                         data={[totals]}
                                         columns={propDefaults}
@@ -251,6 +253,7 @@ const MaterialTables = () => {
                                         delMaterial={delMaterial}
                                         delTable={delTable}
                                     />
+                                </div>
                                 </div>
                             ) : null}
                             </div>

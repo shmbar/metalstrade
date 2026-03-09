@@ -76,29 +76,20 @@ const Customtable = ({ data, columns }) => {
                   transition-timing-function: ease-in-out !important;
                 }
                 .custom-table th {
-                  border: 1px solid #ccc;
-                  background-color: #f9f9f9;
+                  border: 1px solid var(--rock-blue);
+                  background-color: var(--selago);
                   text-align: center;
                   vertical-align: middle;
                   padding: 6px;
-                  border-radius: 4px;
                   font-size: 12px !important;
                 }
                 .custom-table td {
-                  border: 1px solid #ccc;
-                  background-color: #f9f9f9;
+                  border: 1px solid var(--rock-blue);
+                  background-color: #ede9fe;
                   text-align: center;
                   vertical-align: middle;
                   padding: 6px;
-                  border-radius: 4px;
-                font-size: 10px !important;
-                }
-                .custom-table th {
-                  background-color: #d4eafc;
-                }
-                .custom-table td {
-                  background-color: #fff;
-                  border: 1px solid #e0e0e0;
+                  font-size: 10px !important;
                 }
             `}</style>
             <div className="custom-table">
@@ -145,11 +136,14 @@ const Customtable = ({ data, columns }) => {
                                         >
                                             {cell.column.id !== 'del' ? (
                                                 <div
-                                                    className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
+                                                    className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap rounded-lg fade-in"
+                                                    style={{ color: 'var(--chathams-blue)' }}
                                                 >
-                                                    {cell.column.id !== 'material'
-                                                        ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(cell.getContext().getValue())
-                                                        : cell.getContext().getValue()}
+                                                    {cell.column.id === 'material'
+                                                        ? 'Total'
+                                                        : cell.column.id !== 'del'
+                                                            ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(cell.getContext().getValue())
+                                                            : cell.getContext().getValue()}
                                                 </div>
                                             ) : (
                                                 <div className="flex justify-center items-center px-2 py-1.5 bg-[#ECF3FC] rounded-lg shadow-md">
