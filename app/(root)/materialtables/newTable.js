@@ -144,22 +144,13 @@ const Customtable = ({
 
         }
          .custom-table td {
-          border: none;
+          border: none !important;
           background-color: #ffffff;
           text-align: center;
           vertical-align: middle;
           padding: 2px 4px;
           font-size: 10px !important;
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-
-
-        }
-        .custom-table th {
-          background-color: var(--selago);
-        }
-        .custom-table td {
-          background-color: #fff;
-          border: 1px solid var(--selago);
         }
       `}</style>
 
@@ -268,7 +259,7 @@ const Customtable = ({
                             min-w-[70px]
                             text-center
                             whitespace-nowrap
-                            rounded-lg
+                            rounded-xl
                             transition-all duration-200 ease-in-out
                           "
                           style={{
