@@ -831,7 +831,7 @@ return (
         ) : (
             <>
                 {stockDataNoSold.map((x, i) => (
-                    <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
+                    <div className="bg-white py-0 px-1 border-b border-[#e8f0f8]" key={i}>
                         <MyAccordion title={
                             <div className="flex w-full justify-between">
                                 <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
@@ -947,7 +947,7 @@ return (
                                 </div>
                                 {stockData1.map((x, i) => {
                                     return (
-                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
+                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
                                                         <div className="responsiveText items-center font-normal text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0"
@@ -1024,7 +1024,7 @@ return (
 
                                 {stockData2.map((x, i) => {
                                     return (
-                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
+                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
                                                     <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1097,7 +1097,7 @@ return (
 
                                 {clientInvoices2.map((x, i) => {
                                     return (
-                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
+                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
                                                     <div className="responsiveText text-[var(--port-gore)] font-normal items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1167,7 +1167,7 @@ return (
 
                                 {clientInvoices1.map((x, i) => {
                                     return (
-                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
+                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
                                                     <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1301,7 +1301,7 @@ return (
 
                                 {supPayments2.map((x, i) => {
                                     return (
-                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
+                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                     <span className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words w-full min-w-0"
@@ -1376,7 +1376,7 @@ return (
 
                                 {supPayments1.map((x, i) => {
                                     return (
-                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
+                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                     <span className="responsiveText items-center font-normal text-[var(--port-gore)] flex outline-none whitespace-normal break-words w-full min-w-0"
@@ -1446,7 +1446,7 @@ return (
 
                                 {expenses.map((x, i) => {
                                     return (
-                                        <div className="bg-white rounded-xl py-0 px-1 mb-1 border border-[#b8ddf8]" key={i}>
+                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8]" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex justify-between leading-4 2xl:leading-6 w-full">
                                                     <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"              >
