@@ -10,7 +10,7 @@ const Tltip = ({ children, direction, tltpText, show }) => {
     // For plain text tooltips we'll keep the colored background.
     // For complex JSX tooltips (tables/lists) remove outer padding so internal markup controls spacing.
     const contentClass = isString
-        ? `bg-[var(--endeavour)] ${show == null || show ? 'flex' : 'hidden'}`
+        ? `bg-[var(--endeavour)] rounded-full ${show == null || show ? 'flex' : 'hidden'}`
         : (show == null || show ? 'p-0' : 'hidden')
     return (
         <TooltipProvider delayDuration='0' >
