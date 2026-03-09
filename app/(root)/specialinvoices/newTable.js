@@ -296,6 +296,7 @@ const Customtable = ({
   className="font-poppins text-xs"
                                                         style={{
                                                             color: 'var(--chathams-blue)',
+                                                            backgroundColor: '#dbeeff',
                                                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                                                             maxWidth: header.column.id === 'select' ? '50px' : 'none',
                                                             letterSpacing: '0.05em',
