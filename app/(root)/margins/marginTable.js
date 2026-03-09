@@ -39,7 +39,7 @@ const MarginTable = (props) => {
                     borderRadius: '16px',
                     border: '1px solid #E5E7EB',
                     boxShadow: '0 8px 24px rgba(0, 0, 0, 0.06), 0 0 1px rgba(99, 102, 241, 0.08) inset',
-                    marginBottom: '12px',
+                    marginBottom: '4px',
                     padding: '8px'
                 }}
             >
@@ -49,7 +49,7 @@ const MarginTable = (props) => {
                         <div 
                             className="flex flex-wrap items-center gap-2 mb-2"
                             style={{
-                                background: '#dbeeff',
+                                background: '#ffffff',
                                 padding: '6px 8px',
                                 borderRadius: '12px',
                                 marginBottom: '8px',
