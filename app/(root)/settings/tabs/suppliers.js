@@ -146,40 +146,28 @@ const Suppliers = () => {
   {/* LEFT COLUMN */}
   <div className="space-y-6">
 
-    <div className="flex items-center">
-      <label className="text-base text-[#0c5aa6] w-[60px] text-xs">
-        Name:
-      </label>
-      <input
-        type="text"
-        className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
-        value={value.supplier}
-        onChange={(e) => setValue({ ...value, supplier: e.target.value })}
-      />
+    <div className="flex flex-col">
+      <div className="flex items-center">
+        <label className="text-base text-[#0c5aa6] w-[60px] text-xs">Name:</label>
+        <input type="text" className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white" value={value.supplier} onChange={(e) => setValue({ ...value, supplier: e.target.value })} />
+      </div>
+      <ErrDiv field='supplier' errors={errors} ln={ln} />
     </div>
 
-    <div className="flex items-center gap-5">
-      <label className="text-base text-[#0c5aa6] w-[40px]  text-xs">
-        Street:
-      </label>
-      <input
-        type="text"
-        className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
-        value={value.street}
-        onChange={(e) => setValue({ ...value, street: e.target.value })}
-      />
+    <div className="flex flex-col">
+      <div className="flex items-center gap-5">
+        <label className="text-base text-[#0c5aa6] w-[40px] text-xs">Street:</label>
+        <input type="text" className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white" value={value.street} onChange={(e) => setValue({ ...value, street: e.target.value })} />
+      </div>
+      <ErrDiv field='street' errors={errors} ln={ln} />
     </div>
 
-    <div className="flex items-center gap-5">
-      <label className="text-base text-[#0c5aa6] w-[40px]  text-xs">
-        Country:
-      </label>
-      <input
-        type="text"
-        className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
-        value={value.country}
-        onChange={(e) => setValue({ ...value, country: e.target.value })}
-      />
+    <div className="flex flex-col">
+      <div className="flex items-center gap-5">
+        <label className="text-base text-[#0c5aa6] w-[40px] text-xs">Country:</label>
+        <input type="text" className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white" value={value.country} onChange={(e) => setValue({ ...value, country: e.target.value })} />
+      </div>
+      <ErrDiv field='country' errors={errors} ln={ln} />
     </div>
 
   </div>
@@ -187,28 +175,20 @@ const Suppliers = () => {
   {/* RIGHT COLUMN */}
   <div className="space-y-6">
 
-    <div className="flex items-center gap-5">
-      <label className="text-base text-[#0c5aa6] w-[70px] text-xs">
-        Nick Name:
-      </label>
-      <input
-        type="text"
-        className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
-        value={value.nname}
-        onChange={(e) => setValue({ ...value, nname: e.target.value })}
-      />
+    <div className="flex flex-col">
+      <div className="flex items-center gap-5">
+        <label className="text-base text-[#0c5aa6] w-[70px] text-xs">Nick Name:</label>
+        <input type="text" className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white" value={value.nname} onChange={(e) => setValue({ ...value, nname: e.target.value })} />
+      </div>
+      <ErrDiv field='nname' errors={errors} ln={ln} />
     </div>
 
-    <div className="flex items-center gap-5">
-      <label className="text-base text-[#0c5aa6] w-[70px] text-xs">
-        City:
-      </label>
-      <input
-        type="text"
-        className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white"
-        value={value.city}
-        onChange={(e) => setValue({ ...value, city: e.target.value })}
-      />
+    <div className="flex flex-col">
+      <div className="flex items-center gap-5">
+        <label className="text-base text-[#0c5aa6] w-[70px] text-xs">City:</label>
+        <input type="text" className="flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white" value={value.city} onChange={(e) => setValue({ ...value, city: e.target.value })} />
+      </div>
+      <ErrDiv field='city' errors={errors} ln={ln} />
     </div>
 
     <div className="flex items-center gap-5">

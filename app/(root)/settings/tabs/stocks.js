@@ -158,16 +158,12 @@ const Stocks = () => {
     {/* LEFT COLUMN */}
     <div className="space-y-6">
 
-      <div className="flex items-center">
-        <label className="w-[90px] text-xs text-[#0c5aa6]">
-          {getTtl('Name', ln)}:
-        </label>
-        <input
-          type="text"
-          className="flex-1 h-8 px-5 text-sm rounded-full border border-[#E5E7EB] bg-white"
-          value={value.stock}
-          onChange={(e) => setValue({ ...value, stock: e.target.value })}
-        />
+      <div className="flex flex-col">
+        <div className="flex items-center">
+          <label className="w-[90px] text-xs text-[#0c5aa6]">{getTtl('Name', ln)}:</label>
+          <input type="text" className="flex-1 h-8 px-5 text-sm rounded-full border border-[#E5E7EB] bg-white" value={value.stock} onChange={(e) => setValue({ ...value, stock: e.target.value })} />
+        </div>
+        <ErrDiv field='stock' errors={errors} ln={ln} />
       </div>
 
       <div className="flex items-center">
@@ -224,16 +220,12 @@ const Stocks = () => {
     {/* RIGHT COLUMN */}
     <div className="space-y-6">
 
-      <div className="flex items-center">
-        <label className="w-[90px] text-xs text-[#0c5aa6]">
-          {getTtl('Nick Name', ln)}:
-        </label>
-        <input
-          type="text"
-          className="flex-1 h-8 px-5 text-sm rounded-full border border-[#E5E7EB] bg-white"
-          value={value.nname ?? ''}
-          onChange={(e) => setValue({ ...value, nname: e.target.value })}
-        />
+      <div className="flex flex-col">
+        <div className="flex items-center">
+          <label className="w-[90px] text-xs text-[#0c5aa6]">{getTtl('Nick Name', ln)}:</label>
+          <input type="text" className="flex-1 h-8 px-5 text-sm rounded-full border border-[#E5E7EB] bg-white" value={value.nname ?? ''} onChange={(e) => setValue({ ...value, nname: e.target.value })} />
+        </div>
+        <ErrDiv field='nname' errors={errors} ln={ln} />
       </div>
 
       <div className="flex items-center">
