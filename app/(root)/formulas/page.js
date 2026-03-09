@@ -180,7 +180,7 @@ const Page = () => {
 													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>1 MT</span>
 													<input
 														type='text'
-														className='px-3 py-1.5 text-sm font-semibold text-center bg-white focus:outline-none'
+														className='px-3 py-1.5 text-sm font-semibold text-[#F44336] text-center bg-white focus:outline-none'
 														value={(value.general?.mt || '0') + ' Lb'}
 														name='mt'
 														onChange={(e) => handleChange(e, 'general')}
