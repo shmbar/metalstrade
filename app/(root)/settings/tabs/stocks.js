@@ -132,7 +132,7 @@ const Stocks = () => {
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update stock data'>
-                        <button className='supplierButton py-1' disabled={!value.id}
+                        <button className='supplierButton py-1'
                             onClick={updateList}>
                             <BiEditAlt className='scale-125' />
                             {getTtl('Update', ln)}

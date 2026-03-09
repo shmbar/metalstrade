@@ -117,7 +117,7 @@ const Clients = () => {
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update client data'>
-                        <button className='supplierButton py-1' disabled={!value.id}
+                        <button className='supplierButton py-1'
                             onClick={updateList}>
                             <BiEditAlt className='scale-125' />
                             {getTtl('Update', ln)}

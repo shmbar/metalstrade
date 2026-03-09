@@ -121,7 +121,7 @@ const Suppliers = () => {
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update supplier data'>
-                        <button className='supplierButton py-1' disabled={!value.id}
+                        <button className='supplierButton py-1'
                             onClick={updateList}>
                             <FiUpload className='scale-125 text-[var(--endeavour)]' />
                             {getTtl('Update', ln)}
