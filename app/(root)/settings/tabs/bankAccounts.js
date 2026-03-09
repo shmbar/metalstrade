@@ -138,7 +138,7 @@ const BankAccount = () => {
                 </div>
                <div className='border border-[#E5E7EB] p-6 rounded-2xl mt-1 shadow-md w-full bg-white'>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 w-full">
 
                     {/* LEFT COLUMN */}
                     <div className="space-y-6">
