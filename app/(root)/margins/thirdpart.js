@@ -4,7 +4,7 @@ import { NumericFormat } from "react-number-format";
 const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr, title }) => {
 
     return (
-        <div className="w-full min-w-0 p-2 mt-2 overflow-x-auto">
+        <div className="flex-1 min-w-[300px] p-2 mt-2 overflow-x-auto">
             {/* Import Poppins font and apply consistent styling exactly like newTable */}
             <style jsx global>{`
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
