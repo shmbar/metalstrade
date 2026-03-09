@@ -48,7 +48,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
         .custom-table-totals, .custom-table-totals * {
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          font-size: 12px;
+          font-size: 10px;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
@@ -90,14 +90,14 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
               fontWeight: 600,
               color: 'var(--endeavour)'
             }}
-                      className="!text-[12px]"
+                      className="!text-[10px]"
 
           >
             Vendor
           </div>
 
           <div
-            className="!text-[12px]"
+            className="!text-[10px]"
             style={{
               fontWeight: 600,
               color: 'var(--endeavour)'
@@ -116,7 +116,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
               tltpText={expensesToolTip(row, expensesData, settings, filt)}
             >
               <div
-                className="grid grid-cols-[1fr_auto] px-4 py-2.5 items-center hover:bg-[#f9f9f9] transition text-[12px]"
+                className="grid grid-cols-[1fr_auto] px-4 py-2.5 items-center hover:bg-[#f9f9f9] transition text-[10px]"
                 style={{
                   borderBottom: '1px solid var(--selago)'
                 }}
@@ -126,8 +126,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                     key={cell.id}
                     className={
                       cell.column.id === 'amount'
-                        ? 'font-medium text-right text-[12px]'
-                        : 'truncate text-[12px]'
+                        ? 'font-medium text-right text-[10px]'
+                        : 'truncate text-[10px]'
                     }
                     style={{
                       color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : '#1F2937',
