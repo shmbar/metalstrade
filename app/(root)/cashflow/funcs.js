@@ -328,10 +328,10 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
     filteredArr = filteredArr.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable pt-1 bg-white ">
-            <table className="cashflow-detail-table w-full min-w-[640px] rounded-2xl  table-fixed">
-                <thead >
-                    <tr className="border border-slate-300 rounded-2xl bg-[#f0f8ff] p-2">
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable pt-1 bg-white">
+            <table className="cashflow-detail-table w-full min-w-[640px] table-fixed">
+                <thead>
+                    <tr className="bg-[#f0f8ff]">
                         <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">PO#</th>
                         <th className="text-left p-1 w-20 text-[var(--endeavour)] font-normal">Supplier</th>
                         <th className="text-left p-1 w-20 text-[var(--endeavour)] font-normal">Org Sup.</th>
@@ -344,7 +344,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr className="border border-slate-300 p-2" key={i}>
+                            <tr className="border-b border-[#e8f0f8]" key={i}>
                                 <td className="text-left p-1 cursor-pointer text-black"
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
@@ -396,8 +396,8 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
 
                 </tbody>
                 <tfoot>
-                    <tr className="border-t bg-[#e3f3ff] border border-slate-300">
-                        <th className="relative px-1 py-1 text-left font-medium text-gray-500 uppercase                                  ">
+                    <tr className="bg-[#e3f3ff]">
+                        <th className="relative px-1 py-1 text-left font-medium text-gray-500 uppercase">
                             Total
                         </th>
                         <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
@@ -442,10 +442,10 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
     const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd')
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable pt-1 bg-white border border-[#b8ddf8] rounded-lg">
-            <table className="cashflow-detail-table w-full min-w-[600px] border-collapse table-fixed">
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable pt-1 bg-white">
+            <table className="cashflow-detail-table w-full min-w-[600px] table-fixed">
                 <thead>
-                    <tr className="border border-slate-300 p-2">
+                    <tr className="bg-[#f0f8ff]">
                         <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">PO#</th>
                         <th className="text-left p-1 w-20 text-[var(--endeavour)] font-normal">Org Sup.</th>
                         <th className="text-left p-1 w-28 max-w-28 text-[var(--endeavour)] font-normal">Description</th>
@@ -457,7 +457,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr className="border border-slate-300 p-2" key={i}>
+                            <tr className="border-b border-[#e8f0f8]" key={i}>
                                 <td className="text-left p-1 cursor-pointer text-black"
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
@@ -507,8 +507,8 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
 
                 </tbody>
                 <tfoot>
-                    <tr className="border-t bg-[#e3f3ff] border border-slate-300">
-                        <th className="relative px-1 py-1 text-left font-medium text-gray-500 uppercase                                  ">
+                    <tr className="bg-[#e3f3ff]">
+                        <th className="relative px-1 py-1 text-left font-medium text-gray-500 uppercase">
                             Total
                         </th>
                         <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
@@ -685,12 +685,12 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
     let filteredArr1 = tmp.filter(x => x.payments.length === 0)
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto p-1 responsiveTextTable1 border border-[#b8ddf8] rounded-lg bg-white">
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto p-1 responsiveTextTable1 bg-white">
             {type === 'PartPaid' &&
                 <div className="pt-1 w-full">
-                    <table className="cashflow-detail-table w-full min-w-[980px] border-collapse">
+                    <table className="cashflow-detail-table w-full min-w-[980px]">
                         <thead>
-                            <tr className="border border-slate-300 ">
+                            <tr className="bg-[#f0f8ff]">
                                 <th className="text-left p-1 2xl:p-1  max-w-20 2xl:max-w-24 truncate text-[var(--endeavour)] font-normal text-">PO#</th>
                                 <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Invoice</th>
                                 <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
@@ -714,7 +714,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                         <tbody>
                             {filteredArr.map((z, i) => {
                                 return (
-                                    <tr className="border border-slate-300" key={i}>
+                                    <tr className="border-b border-[#e8f0f8]" key={i}>
                                         <td className="text-left p-1 2xl:p-1  cursor-pointer max-w-14 2xl:max-w-24 truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
@@ -783,8 +783,8 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
 
                         </tbody>
                         <tfoot>
-                            <tr className="border-t bg-[#e3f3ff] border border-slate-300">
-                                <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-normal text-gray-500 uppercase                                  ">
+                            <tr className="bg-[#e3f3ff]">
+                                <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-normal text-gray-500 uppercase">
                                     Total
                                 </th>
                                 <th className="relative p-1 2xl:p-2 text-left font-normal text-gray-500 uppercase">
@@ -825,9 +825,9 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
 
             {type === 'InDebt' &&
                 <div className="pt-1 w-full">
-                    <table className="cashflow-detail-table responsiveTextTable w-full min-w-[760px] border-collapse">
+                    <table className="cashflow-detail-table responsiveTextTable w-full min-w-[760px]">
                         <thead>
-                            <tr className="border border-slate-300 p-2">
+                            <tr className="bg-[#f0f8ff]">
                                 <th className="text-left p-1 2xl:p-2  w-28 text-[var(--endeavour)] font-normal">PO#</th>
                                 <th className="text-left p-1 2xl:p-2 w-16 text-[var(--endeavour)] font-normal">Invoice</th>
                                 <th className="text-left p-1 2xl:p-2 text-[var(--endeavour)] font-normal">Amount</th>
@@ -847,7 +847,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                         <tbody>
                             {filteredArr1.map((z, i) => {
                                 return (
-                                    <tr className="border border-slate-300 " key={i}>
+                                    <tr className="border-b border-[#e8f0f8]" key={i}>
                                         <td className="text-left p-1 2xl:p-2 cursor-pointer"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
@@ -892,8 +892,8 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
 
                         </tbody>
                         <tfoot>
-                            <tr className="border-t bg-[#e3f3ff] border border-slate-300">
-                                <th className="relative p-1 2xl:p-2 text-left font-normal text-gray-500 uppercase                                  ">
+                            <tr className="bg-[#e3f3ff]">
+                                <th className="relative p-1 2xl:p-2 text-left font-normal text-gray-500 uppercase">
                                     Total
                                 </th>
                                 <th className="relative p-1 2xl:p-2 text-left  font-medium text-gray-500 uppercase">
@@ -1079,10 +1079,10 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
     let type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt'
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable pt-1 border border-[#b8ddf8] rounded-lg bg-white">
-            <table className="cashflow-detail-table w-full min-w-[760px] border-collapse">
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable pt-1 bg-white">
+            <table className="cashflow-detail-table w-full min-w-[760px]">
                 <thead>
-                    <tr className="border border-slate-300">
+                    <tr className="bg-[#f0f8ff]">
                         <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
                         <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Invoice</th>
@@ -1105,7 +1105,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr className="border border-slate-300" key={i}>
+                            <tr className="border-b border-[#e8f0f8]" key={i}>
                                 <td className="text-left p-1 2xl:p-1 cursor-pointer"
                                     onClick={() => moveToContracts(z, 'supplier', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}
@@ -1168,8 +1168,8 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                     })}
                 </tbody>
                 <tfoot>
-                    <tr className="border-t bg-[#e3f3ff] border border-slate-300 responsiveTextTable">
-                        <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase                                  ">
+                    <tr className="bg-[#e3f3ff] responsiveTextTable">
+                        <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase">
                             Total
                         </th>
                         <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase">
@@ -1259,10 +1259,10 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
     let filteredArr = expensesAll.filter(z => z.supplier === supplier)
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto pt-1 responsiveTextTable border border-[#b8ddf8] rounded-lg bg-white">
-            <table className="cashflow-detail-table w-full min-w-[860px] border-collapse">
+        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto pt-1 responsiveTextTable bg-white">
+            <table className="cashflow-detail-table w-full min-w-[860px]">
                 <thead>
-                    <tr className="border border-slate-300">
+                    <tr className="bg-[#f0f8ff]">
                         <th className="text-left p-1 2xl:p-1 w-24 text-[var(--endeavour)] font-normal">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
                         <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Exp. Invoice</th>
@@ -1285,7 +1285,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr className="border border-slate-300 " key={i}>
+                            <tr className="border-b border-[#e8f0f8]" key={i}>
                                 <td className="text-left p-1 2xl:p-1 text-blue-700 cursor-pointer"
                                     onClick={() => moveToContracts(z, z.poSupplier ? 'expense' : 'compexpense', uidCollection, setDateSelect,
                                         setValueExp, setIsOpen, blankInvoice, router)}>
@@ -1325,8 +1325,8 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
 
                 </tbody>
                 <tfoot>
-                    <tr className="border-t bg-[#e3f3ff] border border-slate-300">
-                        <th className="grelative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase                                  ">
+                    <tr className="bg-[#e3f3ff]">
+                        <th className="grelative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase">
                             <div>Total $</div>
                             <div className="pt-1">Total €</div>
                         </th>
