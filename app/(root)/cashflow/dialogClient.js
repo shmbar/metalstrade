@@ -66,12 +66,12 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button className="h-5 w-5 p-0 bg-[#d4eafc] hover:bg-[#b8ddf8] rounded-md border-0 shadow-none">
+                <Button className="h-5 w-5 p-0 bg-[#d4eafc] hover:bg-[#b8ddf8] rounded-full border-0 shadow-none">
                     <MdPayments className="w-3 h-3 text-[var(--endeavour)]"/>
                 </Button>
             </PopoverTrigger>
 
-              <PopoverContent className="w-full max-w-xs md:max-w-sm bg-white p-4 border border-slate-300 shadow-lg rounded-lg z-50
+              <PopoverContent className="w-full max-w-xs md:max-w-sm bg-white p-4 border border-slate-300 shadow-lg rounded-2xl z-50
                  data-[state=open]:animate-fade-zoom-in
                  data-[state=closed]:animate-fade-zoom-out
 ">
@@ -98,7 +98,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
                                     popoverDirection="down"
                                     onChange={(val) => setDate(val)}
                                     displayFormat={"DD-MMM-YYYY"}
-                                    inputClassName="input w-full shadow-lg h-7 text-xs"
+                                    inputClassName="input w-full shadow-lg h-7 text-xs rounded-full"
                                 />
                             )}
                         </div>
@@ -107,7 +107,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
                             <label className="text-sm justify-start flex">Amount</label>
                             <input
                                 type="text"
-                                className="number-separator input h-7 shadow-sm text-xs w-full"
+                                className="number-separator input h-7 shadow-sm text-xs w-full rounded-full"
                                 value={addComma(pmnt)}
                                 onChange={handleValuePmnt}
                             />
@@ -116,7 +116,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
                 </div>
 
                 <div className="flex justify-end pt-3">
-                    <Button className="px-2 h-7 bg-[var(--endeavour)] hover:opacity-90" onClick={handleSave}>
+                    <Button className="px-2 h-7 bg-[#d4eafc] hover:bg-[#b8ddf8] text-[var(--endeavour)] border-0 shadow-none rounded-full" onClick={handleSave}>
                         Save
                     </Button>
                 </div>
