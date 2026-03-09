@@ -142,12 +142,11 @@ const Customtable = ({
 
         }
          .custom-table td {
-          border: 1px solid var(--rock-blue);
+          border: none;
           background-color: #ffffff;
           text-align: center;
           vertical-align: middle;
-          padding: 6px;
-          border-radius: 4px;
+          padding: 2px 4px;
           font-size: 10px !important;
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 
@@ -245,12 +244,14 @@ const Customtable = ({
                     <td
   key={cell.id}
   data-label={cell.column.columnDef.header}
-  className="px-2 py-2 transition-colors duration-150 group/cell relative"
+  className="px-1 py-1 transition-colors duration-150 group/cell relative"
   style={{
     color: '#1F2937',
     minWidth: cell.column.id === 'material' ? '120px' : '60px',
     maxWidth: cell.column.id === 'material' ? '150px' : '110px',
     fontWeight: '400',
+    border: 'none',
+    backgroundColor: '#fff',
   }}
 >
                         {!isDel ? (
