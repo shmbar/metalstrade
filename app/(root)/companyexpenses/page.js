@@ -123,7 +123,7 @@ const Expenses = () => {
             },
             filterFn: 'dateBetweenFilterFn'
         },
-        { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toUpperCase(); return <p>{v === 'USD' || v === 'US' ? '$' : v === 'EUR' || v === 'EU' ? '€' : v}</p> } },
+        { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toUpperCase(); const isUsd = v === 'USD' || v === 'US'; const isEur = v === 'EUR' || v === 'EU'; return <span style={{ background: isUsd ? '#b7d1b5' : isEur ? '#dbeeff' : '#f0f0f0', color: isUsd ? '#2d6a2d' : isEur ? 'var(--chathams-blue)' : '#555', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: '12px', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
         {
             accessorKey: 'amount', header: getTtl('Amount', ln), cell: (props) => <p>{showAmount(props)}</p>,
             meta: {
