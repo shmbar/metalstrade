@@ -95,28 +95,7 @@ const Customtable = ({ data, columns }) => {
             <div className="custom-table">
                 <div className="overflow-auto dashboard-scroll rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-white md:max-h-[310px] 2xl:max-h-[550px]">
                     <table className="w-full min-w-[600px] hidden sm:table" style={{ tableLayout: 'auto' }}>
-                        <thead className="sticky top-0 z-10">
-                            {table.getHeaderGroups().map(hdGroup => (
-                                <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
-                                    {hdGroup.headers.map((header, idx) => (
-                                        <th
-                                            key={header.id}
-                                            className={`px-2 py-2 uppercase ${header.id === 'material' ? 'text-left' : 'text-center'}`}
-                                            style={{
-                                                color: 'var(--chathams-blue)',
-                                                minWidth: header.id === 'material' ? '120px' : '60px',
-                                                maxWidth: header.id === 'material' ? '200px' : '90px',
-                                                letterSpacing: '0.05em',
-                                                textAlign: header.id === 'material' ? 'center' : 'center',
-                                            }}
-                                            scope="col"
-                                        >
-                                            {header.column.columnDef.header}
-                                        </th>
-                                    ))}
-                                </tr>
-                            ))}
-                        </thead>
+                        <thead className="hidden"></thead>
                         <tbody>
                             {table.getRowModel().rows.map((row, rowIdx) => (
                                 <tr key={row.id} className="cursor-pointer">
