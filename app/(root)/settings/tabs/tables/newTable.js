@@ -89,95 +89,55 @@ const Customtable = ({
           table={table}
         />
 
-        <div
-          className="
-                w-full
-                rounded-lg
-                border
-                border-[#E5E7EB]
-                overflow-hidden
-                bg-[#F9FAFB]
-                shadow-sm
-            "
-        >
-          {" "}
-          <table className="w-full border-collapse border border-[#E5E7EB] overflow-hidden text-center">
-            <thead className="md:sticky md:top-0 md:z-10 bg-[#e3f3ff]">
+        <div className="w-full rounded-2xl border border-[var(--selago)] overflow-hidden shadow-sm">
+          <table className="w-full border-collapse text-center">
+            <thead className="md:sticky md:top-0 md:z-10 bg-[#dbeeff]">
               {table.getHeaderGroups().map((hdGroup) => (
                 <tr key={hdGroup.id}>
                   {hdGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className="
-                            px-6
-                            py-4
-                            text-sm
-                            text-[var(--endeavour)]
-                            text-center
-                            border-r
-                            border-b
-                            border-[#E5E7EB]
-                            last:border-r-0
-                            font-normal
-                            font-poppins 
-                        "
+                      className="px-3 py-3 text-xs text-[var(--endeavour)] text-center font-medium font-poppins"
                     >
                       {header.column.getCanSort() ? (
                         <div
                           onClick={header.column.getToggleSortingHandler()}
-                          className="cursor-pointer flex items-center justify-center gap-1 text-xs "
+                          className="cursor-pointer flex items-center justify-center gap-1"
                         >
                           {header.column.columnDef.header}
                           {
                             {
-                              asc: (
-                                <TbSortAscending className="text-[var(--endeavour)] scale-110" />
-                              ),
-                              desc: (
-                                <TbSortDescending className="text-[var(--endeavour)] scale-110" />
-                              ),
+                              asc: <TbSortAscending className="text-[var(--endeavour)] scale-110" />,
+                              desc: <TbSortDescending className="text-[var(--endeavour)] scale-110" />,
                             }[header.column.getIsSorted()]
                           }
                         </div>
                       ) : (
-                        <span className="text-xs">
-                          {header.column.columnDef.header}
-                        </span>
+                        <span>{header.column.columnDef.header}</span>
                       )}
                     </th>
                   ))}
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-[var(--selago)]">
+            <tbody className="divide-y divide-[var(--selago)] bg-white">
               {table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="cursor-pointer hover:bg-[var(--selago)]/50 transition-colors"
+                  className="cursor-pointer hover:bg-[#f5fbff] transition-colors"
                   onDoubleClick={() => SelectRow(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                   <td
-                    key={cell.id}
-                    data-label={cell.column.columnDef.header}
-                    className="
-                        px-4
-                        h-8
-                        bg-[#F4F6F8]
-                        border
-                        border-[#E5E7EB]
-                        text-[12px]
-                        font-normal
-                        leading-none
-                        text-center
-                        truncate
-                        font-poppins 
-                    "
+                    <td
+                      key={cell.id}
+                      data-label={cell.column.columnDef.header}
+                      className="px-3 py-2 text-[11px] font-normal text-center font-poppins"
                     >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
+                      <div className="flex items-center justify-center">
+                        <div className="px-2 py-0.5 rounded-full border border-[var(--selago)] bg-white text-[var(--endeavour)] text-[11px] inline-flex items-center justify-center min-w-[60px]">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
+                      </div>
                     </td>
                   ))}
                 </tr>
