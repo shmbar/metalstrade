@@ -898,7 +898,7 @@ return (
                                         <div className="flex gap-2 my-1" key={i}>
                                             <input className="responsiveTextInput items-center flex outline-none w-44 truncate" value={z.title}
                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
-                                            <input className='input w-44 h-6 responsiveTextTotal'
+                                            <input className='input w-44 h-6 responsiveTextTotal rounded-full'
                                                 value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
                                             <button onClick={() => delItem(i)} className="border border-red-300 text-red-500 px-1.5 h-7 rounded-full hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
                                         </div>
