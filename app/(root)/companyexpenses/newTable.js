@@ -173,14 +173,20 @@ const Customtable = ({
 
         .summary-green {
           background-color: #b7d1b5;
-          color: var(--chathams-blue);
+          color: #1a3a1a;
           font-weight: 600;
+        }
+        .summary-green th, .summary-green div {
+          color: #1a3a1a !important;
         }
 
         .summary-blue {
           background-color: #8db6d8;
           color: var(--chathams-blue);
           font-weight: 600;
+        }
+        .summary-blue th, .summary-blue div {
+          color: var(--chathams-blue) !important;
         }
 
         .pagination-center {
