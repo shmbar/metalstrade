@@ -795,16 +795,16 @@ return (
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex gap-2 mb-3">
+                    <div className="flex gap-1 mb-2">
                         <button
                             onClick={() => setActiveTab('general')}
-                            className={`px-4 py-1.5 text-xs rounded-full border transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white border-[var(--chathams-blue)]' : 'bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[#d4eafc]'}`}
+                            className={`px-3 py-1 text-xs rounded-full border transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white border-[var(--chathams-blue)]' : 'bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[#d4eafc]'}`}
                         >
                             General Cashflow
                         </button>
                         <button
                             onClick={() => setActiveTab('unsold')}
-                            className={`px-4 py-1.5 text-xs rounded-full border transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white border-[var(--chathams-blue)]' : 'bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[#d4eafc]'}`}
+                            className={`px-3 py-1 text-xs rounded-full border transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white border-[var(--chathams-blue)]' : 'bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[#d4eafc]'}`}
                         >
                             Unsold Stocks
                         </button>
@@ -876,7 +876,7 @@ return (
 ) : (
 <div className="w-full border border-[var(--selago)] rounded-2xl overflow-hidden bg-white">
   {userTitle === 'Admin' &&
-                        <div className="w-full p-3 sm:p-4 border-b border-[var(--selago)]">
+                        <div className="w-full p-2 border-b border-[var(--selago)]">
                             <div className="flex gap-2">
                                 <span className="responsiveTextInput items-center flex w-44 text-[var(--endeavour)]">Future</span>
                                 <label className="pl-1">{
@@ -904,7 +904,7 @@ return (
                                         </div>
                                     )
                                 })}
-                            <div className="flex gap-2 mt-4">
+                            <div className="flex gap-2 mt-1">
                                 <Tltip direction='bottom' tltpText='Save added data'>
                                     <button
                                         type="button"
@@ -1563,7 +1563,7 @@ return (
                     {/* TOTALS AND BALANCE IN ONE ROW */}
                     <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
                         
-                        <div className="flex justify-between items-center bg-[#d4eafc] rounded-lg px-4 py-2">
+                        <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-4 py-1">
                             <span className="font-normal text-[var(--endeavour)] responsiveTextTitle whitespace-nowrap">
                                 Total (Left)
                             </span>
@@ -1579,7 +1579,7 @@ return (
                             />
                         </div>
 
-                        <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-lg px-4 py-2 responsiveTextTotal">
+                        <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-full px-4 py-1 responsiveTextTotal">
                             <span className="font-normal whitespace-nowrap">
                                 Balance
                             </span>
@@ -1595,7 +1595,7 @@ return (
                             />
                         </div>
 
-                        <div className="flex justify-between items-center bg-[#d4eafc] rounded-lg px-4 py-2">
+                        <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-4 py-1">
                             <span className="font-normal text-[var(--endeavour)] responsiveTextTitle whitespace-nowrap">
                                 Total (Right)
                             </span>
