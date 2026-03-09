@@ -929,7 +929,7 @@ return (
                     }
   <div className="flex flex-wrap w-full">
                             <div className="w-full max-w-screen-lg flex-1 min-w-[320px]">
-                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
+                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[var(--endeavour)] responsiveTextTitle">Stocks - Paid</span>
                                 </div>
@@ -1005,7 +1005,7 @@ return (
 
 
 
-                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
+                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[var(--endeavour)] responsiveTextTitle">Stocks - UnPaid</span>
                                 </div>
@@ -1078,7 +1078,7 @@ return (
                             </div>
 
 
-                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
+                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[var(--endeavour)] responsiveTextTitle">Clients - Payment</span>
                                 </div>
@@ -1148,7 +1148,7 @@ return (
                             </div>
 
 
-                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
+                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="font-normal text-[var(--endeavour)] responsiveTextTitle">Clients - Balances</span>
                                 </div>
@@ -1280,7 +1280,7 @@ return (
 
 <div className="w-full flex-1 min-w-[320px] border-l border-[#dedede] pt-0">
 
-                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
+                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[var(--endeavour)] responsiveTextTitle">Supplier - Payment</span>
                                 </div>
@@ -1355,7 +1355,7 @@ return (
                             </div>
 
 
-                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
+                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="font-normal text-[var(--endeavour)] responsiveTextTitle">Supplier - Balances</span>
                                 </div>
@@ -1429,7 +1429,7 @@ return (
                                 </div>
                             </div>
 
-                            <div className="p-4">
+                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <span className="font-normal text-[var(--endeavour)] flex items-center responsiveTextTitle">Expenses</span>
                                 <div className="flex p-1 justify-between">
                                     {
@@ -1498,7 +1498,7 @@ return (
                                 </div>
                             </div>
 
-                            <div className="p-3 bg-white mb-0.5 flex flex-col border border-[#b8ddf8] rounded-xl mx-1 mt-1 cf-card">
+                            <div className="p-3 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 {
                                     userTitle === 'Admin' &&
                                     <div className='mt-4 p-1'>
