@@ -133,15 +133,13 @@ const Customtable = ({
           transition-timing-function: ease-in-out !important;
         }
         .custom-table th {
-          border: 1px solid var(--rock-blue);
+          border: none;
           background-color: var(--selago);
           text-align: center;
           vertical-align: middle;
-          padding: 6px;
-          border-radius: 4px;
+          padding: 8px 6px;
           font-size: 12px !important;
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-
         }
          .custom-table td {
           border: none !important;
@@ -314,7 +312,9 @@ const Customtable = ({
             color: 'var(--chathams-blue)',
             fontSize: 'clamp(10px, 1.0vw, 13px)',
             textAlign: header.id === 'material' ? 'left' : 'center',
-            border: '1px solid var(--rock-blue)'
+            border: 'none',
+            padding: '8px 6px',
+            fontWeight: '600'
           }}
         >
           {calculateFooterTotals(header)}
