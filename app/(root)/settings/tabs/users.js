@@ -53,21 +53,17 @@ const Users = () => {
     },
     {
       accessorKey: 'edit', header: 'Edit ', cell: (props) => (
-        <div className="flex justify-center">
-          <button onClick={() => Edit(props)} className="flex items-center justify-center w-7 h-7 rounded-full bg-green-100 hover:bg-green-200 transition-colors">
-            <LiaEdit className='text-green-600 scale-[1.3]' />
-          </button>
-        </div>
+        <button onClick={() => Edit(props)} className="flex items-center justify-center">
+          <LiaEdit className='text-green-600 scale-[1.3]' />
+        </button>
       ),
       enableColumnFilter: false
     },
     {
       accessorKey: 'delete', header: 'Delete ', cell: (props) => (
-        <div className="flex justify-center">
-          <button onClick={() => Delete(props)} className="flex items-center justify-center w-7 h-7 rounded-full bg-red-100 hover:bg-red-200 transition-colors">
-            <RiDeleteBin5Line className='text-red-500 scale-[1.2]' />
-          </button>
-        </div>
+        <button onClick={() => Delete(props)} className="flex items-center justify-center">
+          <RiDeleteBin5Line className='text-red-500 scale-[1.2]' />
+        </button>
       ),
       enableColumnFilter: false
     },

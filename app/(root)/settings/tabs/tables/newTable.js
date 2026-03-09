@@ -12,6 +12,11 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { TbSortDescending } from "react-icons/tb";
 import { TbSortAscending } from "react-icons/tb";
+import { FaSearch } from "react-icons/fa";
+import { TiDeleteOutline } from "react-icons/ti";
+import { LiaEdit } from "react-icons/lia";
+import { LuFilter } from "react-icons/lu";
+import ColFilter from "../../../../../components/table/ColumnsFilter";
 
 import { Paginator } from "../../../../../components/table/Paginator";
 import RowsIndicator from "../../../../../components/table/RowsIndicator";
@@ -83,11 +88,32 @@ const Customtable = ({
   return (
     <div className="flex flex-col relative ">
       <div>
-        <Header
-          globalFilter={globalFilter}
-          setGlobalFilter={setGlobalFilter}
-          table={table}
-        />
+        {/* Custom header: Search + Edit + Columns + Filter icons */}
+        <div className="flex items-center gap-2 p-2">
+          <div className="flex items-center relative w-[140px] h-7 border border-[var(--endeavour)] rounded-2xl bg-white shadow-sm">
+            <input
+              className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full text-xs rounded-2xl"
+              placeholder="Search..."
+              value={globalFilter ?? ''}
+              onChange={e => setGlobalFilter(e.target.value)}
+              type='text'
+            />
+            {globalFilter === '' ? (
+              <FaSearch className="text-[var(--endeavour)] absolute right-3" style={{ fontSize: 12 }} />
+            ) : (
+              <TiDeleteOutline className="text-gray-500 absolute right-3 cursor-pointer hover:text-red-500" onClick={() => setGlobalFilter('')} style={{ fontSize: 16 }} />
+            )}
+          </div>
+          <div className="w-7 h-7 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)]">
+            <LiaEdit style={{ fontSize: 16 }} />
+          </div>
+          <div className="w-7 h-7 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)]">
+            <ColFilter table={table} iconClassName="text-[var(--endeavour)]" iconSize={16} />
+          </div>
+          <div className="w-7 h-7 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)]">
+            <LuFilter style={{ fontSize: 14 }} />
+          </div>
+        </div>
 
         <div className="w-full rounded-2xl border border-[var(--selago)] overflow-hidden shadow-sm">
           <table className="w-full border-collapse text-center">
@@ -134,9 +160,19 @@ const Customtable = ({
                       className="px-3 py-2 text-[11px] font-normal text-center font-poppins"
                     >
                       <div className="flex items-center justify-center">
-                        <div className="px-2 py-0.5 rounded-full border border-[var(--selago)] bg-white text-[var(--endeavour)] text-[11px] inline-flex items-center justify-center min-w-[60px]">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </div>
+                        {cell.column.id === 'edit' ? (
+                          <div className="w-7 h-7 rounded-full bg-green-100 border-2 border-green-200 inline-flex items-center justify-center">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </div>
+                        ) : cell.column.id === 'delete' ? (
+                          <div className="w-7 h-7 rounded-full bg-red-100 border-2 border-red-200 inline-flex items-center justify-center">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </div>
+                        ) : (
+                          <div className="px-2 py-0.5 rounded-full border border-[var(--selago)] bg-white text-[var(--endeavour)] text-[11px] inline-flex items-center justify-center min-w-[60px]">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </div>
+                        )}
                       </div>
                     </td>
                   ))}
