@@ -167,7 +167,7 @@ const Customtable = ({
 
         }
         .header-blue {
-          background-color: #d9e6f2;
+          background-color: #dbeeff;
           color: var(--chathams-blue);
         }
 

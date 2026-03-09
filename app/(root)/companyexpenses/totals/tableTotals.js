@@ -62,7 +62,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           style={{
             borderBottom: '1px solid #b8ddf8',
             padding: '12px 16px',
-            background: 'var(--selago)'
+            background: '#dbeeff'
           }}
         >
           <p
@@ -147,7 +147,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           className="px-4 py-3"
           style={{
             borderTop: '1px solid var(--selago)',
-            background: 'var(--selago)'
+            background: '#dbeeff'
           }}
         >
           <div
