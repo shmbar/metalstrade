@@ -202,7 +202,10 @@ const Customtable = ({
                         style={{
                           backgroundColor: '#ffffff',
                           padding: '3px 4px',
-                          border: 'none',
+                          borderBottom: '1px solid #e8f0f8',
+                          borderRight: '1px solid #e8f0f8',
+                          borderTop: 'none',
+                          borderLeft: 'none',
                           verticalAlign: 'middle',
                         }}
                       >
