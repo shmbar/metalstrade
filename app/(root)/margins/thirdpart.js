@@ -165,7 +165,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl  transition-all duration-200 ease-in-out  bg-[var(--selago)]   fade-in">
+                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border border-transparent rounded-xl transition-all duration-200 ease-in-out bg-[#dbeeff] text-[var(--endeavour)] fade-in">
                                                     {z.month + "-" + yr}
                                                 </div>
                                             </td>
@@ -452,12 +452,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 Month
                                             </div>
                                             <div 
-                                                className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
-                                                style={{ 
-                                                    color: '#1F2937',
-                                                    background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                                                className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                                                style={{
+                                                    color: 'var(--endeavour)',
+                                                    background: '#dbeeff',
                                                     fontSize: 'clamp(8px, 0.7vw, 10px)',
-                                                    border: '1px solid #E5E7EB'
+                                                    border: '1px solid transparent'
                                                 }}
                                             >
                                                 {z.month + "-" + yr}
