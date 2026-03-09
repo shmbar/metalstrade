@@ -48,30 +48,91 @@ const DateRangePicker = ({ displayLabel }) => {
         const style = document.createElement("style");
         style.id = styleId;
         style.textContent = `
-            /* Force rounded-2xl everywhere */
-            .react-tailwindcss-datepicker > div,
-            .react-tailwindcss-datepicker input,
+            /* Popup container — rounded, shadow, themed */
             .react-tailwindcss-datepicker [role="dialog"] {
-                border-radius: 1rem !important;
+                border-radius: 1.25rem !important;
+                border: 1px solid #b8ddf8 !important;
+                box-shadow: 0 8px 32px rgba(3,102,174,0.12) !important;
+                overflow: hidden !important;
+                z-index: 10 !important;
             }
 
-            /* Remove borders from internal wrapper */
+            /* Input wrapper */
+            .react-tailwindcss-datepicker > div {
+                border-radius: 1rem !important;
+            }
             .react-tailwindcss-datepicker input,
             .react-tailwindcss-datepicker input:focus,
             .react-tailwindcss-datepicker > div:focus-within {
                 box-shadow: none !important;
                 outline: none !important;
             }
-
-            /* Force text styling */
             .react-tailwindcss-datepicker input {
                 color: var(--chathams-blue) !important;
                 font-size: 0.75rem !important;
             }
 
-            /* Control dropdown z-index */
-            .react-tailwindcss-datepicker [role="dialog"] {
-                z-index: 10 !important;
+            /* Month/year header — pill shape with light blue bg */
+            .react-tailwindcss-datepicker [role="dialog"] .font-semibold.text-lg,
+            .react-tailwindcss-datepicker [role="dialog"] h5 {
+                background: #dbeeff !important;
+                border-radius: 999px !important;
+                padding: 4px 16px !important;
+                color: var(--chathams-blue) !important;
+                font-size: 13px !important;
+            }
+
+            /* Nav prev/next buttons — rounded */
+            .react-tailwindcss-datepicker [role="dialog"] button[type="button"] {
+                border-radius: 999px !important;
+            }
+            .react-tailwindcss-datepicker [role="dialog"] button[type="button"]:hover {
+                background: #dbeeff !important;
+            }
+
+            /* Day-of-week header row */
+            .react-tailwindcss-datepicker [role="dialog"] .grid.grid-cols-7 > div:first-child,
+            .react-tailwindcss-datepicker [role="dialog"] .text-center.font-medium {
+                color: var(--chathams-blue) !important;
+                font-size: 11px !important;
+            }
+
+            /* Individual day cells */
+            .react-tailwindcss-datepicker [role="dialog"] button[role="button"],
+            .react-tailwindcss-datepicker [role="dialog"] .day-btn {
+                border-radius: 999px !important;
+                font-size: 12px !important;
+                color: #1F2937 !important;
+            }
+            .react-tailwindcss-datepicker [role="dialog"] button[role="button"]:hover {
+                background: #dbeeff !important;
+                color: var(--chathams-blue) !important;
+            }
+
+            /* Selected / today day */
+            .react-tailwindcss-datepicker [role="dialog"] .bg-blue-500,
+            .react-tailwindcss-datepicker [role="dialog"] [class*="bg-blue-5"] {
+                background-color: var(--endeavour) !important;
+                border-radius: 999px !important;
+                color: #fff !important;
+            }
+
+            /* Range highlight */
+            .react-tailwindcss-datepicker [role="dialog"] .bg-blue-100,
+            .react-tailwindcss-datepicker [role="dialog"] [class*="bg-blue-1"] {
+                background-color: #dbeeff !important;
+                color: var(--chathams-blue) !important;
+            }
+
+            /* Shortcuts panel */
+            .react-tailwindcss-datepicker [role="dialog"] ul li button {
+                border-radius: 999px !important;
+                font-size: 12px !important;
+                color: var(--endeavour) !important;
+                padding: 4px 12px !important;
+            }
+            .react-tailwindcss-datepicker [role="dialog"] ul li button:hover {
+                background: #dbeeff !important;
             }
         `;
         document.head.appendChild(style);
