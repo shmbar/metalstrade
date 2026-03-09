@@ -270,23 +270,41 @@ const Customtable = ({
                                 {/* THEAD - Multi-color gradient inspired by all cards */}
                                 <thead className="sticky top-0 z-10">
                                     {/* Total $ row */}
-                                    <tr>
-                                        <th colSpan={columnsWithSelection.length} style={{ backgroundColor: '#b7d1b5', padding: '6px 16px' }}>
-                                            <div className="flex justify-between w-full font-normal text-[10px]" style={{ color: '#1a3a1a', fontWeight: 600 }}>
-                                                <span>Total $:</span>
-                                                <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.total * 1 || 0) : s; }, 0))}</span>
-                                            </div>
-                                        </th>
-                                    </tr>
+                                    {(() => {
+                                        const usdTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.total * 1 || 0) : s; }, 0);
+                                        const usdWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.qnty * 1 || 0) : s; }, 0);
+                                        const cols = table.getVisibleLeafColumns();
+                                        return (
+                                            <tr>
+                                                {cols.map((col, i) => {
+                                                    const bg = '#b7d1b5';
+                                                    const style = { backgroundColor: bg, padding: '6px 8px', color: '#1a3a1a', fontWeight: 600, fontSize: '10px', textAlign: 'center', border: '1px solid #a8c9a6' };
+                                                    if (i === 0) return <th key={col.id} style={{ ...style, textAlign: 'left' }}>Total $:</th>;
+                                                    if (col.id === 'qnty') return <th key={col.id} style={style}>{usdWeight % 1 === 0 ? usdWeight : usdWeight.toFixed(2)}</th>;
+                                                    if (col.id === 'total') return <th key={col.id} style={style}>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(usdTotal)}</th>;
+                                                    return <th key={col.id} style={{ ...style, color: 'transparent' }}>-</th>;
+                                                })}
+                                            </tr>
+                                        );
+                                    })()}
                                     {/* Total € row */}
-                                    <tr>
-                                        <th colSpan={columnsWithSelection.length} style={{ backgroundColor: '#8db6d8', padding: '6px 16px' }}>
-                                            <div className="flex justify-between w-full font-normal text-[10px]" style={{ color: 'var(--chathams-blue)', fontWeight: 600 }}>
-                                                <span>Total €:</span>
-                                                <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.total * 1 || 0) : s; }, 0))}</span>
-                                            </div>
-                                        </th>
-                                    </tr>
+                                    {(() => {
+                                        const eurTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.total * 1 || 0) : s; }, 0);
+                                        const eurWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.qnty * 1 || 0) : s; }, 0);
+                                        const cols = table.getVisibleLeafColumns();
+                                        return (
+                                            <tr>
+                                                {cols.map((col, i) => {
+                                                    const bg = '#8db6d8';
+                                                    const style = { backgroundColor: bg, padding: '6px 8px', color: 'var(--chathams-blue)', fontWeight: 600, fontSize: '10px', textAlign: 'center', border: '1px solid #7aaac8' };
+                                                    if (i === 0) return <th key={col.id} style={{ ...style, textAlign: 'left' }}>Total €:</th>;
+                                                    if (col.id === 'qnty') return <th key={col.id} style={style}>{eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)}</th>;
+                                                    if (col.id === 'total') return <th key={col.id} style={style}>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal)}</th>;
+                                                    return <th key={col.id} style={{ ...style, color: 'transparent' }}>-</th>;
+                                                })}
+                                            </tr>
+                                        );
+                                    })()}
                                     {table.getHeaderGroups().map(group => (
                                         <Fragment key={group.id}>
                                             <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
