@@ -206,7 +206,7 @@ const MarginTable = (props) => {
                                 <button
                                     className="px-3 py-1.5 rounded-full font-normal transition-all duration-150 hover:opacity-90"
                                     style={{
-                                        background: 'linear-gradient(135deg, var(--chathams-blue), #1e40af)',
+                                        background: 'var(--endeavour)',
                                         color: '#FFFFFF',
                                         fontSize: 'clamp(8px, 0.7vw, 10px)',
                                         fontWeight: '400',
