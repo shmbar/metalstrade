@@ -217,8 +217,7 @@ const Customtable = ({
                 }
 
                 .custom-table th {
-                    background-color: #d4eafc;
-                    
+                    background-color: #dbeeff;
                 }
 
                 .custom-table td {
