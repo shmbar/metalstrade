@@ -83,7 +83,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                 <Button className="h-5 w-5 p-0 bg-[#d4eafc] hover:bg-[#b8ddf8] rounded-full border-0 shadow-none">
+                 <Button className="h-5 w-5 p-0 bg-transparent hover:bg-[#d4eafc] rounded-full border-0 shadow-none">
                      <MdPayments className="w-3 h-3 text-[var(--endeavour)]"/>
                 </Button>
             </PopoverTrigger>
