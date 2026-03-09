@@ -99,43 +99,31 @@ const Customtable = ({ data, columns }) => {
                         <tbody>
                             {table.getRowModel().rows.map((row, rowIdx) => (
                                 <tr key={row.id} className="cursor-pointer">
-                                    {row.getVisibleCells().map(cell => (
+                                    {row.getVisibleCells().map(cell => {
+                                        if (cell.column.id === 'del') return null;
+                                        return (
                                         <td
                                             key={cell.id}
                                             data-label={cell.column.columnDef.header}
-                                            className="px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect"
+                                            className="px-2 py-2 transition-colors duration-150"
                                             style={{
                                                 color: '#1F2937',
                                                 minWidth: cell.column.id === 'material' ? '120px' : '60px',
                                                 maxWidth: cell.column.id === 'material' ? '200px' : '90px',
                                                 fontWeight: '400',
-                                                zIndex: 1,
-                                                willChange: 'background-color, color',
                                             }}
                                         >
-                                            {cell.column.id !== 'del' ? (
-                                                <div
-                                                    className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap rounded-lg fade-in"
-                                                    style={{ color: 'var(--chathams-blue)' }}
-                                                >
-                                                    {cell.column.id === 'material'
-                                                        ? 'Total'
-                                                        : cell.column.id !== 'del'
-                                                            ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(cell.getContext().getValue())
-                                                            : cell.getContext().getValue()}
-                                                </div>
-                                            ) : (
-                                                <div className="flex justify-center items-center px-2 py-1.5 bg-[#ECF3FC] rounded-lg shadow-md">
-                                                    <button
-                                                        className="text-gray-700  cursor-pointer hover:text-gray-400 transition-colors duration-150"
-                                                        aria-label="Delete material"
-                                                    >
-                                                        <MdDeleteOutline className="w-[18px] h-[18px]" />
-                                                    </button>
-                                                </div>
-                                            )}
+                                            <div
+                                                className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap rounded-lg"
+                                                style={{ color: 'var(--chathams-blue)' }}
+                                            >
+                                                {cell.column.id === 'material'
+                                                    ? 'Total'
+                                                    : new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(cell.getContext().getValue())}
+                                            </div>
                                         </td>
-                                    ))}
+                                        );
+                                    })}
                                 </tr>
                             ))}
                         </tbody>
