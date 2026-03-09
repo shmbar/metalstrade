@@ -11,7 +11,7 @@ const Tltip = ({ children, direction, tltpText, show }) => {
     // For complex JSX tooltips (tables/lists) remove outer padding so internal markup controls spacing.
     const contentClass = isString
         ? `bg-[var(--endeavour)] rounded-full ${show == null || show ? 'flex' : 'hidden'}`
-        : (show == null || show ? 'p-0' : 'hidden')
+        : (show == null || show ? 'p-0 rounded-2xl overflow-hidden' : 'hidden')
     return (
         <TooltipProvider delayDuration='0' >
             <Tooltip >
