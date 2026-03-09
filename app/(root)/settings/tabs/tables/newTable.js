@@ -14,7 +14,6 @@ import { TbSortDescending } from "react-icons/tb";
 import { TbSortAscending } from "react-icons/tb";
 import { FaSearch } from "react-icons/fa";
 import { TiDeleteOutline } from "react-icons/ti";
-import { LiaEdit } from "react-icons/lia";
 import { LuFilter } from "react-icons/lu";
 import ColFilter from "../../../../../components/table/ColumnsFilter";
 
@@ -105,12 +104,12 @@ const Customtable = ({
             )}
           </div>
           <div className="w-7 h-7 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)]">
-            <LiaEdit style={{ fontSize: 16 }} />
-          </div>
-          <div className="w-7 h-7 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)]">
             <ColFilter table={table} iconClassName="text-[var(--endeavour)]" iconSize={16} />
           </div>
-          <div className="w-7 h-7 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)]">
+          <div
+            className={`w-7 h-7 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer transition-colors ${filterOn ? 'bg-[var(--selago)] text-[var(--endeavour)]' : 'text-[var(--endeavour)]'}`}
+            onClick={() => setFilterOn(!filterOn)}
+          >
             <LuFilter style={{ fontSize: 14 }} />
           </div>
         </div>
@@ -140,6 +139,15 @@ const Customtable = ({
                         </div>
                       ) : (
                         <span>{header.column.columnDef.header}</span>
+                      )}
+                      {filterOn && header.column.getCanFilter() && (
+                        <input
+                          className="mt-1 w-full border border-[var(--selago)] rounded-full px-2 py-0.5 text-[10px] font-normal focus:outline-none focus:border-[var(--endeavour)]"
+                          value={header.column.getFilterValue() ?? ''}
+                          onChange={e => header.column.setFilterValue(e.target.value)}
+                          placeholder="Filter..."
+                          onClick={e => e.stopPropagation()}
+                        />
                       )}
                     </th>
                   ))}
