@@ -161,11 +161,11 @@ const Customtable = ({
                     >
                       <div className="flex items-center justify-center">
                         {cell.column.id === 'edit' ? (
-                          <div className="px-2 py-0.5 rounded-lg bg-green-100 border border-green-300 text-[11px] inline-flex items-center justify-center min-w-[60px]">
+                          <div className="px-2 py-0.5 rounded-full bg-green-100 border border-green-300 text-[11px] inline-flex items-center justify-center min-w-[60px]">
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         ) : cell.column.id === 'delete' ? (
-                          <div className="px-2 py-0.5 rounded-lg bg-red-100 border border-red-300 text-[11px] inline-flex items-center justify-center min-w-[60px]">
+                          <div className="px-2 py-0.5 rounded-full bg-red-100 border border-red-300 text-[11px] inline-flex items-center justify-center min-w-[60px]">
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         ) : (
