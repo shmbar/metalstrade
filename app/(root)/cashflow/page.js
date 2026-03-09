@@ -1558,13 +1558,13 @@ return (
                     </div>
 
                     {userTitle === 'Admin' && (
-                <div className="mt-2 w-full border border-[var(--selago)] rounded-xl p-3">
+                <div className="mt-1 w-full border border-[var(--selago)] rounded-xl p-2">
 
                     {/* TOTALS AND BALANCE IN ONE ROW */}
                     <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
                         
-                        <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-4 py-1">
-                            <span className="font-normal text-[var(--endeavour)] responsiveTextTitle whitespace-nowrap">
+                        <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
+                            <span className="font-normal text-[var(--endeavour)] text-xs whitespace-nowrap">
                                 Total (Left)
                             </span>
                             <NumericFormat
@@ -1575,12 +1575,12 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-normal text-[var(--endeavour)] whitespace-nowrap"
+                                className="font-normal text-[var(--endeavour)] text-xs whitespace-nowrap"
                             />
                         </div>
 
-                        <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-full px-4 py-1 responsiveTextTotal">
-                            <span className="font-normal whitespace-nowrap">
+                        <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-full px-3 py-0.5">
+                            <span className="font-normal text-xs whitespace-nowrap">
                                 Balance
                             </span>
                             <NumericFormat
@@ -1591,12 +1591,12 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-normal whitespace-nowrap"
+                                className="font-normal text-xs whitespace-nowrap"
                             />
                         </div>
 
-                        <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-4 py-1">
-                            <span className="font-normal text-[var(--endeavour)] responsiveTextTitle whitespace-nowrap">
+                        <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
+                            <span className="font-normal text-[var(--endeavour)] text-xs whitespace-nowrap">
                                 Total (Right)
                             </span>
                             <NumericFormat
@@ -1607,21 +1607,21 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-normal text-[var(--endeavour)] whitespace-nowrap"
+                                className="font-normal text-[var(--endeavour)] text-xs whitespace-nowrap"
                             />
                         </div>
 
                     </div>
 
                     {/* YEAR TOTAL INPUTS */}
-                    <div className="pt-2 pl-2">
+                    <div className="pt-1 pl-2">
                         {yr.map(z => {
                             const key = `total${z}`;
                             return (
-                                <div className="flex gap-2 my-2" key={z}>
-                                    <span className="responsiveTextInput items-center flex w-28 text-[var(--endeavour)] whitespace-nowrap">Total for {z}</span>
+                                <div className="flex gap-2 my-1" key={z}>
+                                    <span className="text-xs items-center flex w-28 text-[var(--endeavour)] whitespace-nowrap">Total for {z}</span>
                                     <input
-                                        className='input w-44 h-6 responsiveTextTotal font-normal text-[11px]  text-[var(--endeavour)] text-right p-2 bg-white border-[var(--rock-blue)]'
+                                        className='input w-44 h-6 text-xs font-normal text-[var(--endeavour)] text-right px-3 bg-white border-[var(--rock-blue)] rounded-full'
                                         value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
                                         onChange={e => handleChange(e, z)}
                                     />
