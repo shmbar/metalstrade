@@ -153,14 +153,14 @@ const Customtable = ({
     <div className="w-full">
       <style jsx global>{`
         .custom-table th {
-          border: 1px solid #d7d7d7;
+          border: 1px solid #e8f0f8;
           text-align: center;
           font-size: 11px !important;
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 
         }
         .custom-table td {
-          border: 1px solid #d7d7d7;
+          border: 1px solid #e8f0f8;
           text-align: center;
           font-size: 10px !important;
           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
