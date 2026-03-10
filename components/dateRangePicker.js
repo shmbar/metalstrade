@@ -55,7 +55,7 @@ const DateRangePicker = ({ displayLabel }) => {
                 border: 1px solid #b8ddf8 !important;
                 box-shadow: 0 8px 32px rgba(3,102,174,0.13) !important;
                 overflow: hidden !important;
-                z-index: 50 !important;
+                z-index: 9999 !important;
                 transform: scale(0.8) !important;
                 transform-origin: top right !important;
             }
@@ -188,7 +188,7 @@ const DateRangePicker = ({ displayLabel }) => {
                     showShortcuts={true}
                     readOnly={true}
                     popoverDirection="down"
-                    containerClassName="relative"
+                    containerClassName="relative z-[9999]"
                     configs={{
                         shortcuts: {
                             today: {

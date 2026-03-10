@@ -354,8 +354,8 @@ const Contracts = () => {
 							<button
 								type="button"
 								onClick={addNewContract}
-								style={{ fontSize: '12px' }}
-								className="text-white bg-[var(--chathams-blue)] focus:outline-none font-poppins rounded-lg text-base px-5 py-2 shadow-lg gap-2 items-center flex justify-center transition-all duration-200 hover:scale-105 border border-indigo-200/60 responsiveTextInput whitespace-nowrap"
+								
+								className="blackButton whitespace-nowrap"
 							>
 								<TbLayoutGridAdd className="text-lg flex-shrink-0" />
 								<span>{getTtl('New Contract', ln)}</span>
@@ -365,8 +365,8 @@ const Contracts = () => {
 							<button
 								type="button"
 								onClick={() => router.push('/analysis')}
-								style={{ fontSize: '12px' }}
-								className="text-white bg-[var(--chathams-blue)] focus:outline-none font-poppins rounded-lg text-base px-5 py-2 shadow-lg gap-2 items-center flex justify-center transition-all duration-200 hover:scale-105 border border-indigo-200/60 responsiveTextInput whitespace-nowrap"
+								
+								className="blackButton whitespace-nowrap"
 							>
 								<IoAnalyticsOutline className="text-lg flex-shrink-0" />
 								<span>{getTtl('Weight Analysis', ln)}</span>

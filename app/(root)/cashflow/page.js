@@ -784,7 +784,7 @@ return (
             <>
                 <Toast />
                 <VideoLoader loading={loading} fullScreen={true} />
-                <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--selago)] shadow-lg w-full bg-white">
+                <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-lg w-full bg-white">
                     <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
                         <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
                             {getTtl('Cashflow', ln)}

@@ -164,15 +164,9 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
           border-color: #F0F0F0;
         }
 
-        /* Glassmorphic professional table */
+        /* Table background */
         .glass-table {
-          background: linear-gradient(135deg, 
-            rgba(255, 255, 255, 0.85) 0%, 
-            rgba(250, 250, 250, 0.90) 50%,
-            rgba(255, 255, 255, 0.85) 100%
-          );
-          backdrop-filter: blur(16px) saturate(180%);
-          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          background: #ffffff;
         }
 
         .custom-table, .custom-table *, .glass-table, .glass-table * {
@@ -183,48 +177,46 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
         }
 
         .custom-table th {
-          border: 1px solid #ccc;
-          background-color: #f9f9f9;
+          background-color: #dbeeff;
+          color: var(--chathams-blue);
           text-align: center;
           vertical-align: middle;
-          padding: 6px;
-          border-radius: 4px;
+          padding: 8px 6px;
           font-size: 12px !important;
+          border-bottom: 1px solid #b8ddf8;
+          border-right: 1px solid #b8ddf8;
         }
 
-        .custom-table td {
-          border: 1px solid #ccc;
-          background-color: #f9f9f9;
-          text-align: center;
-          vertical-align: middle;
-          padding: 6px;
-          border-radius: 4px;
-          font-size: 11px !important;
-        }
-
-        .custom-table th {
-          background-color: #d4eafc;
+        .custom-table th:last-child {
+          border-right: none;
         }
 
         .custom-table td {
           background-color: #fff;
-          border: 1px solid #e0e0e0;
+          text-align: center;
+          vertical-align: middle;
+          padding: 6px;
+          font-size: 11px !important;
+          border-bottom: 1px solid #e8f0f8;
+          border-right: 1px solid #e8f0f8;
+        }
+
+        .custom-table td:last-child {
+          border-right: none;
         }
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col rounded-3xl shadow-xl  glass-table"
-          style={{ 
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset',
-          }}
+        <div className="flex flex-col rounded-2xl border border-[#b8ddf8] bg-white"
+          style={{ boxShadow: '0 2px 12px rgba(3,102,174,0.07)' }}
         >
 
           {/* HEADER */}
-          <div 
-            className="flex-shrink-0"
-            style={{ 
-              borderBottom: '2px solid #E5E7EB',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+          <div
+            className="flex-shrink-0 rounded-t-2xl"
+            style={{
+              borderBottom: '1px solid #b8ddf8',
+              background: '#ffffff'
             }}
           >
             <Header
@@ -244,8 +236,8 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
           </div>
 
           {/* DESKTOP */}
-          <div className="hidden md:block">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderLeft: '8px solid var(--chathams-blue)', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
+          <div className="hidden md:block overflow-hidden rounded-b-2xl">
+            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight }}>
               <table className="w-full" style={{ tableLayout: 'auto' }}>
 
                 {/* THEAD - Multi-color gradient inspired by all cards */}
@@ -526,10 +518,10 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
 
           {/* FOOTER - Professional Style */}
           <div
-            className="flex-shrink-0"
+            className="flex-shrink-0 rounded-b-2xl"
             style={{
-              borderTop: '2px solid #E5E7EB',
-              background: '#FFFFFF'
+              borderTop: '1px solid #b8ddf8',
+              background: '#ffffff'
             }}
           >
             <div className="w-full px-6 py-4">
