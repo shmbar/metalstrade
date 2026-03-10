@@ -44,29 +44,28 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                   transition-timing-function: ease-in-out !important;
                 }
                 .custom-table th, .custom-table td {
-                  border: 1px solid #ccc;
+                  border: 1px solid var(--selago);
                   background-color: #f9f9f9;
                   text-align: center;
                   vertical-align: middle;
                   padding: 6px;
-                  border-radius: 4px;
                 }
                 .custom-table th {
-                  background-color: var(--selago);
+                  background-color: #dbeeff;
                 }
                 .custom-table td {
                   background-color: #fff;
                   border: 1px solid var(--selago);
                 }
-                .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-                .dashboard-scroll::-webkit-scrollbar-track { background: linear-gradient(180deg, #F5F5F5, #FAFAFA); border-radius: 6px; }
-                .dashboard-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #6366F1, #4338CA); border-radius: 6px; border: 2px solid #F5F5F5; }
-                .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #A855F7, #7E22CE); border-color: #FAFAFA; }
+                .dashboard-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+                .dashboard-scroll::-webkit-scrollbar-track { background: #ebf2fc; border-radius: 6px; }
+                .dashboard-scroll::-webkit-scrollbar-thumb { background: #9fb8d4; border-radius: 6px; }
+                .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: #0366ae; }
             `}</style>
-            <div className="glass-table rounded-2xl shadow-lg border border-[var(--selago)]">
+            <div className="glass-table rounded-2xl shadow-lg border border-[var(--selago)] overflow-hidden">
                 {/* Header */}
                 <div className="flex justify-between items-center px-4 py-2 rounded-t-2xl" style={{
-                    background: 'var(--selago)',
+                    background: '#dbeeff',
                     borderBottom: '1px solid var(--rock-blue)'
                 }}>
                     <h3 className="text-[var(--chathams-blue)] font-semibold text-center w-full"
@@ -136,7 +135,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                             ))}
                         </tbody>
                         <tfoot>
-                            <tr style={{ borderTop: '1px solid var(--rock-blue)', background: 'var(--rock-blue)' }}>
+                            <tr style={{ borderTop: '1px solid var(--rock-blue)', background: '#dbeeff' }}>
                                 <th className="px-2 py-2 font-semibold text-[var(--chathams-blue)] text-center" style={{textAlign:'center', fontSize: 'clamp(11px, 1vw, 13px)'}}>Total</th>
                                 <th className="px-2 py-2 font-semibold text-[var(--chathams-blue)] text-center" style={{textAlign:'center', fontSize: 'clamp(11px, 1vw, 13px)'}}>{showAmount(data.reduce((sum, item) => sum + item.poWeight * 1, 0))}</th>
                                 <th className="px-2 py-2 font-semibold text-[var(--chathams-blue)] text-center" style={{textAlign:'center', fontSize: 'clamp(11px, 1vw, 13px)'}}>{showAmount(data.reduce((sum, item) => sum + item.shiipedWeight * 1, 0))}</th>
@@ -178,7 +177,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                         </div>
                     ))}
                     {/* Mobile Total Row */}
-                    <div className="rounded-2xl border-t border-[var(--rock-blue)] bg-[var(--rock-blue)] px-3 py-2 flex flex-col gap-1">
+                    <div className="rounded-2xl border-t border-[var(--rock-blue)] px-3 py-2 flex flex-col gap-1" style={{ background: '#dbeeff' }}>
                         <div className="flex justify-between items-center">
                             <span className="font-semibold text-[var(--chathams-blue)] text-xs">Total Quantity</span>
                             <span className="font-semibold text-[var(--chathams-blue)] text-xs">{showAmount(data.reduce((sum, item) => sum + item.poWeight * 1, 0))}</span>

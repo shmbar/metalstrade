@@ -171,19 +171,17 @@ const Customtable = ({
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
  /* Professional gradient scrollbar matching cards */
-     .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-        .dashboard-scroll::-webkit-scrollbar-track { 
-          background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
-          border-radius: 6px; 
+     .dashboard-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .dashboard-scroll::-webkit-scrollbar-track {
+          background: #ebf2fc;
+          border-radius: 6px;
         }
-        .dashboard-scroll::-webkit-scrollbar-thumb { 
-          background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
-          border-radius: 6px; 
-          border: 2px solid #F8F8F8;
+        .dashboard-scroll::-webkit-scrollbar-thumb {
+          background: #9fb8d4;
+          border-radius: 6px;
         }
-        .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-          background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
-          border-color: #F0F0F0;
+        .dashboard-scroll::-webkit-scrollbar-thumb:hover {
+          background: #0366ae;
         }
 
 
@@ -403,86 +401,6 @@ const Customtable = ({
                         })}
                       </tr>
 
-                      {/* Expanded SubRows */}
-                      {row.getIsExpanded() && row.subRows && row.subRows.length > 0 && (
-                        <tr style={{ backgroundColor: '#FFFFFF' }}>
-                          <td colSpan={row.getVisibleCells().length} className="p-0">
-                            <table className="w-full" style={{ tableLayout: 'auto' }}>
-                              <tbody>
-                                {row.subRows.map(sub => (
-                                  <tr key={sub.id} className="cursor-pointer">
-                                    {sub.getVisibleCells().map((cell) => {
-                                      const isCompleted = cell.column.id === 'completed';
-                                      const isStatus = cell.column.id === 'status';
-
-                                      return (
-                                        <td
-                                          key={cell.id}
-                                          className="px-2 py-2 text-center"
-                                          style={{
-                                            minWidth: cell.column.id === 'select' ? '50px' : '60px',
-                                            maxWidth: cell.column.id === 'select' ? '50px' : '150px',
-                                          }}
-                                        >
-                                          {isCompleted ? (
-                                            <div className="flex justify-center">
-                                              <div
-                                                className="px-3 py-1.5 rounded-xl text-[11px] font-normal flex items-center justify-center"
-                                                style={{
-                                                  backgroundColor: cell.getValue() ? '#00bf63' : '#eb3636',
-                                                  color: '#FFFFFF',
-                                                  border: '1px solid #cecece'
-                                                }}
-                                              >
-                                                {cell.getValue() ? 'Completed' : 'Incompleted'}
-                                              </div>
-                                            </div>
-                                          ) : isStatus ? (
-                                            <div className="flex justify-center">
-                                              <div
-                                                className="px-3 py-1.5 rounded-xl text-[11px] font-normal flex items-center justify-center"
-                                                style={{
-                                                  backgroundColor:
-                                                    cell.getValue() === 'Paid'
-                                                      ? '#ceb8ff'
-                                                      : cell.getValue() === 'Unpaid'
-                                                      ? '#c387b4'
-                                                      : '#f9f9f9',
-                                                  border: cell.getValue() ? '1px solid #cecece' : 'none',
-                                                  color: '#1F2937'
-                                                }}
-                                              >
-                                                {cell.getValue() || '\u00A0'}
-                                              </div>
-                                            </div>
-                                          ) : (
-                                            <div className="flex justify-center">
-                                              <div
-                                                className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px] flex items-center justify-center"
-                                                style={{
-                                                  backgroundColor:
-                                                    cell.getValue() === 'Paid'
-                                                      ? '#ceb8ff'
-                                                      : cell.getValue() === 'Not Paid'
-                                                      ? '#c387b4'
-                                                      : '#f9f9f9',
-                                                  border: '1px solid #cecece',
-                                                }}
-                                              >
-                                                {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}
-                                              </div>
-                                            </div>
-                                          )}
-                                        </td>
-                                      )
-                                    })}
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </td>
-                        </tr>
-                      )}
                     </Fragment>
                   ))}
                   {/* EMPTY STATE */}
