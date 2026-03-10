@@ -49,7 +49,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             }}>
             <div className="px-4 py-2.5"
                 style={{
-                    background: 'var(--selago)',
+                    background: '#dbeeff',
                     borderBottom: '1px solid var(--rock-blue)',
                     borderTopLeftRadius: '16px',
                     borderTopRightRadius: '12px'
@@ -126,7 +126,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         </tbody>
                         <tfoot>
                             <tr style={{
-                                background: 'var(--selago)',
+                                background: '#dbeeff',
                                 fontWeight: 600
                             }}>
                                 <th className="relative px-2 py-2 text-left font-semibold"
@@ -162,7 +162,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                 </th>
                             </tr>
                             <tr style={{
-                                background: 'var(--selago)', borderTop: '1px solid var(--rock-blue)'
+                                background: '#dbeeff', borderTop: '1px solid var(--rock-blue)'
                             }}>
                                 <th className="relative px-2 py-2 text-left font-semibold"
                                     style={{
@@ -229,7 +229,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         ))}
                     </div>
                     {/* Mobile Total Sections */}
-                    <div className="border-t-2" style={{ background: 'var(--rock-blue)', borderTop: '1px solid var(--rock-blue)' }}>
+                    <div className="border-t-2" style={{ background: '#dbeeff', borderTop: '1px solid var(--rock-blue)' }}>
                         {/* USD Totals */}
                         <div className="p-4 border-b" style={{ borderBottom: '1px solid var(--rock-blue)' }}>
                             <div className="space-y-2.5">

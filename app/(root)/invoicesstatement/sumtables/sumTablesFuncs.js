@@ -124,49 +124,41 @@ export const sumClients = (dt) => {
 export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
     const containerStyle = {
         fontFamily: "'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
-        fontSize: '9px',
-        background: '#d4eafc', // Single color background
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(99,102,241,0.08)',
-        maxHeight: 'none',
-        overflow: 'visible',
-        padding: '0',
+        background: '#fff',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        boxShadow: '0 8px 32px rgba(3,102,174,0.13)',
+        border: '1px solid #b8ddf8',
         minWidth: '400px',
+        padding: '0',
     };
     const tableStyle = {
         width: '100%',
-        tableLayout: 'fixed',
+        tableLayout: 'auto',
         borderCollapse: 'collapse',
-        border: '1px solid #e0e0e0',
-        borderRadius: '4px',
         margin: 0,
     };
     const thStyle = {
         textAlign: 'center',
-        padding: '3px 2px',
+        padding: '6px 10px',
         color: 'var(--chathams-blue)',
         fontWeight: 600,
-        fontSize: '9px',
-        letterSpacing: '0.05em',
-        textTransform: 'uppercase',
-        wordBreak: 'break-word',
-        border: '1px solid #ccc',
-        minWidth: '60px',
-        maxWidth: '120px',
-        background: 'linear-gradient(90deg, #d4eafc, #bce1fe)',
+        fontSize: '11px',
+        border: '1px solid #b8ddf8',
+        background: '#dbeeff',
+        whiteSpace: 'nowrap',
     };
     const tdStyle = {
         textAlign: 'center',
-        padding: '3px 2px',
-        color: '#1F2937',
+        padding: '5px 10px',
+        border: '1px solid #e8f0f8',
+        fontSize: '11px',
+        color: 'var(--chathams-blue)',
+        whiteSpace: 'nowrap',
         fontWeight: 400,
-        wordBreak: 'break-word',
-        fontSize: '9px',
-        borderBottom: '1px solid #e0e0e0',
     };
     const tdAmountStyle = {
         ...tdStyle,
-        color: 'var(--chathams-blue)',
         fontWeight: 500,
     };
 
@@ -177,6 +169,9 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
 
         return (
             <div style={containerStyle}>
+                <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 600, fontSize: '12px', color: 'var(--endeavour)', borderBottom: '1px solid #b8ddf8', letterSpacing: '0.03em' }}>
+                    Supplier Details
+                </div>
                 <table style={tableStyle}>
                     <thead>
                         <tr>
@@ -188,7 +183,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                     </thead>
                     <tbody>
                         {filteredArr?.map((z, i) => (
-                            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#f9f9f9', transition: 'background 150ms ease-in-out' }}>
+                            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#f4f9ff', transition: 'background 150ms ease-in-out' }}>
                                 <td style={tdStyle}>
                                     {Array.isArray(z.supInvoices) ? z.supInvoices.map((item, index) => (
                                         <div key={index}>{item}</div>
@@ -242,6 +237,9 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
 
         return (
             <div style={containerStyle}>
+                <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 600, fontSize: '12px', color: 'var(--endeavour)', borderBottom: '1px solid #b8ddf8', letterSpacing: '0.03em' }}>
+                    Client Details
+                </div>
                 <table style={tableStyle}>
                     <thead>
                         <tr>
@@ -253,7 +251,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                     </thead>
                     <tbody>
                         {filteredArr?.map((z, i) => (
-                            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#f9f9f9', transition: 'background 150ms ease-in-out' }}>
+                            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#f4f9ff', transition: 'background 150ms ease-in-out' }}>
                                 <td style={tdStyle}>{z.InvNum}</td>
                                 <td style={tdAmountStyle}>
                                     <NumericFormat
