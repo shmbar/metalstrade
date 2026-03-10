@@ -59,7 +59,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         {/* HEADER */}
         <div
           style={{
-            background: 'var(--selago)',
+            background: '#dbeeff',
             padding: '12px 16px',
             borderBottom: '1px solid var(--rock-blue)'
           }}
@@ -124,7 +124,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           <div className="px-4 py-2.5"
             style={{
               borderTop: '1px solid var(--rock-blue)',
-              background: 'var(--rock-blue)',
+              background: '#dbeeff',
               borderLeft: '1px solid var(--selago)',
               borderRight: '1px solid var(--selago)',
               borderBottom: '1px solid var(--selago)'

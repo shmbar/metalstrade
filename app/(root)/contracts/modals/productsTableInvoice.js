@@ -360,36 +360,36 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
         <div className="w-full justify-center flex">
             <div className="flex flex-col w-full">
                 <div className=" overflow-x-auto">
-                    <div className="border rounded-lg overflow-hidden">
-                        <table id='my-table' className=" table-fixed min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50 ">
+                    <div className="border border-[#b8ddf8] rounded-lg overflow-hidden">
+                        <table id='my-table' className=" table-fixed min-w-full divide-y divide-[#b8ddf8]">
+                            <thead style={{ background: '#dbeeff' }}>
                                 <tr>
                                     <th scope="col" className=" w-0/12 py-1 px-6"></th>
-                                    <th scope="col" className="w-0/12 pr-1 py-1 text-left text-[13px] font-medium text-gray-500"  >
+                                    <th scope="col" className="w-0/12 pr-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]"  >
                                         #</th>
-                                    {certOpen && <th scope="col" className="w-0/12 pr-1 py-1 text-left text-[13px] font-medium text-gray-500"  >
+                                    {certOpen && <th scope="col" className="w-0/12 pr-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]"  >
                                         Cert</th>}
-                                    <th scope="col" className="w-1/12 py-1 px-1 text-left text-[13px] font-medium text-gray-500"  >
+                                    <th scope="col" className="w-1/12 py-1 px-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]"  >
                                         {getTtl('PO', ln)}#</th>
-                                    <th scope="col" className="w-4/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
+                                    <th scope="col" className="w-4/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
                                         {getTtl('Description', ln)} </th>
-                                    <th scope="col" className="w-2/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
+                                    <th scope="col" className="w-2/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
                                         {contTitle}</th>
-                                    <th scope="col" className=" w-1/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
+                                    <th scope="col" className=" w-1/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
                                         {getTtl('Quantity', ln)} MT</th>
-                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
+                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
                                         <div className='table-caption'> {getTtl('UnitPrice', ln)} <span className='text-xs'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
+                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
                                         <div>{getTtl('Total', ln)} <span className='text-xs'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500 border-l" >
+                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)] border-l border-[#b8ddf8]" >
                                         {getTtl('Stock', ln)}</th>
-                                    <th scope="col" className=" w-1/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
+                                    <th scope="col" className=" w-1/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
                                         {getTtl('Available Quantity', ln)} (MT)</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200">
+                            <tbody className="divide-y divide-[#b8ddf8]">
                                 {value.productsDataInvoice.map((obj, i) => {
                                     return (
                                         <tr key={i}>
