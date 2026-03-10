@@ -242,7 +242,7 @@ const Header = ({
         {/* Right Section: Dropdown + DateRangePicker */}
         <div className='flex items-center gap-2 flex-wrap'>
           {cb && <div className='flex-shrink-0'>{cb}</div>}
-          {(pathname !== '/stocks' && pathname !== '/settings' && pathname !== '/materialtables') && (
+          {(pathname !== '/stocks' && pathname !== '/settings' && pathname !== '/materialtables' && pathname !== '/accstatement') && (
             <div className='flex-shrink-0'><DateRangePicker /></div>
           )}
         </div>

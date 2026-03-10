@@ -138,7 +138,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
     return runData && (
         <div>
             {data.map((x, i) => {
-                return <div className='mt-4  border border-slate-300 p-2 rounded-lg block lg:flex flex-wrap gap-2' key={i}>
+                return <div className='mt-4  border border-[#b8ddf8] p-2 rounded-2xl block lg:flex flex-wrap gap-2' key={i}>
                     <Customtable data={data[i]} propDefaults={propDefaults} val={val} mult={mult} />
 
                     <div className='bg-slate-200 mt-2 lg:mt-0 flex flex-wrap items-center border border-slate-300 rounded-lg max-w-6xl'>

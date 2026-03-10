@@ -150,7 +150,7 @@ const PNL = () => {
   return (
     <div className='p-1'>
       <div className='grid grid-cols-12 pt-3 gap-4 '>
-        <div className='col-span-12 md:col-span-3 border border-slate-300 p-2 rounded-lg '>
+        <div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl '>
           <p className='text-[0.8rem]'>{getTtl('selectCurr', ln)}:</p>
           <Selector arr={settings.Currency.Currency} value={valCur}
             onChange={(e) => handleChange(e, 'cur')}
@@ -170,7 +170,7 @@ const PNL = () => {
 
           </div>
         </div>
-        <div className='col-span-12 md:col-span-3 border border-slate-300 p-2 rounded-lg'>
+        <div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>
           <div className='flex justify-between'>
             <p className='text-[0.8rem]'>{getTtl('invValueSale', ln)}:</p>
             <p className='text-[0.8rem]'>{setNum(valCur, Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings), settings)}</p>
@@ -193,7 +193,7 @@ const PNL = () => {
           </div>
         </div>
         {/*
-        <div className='col-span-12 md:col-span-2 border border-slate-300 p-2 rounded-lg'>
+        <div className='col-span-12 md:col-span-2 border border-[#b8ddf8] p-2 rounded-2xl'>
           <p className='text-[0.8rem]'>Contract Status:</p>
           
           <button className='mt-2 py-0.5 bg-slate-100  px-2 border border-slate-400 shadow-md rounded-lg text-slate-700

@@ -23,7 +23,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
     return (
         <Select className='border-slate-400' value={value[name]} onValueChange={onChange}
             defaultValue="df">
-            <SelectTrigger className={`relative w-full border-slate-400 rounded-lg h-8 text-xs
+            <SelectTrigger className={`relative w-full border-slate-400 rounded-xl h-8 text-xs
                     text-slate-700 outline-none focus:ring-0 
                     focus:outline-none focus:ring-offset-0 shadow-md pointer-events-auto
                     ${classes}`}

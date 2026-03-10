@@ -229,7 +229,7 @@ const Customtable = ({
           {/* DESKTOP */}
           <div className="hidden md:block">
             <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderLeft: '8px solid var(--chathams-blue)', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
-<table className="w-full" style={{ tableLayout: 'fixed' }}>
+<table className="w-full" style={{ tableLayout: 'auto' }}>
                 {/* THEAD - Multi-color gradient inspired by all cards */}
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(group => (
@@ -241,12 +241,7 @@ const Customtable = ({
                             className="px-2 py-2 uppercase   text-[var(--endeavour)] font-poppins font-bold" 
                             style={{
                               color: 'var(--chathams-blue)',
- width:
-  header.column.columnDef.header === 'Description'
-    ? '140px'
-    : header.column.id === 'select'
-    ? '50px'
-    : undefined,
+ width: header.column.id === 'select' ? '50px' : undefined,
                               letterSpacing: '0.05em',
                               textAlign: 'center',
                             }}
@@ -307,20 +302,19 @@ const Customtable = ({
                             style={{
                               color: bg ? '#FFFFFF' : '#1F2937',
                               backgroundColor: bg || undefined,
-                         width:
-  cell.column.columnDef.header === 'Description'
-    ? '140px'
-    : cell.column.id === 'select'
-    ? '50px'
-    : undefined,
-                              maxWidth: cell.column.id === 'select' ? '50px' : '150px',
+                         width: cell.column.id === 'select' ? '50px' : undefined,
+                              maxWidth: cell.column.id === 'select' ? '50px' : undefined,
                               fontWeight: '400',
                               zIndex: 1,
                               willChange: 'background-color, color',
                               padding: bg ? '6px' : undefined,
                             }}
                           >
-                            {isCompleted ? (
+                            {cell.column.id === 'select' ? (
+                              <div className="w-full flex items-center justify-center">
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </div>
+                            ) : isCompleted ? (
                               <div className="w-full flex items-center justify-center">
                                 <span className="text-[11px] font-normal text-white">{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
                               </div>
@@ -329,18 +323,18 @@ const Customtable = ({
                                 <span className="text-[11px] font-normal" style={{ color: bg ? '#FFFFFF' : undefined }}>{cell.getValue()}</span>
                               </div>
                             ) : (
- <div className="w-full flex items-center justify-center">
+ <div className="flex items-center justify-center">
   <div
-    className="px-3 py-1.5 rounded-xl text-[11px] font-normal break-words"
+    className="px-2 py-0.5 rounded-xl text-[11px] font-normal"
     style={{
       background: 'linear-gradient(135deg, #FAFAFA, #F3F4F6)',
       border: '1px solid #E5E7EB',
       color: '#1F2937',
-      display: 'inline-flex',   // 👈 IMPORTANT
-      alignItems: 'center',
-      justifyContent: 'center',
-      maxWidth: '89%',
-      minWidth: '60px'
+      display: 'inline-block',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      maxWidth: '100%',
     }}
   >
       {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}

@@ -20,6 +20,7 @@ import dateFormat from 'dateformat';
 
 
 const CB = (settings, handleSelectStock, selectedStock) => {
+  if (!settings?.Stocks?.Stocks) return null;
 
   let dt = [{ stock: '..All Stocks', id: 'allStocks', nname: '..All Stocks' },
   ...settings.Stocks.Stocks.filter(x => !x.deleted)
@@ -100,7 +101,7 @@ const Stocks = () => {
       accessorKey: 'originSupplier', header: 'Original supplier',
     },
     { accessorKey: 'stock', header: getTtl('warehouse', ln) },
-    { accessorKey: 'descriptionName', header: getTtl('Description', ln), cell: (props) => <p className='w-20 md:w-64 text-wrap'>{props.getValue()}</p> },
+    { accessorKey: 'descriptionName', header: getTtl('Description', ln), cell: (props) => <p>{props.getValue()}</p> },
     { accessorKey: 'qnty', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props)}</p> },
     { accessorKey: 'qTypeTable', header: getTtl('WeightType', ln), },
     { accessorKey: 'unitPrc', header: getTtl('UnitPrice', ln), cell: (props) => <p>{showAmount(props)}</p> },

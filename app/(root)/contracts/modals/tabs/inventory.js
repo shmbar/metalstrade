@@ -157,7 +157,7 @@ const Inventory = () => {
     return (
         <div className='p-1'>
 
-            <div className='mt-3 border border-slate-300 p-2 rounded-lg max-w-72 ]'>
+            <div className='mt-3 border border-[#b8ddf8] p-2 rounded-2xl max-w-72 ]'>
 
                 <div className='flex justify-between'>
                     <p className='text-[0.8rem]'>{getTtl('Purchase QTY', ln)} / MT</p>
@@ -178,8 +178,8 @@ const Inventory = () => {
             </div>
 
 
-            <div className='mt-4 border border-slate-300 p-2 rounded-lg flex md:w-fit' >
-                <div className="w-full overflow-x-auto border-slate-300 border rounded-lg ">
+            <div className='mt-4 border border-[#b8ddf8] p-2 rounded-2xl flex md:w-fit' >
+                <div className="w-full overflow-x-auto border-[#b8ddf8] border rounded-2xl ">
                     <table className='w-full'>
                         <thead className="bg-slate-500 divide-y divide-gray-200 ">
                             <tr className='border-b '>

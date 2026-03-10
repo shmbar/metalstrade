@@ -53,6 +53,54 @@ const AccountStatement = () => {
     endDate: null
   });
 
+  useEffect(() => {
+    const styleId = 'accstatement-datepicker-style';
+    if (document.getElementById(styleId)) return;
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      .accdt .react-tailwindcss-datepicker-container > div:not(:first-child),
+      .accdt-container > div:not(:first-child) {
+        border-radius: 1.25rem !important;
+        border: 1px solid #b8ddf8 !important;
+        box-shadow: 0 8px 32px rgba(3,102,174,0.13) !important;
+        overflow: hidden !important;
+        z-index: 50 !important;
+        zoom: 0.78 !important;
+      }
+      .accdt input {
+        box-shadow: none !important;
+        color: #103a7a !important;
+        font-size: 0.75rem !important;
+      }
+      .accdt input::placeholder {
+        color: #103a7a !important;
+        opacity: 0.7 !important;
+      }
+      .accdt button svg, .accdt svg {
+        color: #0366ae !important;
+        stroke: #0366ae !important;
+      }
+      .accdt .flex.items-center.space-x-1\\.5.border.border-gray-300.rounded-md.px-2.py-1\\.5 {
+        background: #dbeeff !important;
+        border: 1px solid #b8ddf8 !important;
+        border-radius: 999px !important;
+        color: #103a7a !important;
+      }
+      .accdt .rounded-full.p-\\[0\\.45rem\\]:hover { background: #dbeeff !important; }
+      .accdt .grid.grid-cols-7.border-b.border-gray-300.py-2 { border-color: #e8f0f8 !important; }
+      .accdt .grid.grid-cols-7.border-b.border-gray-300.py-2 > div { color: #103a7a !important; font-size: 11px !important; font-weight: 600 !important; }
+      .accdt .flex.items-center.justify-center.w-12.h-12,
+      .accdt .flex.items-center.justify-center.w-10.h-10,
+      .accdt .flex.items-center.justify-center.lg\\:w-10.lg\\:h-10 { border-radius: 999px !important; font-size: 12px !important; color: #103a7a !important; }
+      .accdt .flex.items-center.justify-center.w-12.h-12:hover,
+      .accdt .flex.items-center.justify-center.lg\\:w-10.lg\\:h-10:hover { background: #dbeeff !important; }
+      .accdt .rounded-r-full, .accdt .rounded-l-full { border-radius: 999px !important; }
+    `;
+    document.head.appendChild(style);
+    return () => { const s = document.getElementById(styleId); if (s) s.remove(); };
+  }, []);
+
   const handleDateChange = (newValue) => {
 
     const date = new Date(newValue.startDate);
@@ -73,15 +121,32 @@ const AccountStatement = () => {
 
   const CB = (settings, selectedClient) => {
     return (
-      <MyComboboxSelect
-        data={sortArr(settings.Client.Client.filter(x => !x.deleted), 'nname')}
-        setValue={handleUpdateClient}
-        idx={0}
-        value={settings.Client.Client.find(z => z.id === selectedClient.client)}
-        name='nname'
-        classes='shadow-md h-10'
-        plcHolder='Select client' />
-
+      <div className='flex items-center gap-2'>
+        <MyComboboxSelect
+          data={sortArr(settings.Client.Client.filter(x => !x.deleted), 'nname')}
+          setValue={handleUpdateClient}
+          idx={0}
+          value={settings.Client.Client.find(z => z.id === selectedClient.client)}
+          name='nname'
+          classes='shadow-md h-10'
+          plcHolder='Select client' />
+        <div className="accdt">
+          <Datepicker
+            inputClassName='border border-[#0366ae] text-xs py-2 pl-3 pr-3 rounded-2xl text-[#103a7a] w-44
+              focus:outline-none focus:ring-1 focus:ring-blue-200 cursor-pointer bg-white shadow-sm'
+            useRange={false}
+            asSingle={true}
+            value={valueDate}
+            onChange={handleDateChange}
+            displayFormat={"DD-MMM-YY"}
+            placeholder="Select date"
+            showShortcuts={false}
+            readOnly={true}
+            containerClassName="z-20 relative accdt-container"
+            disabledDates={disabledDates}
+          />
+        </div>
+      </div>
     )
   }
 
@@ -267,7 +332,7 @@ const AccountStatement = () => {
       },
     },
 
-    { accessorKey: 'cur', header: getTtl('Currency', ln) },
+    { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toLowerCase(); const isUsd = v === 'us' || v === 'usd'; const isEur = v === 'eu' || v === 'eur'; return <span style={{ background: isUsd ? '#b7d1b5' : isEur ? '#dbeeff' : '#f0f0f0', color: isUsd ? '#2d6a2d' : isEur ? 'var(--chathams-blue)' : '#555', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: '12px', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
     {
       accessorKey: 'due', header: getTtl('DuePayment', ln), cell: (props) => <div>{dateFormat(props.getValue(), 'dd-mmm-yy')} </div>,
       meta: {
@@ -325,22 +390,6 @@ const AccountStatement = () => {
                 <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
                   {getTtl('Account Statement', ln)}
                 </h1>
-                <div className='flex group datepicker-wrapper'>
-                  <Datepicker
-                    inputClassName='border border-slate-300 text-xs p-1 px-1.5 rounded-lg text-slate-500 w-60
-                      focus:outline-none cursor-pointer z-0 bg-white'
-                    useRange={false}
-                    asSingle={true}
-                    value={valueDate}
-                    onChange={handleDateChange}
-                    displayFormat={"DD-MMM-YY"}
-                    placeholder="Select date"
-                    showShortcuts={false}
-                    readOnly={true}
-                    containerClassName="z-20 relative"
-                    disabledDates={disabledDates}
-                  />
-                </div>
               </div>
 
               {/* Table Component */}

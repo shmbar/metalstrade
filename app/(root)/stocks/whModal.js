@@ -210,101 +210,77 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
         }))
     }
 
+    const labelCls = 'text-[11px] font-medium text-[var(--chathams-blue)] whitespace-nowrap mb-0.5'
+    const inputCls = 'w-full rounded-xl border border-[#b8ddf8] bg-[#f4f9ff] text-[var(--chathams-blue)] text-xs h-7 px-2 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] disabled:opacity-70'
+
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)} w='max-w-4xl'>
-            <div className='grid grid-cols-12 gap-4 p-2 m-2  border border-slate-300 rounded-lg'>
 
+            {/* Info fields */}
+            <div className='grid grid-cols-12 gap-3 p-3 m-3 rounded-2xl border border-[#b8ddf8]' style={{ background: '#f4f9ff' }}>
                 <div className='col-span-12 md:col-span-5 flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Description', ln)}:</p>
-                    <input type='text' disabled value={item.descriptionName} name='descriptionName' className='input text-[13px] h-7' />
+                    <p className={labelCls}>{getTtl('Description', ln)}:</p>
+                    <input type='text' disabled value={item.descriptionName} name='descriptionName' className={inputCls} />
                 </div>
-
-                <div className='col-span-12 md:col-span-1 flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Weight', ln)}</p>
-                    <input type='text' disabled className="number-separator input h-7 text-xs" name='qnty'
-                        value={addComma(item.qnty, false)} onChange={() => { }} />
+                <div className='col-span-6 md:col-span-1 flex flex-col'>
+                    <p className={labelCls}>{getTtl('Weight', ln)}</p>
+                    <input type='text' disabled className={inputCls} name='qnty' value={addComma(item.qnty, false)} onChange={() => {}} />
                 </div>
-                <div className='col-span-12 md:col-span-1 flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Price', ln)}:</p>
-                    <input type='text' disabled className="number-separator input h-7 text-xs" name='unitPrc'
-                        value={item.unitPrc ? addComma(item.unitPrc, true) : '-'} onChange={e => handleValuePmnt(e)} />
+                <div className='col-span-6 md:col-span-1 flex flex-col'>
+                    <p className={labelCls}>{getTtl('Price', ln)}:</p>
+                    <input type='text' disabled className={inputCls} name='unitPrc' value={item.unitPrc ? addComma(item.unitPrc, true) : '-'} onChange={e => handleValuePmnt(e)} />
                 </div>
-
-                <div className='col-span-12 md:col-span-2 flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Total', ln)}:</p>
-                    <input type='text' disabled className="number-separator input h-7 text-xs" name='total'
-                        value={item.total === '-' ? item.total : addComma((item.total * 1).toFixed(2), true)} />
+                <div className='col-span-6 md:col-span-2 flex flex-col'>
+                    <p className={labelCls}>{getTtl('Total', ln)}:</p>
+                    <input type='text' disabled className={inputCls} name='total' value={item.total === '-' ? item.total : addComma((item.total * 1).toFixed(2), true)} />
                 </div>
-
-                <div className='col-span-12 md:col-span-3 flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap '>{getTtl('Stock', ln)}:</p>
-                    <input type='text' disabled value={getD(settings.Stocks.Stocks, item, 'stock')}
-                        className='input h-7 text-xs truncate' />
+                <div className='col-span-6 md:col-span-3 flex flex-col'>
+                    <p className={labelCls}>{getTtl('Stock', ln)}:</p>
+                    <input type='text' disabled value={getD(settings.Stocks.Stocks, item, 'stock')} className={inputCls + ' truncate'} />
                 </div>
             </div>
 
-            {/*----------------- Change Stock-----------*/}
-
-            <div className={` ${showBlock ? 'flex' : 'hidden'} flex  gap-4 p-2 m-2 border border-slate-300 rounded-lg`}>
+            {/* Change Stock section */}
+            <div className={`${showBlock ? 'flex' : 'hidden'} gap-4 px-3 pb-2 mx-3 mb-2 rounded-2xl border border-[#b8ddf8] p-3`} style={{ background: '#f4f9ff' }}>
                 <div className='flex flex-col'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Weight', ln)}</p>
-                    <input type='text' className="number-separator input shadow-lg h-8 text-xs w-24" name='qnty'
-                        value={addComma(newItemStock.qnty, false)} onChange={e => handleValueQnty1(e)} />
+                    <p className={labelCls}>{getTtl('Weight', ln)}</p>
+                    <input type='text' className={inputCls + ' w-24 !bg-white'} name='qnty' value={addComma(newItemStock.qnty, false)} onChange={e => handleValueQnty1(e)} />
                 </div>
                 <div className='flex flex-col w-48'>
-                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Stock', ln)}:</p>
-
-                    <Selector arr={settings.Stocks.Stocks} value={newItemStock}
-                        onChange={(e) => handleChange(e, 'stock')}
-                        name='stock'
-                        clear={clear} />
-
+                    <p className={labelCls}>{getTtl('Stock', ln)}:</p>
+                    <Selector arr={settings.Stocks.Stocks} value={newItemStock} onChange={(e) => handleChange(e, 'stock')} name='stock' clear={clear} />
                 </div>
-                <div className=' flex items-end relative '>
-                    <Button
-                        className='h-8 text-xs'
-                        onClick={moveStock}
-                        disabled={item.stock === newItemStock.stock}
-                    >
+                <div className='flex items-end'>
+                    <Button className='h-8 text-xs rounded-xl' onClick={moveStock} disabled={item.stock === newItemStock.stock}>
                         <FilePen />
                         {getTtl('Move to new Stock', ln)}
                     </Button>
                 </div>
-
             </div>
 
-
-
-
-            <div className='flex gap-4 p-2 border-t'>
-                <Tltip direction='top' tltpText='Move item to a diffrent stock'>
-                    <Button
-                        className="h-8 text-xs"
-                        onClick={moveItems}
-                    >
+            {/* Action buttons */}
+            <div className='flex gap-3 px-3 py-2 border-t border-[#e8f0f8]'>
+                <Tltip direction='top' tltpText='Move item to a different stock'>
+                    <Button className="h-8 text-xs rounded-xl" onClick={moveItems}>
                         <Archive />
                         {getTtl('Change Stock', ln)}
                     </Button>
                 </Tltip>
                 <Tltip direction='top' tltpText='View the contract for this item'>
-                    <Button
-                       className="h-8 text-xs"
-                        onClick={() => moveToContracts()}
-                    >
+                    <Button className="h-8 text-xs rounded-xl" onClick={() => moveToContracts()}>
                         <FileText />
                         {getTtl('Contract', ln)}
                     </Button>
                 </Tltip>
             </div>
 
-
-            <div className='flex items-center p-4 pb-2 gap-2'>
-                <p className='text-xs'>{!enabledSwitch ? getTtl('Hide Shipments', ln) : getTtl('Show Shipments', ln)}</p>
+            {/* Show Shipments toggle */}
+            <div className='flex items-center px-3 py-2 gap-2'>
+                <p className='text-xs text-[var(--chathams-blue)]'>{!enabledSwitch ? getTtl('Hide Shipments', ln) : getTtl('Show Shipments', ln)}</p>
                 <Switch enabled={enabledSwitch} setEnabled={setEnabledSwitch} />
             </div>
 
             {enabledSwitch && <ShipTable item={item} data={[]} />}
-
 
         </Modal>
     )

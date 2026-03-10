@@ -48,13 +48,16 @@ const DateRangePicker = ({ displayLabel }) => {
         const style = document.createElement("style");
         style.id = styleId;
         style.textContent = `
-            /* ── Popup wrapper: rounded + themed border + shadow ── */
+            /* ── Popup wrapper: rounded + themed border + shadow + compact size ── */
             .react-tailwindcss-datepicker-container > div:not(:first-child),
             .shadow-sm.border.border-gray-300.px-1.py-0\\.5.bg-white.rounded-lg {
                 border-radius: 1.25rem !important;
                 border: 1px solid #b8ddf8 !important;
                 box-shadow: 0 8px 32px rgba(3,102,174,0.13) !important;
                 overflow: hidden !important;
+                z-index: 50 !important;
+                transform: scale(0.8) !important;
+                transform-origin: top right !important;
             }
 
             /* ── Input: remove shadow on focus ── */

@@ -157,41 +157,48 @@ const Customtable = ({ data, item }) => {
 
 
 	return (
-		<div className='m-4 mt-2 border border-slate-300 p-2 rounded-lg flex md:w-fit' >
-			<div className="w-full overflow-x-auto border-slate-300 border rounded-lg ">
-				<table className="w-full ">
-					<thead className="bg-slate-500 divide-y divide-gray-200 ">
-						<tr className='border-b '>
-							{cols.map(x => x.header)
-								.map((y, k) => (
-									<th
-										scope="col"
-										key={k}
-										className="px-3 py-1 text-left text-[0.75rem] font-medium text-white uppercase"
-									>
-										{y}
-									</th>
-
-								))}
+		<div className='mx-4 mb-4 rounded-2xl overflow-hidden border border-[#b8ddf8]' style={{ boxShadow: '0 2px 12px rgba(3,102,174,0.08)' }}>
+			<div className="w-full overflow-x-auto">
+				<table className="w-full" style={{ borderCollapse: 'collapse', fontFamily: "'Poppins', system-ui, sans-serif", fontSize: '11px' }}>
+					<thead>
+						<tr>
+							{cols.map((x, k) => (
+								<th key={k} style={{
+									background: '#dbeeff',
+									color: 'var(--chathams-blue)',
+									fontWeight: 600,
+									fontSize: '11px',
+									textAlign: 'center',
+									padding: '7px 10px',
+									border: '1px solid #b8ddf8',
+									whiteSpace: 'nowrap',
+									letterSpacing: '0.04em',
+									textTransform: 'uppercase',
+								}}>
+									{x.header}
+								</th>
+							))}
 						</tr>
 					</thead>
-					<tbody className="divide-y divide-gray-200 ">
+					<tbody>
 						{tableData.map((obj, i) => (
-							<tr key={i} >
+							<tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#f4f9ff' }}>
 								{cols.map(x => (
-									<td key={x.field} data-label={x.header} className='table_cell pl-3 text-xs py-0.5' >
-										<div className={`${styledDiv(obj, x.field)}`}>
-											{showDetail(obj, x.field, { ttl: false })}
-										</div>
+									<td key={x.field} style={{
+										padding: '5px 10px',
+										border: '1px solid #e8f0f8',
+										fontSize: '11px',
+										color: 'var(--chathams-blue)',
+										textAlign: x.field === 'total' ? 'right' : 'center',
+										whiteSpace: x.field === 'description' || x.field === 'supplier' ? 'normal' : 'nowrap',
+									}}>
+										{showDetail(obj, x.field, { ttl: false })}
 									</td>
-								))
-								}
+								))}
 							</tr>
 						))}
 					</tbody>
 				</table>
-
-
 			</div>
 		</div>
 	);

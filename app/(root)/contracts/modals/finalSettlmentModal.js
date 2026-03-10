@@ -123,13 +123,13 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
             <div className='flex flex-col p-1 justify-between gap-4 max-h-[50rem] overflow-y-auto'>
                 {data.map((x, i) => {
                     return (
-                        <div className='grid grid-cols-12 p-1 gap-2  border border-slate-300 rounded-lg' key={i}>
+                        <div className='grid grid-cols-12 p-1 gap-2  border border-[#b8ddf8] rounded-2xl' style={{background:'#f4f9ff'}} key={i}>
                             <div className='col-span-12 md:col-span-3 flex'>
                                 <div className='items-center flex pt-3 pr-2'>
                                     <ChkBox checked={checkedItems.includes(x.id)} size='h-5 w-5' onChange={() => checkItem(x.id)} />
                                 </div>
                                 <div className='w-full'>
-                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Description', ln)}:</p>
+                                    <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Description', ln)}:</p>
                                     <div className='flex'>
                                         <input type='text' className="number-separator input border-slate-300 h-7 text-xs shadow-lg" name='descriptionText'
                                             value={x.descriptionText} onChange={e => handleValue(e, i)} />
@@ -138,21 +138,21 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-12 md:col-span-1'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Quantity', ln)} {`(${getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')})`}</p>
+                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Quantity', ln)} {`(${getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')})`}</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input border-slate-300 h-7 text-xs" name='qnty'
                                         disabled defaultValue={addComma(x.qnty, false)} />
                                 </div>
                             </div>
                             <div className='col-span-12 md:col-span-1'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('FinalQuantity', ln)} {`(${getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')})`}</p>
+                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('FinalQuantity', ln)} {`(${getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')})`}</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input shadow-lg h-7 text-xs " name='finalqnty'
                                         value={addComma(x.finalqnty, false)} onChange={e => handleValue(e, i)} />
                                 </div>
                             </div>
                             <div className='col-span-12 md:col-span-1'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Advised Price:</p>
+                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>Advised Price:</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input h-7  shadow-lg border-slate-300 text-xs" name='unitPrc'
                                         value={addComma(x.unitPrc, true)} onChange={e => handleValue(e, i)}
@@ -161,7 +161,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-12 md:col-span-1'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Received Price:</p>
+                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>Received Price:</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input h-7 border-slate-300 text-xs shadow-lg" name='unitPrcFinal'
                                         value={addComma(x.unitPrcFinal, true)} onChange={e => handleValue(e, i)}
@@ -170,7 +170,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-12 md:col-span-1'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Total', ln)}:</p>
+                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Total', ln)}:</p>
                                 <div className='flex'>
                                     <input type='text' disabled className="number-separator input border-slate-300 h-7 text-xs" name='finaltotal'
                                         value={addComma(x.finaltotal, true, 'finaltotal')} />
@@ -178,7 +178,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-12 md:col-span-1'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Invoice', ln)}#:</p>
+                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Invoice', ln)}#:</p>
                                 <div className='flex'>
                                     <input type='text' disabled className="number-separator input border-slate-300 h-7 text-xs truncate" name='total'
                                         defaultValue={x?.poInvoices[0]?.inv} />
@@ -186,7 +186,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-12 md:col-span-3'>
-                                <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Remarks', ln)}:</p>
+                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Remarks', ln)}:</p>
                                 <div className='flex'>
                                     <input type='text' className="shadow-lg input border-slate-300 h-7 text-xs truncate" name='remark'
                                         value={x?.remark} onChange={e => handleValue(e, i)} />

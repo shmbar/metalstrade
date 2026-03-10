@@ -38,20 +38,19 @@ const Expenses = () => {
 
     return (
         <div>
-            <div className='z-10 relative mt-2 border border-[var(--rock-blue)] rounded-lg 
-       flex m-2 pb-6 bg-[var(--selago)]/30'>
+            <div className='z-10 relative mt-2 rounded-2xl flex m-2 pb-4' style={{ border: '1px solid #b8ddf8', background: '#f4f9ff' }}>
 
                 <div className='grid grid-cols-12 gap-3 w-full p-2'>
                     <div className='col-span-12 md:col-span-4  px-2'>
                         <div>
-                            <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Expense Invoice', ln)}</p>
+                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Invoice', ln)}</p>
                             <div className='w-full '>
-                                <input className="input shadow-lg h-7 text-xs" name='expense' value={valueExp.expense} onChange={handleValue} />
+                                <input className="input h-7 text-xs rounded-xl border-[#b8ddf8] bg-white" name='expense' value={valueExp.expense} onChange={handleValue} />
                                 <ErrDiv field='expense' errors={errorsExp} />
                             </div>
                         </div>
                         <div className='pt-2'>
-                            <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Date', ln)}:</p>
+                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Date', ln)}:</p>
                             <Datepicker useRange={false}
                                 asSingle={true}
                                 value={valueExp.dateRange}
@@ -63,23 +62,23 @@ const Expenses = () => {
                             <ErrDiv field='date' errors={errorsExp} />
                         </div>
                         <div className='pt-2'>
-                            <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Amount', ln)}:</p>
+                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Amount', ln)}:</p>
                             <div className='w-full '>
-                                <input type='number' className="input shadow-lg h-7 text-xs" name='amount' value={valueExp.amount} onChange={handleValue} />
+                                <input type='number' className="input h-7 text-xs rounded-xl border-[#b8ddf8] bg-white" name='amount' value={valueExp.amount} onChange={handleValue} />
                                 <ErrDiv field='amount' errors={errorsExp} />
                             </div>
                         </div>
                     </div>
                     <div className='col-span-12 md:col-span-4  px-2'>
                         <div>
-                            <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Vendor', ln)}:</p>
+                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Vendor', ln)}:</p>
                             <div className='w-full '>
                                 <CBox data={sups} setValue={setValueExp} value={valueExp} name='supplier' classes='shadow-md -mt-1 h-7' classes1='max-h-48' />
                                 <ErrDiv field='supplier' errors={errorsExp} />
                             </div>
                         </div>
                         <div className='pt-1'>
-                            <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Expense Type', ln)}:</p>
+                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Type', ln)}:</p>
                             <div className='w-full '>
                                 <CBox data={settings.Expenses.Expenses} setValue={setValueExp} value={valueExp} name='expType' classes='shadow-md  -mt-1 h-7' classes1='max-h-24' />
                                 <ErrDiv field='expType' errors={errorsExp} />
@@ -87,14 +86,14 @@ const Expenses = () => {
                         </div>
                         <div className='pt-1 gap-3 flex'>
                             <div className='max-w-xs '>
-                                <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
+                                <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Currency', ln)}:</p>
                                 <div className='w-full'>
                                     <CBox data={settings.Currency.Currency} setValue={setValueExp} value={valueExp} name='cur' classes='shadow-md -mt-1' />
                                     <ErrDiv field='cur' errors={errorsExp} />
                                 </div>
                             </div>
                             <div className='max-w-xs '>
-                                <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Payment', ln)}:</p>
+                                <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Payment', ln)}:</p>
                                 <div className='w-full'>
                                     <CBox data={settings.ExpPmnt.ExpPmnt} setValue={setValueExp} value={valueExp} name='paid' classes='shadow-md -mt-1' />
                                 </div>
@@ -102,10 +101,10 @@ const Expenses = () => {
                         </div>
                     </div>
                     <div className='col-span-12 md:col-span-4  px-2'>
-                        <p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
+                        <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
                         <div>
                             <textarea rows="5" cols="60" name="comments"
-                                className="input shadow-lg h-32 text-xs p-1"
+                                className="input h-32 text-xs p-1 rounded-xl border-[#b8ddf8] bg-white"
                                 value={valueExp.comments} onChange={handleValue} />
                         </div>
 

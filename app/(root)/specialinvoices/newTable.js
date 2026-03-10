@@ -198,36 +198,20 @@ const Customtable = ({
 
                 /* Add border, background, and text alignment styles for table cells */
                 .custom-table th{
-                    border: 1px solid #ccc;
-                    background-color: #f9f9f9;
+                    border: 1px solid #e8f0f8;
+                    background-color: #dbeeff;
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
-                    border-radius: 4px;;
                     font-size: 11px !important;
                 }
-                    .custom-table td {
-                    border: 1px solid #ccc;
-                    background-color: #f9f9f9;
+                .custom-table td {
+                    border: 1px solid #e8f0f8;
+                    background-color: #fff;
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
-                    border-radius: 4px;
                     font-size: 10px !important;
-                }
-
-                .custom-table th {
-                    background-color: #dbeeff;
-                }
-                .total-row-cell {
-                    border: none !important;
-                    outline: none !important;
-                    box-shadow: none !important;
-                }
-
-                .custom-table td {
-                    background-color: #fff;
-                    border: 1px solid #e0e0e0;
                 }
             `}</style>
 
@@ -269,47 +253,44 @@ const Customtable = ({
       borderLeft: '8px solid var(--chathams-blue)',
       borderRadius: '24px'
     }}
-  >                        <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight }}>
-                            <table className="w-full" style={{ tableLayout: 'auto' }}>
+  >
+                    {/* Total $ row - outside table to avoid table CSS */}
+                    {(() => {
+                        const cols = table.getVisibleLeafColumns();
+                        const colCount = cols.length;
+                        const usdTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.total * 1 || 0) : s; }, 0);
+                        const usdWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.qnty * 1 || 0) : s; }, 0);
+                        return (
+                            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colCount}, 1fr)`, backgroundColor: '#b7d1b5', padding: '6px 8px', color: '#1a3a1a', fontWeight: 600, fontSize: '10px' }}>
+                                {cols.map((col, i) => (
+                                    <span key={col.id} style={{ textAlign: i === 0 ? 'left' : 'center', paddingLeft: i === 0 ? '8px' : 0 }}>
+                                        {i === 0 ? 'Total $:' : col.id === 'qnty' ? (usdWeight % 1 === 0 ? usdWeight : usdWeight.toFixed(2)) : col.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(usdTotal) : ''}
+                                    </span>
+                                ))}
+                            </div>
+                        );
+                    })()}
+                    {/* Total € row - outside table to avoid table CSS */}
+                    {(() => {
+                        const cols = table.getVisibleLeafColumns();
+                        const colCount = cols.length;
+                        const eurTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.total * 1 || 0) : s; }, 0);
+                        const eurWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.qnty * 1 || 0) : s; }, 0);
+                        return (
+                            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colCount}, 1fr)`, backgroundColor: '#8db6d8', padding: '6px 8px', color: 'var(--chathams-blue)', fontWeight: 600, fontSize: '10px' }}>
+                                {cols.map((col, i) => (
+                                    <span key={col.id} style={{ textAlign: i === 0 ? 'left' : 'center', paddingLeft: i === 0 ? '8px' : 0 }}>
+                                        {i === 0 ? 'Total €:' : col.id === 'qnty' ? (eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)) : col.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal) : ''}
+                                    </span>
+                                ))}
+                            </div>
+                        );
+                    })()}
+                        <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight }}>
+                            <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0 }}>
 
-                                {/* THEAD - Multi-color gradient inspired by all cards */}
+                                {/* THEAD */}
                                 <thead className="sticky top-0 z-10">
-                                    {/* Total $ row */}
-                                    {(() => {
-                                        const usdTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.total * 1 || 0) : s; }, 0);
-                                        const usdWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.qnty * 1 || 0) : s; }, 0);
-                                        const cols = table.getVisibleLeafColumns();
-                                        return (
-                                            <tr>
-                                                {cols.map((col, i) => {
-                                                    const bg = '#b7d1b5';
-                                                    const style = { backgroundColor: bg, padding: '6px 8px', color: '#1a3a1a', fontWeight: 600, fontSize: '10px', textAlign: 'center' };
-                                                    if (i === 0) return <th key={col.id} className="total-row-cell" style={{ ...style, textAlign: 'left' }}>Total $:</th>;
-                                                    if (col.id === 'qnty') return <th key={col.id} className="total-row-cell" style={style}>{usdWeight % 1 === 0 ? usdWeight : usdWeight.toFixed(2)}</th>;
-                                                    if (col.id === 'total') return <th key={col.id} className="total-row-cell" style={style}>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(usdTotal)}</th>;
-                                                    return <th key={col.id} className="total-row-cell" style={style}></th>;
-                                                })}
-                                            </tr>
-                                        );
-                                    })()}
-                                    {/* Total € row */}
-                                    {(() => {
-                                        const eurTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.total * 1 || 0) : s; }, 0);
-                                        const eurWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.qnty * 1 || 0) : s; }, 0);
-                                        const cols = table.getVisibleLeafColumns();
-                                        return (
-                                            <tr>
-                                                {cols.map((col, i) => {
-                                                    const bg = '#8db6d8';
-                                                    const style = { backgroundColor: bg, padding: '6px 8px', color: 'var(--chathams-blue)', fontWeight: 600, fontSize: '10px', textAlign: 'center' };
-                                                    if (i === 0) return <th key={col.id} className="total-row-cell" style={{ ...style, textAlign: 'left' }}>Total €:</th>;
-                                                    if (col.id === 'qnty') return <th key={col.id} className="total-row-cell" style={style}>{eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)}</th>;
-                                                    if (col.id === 'total') return <th key={col.id} className="total-row-cell" style={style}>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal)}</th>;
-                                                    return <th key={col.id} className="total-row-cell" style={style}></th>;
-                                                })}
-                                            </tr>
-                                        );
-                                    })()}
                                     {table.getHeaderGroups().map(group => (
                                         <Fragment key={group.id}>
                                             <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>

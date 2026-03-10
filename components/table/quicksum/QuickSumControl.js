@@ -110,8 +110,9 @@ export function QuickSumButton({
         onClick={toggleEnabled}
         className={`px-3 py-1 rounded-2xl text-[11px] font-medium transition-all border
           ${enabled
-            ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]'
+            ? 'bg-[var(--endeavour)] border-[var(--endeavour)]'
             : 'bg-white text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
+        style={enabled ? { color: '#ffffff' } : {}}
         title="Quick Sum"
       >
         Quick Sum

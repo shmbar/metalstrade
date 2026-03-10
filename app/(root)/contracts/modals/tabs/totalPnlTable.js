@@ -130,8 +130,8 @@ const TotalPnlTable = ({ data, val, mult }) => {
     return (
 
 
-        <div className='border border-slate-300 p-2 rounded-lg' >
-            <div className="overflow-x-auto border-slate-300 border rounded-lg">
+        <div className='border border-[#b8ddf8] p-2 rounded-2xl' >
+            <div className="overflow-x-auto border-[#b8ddf8] border rounded-2xl">
                 <table className="w-full ">
                     <thead className="bg-slate-500 divide-y divide-gray-200 ">
                         <tr className='border-b '>

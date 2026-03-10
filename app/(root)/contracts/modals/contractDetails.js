@@ -111,7 +111,7 @@ const ContractModal = () => {
 		<div className="px-1">
 
 			<div className='grid grid-cols-6 gap-3 pt-1'>
-				<div className='col-span-12 md:col-span-3 border border-slate-300 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-4 items-center'>
 						<p className='flex pt-1 text-[13px] font-medium'>{getTtl('Supplier Name', ln)}:</p>
 						<div className='w-72'>
@@ -150,10 +150,10 @@ const ContractModal = () => {
 						</div>
 					}
 				</div>
-				<div className='hidden md:flex md:col-span-1 border border-slate-300 p-2 rounded-lg'>
+				<div className='hidden md:flex md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
 
 				</div>
-				<div className='col-span-12 md:col-span-2 border border-slate-300 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-2 border border-[#b8ddf8] p-2 rounded-2xl'>
 					<p className='flex items-center text-[13px] font-medium'>{getTtl('PoOrderNo', ln)}:</p>
 					<div className='w-full md:w-48 '>
 						<input className="input text-[12px] shadow-lg h-8" name='order' value={valueCon.order} onChange={handleValue} />
@@ -174,7 +174,7 @@ const ContractModal = () => {
 				</div>
 			</div>
 			<div className='grid grid-cols-3 gap-3 pt-2'>
-				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex pt-1 text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -205,7 +205,7 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -235,7 +235,7 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('Container Type', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -277,7 +277,7 @@ const ContractModal = () => {
 				</div>
 			</div>
 
-			<div className='mt-2 w-full border border-slate-300 p-2 rounded-lg'>
+			<div className='mt-2 w-full border border-[#b8ddf8] p-2 rounded-2xl'>
 				<p className='flex items-center text-[13px] font-medium'>{getTtl('Payment Terms', ln)}:</p>
 				<div className='w-full '>
 					<Selector arr={settings['Payment Terms']['Payment Terms']} value={valueCon}
@@ -289,14 +289,14 @@ const ContractModal = () => {
 
 			<div className='grid grid-cols-4 gap-3 pt-2'>
 				<div className='col-span-12 md:col-span-3 '>
-					<div className='w-full border border-slate-300 p-2 rounded-lg'>
+					<div className='w-full border border-[#b8ddf8] p-2 rounded-2xl'>
 						<ProductsTable value={valueCon} setValue={setValueCon} currency={settings.Currency.Currency}
 							quantityTable={settings.Quantity.Quantity} setShowPoInvModal={setShowPoInvModal}
 							setShowStockModal={setShowStockModal} setToast={setToast} contractsData={contractsData}
 						/>
 					</div>
 				</div>
-				<div className='col-span-12 md:col-span-1 border border-slate-300 p-2 rounded-lg'>
+				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex pt-1 text-[13px] items-center font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -331,15 +331,15 @@ const ContractModal = () => {
 
 			<div className='grid grid-cols-4 gap-3 pt-2'>
 				<div className='col-span-12 md:col-span-3 '>
-					<div className='mt-2 w-full border border-slate-300 p-2 rounded-lg'>
+					<div className='mt-2 w-full border border-[#b8ddf8] p-2 rounded-2xl'>
 						<Remarks settings={settings} value={valueCon} setValue={setValueCon} />
 					</div>
-					<div className='mt-2 w-full border border-slate-300 p-2 rounded-lg'>
+					<div className='mt-2 w-full border border-[#b8ddf8] p-2 rounded-2xl'>
 						<PriceRemarks value={valueCon} setValue={setValueCon} />
 					</div>
 				</div>
 				<div className='col-span-12 md:col-span-1 mt-1'>
-					<p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
+					<p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
 					<textarea rows="5" cols="60" name="comments"
 						className="input h-24 text-xs p-1"
 						value={valueCon.comments} onChange={handleValue} />

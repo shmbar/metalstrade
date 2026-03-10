@@ -129,8 +129,8 @@ const Payments = ({ showPayments }) => {
 
     return (
 
-        <div className={`z-10 relative mt-2 border border-slate-300 rounded-lg 
-        ${showPayments ? 'flex animated-div' : 'hidden'}`}>
+        <div className={`z-10 relative mt-2 border border-[#b8ddf8] rounded-2xl
+        ${showPayments ? 'flex animated-div' : 'hidden'}`} style={{background:'#f4f9ff'}}>
             <div className=' flex gap-3 p-2 w-full'>
 
                 <div className=' p-2 h-fit'>
@@ -143,7 +143,7 @@ const Payments = ({ showPayments }) => {
                                     <ChkBox checked={checkedItems.includes(x.id)} size='h-5 w-5' onChange={() => checkItem(x.id)} />
                                 </div>
                                 <div>
-                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Date', ln)}:</p>
+                                    <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Date', ln)}:</p>
                                     <Datepicker useRange={false}
                                         asSingle={true}
                                         value={x.date}
@@ -154,7 +154,7 @@ const Payments = ({ showPayments }) => {
                                     />
                                 </div>
                                 <div >
-                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Actual Payment', ln)}:</p>
+                                    <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Actual Payment', ln)}:</p>
                                     <div className='flex'>
                                         <input type='text' className="number-separator input shadow-lg h-[1.84rem] -mt-[0.03rem] text-xs" name='pmnt'
                                             value={addComma(x.pmnt)} onChange={e => handleValue(e, i)} />

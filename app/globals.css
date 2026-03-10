@@ -8,6 +8,7 @@
   --bunting: #1c134d;
   --chathams-blue: #103a7a;
   --regent-gray: #838ca7;
+  --radius: 0.75rem;
 }
 
 /* Example usage:
@@ -36,7 +37,7 @@ body,
   }
 
   .input {
-    @apply w-full border rounded-lg border-[var(--rock-blue)] h-10 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-xs text-[var(--port-gore)] bg-white;
+    @apply w-full border rounded-xl border-[var(--rock-blue)] h-10 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-xs text-[var(--port-gore)] bg-white;
   }
 
   .dashBox {

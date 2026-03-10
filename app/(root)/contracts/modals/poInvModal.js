@@ -281,7 +281,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                 {valueCon.poInvoices.map((x, i) => {
 
                     return (
-                        <div className='flex gap-4 p-1  border border-slate-300 rounded-lg flex-col' key={x.id}>
+                        <div className='flex gap-4 p-1  border border-[#b8ddf8] rounded-2xl flex-col' style={{background:'#f4f9ff'}} key={x.id}>
                             <div className=''>
                                 <div className='flex items-center'>
                                     <div className='items-center flex pt-3 pr-2'>
@@ -294,24 +294,24 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                     }
                                     <div className='gap-3 flex'>
                                         <div className=''>
-                                            <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'> {getTtl('PurchaseInv', ln)}#:</p>
+                                            <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}> {getTtl('PurchaseInv', ln)}#:</p>
                                             <input type='text' className="number-separator input h-7  shadow-lg text-xs" name='inv'
                                                 value={x.inv} onChange={e => handleValue(e, x)} />
                                         </div>
                                         <div className=''>
-                                            <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('InvoiceValue', ln)}:</p>
+                                            <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('InvoiceValue', ln)}:</p>
                                             <input type='text' className="number-separator input h-7 shadow-lg text-xs" name='invValue'
                                                 value={addComma(x.invValue, true)} onChange={e => handleValue(e, x)} />
                                         </div>
                                         <div className=''>
-                                            <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>
+                                            <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>
                                                 Total Payment:
                                             </p>
                                             <input type='text' className="number-separator input border-slate-300 h-7 text-xs" name='pmnt'
                                                 value={addComma(x.pmnt, true)} disabled />
                                         </div>
                                         <div className=''>
-                                            <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Balance', ln)}:</p>
+                                            <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Balance', ln)}:</p>
                                             <div className='flex pr-3'>
                                                 <input type='text' disabled className="number-separator input border-slate-300 h-7 text-xs" name='blnc'
                                                     value={addComma(x.blnc, true)} />
@@ -340,7 +340,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                 <p className='text-sm text-slate-500'>Payment #{k + 1}:</p>
 
                                                 <div className='md:max-w-36 pt-2 md:pt-0'>
-                                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Payment Date', ln)}:</p>
+                                                    <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Payment Date', ln)}:</p>
                                                     <div className='flex flex-col'>
                                                         <Datepicker useRange={false}
                                                             asSingle={true}
@@ -354,7 +354,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                 </div>
 
                                                 <div className=''>
-                                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>Payment %:</p>
+                                                    <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>Payment %:</p>
                                                     <div className='flex'>
                                                         <input type='text' className="number-separator input h-7  shadow-lg text-xs w-20" name='pmntPerc'
                                                             value={y.pmntPerc} onChange={e => handleValuePerc(e, x, y)} />
@@ -363,7 +363,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                 </div>
 
                                                 <div className=''>
-                                                    <p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>
+                                                    <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>
                                                         {getTtl('Payment', ln)}:
                                                     </p>
                                                     <div className='flex'>
