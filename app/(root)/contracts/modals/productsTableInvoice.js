@@ -360,7 +360,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
         <div className="w-full justify-center flex">
             <div className="flex flex-col w-full">
                 <div className=" overflow-x-auto">
-                    <div className="border border-[#b8ddf8] rounded-lg overflow-hidden">
+                    <div className="border-2 border-[#b8ddf8] rounded-lg overflow-hidden">
                         <table id='my-table' className=" table-fixed min-w-full divide-y divide-[#b8ddf8]">
                             <thead style={{ background: '#dbeeff' }}>
                                 <tr>

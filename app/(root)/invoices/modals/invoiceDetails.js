@@ -175,7 +175,7 @@ const InvoiceModal = () => {
 		<div className="px-1">
 			{loading && <Spinner />}
 			<div className='grid grid-cols-12 gap-1.5 pt-1'>
-				<div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='col-span-12 md:col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<p className='flex items-center text-xs text-[var(--port-gore)] font-medium'>{getTtl('Consignee', ln)}:</p>
 					<div>
 						{!fnl ?
@@ -202,7 +202,7 @@ const InvoiceModal = () => {
 						</>
 					)}
 				</div>
-				<div className='col-span-12 md:col-span-2 border border-[#b8ddf8] p-2 rounded-2xl flex flex-col'>
+				<div className='col-span-12 md:col-span-2 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-col'>
 					<p className='text-xs text-[var(--port-gore)] font-medium indent-1'>{getTtl('Invoice Type', ln)}:</p>
 					{!fnl ?
 						<InvoiceType setSelected={selectInvType} plans={settings.InvTypes.InvTypes} value={valueInv} ln={ln} />
@@ -210,7 +210,7 @@ const InvoiceModal = () => {
 						<p className='pt-2 pl-1 text-xs text-[var(--port-gore)]'>{valueInv.invType}</p>
 					}
 				</div>
-				<div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl flex flex-col'>
+				<div className='col-span-12 md:col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-col'>
 					<p className='text-xs text-[var(--port-gore)] font-medium indent-1'>{getTtl('PO', ln)}#:</p>
 					{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col mt-1 ring-1 ring-[#b8ddf8] rounded-xl divide-y divide-[#b8ddf8]" >
 						{poArr.map((x, i) => {
@@ -225,7 +225,7 @@ const InvoiceModal = () => {
 					</ul>}
 
 				</div>
-				<div className='col-span-12 md:col-span-4 border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='col-span-12 md:col-span-4 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex items-center'>
 						<p className='flex text-xs text-[var(--port-gore)] font-medium'>{getTtl('Date', ln)}:</p>
 						<div className='w-full px-2'>
@@ -268,7 +268,7 @@ const InvoiceModal = () => {
 
 
 			<div className='grid grid-cols-3 gap-1.5 pt-1'>
-				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='col-span-12 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-2 justify-between'>
 						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -320,7 +320,7 @@ const InvoiceModal = () => {
 					</div>
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='col-span-12 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-2 justify-between'>
 						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
 						<div className='w-full md:w-44'>
@@ -358,7 +358,7 @@ const InvoiceModal = () => {
 						</div>}
 				</div>
 
-				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='col-span-12 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
 						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('totalNet', ln)}:</p>
 						<p className='text-xs pr-6 text-[var(--port-gore)]'>
@@ -401,7 +401,7 @@ const InvoiceModal = () => {
 			</div>
 
 			<div className='grid grid-cols-2 gap-1.5 mt-1'>
-				<div className='col-span-12 md:col-span-1 flex border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='col-span-12 md:col-span-1 flex border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap '>{getTtl('Bank Account', ln)}:</p>
 					<div className='w-full pl-4'>
 						{!fnl ?
@@ -412,7 +412,7 @@ const InvoiceModal = () => {
 					</div>
 				</div>
 
-				<div className='hidden md:flex col-span-0 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='hidden md:flex col-span-0 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 
 					<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap '>HS Code:</p>
 					<div className='w-full pl-4'>
@@ -444,7 +444,7 @@ const InvoiceModal = () => {
 
 			<div className='grid grid-cols-8 gap-1.5 pt-1'>
 				<div className='col-span-12 md:col-span-7 '>
-					<div className='w-full border border-[#b8ddf8] p-2 rounded-2xl'>
+					<div className='w-full border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 						<ProductsTable value={valueInv} setValue={setValueInv}
 							currency={settings.Currency.Currency} uidCollection={uidCollection}
 							settings={settings} setDeleteProducts={setDeleteProducts}
@@ -453,7 +453,7 @@ const InvoiceModal = () => {
 						/>
 					</div>
 				</div>
-				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='col-span-12 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='gap-1.5'>
 						<p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
 						<div className='w-full '>
@@ -472,10 +472,10 @@ const InvoiceModal = () => {
 			</div>
 
 			<div className='grid grid-cols-8 gap-1.5 mt-1'>
-				<div className='col-span-12 md:col-span-5  w-full border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='col-span-12 md:col-span-5  w-full border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<Remarks value={valueInv} setValue={setValueInv} ln={ln} />
 				</div>
-				<div className='col-span-12 md:col-span-3 h-fit border border-[#b8ddf8] p-2 py-1 pb-0 rounded-2xl'>
+				<div className='col-span-12 md:col-span-3 h-fit border-2 border-[#b8ddf8] p-2 py-1 pb-0 rounded-2xl'>
 					<p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="2" cols="60" name="comments"
 						className="input h-11 text-xs p-1"
