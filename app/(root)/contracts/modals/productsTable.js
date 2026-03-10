@@ -117,24 +117,24 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
         <div className="w-full justify-center flex">
             <div className="flex flex-col w-full">
                 <div className="relative">
-                    <div className="border rounded-lg  relative">
-                        <table className=" table-fixed min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50 ">
+                    <div className="border border-[#b8ddf8] rounded-lg  relative">
+                        <table className=" table-fixed min-w-full divide-y divide-[#b8ddf8]">
+                            <thead style={{ background: '#dbeeff' }}>
                                 <tr>
                                     <th scope="col" className=" w-1/12 py-1 pl-4 "></th>
-                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500"  >
+                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]"  >
                                         #</th>
-                                    <th scope="col" className="w-6/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
+                                    <th scope="col" className="w-6/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
                                         {getTtl('Description', ln)}  </th>
-                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
+                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
                                         <div>   {getTtl('Quantity', ln)} <span className='font-bold'>
                                             {q !== '' ? '(' + q + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-2/12 px-1 py-1 text-left text-[13px] font-medium text-gray-500" >
+                                    <th scope="col" className="w-2/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
                                         <div>{getTtl('UnitPrice', ln)} <span className='font-bold'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200 relative">
+                            <tbody className="divide-y divide-[#b8ddf8] relative">
                                 {reOrderTableCon(value.productsData.filter(x => !x.import)).map((obj, i) => {
                                     return (
                                         <tr key={i} className='relative'>

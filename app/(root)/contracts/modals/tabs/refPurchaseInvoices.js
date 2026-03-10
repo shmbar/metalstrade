@@ -31,14 +31,14 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                     <table className="w-full border border-r-0">
                         <thead className="divide-y divide-gray-200 ">
                             <tr className='text-center' >
-                                <th className='font-medium text-xs bg-gray-100 whitespace-normal h-10 min-w-20' rowSpan="2">{getTtl('POInvoices', ln)}</th>
+                                <th className='font-medium text-xs bg-[#dbeeff] whitespace-normal h-10 min-w-20' rowSpan="2">{getTtl('POInvoices', ln)}</th>
                             </tr>
 
                         </thead>
                         <tbody className="divide-y divide-gray-200 ">
                             {valueCon.poInvoices.map((y, i) => (
                                 <tr key={i}>
-                                    <td key={i} className='bg-gray-100 table_cell p-1 border border-r-0 text-[0.7rem]
+                                    <td key={i} className='bg-[#dbeeff] table_cell p-1 border border-r-0 text-[0.7rem]
                                         min-w-[4rem] px-0.5 text-center ' >
                                         {y.inv}
                                     </td>
@@ -52,7 +52,7 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                     <table className="w-full border ">
                         <thead className="divide-y divide-gray-200 ">
                             <tr className='text-center' >
-                                <th className='font-medium text-xs bg-gray-100 h-5 whitespace-nowrap'
+                                <th className='font-medium text-xs bg-[#dbeeff] h-5 whitespace-nowrap'
                                     colSpan={[... new Set(valueCon.invoices.map(x => x.invoice))].length}>{getTtl('SalesInvoices', ln)}</th>
                             </tr>
                             <tr>
@@ -60,7 +60,7 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                     <th
                                         scope="col"
                                         key={k}
-                                        className='bg-gray-100 border-b px-5  text-[0.7rem] font-medium text-gray-500
+                                        className='bg-[#dbeeff] border-b px-5  text-[0.7rem] font-medium text-[var(--chathams-blue)]
                                     h-5 text-center  min-w-[3rem]'
                                     >
                                         {y}

@@ -133,14 +133,14 @@ const TotalPnlTable = ({ data, val, mult }) => {
         <div className='border border-[#b8ddf8] p-2 rounded-2xl' >
             <div className="overflow-x-auto border-[#b8ddf8] border rounded-2xl">
                 <table className="w-full ">
-                    <thead className="bg-slate-500 divide-y divide-gray-200 ">
-                        <tr className='border-b '>
+                    <thead style={{ background: '#dbeeff' }} className="divide-y divide-[#b8ddf8]">
+                        <tr className='border-b border-[#b8ddf8]'>
                             {cols.map(x => x.header)
                                 .map((y, k) => (
                                     <th
                                         scope="col"
                                         key={k}
-                                        className="px-3 py-1 text-left text-[0.6rem] font-medium text-white uppercase"
+                                        className="px-3 py-1 text-left text-[0.6rem] font-medium text-[var(--chathams-blue)] uppercase"
                                     >
                                         {y}
                                     </th>

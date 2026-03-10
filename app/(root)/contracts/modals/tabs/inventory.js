@@ -181,14 +181,14 @@ const Inventory = () => {
             <div className='mt-4 border border-[#b8ddf8] p-2 rounded-2xl flex md:w-fit' >
                 <div className="w-full overflow-x-auto border-[#b8ddf8] border rounded-2xl ">
                     <table className='w-full'>
-                        <thead className="bg-slate-500 divide-y divide-gray-200 ">
-                            <tr className='border-b '>
+                        <thead style={{ background: '#dbeeff' }} className="divide-y divide-[#b8ddf8]">
+                            <tr className='border-b border-[#b8ddf8]'>
                                 {cols.map(x => x.header)
                                     .map((y, k) => (
                                         <th
                                             scope="col"
                                             key={k}
-                                            className="px-3 py-1 text-left text-[0.75rem] font-medium uppercase text-white text-wrap max-w-40"
+                                            className="px-3 py-1 text-left text-[0.75rem] font-medium uppercase text-[var(--chathams-blue)] text-wrap max-w-40"
                                         >
                                             {y}
                                         </th>
