@@ -163,7 +163,7 @@ const SideBarMini = () => {
                 >
                 <MenuItems
   data-ims-sidebar="1"
-  className="fixed right-2 mt-1 w-76 origin-top-left divide-y divide-[#003366]/20 rounded-xl shadow-lg border border-[var(--selago)] bg-[#bce1ff] focus:outline-none h-[450px] overflow-auto z-[20000]"
+  className="fixed right-2 top-14 w-76 origin-top-left divide-y divide-[#003366]/20 rounded-xl shadow-lg border border-[var(--selago)] bg-[#bce1ff] focus:outline-none h-[450px] overflow-auto z-[20000]"
 >
   <div className='px-4 py-3 border-b border-[var(--selago)]'>
     <p className='text-sm font-semibold text-[#003366]'>

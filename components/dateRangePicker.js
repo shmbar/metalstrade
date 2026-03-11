@@ -14,11 +14,18 @@ const toStr = (val) => (val ? dateFormat(val, "yyyy-mm-dd") : null);
 
 const DateRangePicker = ({ displayLabel }) => {
     const { setDateSelect, dateSelect } = useContext(SettingsContext);
+    const [menuOpen, setMenuOpen] = useState(false);
 
     const [value, setValue] = useState({
         startDate: toDate(dateSelect.start),
         endDate: toDate(dateSelect.end),
     });
+
+    useEffect(() => {
+        const handler = (e) => setMenuOpen(e.detail?.isOpen ?? false);
+        window.addEventListener('ims:menuToggle', handler);
+        return () => window.removeEventListener('ims:menuToggle', handler);
+    }, []);
 
     useEffect(() => {
         setValue({
@@ -154,6 +161,8 @@ const DateRangePicker = ({ displayLabel }) => {
             if (s) s.remove();
         };
     }, []);
+
+    if (menuOpen) return null;
 
     return (
         <div className="relative flex items-center w-full max-w-[240px] rounded-2xl">
