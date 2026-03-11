@@ -10,7 +10,7 @@ const Toast = () => {
         if (toast?.show) {
             const timer = setTimeout(() => {
                 setToast({ ...toast, show: false });
-                setSecondaryToast(true); // Trigger the secondary toast
+                setSecondaryToast(true);
             }, 5000);
 
             return () => clearTimeout(timer);
@@ -30,17 +30,20 @@ const Toast = () => {
     return (
         <div>
             {toast?.show && (
-                <div className={`gap-3 flex text-sm px-4 py-3 bottom-2 left-4 z-40 fixed rounded-lg items-center
-                ${toast?.clr === 'success' ? 'bg-green-700' : 'bg-red-600'} shadow-xl drop-shadow-2xl fadeInToast`}>
-                    {toast?.clr === 'success' ? <FaRegCheckCircle className='scale-150 text-white' /> :
-                        <FaRegTimesCircle className='scale-150 text-white' />}
-                    <div className='text-white'>{toast?.text || ''}</div>
+                <div className={`gap-3 flex text-sm px-4 py-3 bottom-4 left-4 z-40 fixed rounded-xl items-center shadow-lg fadeInToast border
+                ${toast?.clr === 'success'
+                    ? 'bg-[var(--endeavour)] border-[#0255a3] text-white'
+                    : 'bg-white border-red-200 text-red-700'}`}>
+                    {toast?.clr === 'success'
+                        ? <FaRegCheckCircle className='scale-150 text-white flex-shrink-0' />
+                        : <FaRegTimesCircle className='scale-150 text-red-500 flex-shrink-0' />}
+                    <div>{toast?.text || ''}</div>
                 </div>
             )}
             {secondaryToast && toast?.clr === 'success' && (
-                <div className="gap-3 flex text-sm px-4 py-3 bottom-2 left-4 z-40 fixed rounded-lg items-center
-                bg-blue-600 shadow-xl drop-shadow-2xl fadeInToast">
-                    <div className='text-white'>Please verify the saved data again!</div>
+                <div className="gap-3 flex text-sm px-4 py-3 bottom-4 left-4 z-40 fixed rounded-xl items-center shadow-lg fadeInToast border border-[#b8ddf8] bg-[#ebf2fc] text-[var(--chathams-blue)]">
+                    <FaRegCheckCircle className='scale-125 text-[var(--endeavour)] flex-shrink-0' />
+                    <div>Please verify the saved data again!</div>
                 </div>
             )}
         </div>

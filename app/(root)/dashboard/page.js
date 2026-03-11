@@ -265,7 +265,7 @@ function DebtSnapshotCard({ totalInvoices, totalContracts, totalExpenses, totalP
           {metrics.map((m, i) => (
             <motion.div
               key={i}
-              className="flex flex-col gap-0.5 p-2 rounded-lg border border-gray-100 bg-gray-50/60"
+              className="flex flex-col gap-0.5 p-2 rounded-lg border border-[#b8ddf8] bg-white"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: i * 0.08 }}

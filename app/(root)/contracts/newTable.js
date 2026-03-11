@@ -46,6 +46,7 @@ const Customtable = ({
   const [globalFilter, setGlobalFilter] = useState('')
   const [columnVisibility, setColumnVisibility] = useState(invisible)
   const [filterOn, setFilterOn] = useState(false)
+  const [selectedRowId, setSelectedRowId] = useState(null)
 
   const [{ pageIndex, pageSize }, setPagination] = useState({
     pageIndex: 0,
@@ -238,6 +239,10 @@ const Customtable = ({
           background-color: #fff;
           border: 1px solid #e0e0e0;
         }
+
+        tr.selected-row td {
+          background-color: #b8ddf8 !important;
+        }
       `}</style>
 
       <div className="custom-table">
@@ -333,9 +338,10 @@ const Customtable = ({
                   {table.getRowModel().rows.map((row) => (
                     <tr
                       key={row.id}
+                      onClick={() => setSelectedRowId(row.id)}
                       onDoubleClick={() => SelectRow(row.original)}
                       tabIndex={0}
-                      className="cursor-pointer hover:bg-[#dbeeff] transition-colors"
+                      className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ''}`}
                     >
                       {row.getVisibleCells().map((cell) => {
                         const value = cell.getValue();
