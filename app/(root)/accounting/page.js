@@ -692,7 +692,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
 
 </div>
            {/* Full Table */}
-          <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-white relative z-[50]">
+          <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-white relative">
             <h3 className="text-lg font-semibold text-[var(--port-gore)] mb-4">All Transactions</h3>
             <Customtable data={invoicesAccData} columns={propDefaults}  onCellUpdate={onCellUpdate}
               excellReport={EXD(invoicesAccData, settings, getTtl('Accounting', ln), ln)} />
