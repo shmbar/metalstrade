@@ -13,7 +13,7 @@ import Tltip from '../../../../components/tlTip';
 
 const Clients = () => {
 
-    const { settings, updateSettings, compData } = useContext(SettingsContext);
+    const { settings, updateSettings, compData, setToast } = useContext(SettingsContext);
     const [value, setValue] = useState({
         client: '', street: '', city: '', country: '', other1: '', nname: '', poc: '',
         email: '', phone: '', mobile: '', fax: '', other2: '', deleted: false
@@ -33,6 +33,7 @@ const Clients = () => {
             let newArr = [...settings.Client.Client, { ...value, id: uuidv4() }];
             const newObj = { ...settings.Client, Client: newArr }
             updateSettings(uidCollection, newObj, 'Client', true)
+            setToast({ show: true, clr: 'success', text: 'Client saved successfully!' })
             clickClear()
         }
     };
@@ -45,6 +46,7 @@ const Clients = () => {
             let newArr = settings.Client.Client.map((x, i) => x.id === value.id ? value : x)
             const newObj = { ...settings.Client, Client: newArr }
             updateSettings(uidCollection, newObj, 'Client', true)
+            setToast({ show: true, clr: 'success', text: 'Client updated successfully!' })
         }
     }
 

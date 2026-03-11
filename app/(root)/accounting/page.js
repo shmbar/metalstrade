@@ -316,7 +316,7 @@ useEffect(() => {
       style: 'currency',
       currency: x.row.original.curEX || 'USD',
       minimumFractionDigits: 2
-    }).format(x.getValue()) : ''
+    }).format(Number(x.getValue()) || 0) : ''
   }
 
   let showAmountInv = (x) => {
@@ -325,7 +325,7 @@ useEffect(() => {
       style: 'currency',
       currency: x.row.original.curINV || 'USD',
       minimumFractionDigits: 2
-    }).format(x.getValue()) : ''
+    }).format(Number(x.getValue()) || 0) : ''
   }
 
 
