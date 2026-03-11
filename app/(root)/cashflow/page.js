@@ -874,7 +874,7 @@ return (
         )}
     </div>
 ) : (
-<div className="w-full border border-[var(--selago)] rounded-2xl overflow-hidden bg-white">
+<div className="w-full border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white">
   {userTitle === 'Admin' &&
                         <div className="w-full p-2 border-b border-[var(--selago)]">
                             <div className="flex gap-2">
@@ -1558,7 +1558,7 @@ return (
                     </div>
 
                     {userTitle === 'Admin' && (
-                <div className="mt-1 w-full border border-[var(--selago)] rounded-xl p-2">
+                <div className="mt-1 w-full border border-[#b8ddf8] rounded-xl p-2">
 
                     {/* TOTALS AND BALANCE IN ONE ROW */}
                     <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">

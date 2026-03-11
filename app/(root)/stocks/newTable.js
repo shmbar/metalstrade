@@ -323,24 +323,22 @@ const Customtable = ({
                                 <span className="text-[11px] font-normal" style={{ color: bg ? '#FFFFFF' : undefined }}>{cell.getValue()}</span>
                               </div>
                             ) : (
- <div className="flex items-center justify-center">
-  <div
-    className="px-2 py-0.5 rounded-xl text-[11px] font-normal"
-    style={{
-      background: 'linear-gradient(135deg, #FAFAFA, #F3F4F6)',
-      border: '1px solid #E5E7EB',
-      color: '#1F2937',
-      display: 'inline-block',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      maxWidth: '100%',
-    }}
-  >
-      {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}
-    </div>
-  </div>
-)}
+                              <div className="flex justify-center">
+                                {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
+                                  <div
+                                    className="p-1.5 rounded-xl text-[11px] font-normal min-w-[70px]"
+                                    style={{
+                                      backgroundColor: '#f9f9f9',
+                                      border: '1px solid #cecece',
+                                    }}
+                                  >
+                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                  </div>
+                                ) : (
+                                  <div className="p-1.5 rounded-xl text-[11px] font-normal min-w-[70px]" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
+                                )}
+                              </div>
+                            )}
                           </td>
                         )
                       })}
@@ -354,22 +352,15 @@ const Customtable = ({
                         className="py-24 text-center"
                       >
                         <div className="flex flex-col items-center justify-center">
-                          <div 
-                            className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
-                            style={{ 
-                              background: 'linear-gradient(135deg, #6366F1, #A855F7)',
-                            }}
+                          <video
+                            className="w-24 h-24 mb-5 rounded-2xl object-cover"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
                           >
-                            <svg 
-                              className="w-12 h-12" 
-                              style={{ color: '#FFFFFF' }}
-                              fill="none" 
-                              viewBox="0 0 24 24" 
-                              stroke="currentColor"
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                          </div>
+                            <source src="/logo/no-data.mp4" type="video/mp4" />
+                          </video>
                           <p 
                             className="font-normal mb-2" 
                             style={{ 

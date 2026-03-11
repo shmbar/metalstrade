@@ -101,7 +101,7 @@ const Page = () => {
     relative
     mt-[-1px]
     rounded-xl
-    border border-[var(--selago)]
+    border border-[#b8ddf8]
     bg-white
     shadow-sm
     p-3

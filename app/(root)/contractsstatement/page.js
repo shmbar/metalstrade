@@ -480,7 +480,7 @@ const Contracts = () => {
 					<Toast />
 
 					<VideoLoader loading={loading} fullScreen={true} />
-					<div className="border border-[var(--selago)] rounded-xl p-4 mt-8  bg-white relative">
+					<div className="border border-[#b8ddf8] rounded-xl p-4 mt-8  bg-white relative">
 						<div className='flex items-center justify-between flex-wrap pb-2'>
 							<div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Contracts Statement', ln)}</div>
 							<div className='flex group'>

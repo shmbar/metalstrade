@@ -340,9 +340,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                             </div>
                                                         ) : (isCompleted || isStatus) && !badgeConfig ? (
                                                             <div className="flex justify-center">
-                                                                <div className="text-[11px] text-[#6B7280]">
-                                                                    { }
-                                                                </div>
+                                                                <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
                                                             </div>
                                                         ) : (
                                                             <div className="flex justify-center">
@@ -357,9 +355,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                                     </div>
                                                                 ) : (
-                                                                    <div className="text-[11px] text-[#6B7280]">
-                                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                                    </div>
+                                                                    <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
                                                                 )}
                                                             </div>
                                                         )}

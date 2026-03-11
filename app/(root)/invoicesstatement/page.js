@@ -428,7 +428,7 @@ const Shipments = () => {
                 <div>
                     <Toast />
                     {/* {loading && <Spin />} */}
-                    <div className="border border-[var(--selago)] rounded-xl p-4 mt-8 shadow-lg bg-white relative">
+                    <div className="border border-[#b8ddf8] rounded-xl p-4 mt-8 shadow-lg bg-white relative">
 
                         <div className='flex items-center justify-between flex-wrap'>
                             <div className="text-3xl p-1 pb-2 text-[var(--port-gore)] font-semibold">{getTtl('Invoices Statement', ln)}</div>

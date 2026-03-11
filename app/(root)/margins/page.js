@@ -407,7 +407,7 @@ const Margins = () => {
                             </div>
 
                             {/* Action Buttons - Keep original position */}
-                            <div className="rounded-2xl border border-gray-200">
+                            <div className="rounded-2xl border border-[#b8ddf8]">
                            <div className="p-2 flex gap-3 mt-3">
                                 <button
                                     className="bg-[#dbeeff] text-[var(--endeavour)] px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"

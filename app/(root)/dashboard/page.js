@@ -97,7 +97,7 @@ const sumObj = (obj) => Object.values(obj || {}).reduce((a, v) => a + (Number(v)
 function CardShell({ className = "", children }) {
   return (
     <motion.div
-      className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}
+      className={`bg-white rounded-lg shadow-sm border border-[#b8ddf8] ${className}`}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
