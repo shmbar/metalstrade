@@ -398,9 +398,7 @@ const Customtable = ({
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </div>
                 ) : (
-                  <div className="text-[10px] text-[#6B7280]">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </div>
+                  <div className="p-1.5 rounded-xl text-[11px] font-normal min-w-[70px]" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
                 )}
               </div>
             )}

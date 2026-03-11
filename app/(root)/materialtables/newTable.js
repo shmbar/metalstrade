@@ -221,8 +221,8 @@ const Customtable = ({
                         ) : (
                           <div
                             style={{
-                              backgroundColor: '#ffffff',
-                              border: '1px solid #c7d7e8',
+                              backgroundColor: '#f9f9f9',
+                              border: '1px solid #cecece',
                               borderRadius: '8px',
                               padding: '3px 8px',
                               display: 'flex',
