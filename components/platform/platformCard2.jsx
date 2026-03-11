@@ -25,7 +25,7 @@ const pieData = [
 
 export function PlatformCard2() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch relative min-h-[400px]">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch relative min-h-[260px]">
       
       {/* Left: Real-Time Data Analytics */}
       <motion.div 
@@ -33,21 +33,21 @@ export function PlatformCard2() {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.1 }}
-        className="flex flex-col items-start space-y-6 py-12 lg:pl-12 h-full justify-start"
+        className="flex flex-col items-start space-y-3 py-4 lg:pl-4 h-full justify-start"
       >
-        <div className="w-16 h-16 bg-[var(--endeavour)] rounded-2xl flex items-center justify-center shadow-lg shadow-[var(--endeavour)]/20">
-          <Clock className="w-8 h-8 text-white" strokeWidth={2} />
+        <div className="w-10 h-10 bg-[var(--endeavour)] rounded-xl flex items-center justify-center shadow-lg shadow-[var(--endeavour)]/20">
+          <Clock className="w-5 h-5 text-white" strokeWidth={2} />
         </div>
-        <div className="space-y-4">
-          <h2 className="text-3xl font-bold text-[var(--endeavour)] tracking-tight">
+        <div className="space-y-2">
+          <h2 className="text-base font-bold text-[var(--chathams-blue)] tracking-tight">
             Real-Time Analytics
           </h2>
-          <p className="text-gray-500 leading-relaxed text-lg">
+          <p className="text-gray-500 leading-relaxed text-sm">
             Monitor your platform performance and user engagement live. Gain actionable insights instantly 
             to optimize growth and decision-making.
           </p>
         </div>
-        <Button className="bg-[var(--endeavour)] hover:bg-[var(--port-gore)] text-white px-8 py-6 rounded-xl text-lg font-medium shadow-lg shadow-[var(--endeavour)]/25 transition-transform hover:scale-105 cursor-pointer">
+        <Button className="bg-[var(--endeavour)] hover:bg-[var(--port-gore)] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md shadow-[var(--endeavour)]/25 transition-transform hover:scale-105 cursor-pointer">
           Explore Features
         </Button>
       </motion.div>
@@ -61,7 +61,7 @@ export function PlatformCard2() {
         className="relative h-full w-full bg-white rounded-[2rem] shadow-sm border border-slate-100/50 p-8 lg:pr-12"
       >
         {/* Floating Card - Financial Overview */}
-        <div className="absolute -top-16 right-8 w-56 bg-[#0056D2] text-white p-5 rounded-3xl shadow-2xl shadow-blue-500/30 z-10">
+        <div className="absolute -top-16 right-8 w-56 bg-[var(--endeavour)] text-white p-5 rounded-3xl shadow-2xl shadow-blue-500/30 z-10">
           <div className="space-y-1 mb-4">
             <h3 className="text-sm font-semibold opacity-90">Financial Growth</h3>
             <p className="text-[10px] opacity-70">Total platform revenue increased by 46%</p>
@@ -98,8 +98,8 @@ export function PlatformCard2() {
             <AreaChart data={lineData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0056D2" stopOpacity={0.05}/>
-                  <stop offset="95%" stopColor="#0056D2" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="var(--endeavour)" stopOpacity={0.05}/>
+                  <stop offset="95%" stopColor="var(--endeavour)" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <Tooltip 
@@ -108,11 +108,11 @@ export function PlatformCard2() {
               <Area 
                 type="monotone" 
                 dataKey="value" 
-                stroke="#0056D2" 
+                stroke="var(--endeavour)" 
                 strokeWidth={3} 
                 fillOpacity={1} 
                 fill="url(#colorValue)" 
-                dot={{ r: 4, fill: "#0056D2", strokeWidth: 2, stroke: "white" }}
+                dot={{ r: 4, fill: "var(--endeavour)", strokeWidth: 2, stroke: "white" }}
                 activeDot={{ r: 6, strokeWidth: 0 }}
               />
             </AreaChart>

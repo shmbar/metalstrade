@@ -69,7 +69,7 @@
 //             {/* Top Stats Row */}
 //             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
 //               {/* Stat 1: All Traffic */}
-//               <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white p-5 rounded-2xl border border-gray-50 shadow-[0_2px_20px_rgba(0,0,0,0.02)] flex flex-col justify-center h-28 cursor-default transition-shadow hover:shadow-lg">
+//               <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white p-5 rounded-2xl border border-gray-50 shadow-[0_2px_20px_rgba(0,0,0,0.02)] flex flex-col justify-center h-20 cursor-default transition-shadow hover:shadow-lg">
 //                 <div className="flex items-start justify-between mb-2">
 //                     <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
 //                         <TrendingUp className="w-4 h-4" />
@@ -82,7 +82,7 @@
 //               </motion.div>
 
 //               {/* Stat 2: Spent this month */}
-//               <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white p-5 rounded-2xl border border-gray-50 shadow-[0_2px_20px_rgba(0,0,0,0.02)] flex flex-col justify-center h-28 cursor-default transition-shadow hover:shadow-lg">
+//               <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white p-5 rounded-2xl border border-gray-50 shadow-[0_2px_20px_rgba(0,0,0,0.02)] flex flex-col justify-center h-20 cursor-default transition-shadow hover:shadow-lg">
 //                 <div className="flex items-start justify-between w-full">
 //                     <div>
 //                         <p className="text-gray-400 text-xs font-medium mb-1">Spent this month</p>
@@ -111,7 +111,7 @@
 //               </motion.div>
 
 //               {/* Stat 4: Earnings */}
-//               <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white p-5 rounded-2xl border border-gray-50 shadow-[0_2px_20px_rgba(0,0,0,0.02)] flex flex-col justify-center h-28 cursor-default transition-shadow hover:shadow-lg">
+//               <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white p-5 rounded-2xl border border-gray-50 shadow-[0_2px_20px_rgba(0,0,0,0.02)] flex flex-col justify-center h-20 cursor-default transition-shadow hover:shadow-lg">
 //                 <p className="text-gray-400 text-xs font-medium mb-1">Earnings</p>
 //                 <p className="text-xl font-bold text-gray-900">$350.40</p>
 //               </motion.div>
@@ -123,7 +123,7 @@
 //               {/* Left Column */}
 //               <div className="space-y-4">
 //                 {/* Blue Credit Balance Card */}
-//                 <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }} className="bg-[#0066FF] text-white p-6 rounded-2xl relative overflow-hidden shadow-lg shadow-blue-500/20 h-[120px] flex flex-col justify-between cursor-pointer">
+//                 <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }} className="bg-[#0066FF] text-white p-6 rounded-2xl relative overflow-hidden shadow-lg shadow-blue-500/20 h-[90px] flex flex-col justify-between cursor-pointer">
 //                     <div className="flex justify-between items-start z-10 relative">
 //                         <div>
 //                             <p className="text-blue-100 text-xs font-medium mb-1">Credit Balance</p>
@@ -179,7 +179,7 @@
 //                 </div>
 
 //                 {/* Smooth Wave Chart */}
-//                 <div className="mt-auto h-40 w-full">
+//                 <div className="mt-auto h-24 w-full">
 //                      <svg className="w-full h-full" viewBox="0 0 400 150" preserveAspectRatio="none">
 //                         <defs>
 //                             <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -273,16 +273,16 @@ export default function DashboardPreview() {
           </div>
 
           {/* Dashboard Content Area */}
-          <motion.div 
+          <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="p-8"
+            className="p-4"
           >
             {/* Top Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
               {/* Stat 1: Total Transactions */}
-              <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white p-5 rounded-2xl border border-gray-50 shadow-[0_2px_20px_rgba(0,0,0,0.02)] flex flex-col justify-center h-28 cursor-default transition-shadow hover:shadow-lg">
+              <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white p-5 rounded-2xl border border-gray-50 shadow-[0_2px_20px_rgba(0,0,0,0.02)] flex flex-col justify-center h-20 cursor-default transition-shadow hover:shadow-lg">
                 <div className="flex items-start justify-between mb-2">
                           <div className="w-9 h-9 rounded-full bg-[var(--rock-blue)] flex items-center justify-center">
                             <TrendingUp className="w-4 h-4 text-[var(--endeavour)]" />
@@ -295,7 +295,7 @@ export default function DashboardPreview() {
               </motion.div>
 
               {/* Stat 2: Revenue This Month */}
-              <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white p-5 rounded-2xl border border-gray-50 shadow-[0_2px_20px_rgba(0,0,0,0.02)] flex flex-col justify-center h-28 cursor-default transition-shadow hover:shadow-lg">
+              <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white p-5 rounded-2xl border border-gray-50 shadow-[0_2px_20px_rgba(0,0,0,0.02)] flex flex-col justify-center h-20 cursor-default transition-shadow hover:shadow-lg">
                 <div className="flex items-start justify-between w-full">
                   <div>
                     <p className="text-gray-400 text-xs font-medium mb-1">Revenue This Month</p>
@@ -324,7 +324,7 @@ export default function DashboardPreview() {
               </motion.div>
 
               {/* Stat 4: Net Profit */}
-              <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white p-5 rounded-2xl border border-gray-50 shadow-[0_2px_20px_rgba(0,0,0,0.02)] flex flex-col justify-center h-28 cursor-default transition-shadow hover:shadow-lg">
+              <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white p-5 rounded-2xl border border-gray-50 shadow-[0_2px_20px_rgba(0,0,0,0.02)] flex flex-col justify-center h-20 cursor-default transition-shadow hover:shadow-lg">
                 <p className="text-gray-400 text-xs font-medium mb-1">Net Profit</p>
                   <p className="text-xl font-bold text-[var(--endeavour)]">$18,200</p>
               </motion.div>
@@ -335,7 +335,7 @@ export default function DashboardPreview() {
               {/* Left Column */}
               <div className="space-y-4">
                 {/* Blue Account Balance Card */}
-                <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }} className="bg-[var(--endeavour)] text-white p-6 rounded-2xl relative overflow-hidden shadow-lg shadow-[var(--endeavour)]/20 h-[120px] flex flex-col justify-between cursor-pointer">
+                <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }} className="bg-[var(--endeavour)] text-white p-6 rounded-2xl relative overflow-hidden shadow-lg shadow-[var(--endeavour)]/20 h-[90px] flex flex-col justify-between cursor-pointer">
                   <div className="flex justify-between items-start z-10 relative">
                     <div>
                              <p className="text-[var(--rock-blue)] text-xs font-medium mb-1">Account Balance</p>
@@ -391,7 +391,7 @@ export default function DashboardPreview() {
                 </div>
 
                 {/* Smooth Wave Chart */}
-                <div className="mt-auto h-40 w-full">
+                <div className="mt-auto h-24 w-full">
                   <svg className="w-full h-full" viewBox="0 0 400 150" preserveAspectRatio="none">
                     <defs>
                       <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">

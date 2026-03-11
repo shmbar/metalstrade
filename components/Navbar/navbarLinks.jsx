@@ -4,19 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export default function NavbarLinks() {
-  const pathname = usePathname(); // To highlight active link if needed
+  const pathname = usePathname();
 
   const links = [
     { href: '/', label: 'Home' },
     { href: '/about', label: 'About' },
-    // { href: '/pricing', label: 'Pricing' },
     { href: '/features', label: 'Features' },
     { href: '/blog', label: 'Blog' },
-    // { href: '/overview', label: 'Overview' },
-      { href: '/dashboard', label: 'Dashboard' },
-      
-
-    
+    { href: '/dashboard', label: 'Dashboard' },
   ];
 
   return (
@@ -25,28 +20,26 @@ export default function NavbarLinks() {
         <Link
           key={link.href}
           href={link.href}
-          className={`font-medium transition-colors ${
-            pathname === link.href ? 'text-blue-200' : 'text-white hover:text-blue-100'
+          className={`font-medium text-sm transition-colors ${
+            pathname === link.href ? 'text-[var(--endeavour)]' : 'text-[var(--chathams-blue)] hover:text-[var(--endeavour)]'
           }`}
         >
           {link.label}
         </Link>
       ))}
 
-      {/* Sign In Link */}
       <Link
         href="/signin"
-        className={`font-medium transition-colors ${
-          pathname === '/signin' ? 'text-blue-200' : 'text-white hover:text-blue-100'
+        className={`font-medium text-sm transition-colors ${
+          pathname === '/signin' ? 'text-[var(--endeavour)]' : 'text-[var(--chathams-blue)] hover:text-[var(--endeavour)]'
         }`}
       >
         Sign In
       </Link>
 
-      {/* Contact Button */}
       <Link
         href="/contact"
-        className="border-2 border-white text-white px-6 py-2 rounded-lg hover:bg-white hover:text-blue-600 transition-colors font-medium"
+        className="border border-[var(--endeavour)] text-[var(--chathams-blue)] text-sm px-5 py-2 rounded-lg hover:bg-[var(--endeavour)] hover:text-white transition-colors font-medium"
       >
         Contact
       </Link>

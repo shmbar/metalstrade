@@ -30,7 +30,7 @@ const creditBalanceData = [
 
 export function PlatformCard3() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch relative min-h-[400px]">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch relative min-h-[260px]">
       
       {/* Left: Credit Balance Card */}
       <motion.div 
@@ -38,7 +38,7 @@ export function PlatformCard3() {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.3 }}
-        className="relative min-h-[400px] w-full py-12 lg:pl-12 h-full"
+        className="relative min-h-[260px] w-full py-4 lg:pl-4 h-full"
       >
         {/* Main Card */}
         <div className="relative z-10 bg-gradient-to-r from-[var(--endeavour)] to-[var(--port-gore)] rounded-2xl p-6 text-white shadow-2xl shadow-[var(--endeavour)]/20 w-[85%]">
@@ -77,7 +77,7 @@ export function PlatformCard3() {
               <Area 
                 type="natural" 
                 dataKey="value" 
-                stroke="#0056D2" 
+                stroke="var(--endeavour)" 
                 strokeWidth={3} 
                 fill="url(#grad2)" 
               />
@@ -87,11 +87,11 @@ export function PlatformCard3() {
 
         {/* Shield Icon Overlay */}
         <div 
-          className="absolute bottom-8 right-8 md:right-16 bg-[#0056D2] w-28 h-32 flex items-center justify-center shadow-2xl shadow-blue-900/30 z-20 cursor-pointer hover:scale-105 transition-transform duration-300"
+          className="absolute bottom-8 right-8 md:right-16 bg-[var(--endeavour)] w-28 h-32 flex items-center justify-center shadow-2xl shadow-blue-900/30 z-20 cursor-pointer hover:scale-105 transition-transform duration-300"
           style={{ borderRadius: '10px 10px 50px 50px' }}
         >
            <div className="bg-white rounded-full p-2 shadow-sm">
-             <Check className="w-8 h-8 text-[#0056D2] stroke-[4px]" />
+             <Check className="w-8 h-8 text-[var(--endeavour)] stroke-[4px]" />
            </div>
         </div>
         
@@ -106,19 +106,19 @@ export function PlatformCard3() {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.4 }}
-        className="flex flex-col items-start space-y-6 py-12 lg:pl-12 h-full justify-start"
+        className="flex flex-col items-start space-y-3 py-4 lg:pl-4 h-full justify-start"
       >
-        <div className="w-16 h-16 bg-[#0056D2] rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/20">
-          <Lock className="w-8 h-8 text-white" strokeWidth={2} />
+        <div className="w-10 h-10 bg-[var(--endeavour)] rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/20">
+          <Lock className="w-5 h-5 text-white" strokeWidth={2} />
         </div>
-        <div className="space-y-4">
-          <h2 className="text-3xl font-bold text-[#0056D2] tracking-tight">Secure & Reliable</h2>
-          <p className="text-gray-500 leading-relaxed text-lg">
+        <div className="space-y-2">
+          <h2 className="text-base font-bold text-[var(--chathams-blue)] tracking-tight">Secure & Reliable</h2>
+          <p className="text-gray-500 leading-relaxed text-sm">
             Protect your financial data with industry-standard security protocols. 
             Keep your transactions safe and maintain complete peace of mind.
           </p>
         </div>
-        <Button className="bg-[#0056D2] hover:bg-[#0044A5] text-white px-8 py-6 rounded-xl text-lg font-medium shadow-lg shadow-blue-500/25 transition-transform hover:scale-105 cursor-pointer">
+        <Button className="bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md shadow-blue-500/25 transition-transform hover:scale-105 cursor-pointer">
           Learn More
         </Button>
       </motion.div>

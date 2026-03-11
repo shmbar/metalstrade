@@ -25,7 +25,7 @@ export function PlatformCard1() {
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="relative h-full py-12 lg:pr-12"
+      className="relative h-full py-4 lg:pr-4"
     >
       {/* Browser Window Frame */}
       <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100/50 relative overflow-visible">

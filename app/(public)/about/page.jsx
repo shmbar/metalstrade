@@ -137,7 +137,7 @@ export default function AboutPage() {
 />
 
      {/* Mission Section */}
-<section className="py-24 bg-white relative z-10">
+<section className="py-12 bg-white relative z-10">
   <div className="container mx-auto px-4">
     <div className="grid md:grid-cols-2 gap-16 items-center">
 
@@ -148,7 +148,7 @@ export default function AboutPage() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="text-4xl font-bold text-[var(--port-gore)] mb-6">Our Mission</h2>
+        <h2 className="text-3xl font-bold text-[var(--chathams-blue)] mb-6">Our Mission</h2>
         <p className="text-lg text-gray-600 leading-relaxed mb-4">
           We believe technology should simplify metal trading — not complicate it.
           MetalsTrade was built to streamline trade operations end-to-end.
@@ -228,12 +228,12 @@ export default function AboutPage() {
 
 
        {/* Values Section */}
-<section className="py-24 bg-[#F8F9FB] relative z-10">
+<section className="py-12 bg-[#e3f3ff] relative z-10">
   <div className="container mx-auto px-4">
 
     {/* Header */}
-    <div className="text-center max-w-3xl mx-auto mb-20">
-      <h2 className="text-4xl font-bold text-[var(--port-gore)] mb-6">Core Values</h2>
+    <div className="text-center max-w-3xl mx-auto mb-10">
+      <h2 className="text-3xl font-bold text-[var(--chathams-blue)] mb-4">Core Values</h2>
       <p className="text-gray-600 text-lg leading-relaxed">
         Principles that drive our culture, our decisions, and the experiences we create.
       </p>
@@ -267,12 +267,12 @@ export default function AboutPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: index * 0.1 }}
-          className="group relative p-10 rounded-3xl bg-white border border-slate-100 shadow-lg shadow-blue-900/5 
-                     hover:shadow-xl hover:shadow-blue-900/10 transition-all duration-500 overflow-hidden"
+          className="group relative p-8 rounded-2xl bg-white border border-[#b8ddf8] shadow-sm
+                     hover:shadow-md hover:border-[var(--endeavour)] transition-all duration-300 overflow-hidden"
         >
 
           {/* Glow Effect */}
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-10 bg-gradient-to-br from-[var(--endeavour)] to-purple-600 transition-opacity duration-500"></div>
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-10 bg-[var(--endeavour)] transition-opacity duration-300"></div>
 
           {/* Icon Wrapper */}
           <div className="relative z-10 w-16 h-16 mb-6 flex items-center justify-center rounded-2xl bg-[var(--selago)] 
@@ -281,7 +281,7 @@ export default function AboutPage() {
           </div>
 
           {/* Content */}
-          <h3 className="text-2xl font-bold text-[var(--port-gore)] group-hover:text-[var(--endeavour)] transition-colors duration-300 mb-4">
+          <h3 className="text-lg font-bold text-[var(--chathams-blue)] group-hover:text-[var(--endeavour)] transition-colors duration-300 mb-3">
             {value.title}
           </h3>
           <p className="text-gray-600 leading-relaxed relative z-10">
@@ -295,12 +295,12 @@ export default function AboutPage() {
 
 
        {/* Why Choose Us Section */}
-<section className="py-24 bg-white">
+<section className="py-12 bg-white">
   <div className="container mx-auto px-4">
-    
+
     {/* Heading */}
-    <div className="text-center max-w-3xl mx-auto mb-20">
-      <h2 className="text-4xl font-bold text-[var(--port-gore)] mb-6">
+    <div className="text-center max-w-3xl mx-auto mb-10">
+      <h2 className="text-3xl font-bold text-[var(--chathams-blue)] mb-4">
         Why Businesses Choose Us
       </h2>
       <p className="text-gray-500 text-lg">
@@ -344,13 +344,13 @@ export default function AboutPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: index * 0.1 }}
-          className="bg-[#F8F9FB] p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-2 transition-all duration-300 group"
+          className="bg-[#f8fbff] p-6 rounded-2xl border border-[#b8ddf8] shadow-sm hover:shadow-md hover:border-[var(--endeavour)] hover:-translate-y-1 transition-all duration-300 group"
         >
           <div className="w-14 h-14 flex items-center justify-center rounded-xl bg-[var(--selago)] mb-5 group-hover:bg-[var(--endeavour)] transition-colors duration-300">
             <item.icon className="w-7 h-7 text-[var(--endeavour)] group-hover:text-white transition-all duration-300" />
           </div>
 
-          <h3 className="text-xl font-bold text-[var(--port-gore)] mb-3 group-hover:text-[var(--endeavour)] transition-colors duration-300">
+          <h3 className="text-base font-bold text-[var(--chathams-blue)] mb-2 group-hover:text-[var(--endeavour)] transition-colors duration-300">
             {item.title}
           </h3>
 

@@ -7,7 +7,7 @@ import logo from '../../public/logo/logoNew.svg';
 
 export default function NavbarContent({ isMenuOpen, toggleMenu, children }) {
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-3">
+    <div className="px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
       <div className="flex justify-between items-center">
         {/* Logo */}
 
@@ -23,7 +23,7 @@ export default function NavbarContent({ isMenuOpen, toggleMenu, children }) {
         {/* Mobile Menu Button */}
         <button
           onClick={toggleMenu}
-          className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-[var(--endeavour)] focus:outline-none"
+          className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-[var(--chathams-blue)] hover:bg-[#b8ddf8] focus:outline-none"
         >
           <svg
             className={`h-6 w-6 transition-transform ${isMenuOpen ? 'rotate-90' : ''}`}
@@ -43,7 +43,7 @@ export default function NavbarContent({ isMenuOpen, toggleMenu, children }) {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden mt-4 pt-4 border-t border-[var(--endeavour)]">
+        <div className="md:hidden mt-4 pt-4 border-t border-[#b8ddf8]">
           {children[1]}
         </div>
       )}

@@ -67,17 +67,17 @@ export default function BlogPage() {
         />
 
         {/* Blog Posts List */}
-        <section className="py-24 bg-[var(--selago)]">
+        <section className="py-12 bg-[#e3f3ff]">
           <div className="container mx-auto px-4 max-w-6xl">
-            <h2 className="text-4xl font-bold text-[var(--port-gore)] mb-12 text-center">
+            <h2 className="text-3xl font-bold text-[var(--chathams-blue)] mb-8 text-center">
               Latest Blog Posts
             </h2>
-            <div className="grid md:grid-cols-3 gap-10">
+            <div className="grid md:grid-cols-3 gap-6">
               {blogPosts.map((post, idx) => (
-                <Link key={idx} href={`/blog/${post.slug}`} className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col items-center p-8 hover:shadow-2xl transition no-underline">
+                <Link key={idx} href={`/blog/${post.slug}`} className="bg-white rounded-2xl border border-[#b8ddf8] overflow-hidden flex flex-col items-center p-6 hover:shadow-md hover:border-[var(--endeavour)] transition no-underline">
                   {post.icon}
-                  <h3 className="text-2xl font-bold text-[var(--port-gore)] mb-2 text-center">{post.title}</h3>
-                  <p className="text-gray-600 mb-4 text-center">{post.excerpt}</p>
+                  <h3 className="text-lg font-bold text-[var(--chathams-blue)] mb-2 text-center">{post.title}</h3>
+                  <p className="text-gray-500 text-sm mb-4 text-center">{post.excerpt}</p>
                   <div className="text-xs text-gray-400 mb-4">{post.date} &middot; {post.author}</div>
                   <span className="inline-block mt-auto px-4 py-2 bg-[var(--endeavour)] text-white rounded-lg font-semibold hover:bg-[var(--port-gore)] transition">Read More</span>
                 </Link>

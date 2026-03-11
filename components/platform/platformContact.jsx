@@ -11,7 +11,7 @@ export function PlatformContact() {
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="flex flex-col justify-between py-12 lg:pl-12 h-full"
+      className="flex flex-col justify-between py-4 lg:pl-4 h-full"
     >
       <SectionHeader
         icon={Monitor}

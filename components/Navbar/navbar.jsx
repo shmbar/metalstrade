@@ -13,7 +13,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-gradient-to-br from-white via-[var(--endeavour)] to-[var(--port-gore)] shadow-lg z-50">
+    <nav className="fixed top-0 left-0 right-0 bg-[#e3f3ff] border-b border-[#b8ddf8] shadow-sm z-50" style={{ height: 'clamp(56px, 7vh, 80px)' }}>
       <NavbarContent isMenuOpen={isMenuOpen} toggleMenu={toggleMenu}>
         <NavbarLinks />
         <NavbarMenu isMenuOpen={isMenuOpen} />

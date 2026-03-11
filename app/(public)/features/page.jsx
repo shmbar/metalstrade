@@ -22,11 +22,11 @@ export default function FeaturesPage() {
       
 
 {/* Detailed Features */}
-<section className="py-24 bg-white">
+<section className="py-12 bg-white">
   <div className="container mx-auto px-4">
 
     {/* SECTION TITLE */}
-    <h2 className="text-4xl font-bold text-center text-[var(--port-gore)] mb-20 leading-tight">
+    <h2 className="text-3xl font-bold text-center text-[var(--chathams-blue)] mb-12 leading-tight">
       Powerful Tools to Streamline Your Workflow
     </h2>
 
@@ -134,14 +134,14 @@ export default function FeaturesPage() {
         ),
       },
     ].map((feature, index) => (
-      <div key={index} className="mb-28">
-        <div className="grid md:grid-cols-2 gap-20 items-center">
+      <div key={index} className="mb-12">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
 
           {index % 2 === 0 ? (
             <>
               {/* TEXT BLOCK */}
               <div>
-                <h3 className="text-3xl font-bold text-[var(--port-gore)] mb-4">
+                <h3 className="text-2xl font-bold text-[var(--chathams-blue)] mb-3">
                   {feature.title}
                 </h3>
                 <p className="text-gray-600 text-lg leading-relaxed mb-6">
@@ -206,7 +206,7 @@ export default function FeaturesPage() {
 
               {/* TEXT BLOCK */}
               <div>
-                <h3 className="text-3xl font-bold text-[var(--port-gore)] mb-4">
+                <h3 className="text-2xl font-bold text-[var(--chathams-blue)] mb-3">
                   {feature.title}
                 </h3>
                 <p className="text-gray-600 text-lg leading-relaxed mb-6">
