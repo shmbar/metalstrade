@@ -442,7 +442,7 @@
 //                       key={row.id}
 //                       onDoubleClick={() => SelectRow(row.original)}
 //                       tabIndex={0}
-//                       className="cursor-pointer"
+//                       className="cursor-pointer hover:bg-[#dbeeff] transition-colors"
 //                     >
 //                       {row.getVisibleCells().map((cell) => {
 //                         const value       = cell.getValue()
@@ -1151,7 +1151,7 @@ const Customtable = ({
                       key={row.id}
                       onDoubleClick={() => SelectRow(row.original)}
                       tabIndex={0}
-                      className="cursor-pointer"
+                      className="cursor-pointer hover:bg-[#dbeeff] transition-colors"
                     >
                       {row.getVisibleCells().map((cell) => {
                         const value       = cell.getValue()

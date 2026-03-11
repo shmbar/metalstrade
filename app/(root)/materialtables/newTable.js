@@ -192,7 +192,7 @@ const Customtable = ({
             {/* TBODY — pill cells on white background */}
             <tbody style={{ backgroundColor: '#ffffff' }}>
               {table.getRowModel().rows.map((row) => (
-                <tr key={row.id}>
+                <tr key={row.id} className="hover:bg-[#dbeeff] transition-colors cursor-pointer">
                   {row.getVisibleCells().map((cell) => {
                     const isDel = cell.column.id === 'del'
                     const isMaterialOrKgs = cell.column.id === 'material' || cell.column.id === 'kgs'

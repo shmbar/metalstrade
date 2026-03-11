@@ -158,7 +158,7 @@ const Customtable = ({
               {table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="cursor-pointer hover:bg-[#f5fbff] transition-colors"
+                  className="cursor-pointer hover:bg-[#dbeeff] transition-colors"
                   onDoubleClick={() => SelectRow(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (

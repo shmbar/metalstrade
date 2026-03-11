@@ -191,10 +191,10 @@ const AssistantChat = () => {
                 {Object.keys(settings).length === 0 ? <Spinner /> :
                     <>
                         <Toast />
-                        <div className="border border-[var(--selago)] rounded-xl shadow-sm bg-white mt-4 flex flex-col flex-1 overflow-hidden">
+                        <div className="border border-[#b8ddf8] rounded-xl shadow-sm bg-white mt-4 flex flex-col flex-1 overflow-hidden">
 
                             {/* Top Bar */}
-                            <div className="px-4 py-2.5 border-b border-[var(--selago)] flex items-center justify-between bg-white">
+                            <div className="px-4 py-2.5 border-b border-[#b8ddf8] flex items-center justify-between bg-[#dbeeff]">
                                 {/* Left - Assistant title */}
                                 <div className="flex items-center gap-2">
                                     <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
@@ -206,20 +206,20 @@ const AssistantChat = () => {
                                         <span className="text-xs text-gray-400">Loading...</span>
                                     ) : (
                                         <>
-                                            <span className="px-3 py-1 bg-green-50 text-green-700 border border-green-200 rounded-full text-xs font-medium">
+                                            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}>
                                                 {contractsData.length} Contracts
                                             </span>
-                                            <span className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-xs font-medium">
+                                            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
                                                 {invoicesData.length} Invoices
                                             </span>
-                                            <span className="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-xs font-medium">
+                                            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#ede9fe', color: '#5b21b6', border: '1px solid #c4b5fd' }}>
                                                 {expensesData.length} Expenses
                                             </span>
                                         </>
                                     )}
                                     <button
                                         onClick={handleClearChat}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-[var(--endeavour)] border border-[var(--selago)] hover:border-[var(--endeavour)] rounded-lg transition-colors"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[var(--chathams-blue)] hover:text-[var(--endeavour)] border border-[#b8ddf8] hover:border-[var(--endeavour)] rounded-lg transition-colors bg-white"
                                         title="Reset conversation"
                                     >
                                         <MdRestartAlt className="w-4 h-4" />

@@ -10,6 +10,7 @@ import { FiSettings } from 'react-icons/fi'
 import { IoClose } from 'react-icons/io5';
 import Image from 'next/image';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext'
+import Tltip from '../../../components/tlTip'
 
 export const MainNav = () => {
   const { SignOut, user } = UserAuth()
@@ -95,14 +96,15 @@ export const MainNav = () => {
         {/* Global Search */}
         <div className='relative flex items-center' ref={searchRef}>
           {!openSearch ? (
+            <Tltip tltpText={getTtl('Search', ln) || 'Search'} direction='bottom'>
             <button
               className='flex items-center justify-center w-10 h-10'
               onClick={() => setOpenSearch(true)}
               aria-label='Search'
-              title={getTtl('Search', ln) || 'Search'}
             >
               <img src='/logo/search.svg' alt='Search' className='w-5 h-5' />
             </button>
+            </Tltip>
           ) : (
             <div className="relative flex items-center">
               <input
@@ -149,33 +151,36 @@ export const MainNav = () => {
           )}
         </div>
 
+        <Tltip tltpText={getTtl('Ask question', ln) || 'Ask question'} direction='bottom'>
         <button
-          className='flex items-center justify-center w-10 h-10  '
+          className='flex items-center justify-center w-10 h-10'
           onClick={() => {
             if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('ims:openChat'))
           }}
           aria-label='Ask question'
-          title={getTtl('Ask question', ln) || 'Ask question'}
         >
           <img src='/logo/Ai bot.svg' alt='Chatbot' className='w-5 h-5' />
         </button>
+        </Tltip>
         {/* Notification Icon (placeholder, can be made functional) */}
+        <Tltip tltpText={getTtl('Notifications', ln) || 'Notifications'} direction='bottom'>
         <button
-          className='flex items-center justify-center w-10 h-10 '
+          className='flex items-center justify-center w-10 h-10'
           aria-label='Notifications'
-          title={getTtl('Notifications', ln) || 'Notifications'}
         >
           <img src='/logo/notofication.svg' alt='Notifications' className='w-5 h-5' />
         </button>
+        </Tltip>
         {/* Logout Icon */}
+        <Tltip tltpText={getTtl('Logout', ln) || 'Logout'} direction='bottom'>
         <button
-          className='flex items-center justify-center w-10 h-10 '
+          className='flex items-center justify-center w-10 h-10'
           onClick={LogOut}
           aria-label='Logout'
-          title={getTtl('Logout', ln) || 'Logout'}
         >
           <img src='/logo/logout.svg' alt='Logout' className='w-5 h-5' />
         </button>
+        </Tltip>
         {/* User Role Button and Profile Icon: no gap between */}
         <div className="flex items-center ml-2">
   <span
@@ -188,7 +193,7 @@ export const MainNav = () => {
       borderBottomRightRadius: 0
     }}
   >
-    {user?.role ? user.role : 'Admin'}
+    {user?.displayName || user?.email?.split('@')[0] || 'User'}
   </span>
   <div className='relative' ref={dropdownRef} style={{marginLeft: 0}}>
     <button

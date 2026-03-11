@@ -40,7 +40,7 @@ export default function Sidebar() {
 
   const pathName = usePathname();
   const { setDates, compData } = useContext(SettingsContext);
-  const { userTitle } = UserAuth();
+  const { userTitle, user } = UserAuth();
   const ln = compData?.lng || "English";
   
   const collapsibleSections = ["Shipments", "Statements", "Miscellaneous", "IMS Summary"];
@@ -457,7 +457,7 @@ export default function Sidebar() {
               }}>
                 <img src="/logo/person.svg" alt="Profile" style={{ width: 28, height: 28, borderRadius: "50%", background: "#f3f6fa", objectFit: "cover" }} />
                 <span style={{ color: "#2176ae", fontWeight: 600, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
-                  Sharon
+                  {user?.displayName || user?.email?.split('@')[0] || 'User'}
                 </span>
                 <Link href="/settings" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <img src="/logo/Settings.svg" alt="Settings" style={{ width: 22, height: 22, marginLeft: 4, cursor: "pointer" }} />

@@ -28,18 +28,18 @@ export default function HeadlineTicker({
   const theme = useMemo(() => {
     const fxTheme = {
       shell:
-        'border border-blue-100 bg-blue-50/60 shadow-sm',
+        'border border-[#b8ddf8] bg-[#dbeeff] shadow-sm',
       headerIconWrap:
-        'bg-blue-600 text-white',
-      titleText: 'text-blue-800',
-      subText: 'text-blue-600 text-xs',
-      tickerDot: 'bg-blue-300',
+        'bg-[var(--endeavour)] text-white',
+      titleText: 'text-[var(--chathams-blue)]',
+      subText: 'text-[var(--endeavour)] text-xs',
+      tickerDot: 'bg-[#b8ddf8]',
       itemLabel: 'text-slate-600 text-xs',
       itemValue: 'text-slate-900 text-sm font-bold',
       itemSub: 'text-slate-500 text-xs',
-      itemPill: 'bg-white border border-blue-100 rounded-full shadow-sm',
-      itemIcon: 'text-blue-600/70',
-      hover: 'hover:shadow-md hover:border-blue-200',
+      itemPill: 'bg-white border border-[#b8ddf8] rounded-full shadow-sm',
+      itemIcon: 'text-[var(--endeavour)]/70',
+      hover: 'hover:shadow-md hover:border-[#b8ddf8]',
       mask: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
     };
 

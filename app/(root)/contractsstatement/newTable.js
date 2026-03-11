@@ -326,7 +326,7 @@ const Customtable = ({
                       <tr
                         onClick={() => row.getCanExpand() && row.toggleExpanded()}
                         tabIndex={0}
-                        className="cursor-pointer"
+                        className="cursor-pointer hover:bg-[#dbeeff] transition-colors"
                       >
                         {row.getVisibleCells().map((cell) => {
                           const isCompleted = cell.column.id === 'completed';

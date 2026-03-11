@@ -124,7 +124,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
                         </thead>
                         <tbody className="divide-y divide-gray-200 ">
                             {table.getRowModel().rows.map(row => (
-                                <tr key={row.id} className='cursor-pointer hover:brightness-90' onDoubleClick={() => SelectRow(row.original)}>
+                                <tr key={row.id} className='cursor-pointer hover:bg-[#dbeeff] transition-colors' onDoubleClick={() => SelectRow(row.original)}>
                                     {row.getVisibleCells().map(cell => (
                                         <td key={cell.id} data-label={cell.column.columnDef.header} className={`table_cell text-xs md:py-3 ${cell.column.columnDef.bgr}`}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}

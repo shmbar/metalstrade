@@ -27,6 +27,11 @@ body,
   overflow-x: hidden;
 }
 
+/* Row hover: ensure td inherits tr hover background */
+tr.cursor-pointer:hover td {
+  background-color: #dbeeff !important;
+}
+
 @layer components {
   .table_cell {
     @apply px-6 py-3 whitespace-nowrap text-sm text-[var(--port-gore)] leading-4;

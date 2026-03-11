@@ -219,7 +219,7 @@ const Customtable = ({
                       <tr
                         key={row.id}
                         onDoubleClick={() => SelectRow?.(row.original)}
-                        className={`border-b ${borderColor} ${isAverageRow ? "bg-orange-100" : ""}`}
+                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-orange-100 hover:bg-orange-200" : "hover:bg-[#dbeeff]"}`}
                       >
                         {row.index === firstOccurrenceOrder && (
                           <td
@@ -286,7 +286,7 @@ const Customtable = ({
                       <tr
                         key={row.id}
                         onDoubleClick={() => SelectRow?.(row.original)}
-                        className={`border-b ${borderColor} ${isAverageRow ? "bg-orange-100" : ""}`}
+                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-orange-100 hover:bg-orange-200" : "hover:bg-[#dbeeff]"}`}
                       >
                         {row.index === firstOccurrenceOrder && (
                           <td
