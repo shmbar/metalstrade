@@ -158,8 +158,8 @@ const Customtable = ({
                           borderRight: 'none',
                           borderTopLeftRadius: isFirst ? '10px' : '0',
                           borderTopRightRadius: isLast ? '10px' : '0',
-                          minWidth: header.column.id === 'material' ? '120px' : header.column.id === 'del' ? '40px' : '70px',
-                          maxWidth: header.column.id === 'material' ? '160px' : 'none',
+                          minWidth: header.column.id === 'material' ? '280px' : header.column.id === 'del' ? '40px' : '70px',
+                          maxWidth: 'none',
                         }}
                       >
                         {isDel ? null : (
@@ -228,7 +228,7 @@ const Customtable = ({
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: cell.column.id === 'material' ? 'flex-start' : 'center',
-                              minWidth: cell.column.id === 'material' ? '110px' : '60px',
+                              minWidth: cell.column.id === 'material' ? '270px' : '60px',
                               minHeight: '26px',
                             }}
                           >

@@ -59,7 +59,7 @@ const Customtable = ({ data, columns }) => {
                                             borderBottomLeftRadius: isFirst ? '10px' : '0',
                                             borderTopRightRadius: isLast ? '10px' : '0',
                                             borderBottomRightRadius: isLast ? '10px' : '0',
-                                            minWidth: cell.column.id === 'material' ? '120px' : '70px',
+                                            minWidth: cell.column.id === 'material' ? '280px' : '70px',
                                         }}
                                     >
                                         {cell.column.id === 'material'
