@@ -1,12 +1,12 @@
 import './globals.css';
-import { Poppins} from 'next/font/google';
+import { Inter } from 'next/font/google';
 import Provider from './providers'
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { GlobalSearchProvider } from '../contexts/useGlobalSearchContext'; 
+import { GlobalSearchProvider } from '../contexts/useGlobalSearchContext';
 
 
-const poppins = Poppins({
-	weight: ['100', '200', '300', '400', '500', '600', '700', '800'],
+const inter = Inter({
+	weight: ['300', '400', '500', '600', '700'],
 	subsets: ['latin'],
 });
 
@@ -21,7 +21,7 @@ export default function RootLayout({ children }) {
 
 	return (
 		<html lang="en">
-			<body className={poppins.className}>
+			<body className={inter.className}>
 				<Provider>
 					<GlobalSearchProvider>
 						<div>{children}</div>

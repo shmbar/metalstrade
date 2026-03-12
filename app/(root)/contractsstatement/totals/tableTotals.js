@@ -37,7 +37,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                   -webkit-backdrop-filter: blur(16px) saturate(180%);
                 }
                 .custom-table, .custom-table *, .glass-table, .glass-table * {
-                  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+                  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
                   font-size: 10px !important;
                   transition-property: color, background-color, border-color, box-shadow !important;
                   transition-duration: 150ms !important;

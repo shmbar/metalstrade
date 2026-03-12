@@ -34,6 +34,7 @@ const Customtable = ({
   const [globalFilter, setGlobalFilter] = useState('')
   const [columnVisibility, setColumnVisibility] = useState(invisible)
   const [filterOn, setFilterOn] = useState(false)
+  const [selectedRowId, setSelectedRowId] = useState(null)
 
   const [{ pageIndex, pageSize }, setPagination] = useState({
     pageIndex: 0,
@@ -156,14 +157,14 @@ const Customtable = ({
           border: 1px solid #e8f0f8;
           text-align: center;
           font-size: 11px !important;
-          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 
         }
         .custom-table td {
           border: 1px solid #e8f0f8;
           text-align: center;
           font-size: 10px !important;
-          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 
         }
         .header-blue {
@@ -319,9 +320,10 @@ const Customtable = ({
   {table.getRowModel().rows.map((row) => (
     <tr
       key={row.id}
+      onClick={() => setSelectedRowId(row.id)}
       onDoubleClick={() => SelectRow(row.original)}
       tabIndex={0}
-      className="cursor-pointer hover:bg-[#dbeeff] transition-colors"
+      className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' hover:bg-[#dbeeff]'}`}
     >
       {row.getVisibleCells().map((cell) => {
         const value = cell.getValue();

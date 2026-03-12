@@ -165,7 +165,7 @@ tr[aria-selected="true"] {
 
 /* Uniform table layout and cell padding across material tables */
 .table-cell-uniform, .table_cell, table th, table td {
-  padding: 0.5rem 0.75rem !important;
+  padding: 0.25rem 0.5rem !important;
   vertical-align: middle;
   box-sizing: border-box;
 }

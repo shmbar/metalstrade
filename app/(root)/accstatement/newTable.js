@@ -34,6 +34,7 @@ const Customtable = ({
   const [globalFilter, setGlobalFilter] = useState('')
   const [columnVisibility, setColumnVisibility] = useState(invisible)
   const [filterOn, setFilterOn] = useState(false)
+  const [selectedRowId, setSelectedRowId] = useState(null)
   const [columnFilters, setColumnFilters] = useState([])
 
   const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 })
@@ -163,7 +164,7 @@ const Customtable = ({
           -webkit-backdrop-filter: blur(16px) saturate(180%);
         }
         .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
@@ -274,9 +275,10 @@ const Customtable = ({
                   {table.getRowModel().rows.map((row, rowIndex) => (
                     <tr
                       key={row.id}
+                      onClick={() => setSelectedRowId(row.id)}
                       onDoubleClick={() => SelectRow?.(row.original)}
                       tabIndex={0}
-                      className="cursor-pointer hover:bg-[#dbeeff] transition-colors"
+                      className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' hover:bg-[#dbeeff]'}`}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <td

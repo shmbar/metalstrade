@@ -72,7 +72,7 @@ export const LineChart = (data1, data2) => {
                         return context.dataset.label + ': $' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { family: 'Poppins', weight: 'bold' },
+                titleFont: { family: 'Inter', weight: 'bold' },
                 bodyFont: { family: 'Poppins' },
             },
         },
@@ -93,7 +93,7 @@ export const LineChart = (data1, data2) => {
                     callback: function (value) {
                         return value;
                     },
-                    font: { family: 'Poppins', size: 11 },
+                    font: { family: 'Inter', size: 11 },
                     color: '#838ca7', // regent-gray
                     padding: 10,
                 },
@@ -104,7 +104,7 @@ export const LineChart = (data1, data2) => {
             },
             x: {
                 ticks: { 
-                    font: { family: 'Poppins', size: 11 }, 
+                    font: { family: 'Inter', size: 11 }, 
                     color: '#838ca7', // regent-gray
                     padding: 5,
                 },
@@ -169,7 +169,7 @@ export const GroupedBarChart = (data1, data2) => {
                         return context.dataset.label + ': $' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { family: 'Poppins', weight: 'bold' },
+                titleFont: { family: 'Inter', weight: 'bold' },
                 bodyFont: { family: 'Poppins' },
             },
         },
@@ -186,7 +186,7 @@ export const GroupedBarChart = (data1, data2) => {
                     callback: function (value) {
                         return value;
                     },
-                    font: { family: 'Poppins', size: 11 },
+                    font: { family: 'Inter', size: 11 },
                     color: '#838ca7', // regent-gray
                     padding: 10,
                 },
@@ -197,7 +197,7 @@ export const GroupedBarChart = (data1, data2) => {
             },
             x: {
                 ticks: { 
-                    font: { family: 'Poppins', size: 11 }, 
+                    font: { family: 'Inter', size: 11 }, 
                     color: '#838ca7', // regent-gray
                     padding: 5,
                 },
@@ -260,7 +260,7 @@ export const LineChartSmall = (data, color) => {
                         return '$' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { family: 'Poppins', weight: 'bold' },
+                titleFont: { family: 'Inter', weight: 'bold' },
                 bodyFont: { family: 'Poppins' },
             },
         },
@@ -327,7 +327,7 @@ export const BarChart = (data, color) => {
                         return '$' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { family: 'Poppins', weight: 'bold' },
+                titleFont: { family: 'Inter', weight: 'bold' },
                 bodyFont: { family: 'Poppins' },
             },
         },
@@ -343,7 +343,7 @@ export const BarChart = (data, color) => {
                         const YesNo = checkIfInArray(values)
                         return YesNo ? 0 : value / 1000000;
                     },
-                    font: { family: 'Poppins', size: 11 },
+                    font: { family: 'Inter', size: 11 },
                     color: '#838ca7'
                 },
                 grid: {
@@ -352,7 +352,7 @@ export const BarChart = (data, color) => {
                 }
             },
             x: {
-                ticks: { font: { family: 'Poppins', size: 11 }, color: '#838ca7' },
+                ticks: { font: { family: 'Inter', size: 11 }, color: '#838ca7' },
                 grid: {
                     display: false
                 },
@@ -419,7 +419,7 @@ export const BarChartContracts = (data, data1, color, color1) => {
                         return '$' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { family: 'Poppins', weight: 'bold' },
+                titleFont: { family: 'Inter', weight: 'bold' },
                 bodyFont: { family: 'Poppins' },
             },
         },
@@ -435,7 +435,7 @@ export const BarChartContracts = (data, data1, color, color1) => {
                         const YesNo = checkIfInArray(values)
                         return YesNo ? 0 : value / 1000000;
                     },
-                    font: { family: 'Poppins', size: 11 },
+                    font: { family: 'Inter', size: 11 },
                     color: '#838ca7'
                 },
                 grid: {
@@ -444,7 +444,7 @@ export const BarChartContracts = (data, data1, color, color1) => {
                 }
             },
             x: {
-                ticks: { font: { family: 'Poppins', size: 11 }, color: '#838ca7' },
+                ticks: { font: { family: 'Inter', size: 11 }, color: '#838ca7' },
                 grid: {
                     display: false
                 },
@@ -522,7 +522,7 @@ export const HorizontalBar = (arr, text) => {
                         return context.label + ': $' + addCommas(context.parsed.x.toString())
                     },
                 },
-                titleFont: { family: 'Poppins', weight: 'bold' },
+                titleFont: { family: 'Inter', weight: 'bold' },
                 bodyFont: { family: 'Poppins' },
             }
         },
@@ -534,7 +534,7 @@ export const HorizontalBar = (arr, text) => {
                 },
                 beginAtZero: true,
                 ticks: {
-                    font: { family: 'Poppins', size: 11 },
+                    font: { family: 'Inter', size: 11 },
                     color: '#28264f'
                 },
                 grid: {
@@ -543,7 +543,7 @@ export const HorizontalBar = (arr, text) => {
             },
             x: {
                 ticks: { 
-                    font: { family: 'Poppins', size: 11 }, 
+                    font: { family: 'Inter', size: 11 }, 
                     color: '#838ca7',
                     callback: function (value) {
                         if (value >= 1000000) {

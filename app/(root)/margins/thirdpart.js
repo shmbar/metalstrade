@@ -10,7 +10,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
                 
                 .margins-table, .margins-table * {
-                    font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;           
+                    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;           
                     transition-duration: 150ms !important;
                     transition-timing-function: ease-in-out !important;
                 }

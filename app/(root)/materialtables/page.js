@@ -40,6 +40,7 @@ const MaterialTables = () => {
     const { settings, ln, setToast } = useContext(SettingsContext);
     const [data, setData] = useState([])
     const [totals, setTotals] = useState({})
+    const [loading, setLoading] = useState(true)
     const { uidCollection } = UserAuth();
 
     const fmtNum = (v) => {
@@ -67,8 +68,10 @@ const MaterialTables = () => {
 
     useEffect(() => {
         const loadData = async () => {
+            setLoading(true)
             let dt = await loadMaterials(uidCollection)
             setData(dt)
+            setLoading(false)
         }
 
         loadData()
@@ -203,6 +206,7 @@ const MaterialTables = () => {
                 {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
                     <>
                         <Toast />
+                        <VideoLoader loading={loading} fullScreen={true} />
                         {/* Main Card */}
                         <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-white relative max-w-7xl mx-auto">
                             {/* Header Section */}

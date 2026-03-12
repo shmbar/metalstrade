@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from 'react';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import Toast from '../../../components/toast.js'
 import { loadDataSettings, saveDataSettings } from '../../../utils/utils'
-import Spinner from '../../../components/spinner';
+import VideoLoader from '../../../components/videoLoader';
 import { UserAuth } from "../../../contexts/useAuthContext"
 import { Tab, TabPanel, TabGroup, TabList, TabPanels } from '@headlessui/react'
 import Fenicr from './tabs/fenicr';
@@ -105,10 +105,10 @@ const Page = () => {
 
 	return (
 		<div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
-			{Object.keys(settings).length === 0 ? <Spinner /> :
+			{Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
 				<>
 					<Toast />
-					{loading && <Spinner />}
+					<VideoLoader loading={loading} fullScreen={true} />
 					<div className="bg-white rounded-2xl p-3 sm:p-4 mt-6 border border-[#b8ddf8]">
 						<div className='pb-2'>
 							<div className="text-xl font-semibold text-[var(--port-gore)] mb-3 border-l-4 border-[var(--chathams-blue)] pl-2">Formulas</div>

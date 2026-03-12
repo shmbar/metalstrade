@@ -250,7 +250,7 @@
 //           border: 1px solid #d7d7d7;
 //           text-align: center;
 //           font-size: 12px !important;
-//           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+//           font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 //           padding: 10px 8px !important;
 //           vertical-align: middle;
 //           white-space: nowrap;
@@ -261,7 +261,7 @@
 //           border: 1px solid #d7d7d7;
 //           text-align: center;
 //           font-size: 10px !important;
-//           font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+//           font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 //           padding: 8px 6px !important;
 //           vertical-align: middle;
 //           height: 40px;
@@ -750,6 +750,7 @@ const Customtable = ({
   const [quickSumColumns, setQuickSumColumns]   = useState([])
   const [isEditMode, setIsEditMode]             = useState(false)
   const [rowSelection, setRowSelection]         = useState({})
+  const [selectedRowId, setSelectedRowId]       = useState(null)
   const [currencyColCenter, setCurrencyColCenter] = useState(null) // px from left of table
   const [amountColCenter, setAmountColCenter]   = useState(null) // px from left of table
   const [isEmptyStateVideoError, setIsEmptyStateVideoError] = useState(false)
@@ -948,7 +949,7 @@ const Customtable = ({
           border: 1px solid #d7d7d7;
           text-align: center;
           font-size: 12px !important;
-          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
           padding: 10px 8px !important;
           vertical-align: middle;
           white-space: nowrap;
@@ -960,7 +961,7 @@ const Customtable = ({
           border: 1px solid #d7d7d7;
           text-align: center;
           font-size: 10px !important;
-          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
           padding: 8px 6px !important;
           vertical-align: middle;
           height: 40px;
@@ -1149,9 +1150,10 @@ const Customtable = ({
                   {table.getRowModel().rows.map((row) => (
                     <tr
                       key={row.id}
+                      onClick={() => setSelectedRowId(row.id)}
                       onDoubleClick={() => SelectRow(row.original)}
                       tabIndex={0}
-                      className="cursor-pointer hover:bg-[#dbeeff] transition-colors"
+                      className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' hover:bg-[#dbeeff]'}`}
                     >
                       {row.getVisibleCells().map((cell) => {
                         const value       = cell.getValue()

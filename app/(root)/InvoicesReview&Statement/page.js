@@ -910,7 +910,7 @@ const Shipments = () => {
               <div className='flex gap-8 mt-4 mb-6'>
                 <button
                   onClick={() => setActiveTab('review')}
-                  className={`pb-2 text-lg font-semibold transition-all border-b-4 ${
+                  className={`pb-1 text-xs font-semibold transition-all border-b-2 ${
                     activeTab === 'review'
                       ? 'border-[var(--endeavour)] text-[var(--endeavour)]'
                       : 'border-transparent text-[var(--port-gore)] hover:text-[var(--endeavour)]'
@@ -921,7 +921,7 @@ const Shipments = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab('statement')}
-                  className={`pb-2 text-lg font-semibold transition-all border-b-4 ${
+                  className={`pb-1 text-xs font-semibold transition-all border-b-2 ${
                     activeTab === 'statement'
                       ? 'border-[var(--endeavour)] text-[var,--endeavour)]'
                       : 'border-transparent text-[var(--port-gore)] hover:text-[var(--endeavour)]'

@@ -1,6 +1,5 @@
 /* Shared table styles for all tables (import in _app.js or relevant table component)
    Copy from newTable.js <style jsx global> block. */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
 .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
 .dashboard-scroll::-webkit-scrollbar-track { 
@@ -28,7 +27,7 @@
 }
 
 .custom-table, .custom-table *, .glass-table, .glass-table * {
-  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
   font-size: 10px !important;
   transition-property: color, background-color, border-color, box-shadow !important;
   transition-duration: 150ms !important;

@@ -15,9 +15,9 @@
   --ui-radius: 8px;
   --ui-shadow-soft: 0 1px 3px rgba(0,0,0,.08);
 
-  --ui-row-height: 34px;
-  --ui-cell-padding-x: 8px;
-  --ui-cell-padding-y: 4px;
+  --ui-row-height: 28px;
+  --ui-cell-padding-x: 6px;
+  --ui-cell-padding-y: 3px;
 }
 
 /* =====================================================
@@ -35,8 +35,8 @@ thead th {
   position: sticky;
   top: 0;
   z-index: 5;
-  background: var(--ui-primary);
-  color: #fff;
+  background: #dbeeff;
+  color: #103a7a;
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: .03em;

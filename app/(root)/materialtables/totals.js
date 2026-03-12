@@ -30,7 +30,7 @@ const Customtable = ({ data, columns }) => {
                     tableLayout: 'auto',
                     borderCollapse: 'separate',
                     borderSpacing: 0,
-                    fontFamily: 'Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+                    fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
                 }}
             >
                 <thead className="hidden" />

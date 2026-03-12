@@ -129,7 +129,7 @@ const Customtable = ({
               tableLayout: 'auto',
               borderCollapse: 'separate',
               borderSpacing: 0,
-              fontFamily: 'Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+              fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
             }}
           >
             {/* THEAD — seamless colored band */}
@@ -233,12 +233,13 @@ const Customtable = ({
                             }}
                           >
                             <input
-                              type={isMaterialOrKgs ? 'text' : 'number'}
+                              type="text"
+                              inputMode={isMaterialOrKgs ? 'text' : 'decimal'}
                               className="w-full border-none bg-transparent focus:outline-none"
                               onChange={(e) => editCell(table1, e, cell)}
                               value={cell.column.id === 'kgs' ? formatNumber(cell.getContext().getValue()) : cell.getContext().getValue()}
                               style={{
-                                fontFamily: 'Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+                                fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
                                 fontSize: '11px',
                                 color: '#1F2937',
                                 background: 'transparent',
@@ -331,12 +332,13 @@ const Customtable = ({
                         }}
                       >
                         <input
-                          type={cell.column.id === 'material' || cell.column.id === 'kgs' ? 'text' : 'number'}
+                          type="text"
+                          inputMode={cell.column.id === 'material' || cell.column.id === 'kgs' ? 'text' : 'decimal'}
                           className="w-full border-none bg-transparent focus:outline-none"
                           onChange={(e) => editCell(table1, e, cell)}
                           value={cell.column.id === 'kgs' ? formatNumber(cell.getContext().getValue()) : cell.getContext().getValue()}
                           style={{
-                            fontFamily: 'Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+                            fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
                             fontSize: '11px',
                             color: '#1F2937',
                             background: 'transparent',

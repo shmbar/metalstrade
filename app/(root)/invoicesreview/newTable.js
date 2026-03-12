@@ -22,6 +22,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
     const [globalFilter, setGlobalFilter] = useState('')
     const [columnVisibility, setColumnVisibility] = useState(invisible)
     const [filterOn, setFilterOn] = useState(false)
+    const [selectedRowId, setSelectedRowId] = useState(null)
 
 
     const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 500 })
@@ -124,7 +125,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
                         </thead>
                         <tbody className="divide-y divide-gray-200 ">
                             {table.getRowModel().rows.map(row => (
-                                <tr key={row.id} className='cursor-pointer hover:bg-[#dbeeff] transition-colors' onDoubleClick={() => SelectRow(row.original)}>
+                                <tr key={row.id} onClick={() => setSelectedRowId(row.id)} className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' hover:bg-[#dbeeff]'}`} onDoubleClick={() => SelectRow(row.original)}>
                                     {row.getVisibleCells().map(cell => (
                                         <td key={cell.id} data-label={cell.column.columnDef.header} className={`table_cell text-xs md:py-3 ${cell.column.columnDef.bgr}`}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}

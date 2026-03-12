@@ -927,8 +927,8 @@ return (
                         </div>
 
                     }
-  <div className="flex flex-wrap w-full">
-                            <div className="w-full max-w-screen-lg flex-1 min-w-[320px]">
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
+                            <div className="w-full">
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Stocks - Paid</span>
@@ -1278,7 +1278,7 @@ return (
                         </div>
 
 
-<div className="w-full flex-1 min-w-[320px] border-l border-[#dedede] pt-0">
+<div className="w-full border-l border-[#dedede] pt-0">
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">

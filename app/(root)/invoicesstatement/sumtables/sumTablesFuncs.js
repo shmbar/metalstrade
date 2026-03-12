@@ -123,7 +123,7 @@ export const sumClients = (dt) => {
 
 export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
     const containerStyle = {
-        fontFamily: "'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+        fontFamily: "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
         background: '#fff',
         borderRadius: '16px',
         overflow: 'hidden',

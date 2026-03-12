@@ -170,7 +170,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
         }
 
         .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
