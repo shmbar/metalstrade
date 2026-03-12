@@ -58,7 +58,7 @@ export const EXD = (dataTable, settings, name, ln) => {
             sheet.addRow({
 
                 compName: item.compName,
-                date: dateFormat(item.date, 'dd-mmm-yy'),
+                date: dateFormat(item.date, 'dd.mm.yy'),
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier)?.nname || '-',
                 order: item.order,
                 salesInvoice: item.salesInvoice,

@@ -183,7 +183,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     doc.setFont('Poppins', 'normal');
     doc.setFontSize(8);
     doc.text(value.dateRange.startDate === '' || value.dateRange.startDate === null ? '' :
-        dateFormat(value.dateRange.startDate, 'dd-mmm-yy'), 165, 54);
+        dateFormat(value.dateRange.startDate, 'dd.mm.yy'), 165, 54);
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(8);
     doc.text('PO#:', 138, 58);

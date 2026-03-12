@@ -285,7 +285,7 @@ const Customtable = ({
                       onClick={() => setSelectedRowId(row.id)}
                       onDoubleClick={() => SelectRow(row.original)}
                       tabIndex={0}
-                      className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' hover:bg-[#dbeeff]'}`}
+                      className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' cursor-pointer'}`}
                     >
                       {row.getVisibleCells().map((cell) => {
                         const isCompleted = cell.column.id === 'completed';
@@ -302,14 +302,11 @@ const Customtable = ({
                             key={cell.id}
                             className={`px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect text-[11px]`}
                             style={{
-                              color: bg === '#dcfce7' ? '#16a34a' : bg === '#fee2e2' ? '#dc2626' : '#1F2937',
-                              backgroundColor: bg || undefined,
-                         width: cell.column.id === 'select' ? '50px' : undefined,
+                              color: '#1F2937',
+                              width: cell.column.id === 'select' ? '50px' : undefined,
                               maxWidth: cell.column.id === 'select' ? '50px' : undefined,
                               fontWeight: '400',
                               zIndex: 1,
-                              willChange: 'background-color, color',
-                              padding: bg ? '6px' : undefined,
                             }}
                           >
                             {cell.column.id === 'select' ? (
@@ -318,11 +315,11 @@ const Customtable = ({
                               </div>
                             ) : isCompleted ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="text-[11px] font-normal" style={{ color: cell.getValue() ? '#16a34a' : '#dc2626' }}>{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
+                                <span className="px-3 py-1 rounded-xl text-[11px] font-normal" style={{ backgroundColor: cell.getValue() ? '#dcfce7' : '#fee2e2', color: cell.getValue() ? '#16a34a' : '#dc2626', border: `1px solid ${cell.getValue() ? '#bbf7d0' : '#fecaca'}` }}>{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
                               </div>
                             ) : isStatus ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="text-[11px] font-normal" style={{ color: bg === '#dcfce7' ? '#16a34a' : bg === '#fee2e2' ? '#dc2626' : undefined }}>{cell.getValue()}</span>
+                                <span className="px-3 py-1 rounded-xl text-[11px] font-normal" style={{ backgroundColor: bg || undefined, color: bg === '#dcfce7' ? '#16a34a' : bg === '#fee2e2' ? '#dc2626' : undefined }}>{cell.getValue()}</span>
                               </div>
                             ) : (
                               <div className="flex justify-center">

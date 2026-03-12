@@ -100,7 +100,7 @@ const Contracts = () => {
 		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p> },
 		{ accessorKey: 'order', header: getTtl('PO', ln) + '#' },
 		{
-			accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy')}</p>,
+			accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
 			meta: {
 				filterVariant: 'dates',
 			}, filterFn: 'dateBetweenFilterFn'

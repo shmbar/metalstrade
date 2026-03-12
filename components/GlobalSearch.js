@@ -243,7 +243,7 @@ const GlobalSearch = () => {
                                                     <span className='text-green-600 font-semibold'>Contract</span> • PO# {item.order}
                                                 </p>
                                                 <p className='text-xs text-gray-500'>
-                                                    {getSettingValue('Supplier', item.supplier, 'nname')} • {item.date ? dateFormat(item.date, 'dd-mmm-yy') : '-'}
+                                                    {getSettingValue('Supplier', item.supplier, 'nname')} • {item.date ? dateFormat(item.date, 'dd.mm.yy') : '-'}
                                                 </p>
                                             </div>
                                             <span className={`px-2 py-0.5 rounded-full text-xs ${

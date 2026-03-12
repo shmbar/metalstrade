@@ -92,7 +92,7 @@ export const EXD = (dataTable, settings, name, ln) => {
                 lstSaved: dateFormat(item.lstSaved, 'dd-mmm-yy HH:MM'),
                 order: item.poSupplier.order,
                 invoice: item.invoice + getprefixInv(item),
-                date: item.final ? dateFormat(item.date, 'dd-mmm-yy') : dateFormat(item.dateRange.startDate, 'dd-mmm-yy'),
+                date: item.final ? dateFormat(item.date, 'dd.mm.yy') : dateFormat(item.dateRange.startDate, 'dd.mm.yy'),
                 invoiceStatus: !item.final && !item.canceled ? 'Draft' : item.final && !item.canceled ? 'Final' :
                     'Canceled',
                 client: item.final ? item.client.nname : settings.Client.Client.find(q => q.id === item.client)?.nname,
@@ -109,8 +109,8 @@ export const EXD = (dataTable, settings, name, ln) => {
                 totalPrepayment: item.totalPrepayment * 1,
                 balanceDue: item.balanceDue * 1,
                 container: item.container,
-                etd: item.shipData?.etd?.startDate ? dateFormat(item.shipData?.etd?.startDate, 'dd-mmm-yy') : '',
-                eta: item.shipData?.eta?.startDate ? dateFormat(item.shipData?.eta?.startDate, 'dd-mmm-yy') : '',
+                etd: item.shipData?.etd?.startDate ? dateFormat(item.shipData?.etd?.startDate, 'dd.mm.yy') : '',
+                eta: item.shipData?.eta?.startDate ? dateFormat(item.shipData?.eta?.startDate, 'dd.mm.yy') : '',
                 completed: item.completed ?? false,
 
             })

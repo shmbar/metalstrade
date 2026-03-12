@@ -256,7 +256,7 @@ const Contracts = () => {
 			),
 		},
 		{
-			accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy')}</p>,
+			accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
 			meta: {
 				filterVariant: 'dates',
 			},

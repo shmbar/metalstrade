@@ -140,7 +140,7 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
             totalObj['unitPrc'] = (isNumber(untPrc) ? untPrc : totalObj.unitPrc)
             totalObj['total'] = totalObj.unitPrc * totalObj.qnty
             totalObj['data'] = filteredData
-            totalObj['date'] = dateFormat(filteredData.find(z => z.contractData)?.contractData?.date, 'dd-mmm-yy')
+            totalObj['date'] = dateFormat(filteredData.find(z => z.contractData)?.contractData?.date, 'dd.mm.yy')
             totalObj['cur'] = filteredData[0]['cur']
             totalObj['sType'] = settings?.Stocks?.Stocks?.find(x => x.id === totalObj.stock)?.sType || ''
             totalObj['ind'] = parseFloat(key) //row number

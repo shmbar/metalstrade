@@ -294,7 +294,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                     <tr
                       key={row.id}
                       tabIndex={0}
-                      className="cursor-pointer hover:bg-[#dbeeff] transition-colors"
+                      className="cursor-pointer transition-colors"
                     >
                       {row.getVisibleCells().map((cell) => {
                         const isCompleted = cell.column.id === 'completed';

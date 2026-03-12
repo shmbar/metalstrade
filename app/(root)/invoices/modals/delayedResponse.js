@@ -58,7 +58,7 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                         </td>
                                         <td className="px-1 py-2">
                                             <div className="flex items-center h-5 text-sm text-gray-800">
-                                                {dateFormat(obj.shipData?.eta?.endDate, 'dd-mmm-yy')}
+                                                {dateFormat(obj.shipData?.eta?.endDate, 'dd.mm.yy')}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
@@ -75,7 +75,7 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                         </td>
                                         <td className="px-1 py-2">
                                             <div className="flex items-center h-5 text-sm text-gray-800">
-                                                {obj.shipData?.etd?.endDate ? dateFormat(obj.shipData?.etd?.endDate , 'dd-mmm-yy'): '-'}
+                                                {obj.shipData?.etd?.endDate ? dateFormat(obj.shipData?.etd?.endDate , 'dd.mm.yy'): '-'}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">

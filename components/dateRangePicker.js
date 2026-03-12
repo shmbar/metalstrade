@@ -192,7 +192,7 @@ const DateRangePicker = ({ displayLabel }) => {
                     useRange={false}
                     value={value}
                     onChange={handleValueChange}
-                    displayFormat="DD-MMM-YY"
+                    displayFormat="DD.MM.YY"
                     placeholder="Select range"
                     showShortcuts={true}
                     readOnly={true}

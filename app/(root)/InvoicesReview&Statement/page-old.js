@@ -240,8 +240,8 @@ const Shipments = () => {
       const outrnamnt = addData.outrnamnt != null ? addData.outrnamnt : '';
       const fnlzing = addData.fnlzing;
       const status = addData.status;
-      const etd = addData.etd === '' ? '' : dateFormat(addData.etd.startDate, 'dd-mmm-yy');
-      const eta = addData.eta === '' ? '' : dateFormat(addData.eta.startDate, 'dd-mmm-yy');
+      const etd = addData.etd === '' ? '' : dateFormat(addData.etd.startDate, 'dd.mm.yy');
+      const eta = addData.eta === '' ? '' : dateFormat(addData.eta.startDate, 'dd.mm.yy');
       const poCur = x.poCur
 
       return {

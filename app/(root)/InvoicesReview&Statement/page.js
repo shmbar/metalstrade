@@ -435,8 +435,8 @@ const Shipments = () => {
       const outrnamnt = addData.outrnamnt != null ? addData.outrnamnt : '';
       const fnlzing = addData.fnlzing;
       const status = addData.status;
-      const etd = addData.etd === '' ? '' : dateFormat(addData.etd.startDate, 'dd-mmm-yy');
-      const eta = addData.eta === '' ? '' : dateFormat(addData.eta.startDate, 'dd-mmm-yy');
+      const etd = addData.etd === '' ? '' : dateFormat(addData.etd.startDate, 'dd.mm.yy');
+      const eta = addData.eta === '' ? '' : dateFormat(addData.eta.startDate, 'dd.mm.yy');
       const poCur = x.poCur
 
       return {
@@ -502,8 +502,8 @@ const Shipments = () => {
       const rcvd = tmp.shipData?.rcvd
       const fnlzing = tmp.shipData?.fnlzing
       const status = tmp.shipData?.status
-      const etd = tmp ? tmp.shipData.etd.startDate == null || tmp.shipData.etd.startDate === '' ? '' : dateFormat(tmp.shipData?.etd.startDate, 'dd-mmm-yy') : ''
-      const eta = tmp ? tmp.shipData.eta.startDate == null || tmp.shipData.eta.startDate === '' ? '' : dateFormat(tmp.shipData?.eta.startDate, 'dd-mmm-yy') : ''
+      const etd = tmp ? tmp.shipData.etd.startDate == null || tmp.shipData.etd.startDate === '' ? '' : dateFormat(tmp.shipData?.etd.startDate, 'dd.mm.yy') : ''
+      const eta = tmp ? tmp.shipData.eta.startDate == null || tmp.shipData.eta.startDate === '' ? '' : dateFormat(tmp.shipData?.eta.startDate, 'dd.mm.yy') : ''
 
       const cur = x.type === 'con' ? x.cur : x.invData.cur
       const curInvoice = x.type === 'con' ? tmp.cur : ''
@@ -781,7 +781,7 @@ const Shipments = () => {
     },
     { accessorKey: 'InvNum', header: getTtl('Invoice', ln) + ' #', cell: (props) => <div>{String(props.getValue()).padStart(4, "0")}</div> },
     {
-      accessorKey: 'dateInv', header: getTtl('Date', ln), cell: (props) => <p>{props.getValue() === '' ? '' : dateFormat(props.getValue(), 'dd-mmm-yy')}</p>,
+      accessorKey: 'dateInv', header: getTtl('Date', ln), cell: (props) => <p>{props.getValue() === '' ? '' : dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
       meta: {
         filterVariant: 'dates',
       },

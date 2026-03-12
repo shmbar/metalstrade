@@ -70,7 +70,7 @@ export const EXD = (dataTable, settings, name, ln) => {
             sheet.addRow({
                 lstSaved: dateFormat(item.lstSaved, 'dd-mmm-yy HH:MM'),
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
-                date: dateFormat(item.dateRange.startDate, 'dd-mmm-yy'),
+                date: dateFormat(item.dateRange.startDate, 'dd.mm.yy'),
                 invoice: item.salesInv,
                 order: item.poSupplierOrder,
                 cur: settings.Currency.Currency.find(q => q.id === item.cur).cur,

@@ -117,8 +117,8 @@ export const EXD = (dataTable, settings, name, ln, totals) => {
                 debtaftr: item.debtaftr,
 
                 status: item.status === '' ? '' : relStts.find(x => x.id === item.status).status,
-                etd: item.etd === '' ? '' : dateFormat(item.etd, 'dd-mmm-yy'),
-                eta: item.eta === '' ? '' : dateFormat(item.eta, 'dd-mmm-yy'),
+                etd: item.etd === '' ? '' : dateFormat(item.etd, 'dd.mm.yy'),
+                eta: item.eta === '' ? '' : dateFormat(item.eta, 'dd.mm.yy'),
 
                 rcvd: item.rcvd === '' ? '' : OutTurn.find(x => x.id === item.rcvd).rcvd,
                 outtrnAmnt: item.outrnamnt * 1,

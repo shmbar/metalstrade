@@ -155,7 +155,7 @@ const Customtable = ({ data, propDefaults, SelectRow, lastAction, name, excellRe
 
 		return (tmp?.arr && !obj.final && x !== 'supplier') ? getD(tmp.arr, obj, x) :
 			(x === 'date' && obj['date'].startDate !== null && !obj.final) ?
-				dateFormat(obj[x].startDate, 'dd-mmm-yy') :
+				dateFormat(obj[x].startDate, 'dd.mm.yy') :
 				(x === 'date' && obj['date'].startDate === null && !obj.final) ?
 					'' :
 					x === 'totalAmount' || x === 'totalPrepayment' || x === 'amount' ? new Intl.NumberFormat('en-US', {

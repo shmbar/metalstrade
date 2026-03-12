@@ -346,7 +346,7 @@ const Customtable = ({
       onClick={() => setSelectedRowId(row.id)}
       onDoubleClick={() => SelectRow(row.original)}
       tabIndex={0}
-      className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' hover:bg-[#dbeeff]'}`}
+      className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' cursor-pointer'}`}
     >
       {row.getVisibleCells().map((cell) => {
         const value = cell.getValue();

@@ -189,7 +189,7 @@ const Stocks = () => {
         ) ? totalObj.unitPrc : parseFloat(totalObj.qnty * totalObj.unitPrc)
 
         totalObj['data'] = filteredstockData
-        totalObj['date'] = dateFormat(filteredstockData.find(z => z.contractData)?.contractData?.date, 'dd-mmm-yy')
+        totalObj['date'] = dateFormat(filteredstockData.find(z => z.contractData)?.contractData?.date, 'dd.mm.yy')
         totalObj['cur'] = filteredstockData[0]['cur']
         totalObj['sType'] = settings?.Stocks?.Stocks?.find(x => x.id === totalObj.stock)?.sType || ''
         totalObj['ind'] = parseFloat(key) //row number

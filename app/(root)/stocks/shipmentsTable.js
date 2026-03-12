@@ -46,8 +46,8 @@ const Customtable = ({ data, item }) => {
 
 			let fstItem = {
 				date: obj.type === 'in' ?
-					obj.indDate?.startDate ? dateFormat(obj.indDate.startDate, 'dd-mmm-yy') : '-' :
-					dateFormat(obj.date, 'dd-mmm-yy'),
+					obj.indDate?.startDate ? dateFormat(obj.indDate.startDate, 'dd.mm.yy') : '-' :
+					dateFormat(obj.date, 'dd.mm.yy'),
 				supplier: obj.supplier,
 				invoice: obj.invoice !== '' ? obj.type === 'in' && obj.description ? obj.poInvoices.find(x => x.id === obj.poInvoice)?.inv :
 					obj.invoice + getprefixInv(obj) : '-',
@@ -70,7 +70,7 @@ const Customtable = ({ data, item }) => {
 			//Check if there is Final QTY
 			if (obj.type === 'in' && obj.finalqnty && obj.finalqnty * 1 !== obj.qnty * 1) {
 				let fntItem = {
-					date: obj.indDate?.startDate ? dateFormat(obj.indDate.startDate, 'dd-mmm-yy') : '-',
+					date: obj.indDate?.startDate ? dateFormat(obj.indDate.startDate, 'dd.mm.yy') : '-',
 					supplier: obj.supplier,
 					invoice: obj.poInvoices.find(x => x.id === obj.poInvoice)?.inv,
 					qnty: obj.qnty * 1 - obj.finalqnty * 1,

@@ -42,7 +42,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                             <td style={tdStyle}>
                                 <NumericFormat value={z.amount} displayType="text" thousandSeparator allowNegative={true} prefix={z.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale />
                             </td>
-                            <td style={tdStyle}>{dateFormat(z.date, 'dd-mmm-yy')}</td>
+                            <td style={tdStyle}>{dateFormat(z.date, 'dd.mm.yy')}</td>
                             <td style={tdStyle}>{z.paid === '111' ? 'Paid' : 'Unpaid'}</td>
                         </tr>
                     ))}

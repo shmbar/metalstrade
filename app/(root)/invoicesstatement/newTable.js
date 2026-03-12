@@ -292,7 +292,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                             key={row.id}
                                             onDoubleClick={() => SelectRow(row.original)}
                                             tabIndex={0}
-                                            className="cursor-pointer hover:bg-[#dbeeff] transition-colors"
+                                            className="cursor-pointer transition-colors"
                                         >
                                             {row.getVisibleCells().map((cell) => {
                                                 const isCompleted = cell.column.id === 'completed';

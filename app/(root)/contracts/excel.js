@@ -72,7 +72,7 @@ export const EXD = (dataTable, settings, name, ln) => {
                 opDate: dateFormat(item.opDate, 'dd-mmm-yy HH:MM'),
                 lstSaved: dateFormat(item.lstSaved, 'dd-mmm-yy HH:MM'),
                 order: item.order,
-                date: dateFormat(item.dateRange.startDate, 'dd-mmm-yy'),
+                date: dateFormat(item.dateRange.startDate, 'dd.mm.yy'),
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
                 originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier)?.nname ?? '-',
                 shpType: item.shpType && settings.Shipment.Shipment.find(q => q.id === item.shpType)?.shpType,

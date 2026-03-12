@@ -72,7 +72,7 @@ export const EXD = (dataTable, settings, name, ln, valCur) => {
             let item = dataTable[i]
 
             sheet.addRow({
-                date: dateFormat(item.dateRange.startDate, 'dd-mmm-yy'),
+                date: dateFormat(item.dateRange.startDate, 'dd.mm.yy'),
                 order: item.order,
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
                 originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier).nname,

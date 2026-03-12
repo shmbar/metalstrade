@@ -110,13 +110,13 @@ export const EXD = (dataTable, settings, name, ln) => {
 
             sheet.addRow({
                 //    num: item.num,
-                dateExp: item.dateExp && dateFormat(item.dateExp, 'dd-mmm-yy'),
+                dateExp: item.dateExp && dateFormat(item.dateExp, 'dd.mm.yy'),
                 expInvoice: item.expInvoice == null || item.expInvoice == '' ? '' : isNumber(item.expInvoice) ? item.expInvoice * 1 : item.expInvoice,
                 clientExp: item.clientExp ? settings.Supplier.Supplier.find(q => q.id === item.clientExp)?.nname : '',
                 amountExp: item.amountExp ? Number(item.amountExp) || 0 : '',
                 expType: item.expType && item.expType === 'Purchase' ? 'Purchase' : settings.Expenses.Expenses.find(q => q.id === item.expType)?.expType,
 
-                dateInv: item.dateInv == null ? '' : dateFormat(item.dateInv, 'dd-mmm-yy'),
+                dateInv: item.dateInv == null ? '' : dateFormat(item.dateInv, 'dd.mm.yy'),
                 saleInvoice: item.saleInvoice == null ? '' : isNumber(item.saleInvoice) ? item.saleInvoice * 1 : item.saleInvoice,
                 clientInv: item.clientInv == null ? '' : item.clientInv,
                 amountInv: item.amountInv == null ? '' : item.amountInv,

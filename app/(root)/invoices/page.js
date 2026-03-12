@@ -204,7 +204,7 @@ const Invoices = () => {
 		{
 			accessorKey: 'date', 
 			header: getTtl('Date', ln), 
-			cell: (props) => <span className="whitespace-nowrap">{dateFormat(props.row.original.final ? props.getValue() : props.getValue(), 'dd-mmm-yy')}</span>,
+			cell: (props) => <span className="whitespace-nowrap">{dateFormat(props.row.original.final ? props.getValue() : props.getValue(), 'dd.mm.yy')}</span>,
 			meta: {
 				filterVariant: 'dates',
 			},
@@ -369,14 +369,14 @@ const Invoices = () => {
 			accessorKey: 'etd', 
 			header: 'ETD', 
 			cell: (props) => <span className="whitespace-nowrap">{props.row.original.shipData?.etd?.startDate ?
-				dateFormat(props.row.original.shipData?.etd?.startDate, 'dd-mmm-yy') : ''}</span>,
+				dateFormat(props.row.original.shipData?.etd?.startDate, 'dd.mm.yy') : ''}</span>,
 			size: 110
 		},
 		{
 			accessorKey: 'eta', 
 			header: 'ETA', 
 			cell: (props) => <span className="whitespace-nowrap">{props.row.original.shipData?.eta?.startDate ?
-				dateFormat(props.row.original.shipData?.eta?.startDate, 'dd-mmm-yy') : ''}</span>,
+				dateFormat(props.row.original.shipData?.eta?.startDate, 'dd.mm.yy') : ''}</span>,
 			size: 110
 		},
 		{

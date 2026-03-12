@@ -110,7 +110,7 @@ const SpecialInvoices = () => {
     let propDefaults = Object.keys(settings).length === 0 ? [] : [
         { accessorKey: 'compName', header: 'Company Name', cell: (props) => <p>{props.getValue()}</p> },
         {
-            accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy')}</p>,
+            accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
             meta: {
                 filterVariant: 'dates',
             }, filterFn: 'dateBetweenFilterFn'

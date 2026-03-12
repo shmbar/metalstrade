@@ -318,7 +318,7 @@ const AccountStatement = () => {
       ttlUS: getTtl('Total', ln) + ' $:', ttlEU: getTtl('Total', ln) + ' €:'
     },
     {
-      accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <div>{dateFormat(props.getValue(), 'dd-mmm-yy')} </div>,
+      accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <div>{dateFormat(props.getValue(), 'dd.mm.yy')} </div>,
       meta: {
         filterVariant: 'dates',
       },
@@ -334,7 +334,7 @@ const AccountStatement = () => {
 
     { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toLowerCase(); const isUsd = v === 'us' || v === 'usd'; const isEur = v === 'eu' || v === 'eur'; return <span style={{ background: isUsd ? '#b7d1b5' : isEur ? '#dbeeff' : '#f0f0f0', color: isUsd ? '#2d6a2d' : isEur ? 'var(--chathams-blue)' : '#555', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: '12px', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
     {
-      accessorKey: 'due', header: getTtl('DuePayment', ln), cell: (props) => <div>{dateFormat(props.getValue(), 'dd-mmm-yy')} </div>,
+      accessorKey: 'due', header: getTtl('DuePayment', ln), cell: (props) => <div>{dateFormat(props.getValue(), 'dd.mm.yy')} </div>,
       meta: {
         filterVariant: 'dates',
       },

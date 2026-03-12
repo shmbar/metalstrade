@@ -103,7 +103,7 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
                 pmntAmount: item.pmntAmount,
                 blnc: item.blnc,
                 InvNum: item.InvNum,
-                dateInv: item.dateInv === '' ? '' : dateFormat(item.dateInv, 'dd-mmm-yy'),
+                dateInv: item.dateInv === '' ? '' : dateFormat(item.dateInv, 'dd.mm.yy'),
                 client: item.client !== '' ? settings.Client.Client.find(q => q.id === item.client)?.nname : '',
                 totalInvoices: item.totalInvoices,
                 prepaidPer: item.prepaidPer,
@@ -114,8 +114,8 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
                 rcvd: item.rcvd === '' || item.rcvd == null ? '' : OutTurn.find(x => x.id === item.rcvd).rcvd,
                 fnlzing: item.fnlzing === '' || item.fnlzing == null ? '' : Finalizing.find(x => x.id === item.fnlzing).fnlzing,
                 status: item.status === '' || item.status == null ? '' : relStts.find(x => x.id === item.status).status,
-                etd: item.etd === '' ? '' : dateFormat(item.etd, 'dd-mmm-yy'),
-                eta: item.eta === '' ? '' : dateFormat(item.eta, 'dd-mmm-yy'),
+                etd: item.etd === '' ? '' : dateFormat(item.etd, 'dd.mm.yy'),
+                eta: item.eta === '' ? '' : dateFormat(item.eta, 'dd.mm.yy'),
             })
         }
 

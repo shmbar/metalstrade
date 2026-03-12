@@ -44,11 +44,11 @@ const Users = () => {
     { accessorKey: 'email', header: 'Email', cell: (props) => <p>{props.getValue()}</p> },
     { accessorKey: 'title', header: 'Title', cell: (props) => <p className='font-semibold'>{props.getValue()}</p> },
     {
-      accessorKey: 'userCreated', header: 'User Created ', cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy')}</p>,
+      accessorKey: 'userCreated', header: 'User Created ', cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
       enableColumnFilter: false
     },
     {
-      accessorKey: 'lastLogedIn', header: 'Last Loged In ', cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy')}</p>,
+      accessorKey: 'lastLogedIn', header: 'Last Loged In ', cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
       enableColumnFilter: false
     },
     {

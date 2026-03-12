@@ -336,7 +336,7 @@ useEffect(() => {
       enableColumnFilter: false,
     },
     {
-      accessorKey: 'dateExp', header: getTtl('Date', ln), cell: (props) => <p>{props.getValue() ? dateFormat(props.getValue(), 'dd-mmm-yy') : ''}</p>,
+      accessorKey: 'dateExp', header: getTtl('Date', ln), cell: (props) => <p>{props.getValue() ? dateFormat(props.getValue(), 'dd.mm.yy') : ''}</p>,
       meta: {
         filterVariant: 'dates',
       },
@@ -368,7 +368,7 @@ useEffect(() => {
   }},
 
 
-    { accessorKey: 'dateInv', header: getTtl('Date', ln), cell: (props) => <p>{props.getValue() ? dateFormat(props.getValue(), 'dd-mmm-yy') : ''}</p> },
+    { accessorKey: 'dateInv', header: getTtl('Date', ln), cell: (props) => <p>{props.getValue() ? dateFormat(props.getValue(), 'dd.mm.yy') : ''}</p> },
     { accessorKey: 'saleInvoice', header: getTtl('Invoice', ln), cell: (props) => <p>{props.getValue()}</p> },
     {
   accessorKey: 'clientInv',

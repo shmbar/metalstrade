@@ -52,7 +52,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                                     fixedDecimalScale
                                 />
                             </td>
-                            <td style={tdStyle}>{dateFormat(z.date, 'dd-mmm-yy')}</td>
+                            <td style={tdStyle}>{dateFormat(z.date, 'dd.mm.yy')}</td>
                             <td style={tdStyle}>{z.paidNotPaid}</td>
                         </tr>
                     ))}

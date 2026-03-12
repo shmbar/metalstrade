@@ -27,14 +27,26 @@ body,
   overflow-x: hidden;
 }
 
-/* Row hover: ensure td inherits tr hover background */
-tr.cursor-pointer:hover td {
+/* Row hover: ensure all tds inherit tr hover background */
+tr.cursor-pointer:hover td,
+tr.hover-row:hover td {
   background-color: #dbeeff !important;
+}
+
+/* Cell hover: slightly darker on the specific cell under cursor */
+tr.cursor-pointer:hover td:hover,
+tr.hover-row:hover td:hover {
+  background-color: #b8ddf8 !important;
 }
 
 /* Row selected: persistent click highlight */
 tr.selected-row td {
   background-color: #b8ddf8 !important;
+}
+
+/* Smooth transitions on all table rows */
+tr td {
+  transition: background-color 0.15s ease;
 }
 
 @layer components {

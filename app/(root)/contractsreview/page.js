@@ -278,7 +278,7 @@ const Shipments = () => {
     let propDefaults = Object.keys(settings).length === 0 ? [] : [
 
         {
-            accessorKey: 'date', header: getTtl('Date', ln), enableSorting: false, cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy')}</p>,
+            accessorKey: 'date', header: getTtl('Date', ln), enableSorting: false, cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
             meta: {
                 filterVariant: 'dates',
             },

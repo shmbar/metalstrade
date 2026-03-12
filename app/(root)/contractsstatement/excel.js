@@ -76,7 +76,7 @@ export const EXD = (dataTable, settings, name, ln) => {
             let item = dataTable[i]
 
             sheet.addRow({
-                date: dateFormat(item.date, 'dd-mmm-yy'),
+                date: dateFormat(item.date, 'dd.mm.yy'),
                 order: item.order,
                 supplier: settings.Supplier.Supplier.find(q => q.id === item.supplier).nname,
                 originSupplier: settings.Supplier.Supplier.find(q => q.id === item.originSupplier)?.nname,
