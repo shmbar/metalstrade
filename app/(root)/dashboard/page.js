@@ -120,39 +120,39 @@ function StatKpiCard({
 }) {
   return (
     <motion.div
-      className={`relative h-full min-h-[120px] rounded-xl overflow-hidden bg-gradient-to-br ${grad} shadow-md flex flex-col`}
+      className={`relative h-full min-h-[115px] rounded-xl overflow-hidden bg-gradient-to-br ${grad} shadow-md flex flex-col`}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
       whileHover={{ scale: 1.03, boxShadow: '0 8px 32px rgba(0,0,0,0.10)' }}
     >
-      <div className="p-3 flex flex-col justify-between h-full">
+      <div className="p-2.5 flex flex-col justify-between h-full">
         {/* Top Section - Icon, Title and Badge */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {icon && (
-              <span className="inline-flex items-center justify-center rounded-full flex-shrink-0" style={{ background: iconBg, width: 28, height: 28 }}>
+              <span className="inline-flex items-center justify-center rounded-full flex-shrink-0" style={{ background: iconBg, width: 22, height: 22 }}>
                 {icon}
               </span>
             )}
-            <div className="text-white/90 text-[11px] font-medium leading-tight">
+            <div className="text-white/90 text-[10px] font-medium leading-tight">
               {title}
             </div>
           </div>
-          <div className="px-2 py-0.5 rounded-md text-[10px] bg-white/20 text-white flex-shrink-0">
+          <div className="px-1.5 py-0.5 rounded-md text-[9px] bg-white/20 text-white flex-shrink-0">
             {badgeText}
           </div>
         </div>
-        
+
         {/* Middle Section - Left Aligned Value */}
         <div className="flex-1 flex items-center justify-start">
-          <div className="text-2xl font-bold text-white">
+          <div className="text-xl font-bold text-white">
             {value}
           </div>
         </div>
-        
+
         {/* Bottom Section - Chart */}
-        <div className="h-[38px]">
+        <div className="h-[32px]">
           <Line
             data={{
               labels: Object.keys(chartData || {}).slice(0, 12),
@@ -368,8 +368,8 @@ const Dash = () => {
       .toUpperCase();
 
   // Calculate chart heights so rows align with avatar/name list and values
-  const avatarSize = 36; // px for rounded avatar
-  const rowHeight = avatarSize + 8; // px per row (avatar + gap)
+  const avatarSize = 26; // px for rounded avatar
+  const rowHeight = avatarSize + 4; // px per row (avatar + gap)
   const hbSuppsRows = (hbSupps.obj.labels || []).length || 1;
   const hbClntsRows = (hbClnts.obj.labels || []).length || 1;
   const hbSuppsHeight = Math.max(120, hbSuppsRows * rowHeight);
@@ -453,10 +453,8 @@ const Dash = () => {
             Financial overview and analytics
           </p>
         </div>
-
-          <DateRangePicker />
-          <TooltipComp txt="Select Dates Range" />
-        
+        <DateRangePicker />
+        <TooltipComp txt="Select Dates Range" />
       </motion.div>
 
       {/* MAIN GRID */}
@@ -561,21 +559,21 @@ const Dash = () => {
 
               {/* Column Headers */}
               <div className="flex items-center gap-3 mb-2 mt-2">
-                <div className="w-[36px] flex-shrink-0" />
-                <div className="w-20 text-[9px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0">Client Name</div>
+                <div className="w-[116px] text-[9px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0 whitespace-nowrap">Client Name</div>
                 <div className="flex-1 text-[9px] font-semibold text-gray-400 uppercase tracking-wide text-center">Contribution Share (0 – 1.0)</div>
-                <div className="w-20 text-right text-[9px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0">Value</div>
+                <div className="w-16 text-right text-[9px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0">Value</div>
               </div>
 
-              <div className="min-h-[200px]">
+              <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
                 {(hbSupps.obj.labels || []).map((lbl, idx) => {
+                  const rowCount = (hbSupps.obj.labels || []).length;
+                  const barHeight = Math.max(14, Math.min(28, Math.round(28 - rowCount * 1.5)));
                   const colorPalette = [
-                    '#0ea5e9',
-                    '#38bdf8',
-                    '#7dd3fc',
-                    '#6366f1'
+                    '#38BDF8', '#22B0F0', '#7DD3F8', '#4F46E5',
+                    '#7C6FE0', '#1477C0', '#2D3FB8', '#6366F1',
+                    '#0A5EA8', '#8B7FE8'
                   ];
-                  const color = hbSupps.obj.datasets?.[0]?.backgroundColor?.[idx] || colorPalette[idx % colorPalette.length];
+                  const color = colorPalette[idx % colorPalette.length];
                   const value = hbSuppsData?.datasets?.[0]?.data?.[idx] || 0;
                   const allValues = hbSuppsData?.datasets?.[0]?.data || [1];
                   const max = Math.max(...allValues);
@@ -584,7 +582,7 @@ const Dash = () => {
                   return (
                     <motion.div
                       key={idx}
-                      className="flex items-center gap-3 mb-3"
+                      className="flex items-center gap-2 mb-0.5"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.4, delay: idx * 0.07 }}
@@ -606,7 +604,7 @@ const Dash = () => {
 
                       {/* Bar */}
                       <motion.div className="flex-1 min-w-0">
-                        <div className="w-full h-5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="w-full bg-gray-100 rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
                           <motion.div
                             className="rounded-r-full h-full flex items-center pl-2"
                             style={{
@@ -628,7 +626,7 @@ const Dash = () => {
                       </motion.div>
 
                       {/* Value */}
-                      <motion.div className="w-20 text-right text-xs text-gray-700 font-semibold flex-shrink-0"
+                      <motion.div className="w-16 text-right text-xs text-gray-700 font-semibold flex-shrink-0"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.4, delay: idx * 0.09 }}
@@ -658,22 +656,21 @@ const Dash = () => {
 
               {/* Column Headers */}
               <div className="flex items-center gap-3 mb-2 mt-2">
-                <div className="w-[36px] flex-shrink-0" />
-                <div className="w-20 text-[9px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0">Client Name</div>
+                <div className="w-[116px] text-[9px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0 whitespace-nowrap">Client Name</div>
                 <div className="flex-1 text-[9px] font-semibold text-gray-400 uppercase tracking-wide text-center">Contribution Share (0 – 1.0)</div>
-                <div className="w-20 text-right text-[9px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0">Value</div>
+                <div className="w-16 text-right text-[9px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0">Value</div>
               </div>
 
-              <div className="min-h-[200px]">
+              <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
                 {(hbClnts.obj.labels || []).map((lbl, idx) => {
+                  const rowCount = (hbClnts.obj.labels || []).length;
+                  const barHeight = Math.max(14, Math.min(28, Math.round(28 - rowCount * 1.5)));
                   const colorPalette = [
-                    '#0ea5e9',
-                    '#38bdf8',
-                    '#7dd3fc',
-                    '#6366f1',
-                    '#818cf8'
+                    '#38BDF8', '#22B0F0', '#7DD3F8', '#4F46E5',
+                    '#7C6FE0', '#1477C0', '#2D3FB8', '#6366F1',
+                    '#0A5EA8', '#8B7FE8'
                   ];
-                  const color = hbClnts.obj.datasets?.[0]?.backgroundColor?.[idx] || colorPalette[idx % colorPalette.length];
+                  const color = colorPalette[idx % colorPalette.length];
                   const value = hbClntsData?.datasets?.[0]?.data?.[idx] || 0;
                   const allValues = hbClntsData?.datasets?.[0]?.data || [1];
                   const max = Math.max(...allValues);
@@ -682,7 +679,7 @@ const Dash = () => {
                   return (
                     <motion.div
                       key={idx}
-                      className="flex items-center gap-3 mb-3"
+                      className="flex items-center gap-2 mb-0.5"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.4, delay: idx * 0.07 }}
@@ -702,11 +699,11 @@ const Dash = () => {
                       </div>
                       {/* Bar */}
                       <motion.div className="flex-1 min-w-0">
-                        <div className="w-full h-5 bg-gray-100 rounded-full overflow-hidden">
-                          <motion.div 
-                            className="rounded-r-full h-full flex items-center pl-2" 
-                            style={{ 
-                              width: `${pct}%`, 
+                        <div className="w-full bg-gray-100 rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
+                          <motion.div
+                            className="rounded-r-full h-full flex items-center pl-2"
+                            style={{
+                              width: `${pct}%`,
                               background: color,
                               minWidth: '42px',
                               borderRadius: '0 9999px 9999px 0'
@@ -723,7 +720,7 @@ const Dash = () => {
                         </div>
                       </motion.div>
                       {/* Value */}
-                      <motion.div className="w-20 text-right text-xs text-gray-700 font-semibold flex-shrink-0"
+                      <motion.div className="w-16 text-right text-xs text-gray-700 font-semibold flex-shrink-0"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.4, delay: idx * 0.09 }}
@@ -740,7 +737,7 @@ const Dash = () => {
         </motion.div>
 
         {/* RIGHT COLUMN */}
-        <motion.div className="flex flex-col gap-4 h-full"
+        <motion.div className="flex flex-col gap-4 lg:sticky lg:top-[76px] lg:self-start"
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
@@ -761,65 +758,65 @@ const Dash = () => {
           {/* KPI GRID */}
           <div className="grid grid-cols-2 gap-3 auto-rows-fr flex-1">
 
-            <StatKpiCard 
-              title="P&L" 
-              badgeText="Profit" 
-              value={fmtAutoKM(totalPL)} 
-              chartData={dataPL} 
-              grad="from-[#CE283D] to-[#892043]" 
-              chartColor="rgba(255,255,255,0.95)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><text x="8" y="16" fontSize="7" fill="#fff" fontFamily="Arial">$</text></svg>}
-              iconBg="#CE283D"
-            />
-            <StatKpiCard 
-              title="Invoices" 
-              badgeText="Sales" 
-              value={fmtAutoKM(totalInvoices)} 
-              chartData={dataInvoices} 
-              grad="from-[#C69C0B] to-[#837619]" 
-              chartColor="rgba(255,255,255,0.95)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#fff" strokeWidth="2"/><path d="M8 10h8M8 14h8" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M8 7h8" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M7 4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-              iconBg="#C69C0B"
-            />
-            <StatKpiCard 
-              title="Contracts & Expenses" 
-              badgeText="Costs" 
-              value={fmtAutoKM(totalContracts)} 
-              chartData={dataContracts} 
-              grad="from-[#3969F6] to-[#7A4756]" 
+            <StatKpiCard
+              title="P&L"
+              badgeText="Profit"
+              value={fmtAutoKM(totalPL)}
+              chartData={dataPL}
+              grad="from-[#6B44C8] to-[#3E2090]"
               chartColor="rgba(255,255,255,0.95)"
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-              iconBg="#3969F6"
+              iconBg="rgba(255,255,255,0.2)"
             />
-            <StatKpiCard 
-              title="Sales Contracts" 
-              badgeText="Sales" 
-              value={fmtAutoKM(totalContracts)} 
-              chartData={dataContracts} 
-              grad="from-[#B62A62] to-[#684B68]" 
+            <StatKpiCard
+              title="Invoices"
+              badgeText="Sales"
+              value={fmtAutoKM(totalInvoices)}
+              chartData={dataInvoices}
+              grad="from-[#0E7058] to-[#09523E]"
+              chartColor="rgba(255,255,255,0.95)"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#fff" strokeWidth="2"/><path d="M8 10h8M8 14h8" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
+              iconBg="rgba(255,255,255,0.2)"
+            />
+            <StatKpiCard
+              title="Contracts & Expenses"
+              badgeText="Costs"
+              value={fmtAutoKM(totalContracts)}
+              chartData={dataContracts}
+              grad="from-[#C42840] to-[#902030]"
+              chartColor="rgba(255,255,255,0.95)"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
+              iconBg="rgba(255,255,255,0.2)"
+            />
+            <StatKpiCard
+              title="Sales Contracts"
+              badgeText="Sales"
+              value={fmtAutoKM(totalContracts)}
+              chartData={dataContracts}
+              grad="from-[#2255C8] to-[#1A3A98]"
               chartColor="rgba(255,255,255,0.95)"
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M12 12l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-              iconBg="#B62A62"
+              iconBg="rgba(255,255,255,0.2)"
             />
-            <StatKpiCard 
-              title="Expenses" 
-              badgeText="Costs" 
-              value={fmtAutoKM(totalExpenses)} 
-              chartData={dataExpenses} 
-              grad="from-[#3F7EC3] to-[#356F94]" 
+            <StatKpiCard
+              title="Expenses"
+              badgeText="Costs"
+              value={fmtAutoKM(totalExpenses)}
+              chartData={dataExpenses}
+              grad="from-[#C42860] to-[#901040]"
               chartColor="rgba(255,255,255,0.95)"
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M12 12l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-              iconBg="#3F7EC3"
+              iconBg="rgba(255,255,255,0.2)"
             />
-            <StatKpiCard 
-              title="Purchase Contracts" 
-              badgeText="Purchases" 
-              value={fmtAutoKM(totalInvoices)} 
-              chartData={dataInvoices} 
-              grad="from-[#56AFCB] to-[#3E8370]" 
+            <StatKpiCard
+              title="Purchase Contracts"
+              badgeText="Purchases"
+              value={fmtAutoKM(totalInvoices)}
+              chartData={dataInvoices}
+              grad="from-[#BF6A18] to-[#8A3E0A]"
               chartColor="rgba(255,255,255,0.95)"
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="10" rx="2" stroke="#fff" strokeWidth="2"/><path d="M9 11h6" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M9 14h4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-              iconBg="#56AFCB"
+              iconBg="rgba(255,255,255,0.2)"
             />
 
           </div>

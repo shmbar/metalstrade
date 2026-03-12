@@ -22,18 +22,18 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
     return (
         <div className='p-4'>
             <div className=" overflow-x-auto">
-                <div className="border rounded-lg overflow-hidden">
+                <div className="border rounded-2xl overflow-hidden">
                     <table id='my-table' className=" table-fixed min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50 ">
+                        <thead style={{ background: '#dbeeff' }}>
                             <tr>
-                                <th scope="col" className=" w-0/12 py-1 px-4 text-left text-sm font-medium text-gray-500">Supplier</th>
-                                <th scope="col" className="w-0/12 pr-1 py-1 text-left text-sm font-medium text-gray-500"  >
+                                <th scope="col" className="w-0/12 py-2 px-4 text-left text-xs font-semibold" style={{ color: 'var(--chathams-blue)' }}>Supplier</th>
+                                <th scope="col" className="w-0/12 pr-1 py-2 text-left text-xs font-semibold" style={{ color: 'var(--chathams-blue)' }}>
                                     Contract</th>
-                                <th scope="col" className="w-0/12 pr-1 py-1 text-left text-sm font-medium text-gray-500"  >
+                                <th scope="col" className="w-0/12 pr-1 py-2 text-left text-xs font-semibold" style={{ color: 'var(--chathams-blue)' }}>
                                     Date</th>
-                                <th scope="col" className="w-20 pr-1 py-1 text-left text-sm font-medium text-gray-500 flex "  >
+                                <th scope="col" className="w-20 pr-1 py-2 text-left text-xs font-semibold flex" style={{ color: 'var(--chathams-blue)' }}>
                                     Days from Date</th>
-                                <th scope="col" className="w-20 pr-1 py-1 text-left text-sm font-medium text-gray-500"  >
+                                <th scope="col" className="w-20 pr-1 py-2 text-left text-xs font-semibold" style={{ color: 'var(--chathams-blue)' }}>
                                     Keep Alerting</th>
                             </tr>
                         </thead>

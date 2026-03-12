@@ -314,10 +314,10 @@ const Customtable = ({
                         const isCompleted = cell.column.id === 'completed';
                         const isStatus = cell.column.id === 'status' && cell.getValue();
                         let bg = undefined;
-                        if (isCompleted) bg = cell.getValue() ? '#00bf63' : '#eb3636';
+                        if (isCompleted) bg = cell.getValue() ? '#dcfce7' : '#fee2e2';
                         if (isStatus) {
-                          if (cell.getValue() === 'Completed') bg = '#00bf63';
-                          else if (cell.getValue() === 'Incompleted') bg = '#eb3636';
+                          if (cell.getValue() === 'Completed') bg = '#dcfce7';
+                          else if (cell.getValue() === 'Incompleted') bg = '#fee2e2';
                         }
 
                         return (

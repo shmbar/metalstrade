@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Header from "../../../components/table/header";
 import {
@@ -302,18 +302,18 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                 let badgeConfig = null;
                                                 if (isCompleted) {
                                                     badgeConfig = cell.getValue()
-                                                        ? { bg: '#00bf63', color: '#FFFFFF', label: 'Completed' }
-                                                        : { bg: '#eb3636', color: '#FFFFFF', label: 'Incompleted' };
+                                                        ? { bg: '#dcfce7', color: '#16a34a', label: 'Completed' }
+                                                        : { bg: '#fee2e2', color: '#dc2626', label: 'Incompleted' };
                                                 }
                                                 if (isStatus && cell.getValue()) {
                                                     if (cell.getValue() === 'Completed')
-                                                        badgeConfig = { bg: '#00bf63', color: '#FFFFFF', label: 'Completed' };
+                                                        badgeConfig = { bg: '#dcfce7', color: '#16a34a', label: 'Completed' };
                                                     else if (cell.getValue() === 'Incompleted')
-                                                        badgeConfig = { bg: '#eb3636', color: '#FFFFFF', label: 'Incompleted' };
+                                                        badgeConfig = { bg: '#fee2e2', color: '#dc2626', label: 'Incompleted' };
                                                     else if (cell.getValue() === 'Paid')
-                                                        badgeConfig = { bg: '#ceb8ff', color: '#1F2937', label: 'Paid' };
+                                                        badgeConfig = { bg: '#ede9fe', color: '#7c3aed', label: 'Paid' };
                                                     else if (cell.getValue() === 'Unpaid')
-                                                        badgeConfig = { bg: '#c387b4', color: '#1F2937', label: 'Unpaid' };
+                                                        badgeConfig = { bg: '#fce7f3', color: '#be185d', label: 'Unpaid' };
                                                 }
 
                                                 return (
@@ -482,7 +482,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                                 <div 
                                                                             className="w-full px-2 py-2 rounded-md text-[11px] font-normal flex items-center gap-2 justify-center shadow-md"
                                                                             style={{ 
-                                                                                backgroundColor: '#00bf63',
+                                                                                backgroundColor: '#dcfce7',
                                                                                 color: '#FFFFFF'
                                                                             }}
                                                                 >
@@ -492,7 +492,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                                 <div 
                                                                     className="w-full px-2 py-2 rounded-md text-[11px] font-normal flex items-center gap-2 justify-center shadow-sm"
                                                                     style={{ 
-                                                                        backgroundColor: '#eb3636',
+                                                                        backgroundColor: '#fee2e2',
                                                                         color: '#FFFFFF'
                                                                     }}
                                                                 >

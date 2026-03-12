@@ -60,7 +60,7 @@ export const MainNav = () => {
 
   return (
     <div
-      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[#e3f3ff] z-20 rounded-lg'
+      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[#e3f3ff] z-[10000] rounded-lg'
       style={{
         height: 'clamp(56px, 7vh, 80px)',
         borderRadius: '12px',
@@ -91,8 +91,6 @@ export const MainNav = () => {
 
       {/* Right Side: All icons and controls in a row, all functional */}
       <div className='flex items-center gap-1 ml-auto'>
-        {/* Chatbot (Ask Question) */}
-        
         {/* Global Search */}
         <div className='relative flex items-center' ref={searchRef}>
           {!openSearch ? (

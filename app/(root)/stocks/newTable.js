@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
@@ -291,10 +291,10 @@ const Customtable = ({
                         const isCompleted = cell.column.id === 'completed';
                         const isStatus = cell.column.id === 'status' && cell.getValue();
                         let bg = undefined;
-                        if (isCompleted) bg = cell.getValue() ? '#00bf63' : '#eb3636';
+                        if (isCompleted) bg = cell.getValue() ? '#dcfce7' : '#fee2e2';
                         if (isStatus) {
-                          if (cell.getValue() === 'Completed') bg = '#00bf63';
-                          else if (cell.getValue() === 'Incompleted') bg = '#eb3636';
+                          if (cell.getValue() === 'Completed') bg = '#dcfce7';
+                          else if (cell.getValue() === 'Incompleted') bg = '#fee2e2';
                         }
 
                         return (
@@ -302,7 +302,7 @@ const Customtable = ({
                             key={cell.id}
                             className={`px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect text-[11px]`}
                             style={{
-                              color: bg ? '#FFFFFF' : '#1F2937',
+                              color: bg === '#dcfce7' ? '#16a34a' : bg === '#fee2e2' ? '#dc2626' : '#1F2937',
                               backgroundColor: bg || undefined,
                          width: cell.column.id === 'select' ? '50px' : undefined,
                               maxWidth: cell.column.id === 'select' ? '50px' : undefined,
@@ -318,11 +318,11 @@ const Customtable = ({
                               </div>
                             ) : isCompleted ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="text-[11px] font-normal text-white">{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
+                                <span className="text-[11px] font-normal" style={{ color: cell.getValue() ? '#16a34a' : '#dc2626' }}>{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
                               </div>
                             ) : isStatus ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="text-[11px] font-normal" style={{ color: bg ? '#FFFFFF' : undefined }}>{cell.getValue()}</span>
+                                <span className="text-[11px] font-normal" style={{ color: bg === '#dcfce7' ? '#16a34a' : bg === '#fee2e2' ? '#dc2626' : undefined }}>{cell.getValue()}</span>
                               </div>
                             ) : (
                               <div className="flex justify-center">

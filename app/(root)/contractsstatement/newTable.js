@@ -1,4 +1,4 @@
-
+﻿
 'use client'
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
@@ -346,9 +346,9 @@ const Customtable = ({
                                 <div
                                   className="px-3 py-1.5 rounded-xl text-[11px] font-normal flex items-center justify-center"
                                   style={{
-                                    backgroundColor: cell.getValue() ? '#00bf63' : '#eb3636',
-                                    color: '#FFFFFF',
-                                    border: '1px solid #cecece'
+                                    backgroundColor: cell.getValue() ? '#dcfce7' : '#fee2e2',
+                                    color: cell.getValue() ? '#16a34a' : '#dc2626',
+                                    border: `1px solid ${cell.getValue() ? '#bbf7d0' : '#fecaca'}`
                                   }}
                                 >
                                   {cell.getValue() ? 'Completed' : 'Incompleted'}
@@ -361,12 +361,12 @@ const Customtable = ({
                                   style={{
                                     backgroundColor:
                                       cell.getValue() === 'Paid'
-                                        ? '#ceb8ff'
+                                        ? '#ede9fe'
                                         : cell.getValue() === 'Unpaid'
-                                        ? '#c387b4'
+                                        ? '#fce7f3'
                                         : '#f9f9f9',
-                                    border: cell.getValue() ? '1px solid #cecece' : 'none',
-                                    color: '#1F2937'
+                                    border: cell.getValue() ? `1px solid ${cell.getValue() === 'Paid' ? '#ddd6fe' : cell.getValue() === 'Unpaid' ? '#fbcfe8' : '#cecece'}` : 'none',
+                                    color: cell.getValue() === 'Paid' ? '#7c3aed' : cell.getValue() === 'Unpaid' ? '#be185d' : '#1F2937'
                                   }}
                                 >
                                   {cell.getValue() || '\u00A0'}
@@ -380,9 +380,9 @@ const Customtable = ({
                                     style={{
                                       backgroundColor:
                                         cell.getValue() === 'Paid'
-                                          ? '#ceb8ff'
+                                          ? '#ede9fe'
                                           : cell.getValue() === 'Not Paid'
-                                          ? '#c387b4'
+                                          ? '#fce7f3'
                                           : '#f9f9f9',
                                       border: '1px solid #cecece',
                                     }}

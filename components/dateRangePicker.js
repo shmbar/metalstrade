@@ -197,7 +197,7 @@ const DateRangePicker = ({ displayLabel }) => {
                     showShortcuts={true}
                     readOnly={true}
                     popoverDirection="down"
-                    containerClassName="relative z-[9999]"
+                    containerClassName="relative z-[50]"
                     configs={{
                         shortcuts: {
                             today: {

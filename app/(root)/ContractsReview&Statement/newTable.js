@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 if (typeof window !== 'undefined') {
   const style = document.createElement('style');
   style.innerHTML = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`;
@@ -400,18 +400,18 @@ const Customtable = ({
                         let badgeConfig = null;
                         if (isCompleted) {
                           badgeConfig = cell.getValue()
-                            ? { bg: '#00bf63', color: '#FFFFFF', label: 'Completed' }
-                            : { bg: '#eb3636', color: '#FFFFFF', label: 'Incompleted' };
+                            ? { bg: '#dcfce7', color: '#16a34a', label: 'Completed' }
+                            : { bg: '#fee2e2', color: '#dc2626', label: 'Incompleted' };
                         }
                         if (isStatus && cell.getValue()) {
                           if (cell.getValue() === 'Completed')
-                            badgeConfig = { bg: '#00bf63', color: '#FFFFFF', label: 'Completed' };
+                            badgeConfig = { bg: '#dcfce7', color: '#16a34a', label: 'Completed' };
                           else if (cell.getValue() === 'Incompleted')
-                            badgeConfig = { bg: '#eb3636', color: '#FFFFFF', label: 'Incompleted' };
+                            badgeConfig = { bg: '#fee2e2', color: '#dc2626', label: 'Incompleted' };
                           else if (cell.getValue() === 'Paid')
-                            badgeConfig = { bg: '#ceb8ff', color: '#1F2937', label: 'Paid' };
+                            badgeConfig = { bg: '#ede9fe', color: '#7c3aed', label: 'Paid' };
                           else if (cell.getValue() === 'Unpaid')
-                            badgeConfig = { bg: '#c387b4', color: '#1F2937', label: 'Unpaid' };
+                            badgeConfig = { bg: '#fce7f3', color: '#be185d', label: 'Unpaid' };
                         }
 
                         return (

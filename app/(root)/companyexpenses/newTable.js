@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import Header from "../../../components/table/header";
 import {
   flexRender,
@@ -353,9 +353,9 @@ const Customtable = ({
                 <div
                   className="px-3 py-1.5 rounded-lg font-normal"
                   style={{
-                    backgroundColor: value ? '#00bf63' : '#eb3636',
-                    color: '#FFFFFF',
-                    border: '1px solid #cecece'
+                    backgroundColor: value ? '#dcfce7' : '#fee2e2',
+                    color: value ? '#16a34a' : '#dc2626',
+                    border: `1px solid ${value ? '#bbf7d0' : '#fecaca'}`
                   }}
                 >
                   {value ? 'Completed' : 'Incompleted'}
@@ -368,9 +368,9 @@ const Customtable = ({
                   style={{
                     backgroundColor:
                       value === 'Completed'
-                        ? '#00bf63'
-                        : '#eb3636',
-                    color: '#FFFFFF',
+                        ? '#dcfce7'
+                        : '#fee2e2',
+                    color: value === 'Completed' ? '#16a34a' : '#dc2626',
                     border: '1px solid #cecece'
                   }}
                 >
@@ -387,9 +387,9 @@ const Customtable = ({
                     style={{
                       backgroundColor:
                         value === 'Paid'
-                          ? '#ceb8ff'
+                          ? '#ede9fe'
                           : value === 'Unpaid'
-                          ? '#ceb8ff'
+                          ? '#ede9fe'
                           : '#f9f9f9',
                       border: '1px solid #cecece',
                       ...(isEditMode && {
@@ -521,19 +521,19 @@ const Customtable = ({
                               cell.getValue() ? (
                                 <div 
                                       className="w-full px-2 py-2 rounded-md text-[11px] font-normal flex items-center gap-2 justify-center shadow-md"
-                                      style={{ 
-                                        backgroundColor: '#00bf63',
-                                        color: '#FFFFFF'
+                                      style={{
+                                        backgroundColor: '#dcfce7',
+                                        color: '#16a34a'
                                       }}
                                 >
                                   Completed
                                 </div>
                               ) : (
-                                <div 
+                                <div
                                   className="w-full px-2 py-2 rounded-md text-[11px] font-normal flex items-center gap-2 justify-center shadow-sm"
-                                  style={{ 
-                                    backgroundColor: '#eb3636',
-                                    color: '#FFFFFF'
+                                  style={{
+                                    backgroundColor: '#fee2e2',
+                                    color: '#dc2626'
                                   }}
                                 >
                                   Pending

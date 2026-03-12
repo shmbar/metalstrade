@@ -1176,8 +1176,9 @@ const Customtable = ({
                               <div className="flex justify-center">
                                 <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
                                   style={{
-                                    backgroundColor: value ? '#00bf63' : '#eb3636',
-                                    color: '#FFFFFF', border: '1px solid #cecece'
+                                    backgroundColor: value ? '#dcfce7' : '#fee2e2',
+                                    color: value ? '#16a34a' : '#dc2626',
+                                    border: `1px solid ${value ? '#bbf7d0' : '#fecaca'}`
                                   }}>
                                   {value ? 'Completed' : 'Incompleted'}
                                 </div>
@@ -1186,8 +1187,9 @@ const Customtable = ({
                               <div className="flex justify-center">
                                 <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
                                   style={{
-                                    backgroundColor: value === 'Completed' ? '#00bf63' : '#eb3636',
-                                    color: '#FFFFFF', border: '1px solid #cecece'
+                                    backgroundColor: value === 'Completed' ? '#dcfce7' : '#fee2e2',
+                                    color: value === 'Completed' ? '#16a34a' : '#dc2626',
+                                    border: '1px solid #cecece'
                                   }}>
                                   {value}
                                 </div>
@@ -1197,9 +1199,9 @@ const Customtable = ({
                                 <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px] text-center"
                                   style={{
                                     backgroundColor:
-                                      isUnpaidValue ? '#ff9ecd' :
-                                      isPaidValue ? '#d4a5ff' : '#f9f9f9',
-                                    color: isPaidValue || isUnpaidValue ? 'var(--chathams-blue)' : '#1F2937',
+                                      isUnpaidValue ? '#fce7f3' :
+                                      isPaidValue ? '#ede9fe' : '#f9f9f9',
+                                    color: isPaidValue ? '#7c3aed' : isUnpaidValue ? '#be185d' : '#1F2937',
                                     border: '1px solid #cecece',
                                     fontWeight: isPaidValue || isUnpaidValue ? '600' : '400'
                                   }}>
@@ -1344,18 +1346,18 @@ const Customtable = ({
                             {cell.column.id === 'completed' ? (
                               cell.getValue() ? (
                                 <div className="w-full px-2 py-2 rounded-md text-[11px] font-normal flex items-center gap-2 justify-center shadow-md"
-                                  style={{ backgroundColor: '#00bf63', color: '#FFFFFF' }}>Completed</div>
+                                  style={{ backgroundColor: '#dcfce7', color: '#16a34a' }}>Completed</div>
                               ) : (
                                 <div className="w-full px-2 py-2 rounded-md text-[11px] font-normal flex items-center gap-2 justify-center shadow-sm"
-                                  style={{ backgroundColor: '#eb3636', color: '#FFFFFF' }}>Pending</div>
+                                  style={{ backgroundColor: '#fee2e2', color: '#dc2626' }}>Pending</div>
                               )
                             ) : cell.column.id === 'paid' && cell.getValue() ? (
                               <div className="w-full px-2 py-2 rounded-md text-[11px] font-semibold flex items-center gap-2 justify-center shadow-sm"
                                 style={{
                                   backgroundColor:
-                                    isUnpaidValue ? '#ff9ecd' :
-                                    isPaidValue ? '#d4a5ff' : '#f9f9f9',
-                                  color: 'var(--chathams-blue)',
+                                    isUnpaidValue ? '#fce7f3' :
+                                    isPaidValue ? '#ede9fe' : '#f9f9f9',
+                                  color: isPaidValue ? '#7c3aed' : isUnpaidValue ? '#be185d' : 'var(--chathams-blue)',
                                   border: '1px solid #cecece'
                                 }}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}

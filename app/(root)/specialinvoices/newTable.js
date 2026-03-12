@@ -1,4 +1,4 @@
-// 'use client'
+﻿// 'use client'
 
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
@@ -372,9 +372,9 @@ const Customtable = ({
                 <div
                   className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
                   style={{
-                    backgroundColor: value ? '#00bf63' : '#eb3636',
-                    color: '#FFFFFF',
-                    border: '1px solid #cecece'
+                    backgroundColor: value ? '#dcfce7' : '#fee2e2',
+                    color: value ? '#16a34a' : '#dc2626',
+                    border: `1px solid ${value ? '#bbf7d0' : '#fecaca'}`
                   }}
                 >
                   {value ? 'Completed' : 'Incompleted'}
@@ -387,9 +387,9 @@ const Customtable = ({
                   style={{
                     backgroundColor:
                       value === 'Paid'
-                        ? '#ceb8ff'
+                        ? '#ede9fe'
                         : value === 'Unpaid'
-                        ? '#c387b4'
+                        ? '#fce7f3'
                         : '#f9f9f9',
                     border: value ? '1px solid #cecece' : 'none',
                     color: '#1F2937'
@@ -406,9 +406,9 @@ const Customtable = ({
                     style={{
                       backgroundColor:
                         value === 'Paid'
-                          ? '#ceb8ff'
+                          ? '#ede9fe'
                           : value === 'Not Paid'
-                          ? '#c387b4'
+                          ? '#fce7f3'
                           : '#f9f9f9',
                       border: '1px solid #cecece',
                     }}
