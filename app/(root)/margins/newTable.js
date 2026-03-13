@@ -109,7 +109,8 @@ const DraggableRow = ({ row, props, cName }) => {
             }}
             className={cn(
               cellAlign === "right" && "text-center",
-              cellAlign === "center" && "text-center"
+              cellAlign === "center" && "text-center",
+              "border-r border-r-[#e8f0f8] last:border-r-0"
             )}
           >
             {cell.column.id === "drag-handle" ? (
@@ -349,7 +350,7 @@ const Customtable = (props) => {
   className={cn(
     'bg-[#dbeeff] text-[var(--endeavour)] border-b border-[var(--endeavour)]',
     idx === 0 ? 'rounded-tl-lg' : '',
-    idx === arr.length - 1 ? 'rounded-tr-lg' : ''
+    idx === arr.length - 1 ? 'rounded-tr-lg' : 'border-r border-r-[#b8ddf8]'
   )}
 >
   <div className="w-full flex items-center justify-center text-[0.75rem] font-medium">
@@ -417,7 +418,8 @@ const Customtable = (props) => {
                                                             columnConfig.align === 'right' && 'text-right',
                                                             columnConfig.align === 'center' && 'text-center',
                                                             ["totalMargin", "remaining", "purchase", "openShip"].includes(accessorKey) ?
-                                                                'border-t border-t-[var(--endeavour)]' : ''
+                                                                'border-t border-t-[var(--endeavour)]' : '',
+                                                            'border-r border-r-[#e8f0f8] last:border-r-0'
                                                         )}
                                                     >
                                                         {["totalMargin", "remaining", "purchase", "openShip"].includes(accessorKey) && (

@@ -9,7 +9,12 @@ import { ImCancelCircle } from "react-icons/im";
 import { MdOutlineDateRange } from "react-icons/md";
 import { Calendar } from "../../../../components/ui/calendar"
 
+const getDateValue = (props) =>
+    typeof props.getValue === 'function' ? props.getValue() : props.value;
+
 const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
+    const dateVal = getDateValue(props);
+
     return (
         <div className="flex relative w-20 rounded-md bg-white border-0 border-blue-100 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-200 transition">
             <Popover className='flex'>
@@ -18,9 +23,9 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
                         variant="ghost"
                         className="h-6 p-1 justify-start text-left font-normal text-[var(--endeavour)] text-[11px] bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                     >
-                        {props.value?.startDate ? dateFormat(props.value.startDate, 'dd.mm.yy') :
+                        {dateVal?.startDate ? dateFormat(dateVal.startDate, 'dd.mm.yy') :
                             <span className=''>DD.MM.YY</span>}
-                        {!props.value?.startDate &&
+                        {!dateVal?.startDate &&
                             <MdOutlineDateRange className="font-bold scale-110 mr-1 text-slate-500 cursor-pointer" />}
                     </Button>
                 </PopoverTrigger>
@@ -32,7 +37,7 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
                 >
                     <Calendar
                         mode="single"
-                        selected={props.value?.startDate}
+                        selected={dateVal?.startDate ? new Date(dateVal.startDate) : undefined}
                         onSelect={(e) => handleChangeDate(e, props.row.index, month)}
                         initialFocus
                         className="rounded-xl bg-white p-2 text-gray-800"
@@ -44,7 +49,7 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
                     />
                 </PopoverContent>
             </Popover>
-            {props.value?.startDate &&
+            {dateVal?.startDate &&
                 <ImCancelCircle className="absolute right-0 top-1 mr-1 text-slate-500 cursor-pointer text-xs"
                     onClick={(e) => handleCancelDate(e, props.row.index, month)} />}
         </div>

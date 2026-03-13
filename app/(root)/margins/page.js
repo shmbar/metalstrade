@@ -428,13 +428,17 @@ const Margins = () => {
                             {/* Margins Tables */}
                             <div className="w-full p-2 mt-2">
                                 <div className="w-full max-w-8xl divide-y rounded-xl">
-                                    {data.map(({ month, items }) => {
+                                    {data.map(({ month, items, openMonth }) => {
                                         return (
                                             <div key={month}>
                                                 <MarginTable
                                                     month={month}
                                                     year={yr}
                                                     items={items}
+                                                    openMonth={openMonth}
+                                                    data={data}
+                                                    setData={setData}
+                                                    uidCollection={uidCollection}
                                                     addItem={addItem}
                                                     deleteMonth={deleteMonth}
                                                     handleChangeDate={handleChangeDate}

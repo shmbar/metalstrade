@@ -4,10 +4,17 @@ import { IoAddCircleOutline } from "react-icons/io5";
 import { FiMinusCircle, FiTrash2 } from "react-icons/fi";
 import Customtable from './newTable';
 import { NumericFormat } from "react-number-format";
+import { updateOpenMonth } from '../../../utils/utils';
 
 const MarginTable = (props) => {
-    let { month, year, addItem, deleteMonth } = props
+    let { month, year, addItem, deleteMonth, openMonth, uidCollection } = props
     let data = props.items
+
+    const saveOpenClose = (status) => {
+        updateOpenMonth(uidCollection, month, year, status)
+        let newData = props.data.map(x => x.month === month ? { ...x, openMonth: status } : x)
+        props.setData(newData)
+    }
 
     // Calculate summary values
     const purchase = data.reduce((sum, row) => sum + (Number(row.purchase) || 0), 0);
@@ -29,8 +36,10 @@ const MarginTable = (props) => {
                 }
             `}</style>
 
-            <Disclosure 
-                as="div" 
+            <Disclosure
+                key={`${month}-${openMonth}`}
+                as="div"
+                defaultOpen={openMonth === true}
                 className="margin-card w-full overflow-visible"
                 style={{
                     background: '#ffffff',
@@ -55,7 +64,7 @@ const MarginTable = (props) => {
                         >
                             <div className="bg-[#dbeeff] rounded-full px-3 py-1 flex items-center gap-2 w-fit">
 
-  <DisclosureButton className="flex items-center justify-center hover:opacity-80 transition-all">
+  <DisclosureButton className="flex items-center justify-center hover:opacity-80 transition-all" onClick={() => saveOpenClose(!open)}>
     {!open ? (
       <IoAddCircleOutline
         className="text-[14px]"

@@ -9,11 +9,15 @@ import {
 import { sortArr } from "../../../../utils/utils";
 import React, { memo } from "react";
 
+const getCellValue = (props) =>
+    typeof props.getValue === 'function' ? props.getValue() : props.value;
+
 const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder }) => {
+    const cellValue = getCellValue(props);
     return (
         <div className="relative">
            <Select
-  value={props.value}
+  value={cellValue}
   onValueChange={(e) => handleChangeSelect(e, props.row.index, month, name)}
 >
   <SelectTrigger
@@ -56,7 +60,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
         </div>
     );
 }, (prevProps, nextProps) => {
-    return prevProps.props.value === nextProps.props.value &&
+    return getCellValue(prevProps.props) === getCellValue(nextProps.props) &&
         prevProps.props.row.index === nextProps.props.row.index;
 });
 
