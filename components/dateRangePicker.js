@@ -55,6 +55,18 @@ const DateRangePicker = ({ displayLabel }) => {
         const style = document.createElement("style");
         style.id = styleId;
         style.textContent = `
+            /* ── Toggle icon: move to left side ── */
+            .react-tailwindcss-datepicker-container button {
+                position: absolute !important;
+                left: 0.5rem !important;
+                right: auto !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                padding: 0 !important;
+                background: transparent !important;
+                border: none !important;
+            }
+
             /* ── Popup wrapper: rounded + themed border + shadow + compact size ── */
             .react-tailwindcss-datepicker-container > div:not(:first-child),
             .shadow-sm.border.border-gray-300.px-1.py-0\\.5.bg-white.rounded-lg {
@@ -174,8 +186,11 @@ const DateRangePicker = ({ displayLabel }) => {
 
             <div className="relative w-full">
                 <Datepicker
+                    toggleIcon={() => (
+                        <FaRegCalendarAlt className="text-xs" style={{ color: 'var(--chathams-blue)' }} />
+                    )}
                     inputClassName="
-                        text-[11px] py-1 pl-3 pr-4
+                        text-[11px] h-7 py-0 pl-7 pr-4
                         w-full
                         bg-white
                         rounded-2xl
@@ -226,10 +241,6 @@ const DateRangePicker = ({ displayLabel }) => {
                     }}
                 />
 
-                <FaRegCalendarAlt
-                    className="absolute left-1.5 top-1/2 -translate-y-1/2 text-xs pointer-events-none"
-                    style={{ color: "var(--chathams-blue)" }}
-                />
             </div>
         </div>
     );

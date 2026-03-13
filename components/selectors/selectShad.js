@@ -23,9 +23,9 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
     return (
         <Select className='border-slate-400' value={value[name]} onValueChange={onChange}
             defaultValue="df">
-            <SelectTrigger className={`relative w-full border-slate-400 rounded-xl h-8 text-xs
-                    text-slate-700 outline-none focus:ring-0 
-                    focus:outline-none focus:ring-offset-0 shadow-md pointer-events-auto
+            <SelectTrigger className={`relative border-[var(--endeavour)] rounded-2xl h-7 text-[11px] gap-0.5 px-2
+                    text-[var(--chathams-blue)] outline-none focus:ring-0
+                    focus:outline-none focus:ring-offset-0 shadow-sm pointer-events-auto
                     ${classes}`}
                 disabled={disabled}>
                 <SelectValue placeholder="Select" />
@@ -46,13 +46,13 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
 
 
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-2xl border border-[var(--endeavour)] shadow-md text-xs text-[var(--chathams-blue)]">
                 <SelectGroup>
                     {sortArr(arr.filter(x => !x.deleted), name).map(k => {
                         return (
                             <SelectItem key={k.id} value={k.id}
-                                className={cn('text-xs', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id==='EditTextRmrks')?
-                                    'font-semibold italic text-purple-900' : '')} >
+                                className={cn('text-xs rounded-xl', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id==='EditTextRmrks')?
+                                    'font-semibold italic text-purple-900' : 'text-[var(--chathams-blue)]')} >
                                 {secondaryName ? k[secondaryName] : k[name]}
                             </SelectItem>
                         )

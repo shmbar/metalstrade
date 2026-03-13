@@ -96,19 +96,21 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, cb, se
 
 
     return (
-        <div className="flex flex-col relative ">
+        <div className="flex flex-col relative rounded-2xl border border-[#b8ddf8] bg-white overflow-hidden">
             <div>
-                <Header globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}
-                    table={table} excellReport={excellReport} cb={cb}
-                    filterIcon={FiltersIcon(ln, filterOn, setFilterOn)}
-                    resetFilterTable={ResetFilterTableIcon(ln, resetTable, filterOn)}
-                    quickSumEnabled={quickSumEnabled}
-                    setQuickSumEnabled={setQuickSumEnabled}
-                    quickSumColumns={quickSumColumns}
-                    setQuickSumColumns={setQuickSumColumns}
-                />
+                <div className="flex-shrink-0 rounded-t-2xl" style={{ borderBottom: '1px solid #b8ddf8', background: '#ffffff' }}>
+                    <Header globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}
+                        table={table} excellReport={excellReport} cb={cb}
+                        filterIcon={FiltersIcon(ln, filterOn, setFilterOn)}
+                        resetFilterTable={ResetFilterTableIcon(ln, resetTable, filterOn)}
+                        quickSumEnabled={quickSumEnabled}
+                        setQuickSumEnabled={setQuickSumEnabled}
+                        quickSumColumns={quickSumColumns}
+                        setQuickSumColumns={setQuickSumColumns}
+                    />
+                </div>
 
-                <div className=" overflow-x-auto border-x">
+                <div className=" overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gray-50 divide-y divide-gray-200 ">
                             {table.getHeaderGroups().map((hdGroup, i) =>
@@ -175,7 +177,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, cb, se
                         </tbody>
                     </table>
                 </div>
-                <div className="flex p-2 border-t flex-wrap bg-slate-50 border rounded-b-xl">
+                <div className="flex p-2 flex-wrap flex-shrink-0 rounded-b-2xl" style={{ borderTop: '1px solid #b8ddf8', background: '#ffffff' }}>
                     <div className="hidden lg:flex text-gray-600 text-sm w-48 xl:w-96 p-2 items-center">
                         {`${getTtl('Showing', ln)} ${table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
                             (table.getFilteredRowModel().rows.length ? 1 : 0)}-${table.getRowModel().rows.length + table.getState().pagination.pageIndex * table.getState().pagination.pageSize}

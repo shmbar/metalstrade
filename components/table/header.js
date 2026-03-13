@@ -57,7 +57,7 @@ const Header = ({
   );
 
   return (
-    <div className="sticky top-0 z-20">
+    <div className="sticky top-0 z-20 rounded-t-xl" style={{ background: '#f8fbff' }}>
 
       {/* Material Tables: special single-row layout matching Canva */}
       {type === 'mTable' ? (

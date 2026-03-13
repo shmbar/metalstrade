@@ -387,26 +387,18 @@ const Shipments = () => {
       accessorKey: 'originSupplier', header: 'Original supplier', bgt: 'bg-green-500', bgr: 'bg-green-50',
     },
     {
-      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
-        return <div key={index}>{item}</div>
-      })}</div>,
+      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().join(' / ')}</div>,
     },
     {
-      accessorKey: 'supplierInvAmount', header: getTtl('Sup Inv amount', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
-        return <div key={index}>{showAmountPO(item, props)}</div>
-      })}</div>, ttlUS: showAmountTtl(totals[0]?.us.supplierInvAmount, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierInvAmount, 'EUR'),
+      accessorKey: 'supplierInvAmount', header: getTtl('Sup Inv amount', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map(item => showAmountPO(item, props)).join(' / ')}</div>, ttlUS: showAmountTtl(totals[0]?.us.supplierInvAmount, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierInvAmount, 'EUR'),
       enableColumnFilter: false,
     },
     {
-      accessorKey: 'supplierPrepayment', header: getTtl('Sup Prepayment', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
-        return <div key={index}>{showAmountPO(item, props)}</div>
-      })}</div>, ttlUS: showAmountTtl(totals[0]?.us.supplierPrepayment, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierPrepayment, 'EUR'),
+      accessorKey: 'supplierPrepayment', header: getTtl('Sup Prepayment', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map(item => showAmountPO(item, props)).join(' / ')}</div>, ttlUS: showAmountTtl(totals[0]?.us.supplierPrepayment, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierPrepayment, 'EUR'),
       enableColumnFilter: false,
     },
     {
-      accessorKey: 'supBlnc', header: getTtl('Balance', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
-        return <div key={index}>{showAmountPO(item, props)}</div>
-      })}</div>, ttlUS: showAmountTtl(totals[0]?.us.supBlnc, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supBlnc, 'EUR'),
+      accessorKey: 'supBlnc', header: getTtl('Balance', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map(item => showAmountPO(item, props)).join(' / ')}</div>, ttlUS: showAmountTtl(totals[0]?.us.supBlnc, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supBlnc, 'EUR'),
       meta: {
         filterVariant: 'range',
       },
@@ -533,7 +525,7 @@ const Shipments = () => {
 
           <Toast />
           {/* {loading && <Spin />} */}
-          <div className="border border-[#b8ddf8] rounded-xl p-4 mt-8 shadow-md relative">
+          <div className="border border-[#b8ddf8] rounded-xl p-4 mt-8 shadow-md relative bg-[#f8fbff]">
             <div className='flex items-center justify-between flex-wrap'>
               <div className="text-3xl p-1 pb-2 text-slate-500">{getTtl('Invoices Review', ln)}</div>
               <div className='flex group'>
