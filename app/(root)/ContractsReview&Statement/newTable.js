@@ -63,7 +63,7 @@ const Customtable = ({
     const selectCol = {
       id: "select",
       header: ({ table }) => (
-        <div className="flex items-center justify-start w-full h-full ml-2">
+        <div className="flex items-center justify-center w-full h-full">
           <input
             type="checkbox"
             checked={table.getIsAllPageRowsSelected()}
@@ -78,7 +78,7 @@ const Customtable = ({
         </div>
       ),
       cell: ({ row }) => (
-        <div className="flex items-center  w-full h-full">
+        <div className="flex items-center justify-center w-full h-full">
           <input
             type="checkbox"
             checked={row.getIsSelected()}
@@ -393,6 +393,15 @@ const Customtable = ({
                       className="cursor-pointer transition-colors"
                     >
                       {row.getVisibleCells().map((cell) => {
+                        if (cell.column.id === 'select') {
+                          return (
+                            <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '50px', maxWidth: '50px' }}>
+                              <div className="flex justify-center">
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </div>
+                            </td>
+                          )
+                        }
                         const isCompleted = cell.column.id === 'completed';
                         const isStatus = cell.column.id === 'status' && cell.getValue();
 

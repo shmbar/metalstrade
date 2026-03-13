@@ -89,17 +89,17 @@ export default function MonthSelect(props) {
 
     return (
         <div className='flex relative'>
-            <button disabled={isEmpty || isManyMonths} onClick={() => handleClickYr('prev')} className={`h-6 w-8 border border-slate-400 rounded-l-md justify-center flex items-center
-            ${isEmpty || isManyMonths ? 'bg-slate-100' : ''}`}>
-                <HiChevronDoubleLeft className={`paginator_arrow scale-75 ${isEmpty || isManyMonths ? 'cursor-default' : ''}`} />
+            <button disabled={isEmpty || isManyMonths} onClick={() => handleClickYr('prev')} className={`h-[26px] w-7 border border-[var(--endeavour)] rounded-l-2xl justify-center flex items-center hover:bg-[var(--selago)] transition-colors
+            ${isEmpty || isManyMonths ? 'opacity-40 cursor-not-allowed' : ''}`}>
+                <HiChevronDoubleLeft className={`scale-75 text-[var(--endeavour)]`} />
             </button>
             <button disabled={isEmpty || isManyMonths} onClick={() => handleClickMnth('prev')}
-                className={`h-6 w-8 border border-slate-400 border-l-0 justify-center flex items-center
-                ${isEmpty || isManyMonths ? 'bg-slate-100' : ''}`}>
-                <HiChevronLeft className={`paginator_arrow scale-75 ${isEmpty || isManyMonths ? 'cursor-default' : ''}`} />
+                className={`h-[26px] w-7 border border-[var(--endeavour)] border-l-0 justify-center flex items-center hover:bg-[var(--selago)] transition-colors
+                ${isEmpty || isManyMonths ? 'opacity-40 cursor-not-allowed' : ''}`}>
+                <HiChevronLeft className={`scale-75 text-[var(--endeavour)]`} />
             </button>
 
-            <button className='h-6 px-2 text-xs text-slate-700 border border-slate-400 border-l-0' onClick={() => setOpenMonth(!openMonth)} >
+            <button className='h-[26px] px-3 text-[11px] text-[var(--chathams-blue)] border border-[var(--endeavour)] border-l-0 hover:bg-[var(--selago)] transition-colors whitespace-nowrap' onClick={() => setOpenMonth(!openMonth)} >
                 {isEmpty ? 'Select month' :
                     dateSelect.month.length === 1 ? dateFormat(new Date(dateSelect.year, dateSelect.month[0] * 1 - 1, 1), 'mmm-yyyy') :
                         dateSelect.month.length + ' months selected'
@@ -114,52 +114,41 @@ export default function MonthSelect(props) {
                     leave="transition-opacity "
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0">
-                    <div className="overflow-auto max-h-80 md:max-h-full md:overflow-hidden rounded-lg shadow-lg bg-white py-2 px-2 w-full ">
-
-
-
-                        <div className='text-md  '>
+                    <div className="overflow-hidden rounded-2xl shadow-xl bg-white w-full border border-[#dbeeff]">
+                        <div className='py-1.5 px-3 text-[11px] font-semibold' style={{ background: '#dbeeff', color: 'var(--chathams-blue)' }}>Select Month</div>
+                        <div className='py-1 px-1 overflow-auto max-h-72'>
                             {months.map((x, i) => {
                                 return (
-                                    <div key={i} className='text-[0.85rem] text-slate-700 py-1.5 px-1 cursor-pointer 
-                                    hover:bg-slate-200 rounded-md flex gap-2 items-center'
+                                    <div key={i} className='text-[11px] py-1 px-2 cursor-pointer hover:bg-[#ebf2fc] rounded-lg flex gap-2 items-center transition-colors'
+                                        style={{ color: 'var(--chathams-blue)' }}
                                         onClick={() => handleMontClick(i)}>
-                                        <div className='item-center flex'>
-                                            <ChkBox checked={checkedItems.includes((i + 1).toString().padStart(2, '0'))} size='h-5 w-5' onChange={() => handleMontClick(i)} />
-                                        </div>
-                                        <span> {x}-{dateSelect.year}</span>
+                                        <ChkBox checked={checkedItems.includes((i + 1).toString().padStart(2, '0'))} size='h-4 w-4' onChange={() => handleMontClick(i)} />
+                                        <span>{x}-{dateSelect.year}</span>
                                     </div>
                                 )
                             })}
                         </div>
-
-
-
-
-                        <div className='border-t border-slate-300'>
-                            <div className='mt-1 text-[0.85rem] text-slate-700 py-1 px-1 cursor-pointer
-                             hover:bg-slate-200 rounded-md flex gap-2'
+                        <div className='border-t border-[#dbeeff] px-1 pb-1'>
+                            <div className='mt-1 text-[11px] py-1 px-2 cursor-pointer hover:bg-[#ebf2fc] rounded-lg flex gap-2 items-center transition-colors'
+                                style={{ color: 'var(--chathams-blue)' }}
                                 onClick={selectAll}>
-                                <div>
-                                    <ChkBox checked={allYear} size='h-5 w-5' onChange={() => selectAll()} />
-                                </div>
+                                <ChkBox checked={allYear} size='h-4 w-4' onChange={() => selectAll()} />
                                 <span>Select All</span>
                             </div>
                         </div>
-
                     </div>
                 </Transition>
             </div>
 
             {openMonth ? (<div className='fixed top-0 right-0 bottom-0 left-0' onClick={() => setOpenMonth(false)} />) : null}
 
-            <button disabled={isEmpty || isManyMonths} onClick={() => handleClickMnth('next')} className={`h-6 w-8 border border-slate-400 border-l-0 justify-center flex
-             ${isEmpty || isManyMonths ? 'bg-slate-100' : ''} items-center`}>
-                <HiChevronRight className={`paginator_arrow scale-75 ${isEmpty || isManyMonths ? 'cursor-default' : ''}`} />
+            <button disabled={isEmpty || isManyMonths} onClick={() => handleClickMnth('next')} className={`h-[26px] w-7 border border-[var(--endeavour)] border-l-0 justify-center flex items-center hover:bg-[var(--selago)] transition-colors
+             ${isEmpty || isManyMonths ? 'opacity-40 cursor-not-allowed' : ''}`}>
+                <HiChevronRight className={`scale-75 text-[var(--endeavour)]`} />
             </button>
-            <button disabled={isEmpty || isManyMonths} onClick={() => handleClickYr('next')} className={`h-6 w-8 border border-slate-400 border-l-0 rounded-r-md justify-center flex 
-             ${isEmpty || isManyMonths ? 'bg-slate-100' : ''} items-center`}>
-                <HiChevronDoubleRight className={`paginator_arrow scale-75 ${isEmpty || isManyMonths ? 'cursor-default' : ''}`} />
+            <button disabled={isEmpty || isManyMonths} onClick={() => handleClickYr('next')} className={`h-[26px] w-7 border border-[var(--endeavour)] border-l-0 rounded-r-2xl justify-center flex items-center hover:bg-[var(--selago)] transition-colors
+             ${isEmpty || isManyMonths ? 'opacity-40 cursor-not-allowed' : ''}`}>
+                <HiChevronDoubleRight className={`scale-75 text-[var(--endeavour)]`} />
             </button>
         </div>
     );

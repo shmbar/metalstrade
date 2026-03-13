@@ -377,9 +377,9 @@ const Contracts = () => {
 					{/* Alert Section */}
 					{alertArr.length > 0 && (
 						<div className='mt-4 px-2 sm:px-3'>
-							<div className="text-sm font-semibold text-indigo-900 border-0 p-4 rounded-xl shadow bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 w-full max-w-2xl">
-								<div className='text-[var(--port-gore)]'>
-									<span className='text-xs sm:text-sm'>Notification for delayed response</span>
+							<div className="text-sm font-semibold border border-[#b8ddf8] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
+								<div style={{ color: 'var(--chathams-blue)' }}>
+									<span className='text-xs sm:text-sm border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
 									<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
 								</div>
 							</div>

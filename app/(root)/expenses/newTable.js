@@ -710,7 +710,7 @@ import {
   useReactTable
 } from "@tanstack/react-table"
 
-import { useEffect, useLayoutEffect, useMemo, useState, useContext, useRef } from "react"
+import { Fragment, useEffect, useLayoutEffect, useMemo, useState, useContext, useRef } from "react"
 
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
@@ -722,6 +722,7 @@ import { getTtl } from "../../../utils/languages";
 import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
+import { Filter } from '../../../components/table/filters/filterFunc';
 
 const EMPTY_STATE_VIDEO_SRC = '/logo/no-data.mp4';
 
@@ -770,7 +771,7 @@ const Customtable = ({
     const selectCol = {
       id: "select",
       header: ({ table }) => (
-        <div className="flex items-center justify-start w-full h-full ml-2">
+        <div className="flex items-center justify-center w-full h-full">
           <input
             type="checkbox"
             checked={table.getIsAllPageRowsSelected()}
@@ -782,7 +783,7 @@ const Customtable = ({
         </div>
       ),
       cell: ({ row }) => (
-        <div className="flex items-center w-full h-full">
+        <div className="flex items-center justify-center w-full h-full">
           <input
             type="checkbox"
             checked={row.getIsSelected()}
@@ -950,7 +951,7 @@ const Customtable = ({
           text-align: center;
           font-size: 12px !important;
           font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          padding: 10px 8px !important;
+          padding: 6px 8px !important;
           vertical-align: middle;
           white-space: nowrap;
           font-weight: 700;
@@ -962,9 +963,8 @@ const Customtable = ({
           text-align: center;
           font-size: 10px !important;
           font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          padding: 8px 6px !important;
+          padding: 3px 6px !important;
           vertical-align: middle;
-          height: 40px;
         }
 
         /* ── Summary td — strip ALL borders so it's a flat bar ── */
@@ -1128,7 +1128,8 @@ const Customtable = ({
 
                   {/* ── Column headers — ref here for measurement ── */}
                   {table.getHeaderGroups().map(hdGroup => (
-                    <tr key={hdGroup.id} ref={theadRowRef}>
+                    <Fragment key={hdGroup.id}>
+                    <tr ref={theadRowRef}>
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
@@ -1143,6 +1144,18 @@ const Customtable = ({
                         </th>
                       ))}
                     </tr>
+                    {filterOn && (
+                      <tr style={{ backgroundColor: '#FFFFFF' }}>
+                        {hdGroup.headers.map(header => (
+                          <th key={header.id} className="px-2 py-1.5" style={{ backgroundColor: '#FFFFFF', borderBottom: '2px solid #E5E7EB' }}>
+                            {header.column.getCanFilter() && (
+                              <Filter column={header.column} table={table} filterOn={filterOn} />
+                            )}
+                          </th>
+                        ))}
+                      </tr>
+                    )}
+                    </Fragment>
                   ))}
                 </thead>
 
@@ -1156,7 +1169,16 @@ const Customtable = ({
                       className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' cursor-pointer'}`}
                     >
                       {row.getVisibleCells().map((cell) => {
-                        const value       = cell.getValue()
+                        if (cell.column.id === 'select') {
+                          return (
+                            <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap' }}>
+                              <div className="flex justify-center">
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </div>
+                            </td>
+                          )
+                        }
+                        const value = cell.getValue()
                         const options = cell.column.columnDef?.meta?.options || []
                         const resolvedLabel = options.find((opt) => String(opt.value) === String(value))?.label ?? value
                         const normalizedValue = String(resolvedLabel ?? '').trim().toLowerCase()
@@ -1165,16 +1187,15 @@ const Customtable = ({
                         const isUSDValue = ['us', 'usd', '$'].includes(normalizedValue)
                         const isEURValue = ['eu', 'eur', '€'].includes(normalizedValue)
                         const isCompleted = cell.column.id === 'completed'
-                        const isStatus    = cell.column.id === 'status' && value
                         const isPaid      = cell.column.id === 'paid'
                         const isCurrency  = cell.column.id === 'cur'
                         const hasValue    = value !== null && value !== undefined && value !== ''
 
                         return (
-                          <td key={cell.id} className="px-2 py-2 text-center">
+                          <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap' }}>
                             {isCompleted ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
+                                <div className="px-3 py-1 rounded-xl text-[11px] font-normal"
                                   style={{
                                     backgroundColor: value ? '#dcfce7' : '#fee2e2',
                                     color: value ? '#16a34a' : '#dc2626',
@@ -1183,62 +1204,48 @@ const Customtable = ({
                                   {value ? 'Completed' : 'Incompleted'}
                                 </div>
                               </div>
-                            ) : isStatus ? (
+                            ) : isPaid ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
+                                <div className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px] text-center"
                                   style={{
-                                    backgroundColor: value === 'Completed' ? '#dcfce7' : '#fee2e2',
-                                    color: value === 'Completed' ? '#16a34a' : '#dc2626',
-                                    border: '1px solid #cecece'
-                                  }}>
-                                  {value}
-                                </div>
-                              </div>
-                            ) : isPaid && hasValue ? (
-                              <div className="flex justify-center">
-                                <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px] text-center"
-                                  style={{
-                                    backgroundColor:
-                                      isUnpaidValue ? '#fce7f3' :
-                                      isPaidValue ? '#ede9fe' : '#f9f9f9',
+                                    backgroundColor: isUnpaidValue ? '#fce7f3' : isPaidValue ? '#ede9fe' : '#f9f9f9',
                                     color: isPaidValue ? '#7c3aed' : isUnpaidValue ? '#be185d' : '#1F2937',
-                                    border: '1px solid #cecece',
+                                    border: `1px solid ${isPaidValue ? '#ddd6fe' : isUnpaidValue ? '#fbcfe8' : '#cecece'}`,
                                     fontWeight: isPaidValue || isUnpaidValue ? '600' : '400'
                                   }}>
                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </div>
                               </div>
-                            ) : isCurrency && hasValue ? (
-                              <div className="flex justify-center">
-                                <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[62px] text-center"
-                                  style={{
-                                    backgroundColor:
-                                      isUSDValue ? '#b6dfb7' :
-                                      isEURValue ? '#bce1fe' : '#e5e7eb',
-                                    color: 'var(--chathams-blue)',
-                                    border: '1px solid #cecece',
-                                    fontWeight: 600,
-                                  }}>
-                                  {isUSDValue ? '$' :
-                                   isEURValue ? '€' :
-                                   flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                </div>
-                              </div>
                             ) : (
                               <div className="flex justify-center">
-                                {hasValue ? (
-                                  <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
-                                    style={{
-                                      backgroundColor: '#f9f9f9',
-                                      border: '1px solid #cecece',
-                                      ...(isEditMode && { boxShadow: 'inset 0 0 0 1px #d1d1d1' })
-                                    }}>
+                                {isCurrency && hasValue ? (
+                                  (() => {
+                                    const bg = isUSDValue ? '#c2e2bb' : isEURValue ? '#d4eafc' : '#e5e7eb'
+                                    return (
+                                      <span className="rounded-full text-[11px] font-medium"
+                                        style={{
+                                          backgroundColor: bg,
+                                          color: 'var(--chathams-blue)',
+                                          borderRadius: '999px',
+                                          padding: '2px 12px',
+                                          minWidth: '30px',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          whiteSpace: 'nowrap',
+                                        }}>
+                                        {isUSDValue ? '$' : isEURValue ? '€' : String(value)}
+                                      </span>
+                                    )
+                                  })()
+                                ) : hasValue ? (
+                                  <div className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px]"
+                                    style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="text-[11px] text-[#6B7280]">
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                  </div>
+                                  <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full"
+                                    style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}

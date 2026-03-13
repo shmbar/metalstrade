@@ -23,7 +23,7 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
         <div className='p-4'>
             <div className=" overflow-x-auto">
                 <div className="border rounded-2xl overflow-hidden">
-                    <table id='my-table' className=" table-fixed min-w-full divide-y divide-gray-200">
+                    <table id='my-table' className=" table-fixed min-w-full divide-y divide-[#dbeeff]">
                         <thead style={{ background: '#dbeeff' }}>
                             <tr>
                                 <th scope="col" className="w-0/12 py-2 px-4 text-left text-xs font-semibold" style={{ color: 'var(--chathams-blue)' }}>Supplier</th>
@@ -37,28 +37,27 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                     Keep Alerting</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
+                        <tbody className="divide-y divide-[#dbeeff]">
                             {alertArr.map((obj, i) => {
                                 return (
                                     <tr key={i}>
                                         <td className="py-2 pl-4">
-                                            <div className="flex items-center h-5 text-sm">
+                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
                                                 {settings.Supplier.Supplier.find(z => z.id === obj.supplier).nname}
-
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-sm text-gray-800">
+                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
                                                 {obj.order}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-sm text-gray-800">
+                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
                                                 {dateFormat(obj.dateRange?.endDate, 'dd.mm.yy')}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-sm text-gray-800">
+                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
                                                 {(() => {
                                                     const date2 = new Date(obj.dateRange?.endDate);
                                                     const today = new Date();
@@ -70,7 +69,7 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-sm text-gray-800">
+                                            <div className="flex items-center h-5 text-xs">
                                                 <CheckBox checked={obj.alert} size='h-5 w-5' onChange={() => { setAlert(obj) }} />
                                             </div>
                                         </td>

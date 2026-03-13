@@ -75,7 +75,7 @@ const Customtable = ({
     const selectCol = {
       id: "select",
       header: ({ table }) => (
-        <div className="flex items-center justify-start w-full h-full ml-2">
+        <div className="flex items-center justify-center w-full h-full">
           <input
             type="checkbox"
             checked={table.getIsAllPageRowsSelected()}
@@ -90,7 +90,7 @@ const Customtable = ({
         </div>
       ),
       cell: ({ row }) => (
-        <div className="flex items-center  w-full h-full">
+        <div className="flex items-center justify-center w-full h-full">
           <input
             type="checkbox"
             checked={row.getIsSelected()}
@@ -253,11 +253,11 @@ const Customtable = ({
         >
 
           {/* HEADER */}
-          <div 
+          <div
             className="flex-shrink-0"
-            style={{ 
-              borderBottom: '2px solid #E5E7EB',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+            style={{
+              borderBottom: '1px solid #b8ddf8',
+              background: '#ffffff'
             }}
           >
             <Header
@@ -296,7 +296,7 @@ const Customtable = ({
                         {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className="font-poppins text-xs"
+                          className="font-poppins text-xs py-3"
                           style={{
                             color: 'var(--chathams-blue)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
@@ -344,6 +344,15 @@ const Customtable = ({
                       className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ''}`}
                     >
                       {row.getVisibleCells().map((cell) => {
+                        if (cell.column.id === 'select') {
+                          return (
+                            <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '50px', maxWidth: '50px' }}>
+                              <div className="flex justify-center">
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </div>
+                            </td>
+                          )
+                        }
                         const value = cell.getValue();
                         const hasValue =
                           value !== null &&
@@ -352,21 +361,27 @@ const Customtable = ({
 
                         const isCompleted = cell.column.id === 'completed';
                         const isStatus = cell.column.id === 'status';
+                        const isCustomCell = cell.column.id === 'invoiceStatus';
                         const isCurrency = cell.column.id === 'cur';
 
                         return (
                           <td
                             key={cell.id}
-                            className="px-2 py-2 text-center"
+                            className="px-2 py-0.5 text-center"
                             style={{
                               minWidth: cell.column.id === 'select' ? '50px' : '60px',
-                              maxWidth: cell.column.id === 'select' ? '50px' : '150px',
+                              maxWidth: cell.column.id === 'select' ? '50px' : 'none',
+                              whiteSpace: 'nowrap',
                             }}
                           >
-                            {isCompleted ? (
+                            {isCustomCell ? (
+                              <div className="flex justify-center">
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </div>
+                            ) : isCompleted ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
+                                  className="px-3 py-1 rounded-xl text-[11px] font-normal"
                                   style={{
                                     backgroundColor: value ? '#dcfce7' : '#fee2e2',
                                     color: value ? '#16a34a' : '#dc2626',
@@ -379,7 +394,7 @@ const Customtable = ({
                             ) : isStatus ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
+                                  className="px-3 py-1 rounded-xl text-[11px] font-normal"
                                   style={{
                                     backgroundColor:
                                       value === 'Paid'
@@ -425,22 +440,16 @@ const Customtable = ({
                                   })()
                                 ) : hasValue ? (
                                   <div
-                                    className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px]"
+                                    className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px]"
                                     style={{
-                                      backgroundColor:
-                                        value === 'Paid'
-                                          ? '#ede9fe'
-                                          : value === 'Not Paid'
-                                          ? '#fce7f3'
-                                          : '#f9f9f9',
-                                      color: value === 'Paid' ? '#7c3aed' : value === 'Not Paid' ? '#be185d' : '#1F2937',
+                                      backgroundColor: '#f9f9f9',
                                       border: '1px solid #cecece',
                                     }}
                                   >
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
+                                  <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}

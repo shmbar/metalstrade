@@ -86,22 +86,19 @@ const ColFilter = ({ table }) => {
 	}, [open])
 
 	const DropdownContent = (
-		<div ref={dropdownRef} style={dropdownStyle} className="md:w-72 md:max-h-[70vh] overflow-auto max-h-96 2xl:max-h-full 2xl:overflow-hidden rounded-xl shadow-lg bg-white py-4 px-2 w-72 border border-[var(--selago)]" aria-hidden={open ? 'false' : 'true'}>
-			<div className='pb-1 text-sm pl-2 text-[var(--port-gore)] font-medium'>{getTtl('Columns', ln)}</div>
-			<div>
-				{
-					table.getAllColumns().filter(column => column.getCanHide()).map(col => {
-						return (
-							<div key={col.id}
-								onClick={col.columnDef.accessorKey !== 'expander' ? col.getToggleVisibilityHandler() : () => { }}
-								className='whitespace-nowrap text-left py-2 items-center flex hover:bg-[var(--selago)]/50 w-full rounded-lg px-2 cursor-pointer transition-colors'>
-								<ChkBox checked={col.getIsVisible()} size='h-5 w-5'
-									onChange={col.columnDef.accessorKey !== 'expander' ? col.getToggleVisibilityHandler() : () => { }} />
-								<span className='ml-2 text-xs text-[var(--port-gore)]'>{col.columnDef.header} </span>
-							</div>
-						)
-					})
-				}
+		<div ref={dropdownRef} style={dropdownStyle} className="w-64 rounded-2xl shadow-xl border border-[#dbeeff] overflow-hidden" aria-hidden={open ? 'false' : 'true'}>
+			<div className='py-2 px-4 text-sm font-semibold' style={{ background: '#dbeeff', color: 'var(--chathams-blue)' }}>{getTtl('Columns', ln)}</div>
+			<div className='overflow-y-auto bg-white' style={{ maxHeight: '60vh', scrollbarWidth: 'thin', scrollbarColor: '#9fb8d4 #ebf2fc' }}>
+				<style>{`#columns-filter-portal ::-webkit-scrollbar { width: 6px; } #columns-filter-portal ::-webkit-scrollbar-track { background: #ebf2fc; } #columns-filter-portal ::-webkit-scrollbar-thumb { background: #9fb8d4; border-radius: 6px; }`}</style>
+				{table.getAllColumns().filter(column => column.getCanHide()).map(col => (
+					<div key={col.id}
+						onClick={col.columnDef.accessorKey !== 'expander' ? col.getToggleVisibilityHandler() : () => { }}
+						className='whitespace-nowrap text-left py-1.5 items-center flex w-full px-3 cursor-pointer transition-colors hover:bg-[#ebf2fc]'>
+						<ChkBox checked={col.getIsVisible()} size='h-4 w-4'
+							onChange={col.columnDef.accessorKey !== 'expander' ? col.getToggleVisibilityHandler() : () => { }} />
+						<span className='ml-2 text-xs' style={{ color: 'var(--chathams-blue)' }}>{col.columnDef.header}</span>
+					</div>
+				))}
 			</div>
 		</div>
 	)

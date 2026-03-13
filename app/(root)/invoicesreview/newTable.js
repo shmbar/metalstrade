@@ -23,15 +23,43 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
     const [columnVisibility, setColumnVisibility] = useState(invisible)
     const [filterOn, setFilterOn] = useState(false)
     const [selectedRowId, setSelectedRowId] = useState(null)
-
+    const [quickSumEnabled, setQuickSumEnabled] = useState(false)
+    const [quickSumColumns, setQuickSumColumns] = useState([])
+    const [rowSelection, setRowSelection] = useState({})
 
     const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 500 })
     const pagination = useMemo(() => ({ pageIndex, pageSize, }), [pageIndex, pageSize])
     const pathName = usePathname()
     const [columnFilters, setColumnFilters] = useState([]) //Column filter
 
+    const columnsWithSelection = useMemo(() => {
+        if (!quickSumEnabled) return columns
+        const selectCol = {
+            id: "select",
+            header: ({ table }) => (
+                <div className="flex items-center justify-center w-full h-full">
+                    <input type="checkbox" checked={table.getIsAllPageRowsSelected()}
+                        ref={el => { if (el) el.indeterminate = table.getIsSomePageRowsSelected() }}
+                        onChange={table.getToggleAllPageRowsSelectedHandler()}
+                        className="w-4 h-4 cursor-pointer rounded" style={{ accentColor: '#BCE1FE' }} />
+                </div>
+            ),
+            cell: ({ row }) => (
+                <div className="flex items-center justify-center w-full h-full">
+                    <input type="checkbox" checked={row.getIsSelected()} disabled={!row.getCanSelect()}
+                        onChange={row.getToggleSelectedHandler()}
+                        className="w-4 h-4 cursor-pointer rounded" style={{ accentColor: '#BCE1FE' }} />
+                </div>
+            ),
+            enableSorting: false, enableColumnFilter: false, size: 50, minSize: 50, maxSize: 50,
+        }
+        return [selectCol, ...(columns || [])]
+    }, [columns, quickSumEnabled])
+
     const table = useReactTable({
-        columns, data,
+        columns: columnsWithSelection, data,
+        enableRowSelection: quickSumEnabled,
+        onRowSelectionChange: setRowSelection,
         getCoreRowModel: getCoreRowModel(),
         filterFns: {
             dateBetweenFilterFn,
@@ -40,7 +68,8 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
             globalFilter,
             columnVisibility,
             pagination,
-            columnFilters
+            columnFilters,
+            rowSelection,
         },
         onColumnFiltersChange: setColumnFilters, ////Column filter
         getFilteredRowModel: getFilteredRowModel(),
@@ -66,9 +95,13 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
         <div className="flex flex-col relative ">
             <div>
                 <Header globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}
-                    table={table} excellReport={excellReport} //cb={cb} 
+                    table={table} excellReport={excellReport} //cb={cb}
                     filterIcon={FiltersIcon(ln, filterOn, setFilterOn)}
                     resetFilterTable={ResetFilterTableIcon(ln, resetTable, filterOn)}
+                    quickSumEnabled={quickSumEnabled}
+                    setQuickSumEnabled={setQuickSumEnabled}
+                    quickSumColumns={quickSumColumns}
+                    setQuickSumColumns={setQuickSumColumns}
                 />
 
                 <div className=" overflow-x-auto border-x">
@@ -126,11 +159,22 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
                         <tbody className="divide-y divide-gray-200 ">
                             {table.getRowModel().rows.map(row => (
                                 <tr key={row.id} onClick={() => setSelectedRowId(row.id)} className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' cursor-pointer'}`} onDoubleClick={() => SelectRow(row.original)}>
-                                    {row.getVisibleCells().map(cell => (
-                                        <td key={cell.id} data-label={cell.column.columnDef.header} className={`table_cell text-xs md:py-3 ${cell.column.columnDef.bgr}`}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </td>
-                                    ))}
+                                    {row.getVisibleCells().map(cell => {
+                                        if (cell.column.id === 'select') {
+                                            return (
+                                                <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '50px', maxWidth: '50px' }}>
+                                                    <div className="flex justify-center">
+                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                    </div>
+                                                </td>
+                                            )
+                                        }
+                                        return (
+                                            <td key={cell.id} data-label={cell.column.columnDef.header} className={`table_cell text-xs md:py-3 ${cell.column.columnDef.bgr}`}>
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            </td>
+                                        )
+                                    })}
                                 </tr>
                             ))}
                         </tbody>

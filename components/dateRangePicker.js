@@ -175,7 +175,7 @@ const DateRangePicker = ({ displayLabel }) => {
             <div className="relative w-full">
                 <Datepicker
                     inputClassName="
-                        text-xs py-2 pl-7 pr-8
+                        text-[11px] py-1 pl-3 pr-4
                         w-full
                         bg-white
                         rounded-2xl
@@ -227,7 +227,7 @@ const DateRangePicker = ({ displayLabel }) => {
                 />
 
                 <FaRegCalendarAlt
-                    className="absolute left-2 top-1/2 -translate-y-1/2 text-xs pointer-events-none"
+                    className="absolute left-1.5 top-1/2 -translate-y-1/2 text-xs pointer-events-none"
                     style={{ color: "var(--chathams-blue)" }}
                 />
             </div>

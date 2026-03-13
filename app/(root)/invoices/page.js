@@ -81,6 +81,9 @@ const Invoices = () => {
 
 			dt = dt.map(z => ({
 				...z, container: z.productsDataInvoice.map(x => x.container).join(' '),
+				poSupplierOrder: z.poSupplier?.order || '',
+				etdDate: z.shipData?.etd?.endDate || '',
+				etaDate: z.shipData?.eta?.endDate || '',
 				totalPrepayment: parseFloat(z.totalPrepayment)
 			}))
 
@@ -190,9 +193,9 @@ const Invoices = () => {
 			size: 150
 		},
 		{ 
-			accessorKey: 'order', 
+			accessorKey: 'poSupplierOrder', 
 			header: getTtl('PO', ln) + '#', 
-			cell: (props) => <span className="whitespace-nowrap">{props.row.original.poSupplier.order}</span>,
+			cell: (props) => <span className="whitespace-nowrap">{props.getValue()}</span>,
 			size: 100
 		},
 		{ 
@@ -366,17 +369,15 @@ const Invoices = () => {
 			size: 200
 		},
 		{
-			accessorKey: 'etd', 
-			header: 'ETD', 
-			cell: (props) => <span className="whitespace-nowrap">{props.row.original.shipData?.etd?.startDate ?
-				dateFormat(props.row.original.shipData?.etd?.startDate, 'dd.mm.yy') : ''}</span>,
+			accessorKey: 'etdDate',
+			header: 'ETD',
+			cell: (props) => <span className="whitespace-nowrap">{props.getValue() ? dateFormat(props.getValue(), 'dd.mm.yy') : ''}</span>,
 			size: 110
 		},
 		{
-			accessorKey: 'eta', 
-			header: 'ETA', 
-			cell: (props) => <span className="whitespace-nowrap">{props.row.original.shipData?.eta?.startDate ?
-				dateFormat(props.row.original.shipData?.eta?.startDate, 'dd.mm.yy') : ''}</span>,
+			accessorKey: 'etaDate',
+			header: 'ETA',
+			cell: (props) => <span className="whitespace-nowrap">{props.getValue() ? dateFormat(props.getValue(), 'dd.mm.yy') : ''}</span>,
 			size: 110
 		},
 		{
@@ -398,7 +399,7 @@ const Invoices = () => {
 		},
 	];
 
-	let invisible = ['lstSaved', 'order', 'shpType', 'invType',
+	let invisible = ['lstSaved', 'shpType', 'invType',
 		'percentage', 'totalPrepayment', 'balanceDue', 'container'].reduce((acc, key) => {
 			acc[key] = false;
 			return acc;
@@ -534,9 +535,9 @@ const Invoices = () => {
 						{/* Alert Section */}
 						{alertArr.length > 0 && (
 							<div className='mt-4 px-2 sm:px-3'>
-								<div className="text-sm font-semibold text-indigo-900 border-0 p-4 rounded-xl shadow bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 w-full max-w-2xl">
-									<div className='text-[var(--port-gore)]'>
-										<span className='text-xs sm:text-sm'>Notification for delayed response</span>
+								<div className="text-sm font-semibold border border-[#b8ddf8] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
+									<div style={{ color: 'var(--chathams-blue)' }}>
+										<span className='text-xs sm:text-sm border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
 										<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
 									</div>
 								</div>

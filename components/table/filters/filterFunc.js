@@ -34,7 +34,14 @@ export const Filter = ({ column, table, filterOn }) => {
         ) : filterVariant === 'selectSupplier' ? (
             <select onChange={e => column.setFilterValue(e.target.value)} value={columnFilterValue?.toString()} className={selectCls}>
                 <option value="">All</option>
-                {[...new Set(table.options.data.map(x => x.supplier).filter(z => z !== ''))].map(q => <option value={q} key={q}>{q}</option>)}
+                {(() => {
+                    const options = column.columnDef.meta?.options;
+                    if (options?.length) {
+                        const usedIds = [...new Set(table.options.data.map(x => x.supplier).filter(Boolean))];
+                        return options.filter(o => usedIds.includes(o.value)).map(o => <option value={o.value} key={o.value}>{o.label}</option>);
+                    }
+                    return [...new Set(table.options.data.map(x => x.supplier).filter(z => z !== ''))].map(q => <option value={q} key={q}>{q}</option>);
+                })()}
             </select>
         ) : filterVariant === 'selectStock' ? (
             <select onChange={e => column.setFilterValue(e.target.value)} value={columnFilterValue?.toString()} className={selectCls}>
@@ -49,7 +56,14 @@ export const Filter = ({ column, table, filterOn }) => {
         ) : filterVariant === 'paidNotPaidExp' ? (
             <select onChange={e => column.setFilterValue(e.target.value)} value={columnFilterValue?.toString()} className={selectCls}>
                 <option value="">All</option>
-                {[...new Set(table.options.data.map(x => x.paid).filter(z => z !== ''))].map(q => <option value={q} key={q}>{q}</option>)}
+                {(() => {
+                    const options = column.columnDef.meta?.options;
+                    if (options?.length) {
+                        const usedIds = [...new Set(table.options.data.map(x => x.paid).filter(Boolean))];
+                        return options.filter(o => usedIds.includes(o.value)).map(o => <option value={o.value} key={o.value}>{o.label}</option>);
+                    }
+                    return [...new Set(table.options.data.map(x => x.paid).filter(z => z !== ''))].map(q => <option value={q} key={q}>{q}</option>);
+                })()}
             </select>
         ) : filterVariant === 'paidNotPaid' ? (
             <select onChange={e => column.setFilterValue(e.target.value)} value={columnFilterValue?.toString()} className={selectCls}>

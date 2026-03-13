@@ -24,7 +24,7 @@ const Modal = ({ isOpen, setIsOpen, title, children, w }) => {
                     </TransitionChild>
 
                     <div className="fixed inset-0 overflow-y-auto">
-                        <div className="flex min-h-full items-center justify-center p-4 text-center top-8 md:top-0 relative">
+                        <div className="flex min-h-full items-start justify-center p-4 text-center pt-[72px]">
                             <TransitionChild
                                 as={Fragment}
                                 enter="ease-out duration-300"

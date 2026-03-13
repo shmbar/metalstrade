@@ -71,20 +71,22 @@ const Customtable = ({
       {
         id: "select",
         header: ({ table }) => (
-          <input
-            type="checkbox"
-            checked={table.getIsAllPageRowsSelected()}
-            ref={el => {
-              if (!el) return;
-              el.indeterminate = table.getIsSomePageRowsSelected();
-            }}
-            onChange={table.getToggleAllPageRowsSelectedHandler()}
-            className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: '#9333EA' }}
-          />
+          <div className="flex items-center justify-center w-full h-full">
+            <input
+              type="checkbox"
+              checked={table.getIsAllPageRowsSelected()}
+              ref={el => {
+                if (!el) return;
+                el.indeterminate = table.getIsSomePageRowsSelected();
+              }}
+              onChange={table.getToggleAllPageRowsSelectedHandler()}
+              className="w-4 h-4 cursor-pointer rounded"
+              style={{ accentColor: '#9333EA' }}
+            />
+          </div>
         ),
        cell: ({ row }) => (
-        <div className="flex items-center  w-full h-full">
+        <div className="flex items-center justify-center w-full h-full">
           <input
             type="checkbox"
             checked={row.getIsSelected()}
@@ -329,6 +331,15 @@ const Customtable = ({
                         className="cursor-pointer transition-colors"
                       >
                         {row.getVisibleCells().map((cell) => {
+                          if (cell.column.id === 'select') {
+                            return (
+                              <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '50px', maxWidth: '50px' }}>
+                                <div className="flex justify-center">
+                                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                </div>
+                              </td>
+                            )
+                          }
                           const isCompleted = cell.column.id === 'completed';
                           const isStatus = cell.column.id === 'status';
 

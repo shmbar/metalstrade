@@ -12,7 +12,7 @@ const Filters = (ln, filterOn, setFilterOn) => {
             <Tltip direction='bottom' tltpText={getTtl('Filters', ln)}>
                 <button
                     onClick={setFilter}
-                    className="group text-[var(--port-gore)] justify-center w-8 h-8 inline-flex items-center text-sm rounded-full hover:drop-shadow-md focus:outline-none transition-colors"
+                    className="group text-[var(--chathams-blue)] justify-center w-8 h-8 inline-flex items-center text-sm rounded-full hover:drop-shadow-md focus:outline-none transition-colors"
                 >
                     <Image
                         src="/logo/filter.svg"

@@ -190,7 +190,7 @@ useEffect(() => {
 		row.getValue(columnId).toLowerCase() === filterValue.toLowerCase();
 
 		let propDefaults = Object.keys(settings).length === 0 ? [] : [
-		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p> },
+		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p className="whitespace-nowrap">{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p> },
   {
     accessorKey: 'supplier',
     header: getTtl('Vendor', ln),
