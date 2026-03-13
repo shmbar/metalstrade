@@ -286,7 +286,7 @@ const Customtable = ({
                 borderRadius: '24px'
               }}
             >
-              <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight }}>
+              <div style={{ maxHeight: dynamicMaxHeight }}>
                 <table className="w-full" style={{ tableLayout: 'auto' }}>
 
                 <thead className="sticky top-0 z-10">

@@ -287,11 +287,12 @@ const Customtable = ({
                           style={{
                             color: '#1F2937',
                             minWidth: cell.column.id === 'select' ? '50px' : '60px',
-                            maxWidth: cell.column.id === 'select' ? '50px' : '150px',
+                            maxWidth: cell.column.id === 'select' ? '50px' : 'none',
                             fontSize: 'clamp(11px, 1.0vw, 13px)',
                             fontWeight: '400',
                             zIndex: 1,
                             willChange: 'background-color, color',
+                            whiteSpace: 'nowrap'
                           }}
                         >
                           <div

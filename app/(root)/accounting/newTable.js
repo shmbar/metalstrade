@@ -238,8 +238,16 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
           </div>
 
           {/* DESKTOP */}
-          <div className="hidden md:block overflow-hidden rounded-b-2xl">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight }}>
+          <div className="hidden md:block">
+            <div
+              className="overflow-auto dashboard-scroll rounded-3xl border border-[#cecece]"
+              style={{
+                maxHeight: dynamicMaxHeight,
+                borderLeft: '8px solid var(--chathams-blue)',
+                borderRadius: '24px'
+              }}
+            >
+              <div>
               <table className="w-full" style={{ tableLayout: 'auto' }}>
 
                 {/* THEAD - Multi-color gradient inspired by all cards */}
@@ -336,12 +344,13 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                             style={{
                               minWidth: cell.column.id === 'select' ? '50px' : '60px',
                               maxWidth: cell.column.id === 'select' ? '50px' : '150px',
+                              whiteSpace: 'nowrap'
                             }}
                           >
                             {(isCompleted || isStatus) && badgeConfig ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
+                                  className="px-3 py-1 rounded-xl text-[11px] font-normal"
                                   style={{
                                     backgroundColor: badgeConfig.bg,
                                     color: badgeConfig.color,
@@ -361,7 +370,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                               <div className="flex justify-center">
                                 {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
                                   <div
-                                    className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px]"
+                                    className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px]"
                                     style={{
                                       backgroundColor: '#f9f9f9',
                                       border: '1px solid #cecece',
@@ -370,7 +379,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
+                                  <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}
@@ -412,6 +421,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                 </tbody>
 
               </table>
+              </div>
             </div>
           </div>
 

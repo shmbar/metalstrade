@@ -382,13 +382,14 @@ const Customtable = ({
                             className="px-2 py-2 text-center"
                             style={{
                               minWidth: cell.column.id === 'select' ? '50px' : '60px',
-                              maxWidth: cell.column.id === 'select' ? '50px' : '150px',
+                              maxWidth: cell.column.id === 'select' ? '50px' : 'none',
+                              whiteSpace: 'nowrap'
                             }}
                           >
                             {(isCompleted || isStatus) && badgeConfig ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
+                                  className="px-3 py-1 rounded-xl text-[11px] font-normal"
                                   style={{
                                     backgroundColor: badgeConfig.bg,
                                     color: badgeConfig.color,
@@ -400,13 +401,13 @@ const Customtable = ({
                               </div>
                             ) : (isCompleted || isStatus) && !badgeConfig ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
+                                <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
                               </div>
                             ) : (
                               <div className="flex justify-center">
                                 {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
                                   <div
-                                    className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px]"
+                                    className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px]"
                                     style={{
                                       backgroundColor: '#f9f9f9',
                                       border: '1px solid #cecece',
@@ -415,7 +416,7 @@ const Customtable = ({
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
+                                  <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}

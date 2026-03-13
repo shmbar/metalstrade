@@ -1192,7 +1192,7 @@ const Customtable = ({
                         const hasValue    = value !== null && value !== undefined && value !== ''
 
                         return (
-                          <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap' }}>
+                          <td key={cell.id} className="px-1 py-0.5 text-center" style={{ whiteSpace: 'nowrap' }}>
                             {isCompleted ? (
                               <div className="flex justify-center">
                                 <div className="px-3 py-1 rounded-xl text-[11px] font-normal"

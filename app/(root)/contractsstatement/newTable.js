@@ -349,13 +349,14 @@ const Customtable = ({
                             className="px-2 py-2 text-center"
                             style={{
                               minWidth: cell.column.id === 'select' ? '50px' : '60px',
-                              maxWidth: cell.column.id === 'select' ? '50px' : '150px',
+                              maxWidth: cell.column.id === 'select' ? '50px' : 'none',
+                              whiteSpace: 'nowrap'
                             }}
                           >
                             {isCompleted ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-3 py-1.5 rounded-xl text-[11px] font-normal flex items-center justify-center"
+                                  className="px-3 py-1 rounded-xl text-[11px] font-normal flex items-center justify-center"
                                   style={{
                                     backgroundColor: cell.getValue() ? '#dcfce7' : '#fee2e2',
                                     color: cell.getValue() ? '#16a34a' : '#dc2626',
@@ -368,7 +369,7 @@ const Customtable = ({
                             ) : isStatus ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-3 py-1.5 rounded-xl text-[11px] font-normal flex items-center justify-center"
+                                  className="px-3 py-1 rounded-xl text-[11px] font-normal flex items-center justify-center"
                                   style={{
                                     backgroundColor:
                                       cell.getValue() === 'Paid'
@@ -387,7 +388,7 @@ const Customtable = ({
                               <div className="flex justify-center">
                                 {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
                                   <div
-                                    className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px] flex items-center justify-center"
+                                    className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px] flex items-center justify-center"
                                     style={{
                                       backgroundColor:
                                         cell.getValue() === 'Paid'
@@ -401,7 +402,7 @@ const Customtable = ({
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
+                                  <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}
