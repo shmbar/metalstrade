@@ -210,10 +210,24 @@ const MaterialTables = () => {
                         {/* Main Card */}
                         <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-white relative max-w-7xl mx-auto">
                             {/* Header Section */}
-                            <div className="flex items-center justify-between flex-wrap gap-2 pb-2">
+                            <div className="flex flex-col gap-3 pb-4">
                                 <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
                                     {getTtl('Material Tables', ln)}
                                 </h1>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={addTable}
+                                        className="flex items-center gap-1 bg-[var(--endeavour)] text-white text-xs font-medium px-4 h-8 rounded-full hover:opacity-90 transition-all"
+                                    >
+                                        + {getTtl('Add Table', ln) || 'Add Table'}
+                                    </button>
+                                    <button
+                                        onClick={saveTable}
+                                        className="flex items-center text-[var(--endeavour)] border border-[var(--rock-blue)] text-xs font-medium px-4 h-8 rounded-full hover:bg-[var(--selago)] transition-all"
+                                    >
+                                        {getTtl('Save', ln) || 'Save'}
+                                    </button>
+                                </div>
                             </div>
                             {/* Table(s) */}
                             <div className="w-full overflow-x-auto mt-2">
