@@ -105,7 +105,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                 <tr key={row.id} style={{ borderBottom: '1px solid var(--selago)' }} className='hover:bg-[#f9f9f9] transition'>
                                     {row.getVisibleCells().map(cell => (
                                         <td key={cell.id} data-label={cell.column.columnDef.header}
-                                            className="px-6 py-2 items-center"
+                                            className="px-6 py-1 items-center"
                                             style={{
                                                 fontSize: 'clamp(10px, 1vw, 13px)',
                                                 color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : '#1F2937',

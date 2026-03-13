@@ -994,13 +994,13 @@ const Customtable = ({
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col">
+        <div className="flex flex-col rounded-2xl" style={{ border: '1px solid #b8ddf8' }}>
 
           {/* ── TOOLBAR ── */}
-          <div className="flex-shrink-0"
+          <div className="flex-shrink-0 rounded-t-2xl"
             style={{
-              borderBottom: '2px solid #E5E7EB',
-              background: 'linear-gradient(90deg,rgba(255,255,255,0.95),rgba(250,250,250,0.98))'
+              borderBottom: '1px solid #b8ddf8',
+              background: '#ffffff',
             }}>
             <Header
               globalFilter={globalFilter}
@@ -1409,10 +1409,10 @@ const Customtable = ({
           </div>
 
           {/* ── PAGINATION FOOTER ── */}
-          <div className="flex-shrink-0"
+          <div className="flex-shrink-0 rounded-b-2xl"
             style={{
-              borderTop: '2px solid #E5E7EB',
-              background: 'linear-gradient(90deg,rgba(255,255,255,0.95),rgba(250,250,250,0.98))'
+              borderTop: '1px solid #b8ddf8',
+              background: '#ffffff',
             }}>
             <div className="px-4 py-3">
               <div className="grid grid-cols-3 items-center">

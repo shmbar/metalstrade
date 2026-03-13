@@ -114,7 +114,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                                 <tr key={row.id} className="cursor-pointer">
                                     {row.getVisibleCells().map(cell => (
                                         <td key={cell.id} data-label={cell.column.columnDef.header}
-                                            className="px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect text-center"
+                                            className="px-2 py-1 transition-colors duration-150 group/cell relative cell-hover-effect text-center"
                                             style={{
                                                 color: '#1F2937',
                                                 fontSize: 'clamp(11px, 1.0vw, 13px)',

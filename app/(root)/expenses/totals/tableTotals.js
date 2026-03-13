@@ -90,7 +90,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                 direction="right"
                 tltpText={expensesToolTip(row, expensesData, settings, filt)}
               >
-                <div className="grid grid-cols-[1fr_auto] px-4 py-2.5 items-center hover:bg-[#f9f9f9] transition"
+                <div className="grid grid-cols-[1fr_auto] px-4 py-1 items-center hover:bg-[#f9f9f9] transition"
                   style={{
                     borderBottom: '1px solid var(--selago)',
                     borderRight: '1px solid var(--selago)',

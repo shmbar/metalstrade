@@ -214,16 +214,16 @@ const Customtable = ({
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col "
-          style={{ 
-            boxShadow: '',
+        <div className="flex flex-col rounded-2xl"
+          style={{
+            border: '1px solid #b8ddf8',
           }}
         >
-          <div 
-            className="flex-shrink-0"
-            style={{ 
-              borderBottom: '2px solid #E5E7EB',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+          <div
+            className="flex-shrink-0 rounded-t-2xl"
+            style={{
+              borderBottom: '1px solid #b8ddf8',
+              background: '#ffffff',
             }}
           >
             <Header
@@ -584,10 +584,10 @@ const Customtable = ({
             </div>
           </div>
          <div
-  className="flex-shrink-0"
+  className="flex-shrink-0 rounded-b-2xl"
   style={{
-    borderTop: '2px solid #E5E7EB',
-    background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
+    borderTop: '1px solid #b8ddf8',
+    background: '#ffffff',
   }}
 >
   <div className="px-4 py-3">

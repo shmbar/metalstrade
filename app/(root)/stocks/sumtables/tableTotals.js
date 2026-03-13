@@ -67,7 +67,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             return (
               <td
                 key={`${currency}-${index}`}
-                className="px-2 py-2 transition-colors duration-150 group/cell relative"
+                className="px-2 py-1 transition-colors duration-150 group/cell relative"
                 style={{
                   color: 'var(--chathams-blue)',
                   minWidth: '60px',
@@ -89,7 +89,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             return (
               <td
                 key={`${currency}-${index}`}
-                className="px-2 py-2 transition-colors duration-150 group/cell relative"
+                className="px-2 py-1 transition-colors duration-150 group/cell relative"
                 style={{
                   color: '#1F2937',
                   minWidth: '60px',
@@ -111,7 +111,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             return (
               <td
                 key={`${currency}-${index}`}
-                className="px-2 py-2 transition-colors duration-150 group/cell relative"
+                className="px-2 py-1 transition-colors duration-150 group/cell relative"
                 style={{
                   color: '#1F2937',
                   minWidth: '60px',
@@ -133,7 +133,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             return (
               <td
                 key={`${currency}-${index}`}
-                className="px-2 py-2 transition-colors duration-150 group/cell relative"
+                className="px-2 py-1 transition-colors duration-150 group/cell relative"
                 style={{
                   color: '#1F2937',
                   minWidth: '60px',
@@ -155,7 +155,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
           return (
             <td
               key={`${currency}-${index}`}
-              className="px-2 py-2 transition-colors duration-150 group/cell relative"
+              className="px-2 py-1 transition-colors duration-150 group/cell relative"
               style={{
                 background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
               }}
@@ -288,7 +288,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                       <td
                         key={cell.id}
                         data-label={cell.column.columnDef.header}
-                        className="px-2 py-2 transition-colors duration-150 group/cell relative"
+                        className="px-2 py-1 transition-colors duration-150 group/cell relative"
                         style={{
                           color: '#1F2937',
                           minWidth: '60px',
