@@ -236,22 +236,20 @@ const Contracts = () => {
 			enableColumnPinning: true,
 			enablePinning: true,
 			enableColumnFilter: false,
-			cell: ({ row, getValue }) => (
-				<div className='w-4'>
-					<>
-						{row.getCanExpand() ? (
-							<button
-								{...{
-									onClick: row.getToggleExpandedHandler(),
-									style: { cursor: 'pointer' },
-								}}
-							>
-								{row.getIsExpanded() ? <IoIosArrowDown className='scale-125' /> : <MdOutlineArrowForwardIos />}
-							</button>
-						) : (
-							<span className='pl-4'>🔵</span>
-						)}
-					</>
+			cell: ({ row }) => row.getCanExpand() ? (
+				<div
+					onClick={row.getToggleExpandedHandler()}
+					className="px-3 py-1 rounded-xl text-[11px] font-normal cursor-pointer"
+					style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece', color: 'var(--chathams-blue)', textAlign: 'center' }}
+				>
+					{row.getIsExpanded() ? '▲' : '▼'}
+				</div>
+			) : (
+				<div
+					className="px-3 py-1 rounded-xl text-[11px] font-normal"
+					style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece', color: 'var(--chathams-blue)', textAlign: 'center' }}
+				>
+					●
 				</div>
 			),
 		},
@@ -496,7 +494,7 @@ const Contracts = () => {
 								tableModes={<TableModes />} type='contractStatementTableModes'
 							/>
 							:
-							<Customtable1 data={loading ? [] : (getFormatted(dataTable))} columns={propDefaults.slice(1)}
+							<Customtable1 data={loading ? [] : (getFormatted(dataTable))} columns={[propDefaults[0], ...propDefaults.slice(1)]}
 								excellReport={EXD(dataTable.filter(x => filteredData.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
 								invisible={invisible} ln={ln}
 								setFilteredData={setFilteredData}

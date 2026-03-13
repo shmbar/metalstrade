@@ -281,8 +281,8 @@ const Customtable = ({
                             className="font-poppins text-xs"
                             style={{
                               color: 'var(--chathams-blue)',
-                              minWidth: header.column.id === 'select' ? '50px' : '60px',
-                              maxWidth: header.column.id === 'select' ? '50px' : '150px',
+                              minWidth: header.column.id === 'select' ? '50px' : header.column.id === 'expander' ? '80px' : '60px',
+                              maxWidth: header.column.id === 'select' ? '50px' : header.column.id === 'expander' ? '80px' : 'none',
                               letterSpacing: '0.05em',
                               textAlign: 'center',
                             }}
@@ -326,11 +326,19 @@ const Customtable = ({
                   {table.getRowModel().rows.map(row => (
                     <Fragment key={row.id}>
                       <tr
-                        onClick={() => row.getCanExpand() && row.toggleExpanded()}
                         tabIndex={0}
-                        className="cursor-pointer transition-colors"
+                        className="cursor-pointer transition-colors hover-row"
                       >
                         {row.getVisibleCells().map((cell) => {
+                          if (cell.column.id === 'expander') {
+                            return (
+                              <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '60px', maxWidth: 'none' }}>
+                                <div className="flex justify-center">
+                                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                </div>
+                              </td>
+                            )
+                          }
                           if (cell.column.id === 'select') {
                             return (
                               <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '50px', maxWidth: '50px' }}>
