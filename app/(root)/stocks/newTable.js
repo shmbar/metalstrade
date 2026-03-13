@@ -59,20 +59,22 @@ const Customtable = ({
       {
         id: "select",
         header: ({ table }) => (
-          <input
-            type="checkbox"
-            checked={table.getIsAllPageRowsSelected()}
-            ref={el => {
-              if (!el) return;
-              el.indeterminate = table.getIsSomePageRowsSelected();
-            }}
-            onChange={table.getToggleAllPageRowsSelectedHandler()}
-            className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: '#9333EA' }}
-          />
+          <div className="flex items-center justify-center w-full h-full">
+            <input
+              type="checkbox"
+              checked={table.getIsAllPageRowsSelected()}
+              ref={el => {
+                if (!el) return;
+                el.indeterminate = table.getIsSomePageRowsSelected();
+              }}
+              onChange={table.getToggleAllPageRowsSelectedHandler()}
+              className="w-4 h-4 cursor-pointer rounded"
+              style={{ accentColor: '#9333EA' }}
+            />
+          </div>
         ),
       cell: ({ row }) => (
-        <div className="flex items-center  w-full h-full">
+        <div className="flex items-center justify-center w-full h-full">
           <input
             type="checkbox"
             checked={row.getIsSelected()}
