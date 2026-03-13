@@ -83,9 +83,9 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                 <Button className="h-5 w-5 p-0 bg-transparent hover:bg-[#d4eafc] rounded-full border-0 shadow-none">
-                     <MdPayments className="w-3 h-3 text-[var(--endeavour)]"/>
-                </Button>
+                <button className="p-0 bg-transparent border-0 outline-none leading-none">
+                    <MdPayments className="w-3 h-3 text-[var(--endeavour)]"/>
+                </button>
             </PopoverTrigger>
 
               <PopoverContent className="w-full max-w-xs md:max-w-md bg-white p-4 border border-slate-300 shadow-lg rounded-2xl z-50
@@ -114,8 +114,10 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                                     value={date}
                                     popoverDirection="down"
                                     onChange={(val) => setDate(val)}
-                                    displayFormat={"DD-MMM-YYYY"}
-                                    inputClassName="input w-full shadow-lg h-7 text-xs rounded-full"
+                                    displayFormat={"DD.MM.YY"}
+                                    primaryColor="blue"
+                                    inputClassName="input w-full h-7 text-xs rounded-2xl border border-[var(--endeavour)] focus:outline-none focus:ring-1 focus:ring-blue-200 px-2"
+                                    containerClassName="react-tailwindcss-datepicker-container relative"
                                 />
                             )}
                         </div>

@@ -702,7 +702,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                 <th className="text-center px-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
-                                            {filteredArr.length > 0 && <CheckBox size='size-5' checked={!!toggleClientPartial[filteredArr[0]?.client]}
+                                            {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleClientPartial[filteredArr[0]?.client]}
                                                 onChange={() => toggleCheckClientAll('PartPaid', filteredArr)}
                                             />
                                             }
@@ -772,7 +772,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                         <td className="text-center  p-1 2xl:p-1 py-0">
                                             <Tltip direction='right' tltpText='Set full payment'>
                                                 <div className='flex items-center justify-center'>
-                                                    <CheckBox size='size-5' checked={z.checked}
+                                                    <CheckBox size='size-3' checked={z.checked}
                                                         onChange={() => toggleCheckClient(z, 'PartPaid')} />
                                                 </div>
                                             </Tltip>
@@ -810,11 +810,11 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                 </th>
                                 <th className="relative  text-center font-normal text-gray-500 uppercase">
                                     <div className='flex items-center justify-center'>
-                                        <Button className='h-6 2xl:h-7 p-1 2xl:p-2 bg-transparent hover:bg-[#d4eafc] shadow-none border-0 text-[var(--endeavour)]'
+                                        <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                             onClick={() => savePmntClient(filteredArr[0]?.client)}
                                             disabled={filteredArr.length === 0}>
-                                            <Save className="scale-[0.8] 2xl:scale-100" />
-                                        </Button>
+                                            <Save className="w-3 h-3" />
+                                        </button>
                                     </div>
                                 </th>
                             </tr>
@@ -828,15 +828,15 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                     <table className="cashflow-detail-table responsiveTextTable w-full table-auto">
                         <thead>
                             <tr className="bg-[#f0f8ff]">
-                                <th className="text-left p-1 2xl:p-2  w-28 text-[var(--endeavour)] font-normal">PO#</th>
-                                <th className="text-left p-1 2xl:p-2 w-16 text-[var(--endeavour)] font-normal">Invoice</th>
-                                <th className="text-left p-1 2xl:p-2 text-[var(--endeavour)] font-normal">Amount</th>
-                                <th className="text-left p-1 2xl:p-2 text-[var(--endeavour)] font-normal">Prepayment</th>
-                                <th className="text-left p-1 2xl:p-2 text-[var(--endeavour)] font-normal">Payment</th>
-                                <th className="text-center p-1 2xl:p-2 py-0">
+                                <th className="text-left p-1 2xl:p-1  w-28 text-[var(--endeavour)] font-normal">PO#</th>
+                                <th className="text-left p-1 2xl:p-1 w-16 text-[var(--endeavour)] font-normal">Invoice</th>
+                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
+                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Prepayment</th>
+                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
+                                <th className="text-center p-1 2xl:p-1 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
-                                            {filteredArr1.length > 0 && <CheckBox size='size-5' checked={!!toggleClientFull[filteredArr1[0]?.client]}
+                                            {filteredArr1.length > 0 && <CheckBox size='size-3' checked={!!toggleClientFull[filteredArr1[0]?.client]}
                                                 onChange={() => toggleCheckClientAll('InDebt', filteredArr1)} />
                                             }
                                         </div>
@@ -848,12 +848,12 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                             {filteredArr1.map((z, i) => {
                                 return (
                                     <tr className="border-b border-[#e8f0f8]" key={i}>
-                                        <td className="text-left p-1 2xl:p-2 cursor-pointer"
+                                        <td className="text-left p-1 2xl:p-1 cursor-pointer"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
                                             {z.poSupplier?.order}</td>
-                                        <td className="text-left p-1 2xl:p-2">{z.invoice}</td>
-                                        <td className="text-left p-1 2xl:p-2">{
+                                        <td className="text-left p-1 2xl:p-1">{z.invoice}</td>
+                                        <td className="text-left p-1 2xl:p-1">{
                                             <NumericFormat
                                                 value={z.totalAmount}
                                                 displayType="text"
@@ -865,10 +865,10 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 className=''
                                             />
                                         }</td>
-                                        <td className="text-left p-1 2xl:p-2">{
+                                        <td className="text-left p-1 2xl:p-1">{
                                             z.percentage + '%'
                                         }</td>
-                                        <td className="text-left p-1 2xl:p-2 py-0">
+                                        <td className="text-left p-1 2xl:p-1 py-0">
                                             <Tltip direction='right' tltpText='Partial Payment'>
                                                 <div className='flex items-center justify-center'>
                                                     <DoalogModalClient obj={z}
@@ -878,10 +878,10 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                             </Tltip>
                                         </td>
 
-                                        <td className="text-center p-1 2xl:p-2 py-0">
+                                        <td className="text-center p-1 2xl:p-1 py-0">
                                             <Tltip direction='right' tltpText='Set full payment'>
                                                 <div className='flex items-center justify-center'>
-                                                    <CheckBox size='size-5' checked={z.checked}
+                                                    <CheckBox size='size-3' checked={z.checked}
                                                         onChange={() => toggleCheckClient(z, 'InDebt')} />
                                                 </div>
                                             </Tltip>
@@ -907,11 +907,11 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                 <th></th>
                                 <th className="relative text-left font-medium text-gray-500 uppercase">
                                     <div className='flex items-center justify-center'>
-                                        <Button className='h-6 2xl:h-7 p-1 2xl:p-2 bg-transparent hover:bg-[#d4eafc] shadow-none border-0 text-[var(--endeavour)]'
+                                        <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                             onClick={() => savePmntClient(filteredArr1[0]?.client)}
                                             disabled={filteredArr1.length === 0}>
-                                            <Save className="scale-[0.8] 2xl:scale-100" />
-                                        </Button>
+                                            <Save className="w-3 h-3" />
+                                        </button>
                                     </div>
                                 </th>
 
@@ -1090,10 +1090,10 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                         <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
                         <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Balance</th>
                         <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
-                        <th>
+                        <th className="py-0">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
-                                    {filteredArr.length > 0 && <CheckBox size='size-5' checked={!!toggleSupplier[filteredArr[0]?.supplier + '-' + type]}
+                                    {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleSupplier[filteredArr[0]?.supplier + '-' + type]}
                                         onChange={() => toggleCheckSupplierAll(filteredArr)}
                                     />
                                     }
@@ -1158,7 +1158,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                 <td className="text-center p-1 2xl:p-1 py-0">
                                     <Tltip direction='right' tltpText='Set full payment'>
                                         <div className='flex items-center justify-center'>
-                                            <CheckBox size='size-5' checked={z.checked}
+                                            <CheckBox size='size-3' checked={z.checked}
                                                 onChange={() => toggleCheckSupplier(z, filteredArr)} />
                                         </div>
                                     </Tltip>
@@ -1188,10 +1188,11 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                         </th>
                         <th className="relative  text-right font-medium text-gray-500 uppercase">
                             <div className='flex items-center justify-center'>
-                                <Button className='h-6 2xl:h-7 p-1 2xl:p-2 bg-transparent hover:bg-[#d4eafc] shadow-none border-0 text-[var(--endeavour)]'
+                                <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                     onClick={() => savePmntSupplier(filteredArr)}
-                                    disabled={filteredArr.length === 0}> <Save className="scale-[0.8] 2xl:scale-100" />
-                                </Button>
+                                    disabled={filteredArr.length === 0}>
+                                    <Save className="w-3 h-3" />
+                                </button>
                             </div>
                         </th>
                     </tr>
@@ -1273,7 +1274,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                         <th className="text-center p-1 2xl:p-1 py-0 text-[var(--endeavour)]">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
-                                    {filteredArr.length > 0 && <CheckBox size='size-5' checked={!!toggleExp[filteredArr[0]?.supplier]}
+                                    {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleExp[filteredArr[0]?.supplier]}
                                         onChange={() => toggleCheckExpAll(filteredArr)}
                                     />
                                     }
@@ -1314,7 +1315,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                                 <td className="text-center p-1 2xl:p-1">
                                     <Tltip direction='right' tltpText='Set full payment'>
                                         <div className='flex items-center justify-center'>
-                                            <CheckBox size='size-5' checked={z.checked}
+                                            <CheckBox size='size-3' checked={z.checked}
                                                 onChange={() => toggleCheckExp(z)} />
                                         </div>
                                     </Tltip>
@@ -1351,11 +1352,11 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                         </th>
                         <th className="relative p-1 2xl:p-2 text-right text-[0.8rem] font-medium text-gray-500 uppercase">
                             <div className='flex items-center justify-center'>
-                                <Button className='h-6 2xl:h-7 p-1 2xl:p-2 bg-transparent hover:bg-[#d4eafc] shadow-none border-0 text-[var(--endeavour)]'
+                                <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                     onClick={() => savePmntExp(filteredArr)}
                                     disabled={filteredArr.length === 0}>
-                                    <Save className="scale-[0.8] 2xl:scale-100" />
-                                </Button>
+                                    <Save className="w-3 h-3" />
+                                </button>
                             </div>
                         </th>
                     </tr>

@@ -247,7 +247,75 @@ input::-webkit-inner-spin-button {
   vertical-align: middle;
   white-space: nowrap;
   line-height: 1.15;
-  padding: 2px 6px;
+  padding: 1px 6px;
+}
+
+.cashflow-detail-table tbody td,
+.cashflow-detail-table thead th {
+  padding-top: 1px !important;
+  padding-bottom: 1px !important;
+  line-height: 1;
+}
+
+.cashflow-detail-table tbody td > div {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+/* ========== Datepicker Global Theme ========== */
+.react-tailwindcss-datepicker-container > div:not(:first-child),
+.shadow-sm.border.border-gray-300.px-1.py-0\.5.bg-white.rounded-lg {
+  border-radius: 1.25rem !important;
+  border: 1px solid #b8ddf8 !important;
+  box-shadow: 0 8px 32px rgba(3,102,174,0.13) !important;
+  overflow: hidden !important;
+  z-index: 9999 !important;
+}
+.flex.items-center.space-x-1\.5.border.border-gray-300.rounded-md.px-2.py-1\.5 {
+  background: #dbeeff !important;
+  border: 1px solid #b8ddf8 !important;
+  border-radius: 999px !important;
+  color: var(--chathams-blue) !important;
+}
+.rounded-full.p-\[0\.45rem\]:hover {
+  background: #dbeeff !important;
+}
+.tracking-wide.px-3.py-\[0\.55rem\].uppercase.hover\:bg-gray-100.rounded-md {
+  border-radius: 999px !important;
+  color: var(--chathams-blue) !important;
+}
+.tracking-wide.px-3.py-\[0\.55rem\].uppercase.hover\:bg-gray-100.rounded-md:hover {
+  background: #dbeeff !important;
+}
+.grid.grid-cols-7.border-b.border-gray-300.py-2 {
+  border-color: #e8f0f8 !important;
+}
+.grid.grid-cols-7.border-b.border-gray-300.py-2 > div {
+  color: var(--chathams-blue) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+.grid.grid-cols-7.gap-y-0\.5.my-1 > div {
+  border-radius: 999px !important;
+}
+.flex.items-center.justify-center.w-12.h-12,
+.flex.items-center.justify-center.w-10.h-10,
+.flex.items-center.justify-center.lg\:w-10.lg\:h-10 {
+  border-radius: 999px !important;
+  font-size: 12px !important;
+}
+.flex.items-center.justify-center.w-12.h-12:hover,
+.flex.items-center.justify-center.lg\:w-10.lg\:h-10:hover {
+  background: #dbeeff !important;
+  color: var(--chathams-blue) !important;
+}
+.rounded-r-full, .rounded-l-full {
+  border-radius: 999px !important;
+}
+.bg-blue-100 {
+  background-color: #dbeeff !important;
 }
 
 /* ========== Custom Scrollbar ========== */

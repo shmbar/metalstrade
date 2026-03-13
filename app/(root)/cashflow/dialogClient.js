@@ -66,9 +66,9 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button className="h-5 w-5 p-0 bg-transparent hover:bg-[#d4eafc] rounded-full border-0 shadow-none">
+                <button className="p-0 bg-transparent border-0 outline-none leading-none">
                     <MdPayments className="w-3 h-3 text-[var(--endeavour)]"/>
-                </Button>
+                </button>
             </PopoverTrigger>
 
               <PopoverContent className="w-full max-w-xs md:max-w-sm bg-white p-4 border border-slate-300 shadow-lg rounded-2xl z-50
