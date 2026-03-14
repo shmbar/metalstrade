@@ -272,6 +272,12 @@ input::-webkit-inner-spin-button {
   box-shadow: 0 8px 32px rgba(3,102,174,0.13) !important;
   overflow: hidden !important;
   z-index: 9999 !important;
+  transform: scale(0.85) !important;
+  transform-origin: top left !important;
+}
+/* Hide the last row (6th week) in the calendar grid — only shows next-month dates */
+.grid.grid-cols-7.gap-y-0\.5.my-1 > div:nth-child(n+36) {
+  display: none !important;
 }
 .flex.items-center.space-x-1\.5.border.border-gray-300.rounded-md.px-2.py-1\.5 {
   background: #dbeeff !important;

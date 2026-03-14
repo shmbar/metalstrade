@@ -1,13 +1,5 @@
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "../../../../components/ui/popover"
-import { Button } from "../../../../components/ui/button";
-import dateFormat from "dateformat";
-import { ImCancelCircle } from "react-icons/im";
-import { MdOutlineDateRange } from "react-icons/md";
-import { Calendar } from "../../../../components/ui/calendar"
+'use client'
+import Datepicker from "react-tailwindcss-datepicker";
 
 const getDateValue = (props) =>
     typeof props.getValue === 'function' ? props.getValue() : props.value;
@@ -15,45 +7,37 @@ const getDateValue = (props) =>
 const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
     const dateVal = getDateValue(props);
 
-    return (
-        <div className="flex relative w-20 rounded-md bg-white border-0 border-blue-100 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-200 transition">
-            <Popover className='flex'>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        className="h-6 p-1 justify-start text-left font-normal text-[var(--endeavour)] text-[11px] bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    >
-                        {dateVal?.startDate ? dateFormat(dateVal.startDate, 'dd.mm.yy') :
-                            <span className=''>DD.MM.YY</span>}
-                        {!dateVal?.startDate &&
-                            <MdOutlineDateRange className="font-bold scale-110 mr-1 text-slate-500 cursor-pointer" />}
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                    className="w-auto p-0 z-50 bg-white rounded-xl shadow-lg border border-blue-100"
-                    align="start"
-                    sideOffset={4}
-                    style={{ minWidth: 180, overflow: 'visible' }}
-                >
-                    <Calendar
-                        mode="single"
-                        selected={dateVal?.startDate ? new Date(dateVal.startDate) : undefined}
-                        onSelect={(e) => handleChangeDate(e, props.row.index, month)}
-                        initialFocus
-                        className="rounded-xl bg-white p-2 text-gray-800"
-                        dayClassName="rounded-md px-2 py-1 hover:bg-blue-100 transition cursor-pointer"
-                        selectedDayClassName="bg-blue-500 text-white font-bold"
-                        todayClassName="border border-blue-400"
-                        headerClassName="font-semibold text-lg py-2"
-                        navButtonClassName="rounded-full bg-blue-100 hover:bg-blue-300 text-blue-700 px-2 py-1"
-                    />
-                </PopoverContent>
-            </Popover>
-            {dateVal?.startDate &&
-                <ImCancelCircle className="absolute right-0 top-1 mr-1 text-slate-500 cursor-pointer text-xs"
-                    onClick={(e) => handleCancelDate(e, props.row.index, month)} />}
-        </div>
-    )
-}
+    const value = {
+        startDate: dateVal?.startDate || null,
+        endDate: dateVal?.startDate || null,
+    };
 
-export default DatePicker
+    const handleChange = (newValue) => {
+        if (newValue?.startDate) {
+            handleChangeDate(new Date(newValue.startDate), props.row.index, month);
+        } else {
+            handleCancelDate(null, props.row.index, month);
+        }
+    };
+
+    return (
+        <div className="w-24">
+            <Datepicker
+                asSingle={true}
+                useRange={false}
+                value={value}
+                onChange={handleChange}
+                displayFormat="DD.MM.YY"
+                placeholder="DD.MM.YY"
+                primaryColor="blue"
+                readOnly={true}
+                inputClassName="text-[11px] h-6 py-0 pl-6 pr-1 w-full bg-white rounded-md border-0 outline-none cursor-pointer text-[var(--endeavour)]"
+                containerClassName="relative"
+                popoverDirection="down"
+                popupClassName="fixed z-[99999] mt-[1px] text-sm lg:text-xs 2xl:text-sm translate-y-4 opacity-0 hidden transition-all ease-out duration-300"
+            />
+        </div>
+    );
+};
+
+export default DatePicker;

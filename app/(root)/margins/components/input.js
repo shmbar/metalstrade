@@ -34,7 +34,7 @@ export const Input = ({ props, handleChange, month, name, styles, addCur }) => {
         w-full
         bg-[#fafafa]
         rounded-full
-        px-3
+        px-2
         !text-[11px]
         !text-[var(--endeavour)]
         border border-[#d9d9d9]

@@ -47,13 +47,13 @@ import Tltip from "../../../components/tlTip";
 const COLUMN_CONFIGS = {
     'drag-handle': { width: 50, align: 'center', minWidth: 40 },
     'date': { width: 120, align: 'center', minWidth: 100 },
-    'purchase': { width: 110, align: 'right', minWidth: 80 },
-    'description': { width: 200, align: 'left', minWidth: 150 },
-    'supplier': { width: 150, align: 'left', minWidth: 150 },
-    'client': { width: 150, align: 'left', minWidth: 150 },
+    'purchase': { width: 80, align: 'right', minWidth: 60 },
+    'description': { width: 220, align: 'left', minWidth: 180 },
+    'supplier': { width: 100, align: 'left', minWidth: 80 },
+    'client': { width: 100, align: 'left', minWidth: 80 },
     'margin': { width: 110, align: 'right', minWidth: 90 },
     'totalMargin': { width: 130, align: 'right', minWidth: 110 },
-    'shipped': { width: 100, align: 'right', minWidth: 80 },
+    'shipped': { width: 80, align: 'right', minWidth: 60 },
     'openShip': { width: 110, align: 'right', minWidth: 90 },
     'remaining': { width: 120, align: 'right', minWidth: 100 },
     'gis': { width: 70, align: 'center', minWidth: 60 },
@@ -77,13 +77,13 @@ const DraggableRow = ({ row, props, cName }) => {
     id: row.original.id,
   });
 
-  const style = {
+  const style = isDragging ? {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.8 : 1,
-    zIndex: isDragging ? 1 : 0,
+    opacity: 0.8,
+    zIndex: 1,
     position: "relative",
-  };
+  } : {};
 
   const inputs = ["purchase", "description", "margin", "shipped"];
   const currs = ["margin", "totalMargin", "remaining"];
@@ -92,7 +92,7 @@ const DraggableRow = ({ row, props, cName }) => {
     <TableRow
       ref={setNodeRef}
       style={style}
-      className="hover:bg-gray-50/50 transition-colors"
+      className="hover:bg-gray-50/50"
     >
       {row.getVisibleCells().map((cell) => {
         const columnConfig = COLUMN_CONFIGS[cell.column.id] || {};
@@ -106,6 +106,7 @@ const DraggableRow = ({ row, props, cName }) => {
               height: "32px",
               padding: "4px 6px",
               verticalAlign: "middle",
+              width: `${columnConfig.width || 100}px`,
             }}
             className={cn(
               cellAlign === "right" && "text-center",
@@ -190,26 +191,27 @@ const DraggableRow = ({ row, props, cName }) => {
                   }
                 />
               </div>
-            ) : (
-              <div className="flex items-center justify-end">
-                <NumericFormat
-                  value={cell.getValue()}
-                  displayType="text"
-                  thousandSeparator
-                  allowNegative
-                  prefix={
-                    currs.includes(cell.column.id) ? "$" : ""
-                  }
-                  decimalScale={
-                    currs.includes(cell.column.id) ? 2 : 3
-                  }
-                  fixedDecimalScale
-                  style={{
-                    fontSize: "12px",
-                    color: "var(--endeavour)",
-                  }}
-                />
+            ) : cell.column.id === "del" ? (
+              <div className="flex items-center justify-center">
+                <button
+                  className="p-0 bg-transparent border-0 outline-none text-[var(--endeavour)] hover:text-red-500 transition-colors"
+                  onClick={(e) => deleteRow(e, cell.row.index, month)}
+                >
+                  <MdDeleteOutline className="w-4 h-4" />
+                </button>
               </div>
+            ) : (
+              <NumericFormat
+                value={cell.getValue()}
+                displayType="input"
+                readOnly
+                thousandSeparator
+                allowNegative
+                prefix={currs.includes(cell.column.id) ? "$" : ""}
+                decimalScale={currs.includes(cell.column.id) ? 2 : 3}
+                fixedDecimalScale
+                className="h-7 w-full bg-[#fafafa] rounded-full px-2 text-[11px] text-[var(--endeavour)] border border-[#d9d9d9] outline-none text-right"
+              />
             )}
           </TableCell>
         );
@@ -334,7 +336,7 @@ const Customtable = (props) => {
                 <div className="rounded-lg border border-[var(--selago)] overflow-visible relative shadow-sm">
                     {/* Desktop Table - Compact Heights */}
                     <div className="hidden sm:block">
-                        <Table className="relative w-full" style={{ borderSpacing: '0 1px', tableLayout: 'auto' }}>
+                        <Table className="w-auto min-w-full" style={{ borderSpacing: '0 1px', tableLayout: 'fixed' }}>
                             <TableHeader>
                                 <TableRow>
                                     {table.getHeaderGroups().map((headerGroup) =>
@@ -346,11 +348,12 @@ const Customtable = (props) => {
   style={{
     height: '36px',
     padding: '4px 6px',
+    width: `${(COLUMN_CONFIGS[header.column.id] || {}).width || 100}px`,
   }}
   className={cn(
     'bg-[#dbeeff] text-[var(--endeavour)] border-b border-[var(--endeavour)]',
     idx === 0 ? 'rounded-tl-lg' : '',
-    idx === arr.length - 1 ? 'rounded-tr-lg' : 'border-r border-r-[#b8ddf8]'
+    idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
 >
   <div className="w-full flex items-center justify-center text-[0.75rem] font-medium">
@@ -419,7 +422,7 @@ const Customtable = (props) => {
                                                             columnConfig.align === 'center' && 'text-center',
                                                             ["totalMargin", "remaining", "purchase", "openShip"].includes(accessorKey) ?
                                                                 'border-t border-t-[var(--endeavour)]' : '',
-                                                            'border-r border-r-[#e8f0f8] last:border-r-0'
+                                                            ''
                                                         )}
                                                     >
                                                         {["totalMargin", "remaining", "purchase", "openShip"].includes(accessorKey) && (
@@ -496,11 +499,11 @@ const Customtable = (props) => {
                                                         {(() => {
                                                             if (col.accessorKey === 'date') {
                                                                 return (
-                                                                    <DatePicker 
-                                                                        props={{ row: { original: row } }} 
-                                                                        handleChangeDate={props.handleChangeDate} 
-                                                                        month={row.month} 
-                                                                        handleCancelDate={props.handleCancelDate} 
+                                                                    <DatePicker
+                                                                        props={{ row: { original: row } }}
+                                                                        handleChangeDate={props.handleChangeDate}
+                                                                        month={row.month}
+                                                                        handleCancelDate={props.handleCancelDate}
                                                                     />
                                                                 );
                                                             }
