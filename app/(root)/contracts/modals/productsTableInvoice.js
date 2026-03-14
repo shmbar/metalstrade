@@ -467,7 +467,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                     }
                                                     <div className={`${obj.descriptionId === '' ? 'hidden' : 'flex'}`}>
                                                         <SlctOpt obj={obj}
-                                                            selectOrEdit={selectOrEdit} indx={i} />
+                                                            selectOrEdit={selectOrEdit} indx={i} ln={ln} />
                                                     </div>
                                                 </div>
 

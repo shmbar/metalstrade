@@ -71,8 +71,8 @@ const MyCombobox = ({ data, setValue, value, dt, indx, name, classes, disabled, 
         <div className="w-full">
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="relative">
-                    <div className={`relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left 
-                     focus:outline-none sm:text-sm border border-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
+                    <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-white text-left
+                     focus:outline-none sm:text-sm border border-[#E5E7EB] hover:border-[var(--rock-blue)] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
                             className="w-full py-2 pl-3 pr-10 text-xs leading-5 text-[var(--endeavour)] focus:outline-none "
                             displayValue={(value) => (data.find(x => x.id === dt[indx][name]) || {})[name] || selected[name]}
@@ -92,8 +92,8 @@ const MyCombobox = ({ data, setValue, value, dt, indx, name, classes, disabled, 
                         leaveTo="opacity-0"
                         afterLeave={() => setQuery('')}
                     >
-                        <ComboboxOptions className={`z-10 absolute mt-1 max-h-60 w-full overflow-auto rounded-md 
-                        bg-white py-1 text-base shadow-lg ring-1 ring-[var(--selago)] focus:outline-none 
+                        <ComboboxOptions className={`z-10 absolute mt-1 max-h-60 w-full overflow-auto rounded-xl
+                        bg-white py-1 text-base shadow-lg border border-[#dbeeff] focus:outline-none
                         sm:text-sm ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (
                                 <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] text-xs">
@@ -105,7 +105,7 @@ const MyCombobox = ({ data, setValue, value, dt, indx, name, classes, disabled, 
                                     <ComboboxOption
                                         key={x.id}
                                         className={({ active }) =>
-                                            `relative cursor-default select-none py-1 text-xs pl-10 pr-4 ${active ? 'bg-[var(--endeavour)] text-white' : 'text-[var(--port-gore)]'
+                                            `relative cursor-default select-none py-1 text-xs pl-10 pr-4 ${active ? 'bg-[#dbeeff] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'
                                             }`
                                         }
                                         value={x}
@@ -120,8 +120,7 @@ const MyCombobox = ({ data, setValue, value, dt, indx, name, classes, disabled, 
                                                 </span>
                                                 {selected ? (
                                                     <span
-                                                        className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? 'text-white' : 'text-[var(--endeavour)]'
-                                                            }`}
+                                                        className="absolute inset-y-0 left-0 flex items-center pl-3 text-[var(--endeavour)]"
                                                     >
                                                         <AiOutlineCheck className="h-5 w-5" aria-hidden="true" />
                                                     </span>
