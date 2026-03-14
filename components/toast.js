@@ -33,10 +33,10 @@ const Toast = () => {
                 <div className={`gap-3 flex text-sm px-4 py-3 bottom-4 left-4 z-40 fixed rounded-xl items-center shadow-lg fadeInToast border
                 ${toast?.clr === 'success'
                     ? 'bg-[var(--endeavour)] border-[#0255a3] text-white'
-                    : 'bg-white border-red-200 text-red-700'}`}>
+                    : 'bg-red-600 border-red-700 text-white'}`}>
                     {toast?.clr === 'success'
                         ? <FaRegCheckCircle className='scale-150 text-white flex-shrink-0' />
-                        : <FaRegTimesCircle className='scale-150 text-red-500 flex-shrink-0' />}
+                        : <FaRegTimesCircle className='scale-150 text-white flex-shrink-0' />}
                     <div>{toast?.text || ''}</div>
                 </div>
             )}

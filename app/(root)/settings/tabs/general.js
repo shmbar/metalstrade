@@ -66,26 +66,7 @@ className="
     {getTtl("lng", ln)}:
   </p>
 
-  <div
-    className="
-      relative
-      flex
-      items-center
-      w-full
-      h-8
-      px-4
-      rounded-full
-      border
-      text-[#979797]
-      border-[#E5E7EB]
-      bg-white
-      transition
-      overflow-visible
-      focus-within:border-[#0A5DB8]
-      focus-within:ring-2
-      focus-within:ring-[#0A5DB8]/20
-    "
-  >
+  <div className="relative w-full">
     <CBox
       languages={languages}
       compData={compData}

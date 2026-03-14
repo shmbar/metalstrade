@@ -81,8 +81,8 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
         <div className="w-full">
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled} >
                 <div className="relative my-1">
-                    <div className={`relative w-full cursor-default overflow-hidden rounded-2xl bg-white text-left 
-                     focus:outline-none sm:text-sm border border-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
+                    <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-white text-left
+                     focus:outline-none sm:text-sm border border-[#E5E7EB] hover:border-[var(--rock-blue)] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
                             className={`w-full py-2 pl-3 pr-10 text-xs ${classes2} leading-5 text-[var(--endeavour)] focus:outline-none`}
                             displayValue={(value) => (data.find(y => y.id === value[name]) || {})[name] || value[name]}
@@ -109,9 +109,9 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                         afterLeave={() => setQuery('')}
                     >
                       
-                        <ComboboxOptions anchor="bottom" className={`absolute left-0 z-50 w-[var(--input-width)] 
-                        [--anchor-gap:var(--spacing-1)] empty:hidden 
-                        mt-1 max-h-60 rounded-md bg-white py-1 text-base shadow-lg focus:outline-none 
+                        <ComboboxOptions anchor="bottom" className={`absolute left-0 z-50 w-[var(--input-width)]
+                        [--anchor-gap:var(--spacing-1)] empty:hidden
+                        mt-1 max-h-60 rounded-xl bg-white py-1 text-base shadow-lg border border-[#dbeeff] focus:outline-none
                         sm:text-sm ${classes1} dropDownHeight`}>
                             {filteredData.length === 0 && query !== '' ? (
                                 <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] text-xs">
@@ -122,7 +122,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                                     <ComboboxOption
                                         key={x.id}
                                         className={({ active }) =>
-                                            `relative cursor-default select-none py-1 text-xs ${classes2} pl-10 pr-4 ${active ? 'bg-[var(--endeavour)] text-white' : 'text-[var(--port-gore)]'}
+                                            `relative cursor-default select-none py-1 text-xs ${classes2} pl-10 pr-4 ${active ? 'bg-[#dbeeff] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}
                                             `
                                         }
                                         value={x}

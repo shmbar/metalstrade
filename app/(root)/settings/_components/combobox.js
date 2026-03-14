@@ -15,16 +15,16 @@ export default function Example({ languages, compData, setCompData, lang }) {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-36">
       <Listbox value={selected} onChange={(e) => setSelection(e)}>
-        <div className="relative my-1">
-          <Listbox.Button className='cursor-pointer rounded-full border border-[#E5E7EB] bg-white
+        <div className="relative">
+          <Listbox.Button className="cursor-pointer w-full h-8 rounded-full border border-[#E5E7EB] bg-white
                      focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20 text-sm
-                   py-1 pl-3 pr-10 text-[var(--port-gore)] h-8 max-w-3xl w-32 transition-all hover:border-[var(--rock-blue)]'>
-            <span className="block truncate">{selected?.lng || ''}</span>
-            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                     pl-4 pr-10 text-[var(--port-gore)] transition-all hover:border-[var(--rock-blue)]">
+            <span className="block truncate text-left">{selected?.lng || ''}</span>
+            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
               <HiChevronUpDown
-                className="h-5 w-5 text-[#979797]"
+                className="h-4 w-4 text-[var(--endeavour)]"
                 aria-hidden="true"
               />
             </span>
@@ -35,29 +35,25 @@ export default function Example({ languages, compData, setCompData, lang }) {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm z-50">
+            <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-sm shadow-lg border border-[#dbeeff] focus:outline-none z-50">
               {languages.map((language, personIdx) => (
                 <Listbox.Option
                   key={personIdx}
                   className={({ active }) =>
-                    `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-[var(--endeavour)] text-white' : 'text-[var(--port-gore)]'
-                    }`
+                    `relative cursor-pointer select-none py-2 pl-9 pr-4 ${active ? 'bg-[#dbeeff] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`
                   }
                   value={language}
                 >
                   {({ selected, active }) => (
                     <>
                       <span
-                        className={`block truncate ${selected ? 'font-bold' : 'font-normal'
-                          }`}
+                        className={`block truncate ${selected ? 'font-semibold text-[var(--endeavour)]' : 'font-normal'}`}
                       >
                         {language.lng}
                       </span>
                       {selected ? (
-                        <span className={`absolute inset-y-0 left-0 flex items-center pl-3
-                        ${active ? 'text-white' : 'text-[var(--endeavour)]'} `}
-                        >
-                          <AiOutlineCheck className="size-5" aria-hidden="true" />
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-2 text-[var(--endeavour)]">
+                          <AiOutlineCheck className="size-4" aria-hidden="true" />
                         </span>
                       ) : null}
                     </>

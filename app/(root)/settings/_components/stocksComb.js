@@ -24,9 +24,9 @@ const StockComb = ({ value, setValue }) => {
     <div className='w-full'>
       <Listbox value={selected} onChange={e=> setSelection(e)}>
         <div className="relative ">
-          <ListboxButton className='cursor-default rounded-md
-                     focus:outline-none text-xs 
-                   pl-3 pr-10 text-[var(--port-gore)] h-7 max-w-3xl w-full text-left'>
+          <ListboxButton className='cursor-pointer w-full h-8 rounded-full border border-[#E5E7EB] bg-white
+                     focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20
+                     pl-4 pr-10 text-xs text-[var(--port-gore)] transition-all hover:border-[var(--rock-blue)] text-left'>
             <span className="block truncate">{value.sType === '' ? selected?.sType : value?.sType}</span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <HiChevronUpDown
@@ -41,12 +41,12 @@ const StockComb = ({ value, setValue }) => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <ListboxOptions className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+            <ListboxOptions className="absolute mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-sm shadow-lg border border-[#dbeeff] focus:outline-none z-50">
               {types.map((tp, personIdx) => (
                 <ListboxOption
                   key={personIdx}
                   className={({ active }) =>
-                    `text-xs relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-[var(--endeavour)] text-white' : 'text-[var(--port-gore)]'
+                    `text-xs relative cursor-pointer select-none py-2 pl-10 pr-4 ${active ? 'bg-[#dbeeff] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'
                     }`
                   }
                   value={tp}

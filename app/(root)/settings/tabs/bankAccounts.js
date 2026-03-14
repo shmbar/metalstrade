@@ -160,9 +160,7 @@ const BankAccount = () => {
                                 <div className={fieldRow}>
                                     <label className={labelCls}>{getTtl('Currency', ln)}:</label>
                                     <div className="w-full sm:flex-1">
-                                        <div className="flex items-center h-8 px-4 rounded-full border border-[#E5E7EB] bg-white transition focus-within:border-[#0A5DB8] focus-within:ring-2 focus-within:ring-[#0A5DB8]/20">
-                                            <CBox data={settings.Currency?.Currency || []} setValue={setValue} value={value} name="cur" className="w-full bg-transparent border-none rounded-none shadow-none text-xs" />
-                                        </div>
+                                        <CBox data={settings.Currency?.Currency || []} setValue={setValue} value={value} name="cur" />
                                     </div>
                                 </div>
                                 <ErrDiv field='cur' errors={errors} ln={ln} />
