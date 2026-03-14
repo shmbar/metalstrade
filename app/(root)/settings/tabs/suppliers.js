@@ -75,7 +75,7 @@ const Suppliers = () => {
 
     const fieldRow = 'flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0';
     const labelCls = 'sm:w-[80px] shrink-0 text-xs text-[#0c5aa6]';
-    const inputCls = 'w-full sm:flex-1 h-8 px-5 text-sm rounded-full border border-gray-300 bg-white';
+    const inputCls = 'w-full sm:flex-1 h-8 px-5 text-xs rounded-full border border-[#E5E7EB] bg-white';
 
     return (
         <div className='p-2 rounded-2xl flex flex-col md:flex-row w-full gap-4'>

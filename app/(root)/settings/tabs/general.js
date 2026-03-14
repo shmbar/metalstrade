@@ -47,7 +47,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-sm
+  text-xs
   text-[#979797]
   outline-none
   transition
@@ -101,7 +101,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-sm
+  text-xs
   text-[#979797]
   outline-none
   transition
@@ -128,7 +128,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-sm
+  text-xs
   text-[#979797]
   outline-none
   transition
@@ -154,7 +154,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-sm
+  text-xs
   text-[#979797]
   outline-none
   transition
@@ -180,7 +180,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-sm
+  text-xs
   text-[#979797]
   outline-none
   transition
@@ -209,7 +209,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-sm
+  text-xs
   text-[#979797]
   outline-none
   transition
@@ -234,7 +234,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-sm
+  text-xs
   text-[#979797]
   outline-none
   transition
@@ -259,7 +259,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-sm
+  text-xs
   text-[#979797]
   outline-none
   transition
@@ -295,7 +295,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-sm
+  text-xs
   text-[#979797]
   outline-none
   transition
@@ -320,7 +320,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-sm
+  text-xs
   text-[#979797]
   outline-none
   transition
@@ -351,7 +351,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-sm
+  text-xs
   text-[#979797]
   outline-none
   transition
@@ -376,7 +376,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-sm
+  text-xs
   text-[#979797]
   outline-none
   transition
