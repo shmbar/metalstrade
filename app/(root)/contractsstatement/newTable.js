@@ -327,7 +327,7 @@ const Customtable = ({
                     <Fragment key={row.id}>
                       <tr
                         tabIndex={0}
-                        className="cursor-pointer transition-colors hover-row"
+                        className={`cursor-pointer transition-colors hover-row ${row.getIsExpanded() ? 'bg-[#dbeeff]' : ''}`}
                       >
                         {row.getVisibleCells().map((cell) => {
                           if (cell.column.id === 'expander') {

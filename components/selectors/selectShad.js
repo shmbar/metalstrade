@@ -23,7 +23,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
     return (
         <Select className='border-slate-400' value={value[name]} onValueChange={onChange}
             defaultValue="df">
-            <SelectTrigger className={`relative border-[var(--endeavour)] rounded-2xl h-7 text-[11px] gap-0.5 px-2
+            <SelectTrigger className={`relative border-[#E5E7EB] hover:border-[var(--rock-blue)] rounded-full h-7 text-[11px] gap-0.5 px-2
                     text-[var(--chathams-blue)] outline-none focus:ring-0
                     focus:outline-none focus:ring-offset-0 shadow-sm pointer-events-auto
                     ${classes}`}
@@ -46,7 +46,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
 
 
             </SelectTrigger>
-            <SelectContent className="rounded-2xl border border-[var(--endeavour)] shadow-md text-xs text-[var(--chathams-blue)]">
+            <SelectContent className="rounded-xl border border-[#dbeeff] shadow-md text-xs text-[var(--chathams-blue)]">
                 <SelectGroup>
                     {sortArr(arr.filter(x => !x.deleted), name).map(k => {
                         return (
