@@ -17,7 +17,7 @@ const StockComb = ({ value, setValue }) => {
 
   useEffect(() => {
       setSelected(value.sType === '' ? types[0] : types.find(x => x.sType === value.sType))
-  }, [value])
+  }, [value.sType])
 
 
   return (

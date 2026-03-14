@@ -59,8 +59,8 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
         <div className="w-full" ref={wrapperRef}>
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="relative">
-                    <div className={`relative w-full cursor-default overflow-hidden rounded-2xl bg-white text-left 
-                     focus:outline-none sm:text-sm border border-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
+                    <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-white text-left
+                     focus:outline-none sm:text-sm border border-[#E5E7EB] hover:border-[var(--rock-blue)] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
                             className={cn('w-full py-2 pl-3 pr-10 text-xs leading-5 focus:outline-none',
                                 selected[name] !== plcHolder ? 'text-[var(--endeavour)]' : 'text-[var(--endeavour)]')}
@@ -82,8 +82,8 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                         afterLeave={() => setQuery('')}
                     >
                         <Portal>
-                            <ComboboxOptions style={dropdownStyle} className={`z-50 max-h-60 overflow-auto rounded-md 
-                            bg-white py-1 text-base shadow-lg ring-1 ring-[var(--selago)] focus:outline-none 
+                            <ComboboxOptions style={dropdownStyle} className={`z-50 max-h-60 overflow-auto rounded-xl
+                            bg-white py-1 text-base shadow-lg border border-[#dbeeff] focus:outline-none
                             sm:text-sm ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (
                                 <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] text-xs">
@@ -95,10 +95,10 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                                     <ComboboxOption
                                         key={x.id}
                                         className={cn(
-                                            'relative cursor-default select-none py-1 text-[0.75rem] pl-10 pr-4 text-[var(--port-gore)] hover:bg-[var(--selago)]',
+                                            'relative cursor-default select-none py-1 text-[0.75rem] pl-10 pr-4 text-[var(--port-gore)] hover:bg-[#dbeeff] hover:text-[var(--endeavour)]',
                                             selected.id === x.id
-                                                ? 'bg-[var(--endeavour)] text-white hover:bg-[var(--endeavour)]'
-                                                : '', 
+                                                ? 'bg-[#dbeeff] text-[var(--endeavour)]'
+                                                : '',
                                                 x.id==='allStocks' ? 'text-[var(--chathams-blue)] italic font-bold truncate': ''
                                         )}
                                         value={x}
@@ -113,8 +113,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                                                 </span>
                                                 {selected ? (
                                                     <span
-                                                        className={`absolute inset-y-0 left-0 flex items-center pl-3 ${selected.id === x.id ? 'text-white' : 'text-[var(--endeavour)]'
-                                                            }`}
+                                                        className="absolute inset-y-0 left-0 flex items-center pl-3 text-[var(--endeavour)]"
                                                     >
                                                         <AiOutlineCheck className="h-5 w-5" aria-hidden="true" />
                                                     </span>

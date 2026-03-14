@@ -19,7 +19,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
             setSelected(newArr[0])
         }
 
-    }, [value])
+    }, [value[name]])
 
     useEffect(() => {
         //switching between diffrent values
@@ -28,7 +28,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
             setSelected(data.find(x => x.id === value[name]))
         }
 
-    }, [value])
+    }, [value[name]])
 
     const filteredData =
         query === ''

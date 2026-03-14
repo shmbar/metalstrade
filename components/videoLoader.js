@@ -6,7 +6,7 @@ const VideoLoader = ({ loading = true, fullScreen = true }) => {
   if (!loading) return null;
 
   const containerClasses = fullScreen
-    ? "fixed inset-0 flex items-center justify-center z-50 bg-white"
+    ? "fixed inset-0 flex items-center justify-center z-50 bg-white/80 backdrop-blur-sm"
     : "flex items-center justify-center py-12";
 
   return (
