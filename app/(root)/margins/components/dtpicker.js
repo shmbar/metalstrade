@@ -1,5 +1,6 @@
 'use client'
 import Datepicker from "react-tailwindcss-datepicker";
+import { X } from "lucide-react";
 
 const getDateValue = (props) =>
     typeof props.getValue === 'function' ? props.getValue() : props.value;
@@ -21,21 +22,34 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
     };
 
     return (
-        <div className="w-24">
-            <Datepicker
-                asSingle={true}
-                useRange={false}
-                value={value}
-                onChange={handleChange}
-                displayFormat="DD.MM.YY"
-                placeholder="DD.MM.YY"
-                primaryColor="blue"
-                readOnly={true}
-                inputClassName="text-[11px] h-6 py-0 pl-6 pr-1 w-full bg-white rounded-md border-0 outline-none cursor-pointer text-[var(--endeavour)]"
-                containerClassName="relative"
-                popoverDirection="down"
-                popupClassName="fixed z-[99999] mt-[1px] text-sm lg:text-xs 2xl:text-sm translate-y-4 opacity-0 hidden transition-all ease-out duration-300"
-            />
+        <div className="flex items-center gap-1">
+            <div className="w-fit">
+                <Datepicker
+                    asSingle={true}
+                    useRange={false}
+                    value={value}
+                    onChange={handleChange}
+                    displayFormat="DD.MM.YY"
+                    placeholder="DD.MM.YY"
+                    primaryColor="blue"
+                    readOnly={true}
+                    showShortcuts={false}
+                    inputClassName="text-[11px] h-6 py-0 pl-2 pr-1 w-[72px] bg-white rounded-md border-0 outline-none cursor-pointer text-[var(--endeavour)]"
+                    containerClassName="relative"
+                    toggleClassName="hidden"
+                    popoverDirection="down"
+                    popupClassName="fixed z-[99999] mt-[1px] text-sm lg:text-xs 2xl:text-sm translate-y-4 opacity-0 hidden transition-all ease-out duration-300"
+                />
+            </div>
+            {value.startDate && (
+                <button
+                    type="button"
+                    onClick={() => handleCancelDate(null, props.row.index, month)}
+                    className="text-[var(--endeavour)] hover:text-red-500 transition-colors flex-shrink-0"
+                >
+                    <X className="size-3" />
+                </button>
+            )}
         </div>
     );
 };

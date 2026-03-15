@@ -35,16 +35,16 @@ const CB = (settings, handleSelectStock, selectedStock) => {
     //     classes2='text-lg' dis={true} />
     // )
 
-    < CBox
-      data={dt}
-      setValue={handleSelectStock}
-      value={dt.find(x => x.id === selectedStock.id)}
-      idx={0}
-      name='nname'
-      classes='input border-slate-300 shadow-sm items-center flex'
-      classes2='text-lg'
-      plcHolder='Select Stock'
-    />
+    <div className='w-36'>
+      <CBox
+        data={dt}
+        setValue={handleSelectStock}
+        value={dt.find(x => x.id === selectedStock.id)}
+        idx={0}
+        name='nname'
+        plcHolder='Select Stock'
+      />
+    </div>
   )
 }
 

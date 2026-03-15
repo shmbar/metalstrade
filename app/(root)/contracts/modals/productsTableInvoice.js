@@ -11,8 +11,8 @@ import { getTtl } from '@utils/languages';
 import CheckBox from '@components/checkbox.js';
 import FindCOntract4Materials from '@components/findContract4Materials';
 import { Selector } from '@components/selectors/selectShad';
-import { CirclePlus , ShieldCheck , Import, Trash, } from "lucide-react"
-import { Button } from '@components/ui/button.jsx';
+import { CirclePlus, ShieldCheck, Import, Trash } from "lucide-react"
+import Tltip from '@components/tlTip'
 
 
 const cols = ['container', 'qnty', 'unitPrc', 'total', 'stock', 'stockValue']
@@ -361,31 +361,31 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
             <div className="flex flex-col w-full">
                 <div className=" overflow-x-auto">
                     <div className="border-2 border-[#b8ddf8] rounded-lg overflow-hidden">
-                        <table id='my-table' className=" table-fixed min-w-full divide-y divide-[#b8ddf8]">
+                        <table id='my-table' className="table-fixed min-w-full divide-y divide-[#b8ddf8]">
                             <thead style={{ background: '#dbeeff' }}>
                                 <tr>
-                                    <th scope="col" className=" w-0/12 py-1 px-6"></th>
-                                    <th scope="col" className="w-0/12 pr-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]"  >
+                                    <th scope="col" className="w-8 py-1 px-2"></th>
+                                    <th scope="col" className="w-6 pr-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
                                         #</th>
-                                    {certOpen && <th scope="col" className="w-0/12 pr-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]"  >
+                                    {certOpen && <th scope="col" className="w-14 pr-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
                                         Cert</th>}
-                                    <th scope="col" className="w-1/12 py-1 px-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]"  >
+                                    <th scope="col" className="w-[9%] py-1 px-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
                                         {getTtl('PO', ln)}#</th>
-                                    <th scope="col" className="w-4/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
-                                        {getTtl('Description', ln)} </th>
-                                    <th scope="col" className="w-2/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
+                                    <th scope="col" className="w-[26%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
+                                        {getTtl('Description', ln)}</th>
+                                    <th scope="col" className="w-[14%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
                                         {contTitle}</th>
-                                    <th scope="col" className=" w-1/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
+                                    <th scope="col" className="w-[8%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Quantity', ln)} MT</th>
-                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
-                                        <div className='table-caption'> {getTtl('UnitPrice', ln)} <span className='text-xs'>
+                                    <th scope="col" className="w-[9%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
+                                        <div className='table-caption'>{getTtl('UnitPrice', ln)} <span className='text-xs'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
+                                    <th scope="col" className="w-[9%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
                                         <div>{getTtl('Total', ln)} <span className='text-xs'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)] border-l border-[#b8ddf8]" >
+                                    <th scope="col" className="w-[16%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)] border-l border-[#b8ddf8]">
                                         {getTtl('Stock', ln)}</th>
-                                    <th scope="col" className=" w-1/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
+                                    <th scope="col" className="w-[9%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Available Quantity', ln)} (MT)</th>
                                 </tr>
                             </thead>
@@ -393,12 +393,12 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                 {value.productsDataInvoice.map((obj, i) => {
                                     return (
                                         <tr key={i}>
-                                            <td className="py-2 pl-4">
+                                            <td className="py-2 px-2 w-8">
                                                 <div className="flex items-center h-5">
                                                     <ChkBox checked={checkedItems.includes(obj.id)} size='h-5 w-5' onChange={() => checkItem(obj.id)} />
                                                 </div>
                                             </td>
-                                            <td className="px-1 py-2">
+                                            <td className="px-1 py-2 w-6">
                                                 <div className="flex items-center h-5 text-[13px] text-gray-800">
                                                     {i + 1}
                                                 </div>
@@ -466,7 +466,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                         </div>
                                                     }
                                                     <div className={`${obj.descriptionId === '' ? 'hidden' : 'flex'}`}>
-                                                        <SlctOpt obj={obj}
+                                                        <SlctOpt isSelection={obj.mtrlStatus === 'select' || obj.isSelection}
                                                             selectOrEdit={selectOrEdit} indx={i} ln={ln} />
                                                     </div>
                                                 </div>
@@ -478,7 +478,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 <td
                                                     key={key}
                                                     data-label={key}
-                                                    className={`px-1 py-1 text-[13px] text-gray-800 whitespace-normal
+                                                    className={`px-1 py-1 text-[13px] text-gray-800 overflow-hidden
                                                     ${key === 'stock' ? 'border-l' : ''}`}
                                                     onClick={() => !fnl && handleDoubleClick(obj, key)}
                                                 >
@@ -697,69 +697,55 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                     </div>
                 </div>
                 {!fnl &&
-                    <div className="flex gap-5  mt-4">
-                        <div className='group relative'>
-                            <Button
-                                className="h-8 px-3"
+                    <div className="flex gap-3 mt-4 flex-wrap items-center">
+                        <Tltip direction='top' tltpText={getTtl('AddProduct', ln)}>
+                            <button
+                                className="blackButton py-1"
                                 onClick={() => addItem()}
                             >
-                                <CirclePlus  />
+                                <CirclePlus className='size-4' />
                                 {getTtl('Add', ln)}
-                            </Button>
-                            <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
-    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-0.5">
-                                {getTtl('AddProduct', ln)}</span>
-                        </div>
-                        <div className='group relative'>
-                            <Button
-                            variant='outline'
-                                className="h-8 px-3"
+                            </button>
+                        </Tltip>
+                        <Tltip direction='top' tltpText={getTtl('DelProduct', ln)}>
+                            <button
+                                className="whiteButton py-1"
                                 onClick={() => delItem()}
                             >
-                                <Trash />
+                                <Trash className='size-4' />
                                 {getTtl('Delete', ln)}
-                            </Button>
-                            <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
-    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
-                                {getTtl('DelProduct', ln)}</span>
-                        </div>
-                        {value.invType === '1111' && <div className='group relative'>
-                            <Button
-                                variant='outline'
-                                className="h-8 px-3"
-                                onClick={() => { setCertOpen(!certOpen) }}
-                            >
-                                <ShieldCheck />
-                                Certs
-                            </Button>
-                            <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
-    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
-                                Certification
-                            </span>
-                        </div>}
-                        <div className='group relative'>
-                            <Button
-                                variant='outline'
-                                className="h-8 px-3"
+                            </button>
+                        </Tltip>
+                        {value.invType === '1111' &&
+                            <Tltip direction='top' tltpText='Certification'>
+                                <button
+                                    className="whiteButton py-1"
+                                    onClick={() => { setCertOpen(!certOpen) }}
+                                >
+                                    <ShieldCheck className='size-4' />
+                                    Certs
+                                </button>
+                            </Tltip>
+                        }
+                        <Tltip direction='top' tltpText='Import materials'>
+                            <button
+                                className="whiteButton py-1"
                                 onClick={() => setOpenFindContract(true)}
                             >
-                                <Import size={16} />
+                                <Import className='size-4' />
                                 Import
-                            </Button>
-                            <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
-    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
-                                Import materials</span>
-                        </div>
+                            </button>
+                        </Tltip>
                         <div className='justify-end flex flex-1 gap-3'>
                             <div className='flex leading-7 items-center gap-1'>
                                 <CheckBox size='size-5' checked={value.draft ?? false}
                                     onChange={() => setValue({ ...value, draft: !value.draft })} />
-                                <span className='text-sm'>Draft</span>
+                                <span className='text-xs'>Draft</span>
                             </div>
                             <div className='flex leading-7 items-center gap-1'>
                                 <CheckBox size='size-5' checked={value.completed ?? false}
                                     onChange={() => setValue({ ...value, completed: !value.completed })} />
-                                <span className='text-sm'>Invoice completed</span>
+                                <span className='text-xs'>Invoice completed</span>
                             </div>
                         </div>
                         {

@@ -24,7 +24,6 @@ import { usePathname } from 'next/navigation';
 import { getTtl } from '@utils/languages.js';
 import Tltip from '@components/tlTip.js';
 import { Selector } from '@components/selectors/selectShad.js';
-import { Button } from '@components/ui/button.jsx';
 import { X, Save, LoaderCircle, Eraser, FileText, Trash, PanelTopOpen, Banknote, Copy, ClipboardCheck } from "lucide-react";
 
 
@@ -575,39 +574,40 @@ const ContractModal = () => {
 			<Expenses showExpenses={showExpenses} />
 			<Payments showPayments={showPayments} />
 
-			<div className="text-lg font-medium leading-5 text-gray-900 p-3 pl-6 flex gap-4 flex-wrap justify-center md:justify-start ">
+			<div className="p-3 pl-6 flex gap-4 flex-wrap justify-center md:justify-start ">
 				{(!fnl && isSelectedInv) &&
 					<Tltip direction='top' tltpText='Save/Update invoice'>
-						<Button
+						<button
+							className="blackButton py-1"
 							onClick={btnClck}
 						>
-							<Save />
+							<Save className='size-4' />
 							{isButtonDisabled ? getTtl('saving', ln) : getTtl('save', ln)}
 							{isButtonDisabled && <LoaderCircle className='animate-spin' />}
 
-						</Button>
+						</button>
 					</Tltip>}
 				<Tltip direction='top' tltpText='Clear form'>
-					<Button
-						variant="outline"
+					<button
+						className="whiteButton py-1"
 						onClick={clearForm}
 					>
-						<Eraser />
+						<Eraser className='size-4' />
 						{fnl ? 'New' : getTtl('Clear', ln)}
-					</Button>
+					</button>
 				</Tltip>
 				<Tltip direction='top' tltpText='Close form'>
-					<Button
-						variant="outline"
+					<button
+						className="whiteButton py-1"
 						onClick={() => setIsOpenCon(false)}
 					>
-						<X />
+						<X className='size-4' />
 						{getTtl('Close', ln)}
-					</Button>
+					</button>
 				</Tltip>
 				<Tltip direction='top' tltpText='Create PDF document'>
-					<Button
-						variant="outline"
+					<button
+						className="whiteButton py-1"
 						onClick={() => !fnl && valueInv.id ? Pdf(valueInv,
 							reOrderTableInv(valueInv.productsDataInvoice).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
 								.map((values, index) => {
@@ -676,23 +676,23 @@ const ContractModal = () => {
 
 						}
 					>
-						<FileText />
+						<FileText className='size-4' />
 						PDF
-					</Button>
+					</button>
 				</Tltip>
 				{(!fnl && valueInv.id !== '') &&
 					<Tltip direction='top' tltpText='Delete Invoice'>
-						<Button
-							variant='outline'
+						<button
+							className="whiteButton py-1"
 							onClick={() => setIsDeleteOpen(true)}
 						>
-							<Trash />
+							<Trash className='size-4' />
 							{getTtl('Delete', ln)}
-						</Button>
+						</button>
 					</Tltip>}
 				{/*(!fnl && valueInv.id !== '') && showButton && <button
 					type="button"
-					className="flex items-center gap-2 justify-center rounded-md border bg-red-600 px-3 py-2 text-sm font-medium 
+					className="flex items-center gap-2 justify-center rounded-md border bg-red-600 px-3 py-2 text-sm font-medium
 						text-white hover:bg-red-400 focus:outline-none drop-shadow-lg" onClick={() => setIsFinilizeOpen(true)}
 				>
 					<BsFillSendCheckFill className='scale-110' />
@@ -700,7 +700,7 @@ const ContractModal = () => {
 				</button>*/}
 				{/*(fnl && !valueInv.canceled) && showButton && <button
 					type="button"
-					className="flex items-center gap-2 justify-center rounded-md border bg-red-600 px-3 py-2 text-sm font-medium 
+					className="flex items-center gap-2 justify-center rounded-md border bg-red-600 px-3 py-2 text-sm font-medium
 						text-white hover:bg-red-400 focus:outline-none drop-shadow-lg" onClick={() => setIsCancelOpen(true)}
 
 				>
@@ -709,45 +709,44 @@ const ContractModal = () => {
 			</button>*/}
 				{valueInv.id !== '' &&
 					<Tltip direction='top' tltpText='Shipment expenses'>
-						<Button
-							variant='outline'
+						<button
+							className="whiteButton py-1"
 							onClick={() => setShowPmntExp('exp')}
 						>
-							<PanelTopOpen />
+							<PanelTopOpen className='size-4' />
 							{getTtl('Expenses', ln)}
-						</Button>
+						</button>
 					</Tltip>}
 				{valueInv.id !== '' &&
 					<Tltip direction='top' tltpText='Client payments'>
-						<Button
-							variant='outline'
+						<button
+							className="whiteButton py-1"
 							onClick={() => setShowPmntExp('pmnt')}
 						>
-							<Banknote />
+							<Banknote className='size-4' />
 							{getTtl('Payments', ln)}
-						</Button>
+						</button>
 					</Tltip>}
 				{(!fnl && valueInv.id !== '' && !copyInvoice) && showButton &&
 					<Tltip direction='top' tltpText='Copy invoice data'>
-						<Button
-							variant='outline'
+						<button
+							className="whiteButton py-1"
 							onClick={() => copy_Invoice()}
 						>
-							<Copy />
+							<Copy className='size-4' />
 							{getTtl('Copy Invoice', ln)}
-						</Button>
+						</button>
 					</Tltip>}
 
 				{(copyInvoice && !valueCon.invoices.map(x => x.id).includes(copyInvValue.id)) && showButton &&
 					<Tltip direction='top' tltpText='Paste invoice data'>
-						<Button
-							variant='outline'
-							className="hidden md:flex"
+						<button
+							className="whiteButton py-1 hidden md:flex"
 							onClick={() => paste_Invoice(uidCollection, valueCon, setValueCon, contractsData, setContractsData)}
 						>
-							<ClipboardCheck />
+							<ClipboardCheck className='size-4' />
 							{getTtl('Paste invoice', ln)}
-						</Button>
+						</button>
 					</Tltip>}
 
 			</div>

@@ -98,10 +98,11 @@ const Expenses = () => {
 
 
     let showAmount = (x) => {
-
+        const rawCur = (x.row.original.cur || '').toUpperCase();
+        const currency = rawCur === 'US' ? 'USD' : rawCur === 'EU' ? 'EUR' : (rawCur || 'USD');
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: x.row.original.cur,
+            currency,
             minimumFractionDigits: 2
         }).format(x.getValue())
     }

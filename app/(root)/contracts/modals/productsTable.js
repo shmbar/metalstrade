@@ -6,8 +6,8 @@ import { getD, reOrderTableCon } from '@utils/utils.js';
 import { CalculateNum } from '@components/calculate';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { getTtl } from '@utils/languages.js';
-import { Button } from '@components/ui/button';
-import { ScrollText, Warehouse, Trash, CirclePlus, } from "lucide-react"
+import { ScrollText, Warehouse, Trash, CirclePlus } from "lucide-react"
+import Tltip from '@components/tlTip'
 
 
 const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvModal, setShowStockModal, setToast, contractsData }) => {
@@ -210,65 +210,45 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                         </table>
                     </div>
                 </div>
-                <div className="flex gap-x-5 flex-wrap mt-4">
-                    <div className='group relative '>
-                        <Button
-                            className="h-8 px-3"
+                <div className="flex gap-x-3 flex-wrap mt-4">
+                    <Tltip direction='top' tltpText={getTtl('AddProduct', ln)}>
+                        <button
+                            className="blackButton py-1"
                             onClick={() => addItem()}
                         >
-                            <CirclePlus />
+                            <CirclePlus className='size-4' />
                             {getTtl('Add', ln)}
-                        </Button>
-                        <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
-    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-0.5">
-                            {getTtl('AddProduct', ln)}</span>
-                    </div>
-                    <div className='group relative whitespace-normal'>
-                        <Button
-                            className="h-8 px-3"
-                            variant='outline'
+                        </button>
+                    </Tltip>
+                    <Tltip direction='top' tltpText={getTtl('DelProduct', ln)}>
+                        <button
+                            className="whiteButton py-1"
                             onClick={() => delItem()}
                         >
-                            <Trash />
+                            <Trash className='size-4' />
                             {getTtl('Delete', ln)}
-                        </Button>
-                        <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
-    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
-                            {getTtl('DelProduct', ln)}</span>
-                    </div>
-                    <div className='group relative'>
-                        <Button
-                            variant='outline'
-                            className={`h-8 px-3
-                            ${!value.productsData.map(x => x.description).some(item => item !== '') ? 'opacity-70' : ''}
-                            `}
+                        </button>
+                    </Tltip>
+                    <Tltip direction='top' tltpText={getTtl('POInvoices', ln)}>
+                        <button
+                            className={`whiteButton py-1 ${!value.productsData.map(x => x.description).some(item => item !== '') ? 'opacity-50 cursor-not-allowed' : ''}`}
                             onClick={openInvoicesModal}
                             disabled={!value.productsData.map(x => x.description).some(item => item !== '')}
                         >
-                            <ScrollText />
+                            <ScrollText className='size-4' />
                             {getTtl('Invoices', ln)}
-                        </Button>
-                        <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
-    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
-                            {getTtl('POInvoices', ln)}</span>
-                    </div>
-
-                    <div className='group relative'>
-                        <Button
-                            variant='outline'
-                            className={`h-8 px-3
-                            ${value.poInvoices.length === 0 ? 'opacity-70 bg-slate-300 hover:bg-slate-300' : ''}`}
+                        </button>
+                    </Tltip>
+                    <Tltip direction='top' tltpText={getTtl('warehouse', ln)}>
+                        <button
+                            className={`whiteButton py-1 ${!checkIfAlllowed() ? 'opacity-50 cursor-not-allowed' : ''}`}
                             disabled={!checkIfAlllowed()}
                             onClick={() => setShowStockModal(true)}
                         >
-                            <Warehouse />
+                            <Warehouse className='size-4' />
                             {getTtl('Stocks', ln)}
-                        </Button>
-                        <span className="absolute hidden group-hover:flex top-[40px] w-fit p-1
-    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
-                            {getTtl('warehouse', ln)}</span>
-                    </div>
-
+                        </button>
+                    </Tltip>
                 </div>
             </div>
         </div>

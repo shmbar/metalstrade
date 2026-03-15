@@ -60,7 +60,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="relative">
                     <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-white text-left
-                     focus:outline-none sm:text-sm border border-[#E5E7EB] hover:border-[var(--rock-blue)] transition-colors h-8 ${classes}`}>
+                     focus:outline-none text-xs border border-[#b8ddf8] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
                             className={cn('w-full py-2 pl-3 pr-10 text-xs leading-5 focus:outline-none',
                                 selected[name] !== plcHolder ? 'text-[var(--endeavour)]' : 'text-[var(--endeavour)]')}
@@ -82,9 +82,8 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                         afterLeave={() => setQuery('')}
                     >
                         <Portal>
-                            <ComboboxOptions style={dropdownStyle} className={`z-50 max-h-60 overflow-auto rounded-xl
-                            bg-white py-1 text-base shadow-lg border border-[#dbeeff] focus:outline-none
-                            sm:text-sm ${classes1}`}>
+                            <ComboboxOptions style={dropdownStyle} className={`z-50 max-h-60 overflow-auto custom-scroll rounded-xl
+                            bg-white py-1 text-xs shadow-lg border border-[#dbeeff] focus:outline-none ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (
                                 <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] text-xs">
                                     Nothing found.

@@ -1,55 +1,78 @@
-import { Menu, Transition } from '@headlessui/react'
 import { getTtl } from '../utils/languages';
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
+import { createPortal } from 'react-dom';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 
 export default function Example({ isSelection, selectOrEdit, indx, ln }) {
+    const btnRef = useRef(null)
+    const menuRef = useRef(null)
+    const [open, setOpen] = useState(false)
+    const [pos, setPos] = useState({ top: 0, left: 0 })
+
+    const handleOpen = () => {
+        if (btnRef.current) {
+            const rect = btnRef.current.getBoundingClientRect()
+            setPos({
+                top: rect.bottom + window.scrollY,
+                left: rect.left + window.scrollX,
+            })
+        }
+        setOpen(true)
+    }
+
+    // Close on outside click
+    useEffect(() => {
+        if (!open) return
+        const handler = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target) &&
+                btnRef.current && !btnRef.current.contains(e.target)) {
+                setOpen(false)
+            }
+        }
+        document.addEventListener('mousedown', handler)
+        return () => document.removeEventListener('mousedown', handler)
+    }, [open])
+
+    const itemCls = (active, disabled) =>
+        `group flex w-full items-center rounded-md px-3 py-2 text-xs whitespace-nowrap
+        ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
+        ${active && !disabled ? 'bg-[#dbeeff] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`
+
     return (
         <div>
-            <Menu as="div" className="relative inline-block text-left items-center flex">
-                <Menu.Button>
-                    <BsThreeDotsVertical className='scale-125 font-medium' />
-                </Menu.Button>
-                <Transition
-                    as={Fragment}
-                    enter="transition ease-out duration-100"
-                    enterFrom="transform opacity-0 scale-95"
-                    enterTo="transform opacity-100 scale-100"
-                    leave="transition ease-in duration-75"
-                    leaveFrom="transform opacity-100 scale-100"
-                    leaveTo="transform opacity-0 scale-95"
+            <button ref={btnRef} onClick={handleOpen} type="button">
+                <BsThreeDotsVertical className='scale-125 font-medium' />
+            </button>
+
+            {open && typeof window !== 'undefined' && createPortal(
+                <div
+                    ref={menuRef}
+                    style={{ position: 'absolute', top: pos.top + 4, left: pos.left, zIndex: 9999 }}
+                    className="divide-y divide-[#dbeeff] rounded-xl bg-white shadow-lg border border-[#dbeeff] min-w-[160px]"
                 >
-                    <Menu.Items className="absolute z-10 left-0 mt-2 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                        <div className="px-1 py-1 ">
-                            <Menu.Item>
-                                {({ active }) => (
-                                    <button
-                                        className={`${active ? 'bg-slate-500 text-white' : 'text-gray-900'
-                                            } group flex w-full items-center rounded-md px-2 py-2 text-xs whitespace-nowrap`}
-                                        disabled={!isSelection}
-                                        onClick={() => selectOrEdit('1', indx)}
-                                    >
-                                        {getTtl('Edit Description', ln)}
-                                    </button>
-                                )}
-                            </Menu.Item>
-                            <Menu.Item>
-                                {({ active }) => (
-                                    <button
-                                        className={`${active ? 'bg-slate-500 text-white' : 'text-gray-900'
-                                            } group flex w-full items-center rounded-md px-2 py-2 text-xs whitespace-nowrap`}
-                                        disabled={isSelection}
-                                        onClick={() => selectOrEdit('2', indx)}
-                                    >
-                                        {getTtl('Original Description', ln)}
-                                    </button>
-                                )}
-                            </Menu.Item>
-                        </div>
-                    </Menu.Items>
-                </Transition>
-            </Menu>
+                    <div className="px-1 py-1">
+                        <button
+                            className={itemCls(false, !isSelection)}
+                            disabled={!isSelection}
+                            onMouseEnter={e => !(!isSelection) && e.currentTarget.classList.add('bg-[#dbeeff]', 'text-[var(--endeavour)]')}
+                            onMouseLeave={e => e.currentTarget.classList.remove('bg-[#dbeeff]', 'text-[var(--endeavour)]')}
+                            onClick={() => { selectOrEdit('edit', indx); setOpen(false) }}
+                        >
+                            {getTtl('Edit Description', ln)}
+                        </button>
+                        <button
+                            className={itemCls(false, isSelection)}
+                            disabled={isSelection}
+                            onMouseEnter={e => !(isSelection) && e.currentTarget.classList.add('bg-[#dbeeff]', 'text-[var(--endeavour)]')}
+                            onMouseLeave={e => e.currentTarget.classList.remove('bg-[#dbeeff]', 'text-[var(--endeavour)]')}
+                            onClick={() => { selectOrEdit('select', indx); setOpen(false) }}
+                        >
+                            {getTtl('Original Description', ln)}
+                        </button>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     )
 }
-

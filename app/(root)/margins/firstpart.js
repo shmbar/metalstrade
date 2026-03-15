@@ -13,7 +13,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={2} 
                 fixedDecimalScale 
-                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '700' }}
+                style={{ fontSize: '13px', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #0ea5e9, #0284c7)'
         },
@@ -27,7 +27,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '700' }}
+                style={{ fontSize: '13px', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #3abef8, #0ea5e9)'
         },
@@ -40,7 +40,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '700' }}
+                style={{ fontSize: '13px', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #77d1fc, #3abef8)'
         },
@@ -54,7 +54,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '700' }}
+                style={{ fontSize: '13px', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #6366f1, #4f46e5)'
         },
@@ -67,7 +67,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: 'clamp(11px, 1.0vw, 13px)', fontWeight: '700' }}
+                style={{ fontSize: '13px', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #828df8, #6366f1)'
         },
@@ -95,35 +95,21 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
             <div className="w-full flex justify-center">
                 <div className="w-full max-w-7xl">
                     {/* Desktop Layout */}
-                    <div className="hidden md:flex flex-row gap-8 justify-center stats-cards">
+                    <div className="hidden md:flex flex-row gap-3 justify-center stats-cards w-full">
                         {cards.map((card, idx) => (
                             <div
                                 key={idx}
-                                className="stats-card flex flex-col items-center justify-center rounded-full shadow-lg border border-white/20 backdrop-blur-sm bg-white"
+                                className="stats-card flex-1 min-w-0 flex flex-col items-center justify-center rounded-full shadow-lg border border-white/20 backdrop-blur-sm bg-white py-2 px-2"
                                 style={{
-                                    width: 'clamp(70px, 18vw, 150px)',
-                                    height: 'clamp(20px, 6vh, 60px)',
                                     boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1), 0 0 1px rgba(255, 255, 255, 0.2) inset',
                                 }}
                             >
-                                <div 
-                                    className="text-[var(--endeavour)] font-bold text-center"
-                                    style={{
-                                        fontSize: 'clamp(11px, 1.0vw, 13px)',
-                                        fontWeight: '700'                                    }}
-                                >
-                                    {card.value}
-                                </div>
-                                <span 
-                                    className="text-[var(--endeavour)] font-normal mb-1 text-center px-2"
-                                    style={{
-                                        fontSize: '10px',
-                                        fontWeight: '700',
-                                        letterSpacing: '0.02em'
-                                    }}
-                                >
+                                <span className="text-[13px] font-bold text-[var(--endeavour)] text-center px-2">
                                     {card.label}
                                 </span>
+                                <div className="text-[13px] font-bold text-[var(--endeavour)] text-center">
+                                    {card.value}
+                                </div>
                                 
                             </div>
                         ))}

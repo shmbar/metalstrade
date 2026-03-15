@@ -8,7 +8,6 @@ import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad.js';
 import {Save, Eraser, Trash, Copy } from "lucide-react"
-import { Button } from '@components/ui/button';
 
 const Expenses = () => {
 
@@ -144,45 +143,42 @@ const Expenses = () => {
             </div>
             <div className='flex gap-4 m-2'>
                 <Tltip direction='top' tltpText='Save/Update form'>
-                    <Button
-                        className='h-9'
+                    <button
+                        className='blackButton py-1'
                         onClick={saveExpense}
                         disabled={isPending}
                     >
-                        <Save />
+                        <Save className='size-4' />
                         {getTtl('save', ln)}
-                    </Button>
+                    </button>
                 </Tltip>
                 <Tltip direction='top' tltpText='Clear form'>
-                    <Button
-                        className="h-9"
-                        variant='outline'
+                    <button
+                        className="whiteButton py-1"
                         onClick={blankExpense}
                     >
-                        <Eraser />
+                        <Eraser className='size-4' />
                         {getTtl('Clear', ln)}
-                    </Button>
+                    </button>
                 </Tltip>
                 <Tltip direction='top' tltpText='Delete Expense'>
-                    <Button
-                        className="h-9"
-                        variant='outline'
+                    <button
+                        className="whiteButton py-1"
                         onClick={() => deleteCompExp(uidCollection)}
                     >
-                        <Trash />
+                        <Trash className='size-4' />
                         {getTtl('Delete', ln)}
-                    </Button>
+                    </button>
                 </Tltip>
                 {valueExp.id !== '' &&
                     <Tltip direction='top' tltpText='Copy to misc invoices'>
-                        <Button
-                            className="h-9"
-                            variant='outline'
+                        <button
+                            className="whiteButton py-1"
                             onClick={() => copyTomisc(uidCollection)}
                         >
-                            <Copy/>
+                            <Copy className='size-4'/>
                             Copy to misc invoices
-                        </Button>
+                        </button>
                     </Tltip>
                 }
 

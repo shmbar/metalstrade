@@ -178,10 +178,10 @@ useEffect(() => {
 	const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
 
 	let showAmount1 = (x) => {
-
+		const cur = gQ(x.row.original.cur, 'Currency', 'cur') || 'USD';
 		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
-			currency: gQ(x.row.original.cur, 'Currency', 'cur'),
+			currency: cur,
 			minimumFractionDigits: 2
 		}).format(x.getValue())
 	}
@@ -220,7 +220,11 @@ useEffect(() => {
 	{
   accessorKey: 'amount',
   header: getTtl('Amount', ln),
-  cell: EditableCell,
+  cell: (props) => {
+    const isEditMode = !!props.table?.options?.meta?.isEditMode;
+    if (isEditMode) return <EditableCell {...props} />;
+    return <span>{showAmount1(props)}</span>;
+  },
   meta: { filterVariant: 'range' },
 },
 

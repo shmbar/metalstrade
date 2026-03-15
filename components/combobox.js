@@ -141,8 +141,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                                                 </span>
                                                 {selected ? (
                                                     <span
-                                                        className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? 'text-white' : 'text-[var(--endeavour)]'
-                                                            }`}
+                                                        className="absolute inset-y-0 left-0 flex items-center pl-3 text-[var(--endeavour)]"
                                                     >
                                                         <AiOutlineCheck className="size-5" aria-hidden="true" />
                                                     </span>

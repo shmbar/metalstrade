@@ -489,15 +489,15 @@ const InvoiceModal = () => {
 			<Payments showPayments={showPayments} />
 
 
-			<div className="text-lg font-medium leading-5 text-[var(--port-gore)] p-1.5 pl-2 flex gap-2 flex-wrap justify-center md:justify-start ">
+			<div className="p-1.5 pl-2 flex gap-2 flex-wrap justify-center md:justify-start">
 				{!fnl &&
 					<Tltip direction='top' tltpText='Save/Update invoice'>
 						<button
 							type="button"
-							className="blackButton"
+							className="blackButton py-1"
 							onClick={saveData}
 						>
-							<VscSaveAs className='scale-110' />
+							<VscSaveAs className='size-4' />
 							{isButtonDisabled ? getTtl('saving', ln) : getTtl('save', ln)}
 							{isButtonDisabled && <RiRefreshLine className='animate-spin' />}
 						</button>
@@ -505,16 +505,16 @@ const InvoiceModal = () => {
 				<Tltip direction='top' tltpText='Close form'>
 					<button
 						type="button"
-						className="whiteButton" onClick={() => setIsOpen(false)}
+						className="whiteButton py-1" onClick={() => setIsOpen(false)}
 					>
-						<VscClose className='scale-125' />
+						<VscClose className='size-4' />
 						{getTtl('Close', ln)}
 					</button>
 				</Tltip>
 				<Tltip direction='top' tltpText='Create PDF document'>
 					<button
 						type="button"
-						className="whiteButton"
+						className="whiteButton py-1"
 						onClick={() => !fnl ? Pdf(valueInv,
 							reOrderTableInv(valueInv.productsDataInvoice).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
 								.map((values, index) => {
@@ -582,7 +582,7 @@ const InvoiceModal = () => {
 
 						}
 					>
-						<FaFilePdf />
+						<FaFilePdf className='size-4' />
 						PDF
 					</button>
 				</Tltip>
@@ -591,7 +591,7 @@ const InvoiceModal = () => {
 					className="flex items-center gap-2 justify-center rounded-md border bg-red-600 px-4 py-2 text-sm font-medium 
 						text-white hover:bg-red-400 focus:outline-none drop-shadow-lg" onClick={() => setIsFinilizeOpen(true)}
 				>
-					<BsFillSendCheckFill className='scale-110' />
+					<BsFillSendCheckFill className='size-4' />
 					Finalize
 				</button>*/}
 				{/*(fnl && !valueInv.canceled) && <button
@@ -600,17 +600,17 @@ const InvoiceModal = () => {
 						text-white hover:bg-red-400 focus:outline-none drop-shadow-lg" onClick={() => setIsCancelOpen(true)}
 
 				>
-					<GiCancel className='scale-110' />
+					<GiCancel className='size-4' />
 					Cancel Invoice
 			</button>*/}
 				{valueInv.id !== '' &&
 					<Tltip direction='top' tltpText='Shipment expenses'>
 						<button
 							type="button"
-							className="whiteButton" onClick={() => setShowPmntExp('exp')}
+							className="whiteButton py-1" onClick={() => setShowPmntExp('exp')}
 
 						>
-							<TbStackPush className='scale-125' />
+							<TbStackPush className='size-4' />
 							{getTtl('Expenses', ln)}
 						</button>
 					</Tltip>
@@ -618,20 +618,20 @@ const InvoiceModal = () => {
 				<Tltip direction='top' tltpText='Client payments'>
 					{valueInv.id !== '' && <button
 						type="button"
-						className="whiteButton" onClick={() => setShowPmntExp('pmnt')}
+						className="whiteButton py-1" onClick={() => setShowPmntExp('pmnt')}
 
 					>
-						<GiMoneyStack className='scale-125' />
+						<GiMoneyStack className='size-4' />
 						{getTtl('Payments', ln)}
 					</button>}
 				</Tltip>
 				<Tltip direction='top' tltpText='Switch to the contract of this invoice'>
 					<button
 						type="button"
-						className="whiteButton"
+						className="whiteButton py-1"
 						onClick={() => moveToContracts()}
 					>
-						<FaFileContract className='scale-110' />
+						<FaFileContract className='size-4' />
 						{getTtl('Contract', ln)}
 					</button>
 				</Tltip>

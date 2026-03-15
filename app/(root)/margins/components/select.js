@@ -15,7 +15,7 @@ const getCellValue = (props) =>
 const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder }) => {
     const cellValue = getCellValue(props);
     return (
-        <div className="relative">
+        <div className="relative w-full">
            <Select
   value={cellValue}
   onValueChange={(e) => handleChangeSelect(e, props.row.index, month, name)}
@@ -43,7 +43,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
     />
   </SelectTrigger>
 
-  <SelectContent className="z-40  bg-[#fafafa] rounded-xl shadow-lg border border-[#cecece]">
+  <SelectContent className="z-40 bg-[#fafafa] rounded-xl shadow-lg border border-[#cecece]" style={{ maxHeight: '180px' }}>
     <SelectGroup>
       {sortArr(data, 'nname').map((z, i) => (
         <SelectItem

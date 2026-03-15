@@ -21,10 +21,10 @@ export default function InvType({ setSelected, plans, value, ln }) {
                                 }
                                 className={({ active, checked }) =>
                                     `
-                  ${checked ? 'bg-gradient-to-r from-[var(--endeavour)] to-[var(--chathams-blue)] text-white' : 'bg-white border border-[var(--rock-blue)]'
+                  ${checked ? 'bg-[#dbeeff] border border-[var(--endeavour)] text-[var(--endeavour)]' : 'bg-white border border-[#E5E7EB]'
                                     }
                                     ${(value.id !== '' && value.invType === '1111' && (plan.id === '2222' || plan.id === '3333')) ||
-                                        (value.id !== '' && (value.invType === '2222' || value.invType === '3333') && plan.id === '1111') ? 'bg-[var(--selago)] cursor-not-allowed' : 'cursor-pointer'}
+                                        (value.id !== '' && (value.invType === '2222' || value.invType === '3333') && plan.id === '1111') ? 'bg-gray-100 cursor-not-allowed' : 'cursor-pointer'}
                     relative flex rounded-md px-4 py-1.5 shadow-lg focus:outline-none`
                                 }
                             >
@@ -35,8 +35,7 @@ export default function InvType({ setSelected, plans, value, ln }) {
                                                 <div className="text-xs">
                                                     <RadioGroup.Label
                                                         as="p"
-                                                        className={`font-medium  ${checked ? 'text-white' : 'text-[var(--port-gore)]'
-                                                            }`}
+                                                        className={`font-medium ${checked ? 'text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`}
                                                     >
                                                          {getTtl(plan.invType, ln)} 
                                                     </RadioGroup.Label>
@@ -44,7 +43,7 @@ export default function InvType({ setSelected, plans, value, ln }) {
                                                 </div>
                                             </div>
                                             {checked && (
-                                                <div className="shrink-0 text-white">
+                                                <div className="shrink-0 text-[var(--endeavour)]">
                                                     <CheckIcon className="h-5 w-5" />
                                                 </div>
                                             )}
@@ -63,10 +62,9 @@ export default function InvType({ setSelected, plans, value, ln }) {
 function CheckIcon(props) {
     return (
         <svg viewBox="0 0 24 24" fill="none" {...props}>
-            <circle cx={12} cy={12} r={12} fill="#fff" opacity="0.2" />
             <path
                 d="M7 13l3 3 7-7"
-                stroke="#fff"
+                stroke="var(--endeavour)"
                 strokeWidth={1.5}
                 strokeLinecap="round"
                 strokeLinejoin="round"

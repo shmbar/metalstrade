@@ -43,21 +43,21 @@ import { dataIds } from "./funcs";
 import CheckBox from "../../../components/checkbox";
 import Tltip from "../../../components/tlTip";
 
-// COMPACT: Keep current column widths but focus on height reduction
+// Percentage-based widths so table fills available space responsively
 const COLUMN_CONFIGS = {
-    'drag-handle': { width: 50, align: 'center', minWidth: 40 },
-    'date': { width: 120, align: 'center', minWidth: 100 },
-    'purchase': { width: 80, align: 'right', minWidth: 60 },
-    'description': { width: 220, align: 'left', minWidth: 180 },
-    'supplier': { width: 100, align: 'left', minWidth: 80 },
-    'client': { width: 100, align: 'left', minWidth: 80 },
-    'margin': { width: 110, align: 'right', minWidth: 90 },
-    'totalMargin': { width: 130, align: 'right', minWidth: 110 },
-    'shipped': { width: 80, align: 'right', minWidth: 60 },
-    'openShip': { width: 110, align: 'right', minWidth: 90 },
-    'remaining': { width: 120, align: 'right', minWidth: 100 },
-    'gis': { width: 70, align: 'center', minWidth: 60 },
-    'del': { width: 50, align: 'center', minWidth: 40 },
+    'drag-handle': { pct: '3%',  align: 'center' },
+    'date':        { pct: '10%', align: 'center' },
+    'purchase':    { pct: '5%',  align: 'right'  },
+    'description': { pct: '15%', align: 'left'   },
+    'supplier':    { pct: '10%', align: 'left'   },
+    'client':      { pct: '9%',  align: 'left'   },
+    'margin':      { pct: '8%',  align: 'right'  },
+    'totalMargin': { pct: '9%',  align: 'right'  },
+    'shipped':     { pct: '5%',  align: 'right'  },
+    'openShip':    { pct: '7%',  align: 'right'  },
+    'remaining':   { pct: '8%',  align: 'right'  },
+    'gis':         { pct: '4%',  align: 'center' },
+    'del':         { pct: '3%',  align: 'center' },
 };
 
 
@@ -104,9 +104,10 @@ const DraggableRow = ({ row, props, cName }) => {
             key={cell.id}
             style={{
               height: "32px",
-              padding: "4px 6px",
+              padding: "4px 4px",
               verticalAlign: "middle",
-              width: `${columnConfig.width || 100}px`,
+              width: columnConfig.pct || 'auto',
+              overflow: "hidden",
             }}
             className={cn(
               cellAlign === "right" && "text-center",
@@ -155,7 +156,7 @@ const DraggableRow = ({ row, props, cName }) => {
               </Tltip>
             ) : cell.column.id === "supplier" ||
               cell.column.id === "client" ? (
-              <div className="flex items-center w-full">
+              <div className="w-full">
                 <SelectEnt
                   props={cell}
                   data={
@@ -239,68 +240,56 @@ const Customtable = (props) => {
                 id: 'drag-handle',
                 header: '',
                 cell: ({ row }) => <RowDragHandleCell rowId={row.original.id} />,
-                size: COLUMN_CONFIGS['drag-handle'].width,
+                size: 30,
             },
             { 
                 accessorKey: 'date', 
                 header: 'Date',
-                size: COLUMN_CONFIGS['date'].width,
             },
-            { 
-                accessorKey: 'purchase', 
-                header: 'Qty (MT)', 
+            {
+                accessorKey: 'purchase',
+                header: 'Qty (MT)',
                 cell: (props) => <p>{props.getValue()}</p>,
-                size: COLUMN_CONFIGS['purchase'].width,
             },
-            { 
-                accessorKey: 'description', 
+            {
+                accessorKey: 'description',
                 header: 'Description',
-                size: COLUMN_CONFIGS['description'].width,
             },
-            { 
-                accessorKey: 'supplier', 
+            {
+                accessorKey: 'supplier',
                 header: 'Supplier',
-                size: COLUMN_CONFIGS['supplier'].width,
             },
-            { 
-                accessorKey: 'client', 
+            {
+                accessorKey: 'client',
                 header: 'Client',
-                size: COLUMN_CONFIGS['client'].width,
             },
-            { 
-                accessorKey: 'margin', 
+            {
+                accessorKey: 'margin',
                 header: 'Margin',
-                size: COLUMN_CONFIGS['margin'].width,
             },
-            { 
-                accessorKey: 'totalMargin', 
+            {
+                accessorKey: 'totalMargin',
                 header: 'Total Margin',
-                size: COLUMN_CONFIGS['totalMargin'].width,
             },
-            { 
-                accessorKey: 'shipped', 
+            {
+                accessorKey: 'shipped',
                 header: 'Shipped',
-                size: COLUMN_CONFIGS['shipped'].width,
             },
-            { 
-                accessorKey: 'openShip', 
+            {
+                accessorKey: 'openShip',
                 header: 'Open Ship',
-                size: COLUMN_CONFIGS['openShip'].width,
             },
-            { 
-                accessorKey: 'remaining', 
+            {
+                accessorKey: 'remaining',
                 header: 'Remaining',
-                size: COLUMN_CONFIGS['remaining'].width,
             },
-            { 
-                accessorKey: 'gis', 
+            {
+                accessorKey: 'gis',
                 header: cName === 'ims' ? 'GIS' : 'IMS',
-                size: COLUMN_CONFIGS['gis'].width,
             },
-            { 
-                accessorKey: 'del', 
+            {
+                accessorKey: 'del',
                 header: '',
-                size: COLUMN_CONFIGS['del'].width,
             },
         ],
         [cName]
@@ -333,10 +322,10 @@ const Customtable = (props) => {
             sensors={sensors}
         >
             <div className="flex flex-col relative w-full">
-                <div className="rounded-lg border border-[var(--selago)] overflow-visible relative shadow-sm">
+                <div className="rounded-lg border border-[var(--selago)] overflow-x-auto relative shadow-sm">
                     {/* Desktop Table - Compact Heights */}
-                    <div className="hidden sm:block">
-                        <Table className="w-auto min-w-full" style={{ borderSpacing: '0 1px', tableLayout: 'fixed' }}>
+                    <div className="hidden sm:block w-full min-w-[900px]">
+                        <Table className="w-full" style={{ borderSpacing: '0 1px', tableLayout: 'fixed' }}>
                             <TableHeader>
                                 <TableRow>
                                     {table.getHeaderGroups().map((headerGroup) =>
@@ -348,7 +337,7 @@ const Customtable = (props) => {
   style={{
     height: '36px',
     padding: '4px 6px',
-    width: `${(COLUMN_CONFIGS[header.column.id] || {}).width || 100}px`,
+    width: (COLUMN_CONFIGS[header.column.id] || {}).pct || 'auto',
   }}
   className={cn(
     'bg-[#dbeeff] text-[var(--endeavour)] border-b border-[var(--endeavour)]',

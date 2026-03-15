@@ -92,9 +92,14 @@ const Expenses = ({ showExpenses }) => {
                                 return (
                                     <li key={i} onClick={() => selectRow(i)}
                                         className={`items-center py-1 px-1.5 text-[0.75rem] text-slate-700
-									truncate cursor-pointer 
+									truncate cursor-pointer
 									${valueInv.expenses[i]['id'] === valueExp.id && 'font-medium bg-slate-100 '}`}>
                                         {x.expense}
+                                        {x.amount !== '' && x.amount != null &&
+                                            <span className='ml-1 text-[var(--chathams-blue)]'>
+                                                {settings.Currency.Currency.find(c => c.id === x.cur)?.symbol}{Number(x.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </span>
+                                        }
                                     </li>
                                 )
                             })}
