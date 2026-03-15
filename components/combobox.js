@@ -82,7 +82,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled} >
                 <div className="relative my-1">
                     <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-white text-left
-                     focus:outline-none sm:text-sm border border-[#E5E7EB] hover:border-[var(--rock-blue)] transition-colors h-8 ${classes}`}>
+                     focus:outline-none sm:text-sm border border-[#b8ddf8] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
                             className={`w-full py-2 pl-3 pr-10 text-xs ${classes2} leading-5 text-[var(--endeavour)] focus:outline-none`}
                             displayValue={(value) => (data.find(y => y.id === value[name]) || {})[name] || value[name]}

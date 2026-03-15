@@ -93,10 +93,10 @@ const Stocks = () => {
         <div className='p-4 rounded-2xl flex flex-col md:flex-row w-full gap-4'>
             <div className="md:px-5 w-full md:w-[27%] flex-shrink-0 rounded-2xl p-2 bg-[#e3f3ff]">
                 <p className='flex items-center text-sm font-medium pl-2 text-[var(--endeavour)] whitespace-nowrap'>{getTtl('Stocks', ln)}:</p>
-                <ul className="flex flex-col overflow-auto mt-1 bg-[#e3f3ff] py-2">
+                <ul className="flex flex-col mt-1 bg-[#e3f3ff] py-2 max-h-80 overflow-auto custom-scroll">
                     {sortArr((settings?.Stocks?.Stocks ?? []).filter(x => !x.deleted), 'stock').map((x, i) => (
                         <li key={i} onClick={() => SelectStock(x)}
-                            className={`whitespace-nowrap cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--endeavour)] ${value.id === x.id && 'font-medium bg-white'}`}>
+                            className={`cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--endeavour)] rounded-full hover:bg-[#dbeeff] ${value.id === x.id && 'font-medium bg-white'}`}>
                             {x.stock}
                         </li>
                     ))}

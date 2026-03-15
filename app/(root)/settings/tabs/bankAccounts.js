@@ -84,7 +84,7 @@ const BankAccount = () => {
                 <ul className="flex flex-col overflow-auto mt-1 bg-[#e3f3ff] py-2">
                     {(settings['Bank Account']?.['Bank Account'] || []).filter(x => !x.deleted).map((x, i) => (
                         <li key={i} onClick={() => SelectBank(x)}
-                            className={`whitespace-nowrap cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--endeavour)] rounded-full ${value.id === x.id && 'font-medium bg-white'}`}>
+                            className={`cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--endeavour)] rounded-full hover:bg-[#dbeeff] ${value.id === x.id && 'font-medium bg-white'}`}>
                             {x.bankNname}
                         </li>
                     ))}

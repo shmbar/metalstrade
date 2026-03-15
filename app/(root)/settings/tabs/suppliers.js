@@ -79,10 +79,10 @@ const Suppliers = () => {
         <div className='p-2 rounded-2xl flex flex-col md:flex-row w-full gap-4'>
             <div className='p-4 rounded-2xl mt-1 shadow-md w-full md:w-[28%] bg-[#e3f3ff]'>
                 <p className='flex items-center text-sm font-medium pl-2 text-[var(--endeavour)]'>{getTtl('Suppliers', ln)}:</p>
-                <ul className="flex flex-col mt-2 max-h-80 overflow-auto p-2">
+                <ul className="flex flex-col mt-2 max-h-80 overflow-auto p-2 custom-scroll">
                     {sortArr((settings.Supplier?.Supplier || []).filter(q => !q.deleted), 'supplier').map((x, i) => (
                         <li key={i} onClick={() => SelectSupplier(x)}
-                            className={`whitespace-nowrap cursor-pointer py-2 px-4 text-xs rounded-xl transition-all duration-200 text-[var(--endeavour)] ${value.id === x.id ? 'bg-white shadow-sm font-medium' : 'bg-transparent hover:bg-white/20'}`}>
+                            className={`cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--endeavour)] rounded-full hover:bg-[#dbeeff] ${value.id === x.id && 'font-medium bg-white'}`}>
                             {x.supplier}
                         </li>
                     ))}
