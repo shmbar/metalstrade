@@ -117,54 +117,18 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
 
                     {/* Mobile Layout */}
                     <div className="block md:hidden stats-cards">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-3">
                             {cards.map((card, idx) => (
                                 <div
                                     key={idx}
-                                    className="stats-card rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
-                                    style={{
-                                        backgroundColor: '#FFFFFF',
-                                        border: '1px solid #E5E7EB',
-                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
-                                    }}
+                                    className="stats-card flex flex-col items-center justify-center rounded-full bg-white py-2 px-2 shadow-lg border border-white/20"
+                                    style={{ boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)' }}
                                 >
-                                    {/* Mobile Card Header */}
-                                    <div 
-                                        className="px-3 py-2 flex items-center justify-center"
-                                        style={{ 
-                                            background: card.bgGradient,
-                                        }}
-                                    >
-                                        <span 
-                                            className="font-normal text-white text-center"
-                                            style={{ 
-                                                fontSize: 'clamp(8px, 0.7vw, 9px)',
-                                                textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
-                                                letterSpacing: '0.02em',
-                                                fontWeight: '700'
-                                            }}
-                                        >
-                                            {card.label}
-                                        </span>
-                                    </div>
-
-                                    {/* Mobile Card Content */}
-                                    <div className="p-3 flex items-center justify-center">
-                                        <div 
-                                            className="font-normal break-words text-center" 
-                                            style={{ 
-                                                color: '#1F2937',
-                                                fontSize: 'clamp(10px, 0.9vw, 12px)',
-                                                fontWeight: '700'
-                                            }}
-                                        >
-                                            {React.cloneElement(card.value, {
-                                                style: {
-                                                    fontSize: 'clamp(10px, 0.9vw, 12px)',
-                                                    fontWeight: '700'
-                                                }
-                                            })}
-                                        </div>
+                                    <span className="text-[13px] font-bold text-[var(--endeavour)] text-center px-2">
+                                        {card.label}
+                                    </span>
+                                    <div className="text-[13px] font-bold text-[var(--endeavour)] text-center">
+                                        {card.value}
                                     </div>
                                 </div>
                             ))}

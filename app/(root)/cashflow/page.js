@@ -1243,7 +1243,7 @@ return (
                                                             <input className={cn('items-center flex-1 min-w-0 outline-none h-6 bg-transparent text-[var(--chathams-blue)]',
                                                                 z.title === '' ? 'input' : '')} value={z.title}
                                                                 onChange={e => handleChangeFinance(e, i, 'left', 'title')} />
-                                                            <input className={cn('h-6 bg-transparent w-full text-[var(--chathams-blue)]',
+                                                            <input className={cn('h-6 bg-transparent w-24 flex-shrink-0 text-[var(--chathams-blue)]',
                                                                 z.num === '' ? 'input text-left' : 'text-right outline-none')}
                                                                 value={addComma(z.num)} onChange={e => handleChangeFinance(e, i, 'left', 'num')}
                                                             />
@@ -1521,7 +1521,7 @@ return (
                                                             <input className={cn('items-center flex-1 min-w-0 outline-none h-6 text-[var(--chathams-blue)] bg-transparent',
                                                                 z.title === '' ? 'input' : '')}
                                                                 value={z.title} onChange={e => handleChangeFinance(e, i, 'right', 'title')} />
-                                                            <input className={cn('w-full h-6 text-[var(--chathams-blue)] outline-none bg-transparent',
+                                                            <input className={cn('w-24 flex-shrink-0 h-6 text-[var(--chathams-blue)] outline-none bg-transparent',
                                                                 z.num === '' ? 'input text-left' : 'text-right')}
                                                                 value={addComma(z.num)} onChange={e => handleChangeFinance(e, i, 'right', 'num')} />
                                                         </div>
