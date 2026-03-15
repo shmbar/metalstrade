@@ -176,7 +176,7 @@ const ContractModal = () => {
 				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex pt-1 text-xs items-center font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
-						<div className='w-full md:w-44'>
+						<div className='w-full md:w-44 min-w-0'>
 							<Selector arr={settings.Shipment.Shipment} value={valueCon}
 								onChange={(e) => handleChange(e, 'shpType')}
 								name='shpType'
@@ -184,18 +184,18 @@ const ContractModal = () => {
 							<ErrDiv field='shpType' errors={errors} ln={ln} />
 						</div>
 					</div>
-					<div className='flex gap-4 justify-between pt-1'>
+					<div className='flex gap-4 justify-between pt-1 overflow-hidden'>
 						<p className='flex text-xs items-center font-medium whitespace-nowrap'>{getTtl('Origin', ln)}:</p>
-						<div className='w-full md:w-44'>
+						<div className='w-full md:w-44 min-w-0'>
 							<Selector arr={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]} value={valueCon}
 								onChange={(e) => handleChange(e, 'origin')}
 								name='origin'
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex gap-4 justify-between pt-1'>
+					<div className='flex gap-4 justify-between pt-1 overflow-hidden'>
 						<p className='flex text-xs items-center font-medium whitespace-nowrap'>{getTtl('Delivery Terms', ln)}:</p>
-						<div className='w-full md:w-44'>
+						<div className='w-full md:w-44 min-w-0'>
 							<Selector arr={settings['Delivery Terms']['Delivery Terms']} value={valueCon}
 								onChange={(e) => handleChange(e, 'delTerm')}
 								name='delTerm'
@@ -207,25 +207,25 @@ const ContractModal = () => {
 				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex text-xs items-center font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
-						<div className='w-full md:w-44'>
+						<div className='w-full md:w-44 min-w-0'>
 							<Selector arr={settings.POL.POL} value={valueCon}
 								onChange={(e) => handleChange(e, 'pol')}
 								name='pol'
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex gap-4 justify-between pt-1'>
+					<div className='flex gap-4 justify-between pt-1 overflow-hidden'>
 						<p className='flex text-xs items-center font-medium whitespace-nowrap'>{getTtl('POD', ln)}:</p>
-						<div className='w-full md:w-44'>
+						<div className='w-full md:w-44 min-w-0'>
 							<Selector arr={settings.POD.POD} value={valueCon}
 								onChange={(e) => handleChange(e, 'pod')}
 								name='pod'
 								clear={clear} disabled={firstRule} />
 						</div>
 					</div>
-					<div className='flex gap-4 justify-between pt-1'>
+					<div className='flex gap-4 justify-between pt-1 overflow-hidden'>
 						<p className='flex text-xs items-center font-medium whitespace-nowrap'>{getTtl('Packing', ln)}:</p>
-						<div className='w-full md:w-44'>
+						<div className='w-full md:w-44 min-w-0'>
 							<Selector arr={settings.Packing.Packing} value={valueCon}
 								onChange={(e) => handleChange(e, 'packing')}
 								name='packing'
@@ -237,26 +237,26 @@ const ContractModal = () => {
 				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex text-xs items-center font-medium whitespace-nowrap'>{getTtl('Container Type', ln)}:</p>
-						<div className='w-full md:w-44'>
+						<div className='w-full md:w-44 min-w-0'>
 							<Selector arr={settings['Container Type']['Container Type']} value={valueCon}
 								onChange={(e) => handleChange(e, 'contType')}
 								name='contType' disabled={secondRule}
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex gap-4 justify-between pt-1'>
+					<div className='flex gap-4 justify-between pt-1 overflow-hidden'>
 						<p className='flex text-xs items-center font-medium whitespace-nowrap'>{getTtl('Size', ln)}:</p>
-						<div className='w-full md:w-44'>
+						<div className='w-full md:w-44 min-w-0'>
 							<Selector arr={settings.Size.Size} value={valueCon}
 								onChange={(e) => handleChange(e, 'size')}
 								name='size'
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex gap-4 justify-between pt-1'>
+					<div className='flex gap-4 justify-between pt-1 overflow-hidden'>
 						<p className='flex text-xs items-center font-medium whitespace-nowrap'>{getTtl('Delivery Time', ln)}:</p>
 						{!valueCon.isDeltimeText ?
-							<div className='w-full md:w-44'>
+							<div className='w-full md:w-44 min-w-0'>
 								<Selector arr={[...settings['Delivery Time']['Delivery Time'], { deltime: '..Edit Text', id: 'EditTextDelTime' }]}
 									value={valueCon}
 									onChange={(e) => handleChange(e, 'deltime')}
@@ -298,7 +298,7 @@ const ContractModal = () => {
 				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-4 justify-between'>
 						<p className='flex pt-1 text-xs items-center font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
-						<div className='w-full md:w-44'>
+						<div className='w-full md:w-44 min-w-0'>
 							<Selector arr={settings.Currency.Currency} value={valueCon}
 								onChange={(e) => handleChange(e, 'cur')}
 								name='cur'
@@ -308,7 +308,7 @@ const ContractModal = () => {
 					</div>
 					<div className='flex gap-4 justify-between items-center pt-1'>
 						<p className='flex text-xs items-center font-medium whitespace-nowrap'>{getTtl('Quantity', ln)}:</p>
-						<div className='w-full md:w-44'>
+						<div className='w-full md:w-44 min-w-0'>
 							<Selector arr={settings.Quantity.Quantity} value={valueCon}
 								onChange={(e) => handleChange(e, 'qTypeTable')}
 								name='qTypeTable'
