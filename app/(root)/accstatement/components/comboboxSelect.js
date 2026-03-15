@@ -55,39 +55,33 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                         leaveTo="opacity-0"
                         afterLeave={() => setQuery('')}
                     >
-                        <ComboboxOptions className={`z-10 absolute mt-1 max-h-60 w-full overflow-auto rounded-md 
-                        bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none 
+                        <ComboboxOptions className={`z-[9999] absolute mt-1 max-h-60 w-full overflow-auto rounded-xl
+                        bg-white py-1 text-base shadow-lg border border-[#dbeeff] focus:outline-none
                         sm:text-sm ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (
-                                <div className="relative cursor-default select-none py-2 px-4 text-gray-700 text-xs">
+                                <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] text-xs">
                                     Nothing found.
                                 </div>
                             ) : (
 
-                                filteredData.map((x) => ( //slice(1)
+                                filteredData.map((x) => (
                                     <ComboboxOption
                                         key={x.id}
                                         className={cn(
-                                            'relative cursor-default select-none py-1 text-xs pl-10 pr-4 text-gray-900 hover:bg-[var(--selago)]',
+                                            'relative cursor-default select-none py-1 text-xs pl-10 pr-4 text-[var(--port-gore)]',
                                             selected.id === x.id
-                                                ? 'bg-[var(--rock-blue)] text-white hover:bg-[var(--rock-blue)]'
-                                                : ''
+                                                ? 'bg-[#dbeeff] text-[var(--endeavour)]'
+                                                : 'hover:bg-[#dbeeff] hover:text-[var(--endeavour)]'
                                         )}
                                         value={x}
                                     >
                                         {({ focus, selected }) => (
                                             <>
-                                                <span
-                                                    className={`block truncate ${selected ? 'font-bold' : 'font-normal'
-                                                        }`}
-                                                >
+                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
                                                     {x[name]}
                                                 </span>
                                                 {selected ? (
-                                                    <span
-                                                        className={`absolute inset-y-0 left-0 flex items-center pl-3 ${selected.id === x.id ? 'text-teal-600' : 'text-white'
-                                                            }`}
-                                                    >
+                                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[var(--endeavour)]">
                                                         <AiOutlineCheck className="h-5 w-5" aria-hidden="true" />
                                                     </span>
                                                 ) : null}
