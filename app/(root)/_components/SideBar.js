@@ -111,25 +111,27 @@ export default function Sidebar() {
     display: "flex",
     alignItems: "center",
     cursor: "pointer",
-    borderRadius: "10px",
+    borderRadius: isCollapsed ? "10px" : "10px",
     background: active ? "#ffffff" : "transparent",
     boxShadow: active ? "0 2px 10px 0 rgba(44, 130, 201, 0.18)" : "none",
     fontWeight: active ? 600 : 400,
     color: "#003366",
-    marginLeft: "8px",
-    marginRight: "8px",
-    marginBottom: "clamp(1px, 0.15vh, 2px)",
-    paddingTop: "clamp(4px, 0.5vh, 6px)",
-    paddingBottom: "clamp(4px, 0.5vh, 6px)",
+    marginLeft: isCollapsed ? "auto" : "8px",
+    marginRight: isCollapsed ? "auto" : "8px",
+    marginBottom: isCollapsed ? "0px" : "clamp(1px, 0.15vh, 2px)",
+    paddingTop: isCollapsed ? "2px" : "clamp(4px, 0.5vh, 6px)",
+    paddingBottom: isCollapsed ? "2px" : "clamp(4px, 0.5vh, 6px)",
     paddingLeft: isCollapsed ? "0" : "16px",
-    paddingRight: "8px",
+    paddingRight: isCollapsed ? "0" : "8px",
+    width: isCollapsed ? "36px" : "auto",
+    height: isCollapsed ? "36px" : "auto",
     gap: isCollapsed ? "0" : "clamp(5px, 0.7vw, 7px)",
     justifyContent: isCollapsed ? "center" : "flex-start",
     transition: "background 0.15s, box-shadow 0.15s",
   });
 
   const hoverOn = (e, active) => {
-    if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.6)";
+    if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.7)";
   };
   const hoverOff = (e, active) => {
     if (!active) e.currentTarget.style.background = "transparent";
@@ -195,7 +197,7 @@ export default function Sidebar() {
       }}>
 
         {/* Search */}
-        <div style={{ padding: "12px 16px 8px 16px" }}>
+        <div style={{ padding: "12px 16px 8px 16px", display: collapsed ? "none" : "block" }}>
           <div style={{ position: "relative", width: "100%" }}>
             <span style={{
               position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)",
@@ -229,8 +231,8 @@ export default function Sidebar() {
           </div>
         </div>
 
-        <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-          <ul style={{ paddingTop: "clamp(4px,0.5vh,6px)", paddingBottom: "clamp(4px,0.5vh,6px)" }}>
+        <nav className={`flex-1 min-h-0 overflow-x-hidden ${collapsed ? 'overflow-y-hidden' : 'overflow-y-auto'}`}>
+          <ul style={{ paddingTop: collapsed ? "2px" : "clamp(4px,0.5vh,6px)", paddingBottom: collapsed ? "60px" : "clamp(4px,0.5vh,6px)" }}>
 
             {/* ── SEARCH RESULTS MODE ─────────────────────────────────────────── */}
             {isSearching ? (
@@ -319,7 +321,7 @@ export default function Sidebar() {
                   ? isOpen
                   : sectionHasActiveItem && !anyDropdownOpen;
 
-                const sectionWrapStyle = shouldHighlightSection
+                const sectionWrapStyle = shouldHighlightSection && !collapsed
                   ? {
                       background: "#d4eafc",
                       borderRadius: "12px",
@@ -446,22 +448,27 @@ export default function Sidebar() {
             <div style={{
               position: "fixed", bottom: 18, left: 0,
               width: collapsed ? "60px" : "clamp(220px, 18vw, 260px)",
-              zIndex: 0, padding: "0 16px", display: "flex", justifyContent: "center",
+              zIndex: 0, padding: collapsed ? "0 8px" : "0 16px", display: "flex", justifyContent: "center",
             }}>
               <div style={{
                 display: "flex", alignItems: "center",
                 background: "#fff", borderRadius: "999px",
                 boxShadow: "0 2px 8px 0 rgba(44,130,201,0.10)",
-                padding: "6px 18px 6px 10px",
-                minWidth: 0, width: "100%", maxWidth: 260, gap: 10,
+                padding: collapsed ? "5px" : "6px 18px 6px 10px",
+                minWidth: 0, width: "100%", maxWidth: 260, gap: collapsed ? 0 : 10,
+                justifyContent: "center",
               }}>
                 <img src="/logo/person.svg" alt="Profile" style={{ width: 28, height: 28, borderRadius: "50%", background: "#f3f6fa", objectFit: "cover" }} />
-                <span style={{ color: "#2176ae", fontWeight: 600, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
-                  {user?.displayName || user?.email?.split('@')[0] || 'User'}
-                </span>
-                <Link href="/settings" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <img src="/logo/Settings.svg" alt="Settings" style={{ width: 22, height: 22, marginLeft: 4, cursor: "pointer" }} />
-                </Link>
+                {!collapsed && (
+                  <span style={{ color: "#2176ae", fontWeight: 600, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
+                    {user?.displayName || user?.email?.split('@')[0] || 'User'}
+                  </span>
+                )}
+                {!collapsed && (
+                  <Link href="/settings" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <img src="/logo/Settings.svg" alt="Settings" style={{ width: 26, height: 26, marginLeft: 4, cursor: "pointer", filter: "brightness(0) saturate(100%) invert(18%) sepia(60%) saturate(800%) hue-rotate(190deg)" }} />
+                  </Link>
+                )}
               </div>
             </div>
 
