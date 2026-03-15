@@ -94,14 +94,14 @@ const Customtable = ({ data, propDefaults, val, mult }) => {
 
 			<div className="overflow-x-auto rounded-lg">
 				<table className='w-full'>
-					<thead className="bg-slate-500 divide-y divide-gray-200 ">
+					<thead style={{ background: '#dbeeff' }} className="divide-y divide-[#b8ddf8]">
 						<tr className='border-b '>
 							{cols.map(x => x.header)
 								.map((y, k) => (
 									<th
 										scope="col"
 										key={k}
-										className="px-3 py-1 text-left text-[0.6rem] font-medium uppercase text-white"
+										className="px-3 py-1 text-left text-[0.6rem] font-medium uppercase text-[var(--chathams-blue)]"
 									>
 										{y}
 									</th>

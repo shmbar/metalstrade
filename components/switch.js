@@ -6,7 +6,7 @@ const Switcher = ({ enabled, setEnabled }) => {
             <Switch
                 checked={enabled}
                 onChange={setEnabled}
-                className={`${enabled ? 'bg-slate-900' : 'bg-slate-500'}
+                className={`${enabled ? 'bg-[var(--endeavour)]' : 'bg-[#b8ddf8]'}
           relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
             >
                 <span className="sr-only">Use setting</span>
