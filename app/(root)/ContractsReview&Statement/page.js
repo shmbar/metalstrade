@@ -163,7 +163,7 @@ const arrayIncludesString = (row, columnId, filterValue) => {
 
 const CB = (settings, setValCur, valCur) => {
     return (
-        <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='input border-slate-300 shadow-sm items-center flex'
+        <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='input border-slate-300 shadow-sm items-center flex max-w-[100px] !h-7'
             classes2='text-lg' dis={true} />
     )
 }

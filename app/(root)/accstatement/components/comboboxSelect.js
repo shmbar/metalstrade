@@ -3,7 +3,6 @@ import {
     Combobox, Transition, ComboboxInput, ComboboxButton,
     ComboboxOptions, ComboboxOption
 } from '@headlessui/react'
-import { AiOutlineCheck } from 'react-icons/ai';
 import { HiChevronUpDown } from 'react-icons/hi2';
 import { cn } from '../../../../lib/utils';
 
@@ -55,7 +54,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                         leaveTo="opacity-0"
                         afterLeave={() => setQuery('')}
                     >
-                        <ComboboxOptions className={`z-[9999] absolute mt-1 max-h-60 w-full overflow-auto rounded-xl
+                        <ComboboxOptions className={`z-[9999] absolute mt-1 max-h-60 w-full overflow-auto custom-scroll rounded-xl
                         bg-white py-1 text-base shadow-lg border border-[#dbeeff] focus:outline-none
                         sm:text-sm ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (
@@ -68,7 +67,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                                     <ComboboxOption
                                         key={x.id}
                                         className={cn(
-                                            'relative cursor-default select-none py-1 text-xs pl-10 pr-4 text-[var(--port-gore)]',
+                                            'relative cursor-default select-none py-1 text-xs pl-2 pr-2 text-[var(--port-gore)]',
                                             selected.id === x.id
                                                 ? 'bg-[#dbeeff] text-[var(--endeavour)]'
                                                 : 'hover:bg-[#dbeeff] hover:text-[var(--endeavour)]'
@@ -76,16 +75,9 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                                         value={x}
                                     >
                                         {({ focus, selected }) => (
-                                            <>
-                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
-                                                    {x[name]}
-                                                </span>
-                                                {selected ? (
-                                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[var(--endeavour)]">
-                                                        <AiOutlineCheck className="h-5 w-5" aria-hidden="true" />
-                                                    </span>
-                                                ) : null}
-                                            </>
+                                            <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                {x[name]}
+                                            </span>
                                         )}
                                     </ComboboxOption>
                                 ))

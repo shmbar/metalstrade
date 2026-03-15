@@ -81,7 +81,7 @@ const AccountStatement = () => {
           idx={0}
           value={settings.Client.Client.find(z => z.id === selectedClient.client)}
           name='nname'
-          classes='shadow-md h-10'
+          classes='shadow-md h-10 max-w-[140px]'
           plcHolder='Select client' />
         <div className='flex group datepicker-wrapper [&_.rotate-45]:!hidden'>
           <Datepicker
