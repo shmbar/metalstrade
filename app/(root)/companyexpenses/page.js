@@ -171,10 +171,11 @@ const Expenses = () => {
     const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
 
     let showAmount1 = (x) => {
-
+        const rawCur = (gQ(x.row.original.cur, 'Currency', 'cur') || '').toUpperCase();
+        const currency = rawCur === 'US' ? 'USD' : rawCur === 'EU' ? 'EUR' : (rawCur || 'USD');
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: gQ(x.row.original.cur, 'Currency', 'cur'),
+            currency,
             minimumFractionDigits: 2
         }).format(x.getValue())
     }
@@ -183,7 +184,7 @@ const Expenses = () => {
     let colsTotals = Object.keys(settings).length === 0 ? [] : [
         {
             accessorKey: 'supplier', header: getTtl('Vendor', ln),
-            cell: (props) => <p>{props.getValue('supplier')}</p>
+            cell: (props) => <p>{gQ(props.getValue(), 'Supplier', 'nname')}</p>
         },
         {
             accessorKey: 'amount', header: getTtl('Amount', ln),
@@ -234,7 +235,7 @@ const Expenses = () => {
                                 columns={propDefaults}
                                 SelectRow={SelectRow}
                                 excellReport={EXD(expensesData.filter(x => filteredId.includes(x.id)), settings, getTtl('Company Expenses', ln), ln)}
-                                setFilteredId={setFilteredId}
+                                setFilteredData={(rows) => setFilteredId(rows.map(x => x.id))}
                                 invisible={invisible}
                             />
 

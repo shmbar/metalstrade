@@ -177,8 +177,9 @@ const Customtable = ({
           color: #1a3a1a;
           font-weight: 600;
         }
-        .summary-green th, .summary-green div {
+        .summary-green th {
           color: #1a3a1a !important;
+          border: none !important;
         }
 
         .summary-blue {
@@ -186,8 +187,9 @@ const Customtable = ({
           color: var(--chathams-blue);
           font-weight: 600;
         }
-        .summary-blue th, .summary-blue div {
+        .summary-blue th {
           color: var(--chathams-blue) !important;
+          border: none !important;
         }
 
         .pagination-center {
@@ -258,34 +260,43 @@ const Customtable = ({
   }}
 >
                    <thead>
-              <tr className="summary-green">
-                <th colSpan={columns.length}>
-                  <div className="grid grid-cols-4 w-full font-normal">
-                    <div className="text-left pl-6">Total $:</div>
-                    <div>$ 0.00</div>
-                    <div>$ 0.00</div>
-                    <div>$ 0.00</div>
-                  </div>
-                </th>
-              </tr>
-
-              <tr className="summary-blue">
-                <th colSpan={columns.length}>
-                  <div className="grid grid-cols-4 w-full font-normal">
-                    <div className="text-left pl-6">Total €:</div>
-                    <div>€ 0.00</div>
-                    <div>€ 0.00</div>
-                    <div>€ 0.00</div>
-                  </div>
-                </th>
-              </tr>
+              {table.getHeaderGroups().map(hdGroup => (
+                <Fragment key={hdGroup.id + '-totals'}>
+                  <tr className="summary-green">
+                    {hdGroup.headers.map(header => (
+                      <th key={header.id} className="py-1.5 text-xs font-normal text-left px-2">
+                        {header.id === 'supplier' ? 'Total $:' :
+                          header.id === 'cur' ? 'USD' :
+                            header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(
+                              table.getFilteredRowModel().rows.reduce((sum, row) => {
+                                const cur = (row.original.cur || '').toUpperCase();
+                                return sum + (cur === 'USD' || cur === 'US' ? (row.original.amount * 1 || 0) : 0);
+                              }, 0)) : ''}
+                      </th>
+                    ))}
+                  </tr>
+                  <tr className="summary-blue">
+                    {hdGroup.headers.map(header => (
+                      <th key={header.id} className="py-1.5 text-xs font-normal text-left px-2">
+                        {header.id === 'supplier' ? 'Total €:' :
+                          header.id === 'cur' ? 'EUR' :
+                            header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(
+                              table.getFilteredRowModel().rows.reduce((sum, row) => {
+                                const cur = (row.original.cur || '').toUpperCase();
+                                return sum + (cur === 'EUR' || cur === 'EU' ? (row.original.amount * 1 || 0) : 0);
+                              }, 0)) : ''}
+                      </th>
+                    ))}
+                  </tr>
+                </Fragment>
+              ))}
 
               {/* ======= HEADER ======= */}
               {table.getHeaderGroups().map(hdGroup => (
                 <Fragment key={hdGroup.id}>
                   <tr>
                     {hdGroup.headers.map(header => (
-                      <th key={header.id} className="header-blue py-3 font-bold font-poppins">
+                      <th key={header.id} className="header-blue py-1.5 font-bold font-poppins">
                         {flexRender(header.column.columnDef.header, header.getContext())}
                       </th>
                     ))}
@@ -349,7 +360,7 @@ const Customtable = ({
         return (
           <td
             key={cell.id}
-            className="px-2 py-2 text-center"
+            className="px-2 py-0.5 text-center"
             style={{
               minWidth: isSelect ? '40px' : '60px',
               maxWidth: isSelect ? '40px' : '150px',
@@ -395,15 +406,14 @@ const Customtable = ({
                     className="px-3 py-1.5 rounded-xl text-[10px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
                     style={{
                       backgroundColor:
-                        value === 'Paid'
-                          ? '#ede9fe'
-                          : value === 'Unpaid'
-                          ? '#ede9fe'
-                          : '#f9f9f9',
-                      border: '1px solid #cecece',
-                      ...(isEditMode && {
-                        boxShadow: 'inset 0 0 0 1px #d1d1d1'
-                      })
+                        value === 'Paid' ? '#ede9fe' :
+                        value === 'Unpaid' ? '#fce7f3' : '#f9f9f9',
+                      color:
+                        value === 'Paid' ? '#7c3aed' :
+                        value === 'Unpaid' ? '#be185d' : '#1F2937',
+                      border: `1px solid ${value === 'Paid' ? '#ddd6fe' : value === 'Unpaid' ? '#fbcfe8' : '#cecece'}`,
+                      fontWeight: value === 'Paid' || value === 'Unpaid' ? '600' : '400',
+                      ...(isEditMode && { boxShadow: 'inset 0 0 0 1px #d1d1d1' })
                     }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

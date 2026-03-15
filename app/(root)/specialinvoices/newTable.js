@@ -289,7 +289,7 @@ const Customtable = ({
                             </div>
                         );
                     })()}
-                        <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight }}>
+                        <div className="overflow-x-auto dashboard-scroll">
                             <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0 }}>
 
                                 {/* THEAD */}

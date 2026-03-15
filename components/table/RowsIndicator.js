@@ -44,7 +44,7 @@ const RowsIndicator = ({ table }) => {
 									<MenuItem key={i}>
 										<button
 											className={`${table.getState().pagination.pageSize === x
-												? 'bg-gradient-to-r from-[var(--endeavour)] to-[var(--chathams-blue)] text-white'
+												? 'bg-[#dbeeff] text-[var(--endeavour)] font-semibold'
 												: 'text-[var(--port-gore)]'
 												} flex w-full items-center rounded-lg px-2 py-1.5 text-[0.72rem] mt-0.5 justify-center
 														${table.getState().pagination.pageSize !== x ? ' hover:bg-[var(--selago)]' : null}`}

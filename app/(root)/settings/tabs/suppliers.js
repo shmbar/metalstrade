@@ -13,7 +13,7 @@ import { RiEraserLine } from 'react-icons/ri';
 
 const Suppliers = () => {
 
-    const { settings, updateSettings, compData, setToast } = useContext(SettingsContext);
+    const { settings, updateSettings, compData } = useContext(SettingsContext);
     const [value, setValue] = useState({
         supplier: '', street: '', city: '', country: '', other1: '', nname: '', poc: '',
         email: '', phone: '', mobile: '', fax: '', other2: '', deleted: false
@@ -32,7 +32,6 @@ const Suppliers = () => {
             let newArr = [...settings.Supplier.Supplier, { ...value, id: uuidv4() }];
             const newObj = { ...settings.Supplier, Supplier: newArr }
             updateSettings(uidCollection, newObj, 'Supplier', true)
-            setToast({ show: true, clr: 'success', text: 'Supplier saved successfully!' })
             clickClear()
         }
     };
@@ -45,7 +44,6 @@ const Suppliers = () => {
             let newArr = settings.Supplier.Supplier.map((x, i) => x.id === value.id ? value : x)
             const newObj = { ...settings.Supplier, Supplier: newArr }
             updateSettings(uidCollection, newObj, 'Supplier', true)
-            setToast({ show: true, clr: 'success', text: 'Supplier updated successfully!' })
         }
     }
 
