@@ -121,7 +121,7 @@ export default function Sidebar() {
     marginBottom: isCollapsed ? "0px" : "clamp(1px, 0.15vh, 2px)",
     paddingTop: isCollapsed ? "2px" : "clamp(4px, 0.5vh, 6px)",
     paddingBottom: isCollapsed ? "2px" : "clamp(4px, 0.5vh, 6px)",
-    paddingLeft: isCollapsed ? "0" : "16px",
+    paddingLeft: isCollapsed ? "0" : "12px",
     paddingRight: isCollapsed ? "0" : "8px",
     width: isCollapsed ? "36px" : "auto",
     height: isCollapsed ? "36px" : "auto",
@@ -144,7 +144,7 @@ export default function Sidebar() {
       </span>
       {!collapsed && (
         <span style={{
-          fontSize: "clamp(9px, 0.75vw, 11px)",
+          fontSize: "clamp(10px, 0.80vw, 12px)",
           whiteSpace: "nowrap",
           overflow: "hidden",
           textOverflow: "ellipsis",
@@ -196,40 +196,7 @@ export default function Sidebar() {
         overflow: "hidden",
       }}>
 
-        {/* Search */}
-        <div style={{ padding: "12px 16px 8px 16px", display: collapsed ? "none" : "block" }}>
-          <div style={{ position: "relative", width: "100%" }}>
-            <span style={{
-              position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)",
-              color: "#003366", opacity: 0.7, pointerEvents: "none",
-              display: "flex", alignItems: "center", fontSize: "clamp(13px, 0.9vw, 15px)",
-            }}>
-              <FiSearch />
-            </span>
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-7 pr-6 py-1 rounded-xl bg-white border-none focus:outline-none focus:ring-2 focus:ring-blue-200 text-[#003366]"
-              style={{ fontSize: "clamp(10px, 0.8vw, 13px)", height: "28px", boxShadow: "0 2px 8px 0 rgba(44,130,201,0.08)" }}
-            />
-            {/* Clear button */}
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                style={{
-                  position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
-                  color: "#003366", opacity: 0.4, background: "none", border: "none",
-                  cursor: "pointer", display: "flex", alignItems: "center", padding: 0,
-                  fontSize: 14, lineHeight: 1,
-                }}
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </div>
+{/* Search bar hidden */}
 
         <nav className={`flex-1 min-h-0 overflow-x-hidden ${collapsed ? 'overflow-y-hidden' : 'overflow-y-auto'}`}>
           <ul style={{ paddingTop: collapsed ? "2px" : "clamp(4px,0.5vh,6px)", paddingBottom: collapsed ? "60px" : "clamp(4px,0.5vh,6px)" }}>
@@ -242,7 +209,7 @@ export default function Sidebar() {
                     textAlign: "center",
                     color: "#003366",
                     opacity: 0.45,
-                    fontSize: "clamp(9px, 0.75vw, 11px)",
+                    fontSize: "clamp(10px, 0.80vw, 12px)",
                     padding: "20px 16px",
                   }}>
                     No results found
@@ -256,7 +223,7 @@ export default function Sidebar() {
                       textTransform: "uppercase",
                       color: "#003366",
                       opacity: 0.5,
-                      paddingLeft: "16px",
+                      paddingLeft: "12px",
                       paddingBottom: "4px",
                       paddingTop: "2px",
                     }}>
@@ -284,7 +251,7 @@ export default function Sidebar() {
                               {!collapsed && (
                                 <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
                                   <span style={{
-                                    fontSize: "clamp(9px, 0.75vw, 11px)",
+                                    fontSize: "clamp(10px, 0.80vw, 12px)",
                                     whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                                     fontWeight: isActive ? 600 : 400,
                                   }}>
@@ -326,8 +293,8 @@ export default function Sidebar() {
                       background: "#d4eafc",
                       borderRadius: "12px",
                       transition: "background 0.2s",
-                      marginLeft: "8px",
-                      marginRight: "8px",
+                      marginLeft: "4px",
+                      marginRight: "4px",
                       marginBottom: "4px",
                       paddingBottom: "4px",
                     }
@@ -350,7 +317,7 @@ export default function Sidebar() {
                           textTransform: "uppercase",
                           color: "#003366",
                           opacity: 0.75,
-                          paddingLeft: shouldHighlightSection ? "12px" : "16px",
+                          paddingLeft: "12px",
                           paddingRight: "10px",
                           paddingTop: i === 0 ? "6px" : "clamp(6px, 0.8vh, 12px)",
                           paddingBottom: "clamp(2px, 0.3vh, 4px)",
@@ -454,19 +421,19 @@ export default function Sidebar() {
                 display: "flex", alignItems: "center",
                 background: "#fff", borderRadius: "999px",
                 boxShadow: "0 2px 8px 0 rgba(44,130,201,0.10)",
-                padding: collapsed ? "5px" : "6px 18px 6px 10px",
+                padding: collapsed ? "4px" : "4px 14px 4px 8px",
                 minWidth: 0, width: "100%", maxWidth: 260, gap: collapsed ? 0 : 10,
                 justifyContent: "center",
               }}>
-                <img src="/logo/person.svg" alt="Profile" style={{ width: 28, height: 28, borderRadius: "50%", background: "#f3f6fa", objectFit: "cover" }} />
+                <img src="/logo/person.svg" alt="Profile" style={{ width: 22, height: 22, borderRadius: "50%", background: "#f3f6fa", objectFit: "cover" }} />
                 {!collapsed && (
-                  <span style={{ color: "#2176ae", fontWeight: 600, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
+                  <span style={{ color: "#2176ae", fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
                     {user?.displayName || user?.email?.split('@')[0] || 'User'}
                   </span>
                 )}
                 {!collapsed && (
                   <Link href="/settings" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <img src="/logo/Settings.svg" alt="Settings" style={{ width: 26, height: 26, marginLeft: 4, cursor: "pointer", filter: "brightness(0) saturate(100%) invert(18%) sepia(60%) saturate(800%) hue-rotate(190deg)" }} />
+                    <img src="/logo/Settings.svg" alt="Settings" style={{ width: 20, height: 20, marginLeft: 4, cursor: "pointer", filter: "brightness(0) saturate(100%) invert(18%) sepia(60%) saturate(800%) hue-rotate(190deg)" }} />
                   </Link>
                 )}
               </div>
