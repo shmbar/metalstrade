@@ -193,7 +193,7 @@ const InvoiceModal = () => {
 			{loading && <Spinner />}
 			<div className='grid grid-cols-12 gap-1.5 pt-1'>
 				<div className='col-span-12 md:col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<p className='flex items-center text-xs text-[var(--port-gore)] font-medium'>{getTtl('Consignee', ln)}:</p>
+					<p className='flex items-center text-sm text-[var(--port-gore)] font-medium'>{getTtl('Consignee', ln)}:</p>
 					<div>
 						{!fnl ?
 							<Selector arr={clts} value={valueInv}
@@ -201,7 +201,7 @@ const InvoiceModal = () => {
 								name='client'
 								clear={clear} />
 							:
-							<p className='pt-2 pl-1 text-xs font-medium text-[var(--port-gore)]'>{valueInv.client.client}</p>
+							<p className='pt-2 pl-1 text-sm font-medium text-[var(--port-gore)]'>{valueInv.client.client}</p>
 						}
 						<ErrDiv field='client' errors={errors} />
 					</div>
@@ -223,7 +223,7 @@ const InvoiceModal = () => {
 					)}
 				</div>
 				<div className='col-span-12 md:col-span-2 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-col'>
-					<p className='text-xs text-[var(--port-gore)] font-medium indent-1'>{getTtl('Invoice Type', ln)}:</p>
+					<p className='text-sm text-[var(--port-gore)] font-medium indent-1'>{getTtl('Invoice Type', ln)}:</p>
 					{!fnl ?
 						<InvoiceType setSelected={selectInvType} plans={settings.InvTypes.InvTypes} value={valueInv} ln={ln} />
 						:
@@ -231,7 +231,7 @@ const InvoiceModal = () => {
 					}
 				</div>
 				<div className='col-span-12 md:col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-col'>
-					<p className='text-xs text-[var(--port-gore)] font-medium indent-1'>{getTtl('PO', ln)}#:</p>
+					<p className='text-sm text-[var(--port-gore)] font-medium indent-1'>{getTtl('PO', ln)}#:</p>
 					{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col mt-1 ring-1 ring-[#b8ddf8] rounded-xl divide-y divide-[#b8ddf8]" >
 						{poArr.map((x, i) => {
 							return (
@@ -247,7 +247,7 @@ const InvoiceModal = () => {
 				</div>
 				<div className='col-span-12 md:col-span-4 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex items-center'>
-						<p className='flex text-xs text-[var(--port-gore)] font-medium'>{getTtl('Date', ln)}:</p>
+						<p className='flex text-sm text-[var(--port-gore)] font-medium'>{getTtl('Date', ln)}:</p>
 						<div className='w-full px-2'>
 							{!fnl ?
 								<>
@@ -268,7 +268,7 @@ const InvoiceModal = () => {
 					</div>
 
 					<div className='flex pt-1'>
-						<p className='flex items-center text-xs font-medium whitespace-nowrap'>
+						<p className='flex items-center text-sm font-medium whitespace-nowrap'>
 							{!fnl ? valueInv.invType === '1111' ? getTtl('Invoice', ln) + ' #:' : valueInv.invType === '2222' ?
 								getTtl('Credit Note', ln) + ' #:' : getTtl('Final Note', ln) + ' #:' :
 								valueInv.invType + ' No:'}</p>
@@ -277,7 +277,7 @@ const InvoiceModal = () => {
 						</div>
 					</div>
 					<div className='flex pt-1 gap-3'>
-						<div className='flex items-center text-xs font-medium whitespace-nowrap'>{getTtl('Status', ln)}:</div>
+						<div className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('Status', ln)}:</div>
 						<div className='flex items-center text-xs font-bold whitespace-nowrap'>
 							{!fnl ? 'Draft' :
 								fnl && !valueInv.canceled ? 'Finalized' :
@@ -290,7 +290,7 @@ const InvoiceModal = () => {
 			<div className='grid grid-cols-3 gap-1.5 pt-1'>
 				<div className='col-span-12 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-2 justify-between'>
-						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
+						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<>
@@ -307,7 +307,7 @@ const InvoiceModal = () => {
 					</div>
 
 					<div className='flex gap-2 justify-between'>
-						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Origin', ln)}:</p>
+						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Origin', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<Selector arr={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]} value={valueInv}
@@ -320,7 +320,7 @@ const InvoiceModal = () => {
 						</div>
 					</div>
 					<div className='flex gap-2 justify-between'>
-						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Delivery Terms', ln)}:</p>
+						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Delivery Terms', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<Selector arr={settings['Delivery Terms']['Delivery Terms']} value={valueInv}
@@ -333,7 +333,7 @@ const InvoiceModal = () => {
 						</div>
 					</div>
 					<div className='flex items-center justify-between'>
-						<p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Delivery Date', ln)}:</p>
+						<p className='flex text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Delivery Date', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<Datepicker useRange={false}
@@ -353,7 +353,7 @@ const InvoiceModal = () => {
 
 				<div className='col-span-12 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-2 justify-between'>
-						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
+						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<Selector arr={settings.POL.POL} value={valueInv}
@@ -366,7 +366,7 @@ const InvoiceModal = () => {
 						</div>
 					</div>
 					<div className='flex gap-2 justify-between'>
-						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POD', ln)}:</p>
+						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POD', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<Selector arr={settings.POD.POD} value={valueInv}
@@ -380,7 +380,7 @@ const InvoiceModal = () => {
 					</div>
 					{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
 						<div className='flex gap-2 justify-between'>
-							<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Packing', ln)}:</p>
+							<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Packing', ln)}:</p>
 							<div className='w-full md:w-44'>
 								{!fnl ?
 									<Selector arr={settings.Packing.Packing} value={valueInv}
@@ -397,20 +397,20 @@ const InvoiceModal = () => {
 
 				<div className='col-span-12 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
-						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('totalNet', ln)}:</p>
+						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('totalNet', ln)}:</p>
 						<p className='text-xs pr-6 text-[var(--port-gore)]'>
 							{NetWTKgs}
 						</p>
 					</div>
 					{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
 						<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
-							<p className={`flex items-center text-xs ${(secondRule || fifthRule) && 'text-[var(--regent-gray)]'} font-medium whitespace-nowrap text-[var(--port-gore)]`}>{getTtl('totalTare', ln)}:</p>
+							<p className={`flex items-center text-sm ${(secondRule || fifthRule) && 'text-[var(--regent-gray)]'} font-medium whitespace-nowrap text-[var(--port-gore)]`}>{getTtl('totalTare', ln)}:</p>
 							<p className={`text-xs pr-6 ${parseInt(TotalTarre) < 0 ? 'text-red-400 font-medium' : 'text-[var(--port-gore)]'}`}>{secondRule || fifthRule ? '' : TotalTarre}</p>
 						</div>
 					}
 					<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
-						<p className={`flex items-center text-xs font-medium whitespace-nowrap text-[var(--port-gore)] ${(fourthRule || fifthRule) && 'text-[var(--regent-gray)]'}`}>{thirdRule ? 'QTY Ingots' : getTtl('totalGross', ln)}:</p>
-						<div className='flex items-center text-xs font-medium whitespace-nowrap'>{(fourthRule || fifthRule) ? '' :
+						<p className={`flex items-center text-sm font-medium whitespace-nowrap text-[var(--port-gore)] ${(fourthRule || fifthRule) && 'text-[var(--regent-gray)]'}`}>{thirdRule ? 'QTY Ingots' : getTtl('totalGross', ln)}:</p>
+						<div className='flex items-center text-sm font-medium whitespace-nowrap'>{(fourthRule || fifthRule) ? '' :
 							<div className='w-full  px-1'>
 								{!fnl ?
 									<input className="input shadow-lg h-7 text-xs" name='ttlGross' value={valueInv.ttlGross} onChange={handleValue} />
@@ -422,8 +422,8 @@ const InvoiceModal = () => {
 					</div>
 					{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
 						<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
-							<p className={`flex items-center text-xs font-medium whitespace-nowrap text-[var(--port-gore)] ${(fourthRule || thirdRule) && 'text-[var(--regent-gray)]'}	`}>{getTtl('totalPack', ln)}:</p>
-							<div className='flex items-center text-xs font-medium whitespace-nowrap'>{(fourthRule || thirdRule) ? '' :
+							<p className={`flex items-center text-sm font-medium whitespace-nowrap text-[var(--port-gore)] ${(fourthRule || thirdRule) && 'text-[var(--regent-gray)]'}	`}>{getTtl('totalPack', ln)}:</p>
+							<div className='flex items-center text-sm font-medium whitespace-nowrap'>{(fourthRule || thirdRule) ? '' :
 								<div className='w-full  px-1'>
 									{!fnl ?
 										<input className="input shadow-lg h-7 text-xs" name='ttlPackages' value={valueInv.ttlPackages} onChange={handleValue} />
@@ -439,7 +439,7 @@ const InvoiceModal = () => {
 
 			<div className='grid grid-cols-2 gap-1.5 mt-1'>
 				<div className='col-span-12 md:col-span-1 flex border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap '>{getTtl('Bank Account', ln)}:</p>
+					<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap '>{getTtl('Bank Account', ln)}:</p>
 					<div className='w-full pl-4'>
 						{!fnl ?
 							<Selector arr={settings['Bank Account']['Bank Account']} value={valueInv}
@@ -453,7 +453,7 @@ const InvoiceModal = () => {
 				</div>
 
 				<div className='hidden md:flex col-span-0 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap '>HS Code:</p>
+					<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap '>HS Code:</p>
 					<div className='w-full pl-4'>
 						{!fnl ?
 							<div className='flex gap-5'>
@@ -496,7 +496,7 @@ const InvoiceModal = () => {
 				</div>
 				<div className='col-span-12 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='gap-1.5'>
-						<p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
+						<p className='flex text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
 						<div className='w-full '>
 							{!fnl ?
 								<>
@@ -520,7 +520,7 @@ const InvoiceModal = () => {
 					<Remarks value={valueInv} setValue={setValueInv} ln={ln} />
 				</div>
 				<div className='col-span-12 md:col-span-3 h-fit border-2 border-[#b8ddf8] p-2 py-1 pb-0 rounded-2xl'>
-					<p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
+					<p className='flex text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="2" cols="60" name="comments"
 						className="input h-11 text-xs p-1"
 						value={valueInv.comments}
