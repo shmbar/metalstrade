@@ -135,8 +135,8 @@ const Page = () => {
 									{value.general != null && !loading && (
 										<div className='bg-[var(--selago)] rounded-xl p-2.5 mb-3'>
 											<div className='flex flex-wrap items-end gap-2'>
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white min-w-[140px] flex-1'>
-													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium rounded-t-xl'>Ni LME</span>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[140px] flex-1'>
+													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Ni LME</span>
 													<input
 														type='text'
 														className='px-3 py-1.5 text-sm font-semibold text-[#F44336] text-center bg-white focus:outline-none w-full'
