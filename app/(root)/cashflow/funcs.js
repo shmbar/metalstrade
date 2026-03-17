@@ -349,10 +349,10 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     {z.order}</td>
-                                <td className="text-left p-1 w-20"><span className="block truncate">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></td>
-                                <td className="text-left p-1 w-20"><span className="block truncate">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></td>
+                                <td className="text-left p-1 w-20"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></Tltip></td>
+                                <td className="text-left p-1 w-20"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
                                 <td className="text-left p-1 w-28 max-w-28">
-                                    <span className="block truncate">{z.descriptionName}</span>
+                                    <Tltip direction='top' tltpText={z.descriptionName || ''}><span className="block truncate cursor-default">{z.descriptionName}</span></Tltip>
                                 </td>
                                 <td className="text-right p-1">{
                                     <NumericFormat
@@ -462,9 +462,9 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     {z.order}</td>
-                                <td className="text-left p-1 w-20"><span className="block truncate">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></td>
+                                <td className="text-left p-1 w-20"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
                                 <td className="text-left p-1 w-28 max-w-28">
-                                    <span className="block truncate">{z.description}</span>
+                                    <Tltip direction='top' tltpText={z.description || ''}><span className="block truncate cursor-default">{z.description}</span></Tltip>
                                 </td>
                                 <td className="text-right p-1">{
                                     <NumericFormat
