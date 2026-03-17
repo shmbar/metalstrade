@@ -415,7 +415,7 @@ const Customtable = (props) => {
                                                         )}
                                                     >
                                                         {["totalMargin", "remaining", "purchase", "openShip"].includes(accessorKey) && (
-                                                            <div className="flex items-center justify-end px-2 h-full">
+                                                            <div className="flex items-center justify-center px-2 h-full">
                                                                 <NumericFormat
                                                                     value={total}
                                                                     displayType="text"
