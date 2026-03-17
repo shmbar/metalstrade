@@ -1,4 +1,4 @@
-﻿// 'use client'
+// 'use client'
 
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
@@ -165,24 +165,24 @@ const Customtable = ({
 
                 /* Professional gradient scrollbar matching cards */
                 .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-                .dashboard-scroll::-webkit-scrollbar-track { 
-                    background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
-                    border-radius: 6px; 
+                .dashboard-scroll::-webkit-scrollbar-track {
+                    background: linear-gradient(180deg, #F8F8F8, #F0F0F0);
+                    border-radius: 6px;
                 }
-                .dashboard-scroll::-webkit-scrollbar-thumb { 
-                    background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
-                    border-radius: 6px; 
+                .dashboard-scroll::-webkit-scrollbar-thumb {
+                    background: linear-gradient(180deg, #E0E0E0, #CCCCCC);
+                    border-radius: 6px;
                     border: 2px solid #F8F8F8;
                 }
-                .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
+                .dashboard-scroll::-webkit-scrollbar-thumb:hover {
                     background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
                     border-color: #F0F0F0;
                 }
 
                 /* Glassmorphic professional table */
                 .glass-table {
-                    background: linear-gradient(135deg, 
-                        rgba(255, 255, 255, 0.85) 0%, 
+                    background: linear-gradient(135deg,
+                        rgba(255, 255, 255, 0.85) 0%,
                         rgba(250, 250, 250, 0.90) 50%,
                         rgba(255, 255, 255, 0.85) 100%
                     );
@@ -215,6 +215,28 @@ const Customtable = ({
                     vertical-align: middle;
                     padding: 6px;
                     font-size: 10px !important;
+                }
+
+                .summary-green-si {
+                    background-color: #b7d1b5;
+                    color: #1a3a1a;
+                    font-weight: 600;
+                }
+                .summary-green-si th {
+                    background-color: #b7d1b5 !important;
+                    color: #1a3a1a !important;
+                    border: none !important;
+                }
+
+                .summary-blue-si {
+                    background-color: #8db6d8;
+                    color: var(--chathams-blue);
+                    font-weight: 600;
+                }
+                .summary-blue-si th {
+                    background-color: #8db6d8 !important;
+                    color: var(--chathams-blue) !important;
+                    border: none !important;
                 }
             `}</style>
 
@@ -257,38 +279,6 @@ const Customtable = ({
       borderRadius: '24px'
     }}
   >
-                    {/* Total $ row - outside table to avoid table CSS */}
-                    {(() => {
-                        const cols = table.getVisibleLeafColumns();
-                        const colCount = cols.length;
-                        const usdTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.total * 1 || 0) : s; }, 0);
-                        const usdWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.qnty * 1 || 0) : s; }, 0);
-                        return (
-                            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colCount}, 1fr)`, backgroundColor: '#b7d1b5', padding: '6px 8px', color: '#1a3a1a', fontWeight: 600, fontSize: '10px' }}>
-                                {cols.map((col, i) => (
-                                    <span key={col.id} style={{ textAlign: i === 0 ? 'left' : 'center', paddingLeft: i === 0 ? '8px' : 0 }}>
-                                        {i === 0 ? 'Total $:' : col.id === 'qnty' ? (usdWeight % 1 === 0 ? usdWeight : usdWeight.toFixed(2)) : col.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(usdTotal) : ''}
-                                    </span>
-                                ))}
-                            </div>
-                        );
-                    })()}
-                    {/* Total € row - outside table to avoid table CSS */}
-                    {(() => {
-                        const cols = table.getVisibleLeafColumns();
-                        const colCount = cols.length;
-                        const eurTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.total * 1 || 0) : s; }, 0);
-                        const eurWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.qnty * 1 || 0) : s; }, 0);
-                        return (
-                            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colCount}, 1fr)`, backgroundColor: '#8db6d8', padding: '6px 8px', color: 'var(--chathams-blue)', fontWeight: 600, fontSize: '10px' }}>
-                                {cols.map((col, i) => (
-                                    <span key={col.id} style={{ textAlign: i === 0 ? 'left' : 'center', paddingLeft: i === 0 ? '8px' : 0 }}>
-                                        {i === 0 ? 'Total €:' : col.id === 'qnty' ? (eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)) : col.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal) : ''}
-                                    </span>
-                                ))}
-                            </div>
-                        );
-                    })()}
                         <div className="overflow-x-auto dashboard-scroll">
                             <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0 }}>
 
@@ -296,6 +286,40 @@ const Customtable = ({
                                 <thead className="sticky top-0 z-10">
                                     {table.getHeaderGroups().map(group => (
                                         <Fragment key={group.id}>
+                                            {/* Total $ row */}
+                                            {(() => {
+                                                const usdTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.total * 1 || 0) : s; }, 0);
+                                                const usdWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.qnty * 1 || 0) : s; }, 0);
+                                                return (
+                                                    <tr className="summary-green-si">
+                                                        {group.headers.map(header => (
+                                                            <th key={header.id} style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 600, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
+                                                                {header.id === 'compName' ? 'Total $:' :
+                                                                    header.id === 'qnty' ? (usdWeight % 1 === 0 ? usdWeight : usdWeight.toFixed(2)) :
+                                                                        header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(usdTotal) : ''}
+                                                            </th>
+                                                        ))}
+                                                    </tr>
+                                                );
+                                            })()}
+
+                                            {/* Total € row */}
+                                            {(() => {
+                                                const eurTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.total * 1 || 0) : s; }, 0);
+                                                const eurWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.qnty * 1 || 0) : s; }, 0);
+                                                return (
+                                                    <tr className="summary-blue-si">
+                                                        {group.headers.map(header => (
+                                                            <th key={header.id} style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 600, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
+                                                                {header.id === 'compName' ? 'Total EUR:' :
+                                                                    header.id === 'qnty' ? (eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)) :
+                                                                        header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal) : ''}
+                                                            </th>
+                                                        ))}
+                                                    </tr>
+                                                );
+                                            })()}
+
                                             <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
                                                 {group.headers.map(header => (
                                                     <th
@@ -442,19 +466,19 @@ const Customtable = ({
       <td colSpan={columnsWithSelection.length} className="py-24 text-center">
         <div className="flex flex-col items-center justify-center">
           {renderEmptyStateMedia()}
-          <p 
-            className="font-normal mb-2" 
-            style={{ 
+          <p
+            className="font-normal mb-2"
+            style={{
               color: '#1F2937',
-              fontSize: 'clamp(9px, 0.8vw, 10px)' 
+              fontSize: 'clamp(9px, 0.8vw, 10px)'
             }}
           >
             {getTtl('No data available', ln)}
           </p>
-          <p 
-            style={{ 
+          <p
+            style={{
               color: '#6B7280',
-              fontSize: 'clamp(7px, 0.6vw, 9px)' 
+              fontSize: 'clamp(7px, 0.6vw, 9px)'
             }}
           >
             Try adjusting your filters or date range
@@ -472,7 +496,7 @@ const Customtable = ({
 
                     {/* MOBILE VIEW - Card Layout */}
                     <div className="block md:hidden">
-                        <div 
+                        <div
                             className="overflow-y-auto dashboard-scroll px-2 py-2 space-y-2"
                             style={{ maxHeight: dynamicMaxHeight }}
                         >
@@ -488,15 +512,15 @@ const Customtable = ({
                                     }}
                                 >
                                     {/* Card Header - Multi-gradient */}
-                                    <div 
+                                    <div
                                         className="px-3 py-2 flex items-center justify-between bg-[#9ad4ff]"
-                                        // style={{ 
+                                        // style={{
                                         //     background: 'linear-gradient(135deg, #6366F1, #9333EA, #0D9488)',
                                         // }}
                                     >
-                                        <span 
+                                        <span
                                             className="font-normal"
-                                            style={{ 
+                                            style={{
                                                 color: 'var(--endeavour)',
                                                 fontSize: 'clamp(9px, 0.8vw, 10px)',
                                                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
@@ -521,25 +545,25 @@ const Customtable = ({
                                     <div className="p-4 space-y-2.5">
                                         {row.getVisibleCells().map((cell) => {
                                             if (cell.column.id === 'select') return null;
-                                            
+
                                             return (
-                                                <div 
-                                                    key={cell.id} 
+                                                <div
+                                                    key={cell.id}
                                                     className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
                                                     style={{ borderBottom: '1px solid #E5E7EB' }}
                                                 >
-                                                    <div 
-                                                        className="uppercase tracking-wider font-normal" 
-                                                        style={{ 
+                                                    <div
+                                                        className="uppercase tracking-wider font-normal"
+                                                        style={{
                                                             color: '#6B7280',
-                                                            fontSize: 'clamp(6px, 0.6vw, 7px)' 
+                                                            fontSize: 'clamp(6px, 0.6vw, 7px)'
                                                         }}
                                                     >
                                                         {cell.column.columnDef.header}
                                                     </div>
-                                                    <div 
-                                                        className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
-                                                        style={{ 
+                                                    <div
+                                                        className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                                                        style={{
                                                             color: '#1F2937',
                                                             background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                             fontSize: 'clamp(8px, 0.7vw, 10px)',
@@ -559,20 +583,20 @@ const Customtable = ({
                             {table.getRowModel().rows.length === 0 && (
                                 <div className="flex flex-col items-center justify-center py-24 px-3">
                                     {renderEmptyStateMedia()}
-                                    <p 
-                                        className="font-normal mb-2 text-center" 
-                                        style={{ 
+                                    <p
+                                        className="font-normal mb-2 text-center"
+                                        style={{
                                             color: '#1F2937',
-                                            fontSize: 'clamp(9px, 0.8vw, 10px)' 
+                                            fontSize: 'clamp(9px, 0.8vw, 10px)'
                                         }}
                                     >
                                         {getTtl('No data available', ln)}
                                     </p>
-                                    <p 
-                                        className="text-center" 
-                                        style={{ 
+                                    <p
+                                        className="text-center"
+                                        style={{
                                             color: '#6B7280',
-                                            fontSize: 'clamp(7px, 0.6vw, 9px)' 
+                                            fontSize: 'clamp(7px, 0.6vw, 9px)'
                                         }}
                                     >
                                         Try adjusting your filters or date range
