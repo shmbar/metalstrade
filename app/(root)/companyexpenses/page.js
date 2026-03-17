@@ -184,7 +184,6 @@ const Expenses = () => {
     let colsTotals = Object.keys(settings).length === 0 ? [] : [
         {
             accessorKey: 'supplier', header: getTtl('Vendor', ln),
-            cell: (props) => <p>{gQ(props.getValue(), 'Supplier', 'nname')}</p>
         },
         {
             accessorKey: 'amount', header: getTtl('Amount', ln),
