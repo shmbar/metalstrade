@@ -1,7 +1,7 @@
-import { useContext, useState, useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 import { ExpensesContext } from "../../../../contexts/useExpensesContext";
 import Datepicker from "react-tailwindcss-datepicker";
-import CBox from '../../../../components/combobox.js'
+import { Selector } from '../../../../components/selectors/selectShad.js'
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { InvoiceContext } from "../../../../contexts/useInvoiceContext";
 import { IoAddCircleOutline } from 'react-icons/io5';
@@ -30,6 +30,14 @@ const Expenses = () => {
 
     const handleValue = (e) => {
         setValueExp({ ...valueExp, [e.target.name]: e.target.value })
+    }
+
+    const handleChange = (e, name) => {
+        setValueExp(prev => ({ ...prev, [name]: e }))
+    }
+
+    const clear = (name) => {
+        setValueExp(prev => ({ ...prev, [name]: '' }))
     }
 
     const handleDateChangeDate = (newValue) => {
@@ -73,14 +81,14 @@ const Expenses = () => {
                         <div>
                             <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Vendor', ln)}:</p>
                             <div className='w-full '>
-                                <CBox data={sups} setValue={setValueExp} value={valueExp} name='supplier' classes='shadow-md -mt-1 h-7' classes1='max-h-48' />
+                                <Selector arr={sups} value={valueExp} onChange={(e) => handleChange(e, 'supplier')} name='supplier' clear={clear} />
                                 <ErrDiv field='supplier' errors={errorsExp} />
                             </div>
                         </div>
                         <div className='pt-1'>
                             <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Type', ln)}:</p>
                             <div className='w-full '>
-                                <CBox data={settings.Expenses.Expenses} setValue={setValueExp} value={valueExp} name='expType' classes='shadow-md  -mt-1 h-7' classes1='max-h-24' />
+                                <Selector arr={settings.Expenses.Expenses} value={valueExp} onChange={(e) => handleChange(e, 'expType')} name='expType' clear={clear} />
                                 <ErrDiv field='expType' errors={errorsExp} />
                             </div>
                         </div>
@@ -88,14 +96,14 @@ const Expenses = () => {
                             <div className='max-w-xs '>
                                 <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Currency', ln)}:</p>
                                 <div className='w-full'>
-                                    <CBox data={settings.Currency.Currency} setValue={setValueExp} value={valueExp} name='cur' classes='shadow-md -mt-1' />
+                                    <Selector arr={settings.Currency.Currency} value={valueExp} onChange={(e) => handleChange(e, 'cur')} name='cur' clear={clear} />
                                     <ErrDiv field='cur' errors={errorsExp} />
                                 </div>
                             </div>
                             <div className='max-w-xs '>
                                 <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Payment', ln)}:</p>
                                 <div className='w-full'>
-                                    <CBox data={settings.ExpPmnt.ExpPmnt} setValue={setValueExp} value={valueExp} name='paid' classes='shadow-md -mt-1' />
+                                    <Selector arr={settings.ExpPmnt.ExpPmnt} value={valueExp} onChange={(e) => handleChange(e, 'paid')} name='paid' clear={clear} />
                                 </div>
                             </div>
                         </div>

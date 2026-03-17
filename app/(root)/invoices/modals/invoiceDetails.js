@@ -2,7 +2,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { InvoiceContext } from "../../../../contexts/useInvoiceContext";
-import CBox from '../../../../components/combobox.js'
 import { getD, reOrderTableInv } from '../../../../utils/utils.js';
 import Datepicker from "react-tailwindcss-datepicker";
 import { Pdf } from '../../contracts/modals/pdf/pdfInvoice.js';
@@ -13,9 +12,7 @@ import { VscSaveAs } from 'react-icons/vsc';
 import { VscClose } from 'react-icons/vsc';
 import { FaFilePdf } from 'react-icons/fa';
 import { GiMoneyStack } from 'react-icons/gi'
-import { BsFillSendCheckFill } from 'react-icons/bs';
 import InvoiceType from './invoiceType.js'
-import { GiCancel } from 'react-icons/gi';
 import { FaFileContract } from "react-icons/fa";
 import { TbStackPush } from 'react-icons/tb';
 import Expenses from '../../contracts/modals/expenses'
@@ -23,13 +20,14 @@ import Payments from '../../contracts/modals/payments.js'
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import Spinner from '../../../../components/spinner.js';
 import Remarks from '../../contracts/modals/remarks'
-import { validate, ErrDiv, loadInvoice } from '../../../../utils/utils'
+import { validate, ErrDiv } from '../../../../utils/utils'
 import { RiRefreshLine } from "react-icons/ri";
 import { getTtl } from '../../../../utils/languages.js';
 import { useRouter } from 'next/navigation.js';
 import { ContractsContext } from "../../../../contexts/useContractsContext";
 import dateFormat from 'dateformat';
 import Tltip from '../../../../components/tlTip.js';
+import { Selector } from '../../../../components/selectors/selectShad.js';
 
 const InvoiceModal = () => {
 
@@ -87,11 +85,30 @@ const InvoiceModal = () => {
 	const handleDateChangeDelvrDate = (newValue) => {
 		setValueInv({ ...valueInv, delDate: newValue })
 	}
+
+	const handleChange = (e, name) => {
+		setValueInv(prev => {
+			const updated = { ...prev, [name]: e }
+
+			if (name === "delTerm" && ["32432", "456", "43214", "567"].includes(e)) {
+				updated.pod = ""
+			}
+
+			return updated
+		})
+	}
+
+	const clear = (name) => {
+		setValueInv(prev => ({
+			...prev, [name]: '',
+		}))
+	}
+
 	//Total Net WT Kgs:
 	const options = { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 2 };
 	const locale = 'en-US';
-	const NetWTKgsTmp = (valueInv.productsDataInvoice.map(x => x.qnty)
-		.reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000);
+	const NetWTKgsTmp = (valueInv.productsDataInvoice.filter(q => q.qnty !== 's').map(x => x.qnty)
+		.reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000) || '';
 	const NetWTKgs = NetWTKgsTmp.toLocaleString(locale, options);
 
 	//Total Tarre WT Kgs:
@@ -179,7 +196,10 @@ const InvoiceModal = () => {
 					<p className='flex items-center text-xs text-[var(--port-gore)] font-medium'>{getTtl('Consignee', ln)}:</p>
 					<div>
 						{!fnl ?
-							<CBox data={clts} setValue={setValueInv} value={valueInv} name='client' classes='shadow-md' />
+							<Selector arr={clts} value={valueInv}
+								onChange={(e) => handleChange(e, 'client')}
+								name='client'
+								clear={clear} />
 							:
 							<p className='pt-2 pl-1 text-xs font-medium text-[var(--port-gore)]'>{valueInv.client.client}</p>
 						}
@@ -273,11 +293,16 @@ const InvoiceModal = () => {
 						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
-								<CBox data={settings.Shipment.Shipment} setValue={setValueInv} value={valueInv} name='shpType' classes='shadow-md' />
+								<>
+									<Selector arr={settings.Shipment.Shipment} value={valueInv}
+										onChange={(e) => handleChange(e, 'shpType')}
+										name='shpType'
+										clear={clear} />
+									<ErrDiv field='shpType' errors={errors} />
+								</>
 								:
 								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.shpType}</p>
 							}
-							<ErrDiv field='shpType' errors={errors} />
 						</div>
 					</div>
 
@@ -285,7 +310,10 @@ const InvoiceModal = () => {
 						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Origin', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
-								<CBox data={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]} setValue={setValueInv} value={valueInv} name='origin' classes='shadow-md' />
+								<Selector arr={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]} value={valueInv}
+									onChange={(e) => handleChange(e, 'origin')}
+									name='origin'
+									clear={clear} />
 								:
 								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.origin}</p>
 							}
@@ -295,7 +323,10 @@ const InvoiceModal = () => {
 						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Delivery Terms', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
-								<CBox data={settings['Delivery Terms']['Delivery Terms']} setValue={setValueInv} value={valueInv} name='delTerm' classes='shadow-md' />
+								<Selector arr={settings['Delivery Terms']['Delivery Terms']} value={valueInv}
+									onChange={(e) => handleChange(e, 'delTerm')}
+									name='delTerm'
+									clear={clear} />
 								:
 								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.delTerm}</p>
 							}
@@ -325,7 +356,10 @@ const InvoiceModal = () => {
 						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
-								<CBox data={settings.POL.POL} setValue={setValueInv} value={valueInv} name='pol' classes='shadow-md' />
+								<Selector arr={settings.POL.POL} value={valueInv}
+									onChange={(e) => handleChange(e, 'pol')}
+									name='pol'
+									clear={clear} />
 								:
 								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.pol}</p>
 							}
@@ -335,13 +369,13 @@ const InvoiceModal = () => {
 						<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POD', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
-								<CBox data={settings.POD.POD} setValue={setValueInv} value={valueInv} name='pod' classes='shadow-md'
-									disabled={firstRule}
-								/>
+								<Selector arr={settings.POD.POD} value={valueInv}
+									onChange={(e) => handleChange(e, 'pod')}
+									name='pod'
+									clear={clear} />
 								:
 								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.pod}</p>
 							}
-
 						</div>
 					</div>
 					{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
@@ -349,7 +383,10 @@ const InvoiceModal = () => {
 							<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Packing', ln)}:</p>
 							<div className='w-full md:w-44'>
 								{!fnl ?
-									<CBox data={settings.Packing.Packing} setValue={setValueInv} value={valueInv} name='packing' classes='shadow-md'
+									<Selector arr={settings.Packing.Packing} value={valueInv}
+										onChange={(e) => handleChange(e, 'packing')}
+										name='packing'
+										clear={clear}
 										disabled={valueInv.invType === '2222' || valueInv.invType === '3333'} />
 									:
 									<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.packing}</p>
@@ -405,7 +442,10 @@ const InvoiceModal = () => {
 					<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap '>{getTtl('Bank Account', ln)}:</p>
 					<div className='w-full pl-4'>
 						{!fnl ?
-							<CBox data={settings['Bank Account']['Bank Account']} setValue={setValueInv} value={valueInv} name='bankNname' classes='shadow-md' />
+							<Selector arr={settings['Bank Account']['Bank Account']} value={valueInv}
+								onChange={(e) => handleChange(e, 'bankNname')}
+								name='bankNname'
+								clear={clear} />
 							:
 							<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.bankName.bankNname}</p>
 						}
@@ -413,31 +453,33 @@ const InvoiceModal = () => {
 				</div>
 
 				<div className='hidden md:flex col-span-0 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-
 					<p className='flex items-center text-xs text-[var(--port-gore)] font-medium whitespace-nowrap '>HS Code:</p>
 					<div className='w-full pl-4'>
 						{!fnl ?
 							<div className='flex gap-5'>
-								<CBox data={settings.Hs.Hs.map(item => {
+								<Selector arr={settings.Hs.Hs.map(item => {
 									const { hs, ...rest } = item;
 									return { hs1: hs, ...rest };
-								})} setValue={setValueInv} value={valueInv} name='hs1' classes='shadow-md' />
+								})} value={valueInv}
+									onChange={(e) => handleChange(e, 'hs1')}
+									name='hs1'
+									clear={clear} />
 
-								<CBox data={settings.Hs.Hs.map(item => {
+								<Selector arr={settings.Hs.Hs.map(item => {
 									const { hs, ...rest } = item;
 									return { hs2: hs, ...rest };
-								})} setValue={setValueInv} value={valueInv} name='hs2' classes='shadow-md' />
+								})} value={valueInv}
+									onChange={(e) => handleChange(e, 'hs2')}
+									name='hs2'
+									clear={clear} />
 							</div>
 							:
 							<div className='flex gap-5'>
 								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.hs1}</p>
 								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.hs2}</p>
 							</div>
-
 						}
 					</div>
-
-
 				</div>
 			</div>
 
@@ -449,7 +491,6 @@ const InvoiceModal = () => {
 							currency={settings.Currency.Currency} uidCollection={uidCollection}
 							settings={settings} setDeleteProducts={setDeleteProducts}
 							materialsArr={valueInv.productsData.map(x => ({ id: x.id, description: x.description }))}
-
 						/>
 					</div>
 				</div>
@@ -458,17 +499,20 @@ const InvoiceModal = () => {
 						<p className='flex text-xs text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
 						<div className='w-full '>
 							{!fnl ?
-								<CBox data={settings.Currency.Currency} setValue={setValueInv} value={valueInv} name='cur' classes='shadow-md'
-									disabled={valueInv.invType !== '1111'} />
+								<>
+									<Selector arr={settings.Currency.Currency} value={valueInv}
+										onChange={(e) => handleChange(e, 'cur')}
+										name='cur'
+										clear={clear}
+										disabled={valueInv.invType !== '1111'} />
+									<ErrDiv field='cur' errors={errors} />
+								</>
 								:
 								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.cur.cur}</p>
 							}
-							<ErrDiv field='cur' errors={errors} />
 						</div>
 					</div>
 				</div>
-
-
 			</div>
 
 			<div className='grid grid-cols-8 gap-1.5 mt-1'>
@@ -518,15 +562,14 @@ const InvoiceModal = () => {
 						onClick={() => !fnl ? Pdf(valueInv,
 							reOrderTableInv(valueInv.productsDataInvoice).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
 								.map((values, index) => {
-									const number = values[3]//.toFixed(3);
+									const number = values[3];
 									const number1 = values[4];
 									const number2 = values[5];
 									let tmpObj = valueInv.productsDataInvoice[index]
-									let description = tmpObj.isSelection ? valueInv.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
+									let description = tmpObj.mtrlStatus === 'select' ? valueInv.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
 										tmpObj.descriptionText
 
-
-									const formattedNumber = new Intl.NumberFormat('en-US', {
+									const formattedNumber = number === 's' ? 'Service' : new Intl.NumberFormat('en-US', {
 										minimumFractionDigits: 3
 									}).format(number);
 
@@ -552,11 +595,11 @@ const InvoiceModal = () => {
 							PdfFnlCncl(valueInv,
 								reOrderTableInv(valueInv.productsDataInvoice).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
 									.map((values, index) => {
-										const number = values[3]//.toFixed(3);
+										const number = values[3];
 										const number1 = values[4];
 										const number2 = values[5];
 										let tmpObj = valueInv.productsDataInvoice[index]
-										let description = tmpObj.isSelection ? valueInv.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
+										let description = tmpObj.mtrlStatus === 'select' ? valueInv.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
 											tmpObj.descriptionText
 
 										const formattedNumber = new Intl.NumberFormat('en-US', {
@@ -579,36 +622,17 @@ const InvoiceModal = () => {
 											formattedNumber1, formattedNumber2];
 									})
 								, settings, compData)
-
 						}
 					>
 						<FaFilePdf className='size-4' />
 						PDF
 					</button>
 				</Tltip>
-				{/*(!fnl && valueInv.id !== '') && <button
-					type="button"
-					className="flex items-center gap-2 justify-center rounded-md border bg-red-600 px-4 py-2 text-sm font-medium 
-						text-white hover:bg-red-400 focus:outline-none drop-shadow-lg" onClick={() => setIsFinilizeOpen(true)}
-				>
-					<BsFillSendCheckFill className='size-4' />
-					Finalize
-				</button>*/}
-				{/*(fnl && !valueInv.canceled) && <button
-					type="button"
-					className="flex items-center gap-2 justify-center rounded-md border bg-red-600 px-4 py-2 text-sm font-medium 
-						text-white hover:bg-red-400 focus:outline-none drop-shadow-lg" onClick={() => setIsCancelOpen(true)}
-
-				>
-					<GiCancel className='size-4' />
-					Cancel Invoice
-			</button>*/}
 				{valueInv.id !== '' &&
 					<Tltip direction='top' tltpText='Shipment expenses'>
 						<button
 							type="button"
 							className="whiteButton py-1" onClick={() => setShowPmntExp('exp')}
-
 						>
 							<TbStackPush className='size-4' />
 							{getTtl('Expenses', ln)}
@@ -619,7 +643,6 @@ const InvoiceModal = () => {
 					{valueInv.id !== '' && <button
 						type="button"
 						className="whiteButton py-1" onClick={() => setShowPmntExp('pmnt')}
-
 					>
 						<GiMoneyStack className='size-4' />
 						{getTtl('Payments', ln)}

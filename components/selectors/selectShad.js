@@ -26,6 +26,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
             <SelectTrigger className={`relative border-[#E5E7EB] hover:border-[var(--rock-blue)] rounded-full h-7 text-[11px] gap-0.5 px-2
                     text-[var(--chathams-blue)] outline-none focus:ring-0
                     focus:outline-none focus:ring-offset-0 shadow-sm pointer-events-auto
+                    max-w-full overflow-hidden [&>span]:truncate
                     ${classes}`}
                 disabled={disabled}>
                 <SelectValue placeholder="Select" />

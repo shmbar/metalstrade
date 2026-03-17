@@ -10,8 +10,7 @@ import VideoLoader from '../../../components/videoLoader';
 import { UserAuth } from "../../../contexts/useAuthContext"
 import { loadStockData, filteredArray, loadAllStockData } from '../../../utils/utils'
 import Spin from '../../../components/spinTable';
-import CBox from '../../../components/comboboxSelectStock.js'
-//import CBox from '../../../components/combobox.js'
+import { Selector } from '../../../components/selectors/selectShad.js'
 import { EXD } from './excel'
 import { getTtl } from '../../../utils/languages';
 import SumTable from './sumtables/sumTable'
@@ -27,22 +26,14 @@ const CB = (settings, handleSelectStock, selectedStock) => {
   ]
 
   return (
-    //   <CBox
-    //     data={[...settings.Stocks.Stocks, { stock: '..All Stocks', id: 'allStocks' }]}
-    //     setValue={setSelectedStock} value={selectedStock}
-    //     name='stock'
-    //     classes='input border-slate-300 shadow-sm items-center flex'
-    //     classes2='text-lg' dis={true} />
-    // )
-
-    <div className='w-36'>
-      <CBox
-        data={dt}
-        setValue={handleSelectStock}
-        value={dt.find(x => x.id === selectedStock.id)}
-        idx={0}
-        name='nname'
-        plcHolder='Select Stock'
+    <div className='w-44'>
+      <Selector
+        arr={dt}
+        value={selectedStock}
+        onChange={(e) => handleSelectStock(dt.find(x => x.id === e))}
+        name='stock'
+        secondaryName='nname'
+        classes='w-full'
       />
     </div>
   )

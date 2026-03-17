@@ -30,9 +30,9 @@ const Customtable = ({ data, item }) => {
 	const { settings, ln } = useContext(SettingsContext);
 
 	let cols = [
-		{ field: 'date', header: getTtl('Date', ln) },
-		{ field: 'supplier', header: getTtl('Supplier/Consignee', ln), arr: settings.Supplier.Supplier },
-		{ field: 'description', header: getTtl('Description', ln), },
+		{ field: 'date', header: getTtl('Date', ln), width: '70px' },
+		{ field: 'supplier', header: getTtl('Supplier/Consignee', ln), arr: settings.Supplier.Supplier, width: '150px' },
+		{ field: 'description', header: getTtl('Description', ln), width: '150px' },
 		{ field: 'invoice', header: getTtl('Invoice', ln) + ' #', },
 		{ field: 'qnty', header: getTtl('Weight', ln) },
 		{ field: 'type', header: getTtl('Transaction', ln), },
@@ -171,7 +171,8 @@ const Customtable = ({ data, item }) => {
 									textAlign: 'center',
 									padding: '7px 10px',
 									border: '1px solid #b8ddf8',
-									whiteSpace: 'nowrap',
+									whiteSpace: 'normal',
+										width: x.width || undefined,
 									letterSpacing: '0.04em',
 									textTransform: 'uppercase',
 								}}>
@@ -189,8 +190,9 @@ const Customtable = ({ data, item }) => {
 										border: '1px solid #e8f0f8',
 										fontSize: '11px',
 										color: 'var(--chathams-blue)',
-										textAlign: x.field === 'total' ? 'right' : 'center',
+										textAlign: 'center',
 										whiteSpace: x.field === 'description' || x.field === 'supplier' ? 'normal' : 'nowrap',
+									width: x.width || undefined,
 									}}>
 										{showDetail(obj, x.field, { ttl: false })}
 									</td>
