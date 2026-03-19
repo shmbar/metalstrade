@@ -306,7 +306,7 @@ const InvoiceModal = () => {
 						</div>
 					</div>
 
-					<div className='flex gap-2 justify-between'>
+					<div className='flex gap-2 justify-between pt-1'>
 						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Origin', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
@@ -319,7 +319,7 @@ const InvoiceModal = () => {
 							}
 						</div>
 					</div>
-					<div className='flex gap-2 justify-between'>
+					<div className='flex gap-2 justify-between pt-1'>
 						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Delivery Terms', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
@@ -332,14 +332,14 @@ const InvoiceModal = () => {
 							}
 						</div>
 					</div>
-					<div className='flex items-center justify-between'>
+					<div className='flex items-center justify-between pt-1'>
 						<p className='flex text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Delivery Date', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<Datepicker useRange={false}
 									asSingle={true}
 									value={valueInv.delDate}
-									popoverDirection='up'
+									popoverDirection='down'
 									onChange={handleDateChangeDelvrDate}
 									displayFormat={"DD-MMM-YYYY"}
 									inputClassName='input w-full shadow-lg h-7 text-xs'
@@ -365,7 +365,7 @@ const InvoiceModal = () => {
 							}
 						</div>
 					</div>
-					<div className='flex gap-2 justify-between'>
+					<div className='flex gap-2 justify-between pt-1'>
 						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POD', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
@@ -379,7 +379,7 @@ const InvoiceModal = () => {
 						</div>
 					</div>
 					{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
-						<div className='flex gap-2 justify-between'>
+						<div className='flex gap-2 justify-between pt-1'>
 							<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Packing', ln)}:</p>
 							<div className='w-full md:w-44'>
 								{!fnl ?
