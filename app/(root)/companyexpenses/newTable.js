@@ -411,7 +411,7 @@ const Customtable = ({
                       color:
                         value === 'Paid' ? '#7c3aed' :
                         value === 'Unpaid' ? '#be185d' : '#1F2937',
-                      border: `1px solid ${value === 'Paid' ? '#ddd6fe' : value === 'Unpaid' ? '#fbcfe8' : '#cecece'}`,
+                      border: `1px solid ${value === 'Paid' ? '#ddd6fe' : value === 'Unpaid' ? '#fbcfe8' : '#d8e8f5'}`,
                       fontWeight: value === 'Paid' || value === 'Unpaid' ? '600' : '400',
                       ...(isEditMode && { boxShadow: 'inset 0 0 0 1px #d1d1d1' })
                     }}
