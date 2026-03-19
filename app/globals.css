@@ -326,26 +326,26 @@ input::-webkit-inner-spin-button {
 
 /* ========== Custom Scrollbar ========== */
 .custom-scroll::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 4px;
+  height: 4px;
 }
 
 .custom-scroll::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f1f5fb;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-  background: #b0b0b0;
+  background: #b8d4ee;
   border-radius: 4px;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: #808080;
+  background: #7aaed6;
 }
 
 .custom-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #b0b0b0 #f1f1f1;
+  scrollbar-color: #b8d4ee #f1f5fb;
 }
 /* ========== End Custom Scrollbar ========== */
 
