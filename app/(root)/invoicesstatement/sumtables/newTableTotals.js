@@ -102,7 +102,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         </thead>
                         <tbody>
                             {table1.getRowModel().rows.map(row => (
-                                <tr key={row.id} style={{ borderBottom: '1px solid var(--selago)' }} className='hover:bg-[#f9f9f9] transition'>
+                                <tr key={row.id} style={{ borderBottom: '1px solid var(--selago)' }} className='hover:bg-[#f8fbff] transition'>
                                     {row.getVisibleCells().map(cell => (
                                         <td key={cell.id} data-label={cell.column.columnDef.header}
                                             className="px-6 py-1 items-center"
@@ -203,7 +203,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 <div className="md:hidden">
                     <div className="divide-y" style={{ borderColor: 'var(--selago)' }}>
                         {table1.getRowModel().rows.map(row => (
-                            <div key={row.id} className="p-4 bg-white hover:bg-[#f9f9f9] transition-colors" style={{ borderBottom: '1px solid var(--selago)' }}>
+                            <div key={row.id} className="p-4 bg-white hover:bg-[#f8fbff] transition-colors" style={{ borderBottom: '1px solid var(--selago)' }}>
                                 <Tltip direction='top' tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}>
                                     <div className="space-y-2.5">
                                         {row.getVisibleCells().map((cell) => (

@@ -240,14 +240,14 @@ const Contracts = () => {
 				<div
 					onClick={row.getToggleExpandedHandler()}
 					className="px-3 py-1 rounded-xl text-[11px] font-normal cursor-pointer"
-					style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece', color: 'var(--chathams-blue)', textAlign: 'center' }}
+					style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', color: 'var(--chathams-blue)', textAlign: 'center' }}
 				>
 					{row.getIsExpanded() ? '▲' : '▼'}
 				</div>
 			) : (
 				<div
 					className="px-3 py-1 rounded-xl text-[11px] font-normal"
-					style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece', color: 'var(--chathams-blue)', textAlign: 'center' }}
+					style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', color: 'var(--chathams-blue)', textAlign: 'center' }}
 				>
 					●
 				</div>

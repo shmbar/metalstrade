@@ -145,8 +145,8 @@ const Customtable = ({
           transition-timing-function: ease-in-out !important;
         }
         .custom-table th, .custom-table td {
-          border: 1px solid #ccc;
-          background-color: #f9f9f9;
+          border: 1px solid #d8e8f5;
+          background-color: #f8fbff;
           text-align: center;
           vertical-align: middle;
           padding: 6px;

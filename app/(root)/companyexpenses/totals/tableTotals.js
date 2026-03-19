@@ -116,7 +116,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
               tltpText={expensesToolTip(row, expensesData, settings, filt)}
             >
               <div
-                className="grid grid-cols-[1fr_auto] px-4 py-1 items-center hover:bg-[#f9f9f9] transition text-[10px]"
+                className="grid grid-cols-[1fr_auto] px-4 py-1 items-center hover:bg-[#f8fbff] transition text-[10px]"
                 style={{
                   borderBottom: '1px solid var(--selago)'
                 }}

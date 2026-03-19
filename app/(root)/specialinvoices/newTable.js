@@ -425,8 +425,8 @@ const Customtable = ({
                         ? '#ede9fe'
                         : value === 'Unpaid'
                         ? '#fce7f3'
-                        : '#f9f9f9',
-                    border: value ? '1px solid #cecece' : 'none',
+                        : '#f8fbff',
+                    border: value ? '1px solid #d8e8f5' : 'none',
                     color: '#1F2937'
                   }}
                 >
@@ -444,14 +444,14 @@ const Customtable = ({
                           ? '#ede9fe'
                           : value === 'Not Paid'
                           ? '#fce7f3'
-                          : '#f9f9f9',
-                      border: '1px solid #cecece',
+                          : '#f8fbff',
+                      border: '1px solid #d8e8f5',
                     }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </div>
                 ) : (
-                  <div className="p-1.5 rounded-xl text-[11px] font-normal min-w-[70px]" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
+                  <div className="p-1.5 rounded-xl text-[11px] font-normal min-w-[70px]" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
                 )}
               </div>
             )}

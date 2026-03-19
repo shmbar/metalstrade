@@ -391,7 +391,7 @@ const Customtable = ({
                         ? '#dcfce7'
                         : '#fee2e2',
                     color: value === 'Completed' ? '#16a34a' : '#dc2626',
-                    border: '1px solid #cecece'
+                    border: '1px solid #d8e8f5'
                   }}
                 >
                   {value}
@@ -407,7 +407,7 @@ const Customtable = ({
                     style={{
                       backgroundColor:
                         value === 'Paid' ? '#ede9fe' :
-                        value === 'Unpaid' ? '#fce7f3' : '#f9f9f9',
+                        value === 'Unpaid' ? '#fce7f3' : '#f8fbff',
                       color:
                         value === 'Paid' ? '#7c3aed' :
                         value === 'Unpaid' ? '#be185d' : '#1F2937',
@@ -419,7 +419,7 @@ const Customtable = ({
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </div>
                 ) : (
-                  <div className="p-1.5 rounded-xl text-[11px] font-normal min-w-[70px]" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
+                  <div className="p-1.5 rounded-xl text-[11px] font-normal min-w-[70px]" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
                 )}
               </div>
             )}

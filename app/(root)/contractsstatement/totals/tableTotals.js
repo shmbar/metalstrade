@@ -45,7 +45,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                 }
                 .custom-table th, .custom-table td {
                   border: 1px solid var(--selago);
-                  background-color: #f9f9f9;
+                  background-color: #f8fbff;
                   text-align: center;
                   vertical-align: middle;
                   padding: 6px;

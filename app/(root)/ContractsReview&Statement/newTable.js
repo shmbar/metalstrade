@@ -244,8 +244,8 @@ const Customtable = ({
         }
 
         .custom-table th {
-          border: 1px solid #ccc;
-          background-color: #f9f9f9;
+          border: 1px solid #d8e8f5;
+          background-color: #f8fbff;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
@@ -254,8 +254,8 @@ const Customtable = ({
         }
 
         .custom-table td {
-          border: 1px solid #ccc;
-          background-color: #f9f9f9;
+          border: 1px solid #d8e8f5;
+          background-color: #f8fbff;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
@@ -440,7 +440,7 @@ const Customtable = ({
                                   style={{
                                     backgroundColor: badgeConfig.bg,
                                     color: badgeConfig.color,
-                                    border: '1px solid #cecece'
+                                    border: '1px solid #d8e8f5'
                                   }}
                                 >
                                   {badgeConfig.label}
@@ -448,7 +448,7 @@ const Customtable = ({
                               </div>
                             ) : (isCompleted || isStatus) && !badgeConfig ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
+                                <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
                               </div>
                             ) : (
                               <div className="flex justify-center">
@@ -456,14 +456,14 @@ const Customtable = ({
                                   <div
                                     className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px]"
                                     style={{
-                                      backgroundColor: '#f9f9f9',
-                                      border: '1px solid #cecece',
+                                      backgroundColor: '#f8fbff',
+                                      border: '1px solid #d8e8f5',
                                     }}
                                   >
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
+                                  <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}

@@ -458,7 +458,7 @@
 //                                 <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
 //                                   style={{
 //                                     backgroundColor: value ? '#00bf63' : '#eb3636',
-//                                     color: '#FFFFFF', border: '1px solid #cecece'
+//                                     color: '#FFFFFF', border: '1px solid #d8e8f5'
 //                                   }}>
 //                                   {value ? 'Completed' : 'Incompleted'}
 //                                 </div>
@@ -468,7 +468,7 @@
 //                                 <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal"
 //                                   style={{
 //                                     backgroundColor: value === 'Completed' ? '#00bf63' : '#eb3636',
-//                                     color: '#FFFFFF', border: '1px solid #cecece'
+//                                     color: '#FFFFFF', border: '1px solid #d8e8f5'
 //                                   }}>
 //                                   {value}
 //                                 </div>
@@ -479,9 +479,9 @@
 //                                   style={{
 //                                     backgroundColor:
 //                                       value === 'Paid'   ? '#ceb8ff' :
-//                                       value === 'Unpaid' ? '#c387b4' : '#f9f9f9',
+//                                       value === 'Unpaid' ? '#c387b4' : '#f8fbff',
 //                                     color: value === 'Paid' || value === 'Unpaid' ? 'var(--chathams-blue)' : '#1F2937',
-//                                     border: '1px solid #cecece',
+//                                     border: '1px solid #d8e8f5',
 //                                     fontWeight: value === 'Paid' || value === 'Unpaid' ? '600' : '400'
 //                                   }}>
 //                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -492,8 +492,8 @@
 //                                 {hasValue ? (
 //                                   <div className="px-3 py-1.5 rounded-xl text-[11px] font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
 //                                     style={{
-//                                       backgroundColor: '#f9f9f9',
-//                                       border: '1px solid #cecece',
+//                                       backgroundColor: '#f8fbff',
+//                                       border: '1px solid #d8e8f5',
 //                                       ...(isEditMode && { boxShadow: 'inset 0 0 0 1px #d1d1d1' })
 //                                     }}>
 //                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -617,8 +617,8 @@
 //                                 style={{
 //                                   backgroundColor:
 //                                     cell.getValue() === 'Paid'   ? '#ceb8ff' :
-//                                     cell.getValue() === 'Unpaid' ? '#c387b4' : '#f9f9f9',
-//                                   color: 'var(--chathams-blue)', border: '1px solid #cecece'
+//                                     cell.getValue() === 'Unpaid' ? '#c387b4' : '#f8fbff',
+//                                   color: 'var(--chathams-blue)', border: '1px solid #d8e8f5'
 //                                 }}>
 //                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
 //                               </div>
@@ -1208,7 +1208,7 @@ const Customtable = ({
                               <div className="flex justify-center">
                                 <div className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px] text-center"
                                   style={{
-                                    backgroundColor: isUnpaidValue ? '#fce7f3' : isPaidValue ? '#ede9fe' : '#f9f9f9',
+                                    backgroundColor: isUnpaidValue ? '#fce7f3' : isPaidValue ? '#ede9fe' : '#f8fbff',
                                     color: isPaidValue ? '#7c3aed' : isUnpaidValue ? '#be185d' : '#1F2937',
                                     border: `1px solid ${isPaidValue ? '#ddd6fe' : isUnpaidValue ? '#fbcfe8' : '#cecece'}`,
                                     fontWeight: isPaidValue || isUnpaidValue ? '600' : '400'
@@ -1240,12 +1240,12 @@ const Customtable = ({
                                   })()
                                 ) : hasValue ? (
                                   <div className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px]"
-                                    style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>
+                                    style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
                                   <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full"
-                                    style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
+                                    style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}
@@ -1363,9 +1363,9 @@ const Customtable = ({
                                 style={{
                                   backgroundColor:
                                     isUnpaidValue ? '#fce7f3' :
-                                    isPaidValue ? '#ede9fe' : '#f9f9f9',
+                                    isPaidValue ? '#ede9fe' : '#f8fbff',
                                   color: isPaidValue ? '#7c3aed' : isUnpaidValue ? '#be185d' : 'var(--chathams-blue)',
-                                  border: '1px solid #cecece'
+                                  border: '1px solid #d8e8f5'
                                 }}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                               </div>
@@ -1376,7 +1376,7 @@ const Customtable = ({
                                     isUSDValue ? '#b6dfb7' :
                                     isEURValue ? '#bce1fe' : '#e5e7eb',
                                   color: 'var(--chathams-blue)',
-                                  border: '1px solid #cecece'
+                                  border: '1px solid #d8e8f5'
                                 }}>
                                 {isUSDValue ? '$' :
                                  isEURValue ? '€' :

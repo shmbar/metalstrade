@@ -101,7 +101,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                   background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
                 }}
               >
-                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9]"
+                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]"
                   style={{ border: '1px solid #e0e0e0' }}>
                   {/* Empty cell */}
                 </div>
@@ -123,7 +123,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                   background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
                 }}
               >
-                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9] hover:shadow-[inset_0_0_0_1px_#d1d1d1]"
+                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff] hover:shadow-[inset_0_0_0_1px_#d1d1d1]"
                   style={{ border: '1px solid #e0e0e0' }}>
                   {formatNumber(quantity)}
                 </div>
@@ -145,7 +145,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                   background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
                 }}
               >
-                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9] hover:shadow-[inset_0_0_0_1px_#d1d1d1]"
+                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff] hover:shadow-[inset_0_0_0_1px_#d1d1d1]"
                   style={{ border: '1px solid #e0e0e0' }}>
                   {formatCurrency(total, config.code)}
                 </div>
@@ -160,7 +160,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
               }}
             >
-              <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9]"
+              <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]"
                 style={{ border: '1px solid #e0e0e0' }} />
             </td>
           )
@@ -183,7 +183,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
 
         /* Add border, background, and text alignment styles for table cells */
         .stocks-table th, .stocks-table td {
-          background-color: #f9f9f9;
+          background-color: #f8fbff;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
@@ -303,7 +303,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                           direction='right'
                           tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}
                         >
-                          <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
+                          <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         </Tltip>

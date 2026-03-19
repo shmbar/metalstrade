@@ -170,8 +170,8 @@ const Customtable = ({
           transition-timing-function: ease-in-out !important;
         }
         .custom-table th, {
-          border: 1px solid #ccc;
-          background-color: #f9f9f9;
+          border: 1px solid #d8e8f5;
+          background-color: #f8fbff;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
@@ -179,8 +179,8 @@ const Customtable = ({
           font-size: 12px !important;
         }
         .custom-table td {
-          border: 1px solid #ccc;
-          background-color: #f9f9f9;
+          border: 1px solid #d8e8f5;
+          background-color: #f8fbff;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
@@ -296,7 +296,7 @@ const Customtable = ({
                           }}
                         >
                           <div
-                            className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f9f9f9] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
+                            className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f8fbff] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
                           >
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>

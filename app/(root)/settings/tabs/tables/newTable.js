@@ -180,7 +180,7 @@ const Customtable = ({
                         ) : (
                           <div
                             className="px-3 py-1 rounded-xl text-[11px] font-normal w-full"
-                            style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}
+                            style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}
                           >
                             {cell.getValue() != null && cell.getValue() !== ''
                               ? flexRender(cell.column.columnDef.cell, cell.getContext())

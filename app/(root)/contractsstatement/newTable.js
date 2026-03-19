@@ -204,8 +204,8 @@ const Customtable = ({
         }
 
         .custom-table th {
-          border: 1px solid #ccc;
-          background-color: #f9f9f9;
+          border: 1px solid #d8e8f5;
+          background-color: #f8fbff;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
@@ -214,8 +214,8 @@ const Customtable = ({
         }
 
         .custom-table td {
-          border: 1px solid #ccc;
-          background-color: #f9f9f9;
+          border: 1px solid #d8e8f5;
+          background-color: #f8fbff;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
@@ -384,7 +384,7 @@ const Customtable = ({
                                         ? '#ede9fe'
                                         : cell.getValue() === 'Unpaid'
                                         ? '#fce7f3'
-                                        : '#f9f9f9',
+                                        : '#f8fbff',
                                     border: cell.getValue() ? `1px solid ${cell.getValue() === 'Paid' ? '#ddd6fe' : cell.getValue() === 'Unpaid' ? '#fbcfe8' : '#cecece'}` : 'none',
                                     color: cell.getValue() === 'Paid' ? '#7c3aed' : cell.getValue() === 'Unpaid' ? '#be185d' : '#1F2937'
                                   }}
@@ -403,14 +403,14 @@ const Customtable = ({
                                           ? '#ede9fe'
                                           : cell.getValue() === 'Not Paid'
                                           ? '#fce7f3'
-                                          : '#f9f9f9',
-                                      border: '1px solid #cecece',
+                                          : '#f8fbff',
+                                      border: '1px solid #d8e8f5',
                                     }}
                                   >
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}>&nbsp;</div>
+                                  <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}

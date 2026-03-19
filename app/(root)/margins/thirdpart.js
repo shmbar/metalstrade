@@ -18,7 +18,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                 /* Add border, background, and text alignment styles for table cells */
                 .margins-table th, .margins-table td {
                     
-                    background-color: #f9f9f9;
+                    background-color: #f8fbff;
                     text-align: center;
                     vertical-align: middle;
                   font-size: 10px !important;
@@ -182,7 +182,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
+                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
                                                     <NumericFormat
                                                         value={z.purchase}
                                                         displayType="text"
@@ -207,7 +207,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9]  hover:shadow-[inset_0_0_0_1px_#d1d1d1]  fade-in">
+                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1]  fade-in">
                                                     <NumericFormat
                                                         value={z.totalMargin}
                                                         displayType="text"
@@ -233,7 +233,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
+                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
                                                     <NumericFormat
                                                         value={z.openShip}
                                                         displayType="text"
@@ -258,7 +258,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f9f9f9]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
+                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
                                                     <NumericFormat
                                                         value={z.remaining}
                                                         displayType="text"
