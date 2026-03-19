@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from 'react'
 import { Combobox, Transition, ComboboxInput, ComboboxButton, ComboboxOptions, ComboboxOption } from '@headlessui/react'
 //import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import { AiOutlineCheck } from 'react-icons/ai';
-import { HiChevronUpDown } from 'react-icons/hi2';
+import { HiChevronDown, HiChevronUp } from 'react-icons/hi2';
 import { MdClear } from 'react-icons/md';
 import { sortArr } from '../utils/utils';
 
@@ -84,22 +84,24 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                     <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-white text-left
                      focus:outline-none sm:text-sm border border-[#b8ddf8] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
-                            className={`w-full py-2 pl-3 pr-10 text-xs ${classes2} leading-5 text-[var(--endeavour)] focus:outline-none cursor-pointer`}
+                            className={`w-full py-2 pl-3 pr-10 text-xs ${classes2} leading-5 text-[var(--endeavour)] focus:outline-none`}
                             displayValue={(value) => (data.find(y => y.id === value[name]) || {})[name] || value[name]}
                             onChange={(event) => setQuery(event.target.value)}
-                            readOnly
                         />
                         <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
-                            {!dis && <MdClear
-                                className="size-5 text-[var(--endeavour)] hover:text-gray-600"
-                                aria-hidden="true"
-                                onClick={Cncl}
-                            />}
-
-                            <HiChevronUpDown
-                                className="h-5 w-5 text-[var(--endeavour)]"
-                                aria-hidden="true"
-                            />
+                            {({ open }) => (
+                                <>
+                                    {!dis && <MdClear
+                                        className="size-5 text-[var(--endeavour)] hover:text-gray-600"
+                                        aria-hidden="true"
+                                        onClick={Cncl}
+                                    />}
+                                    {open
+                                        ? <HiChevronUp className="h-5 w-5 text-[var(--endeavour)]" aria-hidden="true" />
+                                        : <HiChevronDown className="h-5 w-5 text-[var(--endeavour)]" aria-hidden="true" />
+                                    }
+                                </>
+                            )}
                         </ComboboxButton>
                     </div>
                     <Transition

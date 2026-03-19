@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 import { AiOutlineCheck } from 'react-icons/ai';
-import { HiChevronUpDown } from 'react-icons/hi2';
+import { HiChevronDown, HiChevronUp } from 'react-icons/hi2';
 
 
 export default function Example({ languages, compData, setCompData, lang }) {
@@ -21,13 +21,17 @@ export default function Example({ languages, compData, setCompData, lang }) {
           <Listbox.Button className="cursor-pointer w-full h-8 rounded-full border border-[#E5E7EB] bg-white
                      focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20 text-sm
                      pl-4 pr-10 text-[var(--port-gore)] transition-all hover:border-[var(--rock-blue)]">
-            <span className="block truncate text-left">{selected?.lng || ''}</span>
-            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <HiChevronUpDown
-                className="h-4 w-4 text-[var(--endeavour)]"
-                aria-hidden="true"
-              />
-            </span>
+            {({ open }) => (
+              <>
+                <span className="block truncate text-left">{selected?.lng || ''}</span>
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                  {open
+                    ? <HiChevronUp className="h-4 w-4 text-[var(--endeavour)]" aria-hidden="true" />
+                    : <HiChevronDown className="h-4 w-4 text-[var(--endeavour)]" aria-hidden="true" />
+                  }
+                </span>
+              </>
+            )}
           </Listbox.Button>
           <Transition
             as={Fragment}
