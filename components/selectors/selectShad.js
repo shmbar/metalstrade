@@ -47,7 +47,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
 
 
             </SelectTrigger>
-            <SelectContent className="rounded-xl border border-[#dbeeff] shadow-md text-xs text-[var(--chathams-blue)]">
+            <SelectContent className="rounded-xl border border-[#dbeeff] shadow-md text-xs text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)]">
                 <SelectGroup>
                     {sortArr(arr.filter(x => !x.deleted), name).map(k => {
                         return (
