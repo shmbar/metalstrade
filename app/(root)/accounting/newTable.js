@@ -258,7 +258,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                         {hdGroup.headers.map(header => (
                           <th
                             key={header.id}
-                            className="font-poppins text-xs"
+                            className="font-poppins text-xs font-medium"
                             style={{
                               color: 'var(--chathams-blue)',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',

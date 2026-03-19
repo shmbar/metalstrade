@@ -87,7 +87,7 @@ const Customtable = ({
   // Column color: blue for material/kgs, pink for elements (del same as pink to keep seamless band)
   const getColBg = (columnId) => {
     if (columnId === 'material' || columnId === 'kgs') return '#dbeafe'
-    return '#ffdbdb'
+    return '#dbeeff'
   }
 
   const headers = table.getHeaderGroups()[0]?.headers ?? []
@@ -148,7 +148,7 @@ const Customtable = ({
                           color: 'var(--chathams-blue)',
                           padding: '8px 10px',
                           fontSize: '12px',
-                          fontWeight: '600',
+                          fontWeight: '500',
                           textAlign: header.column.id === 'material' ? 'left' : 'center',
                           letterSpacing: '0.04em',
                           whiteSpace: 'nowrap',

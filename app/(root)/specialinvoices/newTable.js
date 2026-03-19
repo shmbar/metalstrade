@@ -324,7 +324,7 @@ const Customtable = ({
                                                 {group.headers.map(header => (
                                                     <th
   key={header.id}
-  className="font-poppins text-xs"
+  className="font-poppins text-xs font-medium"
                                                         style={{
                                                             color: 'var(--chathams-blue)',
                                                             backgroundColor: '#dbeeff',
@@ -345,7 +345,7 @@ const Customtable = ({
                                                     {group.headers.map(header => (
                                                         <th
                                                             key={header.id}
-                                                            className="px-2 py-1.5 font-bold text-xs font-poppins"
+                                                            className="px-2 py-1.5 font-medium text-xs font-poppins"
                                                             style={{
                                                                 backgroundColor: '#FFFFFF',
                                                                 borderBottom: '2px solid #E5E7EB',

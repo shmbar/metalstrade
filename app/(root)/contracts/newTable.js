@@ -232,7 +232,7 @@ const Customtable = ({
         }
 
         .custom-table th {
-          background-color: #d4eafc;
+          background-color: #dbeeff;
         }
 
         .custom-table td {
@@ -296,7 +296,7 @@ const Customtable = ({
                         {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className="font-poppins text-xs py-2"
+                          className="font-poppins text-xs font-medium py-2"
                           style={{
                             color: 'var(--chathams-blue)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',

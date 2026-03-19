@@ -108,21 +108,21 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
 
                 <div className=" overflow-x-auto">
                     <table className="w-full">
-                        <thead className="bg-gray-50 divide-y">
+                        <thead className="divide-y">
                             {table.getHeaderGroups().map((hdGroup, i) =>
                                 <Fragment key={hdGroup.id}>
-                                    <tr className="cursor-pointer bg-blue-200 ">
+                                    <tr className="cursor-pointer bg-[#dbeeff]">
                                         {hdGroup.headers.map(
                                             header =>
-                                                <th key={header.id} className="text-dark font-medium table_cell text-xs py-1.5 text-left">
+                                                <th key={header.id} className="font-poppins text-xs font-medium text-[var(--chathams-blue)] table_cell py-1.5 text-left">
                                                     {header.column.columnDef.ttlUS}
                                                 </th>
                                         )}
                                     </tr>
-                                    <tr className="cursor-pointer bg-blue-200 ">
+                                    <tr className="cursor-pointer bg-[#dbeeff]">
                                         {hdGroup.headers.map(
                                             header =>
-                                                <th key={header.id} className="text-dark font-medium table_cell text-xs py-1.5 text-left">
+                                                <th key={header.id} className="font-poppins text-xs font-medium text-[var(--chathams-blue)] table_cell py-1.5 text-left">
                                                     {header.column.columnDef.ttlEU}
                                                 </th>
                                         )}

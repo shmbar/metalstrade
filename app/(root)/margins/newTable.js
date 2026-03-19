@@ -340,12 +340,12 @@ const Customtable = (props) => {
     width: (COLUMN_CONFIGS[header.column.id] || {}).pct || 'auto',
   }}
   className={cn(
-    'bg-[#dbeeff] text-[var(--endeavour)] border-b border-[var(--endeavour)]',
+    'bg-[#dbeeff] text-[var(--chathams-blue)] border-b border-[var(--chathams-blue)]',
     idx === 0 ? 'rounded-tl-lg' : '',
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
 >
-  <div className="w-full flex items-center justify-center text-[0.75rem] font-medium">
+  <div className="w-full flex items-center justify-center text-xs font-medium font-poppins">
     {header.isPlaceholder
       ? null
       : flexRender(header.column.columnDef.header, header.getContext())}

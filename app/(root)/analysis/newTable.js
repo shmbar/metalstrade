@@ -191,11 +191,11 @@ const Customtable = ({
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className={`px-2 py-2 uppercase`}
+                          className={`px-2 py-2 font-poppins text-xs font-medium`}
                           style={{
                             color: 'var(--chathams-blue)',
+                            backgroundColor: '#dbeeff',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
-                            fontSize: 'clamp(10px, 1.0vw, 13px)',
                             letterSpacing: '0.05em',
                             textAlign: header.column.id === 'select' ? 'left' : 'center',
                           }}
@@ -258,11 +258,11 @@ const Customtable = ({
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className={`px-2 py-2 uppercase`}
+                          className={`px-2 py-2 font-poppins text-xs font-medium`}
                           style={{
                             color: 'var(--chathams-blue)',
+                            backgroundColor: '#dbeeff',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
-                            fontSize: 'clamp(10px, 1.0vw, 13px)',
                             letterSpacing: '0.05em',
                             textAlign: header.column.id === 'select' ? 'left' : 'center',
                           }}

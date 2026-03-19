@@ -296,7 +296,7 @@ const Customtable = ({
                 <Fragment key={hdGroup.id}>
                   <tr>
                     {hdGroup.headers.map(header => (
-                      <th key={header.id} className="header-blue py-1.5 font-bold font-poppins">
+                      <th key={header.id} className="header-blue py-1.5 font-medium font-poppins">
                         {flexRender(header.column.columnDef.header, header.getContext())}
                       </th>
                     ))}

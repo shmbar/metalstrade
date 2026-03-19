@@ -320,9 +320,9 @@ const Customtable = ({
                                               {hdGroup.headers.map((header, idx) => (
                                                 <th
                                                   key={`total-${header.id}`}
-                                                  className="font-poppins text-xs font-semibold"
+                                                  className="font-poppins text-xs font-medium"
                                                   style={{
-                                                    color: '#0b3d6b',
+                                                    color: 'var(--chathams-blue)',
                                                     backgroundColor: '#9ad4ff',
                                                     border: 'none',
                                                     boxShadow: 'none',
@@ -343,10 +343,10 @@ const Customtable = ({
                         {hdGroup.headers.map(header => (
                           <th
                             key={header.id}
-                            className="font-poppins text-xs"
+                            className="font-poppins text-xs font-medium"
                             style={{
                               color: 'var(--chathams-blue)',
-                              backgroundColor: '#D4EAFC',
+                              backgroundColor: '#dbeeff',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',
                               maxWidth: header.column.id === 'select' ? '50px' : 'none',
                               letterSpacing: '0.05em',

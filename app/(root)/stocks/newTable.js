@@ -241,7 +241,7 @@ const Customtable = ({
                         {group.headers.map(header => (
                           <th
                             key={header.id}
-                            className="px-2 py-2 uppercase   text-[var(--endeavour)] font-poppins font-bold" 
+                            className="px-2 py-2 text-xs font-poppins font-medium"
                             style={{
                               color: 'var(--chathams-blue)',
  width: header.column.id === 'select' ? '50px' : undefined,

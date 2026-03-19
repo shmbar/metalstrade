@@ -954,7 +954,7 @@ const Customtable = ({
           padding: 6px 8px !important;
           vertical-align: middle;
           white-space: nowrap;
-          font-weight: 700;
+          font-weight: 500;
         }
 
         /* ── Data cells ── */
@@ -1133,7 +1133,7 @@ const Customtable = ({
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className="header-blue"
+                          className="header-blue font-poppins text-xs font-medium"
                           style={{
                             minWidth:
                               header.column.id === 'paid'   ? '110px' :

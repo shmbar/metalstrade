@@ -1270,7 +1270,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                         <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Exp. Type</th>
                         <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
                         <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Date</th>
-                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Pmn</th>
+                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
                         <th className="text-center p-1 2xl:p-1 py-0 text-[var(--endeavour)]">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>

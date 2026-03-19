@@ -122,7 +122,7 @@ const Customtable = ({
                   {hdGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className="px-3 py-3 text-xs text-[var(--endeavour)] text-center font-medium font-poppins"
+                      className="px-3 py-3 text-xs text-[var(--chathams-blue)] text-center font-medium font-poppins"
                       style={{ width: `${header.column.getSize()}px` }}
                     >
                       {header.column.getCanSort() ? (

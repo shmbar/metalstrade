@@ -112,13 +112,13 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, cb, se
 
                 <div className=" overflow-x-auto">
                     <table className="w-full">
-                        <thead className="bg-gray-50 divide-y divide-gray-200 ">
+                        <thead className="divide-y divide-gray-200">
                             {table.getHeaderGroups().map((hdGroup, i) =>
                                 <Fragment key={hdGroup.id}>
-                                    <tr className="border-b cursor-pointer bg-blue-200 ">
+                                    <tr className="border-b cursor-pointer bg-[#dbeeff]">
                                         {hdGroup.headers.map(
                                             header =>
-                                                <th key={header.id} className="text-dark font-medium table_cell py-2 text-xs text-left">
+                                                <th key={header.id} className="font-poppins text-xs font-medium text-[var(--chathams-blue)] table_cell py-2 text-left">
                                                     {header.column.columnDef.ttl}
                                                 </th>
                                         )}
@@ -126,8 +126,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, cb, se
                                     <tr key={hdGroup.id + '-row'} className='border-b'>
                                         {hdGroup.headers.map(
                                             header =>
-                                                <th key={header.id + '-header'} className="relative px-6 py-2 text-left text-sm font-medium text-gray-500 uppercase
-                                     dark:text-gray-400 border-b">
+                                                <th key={header.id + '-header'} className="relative px-6 py-2 text-left font-poppins text-xs font-medium text-[var(--chathams-blue)] uppercase border-b">
                                                     {header.column.getCanSort() ?
 
                                                         <div onClick={header.column.getToggleSortingHandler()} className="table-caption text-xs cursor-pointer items-center gap-1">

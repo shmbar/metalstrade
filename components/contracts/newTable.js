@@ -260,12 +260,12 @@ const Customtable = ({
                         {hdGroup.headers.map(header => (
                           <th
                             key={header.id}
-                            className="px-2 py-2.5 uppercase font-semibold"
+                            className="px-2 py-2.5 font-poppins text-xs font-medium"
                             style={{
                               color: 'var(--chathams-blue)',
+                              backgroundColor: '#dbeeff',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',
                               maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                              fontSize: 'clamp(10px, 1.0vw, 13px)',
                               letterSpacing: '0.05em',
                               textAlign: 'center',
                             }}
