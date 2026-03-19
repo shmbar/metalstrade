@@ -53,6 +53,7 @@ const Stocks = () => {
 
   const [filteredArray1, setFilteredArray1] = useState([])
   const [item, setItem] = useState(null)
+  const [isLoadingStock, setIsLoadingStock] = useState(false)
 
 
   const handleSelectStock = (x) => {
@@ -115,8 +116,7 @@ const Stocks = () => {
   useEffect(() => {
     const loadtStocks = async () => {
 
-      // Only show full-page loader on initial load (no data yet)
-      if (data.length === 0) setLoading(true)
+      setIsLoadingStock(true)
       let stockData = null;
 
       if (selectedStock.stock !== 'allStocks') {
@@ -228,7 +228,7 @@ const Stocks = () => {
 
       setData(newArr)
       setFilteredArray1(newArr)
-      setLoading(false)
+      setIsLoadingStock(false)
     }
 
     Object.keys(settings).length !== 0 && loadtStocks()
@@ -322,6 +322,7 @@ const Stocks = () => {
           <>
             <Toast />
             <VideoLoader loading={loading} fullScreen={true} />
+            {isLoadingStock && <Spin />}
             {/* Main Card */}
             <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-[#f8fbff]">
               {/* Header Section */}
