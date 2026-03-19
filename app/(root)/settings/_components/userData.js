@@ -1,7 +1,7 @@
 import { UserAuth } from '../../../../contexts/useAuthContext';
 import React, { useContext, useEffect, useState, useTransition } from 'react'
 import { VscSaveAs } from 'react-icons/vsc';
-import CBox from '../../../../components/combobox.js'
+import { Selector } from '../../../../components/selectors/selectShad'
 import { ErrDiv, validate } from '../../../../utils/utils';
 import { getTtl } from '../../../../utils/languages';
 import { SettingsContext } from '../../../../contexts/useSettingsContext';
@@ -36,12 +36,16 @@ const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, di
 
 const USerDSelect = ({ data, value, setValue, name, errors, ln }) => {
 
+    const clear = (n) => setValue(prev => ({ ...prev, [n]: '' }))
+
     return (
         <div className='flex gap-4 justify-between'>
             <p className='flex items-center text-sm font-medium whitespace-nowrap'>Title:</p>
             <div className='w-full'>
-                <CBox data={data} setValue={setValue} value={value} name={name}
-                />
+                <Selector arr={data} value={value}
+                    onChange={(e) => setValue(prev => ({ ...prev, [name]: e }))}
+                    name={name}
+                    clear={clear} />
 
                 <ErrDiv field={name} errors={errors} ln={ln} />
             </div>

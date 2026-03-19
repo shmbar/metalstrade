@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Listbox, ListboxButton, Transition, ListboxOption, ListboxOptions } from '@headlessui/react'
 import { AiOutlineCheck } from 'react-icons/ai';
-import { HiChevronUpDown } from 'react-icons/hi2';
+import { HiChevronDown, HiChevronUp } from 'react-icons/hi2';
 
 const types = [{ sType: "Warehouse" }, { sType: "Virtual" }]
 
@@ -27,13 +27,17 @@ const StockComb = ({ value, setValue }) => {
           <ListboxButton className='cursor-pointer w-full h-8 rounded-full border border-[#E5E7EB] bg-white
                      focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20
                      pl-4 pr-10 text-xs text-[var(--port-gore)] transition-all hover:border-[var(--rock-blue)] text-left'>
-            <span className="block truncate">{value.sType === '' ? selected?.sType : value?.sType}</span>
-            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              <HiChevronUpDown
-                className="size-5 text-[var(--regent-gray)]"
-                aria-hidden="true"
-              />
-            </span>
+            {({ open }) => (
+              <>
+                <span className="block truncate">{value.sType === '' ? selected?.sType : value?.sType}</span>
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  {open
+                    ? <HiChevronUp className="size-5 text-[var(--regent-gray)]" aria-hidden="true" />
+                    : <HiChevronDown className="size-5 text-[var(--regent-gray)]" aria-hidden="true" />
+                  }
+                </span>
+              </>
+            )}
           </ListboxButton>
           <Transition
             as={Fragment}

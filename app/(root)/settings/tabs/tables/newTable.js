@@ -114,8 +114,8 @@ const Customtable = ({
           </div>
         </div>
 
-        <div className="w-full rounded-2xl border border-[var(--selago)] overflow-hidden shadow-sm">
-          <table className="w-full border-collapse text-center">
+        <div className="w-full rounded-2xl border border-[var(--selago)] overflow-x-auto shadow-sm">
+          <table className="w-full min-w-[700px] border-collapse text-center table-fixed">
             <thead className="md:sticky md:top-0 md:z-10 bg-[#dbeeff]">
               {table.getHeaderGroups().map((hdGroup) => (
                 <tr key={hdGroup.id} className="divide-x divide-[var(--selago)]">
@@ -123,6 +123,7 @@ const Customtable = ({
                     <th
                       key={header.id}
                       className="px-3 py-3 text-xs text-[var(--endeavour)] text-center font-medium font-poppins"
+                      style={{ width: `${header.column.getSize()}px` }}
                     >
                       {header.column.getCanSort() ? (
                         <div
@@ -177,8 +178,13 @@ const Customtable = ({
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         ) : (
-                          <div className="px-2 py-0.5 rounded-full border border-[var(--selago)] bg-white text-[var(--endeavour)] text-[11px] inline-flex items-center justify-center min-w-[60px]">
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          <div
+                            className="px-3 py-1 rounded-xl text-[11px] font-normal w-full"
+                            style={{ backgroundColor: '#f9f9f9', border: '1px solid #cecece' }}
+                          >
+                            {cell.getValue() != null && cell.getValue() !== ''
+                              ? flexRender(cell.column.columnDef.cell, cell.getContext())
+                              : <>&nbsp;</>}
                           </div>
                         )}
                       </div>

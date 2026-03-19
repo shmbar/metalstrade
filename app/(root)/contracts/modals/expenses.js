@@ -182,7 +182,7 @@ const Expenses = ({ showExpenses }) => {
                             <p className='flex text-sm font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
                             <div>
                                 <textarea rows="5" cols="60" name="comments"
-                                    className="input shadow-lg h-24 text-xs p-1"
+                                    className="input shadow-lg h-24 text-xs p-1 !rounded-xl"
                                     value={valueExp.comments} onChange={handleValue} />
                             </div>
                             <div className='flex gap-3 m-2 flex-wrap'>

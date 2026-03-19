@@ -39,20 +39,20 @@ const Users = () => {
 
 
   let propDefaults = Object.keys(settings).length === 0 ? [] : [
-    { accessorKey: 'displayName', header: 'Name', cell: (props) => <p>{props.getValue()}</p> },
-    { accessorKey: 'phoneNumber', header: 'Phone Number', cell: (props) => <p>{props.getValue()}</p> },
-    { accessorKey: 'email', header: 'Email', cell: (props) => <p>{props.getValue()}</p> },
-    { accessorKey: 'title', header: 'Title', cell: (props) => <p className='font-semibold'>{props.getValue()}</p> },
+    { accessorKey: 'displayName', header: 'Name', size: 130, cell: (props) => <p>{props.getValue()}</p> },
+    { accessorKey: 'phoneNumber', header: 'Phone Number', size: 130, cell: (props) => <p>{props.getValue()}</p> },
+    { accessorKey: 'email', header: 'Email', size: 200, cell: (props) => <p>{props.getValue()}</p> },
+    { accessorKey: 'title', header: 'Title', size: 100, cell: (props) => <p className='font-semibold'>{props.getValue()}</p> },
     {
-      accessorKey: 'userCreated', header: 'User Created ', cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
+      accessorKey: 'userCreated', header: 'User Created ', size: 100, cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
       enableColumnFilter: false
     },
     {
-      accessorKey: 'lastLogedIn', header: 'Last Loged In ', cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
+      accessorKey: 'lastLogedIn', header: 'Last Loged In ', size: 100, cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
       enableColumnFilter: false
     },
     {
-      accessorKey: 'edit', header: 'Edit ', cell: (props) => (
+      accessorKey: 'edit', header: 'Edit ', size: 65, cell: (props) => (
         <button onClick={() => Edit(props)} className="flex items-center justify-center">
           <LiaEdit className='text-green-600 scale-[1.3]' />
         </button>
@@ -60,7 +60,7 @@ const Users = () => {
       enableColumnFilter: false
     },
     {
-      accessorKey: 'delete', header: 'Delete ', cell: (props) => (
+      accessorKey: 'delete', header: 'Delete ', size: 65, cell: (props) => (
         <button onClick={() => Delete(props)} className="flex items-center justify-center">
           <RiDeleteBin5Line className='text-red-500 scale-[1.2]' />
         </button>

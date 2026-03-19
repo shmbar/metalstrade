@@ -522,7 +522,7 @@ const InvoiceModal = () => {
 				<div className='col-span-12 md:col-span-3 h-fit border-2 border-[#b8ddf8] p-2 py-1 pb-0 rounded-2xl'>
 					<p className='flex text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="2" cols="60" name="comments"
-						className="input h-11 text-xs p-1"
+						className="input h-11 text-xs p-1 !rounded-xl"
 						value={valueInv.comments}
 						onChange={handleValue}
 					/>

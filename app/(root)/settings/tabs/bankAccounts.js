@@ -7,7 +7,7 @@ import { BiEditAlt } from 'react-icons/bi';
 import { AiOutlineClear } from 'react-icons/ai';
 import { validate, ErrDiv } from '../../../../utils/utils'
 import ModalToDelete from '../../../../components/modalToProceed';
-import CBox from '../../../../components/combobox.js'
+import { Selector } from '../../../../components/selectors/selectShad'
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
 import Tltip from '../../../../components/tlTip';
@@ -56,6 +56,10 @@ const BankAccount = () => {
         })
         setDissablesButton(false)
         setErrors({})
+    }
+
+    const clear = (name) => {
+        setValue(prev => ({ ...prev, [name]: '' }))
     }
 
     const SelectBank = (sup) => {
@@ -160,7 +164,10 @@ const BankAccount = () => {
                                 <div className={fieldRow}>
                                     <label className={labelCls}>{getTtl('Currency', ln)}:</label>
                                     <div className="w-full sm:flex-1">
-                                        <CBox data={settings.Currency?.Currency || []} setValue={setValue} value={value} name="cur" />
+                                        <Selector arr={settings.Currency?.Currency || []} value={value}
+                                            onChange={(e) => setValue({ ...value, cur: e })}
+                                            name="cur"
+                                            clear={clear} />
                                     </div>
                                 </div>
                                 <ErrDiv field='cur' errors={errors} ln={ln} />
