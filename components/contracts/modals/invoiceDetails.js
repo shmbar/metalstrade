@@ -554,7 +554,7 @@ const ContractModal = () => {
 				<div className='col-span-12 md:col-span-2  border border-slate-300 p-2 py-1 pb-0 rounded-lg'>
 					<p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="2" cols="60" name="comments"
-						className={`input  text-xs p-1`}
+						className={`input text-xs p-1 !rounded-xl`}
 						style={{ height: valueInv.remarks.length === 0 ? '40px' : valueInv.remarks.length * 40 + 'px' }}
 						value={valueInv.comments}
 						onChange={handleValue}

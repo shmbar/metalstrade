@@ -291,7 +291,7 @@ const ContractModal = () => {
 				<div className='col-span-12 md:col-span-1 mt-1'>
 					<p className='flex text-xs text-slate-600 font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="5" cols="60" name="comments"
-						className="input h-24 text-xs p-1"
+						className="input h-24 text-xs p-1 !rounded-xl"
 						value={valueCon.comments} onChange={handleValue} />
 					<div className='flex leading-7 items-center gap-2'>
 						<CheckBox size='size-5' checked={valueCon.completed ?? false}

@@ -63,7 +63,7 @@ const Expenses = () => {
                         <div>
                             <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Invoice', ln)}</p>
                             <div className='w-full '>
-                                <input className="input h-8 text-xs rounded-xl border-[#b8ddf8] bg-white" name='expense' value={valueExp.expense} onChange={handleValue} />
+                                <input className="input h-8 text-xs !rounded-full border-[#b8ddf8] bg-white" name='expense' value={valueExp.expense} onChange={handleValue} />
                                 <ErrDiv field='expense' errors={errorsExp} ln={ln} />
                             </div>
                         </div>
@@ -75,14 +75,14 @@ const Expenses = () => {
                                 popoverDirection='down'
                                 onChange={handleDateChangeDate}
                                 displayFormat={"DD-MMM-YYYY"}
-                                inputClassName='input w-full shadow-lg h-8 text-xs z-20'
+                                inputClassName='input w-full shadow-lg h-8 text-xs z-20 !rounded-full'
                             />
                             <ErrDiv field='date' errors={errorsExp} ln={ln} />
                         </div>
                         <div className='pt-1'>
                             <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Amount', ln)}:</p>
                             <div className='w-full '>
-                                <input type='number' className="input h-8 text-xs rounded-xl border-[#b8ddf8] bg-white" name='amount' value={valueExp.amount} onChange={handleValue} />
+                                <input type='number' className="input h-8 text-xs !rounded-full border-[#b8ddf8] bg-white" name='amount' value={valueExp.amount} onChange={handleValue} />
                                 <ErrDiv field='amount' errors={errorsExp} ln={ln} />
                             </div>
                         </div>

@@ -296,7 +296,7 @@ const Customtable = ({
                         {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className="font-poppins text-xs py-3"
+                          className="font-poppins text-xs py-2"
                           style={{
                             color: 'var(--chathams-blue)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
