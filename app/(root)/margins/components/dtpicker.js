@@ -1,6 +1,5 @@
 'use client'
 import Datepicker from "react-tailwindcss-datepicker";
-import { X } from "lucide-react";
 
 const getDateValue = (props) =>
     typeof props.getValue === 'function' ? props.getValue() : props.value;
@@ -41,15 +40,6 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
                     popupClassName="fixed z-[99999] mt-[1px] text-sm lg:text-xs 2xl:text-sm translate-y-4 opacity-0 hidden transition-all ease-out duration-300"
                 />
             </div>
-            {value.startDate && (
-                <button
-                    type="button"
-                    onClick={() => handleCancelDate(null, props.row.index, month)}
-                    className="text-[var(--endeavour)] hover:text-red-500 transition-colors flex-shrink-0"
-                >
-                    <X className="size-3" />
-                </button>
-            )}
         </div>
     );
 };
