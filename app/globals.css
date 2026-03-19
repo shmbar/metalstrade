@@ -349,6 +349,27 @@ input::-webkit-inner-spin-button {
 }
 /* ========== End Custom Scrollbar ========== */
 
+/* ========== Global Thin Scrollbar ========== */
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: #f1f5fb;
+}
+*::-webkit-scrollbar-thumb {
+  background: #b8d4ee;
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #7aaed6;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #b8d4ee #f1f5fb;
+}
+/* ========== End Global Thin Scrollbar ========== */
+
 /* ========== Radix Tooltip: no scroll, no max-width ========== */
 [data-radix-popper-content-wrapper] {
   max-width: none !important;

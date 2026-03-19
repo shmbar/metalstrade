@@ -328,15 +328,15 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
     filteredArr = filteredArr.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr className="bg-[#f0f8ff]">
-                        <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">PO#</th>
-                        <th className="text-left p-1 w-20 text-[var(--endeavour)] font-normal">Supplier</th>
-                        <th className="text-left p-1 w-20 text-[var(--endeavour)] font-normal">Org Sup.</th>
+                        <th className="text-left p-1 w-12 text-[var(--endeavour)] font-normal">PO#</th>
+                        <th className="text-left p-1 w-16 text-[var(--endeavour)] font-normal">Supplier</th>
+                        <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">Org Sup.</th>
                         <th className="text-left p-1 w-28 max-w-28 text-[var(--endeavour)] font-normal">Description</th>
-                        <th className="text-right p-1 w-16 text-[var(--endeavour)] font-normal">Quantity</th>
+                        <th className="text-right p-1 w-14 text-[var(--endeavour)] font-normal">Quantity</th>
                         <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Unit Price</th>
                         <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Total</th>
                     </tr>
@@ -349,8 +349,8 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     {z.order}</td>
-                                <td className="text-left p-1 w-20"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></Tltip></td>
-                                <td className="text-left p-1 w-20"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
+                                <td className="text-left p-1 w-16"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></Tltip></td>
+                                <td className="text-left p-1 w-14"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
                                 <td className="text-left p-1 w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.descriptionName || ''}><span className="block truncate cursor-default">{z.descriptionName}</span></Tltip>
                                 </td>
@@ -442,14 +442,14 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
     const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd')
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr className="bg-[#f0f8ff]">
-                        <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">PO#</th>
-                        <th className="text-left p-1 w-20 text-[var(--endeavour)] font-normal">Org Sup.</th>
+                        <th className="text-left p-1 w-12 text-[var(--endeavour)] font-normal">PO#</th>
+                        <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">Org Sup.</th>
                         <th className="text-left p-1 w-28 max-w-28 text-[var(--endeavour)] font-normal">Description</th>
-                        <th className="text-right p-1 w-16 text-[var(--endeavour)] font-normal">Quantity</th>
+                        <th className="text-right p-1 w-14 text-[var(--endeavour)] font-normal">Quantity</th>
                         <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Unit Price</th>
                         <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Total</th>
                     </tr>
@@ -462,7 +462,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     {z.order}</td>
-                                <td className="text-left p-1 w-20"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
+                                <td className="text-left p-1 w-14"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
                                 <td className="text-left p-1 w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.description || ''}><span className="block truncate cursor-default">{z.description}</span></Tltip>
                                 </td>
@@ -685,20 +685,20 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
     let filteredArr1 = tmp.filter(x => x.payments.length === 0)
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable1 bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable1 bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             {type === 'PartPaid' &&
                 <div className="pt-1 w-full">
                     <table className="cashflow-detail-table w-full table-auto">
                         <thead>
                             <tr className="bg-[#f0f8ff]">
                                 <th className="text-left p-1 2xl:p-1  max-w-20 2xl:max-w-24 truncate text-[var(--endeavour)] font-normal text-">PO#</th>
-                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Invoice</th>
+                                <th className="text-left p-1 2xl:p-1 w-12 text-[var(--endeavour)] font-normal">Invoice</th>
                                 <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
                                 <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
                                 <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Balance</th>
                                 <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">ETD</th>
                                 <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">ETA</th>
-                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
+                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Pmn</th>
                                 <th className="text-center px-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
@@ -829,10 +829,10 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                         <thead>
                             <tr className="bg-[#f0f8ff]">
                                 <th className="text-left p-1 2xl:p-1  w-28 text-[var(--endeavour)] font-normal">PO#</th>
-                                <th className="text-left p-1 2xl:p-1 w-16 text-[var(--endeavour)] font-normal">Invoice</th>
+                                <th className="text-left p-1 2xl:p-1 w-12 text-[var(--endeavour)] font-normal">Invoice</th>
                                 <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
                                 <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Prepayment</th>
-                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
+                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Pmn</th>
                                 <th className="text-center p-1 2xl:p-1 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
@@ -1079,17 +1079,17 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
     let type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt'
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr className="bg-[#f0f8ff]">
                         <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
-                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Invoice</th>
+                        <th className="text-left p-1 2xl:p-1 w-12 text-[var(--endeavour)] font-normal">Invoice</th>
                         <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Value</th>
                         <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
                         <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Balance</th>
-                        <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
+                        <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Pmn</th>
                         <th className="py-0">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
@@ -1260,7 +1260,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
     let filteredArr = expensesAll.filter(z => z.supplier === supplier)
 
     return (
-        <div className="w-full max-h-[28rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr className="bg-[#f0f8ff]">
@@ -1270,7 +1270,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                         <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Exp. Type</th>
                         <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
                         <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Date</th>
-                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
+                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Pmn</th>
                         <th className="text-center p-1 2xl:p-1 py-0 text-[var(--endeavour)]">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
