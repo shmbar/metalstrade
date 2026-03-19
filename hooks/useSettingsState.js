@@ -36,7 +36,7 @@ function useSettingsState() {
                 const merged = { ...prev, [key]: newObj };
                 if (save) {
                     saveDataSettings(uidOrObj, 'settings', merged)
-                        .then(() => setToast({ show: true, text: 'Saved successfully!', clr: 'success' }))
+                        .then(() => setToast({ show: true, text: 'Data successfully saved', clr: 'success' }))
                         .catch(() => setToast({ show: true, text: 'Failed to save', clr: 'fail' }));
                 }
                 return merged;

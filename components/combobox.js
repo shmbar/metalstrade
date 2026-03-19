@@ -84,9 +84,10 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                     <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-white text-left
                      focus:outline-none sm:text-sm border border-[#b8ddf8] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
-                            className={`w-full py-2 pl-3 pr-10 text-xs ${classes2} leading-5 text-[var(--endeavour)] focus:outline-none`}
+                            className={`w-full py-2 pl-3 pr-10 text-xs ${classes2} leading-5 text-[var(--endeavour)] focus:outline-none cursor-pointer`}
                             displayValue={(value) => (data.find(y => y.id === value[name]) || {})[name] || value[name]}
                             onChange={(event) => setQuery(event.target.value)}
+                            readOnly
                         />
                         <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
                             {!dis && <MdClear

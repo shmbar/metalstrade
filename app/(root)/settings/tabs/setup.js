@@ -2,9 +2,11 @@ import React, { useMemo, useState, useContext, useEffect } from "react";
 import List from "../../../../components/list";
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { getTtl } from "../../../../utils/languages";
+import { UserAuth } from "../../../../contexts/useAuthContext";
 
 const Setup = () => {
   const { settings, updateSettings, ln } = useContext(SettingsContext);
+  const { uidCollection } = UserAuth();
   const [keyName, setKeyName] = useState("Container Type");
 
   const excludedKeys = useMemo(
@@ -55,15 +57,13 @@ const Setup = () => {
     setKeyName(z);
   };
 
-  const updateList = (newArrList) => {
-    const newObj = {
-      ...settings,
-      [keyName]: {
-        ...(settings?.[keyName] || {}),
-        [keyName]: newArrList,
-      },
-    };
-    updateSettings(newObj);
+  const updateList = (newArrList, save) => {
+    const sectionObj = { ...(settings?.[keyName] || {}), [keyName]: newArrList };
+    if (save) {
+      updateSettings(uidCollection, sectionObj, keyName, true);
+    } else {
+      updateSettings({ ...settings, [keyName]: sectionObj });
+    }
   };
 
   return (
