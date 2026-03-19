@@ -189,11 +189,9 @@ clientInvName: l.final ? l.client.nname : gQ(l.client, 'Client', 'nname'),    //
         ))
       );
 
-      let arrContracts = [];
-      for (let i = 0; i < arr1.length; i++) {
-        let con = await loadInvoice(uidCollection, 'contracts', arr1[i])
-        arrContracts = [...arrContracts, con]
-      }
+      const arrContracts = await Promise.all(
+        arr1.map(obj => loadInvoice(uidCollection, 'contracts', obj))
+      );
 
 
       let consArr = []
