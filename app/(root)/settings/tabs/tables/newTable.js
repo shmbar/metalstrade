@@ -118,7 +118,7 @@ const Customtable = ({
           <table className="w-full border-collapse text-center">
             <thead className="md:sticky md:top-0 md:z-10 bg-[#dbeeff]">
               {table.getHeaderGroups().map((hdGroup) => (
-                <tr key={hdGroup.id}>
+                <tr key={hdGroup.id} className="divide-x divide-[var(--selago)]">
                   {hdGroup.headers.map((header) => (
                     <th
                       key={header.id}
@@ -158,7 +158,7 @@ const Customtable = ({
               {table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="cursor-pointer transition-colors"
+                  className="cursor-pointer transition-colors divide-x divide-[var(--selago)]"
                   onDoubleClick={() => SelectRow(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
