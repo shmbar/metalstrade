@@ -345,7 +345,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                     {filteredArr.map((z, i) => {
                         return (
                             <tr className="border-b border-[#e8f0f8]" key={i}>
-                                <td className="text-left p-1 cursor-pointer text-black"
+                                <td className="text-left p-1 cursor-pointer text-[var(--endeavour)]"
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     {z.order}</td>
@@ -458,7 +458,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                     {filteredArr.map((z, i) => {
                         return (
                             <tr className="border-b border-[#e8f0f8]" key={i}>
-                                <td className="text-left p-1 cursor-pointer text-black"
+                                <td className="text-left p-1 cursor-pointer text-[var(--endeavour)]"
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     {z.order}</td>
@@ -715,7 +715,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                             {filteredArr.map((z, i) => {
                                 return (
                                     <tr className="border-b border-[#e8f0f8]" key={i}>
-                                        <td className="text-left p-1 2xl:p-1  cursor-pointer max-w-14 2xl:max-w-24 truncate"
+                                        <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)] max-w-14 2xl:max-w-24 truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
                                             {z.poSupplier?.order}</td>
@@ -848,7 +848,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                             {filteredArr1.map((z, i) => {
                                 return (
                                     <tr className="border-b border-[#e8f0f8]" key={i}>
-                                        <td className="text-left p-1 2xl:p-1 cursor-pointer"
+                                        <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)]"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
                                             {z.poSupplier?.order}</td>
@@ -1106,7 +1106,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                     {filteredArr.map((z, i) => {
                         return (
                             <tr className="border-b border-[#e8f0f8]" key={i}>
-                                <td className="text-left p-1 2xl:p-1 cursor-pointer"
+                                <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)]"
                                     onClick={() => moveToContracts(z, 'supplier', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}
                                 >{z.order}</td>
@@ -1287,7 +1287,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                     {filteredArr.map((z, i) => {
                         return (
                             <tr className="border-b border-[#e8f0f8]" key={i}>
-                                <td className="text-left p-1 2xl:p-1 text-blue-700 cursor-pointer"
+                                <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)]"
                                     onClick={() => moveToContracts(z, z.poSupplier ? 'expense' : 'compexpense', uidCollection, setDateSelect,
                                         setValueExp, setIsOpen, blankInvoice, router)}>
                                     {z.poSupplier?.order ?? 'Comp. Exp.'}</td>
