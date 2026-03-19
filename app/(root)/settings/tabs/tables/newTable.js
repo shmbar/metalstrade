@@ -177,9 +177,7 @@ const Customtable = ({
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         ) : (
-                          <div className="px-2 py-0.5 rounded-full border border-[var(--selago)] bg-white text-[var(--endeavour)] text-[11px] inline-flex items-center justify-center min-w-[60px]">
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </div>
+                          flexRender(cell.column.columnDef.cell, cell.getContext())
                         )}
                       </div>
                     </td>
