@@ -93,14 +93,14 @@ const Expenses = () => {
                             </div>
                         </div>
                         <div className='pt-1 gap-3 flex'>
-                            <div className='max-w-xs '>
+                            <div className='flex-1 min-w-0'>
                                 <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Currency', ln)}:</p>
                                 <div className='w-full'>
                                     <Selector arr={settings.Currency.Currency} value={valueExp} onChange={(e) => handleChange(e, 'cur')} name='cur' clear={clear} />
                                     <ErrDiv field='cur' errors={errorsExp} />
                                 </div>
                             </div>
-                            <div className='max-w-xs '>
+                            <div className='flex-1 min-w-0'>
                                 <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Payment', ln)}:</p>
                                 <div className='w-full'>
                                     <Selector arr={settings.ExpPmnt.ExpPmnt} value={valueExp} onChange={(e) => handleChange(e, 'paid')} name='paid' clear={clear} />
