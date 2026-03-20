@@ -236,16 +236,13 @@ input::-webkit-inner-spin-button {
 
 .cashflow-detail-table {
   border-collapse: collapse;
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
   table-layout: auto;
 }
 
 .cashflow-detail-table th,
 .cashflow-detail-table td {
-  border: 1px solid #cbd5e1;
   vertical-align: middle;
-  white-space: nowrap;
   line-height: 1.15;
   padding: 1px 6px;
 }

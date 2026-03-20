@@ -331,24 +331,24 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
         <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
-                    <tr className="bg-[#f0f8ff]">
+                    <tr style={{ height: '24px' }}>
                         <th className="text-left p-1 w-12 text-[var(--endeavour)] font-normal">PO#</th>
                         <th className="text-left p-1 w-16 text-[var(--endeavour)] font-normal">Supplier</th>
                         <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">Org Sup.</th>
                         <th className="text-left p-1 w-28 max-w-28 text-[var(--endeavour)] font-normal">Description</th>
                         <th className="text-right p-1 w-14 text-[var(--endeavour)] font-normal">Quantity</th>
                         <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Unit Price</th>
-                        <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Total</th>
+                        <th className="text-center p-1 w-20 text-[var(--endeavour)] font-normal">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr className="border-b border-[#e8f0f8]" key={i}>
-                                <td className="text-left p-1 cursor-pointer text-[var(--endeavour)]"
+                            <tr className="border-b border-[#c8dff0]" key={i} style={{ height: '22px' }}>
+                                <td className="text-left p-1 cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
-                                    {z.order}</td>
+                                    <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
                                 <td className="text-left p-1 w-16"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></Tltip></td>
                                 <td className="text-left p-1 w-14"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
                                 <td className="text-left p-1 w-28 max-w-28">
@@ -396,7 +396,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#e3f3ff]">
+                    <tr className="bg-[#e3f3ff]" style={{ height: '24px' }}>
                         <th className="relative px-1 py-1 text-left font-medium text-gray-500 uppercase">
                             Total
                         </th>
@@ -445,23 +445,23 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
         <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
-                    <tr className="bg-[#f0f8ff]">
+                    <tr style={{ height: '24px' }}>
                         <th className="text-left p-1 w-12 text-[var(--endeavour)] font-normal">PO#</th>
                         <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">Org Sup.</th>
                         <th className="text-left p-1 w-28 max-w-28 text-[var(--endeavour)] font-normal">Description</th>
                         <th className="text-right p-1 w-14 text-[var(--endeavour)] font-normal">Quantity</th>
                         <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Unit Price</th>
-                        <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Total</th>
+                        <th className="text-center p-1 w-20 text-[var(--endeavour)] font-normal">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr className="border-b border-[#e8f0f8]" key={i}>
-                                <td className="text-left p-1 cursor-pointer text-[var(--endeavour)]"
+                            <tr className="border-b border-[#c8dff0]" key={i} style={{ height: '22px' }}>
+                                <td className="text-left p-1 cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
-                                    {z.order}</td>
+                                    <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
                                 <td className="text-left p-1 w-14"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
                                 <td className="text-left p-1 w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.description || ''}><span className="block truncate cursor-default">{z.description}</span></Tltip>
@@ -507,7 +507,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#e3f3ff]">
+                    <tr className="bg-[#e3f3ff]" style={{ height: '24px' }}>
                         <th className="relative px-1 py-1 text-left font-medium text-gray-500 uppercase">
                             Total
                         </th>
@@ -690,7 +690,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                 <div className="pt-1 w-full">
                     <table className="cashflow-detail-table w-full table-auto">
                         <thead>
-                            <tr className="bg-[#f0f8ff]">
+                            <tr style={{ height: '24px' }}>
                                 <th className="text-left p-1 2xl:p-1  max-w-20 2xl:max-w-24 truncate text-[var(--endeavour)] font-normal text-">PO#</th>
                                 <th className="text-left p-1 2xl:p-1 w-12 text-[var(--endeavour)] font-normal">Invoice</th>
                                 <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
@@ -714,11 +714,11 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                         <tbody>
                             {filteredArr.map((z, i) => {
                                 return (
-                                    <tr className="border-b border-[#e8f0f8]" key={i}>
+                                    <tr className="border-b border-[#c8dff0]" key={i} style={{ height: '22px' }}>
                                         <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)] max-w-14 2xl:max-w-24 truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
-                                            {z.poSupplier?.order}</td>
+                                            <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
                                         <td className="text-left p-1 2xl:p-1  w-10">{z.invoice}</td>
                                         <td className="text-right p-1 2xl:p-1">{
                                             <NumericFormat
@@ -783,7 +783,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
 
                         </tbody>
                         <tfoot>
-                            <tr className="bg-[#e3f3ff]">
+                            <tr className="bg-[#e3f3ff]" style={{ height: '24px' }}>
                                 <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-normal text-gray-500 uppercase">
                                     Total
                                 </th>
@@ -827,7 +827,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                 <div className="pt-1 w-full">
                     <table className="cashflow-detail-table responsiveTextTable w-full table-auto">
                         <thead>
-                            <tr className="bg-[#f0f8ff]">
+                            <tr style={{ height: '24px' }}>
                                 <th className="text-left p-1 2xl:p-1  w-28 text-[var(--endeavour)] font-normal">PO#</th>
                                 <th className="text-left p-1 2xl:p-1 w-12 text-[var(--endeavour)] font-normal">Invoice</th>
                                 <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
@@ -847,11 +847,11 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                         <tbody>
                             {filteredArr1.map((z, i) => {
                                 return (
-                                    <tr className="border-b border-[#e8f0f8]" key={i}>
-                                        <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)]"
+                                    <tr className="border-b border-[#c8dff0]" key={i} style={{ height: '22px' }}>
+                                        <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)] max-w-14 2xl:max-w-24 truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
-                                            {z.poSupplier?.order}</td>
+                                            <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
                                         <td className="text-left p-1 2xl:p-1">{z.invoice}</td>
                                         <td className="text-left p-1 2xl:p-1">{
                                             <NumericFormat
@@ -892,7 +892,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
 
                         </tbody>
                         <tfoot>
-                            <tr className="bg-[#e3f3ff]">
+                            <tr className="bg-[#e3f3ff]" style={{ height: '24px' }}>
                                 <th className="relative p-1 2xl:p-2 text-left font-normal text-gray-500 uppercase">
                                     Total
                                 </th>
@@ -1082,7 +1082,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
         <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
-                    <tr className="bg-[#f0f8ff]">
+                    <tr style={{ height: '24px' }}>
                         <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
                         <th className="text-left p-1 2xl:p-1 w-12 text-[var(--endeavour)] font-normal">Invoice</th>
@@ -1105,11 +1105,11 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr className="border-b border-[#e8f0f8]" key={i}>
-                                <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)]"
+                            <tr className="border-b border-[#c8dff0]" key={i} style={{ height: '22px' }}>
+                                <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'supplier', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}
-                                >{z.order}</td>
+                                ><Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
                                 {/* <td className="text-left p-2">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td> */}
                                 <td className="text-left p-1 2xl:p-1 2xl:max-w-24 truncate" >{z.invoice}</td>
                                 <td className="text-right p-1 2xl:p-1">{
@@ -1168,7 +1168,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                     })}
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#e3f3ff] responsiveTextTable">
+                    <tr className="bg-[#e3f3ff] responsiveTextTable" style={{ height: '24px' }}>
                         <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase">
                             Total
                         </th>
@@ -1263,7 +1263,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
         <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
-                    <tr className="bg-[#f0f8ff]">
+                    <tr style={{ height: '24px' }}>
                         <th className="text-left p-1 2xl:p-1 w-24 text-[var(--endeavour)] font-normal">PO#</th>
                         {/* <th className="text-left p-2">Supplier</th> */}
                         <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Exp. Invoice</th>
@@ -1286,11 +1286,11 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr className="border-b border-[#e8f0f8]" key={i}>
-                                <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)]"
+                            <tr className="border-b border-[#c8dff0]" key={i} style={{ height: '22px' }}>
+                                <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
                                     onClick={() => moveToContracts(z, z.poSupplier ? 'expense' : 'compexpense', uidCollection, setDateSelect,
                                         setValueExp, setIsOpen, blankInvoice, router)}>
-                                    {z.poSupplier?.order ?? 'Comp. Exp.'}</td>
+                                    <Tltip direction='top' tltpText={z.poSupplier?.order ?? 'Comp. Exp.'}><span className="block truncate">{z.poSupplier?.order ?? 'Comp. Exp.'}</span></Tltip></td>
                                 {/* <td className="text-left p-2">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td> */}
                                 <td className="text-left p-1 2xl:p-1" >{z.expense}</td>
                                 <td className="text-left p-1 2xl:p-1" >{settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType}</td>
@@ -1326,7 +1326,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#e3f3ff]">
+                    <tr className="bg-[#e3f3ff]" style={{ height: '24px' }}>
                         <th className="grelative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase">
                             <div>Total $</div>
                             <div className="pt-1">Total €</div>
