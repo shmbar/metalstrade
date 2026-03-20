@@ -553,16 +553,17 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           <Toast />
           <VideoLoader loading={loading} fullScreen={true} />
 
+          {/* Header + Stats Wrapper */}
+          <div className="rounded-2xl border border-[#b8ddf8] bg-white shadow-sm p-4 mb-6">
+
           {/* Header Section */}
-          <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+          <div className='flex items-center justify-between flex-wrap gap-2 pb-3'>
             <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
               {getTtl('Accounting', ln)}
             </h1>
-          
           </div>
 
           {/* Summary Cards */}
-          
 <div
   style={{
     background: '#dff0fb',
@@ -577,7 +578,6 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
     borderRadius: '1rem',
     border: '1px solid #b8ddf8',
   }}
-  className="mb-6"
 >
 
   {/* ── My Balance ── */}
@@ -689,6 +689,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
   </div>
 
 </div>
+          </div>
            {/* Full Table */}
           <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-white relative">
             <h3 className="text-lg font-semibold text-[var(--port-gore)] mb-4">All Transactions</h3>
