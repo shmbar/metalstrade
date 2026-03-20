@@ -391,6 +391,7 @@ const Customtable = ({
                       onDoubleClick={() => SelectRow(row.original)}
                       tabIndex={0}
                       className="cursor-pointer transition-colors"
+                      style={row.depth > 0 ? { transform: `translateX(${row.depth * 6}px)` } : undefined}
                     >
                       {row.getVisibleCells().map((cell) => {
                         if (cell.column.id === 'select') {

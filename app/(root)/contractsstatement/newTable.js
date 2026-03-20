@@ -328,6 +328,7 @@ const Customtable = ({
                       <tr
                         tabIndex={0}
                         className={`cursor-pointer transition-colors hover-row ${row.getIsExpanded() ? 'bg-[#dbeeff]' : ''}`}
+                        style={row.depth > 0 ? { transform: `translateX(${row.depth * 6}px)` } : undefined}
                       >
                         {row.getVisibleCells().map((cell) => {
                           if (cell.column.id === 'expander') {
