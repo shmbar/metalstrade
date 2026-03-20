@@ -631,27 +631,19 @@ const Shipments = () => {
       },
     },
     {
-      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
-        return <div key={index}>{item}</div>
-      })}</div>,
+      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{item}</div>)}</div>; },
       meta: { excludeFromQuickSum: true },
     },
     {
-      accessorKey: 'supplierInvAmount', header: getTtl('Sup Inv amount', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
-        return <div key={index}>{showAmountPO(item, props)}</div>
-      })}</div>, ttlUS: showAmountTtl(totals[0]?.us.supplierInvAmount, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierInvAmount, 'EUR'),
+      accessorKey: 'supplierInvAmount', header: getTtl('Sup Inv amount', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{showAmountPO(item, props)}</div>)}</div>; }, ttlUS: showAmountTtl(totals[0]?.us.supplierInvAmount, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierInvAmount, 'EUR'),
       enableColumnFilter: false,
     },
     {
-      accessorKey: 'supplierPrepayment', header: getTtl('Sup Prepayment', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
-        return <div key={index}>{showAmountPO(item, props)}</div>
-      })}</div>, ttlUS: showAmountTtl(totals[0]?.us.supplierPrepayment, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierPrepayment, 'EUR'),
+      accessorKey: 'supplierPrepayment', header: getTtl('Sup Prepayment', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{showAmountPO(item, props)}</div>)}</div>; }, ttlUS: showAmountTtl(totals[0]?.us.supplierPrepayment, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierPrepayment, 'EUR'),
       enableColumnFilter: false,
     },
     {
-      accessorKey: 'supBlnc', header: getTtl('Balance', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
-        return <div key={index}>{showAmountPO(item, props)}</div>
-      })}</div>, ttlUS: showAmountTtl(totals[0]?.us.supBlnc, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supBlnc, 'EUR'),
+      accessorKey: 'supBlnc', header: getTtl('Balance', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{showAmountPO(item, props)}</div>)}</div>; }, ttlUS: showAmountTtl(totals[0]?.us.supBlnc, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supBlnc, 'EUR'),
       meta: {
         filterVariant: 'range',
       },
@@ -764,9 +756,7 @@ const Shipments = () => {
       },
     },
     {
-      accessorKey: 'supInvoices', header: getTtl('Supplier inv', ln), cell: (props) => <div>{Array.isArray(props.getValue()) ? props.getValue().map((item, index) => {
-        return <div key={index}>{item}</div>
-      }) : props.getValue()}</div>,
+      accessorKey: 'supInvoices', header: getTtl('Supplier inv', ln), cell: (props) => { const arr = Array.isArray(props.getValue()) ? props.getValue() : [props.getValue()]; return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{item}</div>)}</div>; },
       meta: { excludeFromQuickSum: true },
     },
     { accessorKey: 'expType', header: getTtl('Invoice Type', ln), },
