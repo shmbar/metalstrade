@@ -795,16 +795,16 @@ return (
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex gap-1 mb-2">
+                    <div className="inline-flex gap-1 mb-2 bg-[#e3f3ff] border border-[#b8ddf8] rounded-full p-0">
                         <button
                             onClick={() => setActiveTab('general')}
-                            className={`px-3 py-1 text-xs rounded-full border transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white border-[var(--chathams-blue)]' : 'bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[#d4eafc]'}`}
+                            className={`px-4 py-1 text-xs rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
                         >
                             General Cashflow
                         </button>
                         <button
                             onClick={() => setActiveTab('unsold')}
-                            className={`px-3 py-1 text-xs rounded-full border transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white border-[var(--chathams-blue)]' : 'bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[#d4eafc]'}`}
+                            className={`px-4 py-1 text-xs rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
                         >
                             Unsold Stocks
                         </button>
@@ -878,7 +878,7 @@ return (
   {userTitle === 'Admin' &&
                         <div className="w-full p-2 border-b border-[var(--selago)]">
                             <div className="flex gap-2">
-                                <span className="responsiveTextInput items-center flex w-44 text-[var(--endeavour)]">Future</span>
+                                <span className="text-sm items-center flex w-44 text-[var(--endeavour)]">Future</span>
                                 <label className="pl-1">{
                                     <NumericFormat
                                         value={incoming}
@@ -895,35 +895,23 @@ return (
                             {
                                 initialData?.map((z, i) => {
                                     return (
-                                        <div className="flex gap-2 my-1" key={i}>
-                                            <input className="responsiveTextInput items-center flex outline-none w-44 truncate" value={z.title}
+                                        <div className="flex gap-2 my-1 items-center" key={i}>
+                                            <input className="responsiveTextInput items-center flex outline-none w-44 truncate text-[var(--endeavour)] !text-sm" value={z.title}
                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
                                             <input className='input w-44 h-6 responsiveTextTotal rounded-full'
                                                 value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
-                                            <button onClick={() => delItem(i)} className="border border-red-300 text-red-500 px-1.5 h-7 rounded-full hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
+                                            <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-md hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
+                                            {i === initialData.length - 1 && <>
+                                                <Tltip direction='bottom' tltpText='Save added data'>
+                                                    <button type="button" className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-5 h-7 text-xs rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
+                                                </Tltip>
+                                                <Tltip direction='bottom' tltpText='Add new item above'>
+                                                    <button type="button" className="border border-[var(--rock-blue)] text-[var(--endeavour)] px-5 h-7 text-xs rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all" onClick={addItem}>Add</button>
+                                                </Tltip>
+                                            </>}
                                         </div>
                                     )
                                 })}
-                            <div className="flex gap-2 mt-1">
-                                <Tltip direction='bottom' tltpText='Save added data'>
-                                    <button
-                                        type="button"
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 h-7 text-xs rounded-full hover:opacity-90 transition-all"
-                                        onClick={saveInitData}
-                                    >
-                                        Save
-                                    </button>
-                                </Tltip>
-                                <Tltip direction='bottom' tltpText='Add new item above'>
-                                    <button
-                                        type="button"
-                                        className="border border-[var(--rock-blue)] text-[var(--endeavour)] px-3 h-7 text-xs rounded-full hover:bg-[var(--selago)] transition-all"
-                                        onClick={addItem}
-                                    >
-                                        Add
-                                    </button>
-                                </Tltip>
-                            </div>
                         </div>
 
                     }
@@ -932,18 +920,10 @@ return (
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Stocks - Paid</span>
-                                </div>
-                                <div className="flex py-0 px-1 justify-between">
-                                    {
-                                        stocksSortName ?
-                                            <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} />}
-                                    {
-                                        stocksSort ?
-                                            <FaSortAmountDown className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortStocks()} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks()} />}
+                                    <div className="flex items-center gap-2">
+                                        {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} />}
+                                        {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks()} />}
+                                    </div>
                                 </div>
                                 {stockData1.map((x, i) => {
                                     return (
@@ -1008,18 +988,10 @@ return (
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Stocks - UnPaid</span>
-                                </div>
-                                <div className="flex py-0 px-1 justify-between">
-                                    {
-                                        stocksSortName1 ?
-                                            <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} />}
-                                    {
-                                        stocksSort1 ?
-                                            <FaSortAmountDown className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortStocks1()} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks1()} />}
+                                    <div className="flex items-center gap-2">
+                                        {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} />}
+                                        {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks1()} />}
+                                    </div>
                                 </div>
 
                                 {stockData2.map((x, i) => {
@@ -1081,18 +1053,10 @@ return (
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Clients - Payment</span>
-                                </div>
-                                <div className="flex py-0 px-1 justify-between">
-                                    {
-                                        clientSortName1 ?
-                                            <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} />}
-                                    {
-                                        clientSort1 ?
-                                            <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(1)} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortClients(1)} />}
+                                    <div className="flex items-center gap-2">
+                                        {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} />}
+                                        {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(1)} />}
+                                    </div>
                                 </div>
 
                                 {clientInvoices2.map((x, i) => {
@@ -1151,18 +1115,10 @@ return (
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Clients - Balances</span>
-                                </div>
-                                <div className="flex py-0 px-1 justify-between">
-                                    {
-                                        clientSortName ?
-                                            <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} />}
-                                    {
-                                        clientSort ?
-                                            <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(0)} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(0)} />}
+                                    <div className="flex items-center gap-2">
+                                        {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} />}
+                                        {clientSort ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(0)} />}
+                                    </div>
                                 </div>
 
                                 {clientInvoices1.map((x, i) => {
@@ -1283,18 +1239,10 @@ return (
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Supplier - Payment</span>
-                                </div>
-                                <div className="flex py-0 px-1 justify-between">
-                                    {
-                                        supPmntssSortName1 ?
-                                            <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
-                                    {
-                                        supPmntssSort1 ?
-                                            <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(1)} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(1)} />}
+                                    <div className="flex items-center gap-2">
+                                        {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
+                                        {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(1)} />}
+                                    </div>
                                 </div>
 
 
@@ -1358,18 +1306,10 @@ return (
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Supplier - Balances</span>
-                                </div>
-                                <div className="flex py-0 px-1 justify-between">
-                                    {
-                                        supPmntssSortName ?
-                                            <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
-                                    {
-                                        supPmntssSort ?
-                                            <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(0)} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(0)} />}
+                                    <div className="flex items-center gap-2">
+                                        {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
+                                        {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(0)} />}
+                                    </div>
                                 </div>
 
 
@@ -1430,18 +1370,12 @@ return (
                             </div>
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <span className="text-[var(--endeavour)] flex items-center text-xs font-medium">Expenses</span>
-                                <div className="flex py-0 px-1 justify-between">
-                                    {
-                                        expensesSortName ?
-                                            <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} />}
-                                    {
-                                        expensesSort ?
-                                            <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpenses()} />
-                                            :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpenses()} />}
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="text-[var(--endeavour)] text-xs font-medium">Expenses</span>
+                                    <div className="flex items-center gap-2">
+                                        {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} />}
+                                        {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpenses()} />}
+                                    </div>
                                 </div>
 
                                 {expenses.map((x, i) => {
