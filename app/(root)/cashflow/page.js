@@ -1555,7 +1555,7 @@ return (
                                 <div className="flex gap-2 my-1" key={z}>
                                     <span className="text-xs items-center flex w-28 text-[var(--endeavour)] whitespace-nowrap">Total for {z}</span>
                                     <input
-                                        className='input w-44 h-6 text-xs font-normal text-[var(--endeavour)] text-right px-3 bg-white border-[var(--rock-blue)] rounded-full'
+                                        className='input w-44 h-6 text-xs font-normal text-[var(--endeavour)] text-right px-3 bg-[#f8fbff] border-[#d8e8f5] rounded-full'
                                         value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
                                         onChange={e => handleChange(e, z)}
                                     />
