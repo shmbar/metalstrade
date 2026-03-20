@@ -80,6 +80,7 @@ const Stocks = () => {
       accessorKey: 'date', header: getTtl('Date', ln),
       meta: {
         filterVariant: 'dates',
+        excludeFromQuickSum: true,
       },
       filterFn: 'dateBetweenFilterFn'
     },

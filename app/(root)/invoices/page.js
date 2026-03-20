@@ -180,28 +180,32 @@ const Invoices = () => {
 	};
 
 	let propDefaults = Object.keys(settings).length === 0 ? [] : [
-		{ 
-			accessorKey: 'opDate', 
-			header: getTtl('Operation Time', ln), 
+		{
+			accessorKey: 'opDate',
+			header: getTtl('Operation Time', ln),
 			cell: (props) => <span className="whitespace-nowrap">{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</span>,
+			meta: { excludeFromQuickSum: true },
 			size: 150
 		},
-		{ 
-			accessorKey: 'lstSaved', 
-			header: getTtl('Last Saved', ln), 
+		{
+			accessorKey: 'lstSaved',
+			header: getTtl('Last Saved', ln),
 			cell: (props) => <span className="whitespace-nowrap">{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</span>,
+			meta: { excludeFromQuickSum: true },
 			size: 150
 		},
-		{ 
-			accessorKey: 'poSupplierOrder', 
-			header: getTtl('PO', ln) + '#', 
+		{
+			accessorKey: 'poSupplierOrder',
+			header: getTtl('PO', ln) + '#',
 			cell: (props) => <span className="whitespace-nowrap">{props.getValue()}</span>,
+			meta: { excludeFromQuickSum: true },
 			size: 100
 		},
-		{ 
-			accessorKey: 'invoice', 
-			header: getTtl('Invoice', ln), 
+		{
+			accessorKey: 'invoice',
+			header: getTtl('Invoice', ln),
 			cell: (props) => <span className="whitespace-nowrap">{(String(props.getValue()).toString()).padStart(4, "0") + getprefixInv(props)}</span>,
+			meta: { excludeFromQuickSum: true },
 			size: 100
 		},
 		{
@@ -338,10 +342,11 @@ const Invoices = () => {
 			},
 			size: 130
 		},
-		{ 
-			accessorKey: 'percentage', 
-			header: getTtl('Prepayment', ln), 
+		{
+			accessorKey: 'percentage',
+			header: getTtl('Prepayment', ln),
 			cell: (props) => <span className="whitespace-nowrap">{percent(props)}</span>,
+			meta: { excludeFromQuickSum: true },
 			size: 120
 		},
 		{
@@ -362,22 +367,25 @@ const Invoices = () => {
 			},
 			size: 120
 		},
-		{ 
-			accessorKey: 'container', 
-			header: getTtl('Container No', ln), 
+		{
+			accessorKey: 'container',
+			header: getTtl('Container No', ln),
 			cell: (props) => <span className='whitespace-nowrap'>{props.getValue()}</span>,
+			meta: { excludeFromQuickSum: true },
 			size: 200
 		},
 		{
 			accessorKey: 'etdDate',
 			header: 'ETD',
 			cell: (props) => <span className="whitespace-nowrap">{props.getValue() ? dateFormat(props.getValue(), 'dd.mm.yy') : ''}</span>,
+			meta: { excludeFromQuickSum: true },
 			size: 110
 		},
 		{
 			accessorKey: 'etaDate',
 			header: 'ETA',
 			cell: (props) => <span className="whitespace-nowrap">{props.getValue() ? dateFormat(props.getValue(), 'dd.mm.yy') : ''}</span>,
+			meta: { excludeFromQuickSum: true },
 			size: 110
 		},
 		{

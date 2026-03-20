@@ -218,10 +218,25 @@ export function QuickSumTotals({
       {(totals || []).map((t) => {
         const col = table.getAllColumns().find(c => c.id === t.id);
         const label = col?.columnDef?.header || t.id;
-        const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(t.total);
+        const fmt = (n) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+
+        // Multi-currency: show $ and € separately
+        if (t.byCurrency && Object.keys(t.byCurrency).length > 0) {
+          const parts = [];
+          if (t.byCurrency.USD != null) parts.push(`$${fmt(t.byCurrency.USD)}`);
+          if (t.byCurrency.EUR != null) parts.push(`€${fmt(t.byCurrency.EUR)}`);
+          if (t.byCurrency.plain != null) parts.push(fmt(t.byCurrency.plain));
+          return (
+            <span key={t.id} className="bg-white border border-[var(--selago)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
+              {label}: <span className="text-[var(--endeavour)]">{parts.join(' | ')}</span>
+            </span>
+          );
+        }
+
+        // Single currency / plain number
         return (
           <span key={t.id} className="bg-white border border-[var(--selago)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
-            {label}: <span className="text-[var(--endeavour)]">{formatted}</span>
+            {label}: <span className="text-[var(--endeavour)]">{fmt(t.total)}</span>
           </span>
         );
       })}

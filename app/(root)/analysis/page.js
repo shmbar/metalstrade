@@ -62,12 +62,12 @@ const Analyss = () => {
 
   let propDefaults = Object.keys(settings).length === 0 ? [] : [
     { accessorKey: 'order', header: getTtl('PO', ln) + '#' },
-    { accessorKey: 'cert', header: 'Cert', cell: (props) => <p>{props.getValue()} </p> },
+    { accessorKey: 'cert', header: 'Cert', cell: (props) => <p>{props.getValue()} </p>, meta: { excludeFromQuickSum: true } },
     { accessorKey: 'ToNi', header: 'Ni', cell: (props) => <p>{props.getValue()} </p> },
     { accessorKey: 'ToCr', header: 'Cr', cell: (props) => <p>{props.getValue()} </p> },
     { accessorKey: 'ToMo', header: 'Mo', cell: (props) => <p>{props.getValue()} </p> },
     { accessorKey: 'Toqnty', header: 'Weight MT', cell: (props) => <p>{props.getValue()} </p> },
-    { accessorKey: 'invoice', header: 'IMS ref', cell: (props) => <p>{props.getValue()} </p> },
+    { accessorKey: 'invoice', header: 'IMS ref', cell: (props) => <p>{props.getValue()} </p>, meta: { excludeFromQuickSum: true } },
     { accessorKey: 'BackNi', header: 'Ni', cell: (props) => <p>{props.getValue()} </p> },
     { accessorKey: 'BackCr', header: 'Cr', cell: (props) => <p>{props.getValue()} </p> },
     { accessorKey: 'BackMo', header: 'Mo', cell: (props) => <p>{props.getValue()} </p> },

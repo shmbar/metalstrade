@@ -111,7 +111,7 @@ const Expenses = () => {
         row.getValue(columnId).toLowerCase() === filterValue.toLowerCase();
 
     let propDefaults = Object.keys(settings).length === 0 ? [] : [
-        { accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p> },
+        { accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
         {
             accessorKey: 'supplier', header: getTtl('Vendor', ln), meta: {
                 filterVariant: 'selectSupplier',
@@ -131,7 +131,7 @@ const Expenses = () => {
                 filterVariant: 'range',
             },
         },
-        { accessorKey: 'expense', header: getTtl('Expense Invoice', ln) + '#' },
+        { accessorKey: 'expense', header: getTtl('Expense Invoice', ln) + '#', meta: { excludeFromQuickSum: true } },
         { accessorKey: 'expType', header: getTtl('Expense Type', ln) },
         {
             accessorKey: 'paid', header: getTtl('Status', ln), meta: {

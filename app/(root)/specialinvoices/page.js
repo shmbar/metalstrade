@@ -113,6 +113,7 @@ const SpecialInvoices = () => {
             accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
             meta: {
                 filterVariant: 'dates',
+                excludeFromQuickSum: true,
             }, filterFn: 'dateBetweenFilterFn'
         },
         {
@@ -122,9 +123,9 @@ const SpecialInvoices = () => {
             },
         },
         { accessorKey: 'originSupplier', header: 'Original supplier' },
-        { accessorKey: 'order', header: getTtl('PO', ln) + '#' },
-        { accessorKey: 'salesInvoice', header: 'Sales Invoice' },
-        { accessorKey: 'invoice', header: getTtl('Invoice', ln) },
+        { accessorKey: 'order', header: getTtl('PO', ln) + '#', meta: { excludeFromQuickSum: true } },
+        { accessorKey: 'salesInvoice', header: 'Sales Invoice', meta: { excludeFromQuickSum: true } },
+        { accessorKey: 'invoice', header: getTtl('Invoice', ln), meta: { excludeFromQuickSum: true } },
         { accessorKey: 'description', header: getTtl('Description', ln) },
         { accessorKey: 'qnty', header: getTtl('Weight', ln), cell: (props) => <p>{setDecimals(props.getValue())}</p>, },
         {

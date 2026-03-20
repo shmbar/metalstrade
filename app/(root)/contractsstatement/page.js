@@ -257,11 +257,12 @@ const Contracts = () => {
 			accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
 			meta: {
 				filterVariant: 'dates',
+				excludeFromQuickSum: true,
 			},
 			filterFn: 'dateBetweenFilterFn'
 		},
 		{
-			accessorKey: 'order', header: getTtl('PO', ln) + '#'
+			accessorKey: 'order', header: getTtl('PO', ln) + '#', meta: { excludeFromQuickSum: true }
 		},
 		{
 			accessorKey: 'supplier', header: getTtl('Supplier', ln),
@@ -344,6 +345,7 @@ const Contracts = () => {
 		{
 			accessorKey: 'invoiceNum', header: getTtl('Invoice', ln),
 			filterFn: arrayIncludesString, // doesnt work here since the invoic is number
+			meta: { excludeFromQuickSum: true },
 			cell: (props) => {
 				return enabledSwitch ? props.getValue() : (
 					<div className="flex flex-col">

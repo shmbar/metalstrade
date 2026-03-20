@@ -268,12 +268,14 @@ const AccountStatement = () => {
   let propDefaults = Object.keys(settings).length === 0 ? [] : [
     {
       accessorKey: 'invoice', header: getTtl('Invoice', ln),
-      ttlUS: getTtl('Total', ln) + ' $:', ttlEU: getTtl('Total', ln) + ' €:'
+      ttlUS: getTtl('Total', ln) + ' $:', ttlEU: getTtl('Total', ln) + ' €:',
+      meta: { excludeFromQuickSum: true }
     },
     {
       accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <div>{dateFormat(props.getValue(), 'dd.mm.yy')} </div>,
       meta: {
         filterVariant: 'dates',
+        excludeFromQuickSum: true,
       },
       filterFn: 'dateBetweenFilterFn'
     },
@@ -290,6 +292,7 @@ const AccountStatement = () => {
       accessorKey: 'due', header: getTtl('DuePayment', ln), cell: (props) => <div>{dateFormat(props.getValue(), 'dd.mm.yy')} </div>,
       meta: {
         filterVariant: 'dates',
+        excludeFromQuickSum: true,
       },
       filterFn: 'dateBetweenFilterFn'
     },

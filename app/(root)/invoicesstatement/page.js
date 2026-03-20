@@ -324,7 +324,8 @@ const Shipments = () => {
         {
             accessorKey: 'supInvoices', header: getTtl('Supplier inv', ln), cell: (props) => <div>{Array.isArray(props.getValue()) ? props.getValue().map((item, index) => {
                 return <div key={index}>{item}</div>
-            }) : props.getValue()}</div>
+            }) : props.getValue()}</div>,
+            meta: { excludeFromQuickSum: true },
         },
         { accessorKey: 'expType', header: getTtl('Invoice Type', ln), },
         {
@@ -342,11 +343,12 @@ const Shipments = () => {
                 filterVariant: 'range',
             },
         },
-        { accessorKey: 'InvNum', header: getTtl('Invoice', ln) + ' #', cell: (props) => <div>{String(props.getValue()).padStart(4, "0")}</div> },
+        { accessorKey: 'InvNum', header: getTtl('Invoice', ln) + ' #', cell: (props) => <div>{String(props.getValue()).padStart(4, "0")}</div>, meta: { excludeFromQuickSum: true } },
         {
             accessorKey: 'dateInv', header: getTtl('Date', ln), cell: (props) => <p>{props.getValue() === '' ? '' : dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
             meta: {
                 filterVariant: 'dates',
+                excludeFromQuickSum: true,
             },
             filterFn: 'dateBetweenFilterFn'
         },
@@ -360,7 +362,7 @@ const Shipments = () => {
                 filterVariant: 'range',
             },
         },
-        { accessorKey: 'prepaidPer', header: getTtl('Prepaid', ln) + ' %', },
+        { accessorKey: 'prepaidPer', header: getTtl('Prepaid', ln) + ' %', meta: { excludeFromQuickSum: true } },
         {
             accessorKey: 'totalPrepayment1', header: getTtl('Prepaid Amount', ln), cell: (props) => <div>{props.getValue() === '' ? '' : showAmountInv(props)}</div>, meta: {
                 filterVariant: 'range',
@@ -376,8 +378,8 @@ const Shipments = () => {
         { accessorKey: 'rcvd', header: 'Outturn', }, //false
         { accessorKey: 'fnlzing', header: getTtl('Finalizing', ln) },//false
         { accessorKey: 'status', header: getTtl('Release Status', ln), }, //false
-        { accessorKey: 'etd', enableSorting: false, header: 'ETD', },//false
-        { accessorKey: 'eta', enableSorting: false, header: 'ETA', },//false
+        { accessorKey: 'etd', enableSorting: false, header: 'ETD', meta: { excludeFromQuickSum: true } },//false
+        { accessorKey: 'eta', enableSorting: false, header: 'ETA', meta: { excludeFromQuickSum: true } },//false
     ];
 
     let invisible = ['rcvd', 'fnlzing', 'status', 'etd', 'eta', 'originSupplier'].reduce((acc, key) => {

@@ -20,6 +20,9 @@ export const detectNumericCols = ({
   for (const col of cols) {
     const id = col.id;
     if (exclude.includes(id)) continue;
+    if (col.columnDef?.meta?.excludeFromQuickSum) continue;
+    if (col.columnDef?.meta?.options) continue;
+    if (col.columnDef?.meta?.filterVariant === 'dates') continue;
     
     let hits = 0;
     let seen = 0;

@@ -190,7 +190,7 @@ useEffect(() => {
 		row.getValue(columnId).toLowerCase() === filterValue.toLowerCase();
 
 		let propDefaults = Object.keys(settings).length === 0 ? [] : [
-		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p className="whitespace-nowrap">{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p> },
+		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p className="whitespace-nowrap">{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
   {
     accessorKey: 'supplier',
     header: getTtl('Vendor', ln),
@@ -207,8 +207,8 @@ useEffect(() => {
 			},
 			filterFn: 'dateBetweenFilterFn'
 		},
-		{ accessorKey: 'salesInv', header: getTtl('SalesInvoices', ln) },
-		{ accessorKey: 'poSupplierOrder', header: getTtl('PoOrderNo', ln) },
+		{ accessorKey: 'salesInv', header: getTtl('SalesInvoices', ln), meta: { excludeFromQuickSum: true } },
+		{ accessorKey: 'poSupplierOrder', header: getTtl('PoOrderNo', ln), meta: { excludeFromQuickSum: true } },
 		  {
     accessorKey: 'cur',
 		header: '$/€',
@@ -228,7 +228,7 @@ useEffect(() => {
   meta: { filterVariant: 'range' },
 },
 
-		 { accessorKey: 'expense', header: getTtl('Expense Invoice', ln) + '#', cell: EditableCell },
+		 { accessorKey: 'expense', header: getTtl('Expense Invoice', ln) + '#', cell: EditableCell, meta: { excludeFromQuickSum: true } },
 		  {
     accessorKey: 'expType',
     header: getTtl('Expense Type', ln),

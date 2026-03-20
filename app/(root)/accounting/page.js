@@ -332,6 +332,7 @@ useEffect(() => {
     {
       accessorKey: 'num', header: '#', cell: (props) => <p className='text-center'>{props.getValue()}</p>,
       enableColumnFilter: false,
+      meta: { excludeFromQuickSum: true },
     },
     {
       accessorKey: 'dateExp', header: getTtl('Date', ln), cell: (props) => <p>{props.getValue() ? dateFormat(props.getValue(), 'dd.mm.yy') : ''}</p>,
@@ -340,7 +341,7 @@ useEffect(() => {
       },
       filterFn: 'dateBetweenFilterFn'
     },
-   { accessorKey: 'expInvoice', header: getTtl('Expense Invoice', ln) + '#', cell: EditableCell },
+   { accessorKey: 'expInvoice', header: getTtl('Expense Invoice', ln) + '#', cell: EditableCell, meta: { excludeFromQuickSum: true } },
     {
   accessorKey: 'clientExp',
   header: getTtl('Supplier', ln),
@@ -366,8 +367,8 @@ useEffect(() => {
   }},
 
 
-    { accessorKey: 'dateInv', header: getTtl('Date', ln), cell: (props) => <p>{props.getValue() ? dateFormat(props.getValue(), 'dd.mm.yy') : ''}</p> },
-    { accessorKey: 'saleInvoice', header: getTtl('Invoice', ln), cell: (props) => <p>{props.getValue()}</p> },
+    { accessorKey: 'dateInv', header: getTtl('Date', ln), cell: (props) => <p>{props.getValue() ? dateFormat(props.getValue(), 'dd.mm.yy') : ''}</p>, meta: { excludeFromQuickSum: true } },
+    { accessorKey: 'saleInvoice', header: getTtl('Invoice', ln), cell: (props) => <p>{props.getValue()}</p>, meta: { excludeFromQuickSum: true } },
     {
   accessorKey: 'clientInv',
   header: getTtl('Consignee', ln),

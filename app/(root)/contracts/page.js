@@ -143,9 +143,9 @@ const Contracts = () => {
 	}
 
 	let propDefaults = Object.keys(settings).length === 0 ? [] : [
-		{ accessorKey: 'opDate', header: getTtl('Operation Time', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p> },
-		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p> },
-		{ accessorKey: 'order', header: getTtl('PO', ln) + '#' },
+		{ accessorKey: 'opDate', header: getTtl('Operation Time', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
+		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
+		{ accessorKey: 'order', header: getTtl('PO', ln) + '#', meta: { excludeFromQuickSum: true } },
 		{
 			accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
 			meta: { filterVariant: 'dates' }, 
@@ -240,7 +240,8 @@ const Contracts = () => {
 		{
 			accessorKey: 'cur',
 			header: getTtl('Currency', ln),
-			cell: (props) => <span>{gQ(props.getValue(), 'Currency', 'cur')}</span>
+			cell: (props) => <span>{gQ(props.getValue(), 'Currency', 'cur')}</span>,
+			meta: { excludeFromQuickSum: true }
 		},
 		{ accessorKey: 'qTypeTable', header: getTtl('QTY', ln), cell: (props) => <span>{showQTY(props)}</span> },
 		{

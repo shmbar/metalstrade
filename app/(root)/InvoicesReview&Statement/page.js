@@ -621,7 +621,8 @@ const Shipments = () => {
   let propDefaults = Object.keys(settings).length === 0 ? [] : [
     {
       accessorKey: 'order', header: getTtl('PO', ln) + '#', bgt: 'bg-green-500', bgr: 'bg-green-50',
-      ttlUS: getTtl('Total', ln) + ' $:', ttlEU: getTtl('Total', ln) + ' €:'
+      ttlUS: getTtl('Total', ln) + ' $:', ttlEU: getTtl('Total', ln) + ' €:',
+      meta: { excludeFromQuickSum: true }
     }, //false
     {
       accessorKey: 'supplier', header: getTtl('Supplier', ln), bgt: 'bg-green-500', bgr: 'bg-green-50',
@@ -633,6 +634,7 @@ const Shipments = () => {
       accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
         return <div key={index}>{item}</div>
       })}</div>,
+      meta: { excludeFromQuickSum: true },
     },
     {
       accessorKey: 'supplierInvAmount', header: getTtl('Sup Inv amount', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => <div>{props.getValue().map((item, index) => {
@@ -655,7 +657,7 @@ const Shipments = () => {
       },
     },
 
-    { accessorKey: 'invoice', header: getTtl('Invoice', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50',  cell: (props) => <div>{String(props.getValue()).padStart(4, "0") }</div> },
+    { accessorKey: 'invoice', header: getTtl('Invoice', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50',  cell: (props) => <div>{String(props.getValue()).padStart(4, "0") }</div>, meta: { excludeFromQuickSum: true } },
     {
       accessorKey: 'client', header: getTtl('Consignee', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50', meta: {
         filterVariant: 'selectClient',
@@ -670,7 +672,8 @@ const Shipments = () => {
     },
     {
       accessorKey: 'prepaidPer', header: getTtl('Prepaid', ln) + ' %', bgt: 'bg-amber-400', bgr: 'bg-amber-50',
-      ttlUS: totals[0]?.us.prepaidPer, ttlEU: totals[1]?.eu.prepaidPer
+      ttlUS: totals[0]?.us.prepaidPer, ttlEU: totals[1]?.eu.prepaidPer,
+      meta: { excludeFromQuickSum: true }
     },
     {
       accessorKey: 'totalPrepayment1', header: getTtl('Prepaid Amount', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50', cell: (props) => <p>{showAmountInv(props)}</p>,
@@ -690,6 +693,7 @@ const Shipments = () => {
       accessorKey: 'etd', enableSorting: false, header: 'ETD', bgt: 'bg-purple-800', bgr: 'bg-purple-50',
       meta: {
         filterVariant: 'dates',
+        excludeFromQuickSum: true,
       },
       filterFn: 'dateBetweenFilterFn'
     },//false
@@ -697,6 +701,7 @@ const Shipments = () => {
       accessorKey: 'eta', enableSorting: false, header: 'ETA', bgt: 'bg-purple-800', bgr: 'bg-purple-50',
       meta: {
         filterVariant: 'dates',
+        excludeFromQuickSum: true,
       },
       filterFn: 'dateBetweenFilterFn'
     },//false
@@ -761,7 +766,8 @@ const Shipments = () => {
     {
       accessorKey: 'supInvoices', header: getTtl('Supplier inv', ln), cell: (props) => <div>{Array.isArray(props.getValue()) ? props.getValue().map((item, index) => {
         return <div key={index}>{item}</div>
-      }) : props.getValue()}</div>
+      }) : props.getValue()}</div>,
+      meta: { excludeFromQuickSum: true },
     },
     { accessorKey: 'expType', header: getTtl('Invoice Type', ln), },
     {
@@ -779,11 +785,12 @@ const Shipments = () => {
         filterVariant: 'range',
       },
     },
-    { accessorKey: 'InvNum', header: getTtl('Invoice', ln) + ' #', cell: (props) => <div>{String(props.getValue()).padStart(4, "0")}</div> },
+    { accessorKey: 'InvNum', header: getTtl('Invoice', ln) + ' #', cell: (props) => <div>{String(props.getValue()).padStart(4, "0")}</div>, meta: { excludeFromQuickSum: true } },
     {
       accessorKey: 'dateInv', header: getTtl('Date', ln), cell: (props) => <p>{props.getValue() === '' ? '' : dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
       meta: {
         filterVariant: 'dates',
+        excludeFromQuickSum: true,
       },
       filterFn: 'dateBetweenFilterFn'
     },
@@ -797,7 +804,7 @@ const Shipments = () => {
         filterVariant: 'range',
       },
     },
-    { accessorKey: 'prepaidPer', header: getTtl('Prepaid', ln) + ' %', },
+    { accessorKey: 'prepaidPer', header: getTtl('Prepaid', ln) + ' %', meta: { excludeFromQuickSum: true } },
     {
       accessorKey: 'totalPrepayment1', header: getTtl('Prepaid Amount', ln), cell: (props) => <div>{props.getValue() === '' ? '' : showAmountInvStatement(props)}</div>, meta: {
         filterVariant: 'range',
@@ -813,8 +820,8 @@ const Shipments = () => {
     { accessorKey: 'rcvd', header: 'Outturn', },
     { accessorKey: 'fnlzing', header: getTtl('Finalizing', ln) },
     { accessorKey: 'status', header: getTtl('Release Status', ln), },
-    { accessorKey: 'etd', enableSorting: false, header: 'ETD', },
-    { accessorKey: 'eta', enableSorting: false, header: 'ETA', },
+    { accessorKey: 'etd', enableSorting: false, header: 'ETD', meta: { excludeFromQuickSum: true } },
+    { accessorKey: 'eta', enableSorting: false, header: 'ETA', meta: { excludeFromQuickSum: true } },
   ];
 
   let invisibleStatement = ['rcvd', 'fnlzing', 'status', 'etd', 'eta'].reduce((acc, key) => {

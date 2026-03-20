@@ -470,10 +470,11 @@ const ContractsMerged = () => {
             accessorKey: 'date', header: getTtl('Date', ln), enableSorting: false, cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
             meta: {
                 filterVariant: 'dates',
+                excludeFromQuickSum: true,
             },
             filterFn: 'dateBetweenFilterFn'
         },
-        { accessorKey: 'order', header: getTtl('PO', ln) + '#', ttl: <span className='font-medium'>{getTtl('Total', ln) + ':'}</span> },
+        { accessorKey: 'order', header: getTtl('PO', ln) + '#', ttl: <span className='font-medium'>{getTtl('Total', ln) + ':'}</span>, meta: { excludeFromQuickSum: true } },
         {
             accessorKey: 'supplier', header: getTtl('Supplier', ln), meta: {
                 filterVariant: 'selectSupplier',
@@ -494,7 +495,7 @@ const ContractsMerged = () => {
         {
             accessorKey: 'deviation', header: getTtl('Deviation', ln), cell: (props) => <p>{showAmount(props.getValue())}</p>, ttl: showAmount(totals[0]?.deviation),
         },
-        { accessorKey: 'prepaidPer', header: getTtl('Prepaid', ln) + ' %', ttl: totals[0]?.prepaidPer },
+        { accessorKey: 'prepaidPer', header: getTtl('Prepaid', ln) + ' %', ttl: totals[0]?.prepaidPer, meta: { excludeFromQuickSum: true } },
         {
             accessorKey: 'totalPrepayment1', header: getTtl('Prepaid Amount', ln), cell: (props) => <p>{showAmount(props.getValue())}</p>, ttl: showAmount(totals[0]?.totalPrepayment1),
             meta: {
@@ -567,6 +568,7 @@ const ContractsMerged = () => {
             accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
             meta: {
                 filterVariant: 'dates',
+                excludeFromQuickSum: true,
             },
             filterFn: 'dateBetweenFilterFn'
         },
