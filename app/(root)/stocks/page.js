@@ -354,7 +354,7 @@ const Stocks = () => {
               </div>
 
               {/* Totals Section */}
-              <div className='flex gap-6 flex-wrap'>
+              <div className='flex gap-6 flex-wrap w-full'>
                 <SumTable
                   sumData={sumData}
                   loading={loading}

@@ -66,7 +66,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           }}
         >
           <p
-            className="text-[var(--endeavour)] font-bold text-center"
+            className="text-[var(--endeavour)] font-medium text-center"
             style={{
               fontSize: 'clamp(11px, 1vw, 11px)',
               letterSpacing: '0.05em'
@@ -87,7 +87,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         >
           <div
             style={{
-              fontWeight: 600,
+              fontWeight: 500,
               color: 'var(--endeavour)'
             }}
                       className="!text-[10px]"
@@ -99,7 +99,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           <div
             className="!text-[10px]"
             style={{
-              fontWeight: 600,
+              fontWeight: 500,
               color: 'var(--endeavour)'
             }}
           >
@@ -151,7 +151,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           }}
         >
           <div
-            className="flex justify-between font-semibold"
+            className="flex justify-between font-medium"
             style={{ color: 'var(--chathams-blue)' }}
           >
             <span>Total $</span>
@@ -164,7 +164,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           </div>
 
           <div
-            className="flex justify-between font-semibold mt-1"
+            className="flex justify-between font-medium mt-1"
             style={{ color: 'var(--chathams-blue)' }}
           >
             <span>Total €</span>

@@ -54,7 +54,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                     borderTopLeftRadius: '16px',
                     borderTopRightRadius: '12px'
                 }}>
-                <h3 className="text-[var(--chathams-blue)] font-semibold text-center"
+                <h3 className="text-[var(--chathams-blue)] font-medium font-poppins text-xs text-center"
                     style={{
                         fontSize: 'clamp(11px, 1vw, 13px)',
                         letterSpacing: '0.02em'
@@ -74,7 +74,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                 <tr key={hdGroup.id} style={{ borderBottom: '1px solid var(--selago)' }}>
                                     {hdGroup.headers.map(header =>
                                         <th key={header.id}
-                                            className="relative px-6 py-2 text-left font-medium uppercase"
+                                            className="relative px-6 py-2 text-left font-medium font-poppins text-xs uppercase"
                                             style={{
                                                 fontSize: 'clamp(10px, 1vw, 13px)',
                                                 color: 'var(--chathams-blue)',
@@ -127,9 +127,9 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         <tfoot>
                             <tr style={{
                                 background: '#dbeeff',
-                                fontWeight: 600
+                                fontWeight: 500
                             }}>
-                                <th className="relative px-2 py-2 text-left font-semibold"
+                                <th className="relative px-2 py-2 text-left font-medium"
                                     style={{
                                     color: 'var(--chathams-blue)',
                                     fontSize: 'clamp(11px, 1vw, 13px)',
@@ -137,7 +137,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                     }}>
                                     Total $:
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-semibold"
+                                <th className="relative px-2 py-2 text-left font-medium"
                                     style={{
                                     color: 'var(--chathams-blue)',
                                     fontSize: 'clamp(11px, 1vw, 13px)',
@@ -145,7 +145,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                     }}>
                                     {showAmount(usdTotals.invoices, 'usd')}
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-semibold"
+                                <th className="relative px-2 py-2 text-left font-medium"
                                     style={{
                                     color: 'var(--chathams-blue)',
                                     fontSize: 'clamp(11px, 1vw, 13px)',
@@ -153,7 +153,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                     }}>
                                     {showAmount(usdTotals.payments, 'usd')}
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-semibold"
+                                <th className="relative px-2 py-2 text-left font-medium"
                                     style={{
                                     color: 'var(--chathams-blue)',
                                     fontSize: 'clamp(11px, 1vw, 13px)'
@@ -164,7 +164,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                             <tr style={{
                                 background: '#dbeeff', borderTop: '1px solid var(--rock-blue)'
                             }}>
-                                <th className="relative px-2 py-2 text-left font-semibold"
+                                <th className="relative px-2 py-2 text-left font-medium"
                                     style={{
                                     color: 'var(--chathams-blue)',
                                     fontSize: 'clamp(11px, 1vw, 13px)',
@@ -172,7 +172,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                     }}>
                                     Total €:
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-semibold"
+                                <th className="relative px-2 py-2 text-left font-medium"
                                     style={{
                                     color: 'var(--chathams-blue)',
                                     fontSize: 'clamp(11px, 1vw, 13px)',
@@ -180,7 +180,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                     }}>
                                     {showAmount(eurTotals.invoices, 'eur')}
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-semibold"
+                                <th className="relative px-2 py-2 text-left font-medium"
                                     style={{
                                     color: 'var(--chathams-blue)',
                                     fontSize: 'clamp(11px, 1vw, 13px)',
@@ -188,7 +188,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                     }}>
                                     {showAmount(eurTotals.payments, 'eur')}
                                 </th>
-                                <th className="relative px-2 py-2 text-left font-semibold"
+                                <th className="relative px-2 py-2 text-left font-medium"
                                     style={{
                                     color: 'var(--chathams-blue)',
                                     fontSize: 'clamp(11px, 1vw, 13px)'
@@ -209,7 +209,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                         {row.getVisibleCells().map((cell) => (
                                             <div key={cell.id} className="flex justify-between items-start gap-4">
                                                 <span className="uppercase tracking-wide flex-shrink-0 min-w-[100px]"
-                                                    style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 600, color: 'var(--chathams-blue)', letterSpacing: '0.05em' }}>
+                                                    style={{ fontSize: 'clamp(10px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)', letterSpacing: '0.05em' }}>
                                                     {cell.column.columnDef.header}
                                                 </span>
                                                 <span style={{
@@ -235,31 +235,31 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                             <div className="space-y-2.5">
                                 <div className="pb-2 mb-2">
                                     <span className="uppercase tracking-wide"
-                                        style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: 'var(--chathams-blue)' }}>
+                                        style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         Total $ (USD)
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 600, color: 'var(--chathams-blue)' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         {columns[1]?.header || 'Invoices'}
                                     </span>
-                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: 'var(--chathams-blue)' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         {showAmount(usdTotals.invoices, 'usd')}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 600, color: 'var(--chathams-blue)' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         {columns[2]?.header || 'Payments'}
                                     </span>
-                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: 'var(--chathams-blue)' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         {showAmount(usdTotals.payments, 'usd')}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 600, color: 'var(--chathams-blue)' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         {columns[3]?.header || 'Balance'}
                                     </span>
-                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: 'var(--chathams-blue)' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         {showAmount(usdTotals.balance, 'usd')}
                                     </span>
                                 </div>
@@ -270,31 +270,31 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                             <div className="space-y-2.5">
                                 <div className="pb-2 mb-2">
                                     <span className="uppercase tracking-wide"
-                                        style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: 'var(--chathams-blue)' }}>
+                                        style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         Total € (EUR)
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 600, color: 'var(--chathams-blue)' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         {columns[1]?.header || 'Invoices'}
                                     </span>
-                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: 'var(--chathams-blue)' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         {showAmount(eurTotals.invoices, 'eur')}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 600, color: 'var(--chathams-blue)' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         {columns[2]?.header || 'Payments'}
                                     </span>
-                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: 'var(--chathams-blue)' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         {showAmount(eurTotals.payments, 'eur')}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 600, color: 'var(--chathams-blue)' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         {columns[3]?.header || 'Balance'}
                                     </span>
-                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 700, color: 'var(--chathams-blue)' }}>
+                                    <span style={{ fontSize: 'clamp(11px, 1vw, 13px)', fontWeight: 500, color: 'var(--chathams-blue)' }}>
                                         {showAmount(eurTotals.balance, 'eur')}
                                     </span>
                                 </div>

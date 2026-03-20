@@ -68,7 +68,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                     background: '#dbeeff',
                     borderBottom: '1px solid var(--rock-blue)'
                 }}>
-                    <h3 className="text-[var(--chathams-blue)] font-semibold text-center w-full"
+                    <h3 className="text-[var(--chathams-blue)] font-medium font-poppins text-xs text-center w-full"
                         style={{
                             fontSize: 'clamp(11px, 1vw, 13px)',
                             letterSpacing: '0.02em'
@@ -84,7 +84,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                                 <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
                                     {hdGroup.headers.map(header => (
                                         <th key={header.id}
-                                            className="px-2 py-2 uppercase text-center"
+                                            className="px-2 py-2 uppercase text-center font-medium font-poppins"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '60px',

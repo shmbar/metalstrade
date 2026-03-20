@@ -50,14 +50,14 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                 }
                 .glass-table th {
                     color: var(--chathams-blue) !important;
-                    font-weight: 600;
-                    font-size: clamp(10px, 1vw, 12px); /* Lowered font size */
+                    font-weight: 500;
+                    font-size: clamp(10px, 1vw, 12px);
                     letter-spacing: 0.05em;
                 }
                 .glass-table tfoot th, .glass-table tfoot td {
                     background: #dbeeff;
                     color: var(--chathams-blue) !important;
-                    font-weight: 600;
+                    font-weight: 500;
                     font-size: clamp(10px, 1vw, 12px); /* Lowered font size */
                     text-align: center !important;
                     vertical-align: middle !important;
@@ -108,7 +108,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         >
 
                         <div
-                        className="px-6 py-4 text-center font-bold font-poppins text-[12px]"
+                        className="px-6 py-4 text-center font-medium font-poppins text-[12px]"
                         style={{
                             background: '#dbeeff',
                             color: 'var(--endeavour)'

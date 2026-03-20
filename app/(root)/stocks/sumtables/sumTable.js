@@ -51,7 +51,7 @@ const sumTable = ({ sumData, loading, settings, ln, dataTable }) => {
 
     return (
 
-        <div>
+        <div className='min-w-[520px]'>
             <div className='mt-5'>
                 <CustomtableTotals data={loading ? [] : sortArr(getFormatted(sumData), 'stock')} columns={propDefaults}
                     ln={ln} ttl='SummaryStocks' dataTable={dataTable} settings={settings}
