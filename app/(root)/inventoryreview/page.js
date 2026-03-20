@@ -219,7 +219,7 @@ const Inventory = () => {
                     <VideoLoader loading={loading} fullScreen={true} />
                     <div className="border border-[#b8ddf8] rounded-xl p-4 mt-8 shadow-md relative">
                         <div className='flex items-center justify-between flex-wrap'>
-                            <div className="text-3xl p-1 pb-2 text-slate-500">{getTtl('Inventory Review', ln)}</div>
+                            <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Inventory Review', ln)}</h1>
                             <div className='flex group'>
                                 <DateRangePicker />
                                 <Tooltip txt='Select Dates Range' />

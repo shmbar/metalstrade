@@ -109,11 +109,11 @@ const Page = () => {
 					<VideoLoader loading={loading} fullScreen={true} />
 					<div className="bg-white rounded-2xl p-3 sm:p-4 mt-6 border border-[#b8ddf8]">
 						<div className='pb-2'>
-							<div className="text-xl font-semibold text-[var(--port-gore)] mb-3 border-l-4 border-[var(--chathams-blue)] pl-2">Formulas</div>
+							<h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">Formulas</h1>
 
 							<div className="w-full">
 								<TabGroup>
-									<TabList className="flex space-x-2 mb-3">
+									<TabList className="flex space-x-2 mb-3 mt-4">
 										{tabs.map((z) => (
 											<Tab
 												key={z}
