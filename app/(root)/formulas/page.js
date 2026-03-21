@@ -119,7 +119,7 @@ const Page = () => {
 												key={z}
 												className={({ selected }) =>
 													classNames(
-														'px-5 py-1.5 text-sm font-medium rounded-full transition-colors',
+														'px-5 py-1.5 text-xs font-medium rounded-full transition-colors',
 														'focus:outline-none',
 														selected
 															? 'bg-[var(--endeavour)] text-white shadow-sm'
