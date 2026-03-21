@@ -83,7 +83,7 @@ const AccountStatement = () => {
           name='nname'
           classes='shadow-md h-10 max-w-[140px]'
           plcHolder='Select client' />
-        <div className='flex group datepicker-wrapper [&_.rotate-45]:!hidden'>
+        <div className='flex group datepicker-wrapper'>
           <Datepicker
             inputClassName='border border-[#0366ae] text-xs py-2 pl-3 pr-3 rounded-2xl text-[#103a7a] w-44
               focus:outline-none focus:ring-1 focus:ring-blue-200 cursor-pointer bg-white shadow-sm'
