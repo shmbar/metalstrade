@@ -813,18 +813,18 @@ return (
 
 {activeTab === 'unsold' ? (
     <div className="w-full max-w-2xl border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
-        <div className="text-[var(--endeavour)] text-xs font-medium mb-2">Unsold Stocks</div>
-        <div className="flex p-1 justify-between mb-1">
-            {
-                stocksSortName2 ?
-                    <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName2()} />
-                    :
-                    <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName2()} />}
-            {
-                stocksSort2 ?
-                    <FaSortAmountDown className="scale-[0.9]  text-slate-600 cursor-pointer" onClick={() => sortStocks2()} />
-                    :
-                    <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks2()} />}
+        <div className="flex items-center justify-between mb-2">
+            <div className="text-[var(--endeavour)] text-xs font-medium">Unsold Stocks</div>
+            <div className="flex items-center gap-2">
+            {stocksSortName2 ?
+                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName2()} />
+                :
+                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName2()} />}
+            {stocksSort2 ?
+                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks2()} />
+                :
+                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks2()} />}
+            </div>
         </div>
         {stockDataNoSold.length === 0 ? (
             <div className="text-gray-400 text-sm py-4 text-center">No unsold stocks</div>
