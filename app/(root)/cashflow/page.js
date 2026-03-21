@@ -812,8 +812,8 @@ return (
 
 
 {activeTab === 'unsold' ? (
-    <div className="w-full border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
-        <div className="text-[var(--endeavour)] responsiveTextTitle mb-2 font-medium">Unsold Stocks</div>
+    <div className="w-full max-w-2xl border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
+        <div className="text-[var(--endeavour)] text-xs font-medium mb-2">Unsold Stocks</div>
         <div className="flex p-1 justify-between mb-1">
             {
                 stocksSortName2 ?
@@ -858,7 +858,7 @@ return (
                 ))}
 
                 <div className="mt-2 pt-2 border-t border-[#b8ddf8] flex items-center justify-between">
-                    <div className="responsiveTextTitle text-[var(--endeavour)] font-semibold">Total</div>
+                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">Total</div>
                     <NumericFormat
                         value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
                         displayType="text"
@@ -867,7 +867,7 @@ return (
                         prefix={'$'}
                         decimalScale='2'
                         fixedDecimalScale
-                        className='responsiveTextTitle text-[var(--endeavour)] font-semibold'
+                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
                     />
                 </div>
             </>
