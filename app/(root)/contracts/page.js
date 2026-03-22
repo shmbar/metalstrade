@@ -59,7 +59,7 @@ const Contracts = () => {
 		}
 	}, [contractsData, updateField]);
 
-	// Handle openId from URL (from global search) - highlight row only
+	// Handle openId from URL (from shipment page or global search) - highlight row and open modal
 	useEffect(() => {
 		const openId = searchParams.get('openId');
 		if (openId && contractsData.length > 0) {
@@ -67,6 +67,7 @@ const Contracts = () => {
 			if (item) {
 				setHighlightId(openId);
 				setTimeout(() => setHighlightId(null), 3000);
+				SelectRow(item);
 				router.replace('/contracts', { scroll: false });
 			}
 		}

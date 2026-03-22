@@ -19,6 +19,7 @@ export default function Sidebar() {
       Dashboard: "dashboard.svg",
       Assistant: "ai assistant.svg",
       Contracts: "contracts.svg",
+      "Shipments Tracking": "Shipments Tracking.svg",
       Invoices: "excel.svg",
       Expenses: "expenses.svg",
       Accounting: "accounting.svg",

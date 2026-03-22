@@ -44,6 +44,7 @@ export const sideBar = () => {
             ttl: 'Shipments',
             items: [
                 { item: 'Contracts', img: <FaFileContract className="scale-[0.8]" />, page: 'contracts' },
+                { item: 'Shipments Tracking', img: <TbShip />, page: 'shipment' },
                 { item: 'Invoices', img: <TbFileInvoice />, page: 'invoices' },
                 { item: 'Expenses', img: <DiBrackets />, page: 'expenses' },
                 { item: 'Accounting', img: <CgEreader className="scale-[0.8]" />, page: 'accounting' },
