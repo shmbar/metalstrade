@@ -74,7 +74,7 @@ const Page = () => {
   key={z}
   className={({ selected }) =>
     classNames(
-      'px-6 py-1.5 text-xs font-poppins whitespace-nowrap transition-all text-[var(--endeavour)] w-[140px]',
+      'px-4 py-1.5 text-xs font-poppins whitespace-nowrap transition-all text-[var(--endeavour)]',
       'focus:outline-none',
       selected
         ? `

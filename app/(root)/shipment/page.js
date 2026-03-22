@@ -380,9 +380,9 @@ const ShipmentPage = () => {
                         </div>
                     </div>
 
-                    {/* Table */}
-                    <div className="custom-table">
-                    <div className="overflow-auto dashboard-scroll rounded-3xl border border-[#cecece]" style={{ borderLeft: '8px solid var(--chathams-blue)', borderRadius: '24px', maxHeight: `${Math.min(paginated.length * 53 + 60, 620)}px` }}>
+                    {/* Table — Desktop */}
+                    <div className="custom-table hidden md:block">
+                    <div className="overflow-y-auto dashboard-scroll rounded-3xl border border-[#cecece]" style={{ borderLeft: '8px solid var(--chathams-blue)', borderRadius: '24px', maxHeight: `${Math.min(paginated.length * 53 + 60, 620)}px` }}>
                         <table className="w-full">
                             <thead className="sticky top-0 z-10">
                                 <tr>
@@ -452,7 +452,7 @@ const ShipmentPage = () => {
                                                     </div>
                                                 </div>
                                             </td>
-                                                                            <td>
+                                            <td>
                                                 <div className="flex justify-center">
                                                     <StatusSelect
                                                         value={status}
@@ -475,6 +475,79 @@ const ShipmentPage = () => {
                             </tbody>
                         </table>
                     </div>
+                    </div>
+
+                    {/* Cards — Mobile */}
+                    <div className="block md:hidden px-2 py-2 space-y-3">
+                        {filtered.length === 0 && !loading && (
+                            <div className="text-center py-8 text-gray-400 text-sm">No shipments found.</div>
+                        )}
+                        {paginated.map((contract) => {
+                            const mainInv = getMainInvoice(contract);
+                            const status = contract.shipmentStatus || '';
+                            return (
+                                <div
+                                    key={contract.id}
+                                    className="rounded-2xl overflow-hidden"
+                                    style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
+                                >
+                                    {/* Card header */}
+                                    <div className="px-3 py-2 flex items-center justify-between bg-[#9ad4ff]">
+                                        <button
+                                            onClick={() => navigateTo(contract.id)}
+                                            className="font-medium text-[var(--endeavour)] text-xs hover:underline"
+                                        >
+                                            {contract.order || '—'}
+                                        </button>
+                                        <span
+                                            className="text-[11px] font-medium px-2.5 py-0.5 rounded-full"
+                                            style={status ? STATUS_STYLES[status] : { backgroundColor: '#f3f4f6', color: '#6b7280', border: '1px solid #d1d5db' }}
+                                        >
+                                            {status || 'No Status'}
+                                        </span>
+                                    </div>
+
+                                    {/* Card body */}
+                                    <div className="p-3 space-y-2">
+                                        {[
+                                            { label: 'Supplier',       value: getSupplierName(contract) },
+                                            { label: 'Invoice #',      value: mainInv ? String(mainInv.invoice) : '—' },
+                                            { label: 'Client',         value: getClientName(contract.id) },
+                                            { label: 'Shipment Date',  value: formatDate(contract.date) },
+                                            { label: 'Arrival Date',   value: formatDate(contract.dateRange?.endDate) },
+                                        ].map(({ label, value }) => (
+                                            <div key={label} className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid #f0f4f8' }}>
+                                                <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">{label}</span>
+                                                <div className="px-2 py-1 rounded-xl text-[11px] text-gray-700" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+                                                    {value || '—'}
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                        {/* Status */}
+                                        <div className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid #f0f4f8' }}>
+                                            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">Status</span>
+                                            <StatusSelect
+                                                value={status}
+                                                onChange={s => handleStatusChange(contract, s)}
+                                            />
+                                        </div>
+
+                                        {/* Notes */}
+                                        <div className="flex flex-col space-y-1">
+                                            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">Notes</span>
+                                            <NotesCell
+                                                value={contract.shipmentNotes}
+                                                contractId={contract.id}
+                                                contractDate={contract.date}
+                                                uidCollection={uidCollection}
+                                                onChange={(v) => handleNotesChange(contract.id, v)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
 
                     {/* Pagination footer */}

@@ -74,18 +74,18 @@ const AccountStatement = () => {
 
   const CB = (settings, selectedClient) => {
     return (
-      <div className='flex items-center gap-2'>
+      <div className='flex flex-col sm:flex-row items-start sm:items-center gap-2'>
         <MyComboboxSelect
           data={sortArr(settings.Client.Client.filter(x => !x.deleted), 'nname')}
           setValue={handleUpdateClient}
           idx={0}
           value={settings.Client.Client.find(z => z.id === selectedClient.client)}
           name='nname'
-          classes='shadow-md h-10 max-w-[140px]'
+          classes='shadow-md h-10 w-full sm:max-w-[140px]'
           plcHolder='Select client' />
-        <div className='flex group datepicker-wrapper'>
+        <div className='flex group datepicker-wrapper w-full sm:w-auto'>
           <Datepicker
-            inputClassName='border border-[#0366ae] text-xs py-2 pl-3 pr-3 rounded-2xl text-[#103a7a] w-44
+            inputClassName='border border-[#0366ae] text-xs py-2 pl-3 pr-3 rounded-2xl text-[#103a7a] w-full sm:w-44
               focus:outline-none focus:ring-1 focus:ring-blue-200 cursor-pointer bg-white shadow-sm'
             useRange={false}
             asSingle={true}

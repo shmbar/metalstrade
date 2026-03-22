@@ -26,7 +26,7 @@ const CB = (settings, handleSelectStock, selectedStock) => {
   ]
 
   return (
-    <div className='w-44'>
+    <div className='w-full sm:w-44'>
       <Selector
         arr={dt}
         value={selectedStock}
