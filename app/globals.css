@@ -266,11 +266,11 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) {
   left: 0;
 }
 
-/* Center the arrow at the top of left-aligned datepicker popups */
+/* Position the arrow at the left of datepicker popups */
 div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolute.z-20 {
   margin-left: 0 !important;
-  left: 50%;
-  transform: translateX(-50%) rotate(45deg);
+  left: 1.5rem;
+  transform: rotate(45deg);
 }
 
 /* ========== Datepicker Global Theme ========== */
