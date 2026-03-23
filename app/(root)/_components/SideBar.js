@@ -166,7 +166,7 @@ export default function Sidebar() {
         maxWidth: collapsed ? "60px" : "clamp(220px, 18vw, 260px)",
         borderRadius: "12px",
         zIndex: 0,
-        background: "linear-gradient(to right, #e3f3ff 0%, #e3f3ff 60%, rgba(255,255,255,0) 100%)",
+        background: "linear-gradient(to right, #e3f3ff 0%, #e3f3ff 60%, #f0f8ff 100%)",
       }}
     >
       {/* Logo spacer */}
