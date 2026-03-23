@@ -107,13 +107,13 @@ const Page = () => {
 				<>
 					<Toast />
 					<VideoLoader loading={loading} fullScreen={true} />
-					<div className="bg-white rounded-2xl p-3 sm:p-4 mt-6 border border-[#b8ddf8]">
+					<div className="bg-white rounded-2xl p-2 sm:p-3 mt-4 border border-[#b8ddf8]">
 						<div className='pb-2'>
 							<h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">Formulas</h1>
 
 							<div className="w-full">
 								<TabGroup>
-									<TabList className="flex space-x-2 mb-3 mt-4">
+									<TabList className="flex space-x-2 mb-2 mt-2">
 										{tabs.map((z) => (
 											<Tab
 												key={z}
@@ -133,13 +133,13 @@ const Page = () => {
 									</TabList>
 
 									{value.general != null && !loading && (
-										<div className='bg-[var(--selago)] rounded-xl p-2.5 mb-3'>
-											<div className='flex flex-wrap items-end gap-2'>
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[140px] flex-1'>
+										<div className='bg-[var(--selago)] rounded-xl p-2 mb-2'>
+											<div className='flex flex-wrap items-end gap-1.5'>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Ni LME</span>
 													<input
 														type='text'
-														className='px-3 py-1.5 text-sm font-semibold text-[#F44336] text-center bg-white focus:outline-none w-full'
+														className='px-2 py-1 text-xs font-semibold text-[#F44336] text-center bg-white focus:outline-none w-full'
 														name='nilme'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
@@ -148,11 +148,11 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[110px] flex-1'>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Mo Oxide - Lb</span>
 													<input
 														type='text'
-														className='px-3 py-1.5 text-sm font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+														className='px-2 py-1 text-xs font-semibold text-[#F44336] text-center bg-white focus:outline-none'
 														value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
 														name='MoOxideLb'
 														onChange={(e) => handleChange(e, 'general')}
@@ -161,11 +161,11 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[110px] flex-1'>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Charge Cr - Lb</span>
 													<input
 														type='text'
-														className='px-3 py-1.5 text-sm font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+														className='px-2 py-1 text-xs font-semibold text-[#F44336] text-center bg-white focus:outline-none'
 														name='chargeCrLb'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'chargeCrLb' ? value.general?.chargeCrLb || '' : addComma(value.general?.chargeCrLb || '0')}
@@ -174,22 +174,22 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[110px] flex-1'>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>1 MT</span>
 													<input
 														type='text'
-														className='px-3 py-1.5 text-sm font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+														className='px-2 py-1 text-xs font-semibold text-[#F44336] text-center bg-white focus:outline-none'
 														value={(value.general?.mt || '0') + ' Lb'}
 														name='mt'
 														onChange={(e) => handleChange(e, 'general')}
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[110px] flex-1'>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Euro / USD</span>
 													<input
 														type='text'
-														className='px-3 py-1.5 text-sm font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+														className='px-2 py-1 text-xs font-semibold text-[#F44336] text-center bg-white focus:outline-none'
 														value={(value.general?.euroRate || '0')}
 														name='euroRate'
 														onChange={(e) => handleChange(e, 'general')}
