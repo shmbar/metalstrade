@@ -2,6 +2,7 @@
 "use client";
 import { useState, useContext, useMemo } from "react";
 import { FiSearch } from "react-icons/fi";
+import { IoClose } from "react-icons/io5";
 import Tltip from "../../../components/tlTip";
 import { sideBar } from "../../../components/const";
 import Link from "next/link";
@@ -199,26 +200,32 @@ export default function Sidebar() {
 
       {/* Search bar */}
       {!collapsed && (
-        <div className="px-3 pt-2 pb-1 shrink-0">
-          <div className="flex items-center gap-2 rounded-xl px-3 py-1.5" style={{ background: '#fff', border: '1px solid #b8ddf8' }}>
+        <div className="px-5 pt-2 pb-1 shrink-0">
+          <div className="relative flex items-center rounded-full px-3 py-1.5" style={{ background: '#f8fbff', border: '1px solid #b8ddf8' }}>
             <FiSearch size={13} style={{ color: 'var(--chathams-blue)', flexShrink: 0 }} />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search..."
-              className="flex-1 bg-transparent border-0 outline-none text-[11px] placeholder:text-gray-400"
+              placeholder="Search anything..."
+              className="flex-1 bg-transparent border-0 outline-none text-[11px] placeholder:text-gray-400 pl-2 pr-5"
               style={{ color: 'var(--chathams-blue)' }}
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="text-gray-400 hover:text-gray-600 leading-none">×</button>
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-red-500"
+                style={{ color: 'var(--chathams-blue)' }}
+              >
+                <IoClose size={14} />
+              </button>
             )}
           </div>
         </div>
       )}
 
-        <nav className={`flex-1 min-h-0 overflow-x-hidden ${collapsed ? 'overflow-y-hidden' : 'overflow-y-auto'}`}>
-          <ul style={{ paddingTop: collapsed ? "2px" : "clamp(4px,0.5vh,6px)", paddingBottom: collapsed ? "60px" : "clamp(4px,0.5vh,6px)" }}>
+        <nav className={`flex-1 min-h-0 overflow-x-hidden ${collapsed ? 'overflow-y-auto' : 'overflow-y-auto'}`}>
+          <ul style={{ paddingTop: collapsed ? "2px" : "clamp(4px,0.5vh,6px)", paddingBottom: collapsed ? "4px" : "clamp(4px,0.5vh,6px)" }}>
 
             {/* ── SEARCH RESULTS MODE ─────────────────────────────────────────── */}
             {isSearching ? (
