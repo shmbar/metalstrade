@@ -1044,7 +1044,7 @@ const Customtable = ({
                         backgroundColor: '#b7d1b5',
                         border: 'none',
                         padding: 0,
-                        height: '36px',
+                        height: '26px',
                         position: 'relative',
                         overflow: 'visible',
                       }}
@@ -1052,7 +1052,7 @@ const Customtable = ({
                       <span style={{
                         position: 'absolute', left: '14px', top: '50%',
                         transform: 'translateY(-50%)',
-                        fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                        fontSize: '11px', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                       }}>
                         Total $:
                       </span>
@@ -1062,7 +1062,7 @@ const Customtable = ({
                           left: `${currencyColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontSize: '11px', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           USD
                         </span>
@@ -1073,7 +1073,7 @@ const Customtable = ({
                           left: `${amountColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '12px', fontWeight: '700', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontSize: '11px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           {summaryUSD.amount}
                         </span>
@@ -1089,7 +1089,7 @@ const Customtable = ({
                         backgroundColor: '#8db6d8',
                         border: 'none',
                         padding: 0,
-                        height: '36px',
+                        height: '26px',
                         position: 'relative',
                         overflow: 'visible',
                       }}
@@ -1097,7 +1097,7 @@ const Customtable = ({
                       <span style={{
                         position: 'absolute', left: '14px', top: '50%',
                         transform: 'translateY(-50%)',
-                        fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                        fontSize: '11px', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                       }}>
                         Total €:
                       </span>
@@ -1107,7 +1107,7 @@ const Customtable = ({
                           left: `${currencyColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontSize: '11px', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           EUR
                         </span>
@@ -1118,7 +1118,7 @@ const Customtable = ({
                           left: `${amountColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '12px', fontWeight: '700', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontSize: '11px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           {summaryEUR.amount}
                         </span>
