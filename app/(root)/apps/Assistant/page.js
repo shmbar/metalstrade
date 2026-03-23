@@ -273,7 +273,7 @@ const AssistantChat = () => {
                                                                 ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-sm'
                                                                 : 'bg-[var(--selago)]/40 text-[var(--port-gore)] border border-[var(--selago)] rounded-bl-sm'
                                                     }`}
-                                                    style={message.role === 'user' ? { backgroundColor: '#e8f5ff', color: 'var(--port-gore)' } : {}}
+                                                    style={message.role === 'user' ? { backgroundColor: '#dbeeff', color: 'var(--port-gore)' } : {}}
                                                 >
                                                     <div
                                                         className="break-words"
@@ -317,7 +317,7 @@ const AssistantChat = () => {
                             {/* Input Area */}
                             <div className="p-4 border-t border-[var(--selago)]" style={{ backgroundColor: '#ffffff' }}>
                                 {/* Input bar */}
-                                <div className="flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: '#e8f5ff' }}>
+                                <div className="flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: '#dbeeff' }}>
                                     <GrAttachment className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                     <input
                                         ref={inputRef}

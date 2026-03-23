@@ -555,7 +555,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           <VideoLoader loading={loading} fullScreen={true} />
 
           {/* Header + Stats Wrapper */}
-          <div className="rounded-2xl border border-[#b8ddf8] bg-white shadow-sm p-4 mb-6">
+          <div className="rounded-2xl border border-[#b8ddf8] bg-[#f8fbff] shadow-sm p-4 mb-6">
 
           {/* Header Section */}
           <div className='flex items-center justify-between flex-wrap gap-2 pb-3'>
@@ -692,7 +692,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
 </div>
           </div>
            {/* Full Table */}
-          <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-white relative">
+          <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff] relative">
             <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)] mb-4">All Transactions</h3>
             <Customtable data={invoicesAccData} columns={propDefaults}  onCellUpdate={onCellUpdate}
               excellReport={EXD(invoicesAccData, settings, getTtl('Accounting', ln), ln)} />
@@ -701,7 +701,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6 mt-3">
             {/* Last Transaction */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-white">
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-[#f8fbff]">
               <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)] mb-2">Last Transaction</h3>
               <div className="space-y-0">
                 {recentTransactions.map((item, idx) => (
@@ -733,7 +733,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
             </div>
 
             {/* Invoices Sent */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-white">
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-[#f8fbff]">
               <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)] mb-2">Invoices Sent</h3>
               <div className="space-y-0">
                 {recentInvoices.map((item, idx) => (
@@ -769,7 +769,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           {/* Chart Section */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
             {/* Debit & Credit Overview */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-white">
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-[#f8fbff]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                 <div className="min-w-0">
                   <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)]">Debit & Credit Overview</h3>
@@ -793,7 +793,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
               </div>
             </div>
             {/* Summary Stats */}
-            <div  className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl bg-white overflow-hidden">
+            <div  className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl bg-[#f8fbff] overflow-hidden">
               <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)] mb-4">Financial Summary</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">

@@ -97,7 +97,7 @@ const sumObj = (obj) => Object.values(obj || {}).reduce((a, v) => a + (Number(v)
 function CardShell({ className = "", children }) {
   return (
     <motion.div
-      className={`bg-white rounded-lg shadow-sm border border-[#b8ddf8] ${className}`}
+      className={`bg-[#f8fbff] rounded-2xl border border-[#b8ddf8] ${className}`}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -248,7 +248,7 @@ function DebtSnapshotCard({ totalInvoices, totalContracts, totalExpenses, totalP
       <div className="p-4 h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold text-gray-800">Debt Snapshot</h3>
+          <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">Debt Snapshot</h3>
           {/* <div className="flex items-center gap-1 px-2 py-1 rounded-md border border-gray-200 bg-gray-50 text-[10px] text-gray-500">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="4" width="18" height="18" rx="2" stroke="#9ca3af" strokeWidth="2"/>
@@ -476,7 +476,7 @@ const Dash = () => {
             <div className="p-4 h-full flex flex-col">
 
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-gray-800">
+                <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">
                   Total Revenue
                 </h3>
 
@@ -548,12 +548,12 @@ const Dash = () => {
             <div className="p-4">
               <div className="flex justify-between mb-1">
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-800">Contracts - $</h3>
+                  <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">Contracts - $</h3>
                   <p className="text-[10px] text-gray-400">Contribution breakdown by contract values</p>
                 </div>
                 <div className="text-right">
                   <div className="text-[10px] text-gray-400">Total Value</div>
-                  <span className="font-bold text-gray-800">{fmtAutoKM(totalContracts)}</span>
+                  <span className="font-bold text-[var(--chathams-blue)]">{fmtAutoKM(totalContracts)}</span>
                 </div>
               </div>
 
@@ -645,12 +645,12 @@ const Dash = () => {
             <div className="p-4">
               <div className="flex justify-between mb-1">
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-800">Consignees - $</h3>
+                  <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">Consignees - $</h3>
                   <p className="text-[10px] text-gray-400">Contribution breakdown by client volume</p>
                 </div>
                 <div className="text-right">
                   <div className="text-[10px] text-gray-400">Total Value</div>
-                  <span className="font-bold text-gray-800">{fmtAutoKM(totalInvoices)}</span>
+                  <span className="font-bold text-[var(--chathams-blue)]">{fmtAutoKM(totalInvoices)}</span>
                 </div>
               </div>
 

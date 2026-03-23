@@ -661,7 +661,7 @@ const SupperAlloys = ({ value, handleChange }) => {
     const priceFields = ['niPrice', 'crPrice', 'MoOxideLb', 'nbPrice', 'coPrice', 'wPrice', 'hfPrice', 'taPrice', 'fePrice'];
 
         return value.supperalloys != null ? (
-        <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-2">
+        <div className="w-full bg-[#f8fbff] rounded-xl border border-[#b8ddf8] shadow-sm p-2">
           <h3 className='text-sm font-medium text-[var(--endeavour)] mb-1.5 text-center'>Cost</h3>
 
             {/* Composition */}
@@ -670,13 +670,13 @@ const SupperAlloys = ({ value, handleChange }) => {
                 Composition
             </p>
 
-            <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white">
+            <div className="rounded-xl overflow-hidden border border-[#d8e8f5] bg-[#f8fbff]">
                 {/* Header */}
-                <div className="grid grid-cols-9 bg-[#fafafa] text-[var(--endeavour)] text-xs">
+                <div className="grid grid-cols-9 bg-[#dbeeff] text-[var(--endeavour)] text-xs">
                 {elementLabels.map((label, idx) => (
                   <div
                   key={label}
-                  className={`py-1 text-center ${idx > 0 ? 'border-l border-[#dedede]' : ''}`}
+                  className={`py-1 text-center ${idx > 0 ? 'border-l border-[#d8e8f5]' : ''}`}
                   >
                   {label}
                   </div>
@@ -684,13 +684,13 @@ const SupperAlloys = ({ value, handleChange }) => {
                 </div>
 
                 {/* Values */}
-              <div className="grid grid-cols-9 bg-[#fafafa] text-xs border-t border-[#dedede]">
+              <div className="grid grid-cols-9 bg-[#dbeeff] text-xs border-t border-[#d8e8f5]">
                   {elements.map((elem, idx) => (
                   <input
                   key={elem}
                   type="text"
-                  className={`w-full text-center py-1 outline-none bg-[#fafafa] ${
-                    idx > 0 ? 'border-l border-[#dedede]' : ''
+                  className={`w-full text-center py-1 outline-none bg-[#dbeeff] ${
+                    idx > 0 ? 'border-l border-[#d8e8f5]' : ''
                   } ${
                     elem === 'fe'
                     ? 'text-[#2F6FDB] bg-gray-50 cursor-not-allowed'
@@ -731,13 +731,13 @@ const SupperAlloys = ({ value, handleChange }) => {
                 Price / Lbs
             </p>
 
-            <div className="rounded-xl overflow-hidden border border-[#dedede] bg-white">
+            <div className="rounded-xl overflow-hidden border border-[#d8e8f5] bg-[#f8fbff]">
                 {/* Header */}
-                <div className="grid grid-cols-9 bg-[#fafafa] text-[#2F6FDB] text-xs">
+                <div className="grid grid-cols-9 bg-[#dbeeff] text-[#2F6FDB] text-xs">
                 {elementLabels.map((label, idx) => (
                   <div
                   key={label}
-                  className={`py-1 text-center ${idx > 0 ? 'border-l border-[#dedede]' : ''}`}
+                  className={`py-1 text-center ${idx > 0 ? 'border-l border-[#d8e8f5]' : ''}`}
                   >
                   {label}
                   </div>
@@ -745,7 +745,7 @@ const SupperAlloys = ({ value, handleChange }) => {
                 </div>
 
                 {/* Values */}
-                <div className="grid grid-cols-9 bg-white text-xs border-t border-[#dedede]">
+                <div className="grid grid-cols-9 bg-[#f8fbff] text-xs border-t border-[#d8e8f5]">
                 {priceFields.map((field, idx) => {
                     const isReadOnly = field === 'niPrice' || field === 'MoOxideLb';
 
@@ -762,8 +762,8 @@ const SupperAlloys = ({ value, handleChange }) => {
                     <input
                       key={field}
                       type="text"
-                      className={`w-full text-center py-1 outline-none bg-[#fafafa] ${
-                        idx > 0 ? 'border-l border-[#dedede]' : ''
+                      className={`w-full text-center py-1 outline-none bg-[#dbeeff] ${
+                        idx > 0 ? 'border-l border-[#d8e8f5]' : ''
                         } ${
                         isReadOnly
                             ? 'bg-gray-50 cursor-not-allowed text-[#2F6FDB]'
@@ -805,9 +805,9 @@ const SupperAlloys = ({ value, handleChange }) => {
   <div>
     {/* Formula Intrinsic */}
     <div className="mb-2 flex">
-      <div className="w-32 rounded-xl overflow-hidden border border-[#dedede] bg-white">
+      <div className="w-32 rounded-xl overflow-hidden border border-[#d8e8f5] bg-[#f8fbff]">
         <div className="bg-[#FFDADA] text-[#F44336] text-xs py-1.5 text-center">Formula Intrinsic</div>
-        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[#F44336] border-t border-[#dedede] bg-[#fafafa]"
+        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[#F44336] border-t border-[#d8e8f5] bg-[#dbeeff]"
           value={(value?.supperalloys?.formulaIntsCost || '0') + '%'} name="formulaIntsCost"
           onChange={(e) => handleChange({ target: { name: 'formulaIntsCost', value: e.target.value.replace('%', '') } }, 'supperalloys')}
           onBlur={(e) => { const n = parseFloat(e.target.value.replace('%', '')); if (!isNaN(n)) handleChange({ target: { name: 'formulaIntsCost', value: n.toFixed(2) } }, 'supperalloys'); }}
@@ -831,9 +831,9 @@ const SupperAlloys = ({ value, handleChange }) => {
   <div>
     {/* Formula Intrinsic */}
     <div className="mb-2 flex">
-      <div className="w-32 rounded-xl overflow-hidden border border-[#dedede] bg-white">
+      <div className="w-32 rounded-xl overflow-hidden border border-[#d8e8f5] bg-[#f8fbff]">
         <div className="bg-[#FFDADA] text-[#F44336] text-xs py-1.5 text-center">Formula Intrinsic</div>
-        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[#F44336] border-t border-[#dedede] bg-[#fafafa]"
+        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[#F44336] border-t border-[#d8e8f5] bg-[#dbeeff]"
           value={(value?.supperalloys?.formulaIntsPrice || '0') + '%'} name="formulaIntsPrice"
           onChange={(e) => handleChange({ target: { name: 'formulaIntsPrice', value: e.target.value.replace('%', '') } }, 'supperalloys')}
           onBlur={(e) => { const n = parseFloat(e.target.value.replace('%', '')); if (!isNaN(n)) handleChange({ target: { name: 'formulaIntsPrice', value: n.toFixed(2) } }, 'supperalloys'); }}
@@ -859,7 +859,7 @@ const SupperAlloys = ({ value, handleChange }) => {
     ) : null;
 };
 const ResultBox = ({ title, value, bg }) => (
-  <div className="rounded-xl overflow-hidden border border-[#D9ECFF] bg-white text-center">
+  <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-[#f8fbff] text-center">
     <div className="py-1" style={{ backgroundColor: bg }}>
       <p className="text-xs text-[#2F6FDB]">{title}</p>
     </div>
