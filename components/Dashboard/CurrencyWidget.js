@@ -53,9 +53,9 @@ export default function CurrencyWidget() {
 
     if (error) {
         return (
-            <div className="bg-white rounded-2xl shadow-xl border border-[var(--selago)] p-6">
+            <div className="bg-[#f8fbff] rounded-2xl border border-[#b8ddf8] p-6">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[var(--port-gore)] font-bold text-lg">Exchange Rates</h3>
+                    <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">Exchange Rates</h3>
                     <button onClick={refresh} className="p-2 hover:bg-[var(--selago)] rounded-lg transition-colors">
                         <HiRefresh className="w-5 h-5 text-[var(--regent-gray)]" />
                     </button>
@@ -66,16 +66,16 @@ export default function CurrencyWidget() {
     }
 
     return (
-        <div className="bg-white rounded-2xl shadow-xl border border-[var(--selago)] overflow-hidden hover:shadow-2xl transition-all duration-300">
+        <div className="bg-[#f8fbff] rounded-2xl border border-[#b8ddf8] overflow-hidden transition-all duration-300">
             <div className="p-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-[var(--endeavour)] to-[var(--chathams-blue)] rounded-xl flex items-center justify-center shadow-lg">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[var(--endeavour)] to-[var(--chathams-blue)] rounded-xl flex items-center justify-center">
                             <FaDollarSign className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <h3 className="text-[var(--port-gore)] font-bold text-lg">Exchange Rates</h3>
+                            <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">Exchange Rates</h3>
                             <p className="text-xs text-[var(--regent-gray)]">
                                 Base: {currencyNames[baseCurrency]}
                             </p>
@@ -128,14 +128,14 @@ export default function CurrencyWidget() {
                             return (
                                 <div
                                     key={currency}
-                                    className="flex items-center justify-between p-3 bg-gradient-to-r from-[var(--selago)]/50 to-transparent rounded-xl hover:from-[var(--selago)] transition-colors"
+                                    className="flex items-center justify-between p-3 bg-white rounded-xl border border-[#d8e8f5] hover:bg-[#f0f7ff] transition-colors"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className={`w-8 h-8 bg-gradient-to-br ${currencyColors[currency]} rounded-lg flex items-center justify-center shadow`}>
                                             <Icon className="w-4 h-4 text-white" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold text-[var(--port-gore)]">{currency}</p>
+                                            <p className="text-sm font-semibold text-[var(--chathams-blue)]">{currency}</p>
                                             <p className="text-xs text-[var(--regent-gray)]">{currencyNames[currency]}</p>
                                         </div>
                                     </div>
@@ -144,7 +144,7 @@ export default function CurrencyWidget() {
                                             <div className="w-16 h-5 bg-[var(--selago)] animate-pulse rounded"></div>
                                         ) : (
                                             <>
-                                                <p className="text-lg font-bold text-[var(--port-gore)]">
+                                                <p className="text-lg font-bold text-[var(--chathams-blue)]">
                                                     {formatRate(rate)}
                                                 </p>
                                                 <p className="text-xs text-[var(--regent-gray)]">

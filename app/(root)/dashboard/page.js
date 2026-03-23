@@ -446,10 +446,10 @@ const Dash = () => {
       {/* HEADER */}
       <motion.div className="mb-5 flex items-center justify-between" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
         <div>
-          <h1 className="text-xl font-bold text-gray-800">
+          <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
             {getTtl('Dashboard', ln)}
           </h1>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 pl-3 mt-0.5">
             Financial overview and analytics
           </p>
         </div>

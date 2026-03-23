@@ -37,9 +37,9 @@ export default function MetalPricesWidget() {
 
     if (error) {
         return (
-            <div className="bg-white rounded-2xl shadow-xl border border-[var(--selago)] p-6">
+            <div className="bg-[#f8fbff] rounded-2xl border border-[#b8ddf8] p-6">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[var(--port-gore)] font-bold text-lg">Metal Prices (LME)</h3>
+                    <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">Metal Prices (LME)</h3>
                     <button onClick={refresh} className="p-2 hover:bg-[var(--selago)] rounded-lg transition-colors">
                         <HiRefresh className="w-5 h-5 text-[var(--regent-gray)]" />
                     </button>
@@ -50,16 +50,16 @@ export default function MetalPricesWidget() {
     }
 
     return (
-        <div className="bg-white rounded-2xl shadow-xl border border-[var(--selago)] overflow-hidden hover:shadow-2xl transition-all duration-300">
+        <div className="bg-[#f8fbff] rounded-2xl border border-[#b8ddf8] overflow-hidden transition-all duration-300">
             <div className="p-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-700 rounded-xl flex items-center justify-center shadow-lg">
+                        <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-700 rounded-xl flex items-center justify-center">
                             <HiCube className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <h3 className="text-[var(--port-gore)] font-bold text-lg">Metal Prices</h3>
+                            <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">Metal Prices</h3>
                             <p className="text-xs text-[var(--regent-gray)]">
                                 LME Spot Prices (USD/MT)
                             </p>
@@ -91,21 +91,21 @@ export default function MetalPricesWidget() {
                         return (
                             <div
                                 key={metalKey}
-                                className="flex items-center gap-2 bg-white border border-[var(--selago)] rounded-full px-4 py-1 shadow-sm"
+                                className="flex items-center gap-2 bg-white border border-[#d8e8f5] rounded-full px-4 py-1"
                                 style={{ minWidth: 180 }}
                             >
                                 <div className={`w-7 h-7 bg-gradient-to-br ${metalColors[metalKey]} rounded-full flex items-center justify-center`}>
                                     <Icon className="w-4 h-4 text-white" />
                                 </div>
                                 <div>
-                                    <div className="text-xs font-bold text-[var(--port-gore)]">
+                                    <div className="text-xs font-bold text-[var(--chathams-blue)]">
                                         {metal?.name || metalKey.charAt(0).toUpperCase() + metalKey.slice(1)}
                                     </div>
                                     <div className="text-[10px] text-[var(--regent-gray)]">
                                         {metal?.symbol || ''} {metal?.unit || 'USD/MT'}
                                     </div>
                                 </div>
-                                <div className="text-xs font-bold text-[var(--port-gore)] ml-2">
+                                <div className="text-xs font-bold text-[var(--chathams-blue)] ml-2">
                                     {metal ? formatPrice(metal.price) : '—'}
                                 </div>
                                 {change && (
@@ -125,7 +125,7 @@ export default function MetalPricesWidget() {
                 </div>
 
                 {/* Footer Note */}
-                <div className="mt-4 pt-4 border-t border-[var(--selago)]">
+                <div className="mt-4 pt-4 border-t border-[#b8ddf8]">
                     <p className="text-xs text-[var(--regent-gray)] text-center">
                         Prices from London Metal Exchange
                     </p>
