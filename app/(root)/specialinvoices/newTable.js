@@ -186,8 +186,6 @@ const Customtable = ({
                         rgba(250, 250, 250, 0.90) 50%,
                         rgba(255, 255, 255, 0.85) 100%
                     );
-                    backdrop-filter: blur(16px) saturate(180%);
-                    -webkit-backdrop-filter: blur(16px) saturate(180%);
                 }
 
                 /* Use Poppins for the table and limit transitions to non-transform properties

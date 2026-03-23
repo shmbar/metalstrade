@@ -393,7 +393,6 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 /******************************************/
 /* Smaller calendar popup for Account Statement page */
 .datepicker-wrapper div.absolute.z-10 {
-  transform: scale(0.75);
   transform-origin: top right;
 }
 

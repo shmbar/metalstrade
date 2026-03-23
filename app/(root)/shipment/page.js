@@ -281,7 +281,7 @@ const ShipmentPage = () => {
                 <Toast />
 
                 {/* Outer card — title only */}
-                <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] w-full backdrop-blur-[2px] bg-[#f8fbff]">
+                <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
                     <div className="flex items-center justify-between pb-2 flex-wrap gap-2">
                         <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
                             Shipments Tracking

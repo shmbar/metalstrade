@@ -208,7 +208,7 @@ const MaterialTables = () => {
                         <Toast />
                         <VideoLoader loading={loading} fullScreen={true} />
                         {/* Main Card */}
-                        <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-white relative max-w-7xl mx-auto">
+                        <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-white relative max-w-7xl mx-auto">
                             {/* Header Section */}
                             <div className="flex flex-col gap-3 pb-4">
                                 <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>

@@ -234,7 +234,7 @@ export default function Sidebar() {
                   <div style={{
                     textAlign: "center",
                     color: "#003366",
-                    opacity: 0.45,
+                    opacity: 0.7,
                     fontSize: "clamp(10px, 0.80vw, 12px)",
                     padding: "20px 16px",
                   }}>
@@ -248,7 +248,7 @@ export default function Sidebar() {
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
                       color: "#003366",
-                      opacity: 0.5,
+                      opacity: 0.75,
                       paddingLeft: "12px",
                       paddingBottom: "4px",
                       paddingTop: "2px",
@@ -285,7 +285,7 @@ export default function Sidebar() {
                                   </span>
                                   <span style={{
                                     fontSize: "clamp(7px, 0.55vw, 9px)",
-                                    color: "#003366", opacity: 0.45,
+                                    color: "#003366", opacity: 0.7,
                                     whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                                   }}>
                                     {link.section}

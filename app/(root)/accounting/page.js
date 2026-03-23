@@ -701,7 +701,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6 mt-3">
             {/* Last Transaction */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-[#f8fbff]">
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
               <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)] mb-2">Last Transaction</h3>
               <div className="space-y-0">
                 {recentTransactions.map((item, idx) => (
@@ -733,7 +733,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
             </div>
 
             {/* Invoices Sent */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-[#f8fbff]">
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
               <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)] mb-2">Invoices Sent</h3>
               <div className="space-y-0">
                 {recentInvoices.map((item, idx) => (
@@ -769,7 +769,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           {/* Chart Section */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
             {/* Debit & Credit Overview */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full backdrop-blur-[2px] bg-[#f8fbff]">
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                 <div className="min-w-0">
                   <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)]">Debit & Credit Overview</h3>

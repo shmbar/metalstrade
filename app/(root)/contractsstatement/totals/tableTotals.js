@@ -33,8 +33,6 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
                 .glass-table {
                   background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(250,250,250,0.90) 50%, rgba(255,255,255,0.85) 100%);
-                  backdrop-filter: blur(16px) saturate(180%);
-                  -webkit-backdrop-filter: blur(16px) saturate(180%);
                 }
                 .custom-table, .custom-table *, .glass-table, .glass-table * {
                   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
