@@ -84,10 +84,15 @@ const Customtable = ({
     return average !== 'NaN' ? formatNumber(average) : ''
   }
 
-  // Column color: blue for material/kgs, pink for elements (del same as pink to keep seamless band)
-  const getColBg = (columnId) => {
+  // Header: blue for material/kgs, light pink for elements
+  const getHeaderBg = (columnId) => {
     if (columnId === 'material' || columnId === 'kgs') return '#dbeafe'
-    return '#dbeeff'
+    return '#fde8e8'
+  }
+  // Footer: blue for material/kgs, slightly deeper pink for elements
+  const getFooterBg = (columnId) => {
+    if (columnId === 'material' || columnId === 'kgs') return '#dbeafe'
+    return '#fdd6d6'
   }
 
   const headers = table.getHeaderGroups()[0]?.headers ?? []
@@ -111,8 +116,8 @@ const Customtable = ({
             excellReport={excellReport}
             type='mTable'
             addMaterial={addMaterial}
-            addTable={addTable}
-            saveTable={saveTable}
+            addTable={null}
+            saveTable={null}
             delTable={delTable}
             table1={table1}
             runPdf={runPdf}
@@ -144,10 +149,10 @@ const Customtable = ({
                       <th
                         key={header.id}
                         style={{
-                          backgroundColor: getColBg(header.column.id),
+                          backgroundColor: getHeaderBg(header.column.id),
                           color: 'var(--chathams-blue)',
-                          padding: '8px 10px',
-                          fontSize: '12px',
+                          padding: '5px 6px',
+                          fontSize: '11px',
                           fontWeight: '500',
                           textAlign: header.column.id === 'material' ? 'left' : 'center',
                           letterSpacing: '0.04em',
@@ -158,7 +163,7 @@ const Customtable = ({
                           borderRight: 'none',
                           borderTopLeftRadius: isFirst ? '10px' : '0',
                           borderTopRightRadius: isLast ? '10px' : '0',
-                          minWidth: header.column.id === 'material' ? '280px' : header.column.id === 'del' ? '40px' : '70px',
+                          minWidth: header.column.id === 'material' ? '200px' : header.column.id === 'del' ? '32px' : '55px',
                           maxWidth: 'none',
                         }}
                       >
@@ -201,7 +206,7 @@ const Customtable = ({
                         key={cell.id}
                         style={{
                           backgroundColor: '#ffffff',
-                          padding: '3px 4px',
+                          padding: '2px 3px',
                           borderBottom: '1px solid #e8f0f8',
                           borderRight: '1px solid #e8f0f8',
                           borderTop: 'none',
@@ -266,10 +271,10 @@ const Customtable = ({
                       <td
                         key={header.id}
                         style={{
-                          backgroundColor: getColBg(header.id),
+                          backgroundColor: getFooterBg(header.id),
                           color: 'var(--chathams-blue)',
-                          padding: '8px 10px',
-                          fontSize: '12px',
+                          padding: '5px 6px',
+                          fontSize: '11px',
                           fontWeight: '600',
                           textAlign: header.id === 'material' ? 'left' : 'center',
                           border: 'none',

@@ -49,8 +49,8 @@ const Customtable = ({ data, columns }) => {
                                         style={{
                                             backgroundColor: '#ede9fe',
                                             color: 'var(--chathams-blue)',
-                                            padding: '10px 10px',
-                                            fontSize: '12px',
+                                            padding: '5px 6px',
+                                            fontSize: '11px',
                                             fontWeight: '600',
                                             textAlign: cell.column.id === 'material' ? 'left' : 'center',
                                             border: 'none',
@@ -59,7 +59,7 @@ const Customtable = ({ data, columns }) => {
                                             borderBottomLeftRadius: isFirst ? '10px' : '0',
                                             borderTopRightRadius: isLast ? '10px' : '0',
                                             borderBottomRightRadius: isLast ? '10px' : '0',
-                                            minWidth: cell.column.id === 'material' ? '280px' : '70px',
+                                            minWidth: cell.column.id === 'material' ? '200px' : '55px',
                                         }}
                                     >
                                         {cell.column.id === 'material'

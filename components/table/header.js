@@ -65,7 +65,7 @@ const Header = ({
           {/* LEFT: Search + Add Tables + Save + Delete */}
           <div className="flex items-center gap-2 flex-wrap">
             {/* Search */}
-            <div className="flex items-center relative w-[120px] h-7 border border-[var(--endeavour)] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
+            <div className="flex items-center relative w-[160px] h-7 border border-[var(--endeavour)] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
               <input
                 className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full text-xs rounded-2xl"
                 placeholder={getTtl('Search', ln)}
@@ -84,6 +84,7 @@ const Header = ({
               )}
             </div>
             {/* + Add Tables */}
+            {addTable && (
             <button
               onClick={addTable}
               className="flex items-center gap-1 bg-[var(--endeavour)] text-white text-xs font-medium px-3 h-7 rounded-full hover:opacity-90 transition-all"
@@ -91,13 +92,20 @@ const Header = ({
               <GrAddCircle style={{ fontSize: 13 }} />
               Add Tables
             </button>
+            )}
             {/* Save */}
+            {saveTable && (
             <button
               onClick={saveTable}
               className="flex items-center text-[var(--endeavour)] border border-[var(--rock-blue)] text-xs font-medium px-3 h-7 rounded-full hover:bg-[var(--selago)] transition-all"
             >
               Save
             </button>
+            )}
+          </div>
+
+          {/* RIGHT: Delete + Add material + Chat + Columns + Excel + PDF */}
+          <div className="flex items-center gap-1">
             {/* Delete Table — red */}
             <Tltip direction='bottom' tltpText='Delete Table'>
               <button
@@ -107,10 +115,6 @@ const Header = ({
                 <MdDeleteOutline style={{ fontSize: 18 }} />
               </button>
             </Tltip>
-          </div>
-
-          {/* RIGHT: Add material + Chat + Columns + Excel + PDF */}
-          <div className="flex items-center gap-1">
             <Tltip direction='bottom' tltpText='Add new material'>
               <button
                 onClick={addMaterial}
