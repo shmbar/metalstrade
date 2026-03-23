@@ -107,7 +107,7 @@ const DraggableRow = ({ row, props, cName }) => {
               padding: "4px 4px",
               verticalAlign: "middle",
               width: columnConfig.pct || 'auto',
-              overflow: "hidden",
+              overflow: cell.column.id === "date" ? "visible" : "hidden",
             }}
             className={cn(
               cellAlign === "right" && "text-center",

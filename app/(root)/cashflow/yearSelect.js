@@ -30,10 +30,10 @@ const YearSelect = ({ yr, setYr }) => {
                 {yrArr.map((z) => (
                     <MenuItem as="div" key={z} className="text-slate-600 text-sm">
                         <div className='flex items-center gap-2'>
-                            <CheckBox checked={yr.includes(z)} size='h-5 w-5'
+                            <CheckBox checked={yr.includes(z)} size='h-4 w-4'
                                 onChange={() => checkItem(z)} />
                             <div
-                                className={`hover:bg-slate-200 flex w-full items-center gap-2 rounded-lg py-1.5 my-1 px-1 ${yr === z ? 'bg-slate-500 text-white' : ''
+                                className={`hover:bg-slate-200 flex w-full items-center gap-2 rounded-lg py-0.5 my-0 px-1 ${yr === z ? 'bg-slate-500 text-white' : ''
                                     }`}
                             //    onClick={() => setYr(z)}
                             >
