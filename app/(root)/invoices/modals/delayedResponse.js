@@ -89,7 +89,7 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                         </td>
                                         <td className="px-1 py-2">
                                             <div className="flex items-center h-5 text-xs">
-                                                <CheckBox checked={obj.alert} size='h-5 w-5' onChange={() => { setAlert(obj) }} />
+                                                <CheckBox checked={obj.alert} size='h-4 w-4' onChange={() => { setAlert(obj) }} />
                                             </div>
                                         </td>
                                     </tr>
