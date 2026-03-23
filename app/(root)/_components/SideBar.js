@@ -197,7 +197,25 @@ export default function Sidebar() {
         overflow: "hidden",
       }}>
 
-{/* Search bar hidden */}
+      {/* Search bar */}
+      {!collapsed && (
+        <div className="px-3 pt-2 pb-1 shrink-0">
+          <div className="flex items-center gap-2 rounded-xl px-3 py-1.5" style={{ background: '#fff', border: '1px solid #b8ddf8' }}>
+            <FiSearch size={13} style={{ color: 'var(--chathams-blue)', flexShrink: 0 }} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search..."
+              className="flex-1 bg-transparent border-0 outline-none text-[11px] placeholder:text-gray-400"
+              style={{ color: 'var(--chathams-blue)' }}
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')} className="text-gray-400 hover:text-gray-600 leading-none">×</button>
+            )}
+          </div>
+        </div>
+      )}
 
         <nav className={`flex-1 min-h-0 overflow-x-hidden ${collapsed ? 'overflow-y-hidden' : 'overflow-y-auto'}`}>
           <ul style={{ paddingTop: collapsed ? "2px" : "clamp(4px,0.5vh,6px)", paddingBottom: collapsed ? "60px" : "clamp(4px,0.5vh,6px)" }}>
