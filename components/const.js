@@ -48,8 +48,8 @@ export const sideBar = () => {
                 { item: 'Invoices', img: <TbFileInvoice />, page: 'invoices' },
                 { item: 'Expenses', img: <DiBrackets />, page: 'expenses' },
                 { item: 'Accounting', img: <CgEreader className="scale-[0.8]" />, page: 'accounting' },
-                { item: 'Contracts Review & Statement', img: <VscPreview />, page: 'ContractsReview&Statement' },
-                { item: 'Invoices Review & Statement', img: <LiaFileInvoiceDollarSolid />, page: 'InvoicesReview&Statement' }
+                { item: 'Contracts Review', img: <VscPreview />, page: 'ContractsReview&Statement' },
+                { item: 'Invoices Review', img: <LiaFileInvoiceDollarSolid />, page: 'InvoicesReview&Statement' }
             ]
         },
       
