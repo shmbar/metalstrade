@@ -22,20 +22,20 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
 >
   <SelectTrigger
     className="
-      h-7
- w-full
-      bg-[#fafafa]
-      rounded-full
+      w-full
+      bg-[#f8fbff]
+      rounded-lg
       px-2
       text-[11px]
-      text-[var(--endeavour)]
-      border border-[#cecece]
-      focus:border-blue-400
+      text-[#1F2937]
+      border border-[#d8e8f5]
+      focus:border-[var(--endeavour)]
       focus:ring-1
-      focus:ring-blue-400
+      focus:ring-[var(--endeavour)]
       shadow-none
       focus:outline-none
     "
+    style={{ minHeight: '26px', fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial" }}
   >
     <SelectValue
       placeholder={plHolder}
@@ -43,7 +43,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
     />
   </SelectTrigger>
 
-  <SelectContent className="z-40 bg-[#fafafa] rounded-xl shadow-lg border border-[#cecece]" style={{ maxHeight: '180px' }}>
+  <SelectContent className="z-40 bg-[#f8fbff] rounded-xl shadow-lg border border-[#d8e8f5]" style={{ maxHeight: '180px' }}>
     <SelectGroup>
       {sortArr(data, 'nname').map((z, i) => (
         <SelectItem

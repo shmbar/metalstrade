@@ -104,7 +104,7 @@ const DraggableRow = ({ row, props, cName }) => {
             key={cell.id}
             style={{
               height: "32px",
-              padding: "4px 4px",
+              padding: "3px 1px",
               verticalAlign: "middle",
               width: columnConfig.pct || 'auto',
               overflow: cell.column.id === "date" ? "visible" : "hidden",
@@ -139,7 +139,7 @@ const DraggableRow = ({ row, props, cName }) => {
                   cell.column.id === "margin" && row.original.gis
                 }
               >
-                <div className="flex items-center justify-end w-full">
+                <div className="flex items-center w-full">
                   <Input
                     props={cell}
                     handleChange={handleChange}
@@ -211,7 +211,8 @@ const DraggableRow = ({ row, props, cName }) => {
                 prefix={currs.includes(cell.column.id) ? "$" : ""}
                 decimalScale={currs.includes(cell.column.id) ? 2 : 3}
                 fixedDecimalScale
-                className="h-7 w-full bg-[#fafafa] rounded-full px-2 text-[11px] text-[var(--endeavour)] border border-[#d9d9d9] outline-none text-right"
+                className="w-full bg-transparent border-none outline-none px-1 text-[11px] text-[#1F2937] text-center"
+                style={{ fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial" }}
               />
             )}
           </TableCell>

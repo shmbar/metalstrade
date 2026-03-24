@@ -30,14 +30,13 @@ export const Input = ({ props, handleChange, month, name, styles, addCur }) => {
       className={cn(
         styles,
         `
-        h-7
         w-full
-        bg-[#fafafa]
-        rounded-full
+        bg-[#f8fbff]
+        rounded-lg
         px-2
         !text-[11px]
-        !text-[var(--endeavour)]
-        border border-[#d9d9d9]
+        !text-[#1F2937]
+        border border-[#d8e8f5]
         outline-none
         focus:ring-1
         focus:ring-[var(--endeavour)]
@@ -46,6 +45,7 @@ export const Input = ({ props, handleChange, month, name, styles, addCur }) => {
         transition
         `
       )}
+      style={{ minHeight: '26px', fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial", fontSize: '11px' }}
     />
   );
 };

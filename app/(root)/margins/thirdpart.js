@@ -165,7 +165,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border border-transparent rounded-xl transition-all duration-200 ease-in-out bg-[#dbeeff] text-[var(--endeavour)] fade-in">
+                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border border-[#d8e8f5] rounded-lg transition-all duration-200 ease-in-out bg-[#dbeeff] text-[var(--endeavour)] fade-in">
                                                     {z.month + "-" + yr}
                                                 </div>
                                             </td>
@@ -182,7 +182,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
+                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff] fade-in">
                                                     <NumericFormat
                                                         value={z.purchase}
                                                         displayType="text"
@@ -207,7 +207,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1]  fade-in">
+                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1]  fade-in">
                                                     <NumericFormat
                                                         value={z.totalMargin}
                                                         displayType="text"
@@ -233,7 +233,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
+                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff] fade-in">
                                                     <NumericFormat
                                                         value={z.openShip}
                                                         displayType="text"
@@ -258,7 +258,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
+                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff] fade-in">
                                                     <NumericFormat
                                                         value={z.remaining}
                                                         displayType="text"
@@ -289,7 +289,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
                                             }}
                                         >
-                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent">
+                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
                                                 Total
                                             </div>
                                         </td>
@@ -307,7 +307,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
                                             }}
                                         >
-                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent">
+                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
                                                 <NumericFormat
                                                     value={purchase}
                                                     displayType="text"
@@ -333,7 +333,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
                                             }}
                                         >
-                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent">
+                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
                                                 <NumericFormat
                                                     value={totalMargin}
                                                     displayType="text"
@@ -360,7 +360,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
                                             }}
                                         >
-                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent">
+                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
                                                 <NumericFormat
                                                     value={outStandingShip}
                                                     displayType="text"
@@ -386,7 +386,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
                                             }}
                                         >
-                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent">
+                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
                                                 <NumericFormat
                                                     value={remaining}
                                                     displayType="text"
