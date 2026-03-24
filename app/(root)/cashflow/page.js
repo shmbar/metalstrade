@@ -813,7 +813,7 @@ return (
 
 {activeTab === 'unsold' ? (
     <div className="w-full max-w-2xl border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-2 pb-1 border-b border-[#d4eafc]">
             <div className="text-[var(--endeavour)] text-xs font-medium">Unsold Stocks</div>
             <div className="flex items-center gap-2">
             {stocksSortName2 ?
@@ -857,7 +857,7 @@ return (
                     </div>
                 ))}
 
-                <div className="mt-2 pt-2 border-t border-[#b8ddf8] flex items-center justify-between">
+                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
                     <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">Total</div>
                     <NumericFormat
                         value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
@@ -918,7 +918,7 @@ return (
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
                             <div className="w-full">
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Stocks - Paid</span>
                                     <div className="flex items-center gap-2">
                                         {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} />}
@@ -959,26 +959,22 @@ return (
 
                                     )
                                 })}  
-                                <div className=" rounded-md py-0 px-1 mt-2 flex items-center justify-between responsiveTextTotal">
-                                    <div className=" text-[var(--endeavour)] font-normal">
+                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
                                         Total
                                     </div>
-                                    <div className="text-[var(--endeavour)] font-normal">
-                                        {
-                                            <NumericFormat
-                                                value={stockData1.reduce((total, obj) => {
-                                                    return total + (parseFloat(obj.total) || 0);
-                                                }, 0)}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative={true}
-                                                prefix='$'
-                                                decimalScale='2'
-                                                fixedDecimalScale
-                                                className='responsiveTextTotal font-normal'
-                                            />
-                                        }
-                                    </div>
+                                    <NumericFormat
+                                        value={stockData1.reduce((total, obj) => {
+                                            return total + (parseFloat(obj.total) || 0);
+                                        }, 0)}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix='$'
+                                        decimalScale='2'
+                                        fixedDecimalScale
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                    />
                                 </div>
 
                             </div>
@@ -986,7 +982,7 @@ return (
 
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Stocks - UnPaid</span>
                                     <div className="flex items-center gap-2">
                                         {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} />}
@@ -1026,32 +1022,28 @@ return (
 
                                     )
                                 })}
-                                <div className="rounded-md py-0 px-1 mt-2  flex items-center justify-between responsiveTextTotal">
-                                    <div className="font-normal text-[var(--endeavour)]">
+                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
                                         Total
                                     </div>
-                                    <div className="font-normal text-[var(--endeavour)]">
-                                        {
-                                            <NumericFormat
-                                                value={stockData2.reduce((total, obj) => {
-                                                    return total + (parseFloat(obj.total) || 0);
-                                                }, 0)}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative={true}
-                                                prefix='$'
-                                                decimalScale='2'
-                                                fixedDecimalScale
-                                                className='responsiveTextTotal font-normal'
-                                            />
-                                        }
-                                    </div>
+                                    <NumericFormat
+                                        value={stockData2.reduce((total, obj) => {
+                                            return total + (parseFloat(obj.total) || 0);
+                                        }, 0)}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix='$'
+                                        decimalScale='2'
+                                        fixedDecimalScale
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                    />
                                 </div>
                             </div>
 
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Clients - Payment</span>
                                     <div className="flex items-center gap-2">
                                         {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} />}
@@ -1089,31 +1081,28 @@ return (
                                         </div>
                                     )
                                 })}
-                                <div className="rounded-md py-0 px-1 mt-2 flex items-center justify-between responsiveTextTotal">
-                                    <div className=" text-[var(--endeavour)] font-normal">
+                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
                                         Total
                                     </div>
-                                    <div className="text-[var(--endeavour)] font-normal">
-                                        {
-                                            <NumericFormat
-                                                value={clientInvoices2.reduce((total, obj) => {
-                                                    return total + (parseFloat(obj.debtBlnc) || 0);
-                                                }, 0)}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative={true}
-                                                prefix='$'
-                                                decimalScale='2'
-                                                fixedDecimalScale
-                                            />
-                                        }
-                                    </div>
+                                    <NumericFormat
+                                        value={clientInvoices2.reduce((total, obj) => {
+                                            return total + (parseFloat(obj.debtBlnc) || 0);
+                                        }, 0)}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix='$'
+                                        decimalScale='2'
+                                        fixedDecimalScale
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                    />
                                 </div>
                             </div>
 
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Clients - Balances</span>
                                     <div className="flex items-center gap-2">
                                         {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} />}
@@ -1152,26 +1141,22 @@ return (
                                         )
                                     })}
 
-                                <div className="rounded-md py-0 px-1 mt-2 flex items-center justify-between responsiveTextTotal">
-                                    <div className="font-normal text-[var(--endeavour)]">
+                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
                                         Total
                                     </div>
-                                    <div className=" text-[var(--endeavour)]">
-                                        {
-                                            <NumericFormat
-                                                value={clientInvoices1.reduce((total, obj) => {
-                                                    return total + (parseFloat(obj.debtBlnc) || 0);
-                                                }, 0)}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative={true}
-                                                prefix='$'
-                                                decimalScale='2'
-                                                fixedDecimalScale
-                                                className='responsiveTextTotal font-normal'
-                                            />
-                                        }
-                                    </div>
+                                    <NumericFormat
+                                        value={clientInvoices1.reduce((total, obj) => {
+                                            return total + (parseFloat(obj.debtBlnc) || 0);
+                                        }, 0)}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix='$'
+                                        decimalScale='2'
+                                        fixedDecimalScale
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                    />
                                 </div>
                             </div>
 
@@ -1180,7 +1165,7 @@ return (
                                 {
                                     userTitle === 'Admin' &&
                                     <div className='mt-1 p-1'>
-                                        <div className='flex justify-between p-2'>
+                                        <div className='flex justify-between p-2 pb-1 border-b border-[#d4eafc]'>
                                             <span className="text-[var(--endeavour)] text-xs font-medium">Financing</span>
                                             <button
                                                 type="button"
@@ -1209,23 +1194,20 @@ return (
                                                 })}
                                         </div>
 
-                                        <div className="rounded-md py-0 px-3 mt-2  flex items-center justify-between responsiveTextTotal">
-                                            <div className="font-normal text-[var(--endeavour)]">
+                                        <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                            <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
                                                 Total
                                             </div>
-                                            <div className="font-normal text-[var(--endeavour)]">
-                                                {
-                                                    <NumericFormat
-                                                        value={Array.isArray(financedLeft) ? financedLeft.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
-                                                        displayType="text"
-                                                        thousandSeparator
-                                                        allowNegative={true}
-                                                        prefix='$'
-                                                        decimalScale='2'
-                                                        fixedDecimalScale
-                                                    />
-                                                }
-                                            </div>
+                                            <NumericFormat
+                                                value={Array.isArray(financedLeft) ? financedLeft.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
+                                                displayType="text"
+                                                thousandSeparator
+                                                allowNegative={true}
+                                                prefix='$'
+                                                decimalScale='2'
+                                                fixedDecimalScale
+                                                className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                            />
                                         </div>
                                     </div>
                                 }
@@ -1237,7 +1219,7 @@ return (
 <div className="w-full border-l border-[#dedede] pt-0">
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Supplier - Payment</span>
                                     <div className="flex items-center gap-2">
                                         {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
@@ -1279,32 +1261,28 @@ return (
 
                                     )
                                 })}
-                                <div className=" rounded-md py-0 px-1 mt-2 flex items-center justify-between responsiveTextTotal">
-                                    <div className="font-normal text-[var(--endeavour)]">
+                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
                                         Total
                                     </div>
-                                    <div className="font-normal text-[var(--endeavour)]">
-                                        {
-                                            <NumericFormat
-                                                value={supPayments2?.reduce((total, obj) => {
-                                                    return total + (parseFloat(obj.blnc) || 0);
-                                                }, 0)}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative={true}
-                                                prefix='$'
-                                                decimalScale='2'
-                                                fixedDecimalScale
-                                                className='responsiveTextTotal font-normal'
-                                            />
-                                        }
-                                    </div>
+                                    <NumericFormat
+                                        value={supPayments2?.reduce((total, obj) => {
+                                            return total + (parseFloat(obj.blnc) || 0);
+                                        }, 0)}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix='$'
+                                        decimalScale='2'
+                                        fixedDecimalScale
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                    />
                                 </div>
                             </div>
 
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Supplier - Balances</span>
                                     <div className="flex items-center gap-2">
                                         {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
@@ -1346,31 +1324,27 @@ return (
                                     )
                                 })}
 
-                                <div className=" rounded-md py-0 px-1 mt-2 flex items-center justify-between responsiveTextTotal">
-                                    <div className="font-normal text-[var(--chathams-blue)]">
+                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
                                         Total
                                     </div>
-                                    <div className="font-normal text-[var(--chathams-blue)]">
-                                        {
-                                            <NumericFormat
-                                                value={supPayments1?.reduce((total, obj) => {
-                                                    return total + (parseFloat(obj.blnc) || 0);
-                                                }, 0)}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative={true}
-                                                prefix='$'
-                                                decimalScale='2'
-                                                fixedDecimalScale
-                                                className="font-normal text-[var(--endeavour)]"
-                                            />
-                                        }
-                                    </div>
+                                    <NumericFormat
+                                        value={supPayments1?.reduce((total, obj) => {
+                                            return total + (parseFloat(obj.blnc) || 0);
+                                        }, 0)}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix='$'
+                                        decimalScale='2'
+                                        fixedDecimalScale
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                    />
                                 </div>
                             </div>
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] text-xs font-medium">Expenses</span>
                                     <div className="flex items-center gap-2">
                                         {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} />}
@@ -1409,26 +1383,22 @@ return (
 
                                     )
                                 })}
-                                <div className=" rounded-md py-0 px-1 mt-2  flex items-center justify-between responsiveTextTotal">
-                                    <div className="font-normal text-[var(--endeavour)]">
+                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
                                         Total
                                     </div>
-                                    <div className="font-normal text-[var(--endeavour)]">
-
-                                        <NumericFormat
-                                            value={expenses?.reduce((total, obj) => {
-                                                return total + (parseFloat(obj.amount) || 0);
-                                            }, 0)}
-                                            displayType="text"
-                                            thousandSeparator
-                                            allowNegative={true}
-                                            prefix='$'
-                                            decimalScale='2'
-                                            fixedDecimalScale
-                                            className="font-normal"
-                                        />
-
-                                    </div>
+                                    <NumericFormat
+                                        value={expenses?.reduce((total, obj) => {
+                                            return total + (parseFloat(obj.amount) || 0);
+                                        }, 0)}
+                                        displayType="text"
+                                        thousandSeparator
+                                        allowNegative={true}
+                                        prefix='$'
+                                        decimalScale='2'
+                                        fixedDecimalScale
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                    />
                                 </div>
                             </div>
 
@@ -1436,7 +1406,7 @@ return (
                                 {
                                     userTitle === 'Admin' &&
                                     <div className='mt-1 p-1'>
-                                        <div className='flex justify-between'>
+                                        <div className='flex justify-between pb-1 border-b border-[#d4eafc]'>
                                             <span className="text-[var(--endeavour)] text-xs font-medium">Financing</span>
                                             <button
                                                 type="button"
@@ -1463,24 +1433,20 @@ return (
                                                 })}
                                         </div>
 
-                                        <div className="rounded-md py-0 px-1 mt-2 flex items-center justify-between responsiveTextTotal">
-                                            <div className="font-normal text-[var(--endeavour)]">
+                                        <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                            <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
                                                 Total
                                             </div>
-                                            <div className="font-normal text-[var(--endeavour)]">
-                                                {
-                                                    <NumericFormat
-                                                        value={Array.isArray(financedRight) ? financedRight.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
-                                                        displayType="text"
-                                                        thousandSeparator
-                                                        allowNegative={true}
-                                                        prefix='$'
-                                                        decimalScale='2'
-                                                        fixedDecimalScale
-                                                        className="font-normal"
-                                                    />
-                                                }
-                                            </div>
+                                            <NumericFormat
+                                                value={Array.isArray(financedRight) ? financedRight.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
+                                                displayType="text"
+                                                thousandSeparator
+                                                allowNegative={true}
+                                                prefix='$'
+                                                decimalScale='2'
+                                                fixedDecimalScale
+                                                className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                            />
                                         </div>
 
                                     </div>

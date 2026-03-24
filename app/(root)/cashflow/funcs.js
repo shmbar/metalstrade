@@ -328,45 +328,43 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
     filteredArr = filteredArr.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return (
-        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
-                    <tr style={{ height: '24px' }}>
-                        <th className="text-left p-1 w-12 text-[var(--endeavour)] font-normal">PO#</th>
-                        <th className="text-left p-1 w-16 text-[var(--endeavour)] font-normal">Supplier</th>
-                        <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">Org Sup.</th>
-                        <th className="text-left p-1 w-28 max-w-28 text-[var(--endeavour)] font-normal">Description</th>
-                        <th className="text-right p-1 w-14 text-[var(--endeavour)] font-normal">Quantity</th>
-                        <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Unit Price</th>
-                        <th className="text-center p-1 w-20 text-[var(--endeavour)] font-normal">Total</th>
+                    <tr>
+                        <th className="text-left w-12">PO#</th>
+                        <th className="text-left w-16">Supplier</th>
+                        <th className="text-left w-14">Org Sup.</th>
+                        <th className="text-left w-28 max-w-28">Description</th>
+                        <th className="text-right w-14">Quantity</th>
+                        <th className="text-right w-20">Unit Price</th>
+                        <th className="text-right w-20">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr className="border-b border-[#c8dff0]" key={i} style={{ height: '22px' }}>
-                                <td className="text-left p-1 cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
+                            <tr key={i}>
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
-                                <td className="text-left p-1 w-16"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></Tltip></td>
-                                <td className="text-left p-1 w-14"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
-                                <td className="text-left p-1 w-28 max-w-28">
+                                <td className="text-left w-16"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></Tltip></td>
+                                <td className="text-left w-14"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
+                                <td className="text-left w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.descriptionName || ''}><span className="block truncate cursor-default">{z.descriptionName}</span></Tltip>
                                 </td>
-                                <td className="text-right p-1">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.qnty}
                                         displayType="text"
                                         thousandSeparator
                                         allowNegative={true}
-                                        //  prefix={z.cur === 'us' ? '$' : '€'}
                                         decimalScale='3'
                                         fixedDecimalScale
-                                        className=''
                                     />
                                 }</td>
-                                <td className="text-right p-1">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.unitPrc}
                                         displayType="text"
@@ -375,10 +373,9 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                                         prefix={z.cur === 'us' ? '$' : '€'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className=''
                                     />
                                 }</td>
-                                <td className="text-right p-1">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.total}
                                         displayType="text"
@@ -387,7 +384,6 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                                         prefix={z.cur === 'us' ? '$' : '€'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className=''
                                     />
                                 }</td>
                             </tr>
@@ -396,41 +392,39 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#e3f3ff]" style={{ height: '24px' }}>
-                        <th className="relative px-1 py-1 text-left font-medium text-gray-500 uppercase">
+                    <tr className="bg-[#e3f3ff]">
+                        <th className="text-left">
                             Total
                         </th>
-                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
+                        <th>
                         </th>
-                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
+                        <th>
                         </th>
-                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
+                        <th>
                         </th>
-                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
+                        <th className="text-right">
                             {
                                 <NumericFormat
                                     value={filteredArr.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0)}
                                     displayType="text"
                                     thousandSeparator
                                     allowNegative={true}
-                                    //   prefix={z.cur === 'us' ? '$' : '€'}
                                     decimalScale='3'
                                     fixedDecimalScale
-                                    className=''
                                 />
                             }
                         </th>
-                        <th className="relative p-1 text-right font-medium text-gray-500 uppercase">
+                        <th className="text-right">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.unitPrc * 1, 0), 'usd')}
                         </th>
-                        <th className="relativep-2 p-1 text-right font-medium text-gray-500 uppercase">
+                        <th className="text-right">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0), 'usd')}
                         </th>
                     </tr>
                 </tfoot>
             </table>
         </div>
-    )//stock; 
+    )//stock;
 }
 
 export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
@@ -442,31 +436,31 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
     const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd')
 
     return (
-        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
-                    <tr style={{ height: '24px' }}>
-                        <th className="text-left p-1 w-12 text-[var(--endeavour)] font-normal">PO#</th>
-                        <th className="text-left p-1 w-14 text-[var(--endeavour)] font-normal">Org Sup.</th>
-                        <th className="text-left p-1 w-28 max-w-28 text-[var(--endeavour)] font-normal">Description</th>
-                        <th className="text-right p-1 w-14 text-[var(--endeavour)] font-normal">Quantity</th>
-                        <th className="text-right p-1 w-20 text-[var(--endeavour)] font-normal">Unit Price</th>
-                        <th className="text-center p-1 w-20 text-[var(--endeavour)] font-normal">Total</th>
+                    <tr>
+                        <th className="text-left w-12">PO#</th>
+                        <th className="text-left w-14">Org Sup.</th>
+                        <th className="text-left w-28 max-w-28">Description</th>
+                        <th className="text-right w-14">Quantity</th>
+                        <th className="text-right w-20">Unit Price</th>
+                        <th className="text-right w-20">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr className="border-b border-[#c8dff0]" key={i} style={{ height: '22px' }}>
-                                <td className="text-left p-1 cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
+                            <tr key={i}>
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
-                                <td className="text-left p-1 w-14"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
-                                <td className="text-left p-1 w-28 max-w-28">
+                                <td className="text-left w-14"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
+                                <td className="text-left w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.description || ''}><span className="block truncate cursor-default">{z.description}</span></Tltip>
                                 </td>
-                                <td className="text-right p-1">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.qnty}
                                         displayType="text"
@@ -474,10 +468,9 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                                         allowNegative={true}
                                         decimalScale='3'
                                         fixedDecimalScale
-                                        className=''
                                     />
                                 }</td>
-                                <td className="text-right p-1">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.unitPrc}
                                         displayType="text"
@@ -486,10 +479,9 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                                         prefix={z.cur === 'us' ? '$' : '€'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className=''
                                     />
                                 }</td>
-                                <td className="text-right p-1">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.total}
                                         displayType="text"
@@ -498,7 +490,6 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                                         prefix={z.cur === 'us' ? '$' : '€'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className=''
                                     />
                                 }</td>
                             </tr>
@@ -507,15 +498,13 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#e3f3ff]" style={{ height: '24px' }}>
-                        <th className="relative px-1 py-1 text-left font-medium text-gray-500 uppercase">
+                    <tr className="bg-[#e3f3ff]">
+                        <th className="text-left">
                             Total
                         </th>
-                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
-                        </th>
-                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
-                        </th>
-                        <th className="relative p-1 text-left font-medium text-gray-500 uppercase">
+                        <th></th>
+                        <th></th>
+                        <th className="text-right">
                             {
                                 <NumericFormat
                                     value={filteredArr.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0)}
@@ -524,13 +513,11 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                                     allowNegative={true}
                                     decimalScale='3'
                                     fixedDecimalScale
-                                    className=''
                                 />
                             }
                         </th>
-                        <th className="relative p-1 text-right font-medium text-gray-500 uppercase">
-                        </th>
-                        <th className="relativep-2 p-1 text-right font-medium text-gray-500 uppercase">
+                        <th></th>
+                        <th className="text-right">
                             {ttl}
                         </th>
                     </tr>
@@ -685,20 +672,20 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
     let filteredArr1 = tmp.filter(x => x.payments.length === 0)
 
     return (
-        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable1 bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             {type === 'PartPaid' &&
                 <div className="pt-1 w-full">
                     <table className="cashflow-detail-table w-full table-auto">
                         <thead>
-                            <tr style={{ height: '24px' }}>
-                                <th className="text-left p-1 2xl:p-1  max-w-20 2xl:max-w-24 truncate text-[var(--endeavour)] font-normal text-">PO#</th>
-                                <th className="text-left p-1 2xl:p-1 w-12 text-[var(--endeavour)] font-normal">Invoice</th>
-                                <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
-                                <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
-                                <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Balance</th>
-                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">ETD</th>
-                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">ETA</th>
-                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Pmn</th>
+                            <tr>
+                                <th className="text-left max-w-20 2xl:max-w-24">PO#</th>
+                                <th className="text-left w-12">Invoice</th>
+                                <th className="text-right">Amount</th>
+                                <th className="text-right">Payment</th>
+                                <th className="text-right">Balance</th>
+                                <th className="text-left">ETD</th>
+                                <th className="text-left">ETA</th>
+                                <th className="text-center">Pmn</th>
                                 <th className="text-center px-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
@@ -714,13 +701,13 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                         <tbody>
                             {filteredArr.map((z, i) => {
                                 return (
-                                    <tr className="border-b border-[#c8dff0]" key={i} style={{ height: '22px' }}>
-                                        <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)] max-w-14 2xl:max-w-24 truncate"
+                                    <tr key={i}>
+                                        <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-14 2xl:max-w-24 truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
-                                        <td className="text-left p-1 2xl:p-1  w-10">{z.invoice}</td>
-                                        <td className="text-right p-1 2xl:p-1">{
+                                        <td className="text-left w-10"><Tltip direction='top' tltpText={z.invoice || ''}><span className="block truncate">{z.invoice}</span></Tltip></td>
+                                        <td className="text-right">{
                                             <NumericFormat
                                                 value={z.totalAmount}
                                                 displayType="text"
@@ -729,10 +716,9 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 prefix={z.cur === 'us' ? '$' : '€'}
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className=''
                                             />
                                         }</td>
-                                        <td className="text-right p-1 2xl:p-1">{
+                                        <td className="text-right">{
                                             <NumericFormat
                                                 value={z.payments.reduce((total, obj) => {
                                                     return total + obj.pmnt * 1;
@@ -743,10 +729,9 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 prefix={z.cur === 'us' ? '$' : '€'}
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className=''
                                             />
                                         }</td>
-                                        <td className="text-right p-1 2xl:p-1">{
+                                        <td className="text-right">{
                                             <NumericFormat
                                                 value={z.debtBlnc}
                                                 displayType="text"
@@ -755,12 +740,11 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 prefix={z.cur === 'us' ? '$' : '€'}
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className=''
                                             />
                                         }</td>
-                                        <td className="text-left p-1 2xl:p-1">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
-                                        <td className="text-left p-1 2xl:p-1">{dateFormat(z.shipData?.eta?.startDate, 'dd.mm.yy')}</td>
-                                        <td className="text-center p-1 2xl:p-1 py-0">
+                                        <td className="text-left">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
+                                        <td className="text-left">{dateFormat(z.shipData?.eta?.startDate, 'dd.mm.yy')}</td>
+                                        <td className="text-center !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>
                                                 <div className='flex items-center justify-center'>
                                                     <DoalogModalClient obj={z}
@@ -769,7 +753,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 </div>
                                             </Tltip>
                                         </td>
-                                        <td className="text-center  p-1 2xl:p-1 py-0">
+                                        <td className="text-center !py-1">
                                             <Tltip direction='right' tltpText='Set full payment'>
                                                 <div className='flex items-center justify-center'>
                                                     <CheckBox size='size-3' checked={z.checked}
@@ -783,32 +767,24 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
 
                         </tbody>
                         <tfoot>
-                            <tr className="bg-[#e3f3ff]" style={{ height: '24px' }}>
-                                <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-normal text-gray-500 uppercase">
-                                    Total
-                                </th>
-                                <th className="relative p-1 2xl:p-2 text-left font-normal text-gray-500 uppercase">
-                                </th>
-                                <th className="relative p-1 2xl:p-2 text-left font-normal text-gray-500 uppercase">
+                            <tr className="bg-[#e3f3ff]">
+                                <th className="text-left">TOTAL</th>
+                                <th></th>
+                                <th className="text-right">
                                     {showAmount(filteredArr.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
                                 </th>
-                                <th className="relative p-1 2xl:p-2 text-right font-normal text-gray-500 uppercase">
-                                    {
-                                        showAmount(filteredArr
-                                            .flatMap(item => item.payments || [])
-                                            .reduce((sum, payment) => sum + (parseFloat(payment.pmnt) || 0), 0), 'usd')
-                                    }
+                                <th className="text-right">
+                                    {showAmount(filteredArr
+                                        .flatMap(item => item.payments || [])
+                                        .reduce((sum, payment) => sum + (parseFloat(payment.pmnt) || 0), 0), 'usd')}
                                 </th>
-                                <th className="relative p-1 2xl:p-2 text-right font-normal text-gray-500 uppercase">
+                                <th className="text-right">
                                     {showAmount(filteredArr.reduce((sum, item) => sum + item.debtBlnc, 0), 'usd')}
                                 </th>
-                                <th className="relative p-1 2xl:p-2 text-left font-normal text-gray-500 uppercase">
-                                </th>
-                                <th className="relativep-1 2xl:p-2 text-left font-normal text-gray-500 uppercase">
-                                </th>
-                                <th className="relative p-1 2xl:p-2 text-left  font-normal text-gray-500 uppercase">
-                                </th>
-                                <th className="relative  text-center font-normal text-gray-500 uppercase">
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th className="text-center">
                                     <div className='flex items-center justify-center'>
                                         <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                             onClick={() => savePmntClient(filteredArr[0]?.client)}
@@ -825,14 +801,14 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
 
             {type === 'InDebt' &&
                 <div className="pt-1 w-full">
-                    <table className="cashflow-detail-table responsiveTextTable w-full table-auto">
+                    <table className="cashflow-detail-table w-full table-auto">
                         <thead>
-                            <tr style={{ height: '24px' }}>
-                                <th className="text-left p-1 2xl:p-1  w-28 text-[var(--endeavour)] font-normal">PO#</th>
-                                <th className="text-left p-1 2xl:p-1 w-12 text-[var(--endeavour)] font-normal">Invoice</th>
-                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
-                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Prepayment</th>
-                                <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Pmn</th>
+                            <tr>
+                                <th className="text-left w-28">PO#</th>
+                                <th className="text-left w-12">Invoice</th>
+                                <th className="text-right">Amount</th>
+                                <th className="text-right">Prepayment</th>
+                                <th className="text-center">Pmn</th>
                                 <th className="text-center p-1 2xl:p-1 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
@@ -847,13 +823,13 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                         <tbody>
                             {filteredArr1.map((z, i) => {
                                 return (
-                                    <tr className="border-b border-[#c8dff0]" key={i} style={{ height: '22px' }}>
-                                        <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)] max-w-14 2xl:max-w-24 truncate"
+                                    <tr key={i}>
+                                        <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-14 2xl:max-w-24 truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
-                                        <td className="text-left p-1 2xl:p-1">{z.invoice}</td>
-                                        <td className="text-left p-1 2xl:p-1">{
+                                        <td className="text-left"><Tltip direction='top' tltpText={z.invoice || ''}><span className="block truncate">{z.invoice}</span></Tltip></td>
+                                        <td className="text-right">{
                                             <NumericFormat
                                                 value={z.totalAmount}
                                                 displayType="text"
@@ -862,13 +838,12 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 prefix={z.cur === 'us' ? '$' : '€'}
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className=''
                                             />
                                         }</td>
-                                        <td className="text-left p-1 2xl:p-1">{
+                                        <td className="text-right">{
                                             z.percentage + '%'
                                         }</td>
-                                        <td className="text-left p-1 2xl:p-1 py-0">
+                                        <td className="text-center !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>
                                                 <div className='flex items-center justify-center'>
                                                     <DoalogModalClient obj={z}
@@ -878,7 +853,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                             </Tltip>
                                         </td>
 
-                                        <td className="text-center p-1 2xl:p-1 py-0">
+                                        <td className="text-center !py-1">
                                             <Tltip direction='right' tltpText='Set full payment'>
                                                 <div className='flex items-center justify-center'>
                                                     <CheckBox size='size-3' checked={z.checked}
@@ -892,20 +867,17 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
 
                         </tbody>
                         <tfoot>
-                            <tr className="bg-[#e3f3ff]" style={{ height: '24px' }}>
-                                <th className="relative p-1 2xl:p-2 text-left font-normal text-gray-500 uppercase">
-                                    Total
-                                </th>
-                                <th className="relative p-1 2xl:p-2 text-left  font-medium text-gray-500 uppercase">
-                                </th>
-                                <th className="relative p-1 2xl:p-2 text-left  font-medium text-gray-500 uppercase">
+                            <tr className="bg-[#e3f3ff]">
+                                <th className="text-left">TOTAL</th>
+                                <th></th>
+                                <th className="text-right">
                                     {showAmount(filteredArr1.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
                                 </th>
-                                <th className="relative p-1 2xl:p-2 text-left  font-medium text-gray-500 uppercase">
+                                <th className="text-right">
                                     {showAmount(filteredArr1.reduce((sum, item) => sum + item.totalAmount * (item.percentage / 100), 0), 'usd')}
                                 </th>
                                 <th></th>
-                                <th className="relative text-left font-medium text-gray-500 uppercase">
+                                <th className="text-center">
                                     <div className='flex items-center justify-center'>
                                         <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                             onClick={() => savePmntClient(filteredArr1[0]?.client)}
@@ -914,7 +886,6 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                         </button>
                                     </div>
                                 </th>
-
                             </tr>
                         </tfoot>
                     </table>
@@ -1079,17 +1050,16 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
     let type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt'
 
     return (
-        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
-                    <tr style={{ height: '24px' }}>
-                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">PO#</th>
-                        {/* <th className="text-left p-2">Supplier</th> */}
-                        <th className="text-left p-1 2xl:p-1 w-12 text-[var(--endeavour)] font-normal">Invoice</th>
-                        <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Value</th>
-                        <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
-                        <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Balance</th>
-                        <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Pmn</th>
+                    <tr>
+                        <th className="text-left">PO#</th>
+                        <th className="text-left w-12">Invoice</th>
+                        <th className="text-right">Value</th>
+                        <th className="text-right">Payment</th>
+                        <th className="text-right">Balance</th>
+                        <th className="text-center">Pmn</th>
                         <th className="py-0">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
@@ -1105,14 +1075,13 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr className="border-b border-[#c8dff0]" key={i} style={{ height: '22px' }}>
-                                <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
+                            <tr key={i}>
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'supplier', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}
                                 ><Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
-                                {/* <td className="text-left p-2">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td> */}
-                                <td className="text-left p-1 2xl:p-1 2xl:max-w-24 truncate" >{z.invoice}</td>
-                                <td className="text-right p-1 2xl:p-1">{
+                                <td className="text-left 2xl:max-w-24 truncate"><Tltip direction='top' tltpText={z.invoice || ''}><span className="block truncate">{z.invoice}</span></Tltip></td>
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.invValue}
                                         displayType="text"
@@ -1121,10 +1090,9 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                         prefix={z.cur === 'us' ? '$' : '€'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTable'
                                     />
                                 }</td>
-                                <td className="text-right p-1 2xl:p-1">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.pmnt}
                                         displayType="text"
@@ -1133,10 +1101,9 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                         prefix={z.cur === 'us' ? '$' : '€'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTable'
                                     />
                                 }</td>
-                                <td className="text-right p-1 2xl:p-1">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.blnc}
                                         displayType="text"
@@ -1145,17 +1112,16 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                         prefix={z.cur === 'us' ? '$' : '€'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTable'
                                     />
                                 }</td>
-                                <td className="text-center p-1 2xl:p-1 py-0">
+                                <td className="text-center !py-1">
                                     <Tltip direction='right' tltpText='Partial Payment'>
                                         <div className='flex items-center justify-center'>
                                             <DoalogModal obj={z} supplierPartialPayment={supplierPartialPayment} />
                                         </div>
                                     </Tltip>
                                 </td>
-                                <td className="text-center p-1 2xl:p-1 py-0">
+                                <td className="text-center !py-1">
                                     <Tltip direction='right' tltpText='Set full payment'>
                                         <div className='flex items-center justify-center'>
                                             <CheckBox size='size-3' checked={z.checked}
@@ -1168,25 +1134,20 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                     })}
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#e3f3ff] responsiveTextTable" style={{ height: '24px' }}>
-                        <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase">
-                            Total
-                        </th>
-                        <th className="relative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase">
-                        </th>
-                        <th className="relative p-1 2xl:p-2 text-right responsiveTextTable font-medium text-gray-500 uppercase">
+                    <tr className="bg-[#e3f3ff]">
+                        <th className="text-left">TOTAL</th>
+                        <th></th>
+                        <th className="text-right">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.invValue * 1, 0), 'usd')}
                         </th>
-                        <th className="relative p-1 2xl:p-2 text-right responsiveTextTable font-medium text-gray-500 uppercase">
+                        <th className="text-right">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.pmnt * 1, 0), 'usd')}
                         </th>
-                        <th className="relative p-1 2xl:p-2 text-right responsiveTextTable font-medium text-gray-500 uppercase">
+                        <th className="text-right">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.blnc * 1, 0), 'usd')}
                         </th>
-                        <th>
-
-                        </th>
-                        <th className="relative  text-right font-medium text-gray-500 uppercase">
+                        <th></th>
+                        <th className="text-center">
                             <div className='flex items-center justify-center'>
                                 <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                     onClick={() => savePmntSupplier(filteredArr)}
@@ -1260,18 +1221,17 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
     let filteredArr = expensesAll.filter(z => z.supplier === supplier)
 
     return (
-        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto responsiveTextTable bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
-                    <tr style={{ height: '24px' }}>
-                        <th className="text-left p-1 2xl:p-1 w-24 text-[var(--endeavour)] font-normal">PO#</th>
-                        {/* <th className="text-left p-2">Supplier</th> */}
-                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Exp. Invoice</th>
-                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Exp. Type</th>
-                        <th className="text-right p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Amount</th>
-                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Date</th>
-                        <th className="text-left p-1 2xl:p-1 text-[var(--endeavour)] font-normal">Payment</th>
-                        <th className="text-center p-1 2xl:p-1 py-0 text-[var(--endeavour)]">
+                    <tr>
+                        <th className="text-left w-24">PO#</th>
+                        <th className="text-left">Exp. Invoice</th>
+                        <th className="text-left">Exp. Type</th>
+                        <th className="text-right">Amount</th>
+                        <th className="text-left">Date</th>
+                        <th className="text-left">Payment</th>
+                        <th className="text-center">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
                                     {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleExp[filteredArr[0]?.supplier]}
@@ -1286,15 +1246,14 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr className="border-b border-[#c8dff0]" key={i} style={{ height: '22px' }}>
-                                <td className="text-left p-1 2xl:p-1 cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
+                            <tr key={i}>
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
                                     onClick={() => moveToContracts(z, z.poSupplier ? 'expense' : 'compexpense', uidCollection, setDateSelect,
                                         setValueExp, setIsOpen, blankInvoice, router)}>
                                     <Tltip direction='top' tltpText={z.poSupplier?.order ?? 'Comp. Exp.'}><span className="block truncate">{z.poSupplier?.order ?? 'Comp. Exp.'}</span></Tltip></td>
-                                {/* <td className="text-left p-2">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td> */}
-                                <td className="text-left p-1 2xl:p-1" >{z.expense}</td>
-                                <td className="text-left p-1 2xl:p-1" >{settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType}</td>
-                                <td className="text-right p-1 2xl:p-1">{
+                                <td className="text-left"><Tltip direction='top' tltpText={z.expense || ''}><span className="block truncate max-w-20">{z.expense}</span></Tltip></td>
+                                <td className="text-left"><Tltip direction='top' tltpText={settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType || ''}><span className="block truncate max-w-20">{settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType}</span></Tltip></td>
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.amount}
                                         displayType="text"
@@ -1303,16 +1262,15 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                                         prefix={z.cur === 'us' ? '$' : '€'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTable'
                                     />
                                 }</td>
-                                <td className="text-left p-1 2xl:p-1">
+                                <td className="text-left">
                                     {dateFormat(z.date, 'dd.mm.yy')}
                                 </td>
-                                <td className="text-left p-1 2xl:p-1">
-                                    {z.paid === '111' ? 'Paid' : 'Unpaid'}
+                                <td className="text-left">
+                                    <span className={z.paid === '111' ? 'text-green-600' : 'text-orange-500'}>{z.paid === '111' ? 'Paid' : 'Unpaid'}</span>
                                 </td>
-                                <td className="text-center p-1 2xl:p-1">
+                                <td className="text-center !py-1">
                                     <Tltip direction='right' tltpText='Set full payment'>
                                         <div className='flex items-center justify-center'>
                                             <CheckBox size='size-3' checked={z.checked}
@@ -1326,31 +1284,26 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#e3f3ff]" style={{ height: '24px' }}>
-                        <th className="grelative p-1 2xl:p-2 text-left responsiveTextTable font-medium text-gray-500 uppercase">
+                    <tr className="bg-[#e3f3ff]">
+                        <th className="text-left">
                             <div>Total $</div>
-                            <div className="pt-1">Total €</div>
+                            <div className="pt-0.5">Total €</div>
                         </th>
-                        <th className="relative p-1 2xl:p-2 text-left font-medium text-gray-500 uppercase">
-                        </th>
-                        <th className="relative p-1 2xl:p-2 text-left font-medium text-gray-500 uppercase">
-                        </th>
-                        <th className="relative p-1 2xl:p-2 text-right responsiveTextTable font-medium text-gray-500 uppercase">
+                        <th></th>
+                        <th></th>
+                        <th className="text-right">
                             <div>{
                                 showAmount(filteredArr.reduce((sum, item) => sum + (item.cur === 'us' ?
                                     parseFloat(item.amount) || 0 : 0), 0), 'usd')
                             }</div>
-                            <div className="pt-1">{
+                            <div className="pt-0.5">{
                                 showAmount(filteredArr.reduce((sum, item) => sum + (item.cur === 'eu' ?
                                     parseFloat(item.amount) || 0 : 0), 0), 'eur')
-                            }
-                            </div>
+                            }</div>
                         </th>
-                        <th className="relative  text-left font-medium text-gray-500 uppercase">
-                        </th>
-                        <th className="relative p-1 2xl:p-2  text-left font-medium text-gray-500 uppercase">
-                        </th>
-                        <th className="relative p-1 2xl:p-2 text-right text-[0.8rem] font-medium text-gray-500 uppercase">
+                        <th></th>
+                        <th></th>
+                        <th className="text-center">
                             <div className='flex items-center justify-center'>
                                 <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                     onClick={() => savePmntExp(filteredArr)}
