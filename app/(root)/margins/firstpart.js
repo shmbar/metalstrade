@@ -13,7 +13,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={2} 
                 fixedDecimalScale 
-                style={{ fontSize: '11px', fontWeight: '700' }}
+                style={{ fontSize: '11px', fontWeight: '600' }}
             />,
             bgGradient: 'linear-gradient(135deg, #0ea5e9, #0284c7)'
         },
@@ -27,7 +27,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: '11px', fontWeight: '700' }}
+                style={{ fontSize: '11px', fontWeight: '600' }}
             />,
             bgGradient: 'linear-gradient(135deg, #3abef8, #0ea5e9)'
         },
@@ -40,7 +40,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: '11px', fontWeight: '700' }}
+                style={{ fontSize: '11px', fontWeight: '600' }}
             />,
             bgGradient: 'linear-gradient(135deg, #77d1fc, #3abef8)'
         },
@@ -54,7 +54,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: '11px', fontWeight: '700' }}
+                style={{ fontSize: '11px', fontWeight: '600' }}
             />,
             bgGradient: 'linear-gradient(135deg, #6366f1, #4f46e5)'
         },
@@ -67,7 +67,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: '11px', fontWeight: '700' }}
+                style={{ fontSize: '11px', fontWeight: '600' }}
             />,
             bgGradient: 'linear-gradient(135deg, #828df8, #6366f1)'
         },
@@ -80,7 +80,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
                 
                 .stats-cards, .stats-cards * {
-                    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+                    font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
                     transition-property: color, background-color, border-color, box-shadow, transform !important;
                     transition-duration: 150ms !important;
                     transition-timing-function: ease-in-out !important;
@@ -104,10 +104,10 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                     boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1), 0 0 1px rgba(255, 255, 255, 0.2) inset',
                                 }}
                             >
-                                <span className="text-[11px] font-bold text-[var(--endeavour)] text-center px-1">
+                                <span className="text-[11px] font-semibold text-[var(--endeavour)] text-center px-1">
                                     {card.label}
                                 </span>
-                                <div className="text-[11px] font-bold text-[var(--endeavour)] text-center">
+                                <div className="text-[11px] font-semibold text-[var(--endeavour)] text-center">
                                     {card.value}
                                 </div>
 
@@ -124,10 +124,10 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                     className="stats-card flex flex-col items-center justify-center rounded-full bg-white py-1 px-1 shadow-lg border border-white/20"
                                     style={{ boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)' }}
                                 >
-                                    <span className="text-[11px] font-bold text-[var(--endeavour)] text-center px-1">
+                                    <span className="text-[11px] font-semibold text-[var(--endeavour)] text-center px-1">
                                         {card.label}
                                     </span>
-                                    <div className="text-[11px] font-bold text-[var(--endeavour)] text-center">
+                                    <div className="text-[11px] font-semibold text-[var(--endeavour)] text-center">
                                         {card.value}
                                     </div>
                                 </div>
