@@ -73,6 +73,7 @@ const Contracts = () => {
 		}
 	}, [searchParams, contractsData]);
 
+
 	useEffect(() => {
 		const Load = async () => {
 			setLoading(true)

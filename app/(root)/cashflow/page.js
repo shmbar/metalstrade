@@ -24,6 +24,8 @@ import { useRouter } from "next/navigation";
 import { ExpensesContext } from "../../../contexts/useExpensesContext";
 import { v4 as uuidv4 } from 'uuid';
 import dateFormat from "dateformat";
+import ContractModal from "../contracts/modals/dataModal";
+import ExpenseModal from "../expenses/modals/dataModal";
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -45,8 +47,8 @@ function countDecimalDigits(inputString) {
 const Cashflow = () => {
 
     const { settings, ln, setLoading, loading, setToast, setDateSelect } = useContext(SettingsContext);
-    const { setValueCon, setIsOpenCon } = useContext(ContractsContext);
-    const { setValueExp, setIsOpen, } = useContext(ExpensesContext);
+    const { valueCon, setValueCon, isOpenCon, setIsOpenCon } = useContext(ContractsContext);
+    const { valueExp, setValueExp, isOpen, setIsOpen } = useContext(ExpensesContext);
     const { blankInvoice } = useContext(InvoiceContext);
     const currentYear = new Date().getFullYear();
     const [yr, setYr] = useState([currentYear - 1])
@@ -1537,6 +1539,25 @@ return (
 )}
 
         </div>
+
+        {/* Contract modal overlay */}
+        {valueCon && (
+            <ContractModal
+                isOpen={isOpenCon}
+                setIsOpen={setIsOpenCon}
+                title={!valueCon.id ? getTtl('New Contract', ln) : `${getTtl('Contract No', ln)}: ${valueCon.order}`}
+            />
+        )}
+
+        {/* Expense modal overlay */}
+        {valueExp && (
+            <ExpenseModal
+                isOpen={isOpen}
+                setIsOpen={setIsOpen}
+                title={getTtl('Existing Expense', ln)}
+            />
+        )}
+
         </>
         }
         </div>

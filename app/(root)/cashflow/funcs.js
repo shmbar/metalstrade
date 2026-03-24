@@ -298,23 +298,13 @@ const moveToContracts = async (z, ent, uidCollection, setDateSelect,
         }
 
     }
-    if (ent === 'expense') {
-        setValue(contract)
-
-        router.push("/expenses");
-        setIsOpen(true)
-    } else if (ent === 'compexpense') {
-        setValue(contract)
-
-        router.push("/companyexpenses");
-        setIsOpen(true)
+    if (ent === 'expense' || ent === 'compexpense') {
+        setValue(contract);
+        setIsOpen(true);
     } else {
         setValue(contract);
         blankInvoice();
-
-        router.push("/contracts");
-
-        setIsOpen(true)
+        setIsOpen(true);
     }
 
 
