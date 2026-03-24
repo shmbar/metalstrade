@@ -292,6 +292,8 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
   border: 1px solid #b8ddf8 !important;
   border-radius: 999px !important;
   color: var(--chathams-blue) !important;
+  font-size: 11px !important;
+  padding: 3px 8px !important;
 }
 .rounded-full.p-\[0\.45rem\]:hover {
   background: #dbeeff !important;
