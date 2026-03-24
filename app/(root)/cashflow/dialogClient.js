@@ -5,7 +5,8 @@ import {
 } from "../../../components/ui/popover"
 import { Button } from "../../../components/ui/button"
 import { useContext, useEffect, useState } from "react";
-import { MdPayments, MdClose } from "react-icons/md";
+import { MdClose } from "react-icons/md";
+import { TbCoins } from "react-icons/tb";
 import Datepicker from "react-tailwindcss-datepicker";
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 
@@ -67,7 +68,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <button className="p-0 bg-transparent border-0 outline-none leading-none">
-                    <MdPayments className="w-3 h-3 text-[var(--endeavour)]"/>
+                    <TbCoins className="w-3.5 h-3.5 text-[var(--endeavour)]"/>
                 </button>
             </PopoverTrigger>
 

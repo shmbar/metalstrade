@@ -6,7 +6,6 @@ import { filteredArray, groupedArrayInvoice, loadAllStockData, loadCompanyExpens
 import dateFormat from 'dateformat';
 import { ContactRoundIcon, Save } from "lucide-react";
 import { NumericFormat } from "react-number-format";
-import { MdPayments } from "react-icons/md";
 import DoalogModal from "./dialogSupplier";
 import DoalogModalClient from "./dialogClient";
 
