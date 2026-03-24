@@ -13,7 +13,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={2} 
                 fixedDecimalScale 
-                style={{ fontSize: '13px', fontWeight: '700' }}
+                style={{ fontSize: '11px', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #0ea5e9, #0284c7)'
         },
@@ -27,7 +27,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: '13px', fontWeight: '700' }}
+                style={{ fontSize: '11px', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #3abef8, #0ea5e9)'
         },
@@ -40,7 +40,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: '13px', fontWeight: '700' }}
+                style={{ fontSize: '11px', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #77d1fc, #3abef8)'
         },
@@ -54,7 +54,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: '13px', fontWeight: '700' }}
+                style={{ fontSize: '11px', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #6366f1, #4f46e5)'
         },
@@ -67,14 +67,14 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: '13px', fontWeight: '700' }}
+                style={{ fontSize: '11px', fontWeight: '700' }}
             />,
             bgGradient: 'linear-gradient(135deg, #828df8, #6366f1)'
         },
     ];
 
     return (
-        <div className="w-full p-1 ">
+        <div className="w-full">
             {/* Import Poppins font and apply consistent styling exactly like newTable */}
             <style jsx global>{`
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -95,39 +95,39 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
             <div className="w-full flex justify-center">
                 <div className="w-full max-w-7xl">
                     {/* Desktop Layout */}
-                    <div className="hidden md:flex flex-row gap-3 justify-center stats-cards w-full">
+                    <div className="hidden md:grid grid-cols-5 gap-4 stats-cards w-full">
                         {cards.map((card, idx) => (
                             <div
                                 key={idx}
-                                className="stats-card flex-1 min-w-0 flex flex-col items-center justify-center rounded-full shadow-lg border border-white/20 backdrop-blur-sm bg-white py-2 px-2"
+                                className="stats-card min-w-0 flex flex-col items-center justify-center rounded-full shadow-lg border border-white/20 backdrop-blur-sm bg-white py-1 px-2"
                                 style={{
                                     boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1), 0 0 1px rgba(255, 255, 255, 0.2) inset',
                                 }}
                             >
-                                <span className="text-[13px] font-bold text-[var(--endeavour)] text-center px-2">
+                                <span className="text-[11px] font-bold text-[var(--endeavour)] text-center px-1">
                                     {card.label}
                                 </span>
-                                <div className="text-[13px] font-bold text-[var(--endeavour)] text-center">
+                                <div className="text-[11px] font-bold text-[var(--endeavour)] text-center">
                                     {card.value}
                                 </div>
-                                
+
                             </div>
                         ))}
                     </div>
 
                     {/* Mobile Layout */}
                     <div className="block md:hidden stats-cards">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-2">
                             {cards.map((card, idx) => (
                                 <div
                                     key={idx}
-                                    className="stats-card flex flex-col items-center justify-center rounded-full bg-white py-2 px-2 shadow-lg border border-white/20"
+                                    className="stats-card flex flex-col items-center justify-center rounded-full bg-white py-1 px-1 shadow-lg border border-white/20"
                                     style={{ boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)' }}
                                 >
-                                    <span className="text-[13px] font-bold text-[var(--endeavour)] text-center px-2">
+                                    <span className="text-[11px] font-bold text-[var(--endeavour)] text-center px-1">
                                         {card.label}
                                     </span>
-                                    <div className="text-[13px] font-bold text-[var(--endeavour)] text-center">
+                                    <div className="text-[11px] font-bold text-[var(--endeavour)] text-center">
                                         {card.value}
                                     </div>
                                 </div>
