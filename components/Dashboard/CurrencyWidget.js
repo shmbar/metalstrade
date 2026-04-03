@@ -145,10 +145,10 @@ export default function CurrencyWidget() {
                                         ) : (
                                             <>
                                                 <p className="text-lg font-bold text-[var(--chathams-blue)]">
-                                                    {formatRate(rate)}
+                                                    {formatRate(rate ? 1 / rate : null)}
                                                 </p>
                                                 <p className="text-xs text-[var(--regent-gray)]">
-                                                    1 {baseCurrency} = {formatRate(rate)} {currency}
+                                                    1 {currency} = {formatRate(rate ? 1 / rate : null)} {baseCurrency}
                                                 </p>
                                             </>
                                         )}

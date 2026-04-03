@@ -100,6 +100,7 @@ export default function MarketsTicker({ className = '' }) {
 
     return list.map((c) => {
       const r = getFxRate(fx.rates, c);
+      const displayRate = r ? 1 / r : null;
       const pairLabel = `${c}/${baseCurrency}`;
       const cc = currencyCountry[c] || 'UN';
       const FlagIcon = makeFlagIcon(cc);
@@ -108,7 +109,7 @@ export default function MarketsTicker({ className = '' }) {
         key: `fx-${c}`,
         icon: FlagIcon,
         label: pairLabel,
-        value: r ? `${fx.formatRate(r)} ${currencySymbols[c] || ''}` : '—',
+        value: displayRate ? `${fx.formatRate(displayRate)} ${currencySymbols[baseCurrency] || ''}` : '—',
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
