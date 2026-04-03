@@ -129,31 +129,37 @@ const DraggableRow = ({ row, props, cName }) => {
                 />
               </div>
             ) : inputs.includes(cell.column.id) ? (
-              <Tltip
-                direction="top"
-                tltpText={
-                  (cName === "ims" ? "IMS: " : "GIS: ") +
-                  addComma(cell.getValue() / 2)
-                }
-                show={
-                  cell.column.id === "margin" && row.original.gis
-                }
-              >
+              cell.column.id === "margin" && row.original.gis ? (
+                <Tltip
+                  direction="top"
+                  tltpText={
+                    (cName === "ims" ? "IMS: " : "GIS: ") +
+                    addComma(cell.getValue() / 2)
+                  }
+                >
+                  <div className="flex items-center w-full">
+                    <Input
+                      props={cell}
+                      handleChange={handleChange}
+                      month={month}
+                      name={cell.column.id}
+                      styles="text-center"
+                      addCur={currs.includes(cell.column.id)}
+                    />
+                  </div>
+                </Tltip>
+              ) : (
                 <div className="flex items-center w-full">
                   <Input
                     props={cell}
                     handleChange={handleChange}
                     month={month}
                     name={cell.column.id}
-                    styles={
-                      cell.column.id === "description"
-                        ? "text-center"
-                        : "text-center"
-                    }
+                    styles="text-center"
                     addCur={currs.includes(cell.column.id)}
                   />
                 </div>
-              </Tltip>
+              )
             ) : cell.column.id === "supplier" ||
               cell.column.id === "client" ? (
               <div className="w-full">
