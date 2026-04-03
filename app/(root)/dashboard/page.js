@@ -435,7 +435,7 @@ const Dash = () => {
 
   return (
     <div className="w-full ">
-      <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px] min-h-screen ">
+      <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px] min-h-screen ">
       <Toast />
       <VideoLoader loading={loading} fullScreen={true} />
 

@@ -185,7 +185,7 @@ const AssistantChat = () => {
     return (
         <div className="w-full min-h-screen flex flex-col bg-white">
             <div
-                className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 flex-1 flex flex-col"
+                className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 flex-1 flex flex-col"
                 style={{ marginTop: 'clamp(56px, 7vh, 80px)', minHeight: 'calc(100vh - clamp(56px, 7vh, 80px))' }}
             >
                 {Object.keys(settings).length === 0 ? <Spinner /> :

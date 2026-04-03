@@ -120,9 +120,9 @@ export default function Sidebar() {
     color: "#003366",
     marginLeft: isCollapsed ? "auto" : "8px",
     marginRight: isCollapsed ? "auto" : "8px",
-    marginBottom: isCollapsed ? "0px" : "clamp(1px, 0.15vh, 2px)",
-    paddingTop: isCollapsed ? "2px" : "clamp(4px, 0.5vh, 6px)",
-    paddingBottom: isCollapsed ? "2px" : "clamp(4px, 0.5vh, 6px)",
+    marginBottom: isCollapsed ? "0px" : "1px",
+    paddingTop: isCollapsed ? "2px" : "clamp(3px, 0.4vh, 5px)",
+    paddingBottom: isCollapsed ? "2px" : "clamp(3px, 0.4vh, 5px)",
     paddingLeft: isCollapsed ? "0" : "12px",
     paddingRight: isCollapsed ? "0" : "8px",
     width: isCollapsed ? "36px" : "auto",
@@ -321,10 +321,10 @@ export default function Sidebar() {
                       transition: "background 0.2s",
                       marginLeft: "4px",
                       marginRight: "4px",
-                      marginBottom: "4px",
-                      paddingBottom: "4px",
+                      marginBottom: "2px",
+                      paddingBottom: "2px",
                     }
-                  : { marginBottom: "4px" };
+                  : { marginBottom: "2px" };
 
                 return (
                   <div key={i} style={sectionWrapStyle}>
@@ -345,8 +345,8 @@ export default function Sidebar() {
                           opacity: 0.75,
                           paddingLeft: "12px",
                           paddingRight: "10px",
-                          paddingTop: i === 0 ? "6px" : "clamp(6px, 0.8vh, 12px)",
-                          paddingBottom: "clamp(2px, 0.3vh, 4px)",
+                          paddingTop: i === 0 ? "4px" : "clamp(4px, 0.5vh, 6px)",
+                          paddingBottom: "2px",
                           cursor: isCollapsible ? "pointer" : "default",
                           userSelect: "none",
                         }}

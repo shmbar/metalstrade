@@ -781,7 +781,7 @@ const Cashflow = () => {
 
 return (
 	<div className="w-full" style={{ background: "#f8fbff" }}>
-		<div className="mx-auto max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+		<div className="mx-auto max-w-full px-1 md:px-2 pb-4 mt-[72px]">
 			{Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
             <>
                 <Toast />

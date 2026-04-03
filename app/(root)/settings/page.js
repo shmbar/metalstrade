@@ -50,7 +50,7 @@ const Page = () => {
 
 
   return (
-    <div className="mx-auto w-full max-w-[98%] px-1 sm:px-2 md:px-3 pb-4 mt-[72px]">
+    <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
       <Toast />
       <VideoLoader loading={loading} fullScreen={true} />
       <div className="p-1 md:p-4 bg-white rounded-2xl border border-[#b8ddf8] shadow-sm">
