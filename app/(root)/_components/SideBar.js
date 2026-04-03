@@ -161,9 +161,9 @@ export default function Sidebar() {
     <div
       className="relative flex flex-col h-screen overflow-hidden transition-all duration-200"
       style={{
-        width: collapsed ? "60px" : "clamp(220px, 18vw, 260px)",
-        minWidth: collapsed ? "60px" : "clamp(220px, 18vw, 260px)",
-        maxWidth: collapsed ? "60px" : "clamp(220px, 18vw, 260px)",
+        width: collapsed ? "60px" : "clamp(190px, 15vw, 220px)",
+        minWidth: collapsed ? "60px" : "clamp(190px, 15vw, 220px)",
+        maxWidth: collapsed ? "60px" : "clamp(190px, 15vw, 220px)",
         borderRadius: "12px",
         zIndex: 0,
         background: "linear-gradient(to right, #e3f3ff 0%, #e3f3ff 60%, #f0f8ff 100%)",
@@ -200,7 +200,7 @@ export default function Sidebar() {
 
       {/* Search bar */}
       {!collapsed && (
-        <div className="px-5 pt-2 pb-1 shrink-0">
+        <div className="px-3 pt-2 pb-1 shrink-0">
           <div className="relative flex items-center rounded-full px-3 py-1.5" style={{ background: '#f8fbff', border: '1px solid #b8ddf8' }}>
             <FiSearch size={13} style={{ color: 'var(--chathams-blue)', flexShrink: 0 }} />
             <input
@@ -440,7 +440,7 @@ export default function Sidebar() {
             {/* User profile pill */}
             <div style={{
               position: "fixed", bottom: 18, left: 0,
-              width: collapsed ? "60px" : "clamp(220px, 18vw, 260px)",
+              width: collapsed ? "60px" : "clamp(190px, 15vw, 220px)",
               zIndex: 0, padding: collapsed ? "0 8px" : "0 16px", display: "flex", justifyContent: "center",
             }}>
               <div style={{
