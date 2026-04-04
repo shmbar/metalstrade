@@ -134,7 +134,7 @@ const Customtable = ({
               tableLayout: 'auto',
               borderCollapse: 'separate',
               borderSpacing: 0,
-              fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+              fontFamily: 'var(--font-poppins), 'Plus Jakarta Sans', sans-serif',
             }}
           >
             {/* THEAD — seamless colored band */}
@@ -244,7 +244,7 @@ const Customtable = ({
                               onChange={(e) => editCell(table1, e, cell)}
                               value={cell.column.id === 'kgs' ? formatNumber(cell.getContext().getValue()) : cell.getContext().getValue()}
                               style={{
-                                fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+                                fontFamily: 'var(--font-poppins), 'Plus Jakarta Sans', sans-serif',
                                 fontSize: '11px',
                                 color: '#1F2937',
                                 background: 'transparent',
@@ -343,7 +343,7 @@ const Customtable = ({
                           onChange={(e) => editCell(table1, e, cell)}
                           value={cell.column.id === 'kgs' ? formatNumber(cell.getContext().getValue()) : cell.getContext().getValue()}
                           style={{
-                            fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+                            fontFamily: 'var(--font-poppins), 'Plus Jakarta Sans', sans-serif',
                             fontSize: '11px',
                             color: '#1F2937',
                             background: 'transparent',

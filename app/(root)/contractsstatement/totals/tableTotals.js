@@ -35,7 +35,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                   background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(250,250,250,0.90) 50%, rgba(255,255,255,0.85) 100%);
                 }
                 .custom-table, .custom-table *, .glass-table, .glass-table * {
-                  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+                  font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
                   font-size: 10px !important;
                   transition-property: color, background-color, border-color, box-shadow !important;
                   transition-duration: 150ms !important;

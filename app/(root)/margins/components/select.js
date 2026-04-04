@@ -34,8 +34,10 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
       focus:ring-[var(--endeavour)]
       shadow-none
       focus:outline-none
+      [&>span]:flex-1
+      [&>span]:text-center
     "
-    style={{ minHeight: '26px', fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial" }}
+    style={{ minHeight: '26px', fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif" }}
   >
     <SelectValue
       placeholder={plHolder}

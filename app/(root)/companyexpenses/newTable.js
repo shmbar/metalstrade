@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 import Header from "../../../components/table/header";
 import {
   flexRender,
@@ -157,14 +157,14 @@ const Customtable = ({
           border: 1px solid #e8f0f8;
           text-align: center;
           font-size: 11px !important;
-          font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
 
         }
         .custom-table td {
           border: 1px solid #e8f0f8;
           text-align: center;
           font-size: 10px !important;
-          font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
 
         }
         .header-blue {
@@ -278,7 +278,7 @@ const Customtable = ({
                   <tr className="summary-blue">
                     {hdGroup.headers.map(header => (
                       <th key={header.id} className="py-1.5 text-xs font-normal text-left px-2">
-                        {header.id === 'supplier' ? 'Total â‚¬:' :
+                        {header.id === 'supplier' ? 'Total €:' :
                           header.id === 'cur' ? 'EUR' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(
                               table.getFilteredRowModel().rows.reduce((sum, row) => {
@@ -605,7 +605,7 @@ const Customtable = ({
     {/* TOP ROW */}
     <div className="grid grid-cols-3 items-center">
 
-      {/* LEFT â€” Showing Info */}
+      {/* LEFT — Showing Info */}
       <div className="flex justify-start">
         <div
           className="whitespace-nowrap font-normal"
@@ -628,12 +628,12 @@ const Customtable = ({
         </div>
       </div>
 
-      {/* CENTER â€” Pagination */}
+      {/* CENTER — Pagination */}
       <div className="flex justify-center">
         <Paginator table={table} />
       </div>
 
-      {/* RIGHT â€” Rows Indicator */}
+      {/* RIGHT — Rows Indicator */}
       <div className="flex justify-end">
         <RowsIndicator table={table} />
       </div>

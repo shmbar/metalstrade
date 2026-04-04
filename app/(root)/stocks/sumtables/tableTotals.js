@@ -175,7 +175,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
         
         .stocks-table, .stocks-table * {
-          font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
           font-size: 10px !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;

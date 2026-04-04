@@ -22,7 +22,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
         overflow: "hidden",
         boxShadow: "0 4px 16px rgba(3,102,174,0.12)",
         fontFamily:
-          "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+          "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
         fontSize: "10px",
       }}
     >

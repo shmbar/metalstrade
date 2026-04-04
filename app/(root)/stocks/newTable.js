@@ -1,4 +1,4 @@
-ï»¿'use client'
+'use client'
 
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
@@ -157,7 +157,7 @@ const Customtable = ({
         /* Use Poppins for the table and limit transitions to non-transform properties
            to avoid any hover vibration (no transform transitions allowed). */
         .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
@@ -525,7 +525,7 @@ const Customtable = ({
   <div className="w-full px-4 py-3">
     <div className="flex items-center justify-between">
 
-      {/* LEFT â€” Showing Range */}
+      {/* LEFT — Showing Range */}
       <div
         className="whitespace-nowrap font-normal"
         style={{
@@ -537,7 +537,7 @@ const Customtable = ({
           table.getState().pagination.pageIndex *
             table.getState().pagination.pageSize +
           (table.getFilteredRowModel().rows.length ? 1 : 0)
-        }â€“${
+        }–${
           table.getRowModel().rows.length +
           table.getState().pagination.pageIndex *
             table.getState().pagination.pageSize
@@ -546,12 +546,12 @@ const Customtable = ({
         }`}
       </div>
 
-      {/* CENTER â€” Pagination */}
+      {/* CENTER — Pagination */}
       <div className="flex justify-center">
         <Paginator table={table} />
       </div>
 
-      {/* RIGHT â€” Rows Dropdown */}
+      {/* RIGHT — Rows Dropdown */}
       <div className="flex justify-end">
         <RowsIndicator table={table} />
       </div>

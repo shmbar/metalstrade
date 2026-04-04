@@ -218,7 +218,7 @@ const DraggableRow = ({ row, props, cName }) => {
                 decimalScale={currs.includes(cell.column.id) ? 2 : 3}
                 fixedDecimalScale
                 className="w-full bg-transparent border-none outline-none px-1 text-[11px] text-[#1F2937] text-center"
-                style={{ fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial" }}
+                style={{ fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif" }}
               />
             )}
           </TableCell>

@@ -7,33 +7,33 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
         <div className="w-full lg:flex-1 p-2 mt-2 overflow-x-auto">
             {/* Import Poppins font and apply consistent styling exactly like newTable */}
             <style jsx global>{`
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-                
                 .margins-table, .margins-table * {
-                    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;           
+                    font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
                     transition-duration: 150ms !important;
                     transition-timing-function: ease-in-out !important;
                 }
 
                 /* Add border, background, and text alignment styles for table cells */
                 .margins-table th, .margins-table td {
-                    
                     background-color: #f8fbff;
                     text-align: center;
                     vertical-align: middle;
-                  font-size: 10px !important;
+                    font-size: 10px !important;
+                    font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
                     padding: 6px;
                     border-radius: 4px;
                 }
 
                 .margins-table th {
                     background-color: #dbeeff;
-                    color: var(--endeavour);
+                    color: var(--chathams-blue);
+                    font-weight: 600;
                 }
 
                 .margins-table td {
                     background-color: #fff;
                     border: 1px solid var(--selago);
+                    color: var(--chathams-blue);
                 }
             `}</style>
 
@@ -41,7 +41,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
             <h1 
                 className="mb-2 margins-table"
                 style={{ 
-                    color: 'var(--endeavour)',
+                    color: 'var(--chathams-blue)',
                     fontSize: '15px',
                     fontWeight: '400'
                 }}

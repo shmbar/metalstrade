@@ -29,7 +29,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
             <style jsx global>{`
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
                 .glass-table, .glass-table * {
-                    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial !important;
+                    font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif !important;
                     color: var(--chathams-blue);
                 }
                 .glass-table th, .glass-table td {

@@ -47,7 +47,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
         .custom-table-totals, .custom-table-totals * {
-          font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
           font-size: 10px !important;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;

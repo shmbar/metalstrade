@@ -1,4 +1,4 @@
-ï»¿
+
 'use client'
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
@@ -197,7 +197,7 @@ const Customtable = ({
         }
 
         .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
@@ -593,7 +593,7 @@ const Customtable = ({
                                         minWidth: '60px'
                                       }}
                                     >
-                                      {hasValue ? flexRender(cell.column.columnDef.cell, cell.getContext()) : 'â€”'}
+                                      {hasValue ? flexRender(cell.column.columnDef.cell, cell.getContext()) : '—'}
                                     </span>
                                   </div>
                                 );
@@ -645,7 +645,7 @@ const Customtable = ({
             <div className="w-full px-6 py-4">
               <div className="flex items-center justify-between">
 
-              {/* LEFT â€” COUNT */}
+              {/* LEFT — COUNT */}
               <div
                 className="text-sm font-medium"
                 style={{ color: '#6B7280' }}
@@ -653,19 +653,19 @@ const Customtable = ({
                 {`${
                   table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
                   (table.getFilteredRowModel().rows.length ? 1 : 0)
-                }â€“${
+                }–${
                   table.getRowModel().rows.length +
                   table.getState().pagination.pageIndex *
                   table.getState().pagination.pageSize
                 } of ${table.getFilteredRowModel().rows.length}`}
               </div>
 
-              {/* CENTER â€” PAGINATOR */}
+              {/* CENTER — PAGINATOR */}
               <div className="flex justify-center">
                 <Paginator table={table} />
               </div>
 
-              {/* RIGHT â€” ROWS */}
+              {/* RIGHT — ROWS */}
               <div className="flex justify-end">
                 <RowsIndicator table={table} />
               </div>

@@ -25,6 +25,7 @@ body,
 :root {
   height: 100%;
   overflow-x: hidden;
+  font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
 }
 
 /* Row hover: ensure all tds inherit tr hover background */

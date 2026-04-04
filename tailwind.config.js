@@ -9,6 +9,9 @@ module.exports = {
 	],
 	theme: {
 		extend: {
+			fontFamily: {
+				poppins: ['var(--font-poppins)', 'sans-serif'],
+			},
 			gridTemplateColumns: {
 				'21': 'repeat(21, minmax(0, 1fr))'
 			},

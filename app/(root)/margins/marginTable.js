@@ -29,7 +29,7 @@ const MarginTable = (props) => {
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
                 
                 .margin-card, .margin-card * {
-                    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+                    font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
                     transition-property: color, background-color, border-color, box-shadow !important;
                     transition-duration: 150ms !important;
                     transition-timing-function: ease-in-out !important;
