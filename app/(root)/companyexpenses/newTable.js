@@ -278,7 +278,7 @@ const Customtable = ({
                   <tr className="summary-blue">
                     {hdGroup.headers.map(header => (
                       <th key={header.id} className="py-1.5 text-xs font-normal text-left px-2">
-                        {header.id === 'supplier' ? 'Total €:' :
+                        {header.id === 'supplier' ? 'Total ï¿½:' :
                           header.id === 'cur' ? 'EUR' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(
                               table.getFilteredRowModel().rows.reduce((sum, row) => {
@@ -605,7 +605,7 @@ const Customtable = ({
     {/* TOP ROW */}
     <div className="grid grid-cols-3 items-center">
 
-      {/* LEFT — Showing Info */}
+      {/* LEFT ï¿½ Showing Info */}
       <div className="flex justify-start">
         <div
           className="whitespace-nowrap font-normal"
@@ -628,12 +628,12 @@ const Customtable = ({
         </div>
       </div>
 
-      {/* CENTER — Pagination */}
+      {/* CENTER ï¿½ Pagination */}
       <div className="flex justify-center">
         <Paginator table={table} />
       </div>
 
-      {/* RIGHT — Rows Indicator */}
+      {/* RIGHT ï¿½ Rows Indicator */}
       <div className="flex justify-end">
         <RowsIndicator table={table} />
       </div>

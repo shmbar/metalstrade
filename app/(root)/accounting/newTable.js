@@ -363,7 +363,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                             ) : (isCompleted || isStatus) && !badgeConfig ? (
                               <div className="flex justify-center">
                                 <div className="text-[11px] text-[#6B7280]">
-                                  { }
+                                  {ï¿½}
                                 </div>
                               </div>
                             ) : (
@@ -546,7 +546,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
             <div className="w-full px-6 py-4">
               <div className="flex items-center justify-between">
 
-                {/* LEFT — COUNT */}
+                {/* LEFT ï¿½ COUNT */}
                 <div
                   className="text-sm font-medium"
                   style={{ color: '#6B7280' }}
@@ -554,19 +554,19 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                   {`${
                     table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
                     (table.getFilteredRowModel().rows.length ? 1 : 0)
-                  }–${
+                  }ï¿½${
                     table.getRowModel().rows.length +
                     table.getState().pagination.pageIndex *
                     table.getState().pagination.pageSize
                   } of ${table.getFilteredRowModel().rows.length}`}
                 </div>
 
-                {/* CENTER — PAGINATOR */}
+                {/* CENTER ï¿½ PAGINATOR */}
                 <div className="flex justify-center">
                   <Paginator table={table} />
                 </div>
 
-                {/* RIGHT — ROWS */}
+                {/* RIGHT ï¿½ ROWS */}
                 <div className="flex justify-end">
                   <RowsIndicator table={table} />
                 </div>

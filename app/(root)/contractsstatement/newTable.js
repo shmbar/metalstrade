@@ -593,7 +593,7 @@ const Customtable = ({
                                         minWidth: '60px'
                                       }}
                                     >
-                                      {hasValue ? flexRender(cell.column.columnDef.cell, cell.getContext()) : '—'}
+                                      {hasValue ? flexRender(cell.column.columnDef.cell, cell.getContext()) : 'ï¿½'}
                                     </span>
                                   </div>
                                 );
@@ -645,7 +645,7 @@ const Customtable = ({
             <div className="w-full px-6 py-4">
               <div className="flex items-center justify-between">
 
-              {/* LEFT — COUNT */}
+              {/* LEFT ï¿½ COUNT */}
               <div
                 className="text-sm font-medium"
                 style={{ color: '#6B7280' }}
@@ -653,19 +653,19 @@ const Customtable = ({
                 {`${
                   table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
                   (table.getFilteredRowModel().rows.length ? 1 : 0)
-                }–${
+                }ï¿½${
                   table.getRowModel().rows.length +
                   table.getState().pagination.pageIndex *
                   table.getState().pagination.pageSize
                 } of ${table.getFilteredRowModel().rows.length}`}
               </div>
 
-              {/* CENTER — PAGINATOR */}
+              {/* CENTER ï¿½ PAGINATOR */}
               <div className="flex justify-center">
                 <Paginator table={table} />
               </div>
 
-              {/* RIGHT — ROWS */}
+              {/* RIGHT ï¿½ ROWS */}
               <div className="flex justify-end">
                 <RowsIndicator table={table} />
               </div>
