@@ -554,7 +554,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                         <div className="w-full px-6 py-4">
                             <div className="flex items-center justify-between">
 
-                                {/* LEFT � COUNT */}
+                                {/* LEFT — COUNT */}
                                 <div
                                     className="text-sm font-medium"
                                     style={{ color: '#6B7280' }}
@@ -562,19 +562,19 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                     {`${
                                         table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
                                         (table.getFilteredRowModel().rows.length ? 1 : 0)
-                                    }�${
+                                    }—${
                                         table.getRowModel().rows.length +
                                         table.getState().pagination.pageIndex *
                                         table.getState().pagination.pageSize
                                     } of ${table.getFilteredRowModel().rows.length}`}
                                 </div>
 
-                                {/* CENTER � PAGINATOR */}
+                                {/* CENTER — PAGINATOR */}
                                 <div className="flex justify-center">
                                     <Paginator table={table} />
                                 </div>
 
-                                {/* RIGHT � ROWS */}
+                                {/* RIGHT — ROWS */}
                                 <div className="flex justify-end">
                                     <RowsIndicator table={table} />
                                 </div>

@@ -525,7 +525,7 @@ const Customtable = ({
   <div className="w-full px-4 py-3">
     <div className="flex items-center justify-between">
 
-      {/* LEFT � Showing Range */}
+      {/* LEFT — Showing Range */}
       <div
         className="whitespace-nowrap font-normal"
         style={{
@@ -537,7 +537,7 @@ const Customtable = ({
           table.getState().pagination.pageIndex *
             table.getState().pagination.pageSize +
           (table.getFilteredRowModel().rows.length ? 1 : 0)
-        }�${
+        }—${
           table.getRowModel().rows.length +
           table.getState().pagination.pageIndex *
             table.getState().pagination.pageSize
@@ -546,12 +546,12 @@ const Customtable = ({
         }`}
       </div>
 
-      {/* CENTER � Pagination */}
+      {/* CENTER — Pagination */}
       <div className="flex justify-center">
         <Paginator table={table} />
       </div>
 
-      {/* RIGHT � Rows Dropdown */}
+      {/* RIGHT — Rows Dropdown */}
       <div className="flex justify-end">
         <RowsIndicator table={table} />
       </div>
