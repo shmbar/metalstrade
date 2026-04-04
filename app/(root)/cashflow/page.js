@@ -26,6 +26,7 @@ import { v4 as uuidv4 } from 'uuid';
 import dateFormat from "dateformat";
 import ContractModal from "../contracts/modals/dataModal";
 import ExpenseModal from "../expenses/modals/dataModal";
+import InvPopup from "./invPopup";
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -50,6 +51,8 @@ const Cashflow = () => {
     const { valueCon, setValueCon, isOpenCon, setIsOpenCon } = useContext(ContractsContext);
     const { valueExp, setValueExp, isOpen, setIsOpen } = useContext(ExpensesContext);
     const { blankInvoice } = useContext(InvoiceContext);
+    const [invPreview, setInvPreview] = useState(null);
+    const openInvModal = (z, type) => setInvPreview({ ...z, _type: type });
     const currentYear = new Date().getFullYear();
     const [yr, setYr] = useState([currentYear - 1])
     const [incoming, setIncoming] = useState();
@@ -1078,7 +1081,7 @@ return (
                                                 </div>}>
                                                 {clientDetails(x.client, clientsData, 'InDebt', uidCollection, setDateSelect,
                                                     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient, toggleCheckClientAll,
-                                                    toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment)}
+                                                    toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal)}
                                             </MyAccordion>
                                         </div>
                                     )
@@ -1137,7 +1140,7 @@ return (
                                                 </div>}>
                                                 {clientDetails(x.client, clientsData, 'PartPaid', uidCollection, setDateSelect,
                                                     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient,
-                                                    toggleCheckClientAll, toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment)}
+                                                    toggleCheckClientAll, toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal)}
                                             </MyAccordion>
                                             </div>
                                         )
@@ -1257,7 +1260,7 @@ return (
                                                 {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 === 0),
                                                     uidCollection, setDateSelect,
                                                     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-                                                    toggleSupplier, savePmntSupplier, supplierPartialPayment)}
+                                                    toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal)}
                                             </MyAccordion>
                                         </div>
 
@@ -1320,7 +1323,7 @@ return (
                                                 {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 > 0),
                                                     uidCollection, setDateSelect,
                                                     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-                                                    toggleSupplier, savePmntSupplier, supplierPartialPayment)}
+                                                    toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal)}
                                             </MyAccordion>
                                         </div>
                                     )
@@ -1557,6 +1560,9 @@ return (
                 title={getTtl('Existing Expense', ln)}
             />
         )}
+
+        {/* Invoice preview popup */}
+        <InvPopup inv={invPreview} onClose={() => setInvPreview(null)} />
 
         </>
         }

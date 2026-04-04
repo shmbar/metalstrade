@@ -236,6 +236,7 @@ const Contracts = () => {
 		},
 		{
 			accessorKey: 'deltime', header: getTtl('Delivery Time', ln),
+			size: 110, minSize: 90, maxSize: 130,
 			cell: EditableSelectCell,
 			meta: { options: settings['Delivery Time']?.['Delivery Time']?.map(d => ({ value: d.id, label: d.deltime })) ?? [] }
 		},

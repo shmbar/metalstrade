@@ -3,6 +3,7 @@ import React, { useEffect, useState, Fragment, useRef } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { createPortal } from "react-dom";
 import { HiSelector, HiCheck } from "react-icons/hi";
+import Tltip from "../../tlTip";
 
 // Simple event bus for dropdown open/close
 const dropdownEventBus = {
@@ -89,7 +90,15 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
       typeof rawLabel === "string" || typeof rawLabel === "number"
         ? rawLabel
         : (rawLabel?.nname ?? rawLabel?.name ?? JSON.stringify(rawLabel));
-    return <span>{safeLabel}</span>;
+    return (
+      <Tltip direction="top" tltpText={String(safeLabel)}>
+        <span
+          style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '140px', cursor: 'default' }}
+        >
+          {safeLabel}
+        </span>
+      </Tltip>
+    );
   }
 
   // Find the selected option object

@@ -653,7 +653,7 @@ const getprefixInv = (q) => {
 
 export const clientDetails = (client, data, type, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient, toggleCheckClientAll,
-    toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment) => {
+    toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal) => {
 
     let tmp = data.filter(z => z.client === client)
     let filteredArr = tmp.filter(x => x.payments.length > 0)
@@ -695,7 +695,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
-                                        <td className="text-left w-10"><Tltip direction='top' tltpText={z.invoice || ''}><span className="block truncate">{z.invoice}</span></Tltip></td>
+                                        <td className="text-left w-10 cursor-pointer text-[var(--endeavour)] hover:underline" onClick={() => openInvModal && openInvModal(z, 'client')}><Tltip direction='top' tltpText='Click to preview invoice'><span className="block truncate">{z.invoice}</span></Tltip></td>
                                         <td className="text-right">{
                                             <NumericFormat
                                                 value={z.totalAmount}
@@ -817,7 +817,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
-                                        <td className="text-left"><Tltip direction='top' tltpText={z.invoice || ''}><span className="block truncate">{z.invoice}</span></Tltip></td>
+                                        <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline" onClick={() => openInvModal && openInvModal(z, 'client')}><Tltip direction='top' tltpText='Click to preview invoice'><span className="block truncate">{z.invoice}</span></Tltip></td>
                                         <td className="text-right">{
                                             <NumericFormat
                                                 value={z.totalAmount}
@@ -1032,7 +1032,7 @@ export const getTotalsSupPayments = (arr) => {
 
 export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-    toggleSupplier, savePmntSupplier, supplierPartialPayment,
+    toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal,
 ) => {
 
     let filteredArr = data.filter(z => z.supplier === supplier)
@@ -1069,7 +1069,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                     onClick={() => moveToContracts(z, 'supplier', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}
                                 ><Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
-                                <td className="text-left 2xl:max-w-24 truncate"><Tltip direction='top' tltpText={z.invoice || ''}><span className="block truncate">{z.invoice}</span></Tltip></td>
+                                <td className="text-left 2xl:max-w-24 truncate cursor-pointer text-[var(--endeavour)] hover:underline" onClick={() => openInvModal && openInvModal(z, 'supplier')}><Tltip direction='top' tltpText='Click to preview invoice'><span className="block truncate">{z.invoice}</span></Tltip></td>
                                 <td className="text-right">{
                                     <NumericFormat
                                         value={z.invValue}

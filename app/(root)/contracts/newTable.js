@@ -30,6 +30,7 @@ import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { Filter } from "../../../components/table/filters/filterFunc";
+import Tltip from "../../../components/tlTip";
 
 const EMPTY_STATE_VIDEO_SRC = '/logo/no-data.mp4';
 
@@ -437,15 +438,21 @@ const Customtable = ({
                                     );
                                   })()
                                 ) : hasValue ? (
-                                  <div
-                                    className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px]"
-                                    style={{
-                                      backgroundColor: '#f8fbff',
-                                      border: '1px solid #d8e8f5',
-                                    }}
-                                  >
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                  </div>
+                                  <Tltip direction="top" tltpText={typeof value === 'string' || typeof value === 'number' ? String(value) : undefined}>
+                                    <div
+                                      className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px]"
+                                      style={{
+                                        backgroundColor: '#f8fbff',
+                                        border: '1px solid #d8e8f5',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                        maxWidth: '160px',
+                                      }}
+                                    >
+                                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </div>
+                                  </Tltip>
                                 ) : (
                                   <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
                                 )}
