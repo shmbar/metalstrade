@@ -247,7 +247,7 @@ const Contracts = () => {
 			) : (
 				<div
 					className="px-3 py-1 rounded-xl text-[11px] font-normal"
-					style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', color: 'var(--chathams-blue)', textAlign: 'center' }}
+					style={{ backgroundColor: '#E9E2FF', border: '1px solid #d8e8f5', color: 'var(--chathams-blue)', textAlign: 'center' }}
 				>
 					●
 				</div>

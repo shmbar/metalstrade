@@ -328,12 +328,12 @@ const Customtable = ({
                       <tr
                         tabIndex={0}
                         className={`cursor-pointer transition-colors hover-row ${row.getIsExpanded() ? 'bg-[#dbeeff]' : ''}`}
-                        style={row.depth > 0 ? { transform: `translateX(${row.depth * 6}px)` } : undefined}
+                        style={row.depth > 0 ? { boxShadow: 'inset 3px 0 0 #7ab8f5' } : undefined}
                       >
                         {row.getVisibleCells().map((cell) => {
                           if (cell.column.id === 'expander') {
                             return (
-                              <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '60px', maxWidth: 'none' }}>
+                              <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '60px', maxWidth: 'none', ...(row.depth > 0 ? { backgroundColor: '#E9E2FF' } : {}) }}>
                                 <div className="flex justify-center">
                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </div>
@@ -359,7 +359,8 @@ const Customtable = ({
                             style={{
                               minWidth: cell.column.id === 'select' ? '50px' : '60px',
                               maxWidth: cell.column.id === 'select' ? '50px' : 'none',
-                              whiteSpace: 'nowrap'
+                              whiteSpace: 'nowrap',
+                              ...(row.depth > 0 ? { backgroundColor: '#E9E2FF' } : {})
                             }}
                           >
                             {isCompleted ? (
