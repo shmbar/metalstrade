@@ -180,7 +180,7 @@ const ShipmentPage = () => {
     const formatDate = (d) => {
         if (!d) return '—';
         try {
-            return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '.');
         } catch { return d; }
     };
 
@@ -281,7 +281,7 @@ const ShipmentPage = () => {
                 <Toast />
 
                 {/* Outer card — title only */}
-                <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
+                <div className="rounded-2xl p-2 sm:p-3 lg:p-5 mt-4 sm:mt-6 lg:mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
                     <div className="flex items-center justify-between pb-2 flex-wrap gap-2">
                         <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
                             Shipments Tracking
@@ -382,12 +382,21 @@ const ShipmentPage = () => {
 
                     {/* Table — Desktop */}
                     <div className="custom-table hidden md:block">
-                    <div className="overflow-y-auto dashboard-scroll rounded-3xl border border-[#cecece]" style={{ borderLeft: '8px solid var(--chathams-blue)', borderRadius: '24px', maxHeight: `${Math.min(paginated.length * 53 + 60, 620)}px` }}>
-                        <table className="w-full">
+                    <div className="overflow-x-auto overflow-y-auto dashboard-scroll rounded-3xl border border-[#cecece]" style={{ borderLeft: '8px solid var(--chathams-blue)', borderRadius: '24px', maxHeight: `${Math.min(paginated.length * 53 + 60, 620)}px` }}>
+                        <table className="w-full" style={{ minWidth: '700px' }}>
                             <thead className="sticky top-0 z-10">
                                 <tr>
-                                    {['Contract #','Supplier','Invoice #','Client','Shipment Date','Arrival Date','Status','Notes'].map(h => (
-                                        <th key={h} className="font-poppins text-xs font-medium py-2" style={{ color: 'var(--chathams-blue)', letterSpacing: '0.05em', textAlign: 'center' }}>{h}</th>
+                                    {[
+                                        { label: 'Contract #',     width: '9%'  },
+                                        { label: 'Supplier',       width: '9%'  },
+                                        { label: 'Invoice #',      width: '8%'  },
+                                        { label: 'Client',         width: '9%'  },
+                                        { label: 'Shipment Date',  width: '9%'  },
+                                        { label: 'Arrival Date',   width: '9%'  },
+                                        { label: 'Status',         width: '10%' },
+                                        { label: 'Notes',          width: '37%' },
+                                    ].map(({ label, width }) => (
+                                        <th key={label} className="font-poppins text-xs font-medium py-2" style={{ color: 'var(--chathams-blue)', letterSpacing: '0.05em', textAlign: 'center', width }}>{label}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -406,7 +415,7 @@ const ShipmentPage = () => {
                                         <tr key={contract.id} className="hover-row cursor-pointer transition-colors">
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px] text-center" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         <button onClick={() => navigateTo(contract.id)} className="text-[var(--endeavour)] hover:underline">
                                                             {contract.order || '—'}
                                                         </button>
@@ -415,14 +424,14 @@ const ShipmentPage = () => {
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px] text-center" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {getSupplierName(contract)}
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px] text-center" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {mainInv ? (
                                                             <button onClick={() => navigateTo(contract.id)} className="text-[var(--endeavour)] hover:underline">
                                                                 {mainInv.invoice}
@@ -433,21 +442,21 @@ const ShipmentPage = () => {
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px] text-center" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {getClientName(contract.id)}
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px] text-center" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {formatDate(contract.date)}
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px] text-center" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {formatDate(contract.dateRange?.endDate)}
                                                     </div>
                                                 </div>
