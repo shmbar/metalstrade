@@ -100,8 +100,8 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
                     primaryColor="blue"
                     readOnly={true}
                     showShortcuts={false}
-                    inputClassName="text-[11px] h-6 py-0 pl-2 pr-1 w-[72px] bg-white rounded-md border-0 outline-none cursor-pointer text-[var(--endeavour)]"
-                    containerClassName="relative"
+                    inputClassName="text-[11px] h-6 py-0 px-1 w-[72px] bg-transparent border-0 outline-none cursor-pointer text-[var(--endeavour)] text-center"
+                    containerClassName="relative [&>div]:border-0 [&>div]:shadow-none [&>div]:rounded-none [&>div]:bg-transparent"
                     toggleClassName="hidden"
                     popoverDirection="down"
                 />
