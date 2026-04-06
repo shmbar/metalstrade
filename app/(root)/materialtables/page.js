@@ -8,7 +8,6 @@ import VideoLoader from '../../../components/videoLoader';
 import Table from './newTable'
 import TableTotals from './totals'
 import { v4 as uuidv4 } from 'uuid';
-import { MdDeleteOutline } from "react-icons/md";
 import { TPdfTable } from "./pdfTable";
 import { EXD } from "./excel";
 import { UserAuth } from "../../../contexts/useAuthContext";
@@ -57,13 +56,18 @@ const MaterialTables = () => {
             cols.push({ accessorKey: 'container', header: 'Container', cell: (props) => <p>{props.getValue()}</p> })
         }
         cols.push({ accessorKey: 'material', header: 'Material', cell: (props) => <p>{props.getValue()}</p> })
-        cols.push({ accessorKey: 'kgs', header: UNIT_LABELS[unit] || 'Kgs', cell: (props) => <p>{fmtNum(props.getValue())}</p> })
+        cols.push({
+            accessorKey: 'kgs', header: UNIT_LABELS[unit] || 'Kgs',
+            cell: (props) => <p>{fmtNum(props.getValue())}</p>,
+            sortingFn: (a, b) => (parseFloat(a.getValue('kgs')) || 0) - (parseFloat(b.getValue('kgs')) || 0),
+        })
         elems.forEach(el => cols.push({
             accessorKey: el.key,
             header: el.label,
             cell: (props) => <p>{fmtNum(props.getValue())}</p>,
+            sortingFn: (a, b, cid) => (parseFloat(a.getValue(cid)) || 0) - (parseFloat(b.getValue(cid)) || 0),
         }))
-        cols.push({ accessorKey: 'del', header: '', cell: () => <div><MdDeleteOutline className='text-slate-400 cursor-pointer' /></div> })
+        cols.push({ accessorKey: 'del', header: '', enableSorting: false, cell: () => null })
         return cols
     }
 
@@ -88,11 +92,13 @@ const MaterialTables = () => {
             setNilmePrice(nilme)
             const normalized = (dt || []).map(t => ({
                 ...t,
+                name: t.name || '',
                 unit: t.unit || 'kgs',
                 elements: t.elements || DEFAULT_ELEMENTS,
                 prices: { ...(nilme ? { ni: nilme } : {}), ...(t.prices || {}) },
                 containerNo: t.containerNo || '',
                 showContainer: t.showContainer || false,
+                showCosts: t.showCosts || false,
             }))
             setData(normalized)
             setLoading(false)
@@ -102,10 +108,10 @@ const MaterialTables = () => {
 
     const addTable = () => {
         setData(prev => [...prev, {
-            id: uuidv4(), unit: 'kgs',
+            id: uuidv4(), name: '', unit: 'kgs',
             elements: [...DEFAULT_ELEMENTS],
             prices: nilmePrice ? { ni: nilmePrice } : {},
-            containerNo: '', showContainer: false, data: [],
+            containerNo: '', showContainer: false, showCosts: false, data: [],
         }])
     }
 
@@ -149,7 +155,12 @@ const MaterialTables = () => {
                 data: t.data.map(row => {
                     const v = parseFloat(row.kgs)
                     if (isNaN(v) || row.kgs === '') return row
-                    return { ...row, kgs: parseFloat((v * factor).toFixed(6)).toString() }
+                    const result = v * factor
+                    // Round to integer for kgs/lbs to avoid floating point drift (e.g. 80000 * 0.001 * 1000)
+                    const converted = (newUnit === 'kgs' || newUnit === 'lbs')
+                        ? Math.round(result).toString()
+                        : parseFloat(result.toFixed(6)).toString()
+                    return { ...row, kgs: converted }
                 }),
             }
         }))
@@ -188,6 +199,26 @@ const MaterialTables = () => {
 
     const toggleContainer = (tableId) => {
         setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, showContainer: !t.showContainer }))
+    }
+
+    const setTableName = (tableId, name) => {
+        setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, name }))
+    }
+
+    const toggleCosts = (tableId) => {
+        setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, showCosts: !t.showCosts }))
+    }
+
+    const DEFAULT_KEYS = new Set(DEFAULT_ELEMENTS.map(e => e.key))
+    const applyPreset = (tableId, keys) => {
+        setData(prev => prev.map(t => {
+            if (t.id !== tableId) return t
+            const customElems = (t.elements || DEFAULT_ELEMENTS).filter(e => !DEFAULT_KEYS.has(e.key))
+            const presetElems = DEFAULT_ELEMENTS
+                .filter(e => keys.includes(e.key))
+                .sort((a, b) => keys.indexOf(a.key) - keys.indexOf(b.key))
+            return { ...t, elements: [...presetElems, ...customElems] }
+        }))
     }
 
     const editCell = (table1, e, cell) => {
@@ -296,7 +327,7 @@ const MaterialTables = () => {
                             </div>
                             <div className="w-full overflow-x-auto mt-1">
                                 {data.map(table => (
-                                    <div key={table.id} className="mb-2 rounded-2xl border border-[#b8ddf8] shadow-sm overflow-hidden">
+                                    <div key={table.id} className="mb-2 rounded-2xl border border-[#b8ddf8] shadow-sm">
                                         <Table
                                             data={table.data}
                                             table1={table}
@@ -312,6 +343,10 @@ const MaterialTables = () => {
                                             prices={table.prices || {}}
                                             containerNo={table.containerNo || ''}
                                             showContainer={table.showContainer || false}
+                                            tableName={table.name || ''}
+                                            setTableName={(v) => setTableName(table.id, v)}
+                                            showCosts={table.showCosts || false}
+                                            toggleCosts={() => toggleCosts(table.id)}
                                             setUnit={(u) => setUnit(table.id, u)}
                                             addElement={(k, l) => addElement(table.id, k, l)}
                                             removeElement={(k) => removeElement(table.id, k)}
@@ -319,6 +354,7 @@ const MaterialTables = () => {
                                             setPrice={(k, v) => setPrice(table.id, k, v)}
                                             setContainerNo={(v) => setContainerNo(table.id, v)}
                                             toggleContainer={() => toggleContainer(table.id)}
+                                            applyPreset={(keys) => applyPreset(table.id, keys)}
                                         />
                                     </div>
                                 ))}

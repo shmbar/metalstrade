@@ -6,16 +6,29 @@ import {
 } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { TbSortDescending, TbSortAscending } from "react-icons/tb"
-import { MdDeleteOutline } from "react-icons/md"
 import Header from "../../../components/table/header"
 import { Filter } from "../../../components/table/filters/filterFunc"
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, horizontalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { UNIT_LABELS, UNIT_TO_MT } from './constants'
+import { DEFAULT_ELEMENTS, UNIT_LABELS, UNIT_TO_MT } from './constants'
 
-// Draggable + removable header cell for element columns
-function SortableHeaderCell({ id, label, style, onRemove, isFe }) {
+// Standard elements — cannot be removed (only user-added custom elements have the × button)
+const STANDARD_KEYS = new Set(['ni', 'cr', 'mo', 'co', 'w', 'nb', 'fe'])
+
+// Quick element presets
+const PRESETS = [
+    { label: 'Ni Cr Fe',         keys: ['ni', 'cr', 'fe'] },
+    { label: 'Ni Cr Mo Fe',      keys: ['ni', 'cr', 'mo', 'fe'] },
+    { label: 'Ni Cr Mo Nb',      keys: ['ni', 'cr', 'mo', 'nb'] },
+    { label: 'Ni Cr Mo Nb Co',   keys: ['ni', 'cr', 'mo', 'nb', 'co'] },
+    { label: 'Ni Cr Mo W',       keys: ['ni', 'cr', 'mo', 'w'] },
+    { label: 'Ni Cu',            keys: ['ni', 'cu'] },
+    { label: 'Ni Fe',            keys: ['ni', 'fe'] },
+    { label: 'Full',             keys: ['ni', 'cr', 'mo', 'nb', 'co', 'w', 'cu', 'fe'] },
+]
+
+function SortableHeaderCell({ id, label, style, onRemove, isFe, isStandard, sortDir, onSort }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
     return (
         <th
@@ -24,15 +37,21 @@ function SortableHeaderCell({ id, label, style, onRemove, isFe }) {
             {...attributes}
         >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                <span style={{ cursor: isFe ? 'default' : 'grab' }} {...(isFe ? {} : listeners)}>
+                <span
+                    {...listeners}
+                    onClick={onSort}
+                    style={{ cursor: 'grab', display: 'flex', alignItems: 'center', gap: '1px', userSelect: 'none' }}
+                >
                     {label}
-                    {isFe && <span style={{ fontSize: '8px', color: '#93c5fd', marginLeft: '1px' }}>auto</span>}
+                    {isFe && <span style={{ fontSize: '7px', color: '#93c5fd', marginLeft: '2px', fontStyle: 'italic' }}>auto</span>}
+                    {sortDir === 'asc' && <TbSortAscending style={{ width: '10px', height: '10px', marginLeft: '1px' }} />}
+                    {sortDir === 'desc' && <TbSortDescending style={{ width: '10px', height: '10px', marginLeft: '1px' }} />}
                 </span>
-                {!isFe && (
+                {!isStandard && (
                     <button
                         onPointerDown={e => e.stopPropagation()}
-                        onClick={onRemove}
-                        style={{ fontSize: '11px', fontWeight: '700', color: '#c4d4e4', background: 'none', border: 'none', cursor: 'pointer', padding: '0 1px', lineHeight: 1 }}
+                        onClick={e => { e.stopPropagation(); onRemove() }}
+                        style={{ fontSize: '10px', fontWeight: '700', color: '#c4d4e4', background: 'none', border: 'none', cursor: 'pointer', padding: '0 1px', lineHeight: 1 }}
                     >×</button>
                 )}
             </div>
@@ -46,9 +65,12 @@ const Customtable = ({
     showHeader = true, showFooter = true,
     unit = 'kgs', elements = [], prices = {},
     containerNo = '', showContainer = false,
+    tableName = '', setTableName = () => {},
+    showCosts = false, toggleCosts = () => {},
     setUnit = () => {}, addElement = () => {}, removeElement = () => {},
     reorderElements = () => {}, setPrice = () => {},
     setContainerNo = () => {}, toggleContainer = () => {},
+    applyPreset = () => {},
 }) => {
     const [globalFilter, setGlobalFilter] = useState('')
     const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 })
@@ -56,6 +78,8 @@ const Customtable = ({
     const [addElemInput, setAddElemInput] = useState('')
     const [showAddElem, setShowAddElem] = useState(false)
     const [focusedCell, setFocusedCell] = useState(null)
+    const [focusedPrice, setFocusedPrice] = useState(null)
+    const [showPresets, setShowPresets] = useState(false)
 
     const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
     const elementKeys = useMemo(() => elements.map(e => e.key), [elements])
@@ -65,13 +89,13 @@ const Customtable = ({
         [elements, prices]
     )
 
-    // Inject Cost PMT + Cost Total columns before 'del' when prices exist
+    // Inject Cost PMT + Cost Total columns before 'del' when prices exist AND showCosts is on
     const enhancedColumns = useMemo(() => {
-        if (!columns.length || !hasPrices) return columns
+        if (!columns.length || !hasPrices || !showCosts) return columns
         const delIdx = columns.findIndex(c => c.accessorKey === 'del')
 
         const costPmtCol = {
-            id: 'costPmt', header: 'Cost PMT', enableSorting: false,
+            id: 'costPmt', header: 'Cost PMT', enableSorting: true,
             accessorFn: (row) => elements.reduce((sum, el) => {
                 if (el.key === 'fe') return sum
                 return sum + ((parseFloat(row[el.key]) || 0) / 100) * (parseFloat(prices[el.key]) || 0)
@@ -85,7 +109,7 @@ const Customtable = ({
             },
         }
         const costTotalCol = {
-            id: 'costTotal', header: 'Cost Total', enableSorting: false,
+            id: 'costTotal', header: 'Cost Total', enableSorting: true,
             accessorFn: (row) => {
                 const wMT = (parseFloat(row.kgs) || 0) * (UNIT_TO_MT[unit] || 0.001)
                 const cPmt = elements.reduce((sum, el) => {
@@ -106,7 +130,7 @@ const Customtable = ({
         const at = delIdx >= 0 ? delIdx : cols.length
         cols.splice(at, 0, costPmtCol, costTotalCol)
         return cols
-    }, [columns, hasPrices, elements, prices, unit])
+    }, [columns, hasPrices, showCosts, elements, prices, unit])
 
     const table = useReactTable({
         columns: enhancedColumns, data,
@@ -136,17 +160,29 @@ const Customtable = ({
         setShowAddElem(false)
     }
 
-    // 2dp when not focused; 3dp for MT weight; raw text for material/container
+    // Format value for blurred display
     const fmt = (val, colId) => {
         if (colId === 'material' || colId === 'container') return val ?? ''
         if (val === '' || val == null) return ''
         const n = parseFloat(val)
         if (isNaN(n)) return ''
-        if (colId === 'kgs' && unit === 'mt') return n.toFixed(3)
-        return n.toFixed(2)
+        if (colId === 'kgs') {
+            // MT: 3 decimal places; Kgs/Lbs: integer with comma (no decimals)
+            if (unit === 'mt') return new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(n)
+            return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.round(n))
+        }
+        return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
     }
 
-    // Footer calculations
+    // Format price for blurred display (comma-separated)
+    const fmtPrice = (val) => {
+        if (!val && val !== 0) return ''
+        const n = parseFloat(String(val).replace(/,/g, ''))
+        if (isNaN(n)) return val
+        return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n)
+    }
+
+    // Footer value for a given column
     const footerVal = (header) => {
         const colId = header.column.id
         if (colId === 'del' || colId === 'container') return ''
@@ -154,8 +190,8 @@ const Customtable = ({
         if (colId === 'material') return `${rows.length} items`
         const totalW = rows.reduce((s, r) => s + (parseFloat(r.getValue('kgs')) || 0), 0)
         if (colId === 'kgs') {
-            const n = unit === 'mt' ? totalW.toFixed(3) : totalW.toFixed(2)
-            return fmtComma(n)
+            if (unit === 'mt') return new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(totalW)
+            return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.round(totalW))
         }
         if (colId === 'costPmt') {
             if (!hasPrices || totalW === 0) return ''
@@ -185,19 +221,8 @@ const Customtable = ({
             const kgs = parseFloat(r.getValue('kgs')) || 0
             return s + kgs * (parseFloat(r.getValue(colId)) || 0)
         }, 0)
-        const avg = totalW > 0 ? (wSum / totalW).toFixed(2) : '0.00'
-        return avg === 'NaN' ? '' : fmtComma(avg)
-    }
-
-    const fmtComma = (nStr) => {
-        if (!nStr && nStr !== 0) return ''
-        nStr += ''
-        const x = nStr.split('.')
-        let x1 = x[0]
-        const x2 = x.length > 1 ? '.' + x[1] : ''
-        const rgx = /(\d+)(\d{3})/
-        while (rgx.test(x1)) x1 = x1.replace(rgx, '$1,$2')
-        return x1 + x2
+        const avg = totalW > 0 ? wSum / totalW : 0
+        return avg === 0 ? '' : new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(avg)
     }
 
     const hdrBg = (colId) => {
@@ -227,9 +252,9 @@ const Customtable = ({
 
     const smallBtn = (active) => ({
         fontSize: '10px', padding: '1px 8px', height: '22px', borderRadius: '99px',
-        border: `1px solid ${active ? 'var(--endeavour)' : '#d8e8f5'}`,
+        border: `1px solid ${active ? 'var(--endeavour)' : '#b8cfe0'}`,
         background: active ? '#eef6ff' : 'transparent',
-        color: active ? 'var(--endeavour)' : '#9fb8d4',
+        color: active ? 'var(--endeavour)' : '#3d6882',
         cursor: 'pointer',
         fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
     })
@@ -246,6 +271,21 @@ const Customtable = ({
             {/* ── Toolbar ── */}
             {showHeader && (
                 <div className="flex-shrink-0" style={{ borderBottom: '2px solid var(--selago)', background: 'linear-gradient(90deg,rgba(255,255,255,.95),rgba(250,250,250,.98))' }}>
+                    {/* Table name */}
+                    <div style={{ padding: '6px 14px 2px' }}>
+                        <input
+                            value={tableName}
+                            onChange={e => setTableName(e.target.value)}
+                            placeholder="Table name..."
+                            style={{
+                                fontSize: '13px', fontWeight: '600',
+                                color: 'var(--chathams-blue)', background: 'transparent',
+                                border: 'none', outline: 'none', borderBottom: '1px dashed #c8d8e8',
+                                width: '100%', maxWidth: '280px', padding: '1px 4px',
+                                fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+                            }}
+                        />
+                    </div>
                     <Header
                         globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}
                         table={table} excellReport={excellReport} type='mTable'
@@ -256,67 +296,112 @@ const Customtable = ({
                     <div className="flex flex-wrap items-center gap-2 px-3 pb-2">
                         {/* Unit toggle */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '10px', color: '#9fb8d4' }}>Unit:</span>
+                            <span style={{ fontSize: '10px', color: '#3d6882' }}>Unit:</span>
                             {['mt', 'kgs', 'lbs'].map(u => (
                                 <button key={u} onClick={() => setUnit(u)} style={unitBtn(u)}>{UNIT_LABELS[u]}</button>
                             ))}
                         </div>
                         {/* Container column toggle */}
-                        <button onClick={toggleContainer} style={smallBtn(showContainer)}>
-                            Container col
+                        <button
+                            onClick={toggleContainer}
+                            title="Show a per-row container number column in the table"
+                            style={smallBtn(showContainer)}
+                        >
+                            {showContainer ? 'Hide Container Col' : 'Show Container Col'}
                         </button>
-                        {/* Table-level container number */}
+                        {/* Shipment container reference */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '10px', color: '#9fb8d4' }}>Container #:</span>
+                            <span style={{ fontSize: '10px', color: '#3d6882' }} title="Shipment container reference number (e.g. TCKU1234567)">Shipment #:</span>
                             <input
                                 value={containerNo}
                                 onChange={e => setContainerNo(e.target.value)}
                                 placeholder="e.g. TCKU1234567"
-                                style={{ ...inputStyle, width: '140px', color: '#374151' }}
+                                style={{ ...inputStyle, width: '130px', color: '#374151' }}
                             />
                         </div>
+                        {/* Presets dropdown */}
+                        <div style={{ position: 'relative' }}>
+                            <button
+                                onClick={() => setShowPresets(p => !p)}
+                                style={{ ...smallBtn(showPresets), paddingRight: '10px' }}
+                            >
+                                Presets {showPresets ? '▴' : '▾'}
+                            </button>
+                            {showPresets && (
+                                <div style={{
+                                    position: 'absolute', top: '26px', left: 0, zIndex: 50,
+                                    background: '#fff', border: '1px solid #d8e8f5',
+                                    borderRadius: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+                                    padding: '6px', minWidth: '148px',
+                                    display: 'flex', flexDirection: 'column', gap: '2px',
+                                }}>
+                                    {PRESETS.map(p => (
+                                        <button
+                                            key={p.label}
+                                            onClick={() => { applyPreset(p.keys); setShowPresets(false) }}
+                                            style={{
+                                                fontSize: '10px', padding: '4px 10px', borderRadius: '6px',
+                                                border: '1px solid #e8f0f8', background: '#f8fbff',
+                                                color: 'var(--chathams-blue)', cursor: 'pointer', textAlign: 'left',
+                                                fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+                                            }}
+                                            onMouseEnter={e => e.currentTarget.style.background = '#e8f4ff'}
+                                            onMouseLeave={e => e.currentTarget.style.background = '#f8fbff'}
+                                        >
+                                            {p.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        {/* Cost columns toggle */}
+                        <button
+                            onClick={hasPrices ? toggleCosts : undefined}
+                            title={hasPrices ? (showCosts ? 'Hide Cost PMT / Cost Total columns' : 'Show Cost PMT / Cost Total columns') : 'Enter element prices above to enable cost columns'}
+                            style={{ ...smallBtn(showCosts && hasPrices), opacity: hasPrices ? 1 : 0.45 }}
+                        >
+                            $ Cost Cols
+                        </button>
                     </div>
                 </div>
             )}
 
-            {/* ── Price bar (always shown when elements exist) ── */}
+            {/* ── Price bar ($/MT per element) ── */}
             {elements.length > 0 && (
                 <div style={{ background: '#f0f7ff', borderBottom: '1px solid #d8e8f5', padding: '5px 10px' }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
-                        <span style={{ fontSize: '9px', color: '#9fb8d4', minWidth: '32px' }}>$/MT:</span>
+                        <span style={{ fontSize: '9px', color: '#3d6882', minWidth: '32px' }}>$/MT:</span>
                         {elements.filter(el => el.key !== 'fe').map(el => {
                             const isNi = el.key === 'ni'
+                            const focused = focusedPrice === el.key
                             return (
                                 <div key={el.key} style={{
                                     display: 'flex', alignItems: 'center', gap: '2px',
                                     background: 'white',
                                     border: `1px solid ${isNi ? '#93c5fd' : '#d8e8f5'}`,
-                                    borderRadius: '8px', padding: '2px 6px', minWidth: '72px',
+                                    borderRadius: '8px', padding: '2px 6px', minWidth: '68px',
                                 }}>
-                                    <span style={{ fontSize: '10px', color: 'var(--chathams-blue)', fontWeight: '600', minWidth: '18px' }}>
+                                    <span style={{ fontSize: '10px', color: 'var(--chathams-blue)', fontWeight: '600', minWidth: '16px' }}>
                                         {el.label}
                                     </span>
                                     <input
-                                        value={prices[el.key] || ''}
+                                        value={focused ? (prices[el.key] || '') : fmtPrice(prices[el.key] || '')}
+                                        onFocus={() => setFocusedPrice(el.key)}
+                                        onBlur={() => setFocusedPrice(null)}
                                         onChange={e => setPrice(el.key, e.target.value)}
                                         placeholder="0"
                                         inputMode="decimal"
                                         style={{
-                                            fontSize: '10px', width: '52px', textAlign: 'right',
+                                            fontSize: '10px', width: '50px', textAlign: 'right',
                                             background: 'transparent', border: 'none', outline: 'none',
                                             color: isNi ? '#0366ae' : '#374151',
                                             fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
                                         }}
                                     />
-                                    {isNi && <span style={{ fontSize: '8px', color: '#93c5fd', fontWeight: '600' }}>LME</span>}
+                                    {isNi && <span style={{ fontSize: '7px', color: '#93c5fd', fontWeight: '600' }}>LME</span>}
                                 </div>
                             )
                         })}
-                        {hasPrices && (
-                            <span style={{ fontSize: '9px', color: '#9fb8d4', marginLeft: '4px' }}>
-                                Cost PMT = Σ(% ÷ 100 × $/MT) &nbsp;|&nbsp; Cost Total = Cost PMT × weight in MT
-                            </span>
-                        )}
                     </div>
                 </div>
             )}
@@ -343,18 +428,18 @@ const Customtable = ({
                                                 const thStyle = {
                                                     backgroundColor: hdrBg(colId),
                                                     color: 'var(--chathams-blue)',
-                                                    padding: '5px 6px', fontSize: '11px', fontWeight: '500',
+                                                    padding: '5px 5px', fontSize: '11px', fontWeight: '500',
                                                     textAlign: (colId === 'material' || colId === 'container') ? 'left' : 'center',
-                                                    letterSpacing: '0.04em', whiteSpace: 'nowrap', border: 'none',
+                                                    letterSpacing: '0.03em', whiteSpace: 'nowrap', border: 'none',
                                                     borderTopLeftRadius: isFirst ? '10px' : '0',
                                                     borderTopRightRadius: (isLast && !isDel) ? '10px' : '0',
-                                                    minWidth: colId === 'material' ? '180px' : colId === 'del' ? '32px' : colId === 'container' ? '100px' : '55px',
+                                                    minWidth: colId === 'material' ? '150px' : colId === 'del' ? '26px' : colId === 'container' ? '88px' : colId === 'kgs' ? '68px' : colId === 'costPmt' || colId === 'costTotal' ? '70px' : '50px',
                                                 }
 
                                                 if (isDel) {
-                                                    // Insert + button before del
+                                                    // + button to add custom element, inserted before del column
                                                     const addBtn = (
-                                                        <th key="__addElem" style={{ ...thStyle, backgroundColor: '#fde8e8', minWidth: '32px', padding: '5px 4px', borderTopRightRadius: '0' }}>
+                                                        <th key="__addElem" style={{ ...thStyle, backgroundColor: '#fde8e8', minWidth: '26px', padding: '5px 3px', borderTopRightRadius: '0' }}>
                                                             {showAddElem ? (
                                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                                                                     <input
@@ -363,12 +448,12 @@ const Customtable = ({
                                                                         onChange={e => setAddElemInput(e.target.value)}
                                                                         onKeyDown={e => { if (e.key === 'Enter') handleAddElement(); if (e.key === 'Escape') { setAddElemInput(''); setShowAddElem(false) } }}
                                                                         placeholder="Al"
-                                                                        style={{ fontSize: '10px', width: '28px', textAlign: 'center', background: 'transparent', border: 'none', outline: 'none', borderBottom: '1px solid #d8e8f5', fontFamily: "var(--font-poppins),'Plus Jakarta Sans',sans-serif" }}
+                                                                        style={{ fontSize: '10px', width: '26px', textAlign: 'center', background: 'transparent', border: 'none', outline: 'none', borderBottom: '1px solid #d8e8f5', fontFamily: "var(--font-poppins),'Plus Jakarta Sans',sans-serif" }}
                                                                     />
-                                                                    <button onClick={() => { setAddElemInput(''); setShowAddElem(false) }} style={{ fontSize: '10px', color: '#9fb8d4', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
+                                                                    <button onClick={() => { setAddElemInput(''); setShowAddElem(false) }} style={{ fontSize: '10px', color: '#3d6882', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
                                                                 </div>
                                                             ) : (
-                                                                <button onClick={() => setShowAddElem(true)} title="Add element" style={{ fontSize: '14px', fontWeight: '700', color: '#c4d4e4', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>+</button>
+                                                                <button onClick={() => setShowAddElem(true)} title="Add custom element column" style={{ fontSize: '14px', fontWeight: '700', color: '#c4d4e4', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>+</button>
                                                             )}
                                                         </th>
                                                     )
@@ -376,7 +461,17 @@ const Customtable = ({
                                                 }
 
                                                 if (isElem) {
-                                                    return [<SortableHeaderCell key={header.id} id={colId} label={header.column.columnDef.header} style={thStyle} onRemove={() => removeElement(colId)} isFe={isFe} />]
+                                                    return [<SortableHeaderCell
+                                                        key={header.id}
+                                                        id={colId}
+                                                        label={header.column.columnDef.header}
+                                                        style={thStyle}
+                                                        onRemove={() => removeElement(colId)}
+                                                        isFe={isFe}
+                                                        isStandard={STANDARD_KEYS.has(colId)}
+                                                        sortDir={header.column.getIsSorted()}
+                                                        onSort={header.column.getToggleSortingHandler()}
+                                                    />]
                                                 }
 
                                                 return [(
@@ -401,9 +496,9 @@ const Customtable = ({
 
                         {/* TBODY */}
                         <tbody style={{ backgroundColor: '#fff' }}>
-                            {table.getRowModel().rows.map(row => (
+                            {table.getRowModel().rows.map((row, rIdx) => (
                                 <tr key={row.id} className="transition-colors">
-                                    {row.getVisibleCells().map(cell => {
+                                    {row.getVisibleCells().map((cell, cIdx) => {
                                         const colId = cell.column.id
                                         const isDel = colId === 'del'
                                         const isCost = colId === 'costPmt' || colId === 'costTotal'
@@ -412,26 +507,27 @@ const Customtable = ({
                                         const ck = `${row.id}-${colId}`
                                         const focused = focusedCell === ck
                                         return (
-                                            <td key={cell.id} style={{ backgroundColor: '#fff', padding: '2px 3px', borderBottom: '1px solid #e8f0f8', borderRight: '1px solid #e8f0f8', verticalAlign: 'middle' }}>
+                                            <td key={cell.id} style={{ backgroundColor: '#fff', padding: '2px 2px', borderTop: rIdx === 0 ? '1px solid #d8e8f5' : 'none', borderBottom: '1px solid #d8e8f5', borderRight: '1px solid #d8e8f5', borderLeft: cIdx === 0 ? '1px solid #d8e8f5' : 'none', verticalAlign: 'middle' }}>
                                                 {isDel ? (
-                                                    <div className="flex justify-center items-center px-1 py-1">
-                                                        <button onClick={() => delMaterial(table1, cell)} className="cursor-pointer transition-colors duration-150 hover:text-red-700">
-                                                            <MdDeleteOutline className="w-[18px] h-[18px] text-red-500" />
-                                                        </button>
+                                                    <div className="flex justify-center items-center">
+                                                        <button
+                                                            onClick={() => delMaterial(table1, cell)}
+                                                            style={{ fontSize: '15px', fontWeight: '600', color: '#e87070', background: 'none', border: 'none', cursor: 'pointer', padding: '1px 5px', lineHeight: 1 }}
+                                                        >×</button>
                                                     </div>
                                                 ) : isCost ? (
-                                                    <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '64px', minHeight: '26px' }}>
+                                                    <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '7px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '62px', minHeight: '23px' }}>
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                     </div>
                                                 ) : (
                                                     <div style={{
                                                         backgroundColor: isFe ? '#eef6ff' : '#f8fbff',
                                                         border: `1px solid ${isFe ? '#93c5fd' : '#d8e8f5'}`,
-                                                        borderRadius: '8px', padding: '3px 8px',
+                                                        borderRadius: '7px', padding: '2px 5px',
                                                         display: 'flex', alignItems: 'center',
                                                         justifyContent: isLeft ? 'flex-start' : 'center',
-                                                        minWidth: colId === 'material' ? '180px' : colId === 'container' ? '90px' : '55px',
-                                                        minHeight: '26px',
+                                                        minWidth: colId === 'material' ? '150px' : colId === 'container' ? '78px' : colId === 'kgs' ? '62px' : '44px',
+                                                        minHeight: '23px',
                                                     }}>
                                                         <input
                                                             type="text"
@@ -470,9 +566,13 @@ const Customtable = ({
                                             <td key={header.id} style={{
                                                 backgroundColor: ftrBg(colId),
                                                 color: 'var(--chathams-blue)',
-                                                padding: '5px 6px', fontSize: '11px', fontWeight: '600',
+                                                padding: '5px 5px', fontSize: '11px', fontWeight: '600',
                                                 textAlign: (colId === 'material' || colId === 'container') ? 'left' : 'center',
-                                                border: 'none', whiteSpace: 'nowrap',
+                                                whiteSpace: 'nowrap',
+                                                borderTop: '1px solid #d8e8f5',
+                                                borderBottom: '1px solid #d8e8f5',
+                                                borderRight: '1px solid #d8e8f5',
+                                                borderLeft: isFirst ? '1px solid #d8e8f5' : 'none',
                                                 borderRadius: `${isFirst ? '10px' : '0'} ${isLast ? '10px' : '0'} ${isLast ? '10px' : '0'} ${isFirst ? '10px' : '0'}`,
                                             }}>
                                                 {footerVal(header)}
