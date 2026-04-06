@@ -11,7 +11,7 @@ import { Filter } from "../../../components/table/filters/filterFunc"
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, horizontalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { DEFAULT_ELEMENTS, UNIT_LABELS, UNIT_TO_MT } from './constants'
+import { UNIT_LABELS, UNIT_TO_MT } from './constants'
 
 // Standard elements — cannot be removed (only user-added custom elements have the × button)
 const STANDARD_KEYS = new Set(['ni', 'cr', 'mo', 'co', 'w', 'nb', 'fe'])
@@ -186,7 +186,16 @@ const Customtable = ({
     const footerVal = (header) => {
         const colId = header.column.id
         if (colId === 'del' || colId === 'container') return ''
-        const rows = table.getFilteredRowModel().rows
+        const allRows = table.getFilteredRowModel().rows
+        // Exclude rows where material is empty AND all element values are empty/zero
+        const rows = allRows.filter(r => {
+            const mat = r.getValue('material')
+            if (mat && String(mat).trim() !== '') return true
+            return elements.some(el => {
+                const v = parseFloat(r.getValue(el.key))
+                return !isNaN(v) && v !== 0
+            })
+        })
         if (colId === 'material') return `${rows.length} items`
         const totalW = rows.reduce((s, r) => s + (parseFloat(r.getValue('kgs')) || 0), 0)
         if (colId === 'kgs') {

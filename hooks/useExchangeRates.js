@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 // Can be replaced with XE API or other providers later
 const API_URL = 'https://api.exchangerate-api.com/v4/latest/USD';
 
-const CURRENCIES = ['EUR', 'ILS', 'GBP', 'RUB'];
+const CURRENCIES = ['EUR', 'ILS', 'GBP', 'RUB', 'AED', 'CNY'];
 
 export default function useExchangeRates(refreshInterval = 30 * 60 * 1000) {
     const [rates, setRates] = useState(null);

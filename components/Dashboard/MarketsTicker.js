@@ -1,251 +1,125 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import HeadlineTicker from './HeadlineTicker';
 import useExchangeRates from '../../hooks/useExchangeRates';
 import useMetalPrices from '../../hooks/useMetalPrices';
-import { HiRefresh, HiCube, HiCubeTransparent } from 'react-icons/hi';
-import {
-  FaDollarSign,
-  FaEuroSign,
-  FaPoundSign,
-  FaRubleSign,
-} from 'react-icons/fa';
-import { TbCurrencyShekel } from 'react-icons/tb';
+import { HiCube, HiRefresh } from 'react-icons/hi';
+import { FaEuroSign } from 'react-icons/fa';
 import Flag from 'react-world-flags';
 
-const currencyNames = {
-  USD: 'US Dollar',
-  EUR: 'Euro',
-  GBP: 'British Pound',
-  ILS: 'Israeli Shekel',
-  RUB: 'Russian Ruble',
-};
+const currencyCountry = { USD: 'US', EUR: 'EU', GBP: 'GB', ILS: 'IL', RUB: 'RU', AED: 'AE', CNY: 'CN' };
 
-const currencyIcons = {
-  USD: FaDollarSign,
-  EUR: FaEuroSign,
-  GBP: FaPoundSign,
-  ILS: TbCurrencyShekel,
-  RUB: FaRubleSign,
-};
-
-const currencySymbols = {
-  USD: '$',
-  EUR: '€',
-  GBP: '£',
-  ILS: '₪',
-  RUB: '₽',
-};
-
-// use emoji flags as lightweight country icons matching the currency
-const currencyCountry = {
-  USD: 'US',
-  EUR: 'EU',
-  GBP: 'GB',
-  ILS: 'IL',
-  RUB: 'RU',
-};
+// 10 fixed pairs: [base, quote] — rate = how many quote per 1 base
+const FIXED_PAIRS = [
+    ['EUR', 'USD'],
+    ['USD', 'ILS'],
+    ['EUR', 'ILS'],
+    ['USD', 'RUB'],
+    ['GBP', 'USD'],
+    ['EUR', 'RUB'],
+    ['GBP', 'EUR'],
+    ['GBP', 'ILS'],
+    ['USD', 'AED'],
+    ['USD', 'CNY'],
+];
 
 const makeFlagIcon = (cc) => ({ className = '' }) => {
-  const code = (cc || 'un').toLowerCase();
-  // react-world-flags may not include an 'eu' asset everywhere — provide a simple fallback
-  if (code === 'eu') {
-    return (
-      <div
-        className={className}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: 18,
-          height: 12,
-          background: '#003399',
-          borderRadius: 2,
-          lineHeight: 0,
-        }}
-      >
-        <FaEuroSign style={{ color: '#FFD700', width: 12, height: 12 }} />
-      </div>
-    );
-  }
-
-  return (
-    <div className={className} style={{ lineHeight: 0 }}>
-      <Flag code={code} style={{ width: 18, height: 12 }} />
-    </div>
-  );
+    const code = (cc || 'un').toLowerCase();
+    if (code === 'eu') {
+        return (
+            <div className={className} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 12, background: '#003399', borderRadius: 2 }}>
+                <FaEuroSign style={{ color: '#FFD700', width: 12, height: 12 }} />
+            </div>
+        );
+    }
+    return <div className={className} style={{ lineHeight: 0 }}><Flag code={code} style={{ width: 18, height: 12 }} /></div>;
 };
 
-const metalIcons = {
-  nickel: HiCube,
-  copper: HiCubeTransparent,
-};
+// rates are USD-base (rates[X] = units of X per 1 USD)
+// cross-pair A/B = rates[B] / rates[A]
+// rates[USD] = 1
+function getCrossRate(rates, base, quote) {
+    if (!rates) return null;
+    const rBase = base === 'USD' ? 1 : rates[base];
+    const rQuote = quote === 'USD' ? 1 : rates[quote];
+    if (!rBase || !rQuote) return null;
+    return rQuote / rBase;
+}
 
 export default function MarketsTicker({ className = '' }) {
-  const fx = useExchangeRates();
-  const metals = useMetalPrices();
+    const fx = useExchangeRates();
+    const metals = useMetalPrices();
 
-  const [baseCurrency, setBaseCurrency] = useState('USD');
-  const [fxRefreshing, setFxRefreshing] = useState(false);
+    const fxItems = useMemo(() => {
+        return FIXED_PAIRS.map(([base, quote]) => {
+            const rate = getCrossRate(fx.rates, base, quote);
+            return {
+                key: `fx-${base}-${quote}`,
+                icon: makeFlagIcon(currencyCountry[base] || 'UN'),
+                label: `${base}/${quote}`,
+                value: rate != null ? fx.formatRate(rate) : '—',
+            };
+        });
+    }, [fx.rates, fx.formatRate]);
 
-  const getFxRate = (rates, currency) => {
-    if (!rates || !rates[currency]) return null;
-    if (baseCurrency === 'USD') return rates[currency];
-    return rates[currency] / rates[baseCurrency];
-  };
+    const metalItems = useMemo(() => {
+        if (!metals.prices) return [];
+        // Sort by order field defined in METAL_META
+        return Object.entries(metals.prices)
+            .sort((a, b) => (a[1].order ?? 99) - (b[1].order ?? 99))
+            .map(([sym, m]) => ({
+                key: `m-${sym}`,
+                icon: HiCube,
+                label: `${m.name} (${m.unit || 'USD/MT'})`,
+                value: metals.formatPrice(m.price),
+            }));
+    }, [metals.prices, metals.formatPrice]);
 
-  const fxItems = useMemo(() => {
-    const list = ['USD', 'EUR', 'GBP', 'ILS', 'RUB'].filter((c) => c !== baseCurrency);
+    // Format last-updated timestamp
+    const updatedLabel = useMemo(() => {
+        if (metals.loading) return 'Loading…';
+        if (metals.error) return 'Failed to load';
+        if (!metals.lastUpdated) return '';
+        const d = metals.lastUpdated;
+        const date = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        return `${date} · ${time}`;
+    }, [metals.lastUpdated, metals.loading, metals.error]);
 
-    return list.map((c) => {
-      const r = getFxRate(fx.rates, c);
-      const displayRate = r ? 1 / r : null;
-      const pairLabel = `${c}/${baseCurrency}`;
-      const cc = currencyCountry[c] || 'UN';
-      const FlagIcon = makeFlagIcon(cc);
+    return (
+        <div className={['mt-3 mb-2 space-y-2', className].join(' ')}>
 
-      return {
-        key: `fx-${c}`,
-        icon: FlagIcon,
-        label: pairLabel,
-        value: displayRate ? `${fx.formatRate(displayRate)} ${currencySymbols[baseCurrency] || ''}` : '—',
-      };
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fx.rates, baseCurrency]);
+            {/* ===== FX ===== */}
+            <div className="flex items-center gap-2 px-1 mb-1">
+                <span className="font-semibold text-[var(--endeavour)] text-base flex items-center">
+                    Exchange Rates
+                </span>
+            </div>
+            <HeadlineTicker variant="fx" leftIcon={null} items={fxItems} speed={50} pauseOnHover rightToLeft gap={22} />
 
-  const metalItems = useMemo(() => {
-    return ['nickel', 'copper'].map((k) => {
-      const m = metals.prices?.[k];
-      if (!m) {
-        return {
-          key: `m-${k}`,
-          icon: metalIcons[k],
-          label: k.toUpperCase(),
-          value: '—',
-          subValue: '',
-        };
-      }
-
-      const ch = m.change ?? null;
-      const pct = m.changePercent ?? null;
-      const sign = ch !== null ? (ch >= 0 ? '+' : '') : '';
-
-      return {
-        key: `m-${k}`,
-        icon: metalIcons[k],
-        label: `${m.name || k} (${m.unit || 'USD/MT'})`,
-        value: metals.formatPrice(m.price),
-        subValue: ch !== null ? `${sign}${ch.toFixed(2)} (${(pct ?? 0).toFixed(2)}%)` : '',
-      };
-    });
-  }, [metals.prices, metals]);
-
-  const fxSubtitle = fx.error
-    ? 'Failed to load'
-    : fx.loading
-    ? 'Loading…'
-    : `Base: ${baseCurrency}`;
-
-  const metalSubtitle = metals.error
-    ? 'Failed to load'
-    : metals.loading
-    ? 'Loading…'
-    : 'LME Spot Prices';
-
-  const refreshFx = async () => {
-    try {
-      setFxRefreshing(true);
-      const res = fx.refresh?.();
-      if (res && typeof res.then === 'function') await res;
-    } finally {
-      setTimeout(() => setFxRefreshing(false), 400);
-    }
-  };
-
-  const refreshMetals = () => metals.refresh?.();
-
-  const BaseIcon = makeFlagIcon(currencyCountry[baseCurrency] || 'UN');
-
-  return (
-    <div className={['mt-3 mb-2 space-y-2', className].join(' ')}>
-      {/* ===== FX ===== */}
-      <div className="flex items-center gap-2 px-1 mb-1">
-        <span className="font-semibold text-[var(--endeavour)] text-base flex items-center">
-          {/* Flag icon for base currency */}
-          <span style={{ display: "inline-flex", alignItems: "center", marginRight: 8 }}>
-            {makeFlagIcon(currencyCountry[baseCurrency] || 'UN')({})}
-          </span>
-          Exchange Rates
-        </span>
-        {/* base selector INLINE with heading (desktop) */}
-        <div className="hidden md:flex items-center gap-1 ml-3">
-          {['USD', 'EUR', 'GBP', 'ILS', 'RUB'].map((cur) => (
-            <button
-              key={cur}
-              onClick={() => setBaseCurrency(cur)}
-              className={[
-                'px-3 py-1 rounded-full text-xs font-semibold transition',
-                baseCurrency === cur
-                  ? 'bg-[var(--endeavour)] text-white'
-                  : 'bg-[var(--selago)] text-[var(--port-gore)] hover:bg-[var(--rock-blue)]/30',
-              ].join(' ')}
-            >
-              {cur}
-            </button>
-          ))}
+            {/* ===== METALS ===== */}
+            <div className="flex items-center justify-between px-1 mb-1 mt-2">
+                <div className="flex items-center gap-2">
+                    <span className="font-semibold text-[var(--endeavour)] text-base flex items-center">
+                        <HiCube className="mr-2" />
+                        Metal Prices
+                    </span>
+                    <button
+                        onClick={metals.refresh}
+                        title="Refresh metal prices"
+                        className="text-[var(--endeavour)] hover:opacity-70 transition"
+                    >
+                        <HiRefresh className="w-4 h-4" />
+                    </button>
+                </div>
+                {updatedLabel && (
+                    <span style={{ fontSize: '11px', color: '#6b8fb5' }}>
+                        {metals.apiDate ? `LME · ${metals.apiDate}` : ''}{metals.apiDate && metals.lastUpdated ? ' · ' : ''}{metals.lastUpdated ? updatedLabel.split('·')[1]?.trim() || '' : updatedLabel}
+                    </span>
+                )}
+            </div>
+            <HeadlineTicker variant="metal" leftIcon={null} items={metalItems} speed={40} pauseOnHover rightToLeft gap={26} />
         </div>
-      </div>
-      <HeadlineTicker
-        variant="fx"
-       
-        leftIcon={null}
-        
-       
-        items={fxItems}
-        speed={50}
-        pauseOnHover
-        rightToLeft
-        gap={22}
-      />
-
-      {/* base selector (mobile) */}
-      <div className="flex md:hidden items-center gap-2 px-1 -mt-1 mb-1">
-        {['USD', 'EUR', 'GBP', 'ILS', 'RUB'].map((cur) => (
-          <button
-            key={cur}
-            onClick={() => setBaseCurrency(cur)}
-            className={[
-              'px-3 py-1 rounded-full text-xs font-semibold transition',
-              baseCurrency === cur
-                ? 'bg-[var(--endeavour)] text-white'
-                : 'bg-[var(--selago)] text-[var(--port-gore)] hover:bg-[var(--rock-blue)]/30',
-            ].join(' ')}
-          >
-            {cur}
-          </button>
-        ))}
-      </div>
-
-      {/* ===== METALS ===== */}
-      <div className="flex items-center gap-2 px-1 mb-1 mt-2">
-        <span className="font-semibold text-[var(--endeavour)] text-base flex items-center">
-          <HiCube className="mr-2" />
-          Metal Prices
-        </span>
-      </div>
-      <HeadlineTicker
-        variant="metal"
-        
-        leftIcon={null}
-       
-        items={metalItems}
-        speed={50}
-        pauseOnHover
-        rightToLeft
-        gap={26} // increased spacing so metals don't feel cramped
-      />
-    </div>
-  );
+    );
 }
