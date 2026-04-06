@@ -1,197 +1,98 @@
 import { saveAs } from 'file-saver';
 import { Workbook } from 'exceljs';
-import Tooltip from '../../../components/tooltip';
-// import removed: SiMicrosoft not available
-import dateFormat from "dateformat";
-import { getTtl } from '../../../utils/languages';
 import Tltip from '../../../components/tlTip';
 import { FileSpreadsheet } from 'lucide-react';
-
+import { DEFAULT_ELEMENTS, UNIT_LABELS } from './constants';
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle' } }
-const wb = new Workbook();
-wb.creator = 'IMS';
-wb.created = new Date();
 
-const sheet = wb.addWorksheet('Data', { properties: {} },);
-sheet.views = [
-    { rightToLeft: false }
-];
-
-//{ font: { bold: true }
-export const EXD = (dataTable) => {
+export const EXD = (table) => {
 
     const exportExcel = async () => {
+        const dataTable = table.data || []
+        const elems = table.elements || DEFAULT_ELEMENTS
+        const unit = table.unit || 'kgs'
+        const unitLabel = UNIT_LABELS[unit] || 'Kgs'
+        const prices = table.prices || {}
 
-        while (sheet.rowCount > 1) {
-            sheet.spliceRows(2, 1);
-        }
+        const wb = new Workbook();
+        wb.creator = 'IMS';
+        wb.created = new Date();
+        const sheet = wb.addWorksheet('Data', { properties: {} });
+        sheet.views = [{ rightToLeft: false }];
 
         sheet.columns = [
-            { key: 'material', header: 'Material', width: 50, style: styles },
-            { key: 'kgs', header: 'KGS', width: 8, style: styles },
-            { key: 'ni', header: 'Ni', width: 8, style: styles },
-            { key: 'cr', header: 'Cr', width: 8, style: styles },
-            { key: 'cu', header: 'Cu', width: 8, style: styles },
-            { key: 'mo', header: 'Mo', width: 8, style: styles },
-            { key: 'w', header: 'W', width: 8, style: styles },
-            { key: 'co', header: 'Co', width: 8, style: styles },
-            { key: 'nb', header: 'Nb', width: 8, style: styles },
-            { key: 'fe', header: 'Fe', width: 8, style: styles },
-            { key: 'ti', header: 'Ti', width: 8, style: styles },
+            { key: 'material', header: 'Material', width: 40, style: styles },
+            { key: 'kgs', header: unitLabel, width: 10, style: styles },
+            ...elems.map(el => ({ key: el.key, header: el.label, width: 8, style: styles })),
         ];
 
-
+        // Style header row
         sheet.getRow(1).eachCell((cell, colNumber) => {
             if (cell.value) cell.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: colNumber === 1 || colNumber === 2 ? { argb: 'A6C9EC' } : { argb: 'F7C7AC' }
+                type: 'pattern', pattern: 'solid',
+                fgColor: colNumber <= 2 ? { argb: 'A6C9EC' } : { argb: 'F7C7AC' }
             }
-            cell.font = { bold: true, size: 12, color: { argb: '000000' } };  // Font color to white
+            cell.font = { bold: true, size: 12, color: { argb: '000000' } };
         });
 
-        // const showQTY = (x) => {
-
-        //     return x.productsData.length !== 0 ? new Intl.NumberFormat('en-US', {
-        //         minimumFractionDigits: 1
-        //     }).format(x.productsData.reduce((sum, item) => sum + parseInt(item.qnty, 10), 0)) +
-        //         ' ' + (x.qTypeTable ? settings.Quantity.Quantity.find(q => q.id === x.qTypeTable)?.qTypeTable : '')
-        //         : '-'
-        // }
-
+        // Data rows
         for (let i = 0; i < dataTable.length; i++) {
-            let item = dataTable[i]
-
-            sheet.addRow({
-                material: item.material,
-                kgs: item.kgs * 1,
-                ni: item.ni * 1,
-                cr: item.cr * 1,
-                cu: item.cu * 1,
-                mo: item.mo * 1,
-                w: item.w * 1,
-                co: item.co * 1,
-                nb: item.nb * 1,
-                fe: item.fe * 1,
-                ti: item.ti * 1,
-            })
+            const item = dataTable[i]
+            const row = { material: item.material, kgs: item.kgs * 1 }
+            elems.forEach(el => { row[el.key] = parseFloat(item[el.key]) || 0 })
+            sheet.addRow(row)
         }
 
-        sheet.eachRow((row, rowNumber) => {
-            row.eachCell((cell, colNumber) => {
-
-                row.getCell(colNumber).border = {
-                    top: { style: 'thin' },
-                    left: { style: 'thin' },
-                    bottom: { style: 'thin' },
-                    right: { style: 'thin' }
-                };
-
-                if (colNumber <= 2) {
-                    cell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: {
-                            argb: 'A6C9EC'
-                        }
-                    }
-                    cell.font = { bold: true }
-                }
-
-            });
-        });
-
-        //in Case I want to merge
-        //     sheet.mergeCells('A5:A6');
-        //     sheet.getCell('A5').style.alignment = { horizontal: 'center', vertical: 'middle' }
-
-
-        const firstColumn = sheet.getColumn('material');
-        firstColumn.width = 40; // Explicitly setting width
-
-        // let startToital = dataTable.length + 2
-        // sheet.getCell('B' + startToital).value = totals.kgs;
-        // sheet.getCell('B' + startToital).font = {
-        //     size: 13,
-        //     bold: true
-        // };
-
-        const totalKgs = dataTable.reduce((sum, item) => sum + Number(item.kgs), 0);
-
-        const totals = { kgs: totalKgs };
-        const mtItems = ['ni', 'cr', 'cu', 'mo', 'w', 'co', 'nb', 'fe', 'ti']
-        mtItems.forEach(key => {
-            const weightedSum = dataTable.reduce((sum, row) => sum + (parseFloat(row[key] || 0) * row.kgs), 0);
-            totals[key] = (weightedSum / totalKgs).toFixed(2);
-        });
-        totals.material = ''
-
-
-        sheet.addRow({
-            material: totals.material,
-            kgs: totals.kgs * 1,
-            ni: totals.ni * 1,
-            cr: totals.cr * 1,
-            cu: totals.cu * 1,
-            mo: totals.mo * 1,
-            w: totals.w * 1,
-            co: totals.co * 1,
-            nb: totals.nb * 1,
-            fe: totals.fe * 1,
-            ti: totals.ti * 1,
+        // Totals row
+        const totalKgs = dataTable.reduce((sum, item) => sum + Number(item.kgs), 0)
+        const totRow = { material: '', kgs: totalKgs }
+        elems.forEach(el => {
+            const weightedSum = dataTable.reduce((sum, row) => sum + (parseFloat(row[el.key] || 0) * Number(row.kgs)), 0)
+            totRow[el.key] = totalKgs > 0 ? parseFloat((weightedSum / totalKgs).toFixed(2)) : 0
         })
+        sheet.addRow(totRow)
 
-
+        // Cell styling
         sheet.eachRow((row, rowNumber) => {
             row.eachCell((cell, colNumber) => {
-
                 row.getCell(colNumber).border = {
-                    top: { style: 'thin' },
-                    left: { style: 'thin' },
-                    bottom: { style: 'thin' },
-                    right: { style: 'thin' }
+                    top: { style: 'thin' }, left: { style: 'thin' },
+                    bottom: { style: 'thin' }, right: { style: 'thin' }
                 };
-
-                if (colNumber === 2) {
-                    cell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: {
-                            argb: 'A6C9EC'
-                        }
-                    }
+                if (colNumber <= 2) {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'A6C9EC' } }
+                    cell.font = { bold: rowNumber === 1 || rowNumber === dataTable.length + 2 }
+                }
+                if (rowNumber === dataTable.length + 2 && colNumber > 2) {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F7C7AC' } }
                     cell.font = { bold: true }
                 }
-
-                if (rowNumber === dataTable.length + 2) {
-                    cell.font = { bold: true }
-                    if (colNumber > 2) {
-                        cell.fill = {
-                            type: 'pattern',
-                            pattern: 'solid',
-                            fgColor: {
-                                argb: 'F7C7AC'
-                            }
-                        }
-                    }
-                }
-            });
-        });
-
-        sheet.eachRow((row, rowNumber) => {
-            row.eachCell((cell, colNumber) => {
                 if (colNumber >= 2) {
                     row.getCell(colNumber).numFmt = `#,##0.00;[Red]#,##0.00`
                 }
+            });
+        });
+
+        // Prices row (if any prices set)
+        const hasPrices = elems.some(el => prices[el.key])
+        if (hasPrices) {
+            const priceRow = { material: '$/MT' }
+            elems.forEach(el => { priceRow[el.key] = parseFloat(prices[el.key]) || 0 })
+            const pr = sheet.addRow(priceRow)
+            pr.eachCell((cell, colNumber) => {
+                cell.font = { bold: true, color: { argb: 'B45309' } }
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFBEB' } }
+                row => row.getCell(colNumber).border = {
+                    top: { style: 'thin' }, left: { style: 'thin' },
+                    bottom: { style: 'thin' }, right: { style: 'thin' }
+                }
             })
-        })
+        }
 
         const buf = await wb.xlsx.writeBuffer();
         saveAs(new Blob([buf]), `Material_Table.xlsx`)
     }
-
-
 
     return (
         <div>
