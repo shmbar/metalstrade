@@ -45,7 +45,7 @@ export default function Sidebar() {
   const { userTitle, user } = UserAuth();
   const ln = compData?.lng || "English";
   
-  const collapsibleSections = ["Shipments", "Statements", "Miscellaneous", "IMS Summary"];
+  const collapsibleSections = [];
   
   // Initialize all sections as open by default
   const [openSections, setOpenSections] = useState(
