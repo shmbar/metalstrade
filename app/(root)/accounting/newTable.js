@@ -243,7 +243,6 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
               className="overflow-auto dashboard-scroll rounded-3xl border border-[#cecece]"
               style={{
                 maxHeight: dynamicMaxHeight,
-                borderLeft: '8px solid var(--chathams-blue)',
                 borderRadius: '24px'
               }}
             >

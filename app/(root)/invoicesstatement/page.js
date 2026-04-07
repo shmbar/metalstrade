@@ -322,7 +322,7 @@ const Shipments = () => {
             accessorKey: 'originSupplier', header: 'Original supplier',
         },
         {
-            accessorKey: 'supInvoices', header: getTtl('Supplier inv', ln), cell: (props) => { const arr = Array.isArray(props.getValue()) ? props.getValue() : [props.getValue()]; return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{item}</div>)}</div>; },
+            accessorKey: 'supInvoices', header: getTtl('Supplier inv', ln), cell: (props) => { const arr = Array.isArray(props.getValue()) ? props.getValue() : [props.getValue()]; return <div>{arr.map((item, i) => { const s = String(item ?? ''); const display = s.length > 14 ? s.slice(0, 14) + '…' : s; return <div key={i} title={s.length > 14 ? s : undefined} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{display}</div>; })}</div>; },
             meta: { excludeFromQuickSum: true },
         },
         { accessorKey: 'expType', header: getTtl('Invoice Type', ln), },

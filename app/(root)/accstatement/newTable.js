@@ -226,7 +226,7 @@ const Customtable = ({
 
           {/* DESKTOP */}
           <div className="hidden md:block">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: '700px', borderLeft: '8px solid var(--chathams-blue)', borderTopLeftRadius: '24px', borderBottomLeftRadius: '24px' }}>
+            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: '700px', borderRadius: '24px' }}>
               <table className="w-full" style={{ tableLayout: 'auto' }}>
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(hdGroup => (

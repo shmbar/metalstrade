@@ -388,7 +388,7 @@ const Shipments = () => {
       accessorKey: 'originSupplier', header: 'Original supplier', bgt: 'bg-green-500', bgr: 'bg-green-50',
     },
     {
-      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{item}</div>)}</div>; },
+      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); const full = props.row.original.supplierInvFull || []; return <div>{arr.map((item, i) => <div key={i} title={full[i] && full[i] !== item ? full[i] : undefined} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{item}</div>)}</div>; },
       meta: { excludeFromQuickSum: true },
     },
     {
@@ -490,6 +490,11 @@ const Shipments = () => {
     }, {});
 
 
+  const truncInv = (inv) => {
+    const s = String(inv || '');
+    return s.length > 14 ? s.slice(0, 14) + '\u2026' : s;
+  };
+
   const getFormatted = (arr) => {  //convert id's to values
 
     let newArr = []
@@ -505,6 +510,8 @@ const Shipments = () => {
         status: getD(relStts, row, 'status'),
         rcvd: getD(OutTurn, row, 'rcvd'),
         fnlzing: getD(Finalizing, row, 'fnlzing'),
+        supplierInvFull: row.supplierInv || [],
+        supplierInv: (row.supplierInv || []).map(truncInv),
       }
 
       newArr.push(formattedRow)

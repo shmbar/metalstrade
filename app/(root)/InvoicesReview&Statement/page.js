@@ -26,6 +26,7 @@ import { sumClients, sumSuppliers } from '../invoicesstatement/sumtables/sumTabl
 import SumTableSupplier from '../invoicesstatement/sumtables/sumTablesSuppliers'
 import SumTableClient from '../invoicesstatement/sumtables/sumTablesClients'
 import VideoLoader from '../../../components/videoLoader';
+import Tltip from '../../../components/tlTip';
 
 const TotalInvoicePayments = (data) => {
   let accumulatedPmnt = 0;
@@ -439,6 +440,9 @@ const Shipments = () => {
       const eta = addData.eta === '' ? '' : dateFormat(addData.eta.startDate, 'dd.mm.yy');
       const poCur = x.poCur
 
+      const orderFull = order;
+      const orderTrunc = (() => { const s = String(order || ''); return s.length > 10 ? s.slice(0, 10) + '\u2026' : s; })();
+
       return {
         ...x.arr[0],
         supplier,
@@ -446,7 +450,8 @@ const Shipments = () => {
         supplierInvAmount: x.invAmntSup,
         supplierPrepayment: x.prpMntSup,
         supBlnc: x.blncSup,
-        order,
+        order: orderTrunc,
+        orderFull,
         cn,
         totalAmount,
         deviation,
@@ -508,10 +513,15 @@ const Shipments = () => {
       const cur = x.type === 'con' ? x.cur : x.invData.cur
       const curInvoice = x.type === 'con' ? tmp.cur : ''
 
+      const supInvArr = Array.isArray(supInvoices) ? supInvoices : [supInvoices];
+      const supInvoicesFull = supInvArr;
+      const supInvoicesTrunc = supInvArr.map(truncInv);
+
       return {
         ...x,
         supplier,
-        supInvoices,
+        supInvoices: supInvoicesTrunc,
+        supInvoicesFull,
         expType,
         invAmount,
         pmntAmount,
@@ -621,6 +631,7 @@ const Shipments = () => {
   let propDefaults = Object.keys(settings).length === 0 ? [] : [
     {
       accessorKey: 'order', header: getTtl('PO', ln) + '#', bgt: 'bg-green-500', bgr: 'bg-green-50',
+      cell: (props) => { const val = props.getValue(); const full = props.row.original.orderFull; const isTrunc = full && full !== val; return <Tltip tltpText={full} show={isTrunc} direction="top"><span className="cursor-default">{val}</span></Tltip>; },
       ttlUS: getTtl('Total', ln) + ' $:', ttlEU: getTtl('Total', ln) + ' €:',
       meta: { excludeFromQuickSum: true }
     }, //false
@@ -631,7 +642,7 @@ const Shipments = () => {
       },
     },
     {
-      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{item}</div>)}</div>; },
+      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); const full = props.row.original.supplierInvFull || []; return <div>{arr.map((item, i) => { const isTrunc = full[i] && full[i] !== item; return <Tltip key={i} tltpText={full[i]} show={isTrunc} direction="top"><div className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5 cursor-default' : 'py-0.5 cursor-default'}>{item}</div></Tltip>; })}</div>; },
       meta: { excludeFromQuickSum: true },
     },
     {
@@ -756,7 +767,7 @@ const Shipments = () => {
       },
     },
     {
-      accessorKey: 'supInvoices', header: getTtl('Supplier inv', ln), cell: (props) => { const arr = Array.isArray(props.getValue()) ? props.getValue() : [props.getValue()]; return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{item}</div>)}</div>; },
+      accessorKey: 'supInvoices', header: getTtl('Supplier inv', ln), cell: (props) => { const arr = Array.isArray(props.getValue()) ? props.getValue() : [props.getValue()]; const full = props.row.original.supInvoicesFull || arr; return <div>{arr.map((item, i) => { const isTrunc = full[i] && full[i] !== item; return <Tltip key={i} tltpText={full[i]} show={isTrunc} direction="top"><div className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5 cursor-default' : 'py-0.5 cursor-default'}>{item}</div></Tltip>; })}</div>; },
       meta: { excludeFromQuickSum: true },
     },
     { accessorKey: 'expType', header: getTtl('Invoice Type', ln), },
@@ -820,6 +831,11 @@ const Shipments = () => {
   }, {});
 
 
+  const truncInv = (inv) => {
+    const s = String(inv || '');
+    return s.length > 14 ? s.slice(0, 14) + '\u2026' : s;
+  };
+
   const getFormatted = (arr) => {  //convert id's to values
 
     let newArr = []
@@ -833,6 +849,8 @@ const Shipments = () => {
         status: getD(relStts, row, 'status'),
         rcvd: getD(OutTurn, row, 'rcvd'),
         fnlzing: getD(Finalizing, row, 'fnlzing'),
+        supplierInvFull: row.supplierInv || [],
+        supplierInv: (row.supplierInv || []).map(truncInv),
       }
 
       newArr.push(formattedRow)

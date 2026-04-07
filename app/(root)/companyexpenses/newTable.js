@@ -248,7 +248,6 @@ const Customtable = ({
   className="overflow-auto dashboard-scroll rounded-3xl border border-[#d7d7d7] shadow-sm"
   style={{
     maxHeight: dynamicMaxHeight,
-    borderLeft: '8px solid var(--chathams-blue)',
     borderRadius: '20px'
   }}
 >                <table

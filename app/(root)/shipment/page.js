@@ -382,7 +382,7 @@ const ShipmentPage = () => {
 
                     {/* Table — Desktop */}
                     <div className="custom-table hidden md:block">
-                    <div className="overflow-x-auto overflow-y-auto dashboard-scroll rounded-3xl border border-[#cecece]" style={{ borderLeft: '8px solid var(--chathams-blue)', borderRadius: '24px', maxHeight: `${Math.min(paginated.length * 53 + 60, 620)}px` }}>
+                    <div className="overflow-x-auto overflow-y-auto dashboard-scroll rounded-3xl border border-[#cecece]" style={{ borderRadius: '24px', maxHeight: `${Math.min(paginated.length * 53 + 60, 620)}px` }}>
                         <table className="w-full" style={{ minWidth: '700px' }}>
                             <thead className="sticky top-0 z-10">
                                 <tr>
