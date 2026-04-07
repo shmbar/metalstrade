@@ -23,6 +23,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { FaWallet, FaArrowTrendUp, FaArrowTrendDown, FaPiggyBank } from 'react-icons/fa6';
 import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
+import Tltip from '../../../components/tlTip';
 import { updateExpenseField, updateInvoiceField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 
@@ -341,7 +342,7 @@ useEffect(() => {
       },
       filterFn: 'dateBetweenFilterFn'
     },
-   { accessorKey: 'expInvoice', header: getTtl('Expense Invoice', ln) + '#', cell: EditableCell, meta: { excludeFromQuickSum: true } },
+   { accessorKey: 'expInvoice', header: getTtl('Expense Invoice', ln) + '#', cell: (props) => { const isEditMode = !!props.table?.options?.meta?.isEditMode; if (isEditMode) return <EditableCell {...props} />; const val = props.getValue() ?? ''; const isTrunc = val.length > 14; return <Tltip tltpText={val} show={isTrunc} direction="top"><span className="cursor-default">{isTrunc ? val.slice(0, 14) + '\u2026' : val}</span></Tltip>; }, meta: { excludeFromQuickSum: true } },
     {
   accessorKey: 'clientExp',
   header: getTtl('Supplier', ln),

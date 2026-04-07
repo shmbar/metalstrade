@@ -166,7 +166,7 @@ export default function Sidebar() {
         maxWidth: collapsed ? "60px" : "clamp(190px, 15vw, 220px)",
         borderRadius: "12px",
         zIndex: 0,
-        background: "linear-gradient(to right, #e3f3ff 0%, #e3f3ff 60%, #f0f8ff 100%)",
+        background: "#e3f3ff",
       }}
     >
       {/* Logo spacer */}
@@ -189,9 +189,10 @@ export default function Sidebar() {
 
       {/* Main panel */}
       <div style={{
-        background: "linear-gradient(180deg, #f7f9ff 0%, #def3ff 100%)",
+        background: "#e3f3ff",
         borderRadius: "12px",
-        margin: "0 8px 8px 8px",
+        border: "1.5px solid #b8ddf8",
+        margin: "0 8px 8px 2px",
         flex: 1,
         display: "flex",
         flexDirection: "column",

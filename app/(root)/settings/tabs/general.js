@@ -35,7 +35,7 @@ const General = () => {
                 : <>
                     <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-1 flex flex-wrap md:flex-nowrap w-full space-x-4'>
                                     <div className='gap-4 flex items-center w-full' >
-                            <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>
+                            <p className='text-sm font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>
                                 {getTtl('cmpName', ln)}:</p>
                                 <input
                                     type='input'
@@ -48,7 +48,7 @@ className="
   border-[#E5E7EB]
   bg-white
   text-xs
-  text-[#979797]
+  text-[#2d4a6e]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -62,7 +62,7 @@ className="
                         </div>
 
                                     <div className='gap-4 flex items-center w-full' >
-  <p className="text-sm font-normal  text-[var(--endeavour)]">
+  <p className="text-sm font-normal  text-[var(--chathams-blue)]">
     {getTtl("lng", ln)}:
   </p>
 
@@ -88,7 +88,7 @@ className="
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2'>
                                     <div className='gap-4 flex items-center' >
-                                        <p className='text-sm font-normal  text-[var(--endeavour)]'>
+                                        <p className='text-sm font-normal  text-[var(--chathams-blue)]'>
                                             {getTtl('street', ln)}:</p>
                                         <input
                                             type='input'
@@ -102,7 +102,7 @@ className="
   border-[#E5E7EB]
   bg-white
   text-xs
-  text-[#979797]
+  text-[#2d4a6e]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -115,7 +115,7 @@ className="
                                         />
                                     </div>
                                     <div className='flex gap-4 items-center ' >
-                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>
                                             {getTtl('city', ln)}: </p>
                                         <input
                                             type='input'
@@ -129,7 +129,7 @@ className="
   border-[#E5E7EB]
   bg-white
   text-xs
-  text-[#979797]
+  text-[#2d4a6e]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -142,7 +142,7 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>
                                             {getTtl('country', ln)}:</p>
                                         <input
                                             type='input'
@@ -155,7 +155,7 @@ className="
   border-[#E5E7EB]
   bg-white
   text-xs
-  text-[#979797]
+  text-[#2d4a6e]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -168,7 +168,7 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>
                                             {getTtl('zipCode', ln)}:</p>
                                         <input
                                             type='input'
@@ -181,7 +181,7 @@ className="
   border-[#E5E7EB]
   bg-white
   text-xs
-  text-[#979797]
+  text-[#2d4a6e]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -198,7 +198,7 @@ className="
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2'>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>Reg No.:</p>
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>Reg No.:</p>
                                         <input
                                             type='input'
 className="
@@ -210,7 +210,7 @@ className="
   border-[#E5E7EB]
   bg-white
   text-xs
-  text-[#979797]
+  text-[#2d4a6e]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -223,7 +223,7 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>VAT No.:</p>
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>VAT No.:</p>
                                         <input
                                             type='input'
 className="
@@ -235,7 +235,7 @@ className="
   border-[#E5E7EB]
   bg-white
   text-xs
-  text-[#979797]
+  text-[#2d4a6e]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -248,7 +248,7 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--endeavour)]'>EORI No.:</p>
+                                        <p className='text-sm font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>EORI No.:</p>
                                         <input
                                             type='input'
 className="
@@ -260,7 +260,7 @@ className="
   border-[#E5E7EB]
   bg-white
   text-xs
-  text-[#979797]
+  text-[#2d4a6e]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -283,7 +283,7 @@ className="
                     <div className='border border-[#E5E7EB] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='text-sm font-normal whitespace-nowrap text-[var(--endeavour)]'>
+                                <p className='text-sm font-normal whitespace-nowrap text-[var(--chathams-blue)]'>
                                     {getTtl('cmpemail', ln)}:</p>
                                 <input
                                     type='input'
@@ -296,7 +296,7 @@ className="
   border-[#E5E7EB]
   bg-white
   text-xs
-  text-[#979797]
+  text-[#2d4a6e]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -308,7 +308,7 @@ className="
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='text-sm font-normal whitespace-nowrap text-[var(--endeavour)]'>
+                                <p className='text-sm font-normal whitespace-nowrap text-[var(--chathams-blue)]'>
                                     {getTtl('cmpwebsite', ln)}:</p>
                                 <input
                                     type='input'
@@ -321,7 +321,7 @@ className="
   border-[#E5E7EB]
   bg-white
   text-xs
-  text-[#979797]
+  text-[#2d4a6e]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -339,7 +339,7 @@ className="
                     <div className=' border border-[#E5E7EB] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='text-sm font-normal whitespace-nowrap   text-[var(--endeavour)]'>
+                                <p className='text-sm font-normal whitespace-nowrap   text-[var(--chathams-blue)]'>
                                     {getTtl('cmpPhone', ln)}:</p>
                                 <input
                                     type='input'
@@ -352,7 +352,7 @@ className="
   border-[#E5E7EB]
   bg-white
   text-xs
-  text-[#979797]
+  text-[#2d4a6e]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -364,7 +364,7 @@ className="
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='text-sm font-normal whitespace-nowrap   text-[var(--endeavour)]'>
+                                <p className='text-sm font-normal whitespace-nowrap   text-[var(--chathams-blue)]'>
                                     {getTtl('cmpMobile', ln)}:</p>
                                 <input
                                     type='input'
@@ -377,7 +377,7 @@ className="
   border-[#E5E7EB]
   bg-white
   text-xs
-  text-[#979797]
+  text-[#2d4a6e]
   outline-none
   transition
   focus:border-[#0A5DB8]

@@ -64,6 +64,7 @@ export const MainNav = () => {
       style={{
         height: 'clamp(56px, 7vh, 80px)',
         borderRadius: '12px',
+        border: '1.5px solid #b8ddf8',
         padding: '0 clamp(8px, 1vw, 16px)', // reduced horizontal padding
       }}
     >
