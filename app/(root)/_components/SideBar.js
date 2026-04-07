@@ -116,7 +116,7 @@ export default function Sidebar() {
     borderRadius: isCollapsed ? "10px" : "10px",
     background: active ? "#ffffff" : "transparent",
     boxShadow: active ? "0 2px 10px 0 rgba(44, 130, 201, 0.18)" : "none",
-    fontWeight: active ? 600 : 400,
+    fontWeight: active ? 700 : 500,
     color: "#003366",
     marginLeft: isCollapsed ? "auto" : "8px",
     marginRight: isCollapsed ? "auto" : "8px",
@@ -167,6 +167,8 @@ export default function Sidebar() {
         borderRadius: "12px",
         zIndex: 0,
         background: "#e3f3ff",
+        WebkitFontSmoothing: "antialiased",
+        MozOsxFontSmoothing: "grayscale",
       }}
     >
       {/* Logo spacer */}
