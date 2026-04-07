@@ -815,13 +815,13 @@ const SupperAlloys = ({ value, handleChange }) => {
       </div>
     </div>
     {/* Top two */}
-    <div className="grid grid-cols-2 gap-2 mb-2">
+    <div className="flex flex-wrap gap-2 mb-2">
       <ResultBox title="Solids Price" bg="#FFECEC" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100).toFixed(2))} />
       <ResultBox title="Price per MT" bg="#FFECEC" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 * value.general.mt).toFixed(2))} />
     </div>
     {/* Bottom centered */}
-    <div className="flex justify-center">
-      <div className="w-[50%]">
+    <div className="flex">
+      <div className="w-fit">
         <ResultBox title="Price / Euro" bg="#E9FFF1" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 / value.general?.euroRate).toFixed(2), "€")} />
       </div>
     </div>
@@ -841,13 +841,13 @@ const SupperAlloys = ({ value, handleChange }) => {
       </div>
     </div>
     {/* Top two */}
-    <div className="grid grid-cols-2 gap-2 mb-2">
+    <div className="flex flex-wrap gap-2 mb-2">
       <ResultBox title="Solids Price" bg="#EAF4FF" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100).toFixed(2))} />
       <ResultBox title="Price per MT" bg="#EAF4FF" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 * value.general.mt).toFixed(2))} />
     </div>
     {/* Bottom centered */}
-    <div className="flex justify-center">
-      <div className="w-[50%]">
+    <div className="flex">
+      <div className="w-fit">
         <ResultBox title="Price / Euro" bg="#E9FFF1" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 / value.general?.euroRate).toFixed(2), "€")} />
       </div>
     </div>
@@ -859,11 +859,11 @@ const SupperAlloys = ({ value, handleChange }) => {
     ) : null;
 };
 const ResultBox = ({ title, value, bg }) => (
-  <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-[#f8fbff] text-center">
-    <div className="py-1" style={{ backgroundColor: bg }}>
-      <p className="text-xs text-[#2F6FDB]">{title}</p>
+  <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-[#f8fbff] text-center min-w-[120px] w-fit">
+    <div className="py-1 px-3" style={{ backgroundColor: bg }}>
+      <p className="text-xs text-[#2F6FDB] whitespace-nowrap">{title}</p>
     </div>
-    <div className="py-1 text-xs font-semibold text-[#2F6FDB]">
+    <div className="py-1 px-3 text-xs font-semibold text-[#2F6FDB]">
       {value}
     </div>
   </div>

@@ -1007,16 +1007,16 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                     </div>
 
                     {/* Results */}
-                    <div className="grid grid-cols-3 mt-1 gap-1.5 mb-1 pl-2 pr-24">
-                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center">
+                    <div className="flex flex-wrap gap-1.5 mt-1 mb-1 pl-2">
+                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center min-w-[120px]">
                         <div className="bg-[#FFECEC] py-1"><p className="text-xs text-[#2F6FDB]">Solids Price</p></div>
                         <div className="py-1 text-xs text-[#2F6FDB] border-t border-[#b8ddf8] bg-[#fafafa]">{formatCurrency(solidsPrice.toFixed(2))}</div>
                     </div>
-                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center">
+                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center min-w-[120px]">
                         <div className="bg-[#FFECEC] py-1"><p className="text-xs text-[#2F6FDB]">Turnings Price</p></div>
                         <div className="py-1 text-xs text-[#2F6FDB] border-t border-[#b8ddf8] bg-[#fafafa]">{formatCurrency((solidsPrice * 0.92).toFixed(2))}</div>
                     </div>
-                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center">
+                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center min-w-[120px]">
                         <div className="bg-[#E9FFF1] py-1"><p className="text-xs text-[#2F6FDB]">Price / Euro</p></div>
                         <div className="py-1 text-xs text-[#2F6FDB] border-t border-[#b8ddf8] bg-[#fafafa]">{formatCurrency((solidsPrice / value.general?.euroRate).toFixed(2), '€')}</div>
                     </div>
@@ -1091,16 +1091,16 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                     </div>
 
                     {/* Results */}
-                    <div className="grid grid-cols-3 mt-1 gap-1.5 mb-1 pl-2 pr-24">
-                        <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center">
+                    <div className="flex flex-wrap gap-1.5 mt-1 mb-1 pl-2">
+                        <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center min-w-[120px]">
                             <div className="bg-[#FFECEC] py-1 text-xs text-[#2F6FDB]">Solids Price</div>
                             <div className="py-1 text-xs text-[#2F6FDB] border-t border-[#b8ddf8] bg-[#fafafa]">{formatCurrency(solidsPrice1.toFixed(2))}</div>
                         </div>
-                        <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center">
+                        <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center min-w-[120px]">
                             <div className="bg-[#FFECEC] py-1 text-xs text-[#2F6FDB]">Turnings Price</div>
                             <div className="py-1 text-xs text-[#2F6FDB] border-t border-[#b8ddf8] bg-[#fafafa]">{formatCurrency((solidsPrice1 * 0.9).toFixed(2))}</div>
                         </div>
-                        <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center">
+                        <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center min-w-[120px]">
                             <div className="bg-[#E9FFF1] py-1"><p className="text-xs text-[#2F6FDB]">Price / Euro</p></div>
                             <div className="py-1 text-xs text-[#2F6FDB] border-t border-[#b8ddf8] bg-[#fafafa]">{formatCurrency((solidsPrice1 / value.general?.euroRate).toFixed(2), '€')}</div>
                         </div>
