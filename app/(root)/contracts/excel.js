@@ -92,7 +92,7 @@ export const EXD = (dataTable, settings, name, ln) => {
 
         sheet.eachRow((row, rowNumber) => {
             row.eachCell((cell, colNumber) => {
-                if (cell.value || cell.value === '') {
+                if (cell.value || cell.value === '' || cell.value === 0) {
                     row.getCell(colNumber).border = {
                         top: { style: 'thin' },
                         left: { style: 'thin' },

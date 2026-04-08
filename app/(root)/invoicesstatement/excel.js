@@ -229,7 +229,16 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
 
         sheet.eachRow((row, rowNumber) => {
             row.eachCell((cell, colNumber) => {
-
+                if (rowNumber >= startSummary) {
+                    if (cell.value || cell.value === '' || cell.value === 0) {
+                        row.getCell(colNumber).border = {
+                            top: { style: 'thin' },
+                            left: { style: 'thin' },
+                            bottom: { style: 'thin' },
+                            right: { style: 'thin' }
+                        };
+                    }
+                }
                 let cArr1 = [5, 6, 7, 11, 13, 14]
                 if (cArr1.includes(colNumber) && rowNumber > startSummary) {
                     let item = colNumber <= 6 ? dtSumSupplers[rowNumber - startSummary - 1] : dtSumClients[rowNumber - startSummary - 1]

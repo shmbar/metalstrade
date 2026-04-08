@@ -138,11 +138,10 @@ export const EXD = (dataTable, settings, name, ln) => {
             row.eachCell((cell, colNumber) => {
                 if (cell.value || cell.value === '' || cell.value == null) {
                     row.getCell(colNumber).border = {
-                        top: { style: 'thin' },
-                        left: { style: 'thin' },
-                        bottom: { style: 'thin' },
-                        right: { style: 'thin' },
-                        color: { argb: 'cccccc' }
+                        top: { style: 'thin', color: { argb: 'FF999999' } },
+                        left: { style: 'thin', color: { argb: 'FF999999' } },
+                        bottom: { style: 'thin', color: { argb: 'FF999999' } },
+                        right: { style: 'thin', color: { argb: 'FF999999' } },
                     };
 
                 }

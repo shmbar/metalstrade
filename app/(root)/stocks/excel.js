@@ -129,6 +129,16 @@ export const EXD = (dataTable, settings, name, ln, sumData) => {
 
         sheet.eachRow((row, rowNumber) => {
             row.eachCell((cell, colNumber) => {
+                if (rowNumber >= startSummary) {
+                    if (cell.value || cell.value === '' || cell.value === 0) {
+                        row.getCell(colNumber).border = {
+                            top: { style: 'thin' },
+                            left: { style: 'thin' },
+                            bottom: { style: 'thin' },
+                            right: { style: 'thin' }
+                        };
+                    }
+                }
                 if (colNumber === 5 && rowNumber > startSummary) {
                     row.getCell(colNumber).numFmt = `#,##0.000;[Red]#,##0.000`
                 }
@@ -137,7 +147,6 @@ export const EXD = (dataTable, settings, name, ln, sumData) => {
                     let sym = getNumFmtForCurrency(item.cur)
                     row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]$#,##0.00`
                 }
-
             })
         })
 

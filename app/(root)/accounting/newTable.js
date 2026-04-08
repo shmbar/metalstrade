@@ -209,7 +209,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col rounded-2xl border border-[#b8ddf8] bg-white"
+        <div className="flex flex-col rounded-2xl border border-[#b8ddf8] bg-white overflow-hidden"
           style={{ boxShadow: '0 2px 12px rgba(3,102,174,0.07)' }}
         >
 
@@ -240,7 +240,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
           {/* DESKTOP */}
           <div className="hidden md:block">
             <div
-              className="overflow-auto dashboard-scroll rounded-3xl border border-[#cecece]"
+              className="overflow-auto dashboard-scroll rounded-3xl border border-[#d8e8f5]"
               style={{
                 maxHeight: dynamicMaxHeight,
                 borderRadius: '24px'

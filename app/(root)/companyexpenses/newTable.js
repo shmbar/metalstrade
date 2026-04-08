@@ -219,6 +219,7 @@ const Customtable = ({
         <div className="flex flex-col rounded-2xl"
           style={{
             border: '1px solid #b8ddf8',
+            overflow: 'hidden',
           }}
         >
           <div
@@ -245,7 +246,7 @@ const Customtable = ({
           </div>
           <div className="hidden md:block" >
 <div
-  className="overflow-auto dashboard-scroll rounded-3xl border border-[#d7d7d7] shadow-sm"
+  className="overflow-auto dashboard-scroll rounded-3xl border border-[#d8e8f5] shadow-sm"
   style={{
     maxHeight: dynamicMaxHeight,
     borderRadius: '20px'

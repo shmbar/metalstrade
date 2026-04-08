@@ -994,7 +994,7 @@ const Customtable = ({
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col rounded-2xl" style={{ border: '1px solid #b8ddf8' }}>
+        <div className="flex flex-col rounded-2xl" style={{ border: '1px solid #b8ddf8', overflow: 'hidden' }}>
 
           {/* ── TOOLBAR ── */}
           <div className="flex-shrink-0 rounded-t-2xl"
@@ -1025,9 +1025,8 @@ const Customtable = ({
               className="overflow-auto dashboard-scroll"
               style={{
                 maxHeight: dynamicMaxHeight,
-                borderLeft: '8px solid var(--chathams-blue)',
-                borderRadius: '20px',
-                border: '1px solid #d7d7d7',
+                borderRadius: '24px',
+                border: '1px solid #d8e8f5',
                 position: 'relative',
               }}
             >
