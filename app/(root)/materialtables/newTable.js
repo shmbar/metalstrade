@@ -16,16 +16,16 @@ import { UNIT_LABELS, UNIT_TO_MT } from './constants'
 // Standard elements — cannot be removed (only user-added custom elements have the × button)
 const STANDARD_KEYS = new Set(['ni', 'cr', 'mo', 'co', 'w', 'nb', 'fe'])
 
-// Quick element presets
+// Price calculation presets — controls which elements have prices (cost calc only)
+// Chemistry columns are always full regardless of preset
 const PRESETS = [
-    { label: 'Ni Cr Fe',         keys: ['ni', 'cr', 'fe'] },
-    { label: 'Ni Cr Mo Fe',      keys: ['ni', 'cr', 'mo', 'fe'] },
-    { label: 'Ni Cr Mo Nb',      keys: ['ni', 'cr', 'mo', 'nb'] },
-    { label: 'Ni Cr Mo Nb Co',   keys: ['ni', 'cr', 'mo', 'nb', 'co'] },
-    { label: 'Ni Cr Mo W',       keys: ['ni', 'cr', 'mo', 'w'] },
-    { label: 'Ni Cu',            keys: ['ni', 'cu'] },
-    { label: 'Ni Fe',            keys: ['ni', 'fe'] },
-    { label: 'Full',             keys: ['ni', 'cr', 'mo', 'nb', 'co', 'w', 'cu', 'fe'] },
+    { label: 'Ni Cr',             keys: ['ni', 'cr'] },
+    { label: 'Ni Cr Mo',          keys: ['ni', 'cr', 'mo'] },
+    { label: 'Ni Cr Mo Co',       keys: ['ni', 'cr', 'mo', 'co'] },
+    { label: 'Ni Cr Mo Co Nb',    keys: ['ni', 'cr', 'mo', 'co', 'nb'] },
+    { label: 'Ni Cr Mo Co Nb W',  keys: ['ni', 'cr', 'mo', 'co', 'nb', 'w'] },
+    { label: 'Ni Cu',             keys: ['ni', 'cu'] },
+    { label: 'Full',              keys: ['ni', 'cr', 'mo', 'co', 'nb', 'w', 'cu'] },
 ]
 
 function SortableHeaderCell({ id, label, style, onRemove, isFe, isStandard, sortDir, onSort }) {

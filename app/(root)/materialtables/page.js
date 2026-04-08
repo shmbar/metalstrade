@@ -234,15 +234,13 @@ const MaterialTables = () => {
         setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, showCosts: !t.showCosts }))
     }
 
-    const DEFAULT_KEYS = new Set(DEFAULT_ELEMENTS.map(e => e.key))
     const applyPreset = (tableId, keys) => {
         setData(prev => prev.map(t => {
             if (t.id !== tableId) return t
-            const customElems = (t.elements || DEFAULT_ELEMENTS).filter(e => !DEFAULT_KEYS.has(e.key))
-            const presetElems = DEFAULT_ELEMENTS
-                .filter(e => keys.includes(e.key))
-                .sort((a, b) => keys.indexOf(a.key) - keys.indexOf(b.key))
-            return { ...t, elements: [...presetElems, ...customElems] }
+            // Keep prices only for elements in the preset — clears non-preset prices
+            const newPrices = {}
+            keys.forEach(k => { if (t.prices?.[k] != null) newPrices[k] = t.prices[k] })
+            return { ...t, prices: newPrices }
         }))
     }
 
@@ -352,7 +350,7 @@ const MaterialTables = () => {
                             </div>
                             <div className="w-full overflow-x-auto mt-1">
                                 {data.map(table => (
-                                    <div key={table.id} className="mb-2 rounded-2xl border border-[#b8ddf8] shadow-sm overflow-hidden">
+                                    <div key={table.id} className="mb-2 rounded-2xl border border-[#b8ddf8] shadow-sm">
                                         <Table
                                             data={table.data}
                                             table1={table}

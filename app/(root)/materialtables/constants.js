@@ -2,11 +2,11 @@
 export const DEFAULT_ELEMENTS = [
     { key: 'ni', label: 'Ni' },
     { key: 'cr', label: 'Cr' },
-    { key: 'cu', label: 'Cu' },
     { key: 'mo', label: 'Mo' },
-    { key: 'w',  label: 'W'  },
     { key: 'co', label: 'Co' },
     { key: 'nb', label: 'Nb' },
+    { key: 'w',  label: 'W'  },
+    { key: 'cu', label: 'Cu' },
     { key: 'fe', label: 'Fe', autoCalc: true },
     { key: 'ti', label: 'Ti' },
 ]
