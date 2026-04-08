@@ -116,6 +116,7 @@ const MaterialTables = () => {
                 showCosts: t.showCosts || false,
                 costLabel: t.costLabel || 'Price',
                 niPercent: t.niPercent != null ? t.niPercent : 100,
+                priceKeys: t.priceKeys || null,
             }))
             setData(normalized)
             setLoading(false)
@@ -129,7 +130,7 @@ const MaterialTables = () => {
             elements: [...DEFAULT_ELEMENTS],
             prices: nilmePrice ? { ni: nilmePrice } : {},
             containerNo: '', showContainer: false, containerLabel: 'Container',
-            showCosts: false, costLabel: 'Price', niPercent: 100, data: [],
+            showCosts: false, costLabel: 'Price', niPercent: 100, priceKeys: null, data: [],
         }])
     }
 
@@ -246,7 +247,7 @@ const MaterialTables = () => {
             // Keep prices only for elements in the preset — clears non-preset prices
             const newPrices = {}
             keys.forEach(k => { if (t.prices?.[k] != null) newPrices[k] = t.prices[k] })
-            return { ...t, prices: newPrices }
+            return { ...t, prices: newPrices, priceKeys: keys }
         }))
     }
 
@@ -382,6 +383,7 @@ const MaterialTables = () => {
                                             toggleCosts={() => toggleCosts(table.id)}
                                             niPercent={table.niPercent != null ? table.niPercent : 100}
                                             setNiPercent={(v) => setNiPercent(table.id, v)}
+                                            priceKeys={table.priceKeys || null}
                                             setUnit={(u) => setUnit(table.id, u)}
                                             addElement={(k, l) => addElement(table.id, k, l)}
                                             removeElement={(k) => removeElement(table.id, k)}

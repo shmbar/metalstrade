@@ -16,16 +16,16 @@ import { UNIT_LABELS, UNIT_TO_MT } from './constants'
 // Standard elements — cannot be removed (only user-added custom elements have the × button)
 const STANDARD_KEYS = new Set(['ni', 'cr', 'mo', 'co', 'w', 'nb', 'fe'])
 
-// Price calculation presets — controls which elements have prices (cost calc only)
+// Price calculation presets — controls which elements appear in $/MT price row
 // Chemistry columns are always full regardless of preset
 const PRESETS = [
-    { label: 'Ni Cr',             keys: ['ni', 'cr'] },
-    { label: 'Ni Cr Mo',          keys: ['ni', 'cr', 'mo'] },
+    { label: 'Ni Cr Fe',          keys: ['ni', 'cr', 'fe'] },
+    { label: 'Ni Cr Mo Fe',       keys: ['ni', 'cr', 'mo', 'fe'] },
     { label: 'Ni Cr Mo Co',       keys: ['ni', 'cr', 'mo', 'co'] },
     { label: 'Ni Cr Mo Co Nb',    keys: ['ni', 'cr', 'mo', 'co', 'nb'] },
     { label: 'Ni Cr Mo Co Nb W',  keys: ['ni', 'cr', 'mo', 'co', 'nb', 'w'] },
     { label: 'Ni Cu',             keys: ['ni', 'cu'] },
-    { label: 'Full',              keys: ['ni', 'cr', 'mo', 'co', 'nb', 'w', 'cu'] },
+    { label: 'Full',              keys: ['ni', 'cr', 'mo', 'co', 'nb', 'w', 'cu', 'fe'] },
 ]
 
 function SortableHeaderCell({ id, label, style, onRemove, isFe, isStandard, sortDir, onSort }) {
@@ -69,6 +69,7 @@ const Customtable = ({
     tableName = '', setTableName = () => {},
     showCosts = false, costLabel = 'Price', setCostLabel = () => {}, toggleCosts = () => {},
     niPercent = 100, setNiPercent = () => {},
+    priceKeys = null,
     setUnit = () => {}, addElement = () => {}, removeElement = () => {},
     reorderElements = () => {}, setPrice = () => {},
     setContainerNo = () => {}, toggleContainer = () => {},
@@ -84,6 +85,7 @@ const Customtable = ({
     const [showPresets, setShowPresets] = useState(false)
     const [editingContainerLabel, setEditingContainerLabel] = useState(false)
     const [editingCostLabel, setEditingCostLabel] = useState(false)
+    const [showHelp, setShowHelp] = useState(false)
 
     const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
     const elementKeys = useMemo(() => elements.map(e => e.key), [elements])
@@ -102,9 +104,10 @@ const Customtable = ({
         const costPmtCol = {
             id: 'costPmt', header: 'Cost PMT', enableSorting: true,
             accessorFn: (row) => elements.reduce((sum, el) => {
-                if (el.key === 'fe') return sum
+                const price = parseFloat(prices[el.key]) || 0
+                if (!price) return sum
                 const mult = el.key === 'ni' ? niMult : 1
-                return sum + ((parseFloat(row[el.key]) || 0) / 100) * (parseFloat(prices[el.key]) || 0) * mult
+                return sum + ((parseFloat(row[el.key]) || 0) / 100) * price * mult
             }, 0),
             cell: (props) => {
                 const v = props.getValue()
@@ -119,9 +122,10 @@ const Customtable = ({
             accessorFn: (row) => {
                 const wMT = (parseFloat(row.kgs) || 0) * (UNIT_TO_MT[unit] || 0.001)
                 const cPmt = elements.reduce((sum, el) => {
-                    if (el.key === 'fe') return sum
+                    const price = parseFloat(prices[el.key]) || 0
+                    if (!price) return sum
                     const mult = el.key === 'ni' ? niMult : 1
-                    return sum + ((parseFloat(row[el.key]) || 0) / 100) * (parseFloat(prices[el.key]) || 0) * mult
+                    return sum + ((parseFloat(row[el.key]) || 0) / 100) * price * mult
                 }, 0)
                 return cPmt * wMT
             },
@@ -214,9 +218,10 @@ const Customtable = ({
             const wAvg = rows.reduce((s, r) => {
                 const kgs = parseFloat(r.getValue('kgs')) || 0
                 const cPmt = elements.reduce((sum, el) => {
-                    if (el.key === 'fe') return sum
+                    const price = parseFloat(prices[el.key]) || 0
+                    if (!price) return sum
                     const mult = el.key === 'ni' ? niMult : 1
-                    return sum + ((parseFloat(r.getValue(el.key)) || 0) / 100) * (parseFloat(prices[el.key]) || 0) * mult
+                    return sum + ((parseFloat(r.getValue(el.key)) || 0) / 100) * price * mult
                 }, 0)
                 return s + cPmt * kgs
             }, 0) / totalW
@@ -227,9 +232,10 @@ const Customtable = ({
             const tot = rows.reduce((s, r) => {
                 const wMT = (parseFloat(r.getValue('kgs')) || 0) * (UNIT_TO_MT[unit] || 0.001)
                 const cPmt = elements.reduce((sum, el) => {
-                    if (el.key === 'fe') return sum
+                    const price = parseFloat(prices[el.key]) || 0
+                    if (!price) return sum
                     const mult = el.key === 'ni' ? niMult : 1
-                    return sum + ((parseFloat(r.getValue(el.key)) || 0) / 100) * (parseFloat(prices[el.key]) || 0) * mult
+                    return sum + ((parseFloat(r.getValue(el.key)) || 0) / 100) * price * mult
                 }, 0)
                 return s + cPmt * wMT
             }, 0)
@@ -386,6 +392,46 @@ const Customtable = ({
                                 </div>
                             )}
                         </div>
+                        {/* Help */}
+                        <div style={{ position: 'relative' }}>
+                            <button
+                                onClick={() => setShowHelp(p => !p)}
+                                style={{
+                                    fontSize: '10px', padding: '2px 7px', borderRadius: '999px',
+                                    border: `1px solid ${showHelp ? 'var(--endeavour)' : '#b8cfe0'}`,
+                                    background: showHelp ? 'var(--endeavour)' : '#f8fbff',
+                                    color: showHelp ? '#fff' : '#2d5270',
+                                    cursor: 'pointer', fontWeight: '600',
+                                    fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+                                }}
+                            >?</button>
+                            {showHelp && (
+                                <div style={{
+                                    position: 'absolute', top: '26px', left: 0, zIndex: 60,
+                                    background: '#fff', border: '1px solid #b8ddf8',
+                                    borderRadius: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+                                    padding: '10px 14px', minWidth: '240px',
+                                    fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+                                }}>
+                                    <p style={{ fontSize: '10px', fontWeight: '700', color: 'var(--chathams-blue)', marginBottom: '6px' }}>How to use this table</p>
+                                    {[
+                                        ['Drag column header', 'Reorder elements'],
+                                        ['Double-click column header label', 'Add / remove element'],
+                                        ['Double-click Container / Price label', 'Rename the button'],
+                                        ['Presets', 'Select which elements appear in $/MT price row'],
+                                        ['Fe price', 'Include steel scrap price (skipped if 0)'],
+                                        ['Ni × %', 'Multiply Ni LME by a payable % factor'],
+                                        ['Price button', 'Toggle Cost PMT / Cost Total columns'],
+                                        ['Container button', 'Toggle per-row container # column'],
+                                    ].map(([action, desc]) => (
+                                        <div key={action} style={{ display: 'flex', gap: '6px', marginBottom: '4px' }}>
+                                            <span style={{ fontSize: '9px', fontWeight: '600', color: 'var(--endeavour)', minWidth: '110px', paddingTop: '1px' }}>{action}</span>
+                                            <span style={{ fontSize: '9px', color: '#475569' }}>{desc}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                         {/* Cost columns toggle */}
                         <button
                             onClick={hasPrices ? toggleCosts : undefined}
@@ -417,7 +463,7 @@ const Customtable = ({
                 <div style={{ background: '#f0f7ff', borderBottom: '1px solid #d8e8f5', padding: '5px 10px' }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
                         <span style={{ fontSize: '9px', color: '#2d5270', minWidth: '32px' }}>$/MT:</span>
-                        {elements.filter(el => el.key !== 'fe').map(el => {
+                        {elements.filter(el => priceKeys ? priceKeys.includes(el.key) : el.key !== 'fe').map(el => {
                             const isNi = el.key === 'ni'
                             const focused = focusedPrice === el.key
                             return (

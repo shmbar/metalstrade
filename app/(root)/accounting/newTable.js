@@ -339,7 +339,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                         return (
                           <td
                             key={cell.id}
-                            className="px-2 py-2 text-center"
+                            className="px-1 py-1 text-center"
                             style={{
                               minWidth: cell.column.id === 'select' ? '50px' : '60px',
                               maxWidth: cell.column.id === 'select' ? '50px' : '150px',
@@ -349,7 +349,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                             {(isCompleted || isStatus) && badgeConfig ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-3 py-1 rounded-xl text-[11px] font-normal"
+                                  className="px-2 py-0.5 rounded-xl text-[11px] font-normal"
                                   style={{
                                     backgroundColor: badgeConfig.bg,
                                     color: badgeConfig.color,
@@ -369,7 +369,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                               <div className="flex justify-center">
                                 {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
                                   <div
-                                    className="px-3 py-1 rounded-xl text-[11px] font-normal min-w-[70px]"
+                                    className="px-2 py-0.5 rounded-xl text-[11px] font-normal min-w-[50px]"
                                     style={{
                                       backgroundColor: '#f8fbff',
                                       border: '1px solid #d8e8f5',
@@ -378,7 +378,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="px-3 py-1 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
+                                  <div className="px-2 py-0.5 rounded-xl text-[11px] font-normal w-full" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}
