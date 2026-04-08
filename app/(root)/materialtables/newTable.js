@@ -288,7 +288,7 @@ const Customtable = ({
 
             {/* ── Toolbar ── */}
             {showHeader && (
-                <div className="flex-shrink-0" style={{ borderBottom: '2px solid var(--selago)', background: 'linear-gradient(90deg,rgba(255,255,255,.95),rgba(250,250,250,.98))' }}>
+                <div className="flex-shrink-0" style={{ borderBottom: '2px solid var(--selago)', background: 'linear-gradient(90deg,rgba(255,255,255,.95),rgba(250,250,250,.98))', borderTopLeftRadius: '1rem', borderTopRightRadius: '1rem' }}>
                     {/* Table name */}
                     <div style={{ padding: '6px 14px 2px' }}>
                         <input
