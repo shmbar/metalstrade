@@ -33,7 +33,7 @@
 }
 
 .custom-table th, .custom-table td {
-  border: 1px solid #ccc;
+  border: 1px solid #b8cfe0;
   background-color: #f9f9f9;
   text-align: center;
   vertical-align: middle;
@@ -47,5 +47,5 @@
 
 .custom-table td {
   background-color: #fff;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #b8cfe0;
 }

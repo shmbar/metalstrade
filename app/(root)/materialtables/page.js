@@ -13,6 +13,7 @@ import { EXD } from "./excel";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { delCompExp, loadMaterials, saveMaterials, loadDataSettings } from "../../../utils/utils";
 import { DEFAULT_ELEMENTS, UNIT_LABELS, TO_KGS, FROM_KGS } from './constants';
+import useMetalPrices from '../../../hooks/useMetalPrices';
 
 function countDecimalDigits(str) {
     const match = str.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/)
@@ -38,6 +39,7 @@ const MaterialTables = () => {
     const [loading, setLoading] = useState(true)
     const [nilmePrice, setNilmePrice] = useState('')
     const { uidCollection } = UserAuth()
+    const { prices: metalPrices } = useMetalPrices()
 
     const fmtNum = (v) => {
         if (v == null || v === '') return ''
@@ -81,6 +83,18 @@ const MaterialTables = () => {
         { accessorKey: 'del', header: '', cell: () => null },
     ]
 
+    // Auto-update ni price across all tables when live Ni LME price arrives
+    useEffect(() => {
+        if (metalPrices?.['LME-NI']?.price != null && !loading) {
+            const liveNi = String(Math.round(metalPrices['LME-NI'].price));
+            setNilmePrice(liveNi);
+            setData(prev => prev.map(t => ({
+                ...t,
+                prices: { ...t.prices, ni: liveNi },
+            })));
+        }
+    }, [metalPrices, loading]);
+
     useEffect(() => {
         const loadData = async () => {
             setLoading(true)
@@ -98,7 +112,9 @@ const MaterialTables = () => {
                 prices: { ...(nilme ? { ni: nilme } : {}), ...(t.prices || {}) },
                 containerNo: t.containerNo || '',
                 showContainer: t.showContainer || false,
+                containerLabel: t.containerLabel || 'Container',
                 showCosts: t.showCosts || false,
+                costLabel: t.costLabel || 'Price',
             }))
             setData(normalized)
             setLoading(false)
@@ -111,7 +127,8 @@ const MaterialTables = () => {
             id: uuidv4(), name: '', unit: 'kgs',
             elements: [...DEFAULT_ELEMENTS],
             prices: nilmePrice ? { ni: nilmePrice } : {},
-            containerNo: '', showContainer: false, showCosts: false, data: [],
+            containerNo: '', showContainer: false, containerLabel: 'Container',
+            showCosts: false, costLabel: 'Price', data: [],
         }])
     }
 
@@ -203,6 +220,14 @@ const MaterialTables = () => {
 
     const setTableName = (tableId, name) => {
         setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, name }))
+    }
+
+    const setContainerLabel = (tableId, containerLabel) => {
+        setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, containerLabel }))
+    }
+
+    const setCostLabel = (tableId, costLabel) => {
+        setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, costLabel }))
     }
 
     const toggleCosts = (tableId) => {
@@ -311,7 +336,7 @@ const MaterialTables = () => {
                     <>
                         <Toast />
                         <VideoLoader loading={loading} fullScreen={true} />
-                        <div className="rounded-2xl p-2 sm:p-3 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-white relative max-w-7xl mx-auto">
+                        <div className="rounded-2xl p-2 sm:p-3 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-white relative overflow-hidden">
                             <div className="flex flex-col gap-2 pb-2">
                                 <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
                                     {getTtl('Material Tables', ln)}
@@ -327,7 +352,7 @@ const MaterialTables = () => {
                             </div>
                             <div className="w-full overflow-x-auto mt-1">
                                 {data.map(table => (
-                                    <div key={table.id} className="mb-2 rounded-2xl border border-[#b8ddf8] shadow-sm">
+                                    <div key={table.id} className="mb-2 rounded-2xl border border-[#b8ddf8] shadow-sm overflow-hidden">
                                         <Table
                                             data={table.data}
                                             table1={table}
@@ -343,9 +368,13 @@ const MaterialTables = () => {
                                             prices={table.prices || {}}
                                             containerNo={table.containerNo || ''}
                                             showContainer={table.showContainer || false}
+                                            containerLabel={table.containerLabel || 'Container'}
+                                            setContainerLabel={(v) => setContainerLabel(table.id, v)}
                                             tableName={table.name || ''}
                                             setTableName={(v) => setTableName(table.id, v)}
                                             showCosts={table.showCosts || false}
+                                            costLabel={table.costLabel || 'Price'}
+                                            setCostLabel={(v) => setCostLabel(table.id, v)}
                                             toggleCosts={() => toggleCosts(table.id)}
                                             setUnit={(u) => setUnit(table.id, u)}
                                             addElement={(k, l) => addElement(table.id, k, l)}

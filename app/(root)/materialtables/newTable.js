@@ -65,8 +65,9 @@ const Customtable = ({
     showHeader = true, showFooter = true,
     unit = 'kgs', elements = [], prices = {},
     containerNo = '', showContainer = false,
+    containerLabel = 'Container', setContainerLabel = () => {},
     tableName = '', setTableName = () => {},
-    showCosts = false, toggleCosts = () => {},
+    showCosts = false, costLabel = 'Price', setCostLabel = () => {}, toggleCosts = () => {},
     setUnit = () => {}, addElement = () => {}, removeElement = () => {},
     reorderElements = () => {}, setPrice = () => {},
     setContainerNo = () => {}, toggleContainer = () => {},
@@ -80,6 +81,8 @@ const Customtable = ({
     const [focusedCell, setFocusedCell] = useState(null)
     const [focusedPrice, setFocusedPrice] = useState(null)
     const [showPresets, setShowPresets] = useState(false)
+    const [editingContainerLabel, setEditingContainerLabel] = useState(false)
+    const [editingCostLabel, setEditingCostLabel] = useState(false)
 
     const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
     const elementKeys = useMemo(() => elements.map(e => e.key), [elements])
@@ -313,10 +316,24 @@ const Customtable = ({
                         {/* Container column toggle */}
                         <button
                             onClick={toggleContainer}
-                            title="Show a per-row container number column in the table"
-                            style={smallBtn(showContainer)}
+                            title="Toggle container column — double-click label to rename"
+                            style={{ ...smallBtn(showContainer), display: 'flex', alignItems: 'center', gap: '3px' }}
                         >
-                            {showContainer ? 'Hide Container Col' : 'Show Container Col'}
+                            {editingContainerLabel ? (
+                                <input
+                                    autoFocus
+                                    value={containerLabel}
+                                    onChange={e => setContainerLabel(e.target.value)}
+                                    onClick={e => e.stopPropagation()}
+                                    onBlur={() => setEditingContainerLabel(false)}
+                                    onKeyDown={e => { if (e.key === 'Enter') setEditingContainerLabel(false); e.stopPropagation(); }}
+                                    style={{ background: 'none', border: 'none', outline: 'none', color: 'inherit', fontSize: 'inherit', fontFamily: 'inherit', width: `${Math.max(50, containerLabel.length * 7)}px`, textAlign: 'center', padding: 0 }}
+                                />
+                            ) : (
+                                <span onDoubleClick={e => { e.stopPropagation(); setEditingContainerLabel(true); }}>
+                                    {containerLabel}
+                                </span>
+                            )}
                         </button>
                         {/* Shipment container reference */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -366,10 +383,24 @@ const Customtable = ({
                         {/* Cost columns toggle */}
                         <button
                             onClick={hasPrices ? toggleCosts : undefined}
-                            title={hasPrices ? (showCosts ? 'Hide Cost PMT / Cost Total columns' : 'Show Cost PMT / Cost Total columns') : 'Enter element prices above to enable cost columns'}
-                            style={{ ...smallBtn(showCosts && hasPrices), opacity: hasPrices ? 1 : 0.45 }}
+                            title={hasPrices ? 'Toggle cost columns — double-click label to rename' : 'Enter element prices above to enable cost columns'}
+                            style={{ ...smallBtn(showCosts && hasPrices), opacity: hasPrices ? 1 : 0.45, display: 'flex', alignItems: 'center', gap: '3px' }}
                         >
-                            $ Cost Cols
+                            {editingCostLabel ? (
+                                <input
+                                    autoFocus
+                                    value={costLabel}
+                                    onChange={e => setCostLabel(e.target.value)}
+                                    onClick={e => e.stopPropagation()}
+                                    onBlur={() => setEditingCostLabel(false)}
+                                    onKeyDown={e => { if (e.key === 'Enter') setEditingCostLabel(false); e.stopPropagation(); }}
+                                    style={{ background: 'none', border: 'none', outline: 'none', color: 'inherit', fontSize: 'inherit', fontFamily: 'inherit', width: `${Math.max(40, costLabel.length * 7)}px`, textAlign: 'center', padding: 0 }}
+                                />
+                            ) : (
+                                <span onDoubleClick={e => { e.stopPropagation(); setEditingCostLabel(true); }}>
+                                    {costLabel}
+                                </span>
+                            )}
                         </button>
                     </div>
                 </div>
@@ -516,7 +547,7 @@ const Customtable = ({
                                         const ck = `${row.id}-${colId}`
                                         const focused = focusedCell === ck
                                         return (
-                                            <td key={cell.id} style={{ backgroundColor: '#fff', padding: '2px 2px', borderTop: rIdx === 0 ? '1px solid #d8e8f5' : 'none', borderBottom: '1px solid #d8e8f5', borderRight: '1px solid #d8e8f5', borderLeft: cIdx === 0 ? '1px solid #d8e8f5' : 'none', verticalAlign: 'middle' }}>
+                                            <td key={cell.id} style={{ backgroundColor: '#fff', padding: '2px 2px', borderTop: rIdx === 0 ? '1px solid #b8cfe0' : 'none', borderBottom: '1px solid #b8cfe0', borderRight: '1px solid #b8cfe0', borderLeft: cIdx === 0 ? '1px solid #b8cfe0' : 'none', verticalAlign: 'middle' }}>
                                                 {isDel ? (
                                                     <div className="flex justify-center items-center">
                                                         <button
@@ -578,10 +609,10 @@ const Customtable = ({
                                                 padding: '5px 5px', fontSize: '11px', fontWeight: '600',
                                                 textAlign: (colId === 'material' || colId === 'container') ? 'left' : 'center',
                                                 whiteSpace: 'nowrap',
-                                                borderTop: '1px solid #d8e8f5',
-                                                borderBottom: '1px solid #d8e8f5',
-                                                borderRight: '1px solid #d8e8f5',
-                                                borderLeft: isFirst ? '1px solid #d8e8f5' : 'none',
+                                                borderTop: '1px solid #b8cfe0',
+                                                borderBottom: '1px solid #b8cfe0',
+                                                borderRight: '1px solid #b8cfe0',
+                                                borderLeft: isFirst ? '1px solid #b8cfe0' : 'none',
                                                 borderRadius: `${isFirst ? '10px' : '0'} ${isLast ? '10px' : '0'} ${isLast ? '10px' : '0'} ${isFirst ? '10px' : '0'}`,
                                             }}>
                                                 {footerVal(header)}

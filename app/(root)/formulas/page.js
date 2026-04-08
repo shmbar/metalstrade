@@ -13,6 +13,8 @@ import Stainless from './tabs/stainless';
 import { Button } from '../../../components/ui/button';
 import { getCur } from '../../../components/exchangeApi';
 import dateFormat from "dateformat";
+import useMetalPrices from '../../../hooks/useMetalPrices';
+import { RefreshCw } from 'lucide-react';
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(' ')
@@ -24,6 +26,7 @@ const Page = () => {
 	const [value, setValue] = useState({})
 	const [focusedField, setFocusedField] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const { prices: metalPrices, loading: metalLoading, refresh: refreshMetal } = useMetalPrices();
 
 	useEffect(() => {
 		const loadData = async () => {
@@ -61,6 +64,19 @@ const Page = () => {
 		}
 		loadData()
 	}, [uidCollection])
+
+	// Auto-fill Ni LME from live metals price
+	useEffect(() => {
+		if (!loading && metalPrices?.['LME-NI']?.price != null) {
+			setValue(prev => ({
+				...prev,
+				general: {
+					...prev.general,
+					nilme: String(Math.round(metalPrices['LME-NI'].price)),
+				}
+			}));
+		}
+	}, [metalPrices, loading]);
 
 	const handleChange = (e, type) => {
 		const { name, value: inputValue } = e.target;
@@ -136,7 +152,12 @@ const Page = () => {
 										<div className='bg-[var(--selago)] rounded-xl p-2 mb-2 w-fit'>
 											<div className='flex flex-wrap items-end gap-1.5'>
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Ni LME</span>
+													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium flex items-center justify-center gap-1'>
+														Ni LME
+														<button onClick={refreshMetal} title="Refresh live price" className="hover:text-[var(--chathams-blue)] transition-colors">
+															<RefreshCw className={`w-3 h-3 ${metalLoading ? 'animate-spin' : ''}`} />
+														</button>
+													</span>
 													<input
 														type='text'
 														className='px-2 py-0.5 text-xs font-semibold text-[#F44336] text-center bg-white focus:outline-none w-full'
