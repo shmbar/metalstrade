@@ -68,6 +68,7 @@ const Customtable = ({
     containerLabel = 'Container', setContainerLabel = () => {},
     tableName = '', setTableName = () => {},
     showCosts = false, costLabel = 'Price', setCostLabel = () => {}, toggleCosts = () => {},
+    niPercent = 100, setNiPercent = () => {},
     setUnit = () => {}, addElement = () => {}, removeElement = () => {},
     reorderElements = () => {}, setPrice = () => {},
     setContainerNo = () => {}, toggleContainer = () => {},
@@ -92,16 +93,18 @@ const Customtable = ({
         [elements, prices]
     )
 
+    const niMult = (niPercent || 100) / 100
+
     // Inject Cost PMT + Cost Total columns before 'del' when prices exist AND showCosts is on
     const enhancedColumns = useMemo(() => {
         if (!columns.length || !hasPrices || !showCosts) return columns
         const delIdx = columns.findIndex(c => c.accessorKey === 'del')
-
         const costPmtCol = {
             id: 'costPmt', header: 'Cost PMT', enableSorting: true,
             accessorFn: (row) => elements.reduce((sum, el) => {
                 if (el.key === 'fe') return sum
-                return sum + ((parseFloat(row[el.key]) || 0) / 100) * (parseFloat(prices[el.key]) || 0)
+                const mult = el.key === 'ni' ? niMult : 1
+                return sum + ((parseFloat(row[el.key]) || 0) / 100) * (parseFloat(prices[el.key]) || 0) * mult
             }, 0),
             cell: (props) => {
                 const v = props.getValue()
@@ -117,7 +120,8 @@ const Customtable = ({
                 const wMT = (parseFloat(row.kgs) || 0) * (UNIT_TO_MT[unit] || 0.001)
                 const cPmt = elements.reduce((sum, el) => {
                     if (el.key === 'fe') return sum
-                    return sum + ((parseFloat(row[el.key]) || 0) / 100) * (parseFloat(prices[el.key]) || 0)
+                    const mult = el.key === 'ni' ? niMult : 1
+                    return sum + ((parseFloat(row[el.key]) || 0) / 100) * (parseFloat(prices[el.key]) || 0) * mult
                 }, 0)
                 return cPmt * wMT
             },
@@ -211,7 +215,8 @@ const Customtable = ({
                 const kgs = parseFloat(r.getValue('kgs')) || 0
                 const cPmt = elements.reduce((sum, el) => {
                     if (el.key === 'fe') return sum
-                    return sum + ((parseFloat(r.getValue(el.key)) || 0) / 100) * (parseFloat(prices[el.key]) || 0)
+                    const mult = el.key === 'ni' ? niMult : 1
+                    return sum + ((parseFloat(r.getValue(el.key)) || 0) / 100) * (parseFloat(prices[el.key]) || 0) * mult
                 }, 0)
                 return s + cPmt * kgs
             }, 0) / totalW
@@ -223,7 +228,8 @@ const Customtable = ({
                 const wMT = (parseFloat(r.getValue('kgs')) || 0) * (UNIT_TO_MT[unit] || 0.001)
                 const cPmt = elements.reduce((sum, el) => {
                     if (el.key === 'fe') return sum
-                    return sum + ((parseFloat(r.getValue(el.key)) || 0) / 100) * (parseFloat(prices[el.key]) || 0)
+                    const mult = el.key === 'ni' ? niMult : 1
+                    return sum + ((parseFloat(r.getValue(el.key)) || 0) / 100) * (parseFloat(prices[el.key]) || 0) * mult
                 }, 0)
                 return s + cPmt * wMT
             }, 0)
@@ -421,7 +427,7 @@ const Customtable = ({
                                     border: `1px solid ${isNi ? '#93c5fd' : '#d8e8f5'}`,
                                     borderRadius: '8px', padding: '2px 6px', minWidth: '68px',
                                 }}>
-                                    <span style={{ fontSize: '10px', color: 'var(--chathams-blue)', fontWeight: '600', minWidth: '16px' }}>
+                                    <span style={{ fontSize: '11px', color: 'var(--chathams-blue)', fontWeight: '700', minWidth: '16px' }}>
                                         {el.label}
                                     </span>
                                     <input
@@ -432,13 +438,30 @@ const Customtable = ({
                                         placeholder="0"
                                         inputMode="decimal"
                                         style={{
-                                            fontSize: '10px', width: '50px', textAlign: 'right',
+                                            fontSize: '11px', fontWeight: '600', width: '50px', textAlign: 'right',
                                             background: 'transparent', border: 'none', outline: 'none',
                                             color: isNi ? '#0366ae' : '#374151',
                                             fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
                                         }}
                                     />
-                                    {isNi && <span style={{ fontSize: '7px', color: '#93c5fd', fontWeight: '600' }}>LME</span>}
+                                    {isNi && (
+                                        <>
+                                            <span style={{ fontSize: '7px', color: '#93c5fd', fontWeight: '600' }}>LME</span>
+                                            <span style={{ fontSize: '9px', color: '#94a3b8', margin: '0 2px' }}>×</span>
+                                            <input
+                                                value={niPercent}
+                                                onChange={e => setNiPercent(e.target.value)}
+                                                inputMode="decimal"
+                                                style={{
+                                                    fontSize: '11px', fontWeight: '600', width: '28px', textAlign: 'center',
+                                                    background: 'transparent', border: 'none', outline: 'none',
+                                                    color: '#0366ae',
+                                                    fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+                                                }}
+                                            />
+                                            <span style={{ fontSize: '9px', color: '#0366ae', fontWeight: '600' }}>%</span>
+                                        </>
+                                    )}
                                 </div>
                             )
                         })}

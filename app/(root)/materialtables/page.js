@@ -115,6 +115,7 @@ const MaterialTables = () => {
                 containerLabel: t.containerLabel || 'Container',
                 showCosts: t.showCosts || false,
                 costLabel: t.costLabel || 'Price',
+                niPercent: t.niPercent != null ? t.niPercent : 100,
             }))
             setData(normalized)
             setLoading(false)
@@ -128,7 +129,7 @@ const MaterialTables = () => {
             elements: [...DEFAULT_ELEMENTS],
             prices: nilmePrice ? { ni: nilmePrice } : {},
             containerNo: '', showContainer: false, containerLabel: 'Container',
-            showCosts: false, costLabel: 'Price', data: [],
+            showCosts: false, costLabel: 'Price', niPercent: 100, data: [],
         }])
     }
 
@@ -228,6 +229,11 @@ const MaterialTables = () => {
 
     const setCostLabel = (tableId, costLabel) => {
         setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, costLabel }))
+    }
+
+    const setNiPercent = (tableId, niPercent) => {
+        const v = Math.min(100, Math.max(0, parseFloat(niPercent) || 0))
+        setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, niPercent: v }))
     }
 
     const toggleCosts = (tableId) => {
@@ -374,6 +380,8 @@ const MaterialTables = () => {
                                             costLabel={table.costLabel || 'Price'}
                                             setCostLabel={(v) => setCostLabel(table.id, v)}
                                             toggleCosts={() => toggleCosts(table.id)}
+                                            niPercent={table.niPercent != null ? table.niPercent : 100}
+                                            setNiPercent={(v) => setNiPercent(table.id, v)}
                                             setUnit={(u) => setUnit(table.id, u)}
                                             addElement={(k, l) => addElement(table.id, k, l)}
                                             removeElement={(k) => removeElement(table.id, k)}
