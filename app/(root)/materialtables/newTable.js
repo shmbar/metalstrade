@@ -107,7 +107,7 @@ const Customtable = ({
                 const v = props.getValue()
                 if (!v) return <p></p>
                 return <p style={{ color: '#003366', fontSize: '10px' }}>
-                    {new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)}
+                    ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)}
                 </p>
             },
         }
@@ -125,7 +125,7 @@ const Customtable = ({
                 const v = props.getValue()
                 if (!v) return <p></p>
                 return <p style={{ color: '#003366', fontWeight: '600', fontSize: '10px' }}>
-                    {new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)}
+                    ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)}
                 </p>
             },
         }
@@ -215,7 +215,7 @@ const Customtable = ({
                 }, 0)
                 return s + cPmt * kgs
             }, 0) / totalW
-            return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(wAvg)
+            return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(wAvg)
         }
         if (colId === 'costTotal') {
             if (!hasPrices) return ''
@@ -227,7 +227,7 @@ const Customtable = ({
                 }, 0)
                 return s + cPmt * wMT
             }, 0)
-            return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tot)
+            return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tot)
         }
         const wSum = rows.reduce((s, r) => {
             const kgs = parseFloat(r.getValue('kgs')) || 0
@@ -266,7 +266,7 @@ const Customtable = ({
         fontSize: '10px', padding: '1px 8px', height: '22px', borderRadius: '99px',
         border: `1px solid ${active ? 'var(--endeavour)' : '#b8cfe0'}`,
         background: active ? '#eef6ff' : 'transparent',
-        color: active ? 'var(--endeavour)' : '#3d6882',
+        color: active ? 'var(--endeavour)' : '#2d5270',
         cursor: 'pointer',
         fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
     })
@@ -308,7 +308,7 @@ const Customtable = ({
                     <div className="flex flex-wrap items-center gap-2 px-3 pb-2">
                         {/* Unit toggle */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '10px', color: '#3d6882' }}>Unit:</span>
+                            <span style={{ fontSize: '10px', color: '#2d5270' }}>Unit:</span>
                             {['mt', 'kgs', 'lbs'].map(u => (
                                 <button key={u} onClick={() => setUnit(u)} style={unitBtn(u)}>{UNIT_LABELS[u]}</button>
                             ))}
@@ -337,7 +337,7 @@ const Customtable = ({
                         </button>
                         {/* Shipment container reference */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '10px', color: '#3d6882' }} title="Shipment container reference number (e.g. TCKU1234567)">Shipment #:</span>
+                            <span style={{ fontSize: '10px', color: '#2d5270' }} title="Shipment container reference number (e.g. TCKU1234567)">Shipment #:</span>
                             <input
                                 value={containerNo}
                                 onChange={e => setContainerNo(e.target.value)}
@@ -410,7 +410,7 @@ const Customtable = ({
             {elements.length > 0 && (
                 <div style={{ background: '#f0f7ff', borderBottom: '1px solid #d8e8f5', padding: '5px 10px' }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
-                        <span style={{ fontSize: '9px', color: '#3d6882', minWidth: '32px' }}>$/MT:</span>
+                        <span style={{ fontSize: '9px', color: '#2d5270', minWidth: '32px' }}>$/MT:</span>
                         {elements.filter(el => el.key !== 'fe').map(el => {
                             const isNi = el.key === 'ni'
                             const focused = focusedPrice === el.key
@@ -490,7 +490,7 @@ const Customtable = ({
                                                                         placeholder="Al"
                                                                         style={{ fontSize: '10px', width: '26px', textAlign: 'center', background: 'transparent', border: 'none', outline: 'none', borderBottom: '1px solid #d8e8f5', fontFamily: "var(--font-poppins),'Plus Jakarta Sans',sans-serif" }}
                                                                     />
-                                                                    <button onClick={() => { setAddElemInput(''); setShowAddElem(false) }} style={{ fontSize: '10px', color: '#3d6882', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
+                                                                    <button onClick={() => { setAddElemInput(''); setShowAddElem(false) }} style={{ fontSize: '10px', color: '#2d5270', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
                                                                 </div>
                                                             ) : (
                                                                 <button onClick={() => setShowAddElem(true)} title="Add custom element column" style={{ fontSize: '14px', fontWeight: '700', color: '#c4d4e4', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>+</button>
