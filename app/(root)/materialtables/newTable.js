@@ -411,7 +411,7 @@ const Customtable = ({
                                     position: 'absolute', top: '26px', left: 0, zIndex: 60,
                                     background: '#fff', border: '1px solid #b8ddf8',
                                     borderRadius: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
-                                    padding: '10px 14px', minWidth: '240px',
+                                    padding: '10px 14px', minWidth: '340px',
                                     fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
                                 }}>
                                     <p className="responsiveTextTable" style={{ fontWeight: '700', color: 'var(--chathams-blue)', marginBottom: '6px' }}>How to use this table</p>
