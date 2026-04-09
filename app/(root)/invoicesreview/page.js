@@ -492,7 +492,7 @@ const Shipments = () => {
 
   const truncInv = (inv) => {
     const s = String(inv || '');
-    return s.length > 14 ? s.slice(0, 14) + '\u2026' : s;
+    return s.length > 22 ? s.slice(0, 22) + '\u2026' : s;
   };
 
   const getFormatted = (arr) => {  //convert id's to values
