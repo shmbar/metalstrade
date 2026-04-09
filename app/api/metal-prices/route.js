@@ -19,9 +19,14 @@ const METAL_META = {
 }
 
 // Simple in-memory cache — 30 min TTL
-let _cache = null
+let _cache   = null
 let _cacheAt = 0
 const CACHE_MS = 30 * 60 * 1000
+
+function dateStr(offsetDays = 0) {
+    const d = new Date(Date.now() + offsetDays * 86400000)
+    return d.toISOString().split('T')[0]
+}
 
 export async function GET() {
     try {
@@ -30,6 +35,7 @@ export async function GET() {
             return NextResponse.json(_cache)
         }
 
+        // ── 1. Fetch current prices ────────────────────────────────────────────
         const url = `https://metals-api.com/api/latest?access_key=${API_KEY}&base=USD&symbols=${SYMBOLS}`
         const res = await fetch(url, { cache: 'no-store' })
         if (!res.ok) throw new Error(`metals-api HTTP ${res.status}`)
@@ -38,18 +44,39 @@ export async function GET() {
         if (!json.success) throw new Error(json.error?.info || 'metals-api returned success:false')
 
         const rates = json.rates || {}
+
+        // ── 2. Fetch 24-hour fluctuation (best-effort, non-fatal) ─────────────
+        let fluctRates = {}
+        try {
+            const yesterday = dateStr(-1)
+            const today     = dateStr(0)
+            const fluctUrl  = `https://metals-api.com/api/fluctuation?access_key=${API_KEY}&base=USD&symbols=${SYMBOLS}&start_date=${yesterday}&end_date=${today}`
+            const fluctRes  = await fetch(fluctUrl, { cache: 'no-store' })
+            if (fluctRes.ok) {
+                const fluctJson = await fluctRes.json()
+                if (fluctJson.success && fluctJson.fluctuation) fluctRates = fluctJson.rates || {}
+            }
+        } catch (_) { /* no change data — not fatal */ }
+
+        // ── 3. Build prices ────────────────────────────────────────────────────
         const prices = {}
 
         Object.entries(METAL_META).forEach(([sym, meta]) => {
-            // USD-prefixed key already has the 1/rate value: USD per troy oz
             const usdRate = rates[`USD${sym}`] ?? (rates[sym] ? 1 / rates[sym] : null)
             if (!usdRate) return
             const divisor = meta.divisor ?? 1
-            prices[sym] = {
-                ...meta,
-                unit: 'USD/MT',
-                price: Math.round(usdRate * TROY_OZ_PER_MT / divisor * 100) / 100,
+            const price   = Math.round(usdRate * TROY_OZ_PER_MT / divisor * 100) / 100
+
+            // 24h change from fluctuation endpoint
+            let change = null, change_pct = null
+            const f = fluctRates[sym]
+            if (f && f.start_rate && f.start_rate !== 0) {
+                const startPrice = Math.round((1 / f.start_rate) * TROY_OZ_PER_MT / divisor * 100) / 100
+                change     = Math.round((price - startPrice) * 100) / 100
+                change_pct = Math.round(f.change_pct * 100) / 100
             }
+
+            prices[sym] = { ...meta, unit: 'USD/MT', price, change, change_pct }
         })
 
         const result = {
@@ -59,13 +86,12 @@ export async function GET() {
             fetchedAt: new Date().toISOString(),
         }
 
-        _cache = result
+        _cache   = result
         _cacheAt = now
 
         return NextResponse.json(result)
     } catch (err) {
         console.error('[metal-prices]', err.message)
-        // Return cached data on error rather than failing completely
         if (_cache) return NextResponse.json({ ..._cache, stale: true })
         return NextResponse.json({ error: err.message }, { status: 500 })
     }

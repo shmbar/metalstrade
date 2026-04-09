@@ -73,6 +73,8 @@ export default function MarketsTicker({ className = '' }) {
                 icon: HiCube,
                 label: `${m.name} (${m.unit || 'USD/MT'})`,
                 value: metals.formatPrice(m.price),
+                change: m.change,
+                change_pct: m.change_pct,
             }));
     }, [metals.prices, metals.formatPrice]);
 

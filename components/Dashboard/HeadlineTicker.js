@@ -235,6 +235,15 @@ export default function HeadlineTicker({
                     <span className={['text-xs font-semibold', theme.itemLabel].join(' ')}>{it.label}</span>
                     <span className="mx-6 w-px h-4 bg-slate-200" />
                     <span className={['text-xs font-bold', theme.itemValue].join(' ')}>{it.value}</span>
+                    {it.change != null && (
+                      <span style={{
+                        fontSize: '10px', fontWeight: 600, marginLeft: 5,
+                        color: it.change >= 0 ? '#16a34a' : '#dc2626',
+                      }}>
+                        {it.change >= 0 ? '+' : ''}{it.change.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {it.change_pct != null ? ` (${it.change_pct >= 0 ? '+' : ''}${it.change_pct.toFixed(2)}%)` : ''}
+                      </span>
+                    )}
                     {it.subValue ? <span className={['text-xs ml-1', theme.itemSub].join(' ')}>{it.subValue}</span> : null}
                   </div>
                   {it.subValue ? <span className={['w-1.5 h-1.5 rounded-full ml-1', theme.tickerDot].join(' ')} /> : null}
