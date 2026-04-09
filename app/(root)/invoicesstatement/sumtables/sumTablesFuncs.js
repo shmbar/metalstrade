@@ -123,7 +123,7 @@ export const sumClients = (dt) => {
 
 export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
     const containerStyle = {
-        fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+        fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
         background: '#fff',
         borderRadius: '16px',
         overflow: 'hidden',
@@ -143,7 +143,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
         padding: '6px 10px',
         color: 'var(--chathams-blue)',
         fontWeight: 600,
-        fontSize: '11px',
+        fontSize: '0.72rem',
         border: '1px solid #b8ddf8',
         background: '#dbeeff',
         whiteSpace: 'nowrap',
@@ -152,7 +152,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
         textAlign: 'center',
         padding: '5px 10px',
         border: '1px solid #e8f0f8',
-        fontSize: '11px',
+        fontSize: '0.72rem',
         color: 'var(--chathams-blue)',
         whiteSpace: 'nowrap',
         fontWeight: 400,
@@ -169,7 +169,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
 
         return (
             <div style={containerStyle}>
-                <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 600, fontSize: '12px', color: 'var(--endeavour)', borderBottom: '1px solid #b8ddf8', letterSpacing: '0.03em' }}>
+                <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 600, fontSize: '0.75rem', color: 'var(--endeavour)', borderBottom: '1px solid #b8ddf8', letterSpacing: '0.03em' }}>
                     Supplier Details
                 </div>
                 <table style={tableStyle}>
@@ -237,7 +237,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
 
         return (
             <div style={containerStyle}>
-                <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 600, fontSize: '12px', color: 'var(--endeavour)', borderBottom: '1px solid #b8ddf8', letterSpacing: '0.03em' }}>
+                <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 600, fontSize: '0.75rem', color: 'var(--endeavour)', borderBottom: '1px solid #b8ddf8', letterSpacing: '0.03em' }}>
                     Client Details
                 </div>
                 <table style={tableStyle}>

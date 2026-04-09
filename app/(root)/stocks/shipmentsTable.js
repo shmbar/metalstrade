@@ -159,7 +159,7 @@ const Customtable = ({ data, item }) => {
 	return (
 		<div className='mx-4 mb-4 rounded-2xl overflow-hidden border border-[#b8ddf8]' style={{ boxShadow: '0 2px 12px rgba(3,102,174,0.08)' }}>
 			<div className="w-full overflow-x-auto">
-				<table className="w-full" style={{ borderCollapse: 'collapse', fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif", fontSize: '11px' }}>
+				<table className="w-full" style={{ borderCollapse: 'collapse', fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif", fontSize: '0.72rem' }}>
 					<thead>
 						<tr>
 							{cols.map((x, k) => (
@@ -167,7 +167,7 @@ const Customtable = ({ data, item }) => {
 									background: '#dbeeff',
 									color: 'var(--chathams-blue)',
 									fontWeight: 600,
-									fontSize: '11px',
+									fontSize: '0.72rem',
 									textAlign: 'center',
 									padding: '7px 10px',
 									border: '1px solid #b8ddf8',
@@ -188,7 +188,7 @@ const Customtable = ({ data, item }) => {
 									<td key={x.field} style={{
 										padding: '5px 10px',
 										border: '1px solid #e8f0f8',
-										fontSize: '11px',
+										fontSize: '0.72rem',
 										color: 'var(--chathams-blue)',
 										textAlign: 'center',
 										whiteSpace: x.field === 'description' || x.field === 'supplier' ? 'normal' : 'nowrap',

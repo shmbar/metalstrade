@@ -26,7 +26,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
       bg-[#f8fbff]
       rounded-lg
       px-2
-      text-[11px]
+      text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
       text-[#1F2937]
       border border-[#d8e8f5]
       focus:border-[var(--endeavour)]
@@ -37,11 +37,11 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
       [&>span]:flex-1
       [&>span]:text-center
     "
-    style={{ minHeight: '26px', fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif" }}
+    style={{ minHeight: '26px', fontFamily: "var(--font-poppins), 'Geist', sans-serif" }}
   >
     <SelectValue
       placeholder={plHolder}
-      className="text-[11px]"
+      className="text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]"
     />
   </SelectTrigger>
 
@@ -51,7 +51,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
         <SelectItem
           value={z.id}
           key={i}
-          className="text-[11px] px-3 py-1.5 hover:bg-blue-50 focus:bg-blue-100 cursor-pointer"
+          className="text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem] px-3 py-1.5 hover:bg-blue-50 focus:bg-blue-100 cursor-pointer"
         >
           {z.nname}
         </SelectItem>

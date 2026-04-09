@@ -560,7 +560,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
 
           {/* Header Section */}
           <div className='flex items-center justify-between flex-wrap gap-2 pb-3'>
-            <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
+            <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
               {getTtl('Accounting', ln)}
             </h1>
           </div>
@@ -601,10 +601,10 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
     }}
   >
     <FaWallet style={{ color: '#2563EB', fontSize: '17px', flexShrink: 0 }} />
-    <span style={{ color: '#2563EB', fontWeight: 500, fontSize: '14px' }}>
+    <span className="responsiveText" style={{ color: '#2563EB', fontWeight: 500 }}>
       {formatCurrency(totals.balance)}
     </span>
-    <span style={{ color: '#2563EB', fontSize: '12px', fontWeight: 400 }}>
+    <span className="responsiveTextTable" style={{ color: '#2563EB', fontWeight: 400 }}>
       My Balance
     </span>
   </div>
@@ -628,10 +628,10 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
     }}
   >
     <FaArrowTrendUp style={{ color: '#6366F1', fontSize: '17px', flexShrink: 0 }} />
-    <span style={{ color: '#6366F1', fontWeight: 500, fontSize: '14px' }}>
+    <span className="responsiveText" style={{ color: '#6366F1', fontWeight: 500 }}>
       {formatCurrency(totals.totalIncome)}
     </span>
-    <span style={{ color: '#6366F1', fontSize: '12px', fontWeight: 400 }}>
+    <span className="responsiveTextTable" style={{ color: '#6366F1', fontWeight: 400 }}>
       Income
     </span>
   </div>
@@ -655,10 +655,10 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
     }}
   >
     <FaArrowTrendDown style={{ color: '#EF4444', fontSize: '17px', flexShrink: 0 }} />
-    <span style={{ color: '#EF4444', fontWeight: 500, fontSize: '14px' }}>
+    <span className="responsiveText" style={{ color: '#EF4444', fontWeight: 500 }}>
       {formatCurrency(totals.totalExpense)}
     </span>
-    <span style={{ color: '#EF4444', fontSize: '12px', fontWeight: 400 }}>
+    <span className="responsiveTextTable" style={{ color: '#EF4444', fontWeight: 400 }}>
       Expense
     </span>
   </div>
@@ -682,10 +682,10 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
     }}
   >
     <FaPiggyBank style={{ color: '#10B981', fontSize: '17px', flexShrink: 0 }} />
-    <span style={{ color: '#10B981', fontWeight: 500, fontSize: '14px' }}>
+    <span className="responsiveText" style={{ color: '#10B981', fontWeight: 500 }}>
       {formatCurrency(totals.savings)}
     </span>
-    <span style={{ color: '#10B981', fontSize: '12px', fontWeight: 400 }}>
+    <span className="responsiveTextTable" style={{ color: '#10B981', fontWeight: 400 }}>
       Savings
     </span>
   </div>
@@ -709,22 +709,22 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
                   <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 bg-[var(--selago)] rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-[var(--endeavour)] text-xs font-medium font-poppins">
+                        <span className="text-[var(--endeavour)] responsiveText font-medium font-poppins">
                           {(gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'N').charAt(0).toUpperCase()}
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-medium font-poppins text-[var(--chathams-blue)] truncate">
+                        <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] truncate">
                           {gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'Transaction'}
                         </p>
-                        <p className="text-[10px] text-[var(--regent-gray)] font-poppins">
+                        <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">
                           {item.dateExp ? dateFormat(item.dateExp, 'dd mmm yyyy') : item.dateInv ? dateFormat(item.dateInv, 'dd mmm yyyy') : ''}
                         </p>
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0 ml-2">
-                      <p className="text-[10px] text-[var(--regent-gray)] font-poppins">{item.expType || item.invType || ''}</p>
-                      <p className={`text-xs font-medium font-poppins ${item.amountInv ? 'text-emerald-500' : 'text-red-500'}`}>
+                      <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">{item.expType || item.invType || ''}</p>
+                      <p className={`responsiveText font-medium font-poppins ${item.amountInv ? 'text-emerald-500' : 'text-red-500'}`}>
                         {item.amountInv ? '+' : '-'}{formatCurrency(item.amountInv || item.amountExp || 0)}
                       </p>
                     </div>
@@ -741,21 +741,21 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
                   <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       <div className="w-7 h-7 bg-[var(--rock-blue)]/20 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-[var(--chathams-blue)] text-xs font-medium font-poppins">
+                        <span className="text-[var(--chathams-blue)] responsiveText font-medium font-poppins">
                           {(item.clientInvName || item.clientInv || 'C').charAt(0).toUpperCase()}
                         </span>
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[10px] text-[var(--regent-gray)] font-poppins">{item.saleInvoice || 'Invoice'}</p>
-                        <p className="text-xs font-medium font-poppins text-[var(--chathams-blue)] truncate">{item.clientInvName || item.clientInv || 'Client'}</p>
-                        <p className="text-[10px] text-[var(--regent-gray)] font-poppins">
+                        <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">{item.saleInvoice || 'Invoice'}</p>
+                        <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] truncate">{item.clientInvName || item.clientInv || 'Client'}</p>
+                        <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">
                           {item.dateInv ? dateFormat(item.dateInv, 'dd mmm yyyy') : ''}
                         </p>
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0 ml-2">
-                      <p className="text-xs font-medium font-poppins text-[var(--chathams-blue)] mb-0.5">{formatCurrency(item.amountInv || 0)}</p>
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium font-poppins ${
+                      <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-0.5">{formatCurrency(item.amountInv || 0)}</p>
+                      <span className={`inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-poppins ${
                         idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'
                       }`}>
                         {idx % 2 === 0 ? 'Paid' : 'Pending'}
@@ -774,11 +774,11 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                 <div className="min-w-0">
                   <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)]">Debit & Credit Overview</h3>
-                  <p className="text-xs text-[var(--regent-gray)] truncate">
+                  <p className="responsiveText text-[var(--regent-gray)] truncate">
                     {formatCurrency(totals.totalExpense)} Debited & {formatCurrency(totals.totalIncome)} Credited
                   </p>
                 </div>
-                <div className="flex items-center gap-4 text-xs flex-shrink-0">
+                <div className="flex items-center gap-4 responsiveText flex-shrink-0">
                   <div className="flex items-center gap-1.5">
                     <span className="w-3 h-3 rounded-full bg-[var(--chathams-blue)]"></span>
                     <span className="text-[var(--regent-gray)]">Debit</span>
@@ -798,21 +798,21 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
               <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)] mb-4">Financial Summary</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
-                  <p className="text-[var(--port-gore)] text-xs mb-1">Total Transactions</p>
+                  <p className="text-[var(--port-gore)] responsiveText mb-1">Total Transactions</p>
                   <p className="text-xl font-medium text-[var(--chathams-blue)]">{invoicesAccData.length}</p>
                 </div>
                 <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
-                  <p className="text-[var(--port-gore)] text-xs mb-1">Avg. Transaction</p>
+                  <p className="text-[var(--port-gore)] responsiveText mb-1">Avg. Transaction</p>
                   <p className="text-xl font-medium text-[var(--chathams-blue)] truncate">
                     {formatCurrency(invoicesAccData.length > 0 ? (totals.totalIncome + totals.totalExpense) / invoicesAccData.length : 0)}
                   </p>
                 </div>
                 <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
-                  <p className="text-[var(--port-gore)] text-xs mb-1">Net Profit</p>
+                  <p className="text-[var(--port-gore)] responsiveText mb-1">Net Profit</p>
                   <p className="text-xl font-medium text-[var(--chathams-blue)] truncate">{formatCurrency(totals.balance)}</p>
                 </div>
                 <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
-                  <p className="text-[var(--port-gore)] text-xs mb-1">Profit Margin</p>
+                  <p className="text-[var(--port-gore)] responsiveText mb-1">Profit Margin</p>
                   <p className="text-xl font-medium text-[var(--chathams-blue)]">
                     {formatPercent(totals.totalIncome > 0 ? (totals.balance / totals.totalIncome) * 100 : 0)}
                   </p>

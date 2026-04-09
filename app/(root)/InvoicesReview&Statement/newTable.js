@@ -288,7 +288,7 @@ const Customtable = ({
                                                     borderRadius: 0,
                               letterSpacing: '0.02em',
                               textAlign: 'center',
-                              fontSize: '11px',
+                              fontSize: '0.72rem',
                             }}
                           >
                             {(header.column.columnDef.ttlUS ?? header.column.columnDef.ttlEU ?? header.column.columnDef.ttl) || ''}

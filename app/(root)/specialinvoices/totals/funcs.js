@@ -8,8 +8,8 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
         expensesData.filter(z => (z.paidNotPaid === 'Not Paid' && z.supplier === row.original.supplier && z.cur === row.original.cur)) :
         expensesData.filter(z => (z.supplier === row.original.supplier && z.cur === row.original.cur))
 
-    const thStyle = { textAlign: 'center', padding: '6px 10px', color: 'var(--chathams-blue)', fontWeight: 600, fontSize: '11px', border: '1px solid #b8ddf8', background: '#dbeeff', whiteSpace: 'nowrap' }
-    const tdStyle = { textAlign: 'center', padding: '5px 10px', border: '1px solid #e8f0f8', fontSize: '11px', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }
+    const thStyle = { textAlign: 'center', padding: '6px 10px', color: 'var(--chathams-blue)', fontWeight: 600, fontSize: '0.72rem', border: '1px solid #b8ddf8', background: '#dbeeff', whiteSpace: 'nowrap' }
+    const tdStyle = { textAlign: 'center', padding: '5px 10px', border: '1px solid #e8f0f8', fontSize: '0.72rem', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }
 
     return (
         <div style={{
@@ -18,13 +18,13 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
             overflow: 'hidden',
             boxShadow: '0 8px 32px rgba(3,102,174,0.13)',
             border: '1px solid #b8ddf8',
-            fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+            fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
             minWidth: '400px',
         }}>
-            <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 600, fontSize: '12px', color: 'var(--endeavour)', borderBottom: '1px solid #b8ddf8', letterSpacing: '0.03em' }}>
+            <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 600, fontSize: '0.75rem', color: 'var(--endeavour)', borderBottom: '1px solid #b8ddf8', letterSpacing: '0.03em' }}>
                 Invoice Details
             </div>
-            <table style={{ fontFamily: 'inherit', fontSize: '11px', width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>
+            <table style={{ fontFamily: 'inherit', fontSize: '0.72rem', width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>
                 <thead>
                     <tr>
                         <th style={thStyle}>PO#</th>

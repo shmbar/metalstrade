@@ -1,15 +1,8 @@
 import './globals.css';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import { GeistSans } from 'geist/font/sans';
 import Provider from './providers'
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GlobalSearchProvider } from '../contexts/useGlobalSearchContext';
-
-
-const poppins = Plus_Jakarta_Sans({
-	weight: ['300', '400', '500', '600', '700'],
-	subsets: ['latin'],
-	variable: '--font-poppins',
-});
 
 
 export const metadata = {
@@ -22,7 +15,7 @@ export default function RootLayout({ children }) {
 
 	return (
 		<html lang="en">
-			<body className={`${poppins.variable} ${poppins.className}`}>
+			<body className={GeistSans.className} style={{ '--font-poppins': GeistSans.style.fontFamily }}>
 				<Provider>
 					<GlobalSearchProvider>
 						<div>{children}</div>

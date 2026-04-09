@@ -34,7 +34,7 @@ export const Input = ({ props, handleChange, month, name, styles, addCur }) => {
         bg-[#f8fbff]
         rounded-lg
         px-2
-        !text-[11px]
+        text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
         !text-[#1F2937]
         border border-[#d8e8f5]
         outline-none
@@ -45,7 +45,7 @@ export const Input = ({ props, handleChange, month, name, styles, addCur }) => {
         transition
         `
       )}
-      style={{ minHeight: '26px', fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif", fontSize: '11px' }}
+      style={{ minHeight: '26px', fontFamily: "var(--font-poppins), 'Geist', sans-serif" }}
     />
   );
 };

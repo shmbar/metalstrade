@@ -482,7 +482,7 @@ const Contracts = () => {
 					<VideoLoader loading={loading} fullScreen={true} />
 					<div className="border border-[#b8ddf8] rounded-xl p-4 mt-8  bg-white relative">
 						<div className='flex items-center justify-between flex-wrap pb-2'>
-							<h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Contracts Statement', ln)}</h1>
+							<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Contracts Statement', ln)}</h1>
 							<div className='flex group'>
 								<DateRangePicker />
 								<Tooltip txt='Select Dates Range' />

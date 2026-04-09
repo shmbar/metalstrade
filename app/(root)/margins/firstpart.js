@@ -13,7 +13,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={2} 
                 fixedDecimalScale 
-                style={{ fontSize: '11px', fontWeight: '600' }}
+                style={{ fontSize: '0.72rem', fontWeight: '600' }}
             />,
             bgGradient: 'linear-gradient(135deg, #0ea5e9, #0284c7)'
         },
@@ -27,7 +27,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: '11px', fontWeight: '600' }}
+                style={{ fontSize: '0.72rem', fontWeight: '600' }}
             />,
             bgGradient: 'linear-gradient(135deg, #3abef8, #0ea5e9)'
         },
@@ -40,7 +40,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: '11px', fontWeight: '600' }}
+                style={{ fontSize: '0.72rem', fontWeight: '600' }}
             />,
             bgGradient: 'linear-gradient(135deg, #77d1fc, #3abef8)'
         },
@@ -54,7 +54,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'} 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: '11px', fontWeight: '600' }}
+                style={{ fontSize: '0.72rem', fontWeight: '600' }}
             />,
             bgGradient: 'linear-gradient(135deg, #6366f1, #4f46e5)'
         },
@@ -67,7 +67,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative 
                 decimalScale={0} 
                 fixedDecimalScale={false} 
-                style={{ fontSize: '11px', fontWeight: '600' }}
+                style={{ fontSize: '0.72rem', fontWeight: '600' }}
             />,
             bgGradient: 'linear-gradient(135deg, #828df8, #6366f1)'
         },

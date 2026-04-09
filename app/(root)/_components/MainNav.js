@@ -140,11 +140,11 @@ export const MainNav = () => {
                     className='w-full text-left px-4 py-3 hover:bg-[var(--selago)] transition-all rounded-lg'
                   >
                     <div className='text-sm font-semibold text-[var(--port-gore)]'>{r.title}</div>
-                    <div className='text-xs text-gray-500 truncate'>{r.subtitle}</div>
+                    <div className='responsiveText text-gray-500 truncate'>{r.subtitle}</div>
                   </button>
                 ))
               ) : (
-                <div className='text-xs text-gray-400 px-4 py-2'>No results</div>
+                <div className='responsiveText text-gray-400 px-4 py-2'>No results</div>
               )}
             </div>
           )}
@@ -183,7 +183,7 @@ export const MainNav = () => {
         {/* User Role Button and Profile Icon: no gap between */}
         <div className="flex items-center ml-2">
   <span
-    className="inline-flex items-center px-3 py-2 rounded-md bg-[var(--endeavour)] text-white text-xs font-semibold shadow-md"
+    className="inline-flex items-center px-3 py-2 rounded-md bg-[var(--endeavour)] text-white responsiveText font-semibold shadow-md"
     style={{
       minWidth: 60,
       justifyContent: 'center',
@@ -210,7 +210,7 @@ export const MainNav = () => {
           <p className='text-sm font-semibold text-[var(--port-gore)]'>
             {user?.displayName || user?.email?.split('@')[0] || 'User'}
           </p>
-          <p className='text-xs text-gray-500 truncate'>{user?.email || ''}</p>
+          <p className='responsiveText text-gray-500 truncate'>{user?.email || ''}</p>
         </div>
         <div className='py-1'>
           <button

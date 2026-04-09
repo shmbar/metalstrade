@@ -330,7 +330,7 @@ const Customtable = ({
                                                     borderRadius: 0,
                                                     padding: '10px 8px',
                                                     textAlign: 'center',
-                                                    fontSize: '11px',
+                                                    fontSize: '0.72rem',
                                                     letterSpacing: '0.02em',
                                                   }}
                                                 >

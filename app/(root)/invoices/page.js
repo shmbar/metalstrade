@@ -314,7 +314,7 @@ const Invoices = () => {
                     borderRadius: '999px',
                     padding: '3px 14px',
                     fontWeight: 500,
-                    fontSize: '13px',
+                    fontSize: '0.8rem',
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -515,7 +515,7 @@ const Invoices = () => {
 							
 							{/* Header Section */}
 							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-								<h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
+								<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
 									{getTtl('Invoices', ln)}
 								</h1>
 								{/* <div className='flex items-center gap-2 group'>

@@ -199,7 +199,7 @@
 //             <span style={{
 //               position: 'absolute',
 //               left: '14px',
-//               fontSize: '12px',
+//               fontSize: '0.75rem',
 //               fontWeight: '600',
 //               color: 'var(--chathams-blue)',
 //               whiteSpace: 'nowrap',
@@ -213,7 +213,7 @@
 //                 position: 'absolute',
 //                 left: `${cPos.left + cPos.width / 2}px`,
 //                 transform: 'translateX(-50%)',
-//                 fontSize: '11px',
+//                 fontSize: '0.72rem',
 //                 fontWeight: '600',
 //                 color: 'var(--chathams-blue)',
 //                 whiteSpace: 'nowrap',
@@ -228,7 +228,7 @@
 //                 position: 'absolute',
 //                 left: `${aPos.left + aPos.width / 2}px`,
 //                 transform: 'translateX(-50%)',
-//                 fontSize: '11px',
+//                 fontSize: '0.72rem',
 //                 fontWeight: '700',
 //                 color: 'var(--chathams-blue)',
 //                 whiteSpace: 'nowrap',
@@ -349,7 +349,7 @@
 //                       }}
 //                     >
 //                       <div style={{ position: 'relative', width: '100%', height: '34px', display: 'flex', alignItems: 'center' }}>
-//                         <span style={{ position: 'absolute', left: '14px', fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }}>
+//                         <span style={{ position: 'absolute', left: '14px', fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }}>
 //                           Total $:
 //                         </span>
 //                         {colPositions.currency && (
@@ -357,7 +357,7 @@
 //                             position: 'absolute',
 //                             left: `${colPositions.currency.left + colPositions.currency.width / 2}px`,
 //                             transform: 'translateX(-50%)',
-//                             fontSize: '11px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+//                             fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
 //                           }}>
 //                             {summaryUSD.currency}
 //                           </span>
@@ -367,7 +367,7 @@
 //                             position: 'absolute',
 //                             left: `${colPositions.amount.left + colPositions.amount.width / 2}px`,
 //                             transform: 'translateX(-50%)',
-//                             fontSize: '11px', fontWeight: '700', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+//                             fontSize: '0.72rem', fontWeight: '700', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
 //                           }}>
 //                             {summaryUSD.amount}
 //                           </span>
@@ -389,7 +389,7 @@
 //                       }}
 //                     >
 //                       <div style={{ position: 'relative', width: '100%', height: '34px', display: 'flex', alignItems: 'center' }}>
-//                         <span style={{ position: 'absolute', left: '14px', fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }}>
+//                         <span style={{ position: 'absolute', left: '14px', fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }}>
 //                           Total €:
 //                         </span>
 //                         {colPositions.currency && (
@@ -397,7 +397,7 @@
 //                             position: 'absolute',
 //                             left: `${colPositions.currency.left + colPositions.currency.width / 2}px`,
 //                             transform: 'translateX(-50%)',
-//                             fontSize: '11px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+//                             fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
 //                           }}>
 //                             {summaryEUR.currency}
 //                           </span>
@@ -407,7 +407,7 @@
 //                             position: 'absolute',
 //                             left: `${colPositions.amount.left + colPositions.amount.width / 2}px`,
 //                             transform: 'translateX(-50%)',
-//                             fontSize: '11px', fontWeight: '700', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+//                             fontSize: '0.72rem', fontWeight: '700', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
 //                           }}>
 //                             {summaryEUR.amount}
 //                           </span>
@@ -546,15 +546,15 @@
 //             <div className="mb-2">
 //               <div className="flex items-center justify-between px-4 py-2"
 //                 style={{ backgroundColor: '#b7d1b5' }}>
-//                 <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total $:</span>
-//                 <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryUSD.currency}</span>
-//                 <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
+//                 <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total $:</span>
+//                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryUSD.currency}</span>
+//                 <span style={{ fontSize: '0.72rem', fontWeight: '700', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
 //               </div>
 //               <div className="flex items-center justify-between px-4 py-2"
 //                 style={{ backgroundColor: '#8db6d8' }}>
-//                 <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total €:</span>
-//                 <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.currency}</span>
-//                 <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
+//                 <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total €:</span>
+//                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.currency}</span>
+//                 <span style={{ fontSize: '0.72rem', fontWeight: '700', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
 //               </div>
 //             </div>
 
@@ -915,7 +915,7 @@ const Customtable = ({
           left: '14px',
           top: '50%',
           transform: 'translateY(-50%)',
-          fontSize: '12px',
+          fontSize: '0.75rem',
           fontWeight: '600',
           color: 'var(--chathams-blue)',
           whiteSpace: 'nowrap',
@@ -930,7 +930,7 @@ const Customtable = ({
             left: `${amountColCenter}px`,
             top: '50%',
             transform: 'translate(-50%, -50%)',
-            fontSize: '12px',
+            fontSize: '0.75rem',
             fontWeight: '700',
             color: 'var(--chathams-blue)',
             whiteSpace: 'nowrap',
@@ -1051,7 +1051,7 @@ const Customtable = ({
                       <span style={{
                         position: 'absolute', left: '14px', top: '50%',
                         transform: 'translateY(-50%)',
-                        fontSize: '11px', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                        fontSize: '0.72rem', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                       }}>
                         Total $:
                       </span>
@@ -1061,7 +1061,7 @@ const Customtable = ({
                           left: `${currencyColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '11px', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontSize: '0.72rem', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           USD
                         </span>
@@ -1072,7 +1072,7 @@ const Customtable = ({
                           left: `${amountColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '11px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           {summaryUSD.amount}
                         </span>
@@ -1096,7 +1096,7 @@ const Customtable = ({
                       <span style={{
                         position: 'absolute', left: '14px', top: '50%',
                         transform: 'translateY(-50%)',
-                        fontSize: '11px', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                        fontSize: '0.72rem', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                       }}>
                         Total €:
                       </span>
@@ -1106,7 +1106,7 @@ const Customtable = ({
                           left: `${currencyColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '11px', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontSize: '0.72rem', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           EUR
                         </span>
@@ -1117,7 +1117,7 @@ const Customtable = ({
                           left: `${amountColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '11px', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           {summaryEUR.amount}
                         </span>
@@ -1283,15 +1283,15 @@ const Customtable = ({
             <div className="mb-2">
               <div className="flex items-center justify-between px-4 py-2"
                 style={{ backgroundColor: '#b7d1b5' }}>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total $:</span>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)' }}>USD</span>
-                <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total $:</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>USD</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
               </div>
               <div className="flex items-center justify-between px-4 py-2"
                 style={{ backgroundColor: '#8db6d8' }}>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total €:</span>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--chathams-blue)' }}>EUR</span>
-                <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total €:</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>EUR</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
               </div>
             </div>
 

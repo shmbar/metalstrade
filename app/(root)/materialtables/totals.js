@@ -30,7 +30,7 @@ const Customtable = ({ data, columns }) => {
                     tableLayout: 'auto',
                     borderCollapse: 'separate',
                     borderSpacing: 0,
-                    fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+                    fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
                 }}
             >
                 <thead className="hidden" />
@@ -50,7 +50,7 @@ const Customtable = ({ data, columns }) => {
                                             backgroundColor: '#ede9fe',
                                             color: 'var(--chathams-blue)',
                                             padding: '5px 6px',
-                                            fontSize: '11px',
+                                            fontSize: '0.72rem',
                                             fontWeight: '600',
                                             textAlign: cell.column.id === 'material' ? 'left' : 'center',
                                             border: 'none',
@@ -89,7 +89,7 @@ const Customtable = ({ data, columns }) => {
                                         <span style={{ color: '#6B7280', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                             {cell.column.columnDef.header}
                                         </span>
-                                        <span style={{ color: 'var(--chathams-blue)', fontSize: '11px', fontWeight: '600' }}>
+                                        <span style={{ color: 'var(--chathams-blue)', fontSize: '0.72rem', fontWeight: '600' }}>
                                             {cell.column.id !== 'material'
                                                 ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(cell.getContext().getValue())
                                                 : 'Total'}

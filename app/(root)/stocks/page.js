@@ -328,7 +328,7 @@ const Stocks = () => {
             <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
               {/* Header Section */}
               <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-                <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
+                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
                   {getTtl('Stocks', ln)}
                 </h1>
               </div>

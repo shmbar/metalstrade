@@ -218,7 +218,7 @@ const DraggableRow = ({ row, props, cName }) => {
                 decimalScale={currs.includes(cell.column.id) ? 2 : 3}
                 fixedDecimalScale
                 className="w-full bg-transparent border-none outline-none px-1 text-[11px] text-[#1F2937] text-center"
-                style={{ fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif" }}
+                style={{ fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif" }}
               />
             )}
           </TableCell>
@@ -431,8 +431,8 @@ const Customtable = (props) => {
                                                                     prefix={currs.includes(accessorKey) ? '$' : ''}
                                                                     decimalScale={currs.includes(accessorKey) ? 2 : 3}
                                                                     fixedDecimalScale
-                                                                    style={{ 
-                                                                        fontSize: '11px',
+                                                                    style={{
+                                                                        fontSize: '0.72rem',
                                                                         color: 'var(--endeavour)',
                                                                         fontWeight: '600',
                                                                         lineHeight: '1.2'

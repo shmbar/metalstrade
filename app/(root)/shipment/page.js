@@ -46,12 +46,12 @@ function NotesCell({ value, contractId, contractDate, uidCollection, onChange })
     };
 
     return (
-        <div className="px-3 py-1 rounded-xl text-[11px] font-normal" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+        <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
             <textarea
                 value={local}
                 onChange={handleChange}
                 rows={1}
-                className="w-full min-w-[160px] text-[11px] text-gray-700 bg-transparent resize-none focus:outline-none placeholder:text-gray-400"
+                className="w-full min-w-[160px] responsiveTextTable text-gray-700 bg-transparent resize-none focus:outline-none placeholder:text-gray-400"
                 placeholder="Add notes..."
             />
         </div>
@@ -72,7 +72,7 @@ function StatusSelect({ value, onChange }) {
         <div ref={ref} className="relative flex justify-center">
             <button
                 onClick={() => setOpen(p => !p)}
-                className="flex items-center gap-1.5 rounded-xl px-3 py-1 font-medium text-[11px] cursor-pointer focus:outline-none w-full justify-between min-w-[110px]"
+                className="flex items-center gap-1.5 rounded-xl px-3 py-1 font-medium responsiveTextTable cursor-pointer focus:outline-none w-full justify-between min-w-[110px]"
                 style={STATUS_STYLES[value]}
             >
                 <span>{value || '— Select —'}</span>
@@ -84,7 +84,7 @@ function StatusSelect({ value, onChange }) {
                         <div
                             key={s}
                             onClick={() => { onChange(s); setOpen(false); }}
-                            className="px-3 py-1.5 text-[11px] font-medium cursor-pointer mx-1.5 my-1 rounded-lg transition-all"
+                            className="px-3 py-1.5 responsiveTextTable font-medium cursor-pointer mx-1.5 my-1 rounded-lg transition-all"
                             style={{ ...STATUS_STYLES[s], opacity: value === s ? 1 : 0.85 }}
                         >
                             {s || '— Select —'}
@@ -283,7 +283,7 @@ const ShipmentPage = () => {
                 {/* Outer card — title only */}
                 <div className="rounded-2xl p-2 sm:p-3 lg:p-5 mt-4 sm:mt-6 lg:mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
                     <div className="flex items-center justify-between pb-2 flex-wrap gap-2">
-                        <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
+                        <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
                             Shipments Tracking
                         </h1>
                     </div>
@@ -302,7 +302,7 @@ const ShipmentPage = () => {
                             {/* Search */}
                             <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--endeavour)] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
                                 <input
-                                    className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full text-xs rounded-2xl"
+                                    className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full responsiveText rounded-2xl"
                                     placeholder="Search"
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
@@ -353,7 +353,7 @@ const ShipmentPage = () => {
                             {showFilters && <div className="flex items-center gap-1 flex-wrap">
                                 <button
                                     onClick={() => setStatusFilter('')}
-                                    className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]' : 'bg-white text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
+                                    className={`responsiveTextTable font-medium px-2.5 py-0.5 rounded-full border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]' : 'bg-white text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
                                 >
                                     All ({contracts.length})
                                 </button>
@@ -363,7 +363,7 @@ const ShipmentPage = () => {
                                         <button
                                             key={s}
                                             onClick={() => setStatusFilter(prev => prev === s ? '' : s)}
-                                            className="text-[11px] font-medium px-2.5 py-0.5 rounded-full transition-all"
+                                            className="responsiveTextTable font-medium px-2.5 py-0.5 rounded-full transition-all"
                                             style={{ ...STATUS_STYLES[s], opacity: statusFilter === s ? 1 : 0.75, outline: statusFilter === s ? `2px solid ${STATUS_STYLES[s].color}` : 'none', outlineOffset: '1px' }}
                                         >
                                             {s}: {count}
@@ -396,7 +396,7 @@ const ShipmentPage = () => {
                                         { label: 'Status',         width: '10%' },
                                         { label: 'Notes',          width: '37%' },
                                     ].map(({ label, width }) => (
-                                        <th key={label} className="font-poppins text-xs font-medium py-2" style={{ color: 'var(--chathams-blue)', letterSpacing: '0.05em', textAlign: 'center', width }}>{label}</th>
+                                        <th key={label} className="font-poppins responsiveTextTable font-medium py-2" style={{ color: 'var(--chathams-blue)', letterSpacing: '0.05em', textAlign: 'center', width }}>{label}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -415,7 +415,7 @@ const ShipmentPage = () => {
                                         <tr key={contract.id} className="hover-row cursor-pointer transition-colors">
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         <button onClick={() => navigateTo(contract.id)} className="text-[var(--endeavour)] hover:underline">
                                                             {contract.order || '—'}
                                                         </button>
@@ -424,14 +424,14 @@ const ShipmentPage = () => {
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {getSupplierName(contract)}
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {mainInv ? (
                                                             <button onClick={() => navigateTo(contract.id)} className="text-[var(--endeavour)] hover:underline">
                                                                 {mainInv.invoice}
@@ -442,21 +442,21 @@ const ShipmentPage = () => {
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {getClientName(contract.id)}
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {formatDate(contract.date)}
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl text-[11px] font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {formatDate(contract.dateRange?.endDate)}
                                                     </div>
                                                 </div>
@@ -504,12 +504,12 @@ const ShipmentPage = () => {
                                     <div className="px-3 py-2 flex items-center justify-between bg-[#9ad4ff]">
                                         <button
                                             onClick={() => navigateTo(contract.id)}
-                                            className="font-medium text-[var(--endeavour)] text-xs hover:underline"
+                                            className="font-medium text-[var(--endeavour)] responsiveText hover:underline"
                                         >
                                             {contract.order || '—'}
                                         </button>
                                         <span
-                                            className="text-[11px] font-medium px-2.5 py-0.5 rounded-full"
+                                            className="responsiveTextTable font-medium px-2.5 py-0.5 rounded-full"
                                             style={status ? STATUS_STYLES[status] : { backgroundColor: '#f3f4f6', color: '#6b7280', border: '1px solid #d1d5db' }}
                                         >
                                             {status || 'No Status'}
@@ -526,8 +526,8 @@ const ShipmentPage = () => {
                                             { label: 'Arrival Date',   value: formatDate(contract.dateRange?.endDate) },
                                         ].map(({ label, value }) => (
                                             <div key={label} className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid #f0f4f8' }}>
-                                                <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">{label}</span>
-                                                <div className="px-2 py-1 rounded-xl text-[11px] text-gray-700" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+                                                <span className="responsiveTextTable uppercase tracking-wider text-gray-400 font-medium">{label}</span>
+                                                <div className="px-2 py-1 rounded-xl responsiveTextTable text-gray-700" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
                                                     {value || '—'}
                                                 </div>
                                             </div>
@@ -535,7 +535,7 @@ const ShipmentPage = () => {
 
                                         {/* Status */}
                                         <div className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid #f0f4f8' }}>
-                                            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">Status</span>
+                                            <span className="responsiveTextTable uppercase tracking-wider text-gray-400 font-medium">Status</span>
                                             <StatusSelect
                                                 value={status}
                                                 onChange={s => handleStatusChange(contract, s)}
@@ -544,7 +544,7 @@ const ShipmentPage = () => {
 
                                         {/* Notes */}
                                         <div className="flex flex-col space-y-1">
-                                            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">Notes</span>
+                                            <span className="responsiveTextTable uppercase tracking-wider text-gray-400 font-medium">Notes</span>
                                             <NotesCell
                                                 value={contract.shipmentNotes}
                                                 contractId={contract.id}

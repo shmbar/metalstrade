@@ -135,7 +135,7 @@ function StatKpiCard({
                 {icon}
               </span>
             )}
-            <div className="text-white/90 text-[10px] font-medium leading-tight">
+            <div className="text-white/90 responsiveTextTable font-medium leading-tight">
               {title}
             </div>
           </div>
@@ -277,8 +277,8 @@ function DebtSnapshotCard({ totalInvoices, totalContracts, totalExpenses, totalP
               <div className="text-lg font-bold mt-0.5" style={{ color: m.valueColor }}>
                 {m.value}
               </div>
-              <div className="text-[10px] text-gray-500 leading-tight">{m.label}</div>
-              {m.sub && <div className="text-[10px] text-gray-400 leading-tight">{m.sub}</div>}
+              <div className="responsiveTextTable text-gray-500 leading-tight">{m.label}</div>
+              {m.sub && <div className="responsiveTextTable text-gray-400 leading-tight">{m.sub}</div>}
             </motion.div>
           ))}
         </div>
@@ -446,10 +446,10 @@ const Dash = () => {
       {/* HEADER */}
       <motion.div className="mb-5 flex items-center justify-between" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
         <div>
-          <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
+          <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
             {getTtl('Dashboard', ln)}
           </h1>
-          <p className="text-xs text-gray-500 pl-3 mt-0.5">
+          <p className="responsiveText text-gray-500 pl-3 mt-0.5">
             Financial overview and analytics
           </p>
         </div>
@@ -549,10 +549,10 @@ const Dash = () => {
               <div className="flex justify-between mb-1">
                 <div>
                   <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">Contracts - $</h3>
-                  <p className="text-[10px] text-gray-400">Contribution breakdown by contract values</p>
+                  <p className="responsiveTextTable text-gray-400">Contribution breakdown by contract values</p>
                 </div>
                 <div className="text-right">
-                  <div className="text-[10px] text-gray-400">Total Value</div>
+                  <div className="responsiveTextTable text-gray-400">Total Value</div>
                   <span className="font-bold text-[var(--chathams-blue)]">{fmtAutoKM(totalContracts)}</span>
                 </div>
               </div>
@@ -598,7 +598,7 @@ const Dash = () => {
                       </motion.div>
 
                       {/* Name */}
-                      <div className="w-20 text-xs text-gray-700 truncate flex-shrink-0">
+                      <div className="w-20 responsiveText text-gray-700 truncate flex-shrink-0">
                         {lbl}
                       </div>
 
@@ -626,7 +626,7 @@ const Dash = () => {
                       </motion.div>
 
                       {/* Value */}
-                      <motion.div className="w-16 text-right text-xs text-gray-700 font-semibold flex-shrink-0"
+                      <motion.div className="w-16 text-right responsiveText text-gray-700 font-semibold flex-shrink-0"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.4, delay: idx * 0.09 }}
@@ -646,10 +646,10 @@ const Dash = () => {
               <div className="flex justify-between mb-1">
                 <div>
                   <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">Consignees - $</h3>
-                  <p className="text-[10px] text-gray-400">Contribution breakdown by client volume</p>
+                  <p className="responsiveTextTable text-gray-400">Contribution breakdown by client volume</p>
                 </div>
                 <div className="text-right">
-                  <div className="text-[10px] text-gray-400">Total Value</div>
+                  <div className="responsiveTextTable text-gray-400">Total Value</div>
                   <span className="font-bold text-[var(--chathams-blue)]">{fmtAutoKM(totalInvoices)}</span>
                 </div>
               </div>
@@ -694,7 +694,7 @@ const Dash = () => {
                         {getInitials(lbl)}
                       </motion.div>
                       {/* Name */}
-                      <div className="w-20 text-xs text-gray-700 truncate flex-shrink-0">
+                      <div className="w-20 responsiveText text-gray-700 truncate flex-shrink-0">
                         {lbl}
                       </div>
                       {/* Bar */}
@@ -720,7 +720,7 @@ const Dash = () => {
                         </div>
                       </motion.div>
                       {/* Value */}
-                      <motion.div className="w-16 text-right text-xs text-gray-700 font-semibold flex-shrink-0"
+                      <motion.div className="w-16 text-right responsiveText text-gray-700 font-semibold flex-shrink-0"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.4, delay: idx * 0.09 }}

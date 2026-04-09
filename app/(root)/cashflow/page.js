@@ -791,7 +791,7 @@ return (
                 <VideoLoader loading={loading} fullScreen={true} />
                 <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-lg w-full bg-white">
                     <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-                        <h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
+                        <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
                             {getTtl('Cashflow', ln)}
                         </h1>
                         <div className="flex items-center gap-2 group">
@@ -803,13 +803,13 @@ return (
                     <div className="inline-flex gap-1 mb-2 bg-[#e3f3ff] border border-[#b8ddf8] rounded-full p-0">
                         <button
                             onClick={() => setActiveTab('general')}
-                            className={`px-4 py-1 text-xs rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
+                            className={`px-4 py-1 responsiveText rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
                         >
                             General Cashflow
                         </button>
                         <button
                             onClick={() => setActiveTab('unsold')}
-                            className={`px-4 py-1 text-xs rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
+                            className={`px-4 py-1 responsiveText rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
                         >
                             Unsold Stocks
                         </button>
@@ -819,7 +819,7 @@ return (
 {activeTab === 'unsold' ? (
     <div className="w-full max-w-2xl border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
         <div className="flex items-center justify-between mb-2 pb-1 border-b border-[#d4eafc]">
-            <div className="text-[var(--endeavour)] text-xs font-medium">Unsold Stocks</div>
+            <div className="text-[var(--endeavour)] responsiveText font-medium">Unsold Stocks</div>
             <div className="flex items-center gap-2">
             {stocksSortName2 ?
                 <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName2()} />
@@ -893,7 +893,7 @@ return (
                                         prefix={'$'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal  !text-[var(--endeavour)] font-normal'
+                                        className='responsiveTextTotal font-normal'
                                     />
                                 }</label>
                             </div>
@@ -901,17 +901,17 @@ return (
                                 initialData?.map((z, i) => {
                                     return (
                                         <div className="flex gap-2 my-1 items-center" key={i}>
-                                            <input className="responsiveTextInput items-center flex outline-none w-44 truncate text-[var(--endeavour)] !text-sm" value={z.title}
+                                            <input className="responsiveTextInput items-center flex outline-none w-44 truncate text-[var(--endeavour)]" value={z.title}
                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
                                             <input className='input w-44 h-6 responsiveTextTotal rounded-full'
                                                 value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
                                             <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-md hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
                                             {i === initialData.length - 1 && <>
                                                 <Tltip direction='bottom' tltpText='Save added data'>
-                                                    <button type="button" className="bg-[var(--endeavour)] border border-[#d8e8f5] text-white px-5 h-7 text-xs rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
+                                                    <button type="button" className="bg-[var(--endeavour)] border border-[#d8e8f5] text-white px-5 h-7 responsiveText rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
                                                 </Tltip>
                                                 <Tltip direction='bottom' tltpText='Add new item above'>
-                                                    <button type="button" className="border border-[#d8e8f5] text-[var(--endeavour)] px-5 h-7 text-xs rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all" onClick={addItem}>Add</button>
+                                                    <button type="button" className="border border-[#d8e8f5] text-[var(--endeavour)] px-5 h-7 responsiveText rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all" onClick={addItem}>Add</button>
                                                 </Tltip>
                                             </>}
                                         </div>
@@ -924,7 +924,7 @@ return (
                             <div className="w-full">
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] text-xs font-medium">Stocks - Paid</span>
+                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Stocks - Paid</span>
                                     <div className="flex items-center gap-2">
                                         {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} />}
                                         {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks()} />}
@@ -988,7 +988,7 @@ return (
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] text-xs font-medium">Stocks - UnPaid</span>
+                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Stocks - UnPaid</span>
                                     <div className="flex items-center gap-2">
                                         {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} />}
                                         {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks1()} />}
@@ -1049,7 +1049,7 @@ return (
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] text-xs font-medium">Clients - Payment</span>
+                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Clients - Payment</span>
                                     <div className="flex items-center gap-2">
                                         {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} />}
                                         {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(1)} />}
@@ -1108,7 +1108,7 @@ return (
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] text-xs font-medium">Clients - Balances</span>
+                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Clients - Balances</span>
                                     <div className="flex items-center gap-2">
                                         {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} />}
                                         {clientSort ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(0)} />}
@@ -1171,10 +1171,10 @@ return (
                                     userTitle === 'Admin' &&
                                     <div className='mt-1 p-1'>
                                         <div className='flex justify-between p-2 pb-1 border-b border-[#d4eafc]'>
-                                            <span className="text-[var(--endeavour)] text-xs font-medium">Financing</span>
+                                            <span className="text-[var(--endeavour)] responsiveText font-medium">Financing</span>
                                             <button
                                                 type="button"
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
+                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 responsiveText rounded-full hover:opacity-90 transition-all"
                                                 onClick={() => setFinancedLeft([...financedLeft, { title: '', num: '' }])}
                                             >
                                                 Add
@@ -1225,7 +1225,7 @@ return (
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] text-xs font-medium">Supplier - Payment</span>
+                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Supplier - Payment</span>
                                     <div className="flex items-center gap-2">
                                         {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
                                         {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(1)} />}
@@ -1288,7 +1288,7 @@ return (
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] text-xs font-medium">Supplier - Balances</span>
+                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Supplier - Balances</span>
                                     <div className="flex items-center gap-2">
                                         {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
                                         {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(0)} />}
@@ -1350,7 +1350,7 @@ return (
 
                             <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] text-xs font-medium">Expenses</span>
+                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Expenses</span>
                                     <div className="flex items-center gap-2">
                                         {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} />}
                                         {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpenses()} />}
@@ -1412,10 +1412,10 @@ return (
                                     userTitle === 'Admin' &&
                                     <div className='mt-1 p-1'>
                                         <div className='flex justify-between pb-1 border-b border-[#d4eafc]'>
-                                            <span className="text-[var(--endeavour)] text-xs font-medium">Financing</span>
+                                            <span className="text-[var(--endeavour)] responsiveText font-medium">Financing</span>
                                             <button
                                                 type="button"
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-xs rounded-full hover:opacity-90 transition-all"
+                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 responsiveText rounded-full hover:opacity-90 transition-all"
                                                 onClick={() => setFinancedRight([...financedRight, { title: '', num: '' }])}
                                             >
                                                 Add
@@ -1469,7 +1469,7 @@ return (
                     <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
                         
                         <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
-                            <span className="font-normal text-[var(--endeavour)] text-xs whitespace-nowrap">
+                            <span className="font-normal text-[var(--endeavour)] responsiveText whitespace-nowrap">
                                 Total (Left)
                             </span>
                             <NumericFormat
@@ -1480,12 +1480,12 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-normal text-[var(--endeavour)] text-xs whitespace-nowrap"
+                                className="font-normal text-[var(--endeavour)] responsiveText whitespace-nowrap"
                             />
                         </div>
 
                         <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-full px-3 py-0.5">
-                            <span className="font-normal text-xs whitespace-nowrap">
+                            <span className="font-normal responsiveText whitespace-nowrap">
                                 Balance
                             </span>
                             <NumericFormat
@@ -1496,12 +1496,12 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-normal text-xs whitespace-nowrap"
+                                className="font-normal responsiveText whitespace-nowrap"
                             />
                         </div>
 
                         <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
-                            <span className="font-normal text-[var(--endeavour)] text-xs whitespace-nowrap">
+                            <span className="font-normal text-[var(--endeavour)] responsiveText whitespace-nowrap">
                                 Total (Right)
                             </span>
                             <NumericFormat
@@ -1512,7 +1512,7 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-normal text-[var(--endeavour)] text-xs whitespace-nowrap"
+                                className="font-normal text-[var(--endeavour)] responsiveText whitespace-nowrap"
                             />
                         </div>
 
@@ -1524,9 +1524,9 @@ return (
                             const key = `total${z}`;
                             return (
                                 <div className="flex gap-2 my-1" key={z}>
-                                    <span className="text-xs items-center flex w-28 text-[var(--endeavour)] whitespace-nowrap">Total for {z}</span>
+                                    <span className="responsiveText items-center flex w-28 text-[var(--endeavour)] whitespace-nowrap">Total for {z}</span>
                                     <input
-                                        className='input w-44 h-6 text-xs font-normal text-[var(--endeavour)] text-right px-3 bg-[#f8fbff] border-[#d8e8f5] rounded-full'
+                                        className='input w-44 h-6 responsiveText font-normal text-[var(--endeavour)] text-right px-3 bg-[#f8fbff] border-[#d8e8f5] rounded-full'
                                         value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
                                         onChange={e => handleChange(e, z)}
                                     />

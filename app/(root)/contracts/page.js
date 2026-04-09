@@ -326,7 +326,7 @@ const Contracts = () => {
 						
 						{/* Header Section */}
 						<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-							<h1 className="text-[14px] text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2" style={{ fontSize: '14px' }}>
+							<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
 								{getTtl('Contracts', ln)}
 							</h1>
 							
@@ -383,7 +383,7 @@ const Contracts = () => {
 						<div className='mt-4 px-2 sm:px-3'>
 							<div className="text-sm font-semibold border border-[#b8ddf8] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
 								<div style={{ color: 'var(--chathams-blue)' }}>
-									<span className='text-xs sm:text-sm border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
+									<span className='responsiveText sm:text-sm border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
 									<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
 								</div>
 							</div>

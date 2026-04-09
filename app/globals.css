@@ -25,7 +25,7 @@ body,
 :root {
   height: 100%;
   overflow-x: hidden;
-  font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-poppins), 'Geist Sans', sans-serif;
 }
 
 /* Row hover: ensure all tds inherit tr hover background */
@@ -52,7 +52,7 @@ tr td {
 
 @layer components {
   .table_cell {
-    @apply px-6 py-3 whitespace-nowrap text-sm text-[var(--port-gore)] leading-4;
+    @apply px-6 py-3 whitespace-nowrap text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem] text-[var(--port-gore)] leading-4;
   }
 
   .paginator_arrow {
@@ -60,7 +60,7 @@ tr td {
   }
 
   .input {
-    @apply w-full border rounded-full border-[#d8e8f5] h-10 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-xs text-[var(--port-gore)] bg-[#f8fbff];
+    @apply w-full border rounded-full border-[#d8e8f5] h-10 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] text-[var(--port-gore)] bg-[#f8fbff];
   }
 
   .dashBox {
@@ -76,55 +76,68 @@ tr td {
   }
 
   .blackButton {
-    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1.5 text-xs font-medium focus:outline-none shadow-lg transition-all
+    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1.5 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] font-medium focus:outline-none shadow-lg transition-all
   }
 
   .whiteButton {
-    @apply bg-white border-[var(--rock-blue)] hover:bg-[var(--selago)] text-[var(--port-gore)] flex items-center gap-2 justify-center rounded-xl border px-3 py-1.5 text-xs font-medium focus:outline-none shadow-md transition-colors
+    @apply bg-white border-[var(--rock-blue)] hover:bg-[var(--selago)] text-[var(--port-gore)] flex items-center gap-2 justify-center rounded-xl border px-3 py-1.5 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] font-medium focus:outline-none shadow-md transition-colors
   }
     .supplierButton {
-    @apply bg-[#dbeeff] hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border-0 px-3 py-2 text-xs focus:outline-none shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+    @apply bg-[#dbeeff] hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border-0 px-3 py-2 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] focus:outline-none shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
   }
    .supplierAddButton {
-    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-2 text-xs focus:outline-none shadow-md transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-2 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] focus:outline-none shadow-md transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
   }
 }
 
 @layer components {
   .title_style {
-    @apply text-[var(--port-gore)] border-b border-[var(--rock-blue)] items-center flex justify-center text-[0.75rem] font-semibold;
+    @apply text-[var(--port-gore)] border-b border-[var(--rock-blue)] items-center flex justify-center text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem] font-semibold;
   }
 
   .input_style {
-    @apply text-[0.75rem] py-0.5 text-center border-0 rounded-none w-full focus:outline-0 focus:border-[var(--endeavour)] text-[var(--port-gore)];
+    @apply text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] py-0.5 text-center border-0 rounded-none w-full focus:outline-0 focus:border-[var(--endeavour)] text-[var(--port-gore)];
   }
 }
 
 @layer app {
+  /* Standard body / cell text */
   .responsiveText {
-    @apply text-[0.70rem] 2xl:text-[0.8rem] break-words min-w-0 whitespace-normal;
+    @apply text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]
+           break-words min-w-0 whitespace-normal;
   }
 
-  .responsiveTextTitle {
-    @apply text-sm 2xl:text-base break-words min-w-0 whitespace-normal;
-  }
-
-  .responsiveTextTotal {
-    @apply text-[0.70rem] 2xl:text-[0.77rem] font-semibold break-words min-w-0 whitespace-normal;
-  }
-
+  /* Dense table cell text */
   .responsiveTextTable {
-    @apply text-[0.68rem] 2xl:text-[0.75rem] break-words min-w-0 whitespace-normal;
+    @apply text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
+           break-words min-w-0 whitespace-normal;
   }
 
+  /* Same as responsiveTextTable — kept separate for targeted overrides */
   .responsiveTextTable1 {
-    @apply text-[0.68rem] 2xl:text-[0.75rem] break-words min-w-0 whitespace-normal;
+    @apply text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
+           break-words min-w-0 whitespace-normal;
   }
 
+  /* Totals row — same size as body but bold */
+  .responsiveTextTotal {
+    @apply text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]
+           font-semibold break-words min-w-0 whitespace-normal;
+  }
+
+  /* Pill/inline inputs */
   .responsiveTextInput {
-    @apply text-[0.72rem] 2xl:text-[0.8rem] break-words min-w-0 whitespace-normal;
+    @apply text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]
+           break-words min-w-0 whitespace-normal;
   }
 
+  /* Section headings / column headers */
+  .responsiveTextTitle {
+    @apply text-[0.78rem] xl:text-[0.8125rem] 2xl:text-[0.875rem] 3xl:text-[0.9375rem]
+           break-words min-w-0 whitespace-normal;
+  }
+
+  /* Cashflow card overflow wrapper — unchanged */
   .cf-card {
     @apply overflow-hidden min-w-0;
   }
@@ -246,7 +259,7 @@ input::-webkit-inner-spin-button {
   vertical-align: middle;
   line-height: 1.3;
   padding: 4px 8px;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
 }
 
 .cashflow-detail-table thead th {

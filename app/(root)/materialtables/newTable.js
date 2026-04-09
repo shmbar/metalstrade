@@ -43,7 +43,7 @@ function SortableHeaderCell({ id, label, style, onRemove, isFe, isStandard, sort
                     style={{ cursor: 'grab', display: 'flex', alignItems: 'center', gap: '1px', userSelect: 'none' }}
                 >
                     {label}
-                    {isFe && <span style={{ fontSize: '7px', color: '#93c5fd', marginLeft: '2px', fontStyle: 'italic' }}>auto</span>}
+                    {isFe && <span className="responsiveTextTable" style={{ color: '#93c5fd', marginLeft: '2px', fontStyle: 'italic' }}>auto</span>}
                     {sortDir === 'asc' && <TbSortAscending style={{ width: '10px', height: '10px', marginLeft: '1px' }} />}
                     {sortDir === 'desc' && <TbSortDescending style={{ width: '10px', height: '10px', marginLeft: '1px' }} />}
                 </span>
@@ -51,7 +51,7 @@ function SortableHeaderCell({ id, label, style, onRemove, isFe, isStandard, sort
                     <button
                         onPointerDown={e => e.stopPropagation()}
                         onClick={e => { e.stopPropagation(); onRemove() }}
-                        style={{ fontSize: '10px', fontWeight: '700', color: '#c4d4e4', background: 'none', border: 'none', cursor: 'pointer', padding: '0 1px', lineHeight: 1 }}
+                        className="responsiveTextTable" style={{ fontWeight: '700', color: '#c4d4e4', background: 'none', border: 'none', cursor: 'pointer', padding: '0 1px', lineHeight: 1 }}
                     >×</button>
                 )}
             </div>
@@ -112,7 +112,7 @@ const Customtable = ({
             cell: (props) => {
                 const v = props.getValue()
                 if (!v) return <p></p>
-                return <p style={{ color: '#003366', fontSize: '10px' }}>
+                return <p className="responsiveTextTable" style={{ color: '#003366' }}>
                     ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)}
                 </p>
             },
@@ -132,7 +132,7 @@ const Customtable = ({
             cell: (props) => {
                 const v = props.getValue()
                 if (!v) return <p></p>
-                return <p style={{ color: '#003366', fontWeight: '600', fontSize: '10px' }}>
+                return <p className="responsiveTextTable" style={{ color: '#003366', fontWeight: '600' }}>
                     ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)}
                 </p>
             },
@@ -266,27 +266,27 @@ const Customtable = ({
     const totalCols = headers.length
 
     const unitBtn = (u) => ({
-        fontSize: '10px', padding: '1px 9px', height: '22px', borderRadius: '99px',
+        padding: '1px 9px', height: '22px', borderRadius: '99px',
         border: `1px solid ${unit === u ? 'var(--endeavour)' : '#d8e8f5'}`,
         background: unit === u ? 'var(--endeavour)' : 'transparent',
         color: unit === u ? '#fff' : 'var(--endeavour)',
         cursor: 'pointer', transition: 'all 0.15s',
-        fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+        fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
     })
 
     const smallBtn = (active) => ({
-        fontSize: '10px', padding: '1px 8px', height: '22px', borderRadius: '99px',
+        padding: '1px 8px', height: '22px', borderRadius: '99px',
         border: `1px solid ${active ? 'var(--endeavour)' : '#b8cfe0'}`,
         background: active ? '#eef6ff' : 'transparent',
         color: active ? 'var(--endeavour)' : '#2d5270',
         cursor: 'pointer',
-        fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+        fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
     })
 
     const inputStyle = {
-        fontSize: '10px', padding: '1px 8px', height: '22px', borderRadius: '8px',
+        padding: '1px 8px', height: '22px', borderRadius: '8px',
         border: '1px solid #d8e8f5', background: '#f8fbff', outline: 'none',
-        fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+        fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
     }
 
     return (
@@ -301,12 +301,13 @@ const Customtable = ({
                             value={tableName}
                             onChange={e => setTableName(e.target.value)}
                             placeholder="Table name..."
+                            className="responsiveTextTitle"
                             style={{
-                                fontSize: '13px', fontWeight: '600',
+                                fontWeight: '600',
                                 color: 'var(--chathams-blue)', background: 'transparent',
                                 border: 'none', outline: 'none', borderBottom: '1px dashed #c8d8e8',
                                 width: '100%', maxWidth: '280px', padding: '1px 4px',
-                                fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+                                fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
                             }}
                         />
                     </div>
@@ -317,10 +318,10 @@ const Customtable = ({
                         delTable={delTable} table1={table1} runPdf={runPdf}
                     />
                     {/* Controls row */}
-                    <div className="flex flex-wrap items-center gap-2 px-3 pb-2">
+                    <div className="flex flex-wrap items-center gap-2 px-3 pb-2 responsiveTextTable">
                         {/* Unit toggle */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '10px', color: '#2d5270' }}>Unit:</span>
+                            <span style={{ color: '#2d5270' }}>Unit:</span>
                             {['mt', 'kgs', 'lbs'].map(u => (
                                 <button key={u} onClick={() => setUnit(u)} style={unitBtn(u)}>{UNIT_LABELS[u]}</button>
                             ))}
@@ -349,7 +350,7 @@ const Customtable = ({
                         </button>
                         {/* Shipment container reference */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '10px', color: '#2d5270' }} title="Shipment container reference number (e.g. TCKU1234567)">Shipment #:</span>
+                            <span style={{ color: '#2d5270' }} title="Shipment container reference number (e.g. TCKU1234567)">Shipment #:</span>
                             <input
                                 value={containerNo}
                                 onChange={e => setContainerNo(e.target.value)}
@@ -378,10 +379,10 @@ const Customtable = ({
                                             key={p.label}
                                             onClick={() => { applyPreset(p.keys); setShowPresets(false) }}
                                             style={{
-                                                fontSize: '10px', padding: '4px 10px', borderRadius: '6px',
+                                                padding: '4px 10px', borderRadius: '6px',
                                                 border: '1px solid #e8f0f8', background: '#f8fbff',
                                                 color: 'var(--chathams-blue)', cursor: 'pointer', textAlign: 'left',
-                                                fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+                                                fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
                                             }}
                                             onMouseEnter={e => e.currentTarget.style.background = '#e8f4ff'}
                                             onMouseLeave={e => e.currentTarget.style.background = '#f8fbff'}
@@ -397,12 +398,12 @@ const Customtable = ({
                             <button
                                 onClick={() => setShowHelp(p => !p)}
                                 style={{
-                                    fontSize: '10px', padding: '2px 7px', borderRadius: '999px',
+                                    padding: '2px 7px', borderRadius: '999px',
                                     border: `1px solid ${showHelp ? 'var(--endeavour)' : '#b8cfe0'}`,
                                     background: showHelp ? 'var(--endeavour)' : '#f8fbff',
                                     color: showHelp ? '#fff' : '#2d5270',
                                     cursor: 'pointer', fontWeight: '600',
-                                    fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+                                    fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
                                 }}
                             >?</button>
                             {showHelp && (
@@ -411,9 +412,9 @@ const Customtable = ({
                                     background: '#fff', border: '1px solid #b8ddf8',
                                     borderRadius: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
                                     padding: '10px 14px', minWidth: '240px',
-                                    fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+                                    fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
                                 }}>
-                                    <p style={{ fontSize: '10px', fontWeight: '700', color: 'var(--chathams-blue)', marginBottom: '6px' }}>How to use this table</p>
+                                    <p className="responsiveTextTable" style={{ fontWeight: '700', color: 'var(--chathams-blue)', marginBottom: '6px' }}>How to use this table</p>
                                     {[
                                         ['Drag column header', 'Reorder elements'],
                                         ['Double-click column header label', 'Add / remove element'],
@@ -425,8 +426,8 @@ const Customtable = ({
                                         ['Container button', 'Toggle per-row container # column'],
                                     ].map(([action, desc]) => (
                                         <div key={action} style={{ display: 'flex', gap: '6px', marginBottom: '4px' }}>
-                                            <span style={{ fontSize: '9px', fontWeight: '600', color: 'var(--endeavour)', minWidth: '110px', paddingTop: '1px' }}>{action}</span>
-                                            <span style={{ fontSize: '9px', color: '#475569' }}>{desc}</span>
+                                            <span className="responsiveTextTable" style={{ fontWeight: '600', color: 'var(--endeavour)', minWidth: '110px', paddingTop: '1px' }}>{action}</span>
+                                            <span className="responsiveTextTable" style={{ color: '#475569' }}>{desc}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -462,7 +463,7 @@ const Customtable = ({
             {elements.length > 0 && (
                 <div style={{ background: '#f0f7ff', borderBottom: '1px solid #d8e8f5', padding: '5px 10px' }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
-                        <span style={{ fontSize: '9px', color: '#2d5270', minWidth: '32px' }}>$/MT:</span>
+                        <span className="responsiveTextTable" style={{ color: '#2d5270', minWidth: '32px' }}>$/MT:</span>
                         {elements.filter(el => priceKeys ? priceKeys.includes(el.key) : el.key !== 'fe').map(el => {
                             const isNi = el.key === 'ni'
                             const focused = focusedPrice === el.key
@@ -473,7 +474,7 @@ const Customtable = ({
                                     border: `1px solid ${isNi ? '#93c5fd' : '#d8e8f5'}`,
                                     borderRadius: '8px', padding: '2px 6px', minWidth: '68px',
                                 }}>
-                                    <span style={{ fontSize: '11px', color: 'var(--chathams-blue)', fontWeight: '700', minWidth: '16px' }}>
+                                    <span className="responsiveTextTable" style={{ color: 'var(--chathams-blue)', fontWeight: '700', minWidth: '16px' }}>
                                         {el.label}
                                     </span>
                                     <input
@@ -483,29 +484,31 @@ const Customtable = ({
                                         onChange={e => setPrice(el.key, e.target.value)}
                                         placeholder="0"
                                         inputMode="decimal"
+                                        className="responsiveTextTable"
                                         style={{
-                                            fontSize: '11px', fontWeight: '600', width: '50px', textAlign: 'right',
+                                            fontWeight: '600', width: '50px', textAlign: 'right',
                                             background: 'transparent', border: 'none', outline: 'none',
                                             color: isNi ? '#0366ae' : '#374151',
-                                            fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+                                            fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
                                         }}
                                     />
                                     {isNi && (
                                         <>
-                                            <span style={{ fontSize: '7px', color: '#93c5fd', fontWeight: '600' }}>LME</span>
-                                            <span style={{ fontSize: '9px', color: '#94a3b8', margin: '0 2px' }}>×</span>
+                                            <span style={{ fontSize: '0.58rem', color: '#93c5fd', fontWeight: '600' }}>LME</span>
+                                            <span style={{ fontSize: '0.62rem', color: '#94a3b8', margin: '0 2px' }}>×</span>
                                             <input
                                                 value={niPercent}
                                                 onChange={e => setNiPercent(e.target.value)}
                                                 inputMode="decimal"
+                                                className="responsiveTextTable"
                                                 style={{
-                                                    fontSize: '11px', fontWeight: '600', width: '28px', textAlign: 'center',
+                                                    fontWeight: '600', width: '28px', textAlign: 'center',
                                                     background: 'transparent', border: 'none', outline: 'none',
                                                     color: '#0366ae',
-                                                    fontFamily: "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
+                                                    fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
                                                 }}
                                             />
-                                            <span style={{ fontSize: '9px', color: '#0366ae', fontWeight: '600' }}>%</span>
+                                            <span className="responsiveTextTable" style={{ color: '#0366ae', fontWeight: '600' }}>%</span>
                                         </>
                                     )}
                                 </div>
@@ -518,7 +521,7 @@ const Customtable = ({
             {/* ── Desktop table ── */}
             <div className="hidden sm:block">
                 <div className="overflow-auto" style={{ maxHeight: '700px' }}>
-                    <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: "var(--font-poppins),'Plus Jakarta Sans',sans-serif" }}>
+                    <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: "var(--font-poppins),'Geist Sans',sans-serif" }}>
 
                         {/* THEAD */}
                         <thead>
@@ -537,8 +540,8 @@ const Customtable = ({
                                                 const thStyle = {
                                                     backgroundColor: hdrBg(colId),
                                                     color: 'var(--chathams-blue)',
-                                                    padding: '5px 5px', fontSize: '11px', fontWeight: '500',
-                                                    textAlign: (colId === 'material' || colId === 'container') ? 'left' : 'center',
+                                                    padding: '5px 5px', fontWeight: '500',
+                                                textAlign: (colId === 'material' || colId === 'container') ? 'left' : 'center',
                                                     letterSpacing: '0.03em', whiteSpace: 'nowrap', border: 'none',
                                                     borderTopLeftRadius: isFirst ? '10px' : '0',
                                                     borderTopRightRadius: (isLast && !isDel) ? '10px' : '0',
@@ -557,9 +560,9 @@ const Customtable = ({
                                                                         onChange={e => setAddElemInput(e.target.value)}
                                                                         onKeyDown={e => { if (e.key === 'Enter') handleAddElement(); if (e.key === 'Escape') { setAddElemInput(''); setShowAddElem(false) } }}
                                                                         placeholder="Al"
-                                                                        style={{ fontSize: '10px', width: '26px', textAlign: 'center', background: 'transparent', border: 'none', outline: 'none', borderBottom: '1px solid #d8e8f5', fontFamily: "var(--font-poppins),'Plus Jakarta Sans',sans-serif" }}
+                                                                        className="responsiveTextTable" style={{ width: '26px', textAlign: 'center', background: 'transparent', border: 'none', outline: 'none', borderBottom: '1px solid #d8e8f5', fontFamily: "var(--font-poppins),'Geist Sans',sans-serif" }}
                                                                     />
-                                                                    <button onClick={() => { setAddElemInput(''); setShowAddElem(false) }} style={{ fontSize: '10px', color: '#2d5270', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
+                                                                    <button onClick={() => { setAddElemInput(''); setShowAddElem(false) }} className="responsiveTextTable" style={{ color: '#2d5270', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
                                                                 </div>
                                                             ) : (
                                                                 <button onClick={() => setShowAddElem(true)} title="Add custom element column" style={{ fontSize: '14px', fontWeight: '700', color: '#c4d4e4', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>+</button>
@@ -641,14 +644,13 @@ const Customtable = ({
                                                         <input
                                                             type="text"
                                                             inputMode={isLeft || colId === 'kgs' ? 'text' : 'decimal'}
-                                                            className="w-full border-none bg-transparent focus:outline-none"
+                                                            className="responsiveTextTable w-full border-none bg-transparent focus:outline-none"
                                                             onChange={e => editCell(table1, e, cell)}
                                                             onFocus={() => setFocusedCell(ck)}
                                                             onBlur={() => setFocusedCell(null)}
                                                             value={focused ? (cell.getContext().getValue() ?? '') : fmt(cell.getContext().getValue(), colId)}
                                                             style={{
-                                                                fontFamily: "var(--font-poppins),'Plus Jakarta Sans',sans-serif",
-                                                                fontSize: '11px',
+                                                                fontFamily: "var(--font-poppins),'Geist Sans',sans-serif",
                                                                 color: isFe ? 'var(--endeavour)' : '#1F2937',
                                                                 background: 'transparent',
                                                                 textAlign: isLeft ? 'left' : 'center',
@@ -672,10 +674,10 @@ const Customtable = ({
                                         const isLast = idx === totalCols - 1
                                         const colId = header.column.id
                                         return (
-                                            <td key={header.id} style={{
+                                            <td key={header.id} className="responsiveTextTable" style={{
                                                 backgroundColor: ftrBg(colId),
                                                 color: 'var(--chathams-blue)',
-                                                padding: '5px 5px', fontSize: '11px', fontWeight: '600',
+                                                padding: '5px 5px', fontWeight: '600',
                                                 textAlign: (colId === 'material' || colId === 'container') ? 'left' : 'center',
                                                 whiteSpace: 'nowrap',
                                                 borderTop: '1px solid #b8cfe0',
@@ -701,7 +703,7 @@ const Customtable = ({
                     {table.getRowModel().rows.map((row, ri) => (
                         <div key={row.id} className="rounded-2xl overflow-hidden shadow-md" style={{ backgroundColor: '#fff', border: '1px solid var(--selago)' }}>
                             <div className="px-3 py-2" style={{ background: '#dbeafe' }}>
-                                <span style={{ fontSize: '10px', color: 'var(--chathams-blue)', fontWeight: '500' }}>Row {ri + 1}</span>
+                                <span className="responsiveTextTable" style={{ color: 'var(--chathams-blue)', fontWeight: '500' }}>Row {ri + 1}</span>
                             </div>
                             <div className="p-3 space-y-2">
                                 {row.getVisibleCells().map(cell => {
@@ -714,7 +716,7 @@ const Customtable = ({
                                     if (isCost) return (
                                         <div key={cell.id} className="flex justify-between items-center pb-2" style={{ borderBottom: '1px solid var(--selago)' }}>
                                             <span style={{ color: '#6B7280', fontSize: '9px', textTransform: 'uppercase' }}>{cell.column.columnDef.header}</span>
-                                            <span style={{ color: '#003366', fontSize: '11px', fontWeight: '600' }}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
+                                            <span className="responsiveTextTable" style={{ color: '#003366', fontWeight: '600' }}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
                                         </div>
                                     )
                                     return (
@@ -724,12 +726,12 @@ const Customtable = ({
                                                 <input
                                                     type="text"
                                                     inputMode={(colId === 'material' || colId === 'container' || colId === 'kgs') ? 'text' : 'decimal'}
-                                                    className="w-full border-none bg-transparent focus:outline-none"
+                                                    className="responsiveTextTable w-full border-none bg-transparent focus:outline-none"
                                                     onChange={e => editCell(table1, e, cell)}
                                                     onFocus={() => setFocusedCell(ck)}
                                                     onBlur={() => setFocusedCell(null)}
                                                     value={focused ? (cell.getContext().getValue() ?? '') : fmt(cell.getContext().getValue(), colId)}
-                                                    style={{ fontFamily: "var(--font-poppins),'Plus Jakarta Sans',sans-serif", fontSize: '11px', color: isFe ? 'var(--endeavour)' : '#1F2937', background: 'transparent' }}
+                                                    style={{ fontFamily: "var(--font-poppins),'Geist Sans',sans-serif", color: isFe ? 'var(--endeavour)' : '#1F2937', background: 'transparent' }}
                                                 />
                                             </div>
                                         </div>

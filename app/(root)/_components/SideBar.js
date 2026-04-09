@@ -211,7 +211,7 @@ export default function Sidebar() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search anything..."
-              className="flex-1 bg-transparent border-0 outline-none text-[11px] placeholder:text-gray-400 pl-2 pr-5"
+              className="flex-1 bg-transparent border-0 outline-none responsiveTextTable placeholder:text-gray-400 pl-2 pr-5"
               style={{ color: 'var(--chathams-blue)' }}
             />
             {searchQuery && (

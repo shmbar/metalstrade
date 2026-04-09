@@ -222,7 +222,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             borderBottom: '1px solid #b8ddf8',
             textAlign: 'center',
             fontWeight: '500',
-            fontSize: '13px',
+            fontSize: '0.8rem',
             color: 'var(--chathams-blue)',
             letterSpacing: '0.03em'
           }}

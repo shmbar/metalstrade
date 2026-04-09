@@ -23,7 +23,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
         boxShadow: "0 4px 16px rgba(3,102,174,0.12)",
         fontFamily:
           "var(--font-poppins), 'Plus Jakarta Sans', sans-serif",
-        fontSize: "10px",
+        fontSize: "0.68rem",
       }}
     >
       <table style={{ width: "auto", borderCollapse: "collapse" }}>
@@ -40,7 +40,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 padding: "8px 16px 8px 8px",
                 color: "var(--chathams-blue)",
                 fontWeight: 600,
-                fontSize: "11px",
+                fontSize: "0.72rem",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
                 whiteSpace: "nowrap",
@@ -54,7 +54,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 padding: "8px 16px 8px 8px",
                 color: "var(--chathams-blue)",
                 fontWeight: 600,
-                fontSize: "11px",
+                fontSize: "0.72rem",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
                 whiteSpace: "nowrap",
@@ -68,7 +68,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 padding: "8px 16px 8px 8px",
                 color: "var(--chathams-blue)",
                 fontWeight: 600,
-                fontSize: "11px",
+                fontSize: "0.72rem",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
                 whiteSpace: "nowrap",
@@ -82,7 +82,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 padding: "8px 16px 8px 8px",
                 color: "var(--chathams-blue)",
                 fontWeight: 600,
-                fontSize: "11px",
+                fontSize: "0.72rem",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
                 whiteSpace: "nowrap",
@@ -96,7 +96,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 padding: "8px 16px 8px 8px",
                 color: "var(--chathams-blue)",
                 fontWeight: 600,
-                fontSize: "11px",
+                fontSize: "0.72rem",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
                 whiteSpace: "nowrap",
@@ -110,7 +110,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 padding: "8px 16px 8px 8px",
                 color: "var(--chathams-blue)",
                 fontWeight: 600,
-                fontSize: "11px",
+                fontSize: "0.72rem",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
                 whiteSpace: "nowrap",
@@ -131,13 +131,13 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                   transition: "background-color 150ms ease-in-out",
                 }}
               >
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
                   {z.poSupplier?.order ?? "Comp. Exp."}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
                   {z.expense}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
                   {settings.Expenses.Expenses.find((q) => q.id === z.expType)?.expType}
                 </td>
                 <td
@@ -146,7 +146,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                     padding: "8px 16px 8px 8px",
                     color: "var(--chathams-blue)",
                     fontWeight: 500,
-                    fontSize: "11px",
+                    fontSize: "0.72rem",
                     whiteSpace: "nowrap",
                   }}
                 >
@@ -161,10 +161,10 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                     className="!text-[11px]"
                   />
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
                   {dateFormat(z.date, "dd-mmm-yy")}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "11px", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
                   {z.paid === "111" ? "Paid" : "Unpaid"}
                 </td>
               </tr>
