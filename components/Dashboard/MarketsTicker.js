@@ -119,7 +119,7 @@ export default function MarketsTicker({ className = '' }) {
                     </span>
                 )}
             </div>
-            <HeadlineTicker variant="metal" leftIcon={null} items={metalItems} speed={40} pauseOnHover rightToLeft gap={26} />
+            <HeadlineTicker variant="metal" leftIcon={null} items={metalItems} speed={50} pauseOnHover rightToLeft gap={26} />
         </div>
     );
 }
