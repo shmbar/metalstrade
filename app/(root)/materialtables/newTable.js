@@ -521,7 +521,7 @@ const Customtable = ({
             {/* ── Desktop table ── */}
             <div className="hidden sm:block">
                 <div className="overflow-auto" style={{ maxHeight: '700px' }}>
-                    <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: "var(--font-poppins),'Geist Sans',sans-serif" }}>
+                    <table className="w-full responsiveTextTable" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: "var(--font-poppins),'Geist Sans',sans-serif" }}>
 
                         {/* THEAD */}
                         <thead>
@@ -540,7 +540,7 @@ const Customtable = ({
                                                 const thStyle = {
                                                     backgroundColor: hdrBg(colId),
                                                     color: 'var(--chathams-blue)',
-                                                    padding: '5px 5px', fontWeight: '500',
+                                                    padding: '5px 5px', fontWeight: '600', fontSize: 'inherit',
                                                 textAlign: (colId === 'material' || colId === 'container') ? 'left' : 'center',
                                                     letterSpacing: '0.03em', whiteSpace: 'nowrap', border: 'none',
                                                     borderTopLeftRadius: isFirst ? '10px' : '0',
