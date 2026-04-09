@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 const API_KEY = process.env.METALS_API_KEY || '3rc1dhplhw4nkgqkeuix54cmg83w2lpvf23o8qt1b0i7m3a2za352hvz465l'
-const SYMBOLS = 'LME-NI,LME-XCU,LME-ALU,LME-LEAD,LME-TIN,LME-ZNC,STEEL-SC,TUNGSTEN,LCO,MO'
+const SYMBOLS = 'LME-NI,LME-XCU,LME-ALU,LME-LEAD,LME-TIN,LME-ZNC,STEEL-SC,LCO,MO'
 
 // 1 metric ton = 32,150.746 troy ounces (metals-api /latest uses troy oz as base unit)
 const TROY_OZ_PER_MT = 32150.746
@@ -14,10 +14,8 @@ const METAL_META = {
     'LME-TIN':  { name: 'Tin',         symbol: 'Sn', order: 5 },
     'LME-ZNC':  { name: 'Zinc',        symbol: 'Zn', order: 6 },
     'STEEL-SC': { name: 'Steel Scrap', symbol: 'St', order: 7 },
-    // Tungsten API rate uses a different internal unit — divide by 10 to get USD/MT
-    'TUNGSTEN': { name: 'Tungsten',    symbol: 'W',  order: 8, divisor: 10 },
-    'LCO':      { name: 'Cobalt',      symbol: 'Co', order: 9 },
-    'MO':       { name: 'Molybdenum',  symbol: 'Mo', order: 10 },
+    'LCO':      { name: 'Cobalt',      symbol: 'Co', order: 8 },
+    'MO':       { name: 'Molybdenum',  symbol: 'Mo', order: 9 },
 }
 
 // Simple in-memory cache — 30 min TTL
