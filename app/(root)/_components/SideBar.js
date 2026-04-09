@@ -204,15 +204,15 @@ export default function Sidebar() {
       {/* Search bar */}
       {!collapsed && (
         <div className="px-3 pt-2 pb-1 shrink-0">
-          <div className="relative flex items-center rounded-full px-3 py-1.5" style={{ background: '#f8fbff', border: '1px solid #b8ddf8' }}>
+          <div className="relative flex items-center rounded-full px-3 py-1.5 responsiveTextTable" style={{ background: '#f8fbff', border: '1px solid #b8ddf8' }}>
             <FiSearch size={13} style={{ color: 'var(--chathams-blue)', flexShrink: 0 }} />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search anything..."
-              className="flex-1 bg-transparent border-0 outline-none responsiveTextTable placeholder:text-gray-400 pl-2 pr-5"
-              style={{ color: 'var(--chathams-blue)' }}
+              className="flex-1 bg-transparent border-0 outline-none placeholder:text-gray-400 pl-2 pr-5"
+              style={{ fontSize: 'inherit', color: 'var(--chathams-blue)' }}
             />
             {searchQuery && (
               <button
