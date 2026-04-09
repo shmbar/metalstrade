@@ -462,7 +462,7 @@ const Customtable = ({
             {/* ── Price bar ($/MT per element) ── */}
             {elements.length > 0 && (
                 <div style={{ background: '#f0f7ff', borderBottom: '1px solid #d8e8f5', padding: '5px 10px' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
+                    <div className="responsiveTextTable" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
                         <span className="responsiveTextTable" style={{ color: '#2d5270', minWidth: '32px' }}>$/MT:</span>
                         {elements.filter(el => priceKeys ? priceKeys.includes(el.key) : el.key !== 'fe').map(el => {
                             const isNi = el.key === 'ni'
@@ -484,9 +484,8 @@ const Customtable = ({
                                         onChange={e => setPrice(el.key, e.target.value)}
                                         placeholder="0"
                                         inputMode="decimal"
-                                        className="responsiveTextTable"
                                         style={{
-                                            fontWeight: '600', width: '50px', textAlign: 'right',
+                                            fontSize: 'inherit', fontWeight: '600', width: '50px', textAlign: 'right',
                                             background: 'transparent', border: 'none', outline: 'none',
                                             color: isNi ? '#0366ae' : '#374151',
                                             fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
@@ -500,9 +499,8 @@ const Customtable = ({
                                                 value={niPercent}
                                                 onChange={e => setNiPercent(e.target.value)}
                                                 inputMode="decimal"
-                                                className="responsiveTextTable"
                                                 style={{
-                                                    fontWeight: '600', width: '28px', textAlign: 'center',
+                                                    fontSize: 'inherit', fontWeight: '600', width: '28px', textAlign: 'center',
                                                     background: 'transparent', border: 'none', outline: 'none',
                                                     color: '#0366ae',
                                                     fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
