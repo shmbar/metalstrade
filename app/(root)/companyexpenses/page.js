@@ -124,7 +124,7 @@ const Expenses = () => {
             },
             filterFn: 'dateBetweenFilterFn'
         },
-        { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toUpperCase(); const isUsd = v === 'USD' || v === 'US'; const isEur = v === 'EUR' || v === 'EU'; return <span style={{ background: isUsd ? '#b7d1b5' : isEur ? '#dbeeff' : '#f0f0f0', color: isUsd ? '#2d6a2d' : isEur ? 'var(--chathams-blue)' : '#555', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: '12px', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
+        { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toUpperCase(); const isUsd = v === 'USD' || v === 'US'; const isEur = v === 'EUR' || v === 'EU'; return <span style={{ background: isUsd ? '#b7d1b5' : isEur ? '#dbeeff' : '#f0f0f0', color: isUsd ? '#2d6a2d' : isEur ? 'var(--chathams-blue)' : '#555', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: '0.75rem', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
         {
             accessorKey: 'amount', header: getTtl('Amount', ln), cell: (props) => <p>{showAmount(props)}</p>,
             meta: {
@@ -244,7 +244,7 @@ const Expenses = () => {
                                 <button
                                 type="button"
                                 onClick={addNewExpense}
-                                className="flex items-center gap-2 bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-4 py-1.5 text-xs rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                className="flex items-center gap-2 bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-4 py-1.5 responsiveText rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                 >
                                 <TbLayoutGridAdd className="w-4 h-4" />
                                 <span>New Expense</span>

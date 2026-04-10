@@ -151,19 +151,19 @@ const PNL = () => {
     <div className='p-1'>
       <div className='grid grid-cols-12 pt-3 gap-4 '>
         <div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl '>
-          <p className='text-[0.8rem]'>{getTtl('selectCurr', ln)}:</p>
+          <p className='responsiveText'>{getTtl('selectCurr', ln)}:</p>
           <Selector arr={settings.Currency.Currency} value={valCur}
             onChange={(e) => handleChange(e, 'cur')}
             name='cur'
            />
           <div className='flex gap-2 pt-2 flex-wrap'>
-            <p className='text-[0.8rem]'>{getTtl('purchaseValue', ln)}:</p>
-            <p className='text-[0.8rem] items-center flex text-slate-800 font-medium'>
+            <p className='responsiveText'>{getTtl('purchaseValue', ln)}:</p>
+            <p className='responsiveText items-center flex text-[var(--port-gore)] font-medium'>
               {setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
 
             {/*edit ? <input className="input w-20 shadow-lg h-5 text-xs" value={newContractValue} onChange={(e) => setNewContrctValue(e.target.value)} onKeyDown={handleKeyPress} /> :
               <div className='group flex gap-1'>
-                <p className='text-[0.8rem] items-center flex text-slate-800 font-medium'>{setNum(valCur, newContractValue * mult, settings)}</p>
+                <p className='responsiveText items-center flex text-[var(--port-gore)] font-medium'>{setNum(valCur, newContractValue * mult, settings)}</p>
                 <ImCancelCircle className='hidden group-hover:block cursor-pointer text-slate-600 hover:block' onClick={setNewValue} />
               </div>
   */}
@@ -172,29 +172,29 @@ const PNL = () => {
         </div>
         <div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>
           <div className='flex justify-between'>
-            <p className='text-[0.8rem]'>{getTtl('invValueSale', ln)}:</p>
-            <p className='text-[0.8rem]'>{setNum(valCur, Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings), settings)}</p>
+            <p className='responsiveText'>{getTtl('invValueSale', ln)}:</p>
+            <p className='responsiveText'>{setNum(valCur, Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings), settings)}</p>
           </div>
           <div className='w-full text-right h-4 -mt-2'>-</div>
           <div className='flex justify-between'>
-            <p className='text-[0.8rem] w-full'>{getTtl('purchaseValue', ln)}:</p>
-            <p className='text-[0.8rem]'>{setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
+            <p className='responsiveText w-full'>{getTtl('purchaseValue', ln)}:</p>
+            <p className='responsiveText'>{setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
           </div>
           <div className='w-full text-right h-4 -mt-2'>-</div>
           <div className='flex justify-between'>
-            <p className='text-[0.8rem] w-28'>{getTtl('Expenses', ln)}:</p>
-            <p className='text-[0.8rem]'>{setNum(valCur, TotalArrsExp(pnlData, valCur, valueCon.euroToUSD), settings)}</p>
+            <p className='responsiveText w-28'>{getTtl('Expenses', ln)}:</p>
+            <p className='responsiveText'>{setNum(valCur, TotalArrsExp(pnlData, valCur, valueCon.euroToUSD), settings)}</p>
           </div>
           <div className='pt-1.5 border-t border-slate-500'></div>
-          <div className='flex justify-between font-bold'>
-            <p className='text-[0.8rem] w-28'>{getTtl('Profit', ln)}:</p>
-            <p className='text-[0.8rem]'>{setNum(valCur, (Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings) -
+          <div className='flex justify-between font-semibold'>
+            <p className='responsiveText w-28'>{getTtl('Profit', ln)}:</p>
+            <p className='responsiveText'>{setNum(valCur, (Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings) -
               TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD) - TotalArrsExp(pnlData, valCur, valueCon.euroToUSD)), settings)}</p>
           </div>
         </div>
         {/*
         <div className='col-span-12 md:col-span-2 border border-[#b8ddf8] p-2 rounded-2xl'>
-          <p className='text-[0.8rem]'>Contract Status:</p>
+          <p className='responsiveText'>Contract Status:</p>
           
           <button className='mt-2 py-0.5 bg-slate-100  px-2 border border-slate-400 shadow-md rounded-lg text-slate-700
                     flex items-center gap-1'
@@ -210,13 +210,13 @@ const PNL = () => {
       </div>
 
       <div className='block md:flex flex-wrap mt-4 gap-2 '>
-        <p className='p-2 text-sm'>{getTtl('Invoices summary', ln)}:</p>
+        <p className='p-2 responsiveText'>{getTtl('Invoices summary', ln)}:</p>
         <TotalPnlTable data={pnlData} val={valCur} mult={valueCon.euroToUSD} />
       </div>
 
 
       <div className='flex items-center pt-4 gap-2'>
-        <p className='text-xs'>{enabledSwitch ? getTtl('Hide Details', ln) : getTtl('Show Details', ln)}</p>
+        <p className='responsiveText'>{enabledSwitch ? getTtl('Hide Details', ln) : getTtl('Show Details', ln)}</p>
         <Switch enabled={enabledSwitch} setEnabled={setEnabledSwitch} />
       </div>
 

@@ -124,7 +124,7 @@ const Users = () => {
         <button
           type="button"
           onClick={addNewUser}
-          className="bg-[var(--endeavour)] text-white focus:outline-none font-medium rounded-full text-xs px-4 py-2 text-center gap-1.5 items-center flex hover:opacity-90 transition-all"
+          className="bg-[var(--endeavour)] text-white focus:outline-none font-medium rounded-full responsiveText px-4 py-2 text-center gap-1.5 items-center flex hover:opacity-90 transition-all"
         >
           <TbLayoutGridAdd className="scale-110" />
           Add New User

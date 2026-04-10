@@ -67,17 +67,18 @@ const Header = ({
             {/* Search */}
             <div className="flex items-center relative w-[160px] h-7 border border-[var(--endeavour)] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
               <input
-                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full text-xs rounded-2xl"
+                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full responsiveText rounded-2xl"
+                style={{ fontSize: 'inherit' }}
                 placeholder={getTtl('Search', ln)}
                 value={globalFilter ?? ''}
                 onChange={e => setGlobalFilter(e.target.value)}
                 type='text'
               />
               {globalFilter === '' ? (
-                <FaSearch className="text-gray-400 absolute right-3 top-1.5" style={{ fontSize: 14 }} />
+                <FaSearch className="text-[var(--regent-gray)] absolute right-3 top-1.5" style={{ fontSize: 14 }} />
               ) : (
                 <TiDeleteOutline
-                  className="text-gray-500 absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors"
+                  className="text-[var(--regent-gray)] absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors"
                   onClick={() => setGlobalFilter('')}
                   style={{ fontSize: 16 }}
                 />
@@ -87,7 +88,7 @@ const Header = ({
             {addTable && (
             <button
               onClick={addTable}
-              className="flex items-center gap-1 bg-[var(--endeavour)] text-white text-xs font-medium px-3 h-7 rounded-full hover:opacity-90 transition-all"
+              className="flex items-center gap-1 bg-[var(--endeavour)] text-white responsiveText font-medium px-3 h-7 rounded-full hover:opacity-90 transition-all"
             >
               <GrAddCircle style={{ fontSize: 13 }} />
               Add Tables
@@ -97,7 +98,7 @@ const Header = ({
             {saveTable && (
             <button
               onClick={saveTable}
-              className="flex items-center text-[var(--endeavour)] border border-[var(--rock-blue)] text-xs font-medium px-3 h-7 rounded-full hover:bg-[var(--selago)] transition-all"
+              className="flex items-center text-[var(--endeavour)] border border-[var(--rock-blue)] responsiveText font-medium px-3 h-7 rounded-full hover:bg-[var(--selago)] transition-all"
             >
               Save
             </button>
@@ -160,17 +161,18 @@ const Header = ({
           {pathname !== '/accounting' && (
             <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--endeavour)] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 focus-within:border-blue-400 hover:border-gray-400 shadow-sm transition-all duration-200">
               <input
-                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full text-xs rounded-2xl"
+                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full responsiveText rounded-2xl"
+                style={{ fontSize: 'inherit' }}
                 placeholder={getTtl('Search', ln)}
                 value={globalFilter ?? ''}
                 onChange={e => setGlobalFilter(e.target.value)}
                 type='text'
               />
               {globalFilter === '' ? (
-                <FaSearch className="text-gray-400 absolute right-3 top-1.5" style={{ fontSize: 14 }} />
+                <FaSearch className="text-[var(--regent-gray)] absolute right-3 top-1.5" style={{ fontSize: 14 }} />
               ) : (
                 <TiDeleteOutline
-                  className="text-gray-500 absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors"
+                  className="text-[var(--regent-gray)] absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors"
                   onClick={() => setGlobalFilter('')}
                   style={{ fontSize: 16 }}
                 />

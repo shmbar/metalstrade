@@ -101,14 +101,14 @@ const SideBarMini = () => {
           </div>
           <div className='relative' ref={searchRef}>
             <BiSearch
-              className="text-xl text-[#003366] cursor-pointer ml-4"
+              className="w-5 h-5 text-[#003366] cursor-pointer ml-4"
               onClick={() => {
                 setSearchOpen((v) => !v);
                 setShowDropdown(true);
               }}
             />
             {searchOpen && (
-              <div className="absolute top-12 left-0 w-72 z-[100]">
+              <div className="absolute top-12 left-0 w-72 z-[100] responsiveText">
                 <input
                   type="text"
                   placeholder={placeholderText}
@@ -119,7 +119,8 @@ const SideBarMini = () => {
                     setQuery(e.target.value);
                     setShowDropdown(true);
                   }}
-                  className="w-full pl-4 pr-10 py-2.5 rounded-lg bg-gray-50 border border-transparent focus:border-[var(--rock-blue)] focus:bg-white focus:outline-none text-sm text-gray-600 placeholder-gray-400 transition-all"
+                  className="w-full pl-4 pr-10 py-2.5 rounded-lg bg-gray-50 border border-transparent focus:border-[var(--rock-blue)] focus:bg-white focus:outline-none placeholder-gray-400 transition-all"
+                  style={{ fontSize: 'inherit', color: 'var(--port-gore)' }}
                 />
                 {/* Search Dropdown */}
                 {showDropdown && searchResults.length > 0 && (
@@ -132,8 +133,8 @@ const SideBarMini = () => {
                         onClick={() => onPickResult(r)}
                         className='w-full text-left px-4 py-3 hover:bg-[var(--selago)] transition-all flex flex-col items-start'
                       >
-                        <div className='text-sm font-semibold text-[var(--port-gore)] break-words'>{r.title}</div>
-                        <div className='text-xs text-gray-500 truncate w-full'>{r.subtitle}</div>
+                        <div className='responsiveText font-medium text-[var(--port-gore)] break-words'>{r.title}</div>
+                        <div className='responsiveText text-[var(--regent-gray)] truncate w-full'>{r.subtitle}</div>
                       </button>
                     ))}
                   </div>
@@ -148,7 +149,7 @@ const SideBarMini = () => {
             {({ close }) => (
               <>
                 <div className='flex h-full'>
-                  <MenuButton className="flex items-center justify-center px-4 text-lg text-[#003366] focus:outline-none">
+                  <MenuButton className="flex items-center justify-center px-4 text-[#003366] focus:outline-none">
                     <ImMenu className='opacity-90' />
                   </MenuButton>
                 </div>
@@ -166,16 +167,16 @@ const SideBarMini = () => {
   className="fixed right-2 top-14 w-76 origin-top-left divide-y divide-[#003366]/20 rounded-xl shadow-lg border border-[var(--selago)] bg-[#bce1ff] focus:outline-none h-[450px] overflow-auto z-[20000]"
 >
   <div className='px-4 py-3 border-b border-[var(--selago)]'>
-    <p className='text-sm font-semibold text-[#003366]'>
+    <p className='responsiveText font-medium text-[var(--chathams-blue)]'>
       {user?.displayName || user?.email?.split('@')[0] || 'User'}
     </p>
-    <p className='text-xs text-[#003366] truncate'>{user?.email || ''}</p>
+    <p className='responsiveText text-[var(--chathams-blue)] truncate'>{user?.email || ''}</p>
   </div>
   <ul className="flex-1 divide-[#003366]/20 divide-y">
     {sideBar().map((x, i) => (
       <div key={i} className="py-2">
         {x.ttl && (
-          <div className='text-[11px] font-bold tracking-widest uppercase text-[#003366]/80 px-4 pb-2 pt-3' style={{letterSpacing: '0.12em'}}>
+          <div className='responsiveTextTable font-semibold tracking-widest uppercase text-[#003366]/80 px-4 pb-2 pt-3' style={{letterSpacing: '0.12em'}}>
             {getTtl(x.ttl, ln)}
           </div>
         )}
@@ -190,13 +191,13 @@ const SideBarMini = () => {
                       const isSubActive = pathName.slice(1) === sub.page;
                       return (
                         <Link href={`/${sub.page}`} key={subIdx} onClick={e => { close(); }}>
-                          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-150 text-sm mt-1
+                          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-150 responsiveText mt-1
                             ${isSubActive
                               ? 'bg-white text-[#003366] font-medium scale-[1.01]'
                               : 'text-[#003366] hover:bg-white/50 hover:translate-x-0.5'}`}
                           >
-                            <span className="text-base" style={{color: "#003366"}}>{sub.img}</span>
-                            <span className="text-[0.85rem] whitespace-nowrap font-medium">{getTtl(sub.item, ln)}</span>
+                            <span style={{color: "#003366"}}>{sub.img}</span>
+                            <span className="responsiveText whitespace-nowrap font-normal">{getTtl(sub.item, ln)}</span>
                           </div>
                         </Link>
                       );
@@ -208,13 +209,13 @@ const SideBarMini = () => {
             // Otherwise, render as normal link
             return (
               <Link href={`/${y.page}`} key={k} onClick={e => { close(); }}>
-                <div className="flex px-2 py-1 text-sm items-center">
+                <div className="flex px-2 py-1 responsiveText items-center">
                   <div className={`gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150
                     ${isActive
                       ? 'bg-white text-[#003366] font-medium scale-[1.01]'
                       : 'text-[#003366] hover:bg-white/50 hover:translate-x-0.5'}`}>
-                    <span className="text-lg transition-colors" style={{color: "#003366"}}>{y.img}</span>
-                    <span className="text-[0.85rem] whitespace-nowrap font-medium">{getTtl(y.item, ln)}</span>
+                    <span className="transition-colors" style={{color: "#003366"}}>{y.img}</span>
+                    <span className="responsiveText whitespace-nowrap font-normal">{getTtl(y.item, ln)}</span>
                   </div>
                 </div>
               </Link>
@@ -227,19 +228,19 @@ const SideBarMini = () => {
   </ul>
   <div className='py-2'>
     <Link href='/settings' onClick={e => close()}>
-      <div className="flex px-2 py-1 text-sm items-center">
+      <div className="flex px-2 py-1 responsiveText items-center">
         <div className="gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150 text-[#003366] hover:bg-white/50">
-          <FiSettings className='text-lg' style={{color: "#003366"}} />
-          <span className='text-[0.85rem] font-medium'>{getTtl('Settings', ln)}</span>
+          <FiSettings className='w-4 h-4' style={{color: "#003366"}} />
+          <span className='responsiveText font-normal'>{getTtl('Settings', ln)}</span>
         </div>
       </div>
     </Link>
   </div>
   <div className='py-2'>
-    <div className="flex px-2 py-1 text-sm items-center cursor-pointer" onClick={() => { LogOut(); close(); }}>
+    <div className="flex px-2 py-1 responsiveText items-center cursor-pointer" onClick={() => { LogOut(); close(); }}>
       <div className="gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150 text-[#003366] hover:bg-white/50">
-        <BiLogOutCircle className='text-lg' style={{color: "#003366"}} />
-        <span className='text-[0.85rem] font-medium'>{getTtl('Logout', ln)}</span>
+        <BiLogOutCircle className='w-4 h-4' style={{color: "#003366"}} />
+        <span className='responsiveText font-normal'>{getTtl('Logout', ln)}</span>
       </div>
     </div>
   </div>

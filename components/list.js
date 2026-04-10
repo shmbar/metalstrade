@@ -78,7 +78,7 @@ const List = ({ list, updateList, ttl, name }) => {
     return (
         <div className='w-full'>
             <div className='flex items-center justify-between'>
-                <p className='flex items-center text-sm font-medium pl-2 text-[var(--endeavour)]' >{ttl!=='Hs' ? getTtl(ttl, ln): ttl}:</p>
+                <p className='flex items-center responsiveText font-medium pl-2 text-[var(--endeavour)]' >{ttl!=='Hs' ? getTtl(ttl, ln): ttl}:</p>
                 <button className="blackButton py-1"
                     onClick={() => addItem()}>
                     <IoAddCircleOutline className='scale-110' /> {getTtl('Add', ln)}
@@ -88,11 +88,12 @@ const List = ({ list, updateList, ttl, name }) => {
             <ul ref={containerRef} className="flex flex-col mt-1 overflow-auto max-h-80 ring-1 ring-black/5 rounded-2xl divide-y" >
                 {displayList.filter(q => !q.deleted).map((x, i) => {
                     return (
-                        <li key={i} className="justify-between flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--endeavour)]">
+                        <li key={i} className="justify-between flex items-center gap-x-2 py-2 px-4 responsiveText text-[var(--endeavour)]">
                             {edit.status && edit.id === x.id ?
                                 <input
                                     className="w-full border rounded-full border-[var(--endeavour)] h-7
-focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-xs text-[var(--endeavour)]"
+focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-[var(--endeavour)]"
+                                    style={{ fontSize: 'inherit' }}
                                     onKeyDown={handleKeyPress}
                                     value={value1}
                                     onChange={(e) =>

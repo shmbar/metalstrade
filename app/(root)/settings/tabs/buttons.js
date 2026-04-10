@@ -8,13 +8,13 @@ const Buttons = ({ disabledButton, addItem, updateList, setIsDeleteOpen, clickCl
     return (
         <div className='border border-slate-300 p-4 rounded-lg mt-1 shadow-md  w-full gap-4 flex flex-wrap'>
             <Tltip direction='top' tltpText='Add new supplier'>
-                <Button className={`h-8 text-xs ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
+                <Button className={`h-8 responsiveText ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton}
                     onClick={addItem}>
                     <CirclePlus />   {getTtl('Add', ln)}
                 </Button>
             </Tltip>
             <Tltip direction='top' tltpText='Update supplier data'>
-                <Button className='h-8 text-xs'
+                <Button className='h-8 responsiveText'
                     variant='outline'
                     onClick={updateList}>
                     <FilePenLine />
@@ -23,7 +23,7 @@ const Buttons = ({ disabledButton, addItem, updateList, setIsDeleteOpen, clickCl
             </Tltip>
             <Tltip direction='top' tltpText='Delete supplier'>
                 <Button
-                    className='h-8 text-xs'
+                    className='h-8 responsiveText'
                     variant='outline'
                     onClick={() => setIsDeleteOpen(true)}
                     disabled={!value.id}>
@@ -32,7 +32,7 @@ const Buttons = ({ disabledButton, addItem, updateList, setIsDeleteOpen, clickCl
             </Tltip>
             <Tltip direction='top' tltpText='Clear form'>
                 <Button
-                    className='h-8 text-xs'
+                    className='h-8 responsiveText'
                     variant='outline'
                     onClick={clickClear}>
                     <Eraser />{getTtl('Clear', ln)}

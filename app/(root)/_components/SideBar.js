@@ -116,7 +116,7 @@ export default function Sidebar() {
     borderRadius: isCollapsed ? "10px" : "10px",
     background: active ? "#ffffff" : "transparent",
     boxShadow: active ? "0 2px 10px 0 rgba(44, 130, 201, 0.18)" : "none",
-    fontWeight: active ? 700 : 500,
+    fontWeight: active ? 600 : 400,
     color: "#003366",
     marginLeft: isCollapsed ? "auto" : "8px",
     marginRight: isCollapsed ? "auto" : "8px",
@@ -145,8 +145,7 @@ export default function Sidebar() {
         <img src={`/logo/${getSvgIcon(name)}`} alt={name} style={{ width: 16, height: 16, objectFit: "contain" }} />
       </span>
       {!collapsed && (
-        <span style={{
-          fontSize: "clamp(10px, 0.80vw, 12px)",
+        <span className="responsiveText" style={{
           whiteSpace: "nowrap",
           overflow: "hidden",
           textOverflow: "ellipsis",
@@ -234,20 +233,18 @@ export default function Sidebar() {
             {isSearching ? (
               <div>
                 {searchResults.length === 0 ? (
-                  <div style={{
+                  <div className="responsiveText" style={{
                     textAlign: "center",
                     color: "#003366",
                     opacity: 0.7,
-                    fontSize: "clamp(10px, 0.80vw, 12px)",
                     padding: "20px 16px",
                   }}>
                     No results found
                   </div>
                 ) : (
                   <>
-                    <div style={{
-                      fontSize: "clamp(9px, 0.5vw, 10px)",
-                      fontWeight: 700,
+                    <div className="responsiveTextTable" style={{
+                      fontWeight: 600,
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
                       color: "#003366",
@@ -279,15 +276,14 @@ export default function Sidebar() {
                               </span>
                               {!collapsed && (
                                 <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-                                  <span style={{
-                                    fontSize: "clamp(10px, 0.80vw, 12px)",
+                                  <span className="responsiveText" style={{
                                     whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                                     fontWeight: isActive ? 600 : 400,
                                   }}>
                                     {getTtl(link.item, ln)}
                                   </span>
                                   <span style={{
-                                    fontSize: "clamp(7px, 0.55vw, 9px)",
+                                    fontSize: "0.62rem",
                                     color: "#003366", opacity: 0.7,
                                     whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                                   }}>
@@ -336,12 +332,12 @@ export default function Sidebar() {
                     {section.ttl && !collapsed && (
                       <div
                         onClick={isCollapsible ? () => handleSectionToggle(section.ttl) : undefined}
+                        className="responsiveTextTable"
                         style={{
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "space-between",
-                          fontSize: "clamp(10px, 0.5vw, 12px)",
-                          fontWeight: 700,
+                          fontWeight: 600,
                           letterSpacing: "0.1em",
                           textTransform: "uppercase",
                           color: "#003366",

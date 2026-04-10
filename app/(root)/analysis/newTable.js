@@ -137,7 +137,6 @@ const Customtable = ({
         }
         .custom-table, .custom-table *, .glass-table, .glass-table * {
           font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
-          font-size: 10px !important;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
@@ -189,7 +188,7 @@ const Customtable = ({
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className={`px-2 py-2 font-poppins text-xs font-medium`}
+                          className={`px-2 py-2 font-poppins responsiveTextTable font-medium`}
                           style={{
                             color: 'var(--chathams-blue)',
                             backgroundColor: '#dbeeff',
@@ -222,7 +221,7 @@ const Customtable = ({
                         {row.index === firstOccurrenceOrder && (
                           <td
                             rowSpan={rowSpanOrder}
-                            className={`table_cell text-xs md:py-3 ${isLastRow ? 'border-b-0' : `border-t ${borderColor}`}`}
+                            className={`table_cell responsiveTextTable md:py-3 ${isLastRow ? 'border-b-0' : `border-t ${borderColor}`}`}
                           >
                             {row.original.order}
                           </td>
@@ -232,7 +231,7 @@ const Customtable = ({
                           return (
                             <td
                               key={cell.id}
-                              className={`table_cell text-xs md:py-3 border-t ${borderColor}`}
+                              className={`table_cell responsiveTextTable md:py-3 border-t ${borderColor}`}
                             >
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </td>
@@ -256,7 +255,7 @@ const Customtable = ({
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className={`px-2 py-2 font-poppins text-xs font-medium`}
+                          className={`px-2 py-2 font-poppins responsiveTextTable font-medium`}
                           style={{
                             color: 'var(--chathams-blue)',
                             backgroundColor: '#dbeeff',
@@ -289,7 +288,7 @@ const Customtable = ({
                         {row.index === firstOccurrenceOrder && (
                           <td
                             rowSpan={rowSpanOrder}
-                            className={`table_cell text-xs md:py-3 ${isLastRow ? 'border-b-0' : `border-t ${borderColor}`}`}
+                            className={`table_cell responsiveTextTable md:py-3 ${isLastRow ? 'border-b-0' : `border-t ${borderColor}`}`}
                           >
                             {row.original.order}
                           </td>
@@ -299,7 +298,7 @@ const Customtable = ({
                           return (
                             <td
                               key={cell.id}
-                              className={`table_cell text-xs md:py-3 border-t ${borderColor}`}
+                              className={`table_cell responsiveTextTable md:py-3 border-t ${borderColor}`}
                             >
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </td>
@@ -324,10 +323,10 @@ const Customtable = ({
               <Paginator
                 table={table}
                 className="flex-shrink-0"
-                buttonClassName="px-3 py-1 text-sm"
+                buttonClassName="px-3 py-1 responsiveText"
                 disabledClassName="opacity-50 cursor-not-allowed"
                 activeClassName="bg-blue-600 text-white"
-                inactiveClassName="bg-gray-100 text-gray-700"
+                inactiveClassName="bg-[#f3f4f6] text-[var(--port-gore)]"
               />
             </div>
           </div>

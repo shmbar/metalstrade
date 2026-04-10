@@ -822,17 +822,17 @@ return (
             <div className="text-[var(--endeavour)] responsiveText font-medium">Unsold Stocks</div>
             <div className="flex items-center gap-2">
             {stocksSortName2 ?
-                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName2()} />
+                <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName2()} />
                 :
-                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName2()} />}
+                <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName2()} />}
             {stocksSort2 ?
-                <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks2()} />
+                <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks2()} />
                 :
-                <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks2()} />}
+                <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks2()} />}
             </div>
         </div>
         {stockDataNoSold.length === 0 ? (
-            <div className="text-gray-400 text-sm py-4 text-center">No unsold stocks</div>
+            <div className="text-[var(--regent-gray)] responsiveText py-4 text-center">No unsold stocks</div>
         ) : (
             <>
                 {stockDataNoSold.map((x, i) => (
@@ -883,7 +883,7 @@ return (
   {userTitle === 'Admin' &&
                         <div className="w-full p-2 border-b border-[var(--selago)]">
                             <div className="flex gap-2">
-                                <span className="text-sm items-center flex w-44 text-[var(--endeavour)]">Future</span>
+                                <span className="responsiveText items-center flex w-44 text-[var(--endeavour)]">Future</span>
                                 <label className="pl-1">{
                                     <NumericFormat
                                         value={incoming}
@@ -926,8 +926,8 @@ return (
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Stocks - Paid</span>
                                     <div className="flex items-center gap-2">
-                                        {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName()} />}
-                                        {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks()} />}
+                                        {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} />}
+                                        {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} />}
                                     </div>
                                 </div>
                                 {stockData1.map((x, i) => {
@@ -990,8 +990,8 @@ return (
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Stocks - UnPaid</span>
                                     <div className="flex items-center gap-2">
-                                        {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocksName1()} />}
-                                        {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortStocks1()} />}
+                                        {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} />}
+                                        {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} />}
                                     </div>
                                 </div>
 
@@ -1051,8 +1051,8 @@ return (
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Clients - Payment</span>
                                     <div className="flex items-center gap-2">
-                                        {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(1)} />}
-                                        {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(1)} />}
+                                        {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} />}
+                                        {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} />}
                                     </div>
                                 </div>
 
@@ -1110,8 +1110,8 @@ return (
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Clients - Balances</span>
                                     <div className="flex items-center gap-2">
-                                        {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClientsName(0)} />}
-                                        {clientSort ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortClients(0)} />}
+                                        {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} />}
+                                        {clientSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} />}
                                     </div>
                                 </div>
 
@@ -1227,8 +1227,8 @@ return (
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Supplier - Payment</span>
                                     <div className="flex items-center gap-2">
-                                        {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
-                                        {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(1)} />}
+                                        {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
+                                        {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} />}
                                     </div>
                                 </div>
 
@@ -1290,8 +1290,8 @@ return (
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Supplier - Balances</span>
                                     <div className="flex items-center gap-2">
-                                        {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
-                                        {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortSupPmnts(0)} />}
+                                        {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
+                                        {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} />}
                                     </div>
                                 </div>
 
@@ -1352,8 +1352,8 @@ return (
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Expenses</span>
                                     <div className="flex items-center gap-2">
-                                        {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpensesName()} />}
-                                        {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-slate-600 cursor-pointer" onClick={() => sortExpenses()} />}
+                                        {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} />}
+                                        {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} />}
                                     </div>
                                 </div>
 

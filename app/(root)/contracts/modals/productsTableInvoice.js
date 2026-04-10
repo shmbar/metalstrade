@@ -365,27 +365,27 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                             <thead style={{ background: '#dbeeff' }}>
                                 <tr>
                                     <th scope="col" className="w-8 py-1 px-2"></th>
-                                    <th scope="col" className="w-6 pr-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
+                                    <th scope="col" className="w-6 pr-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         #</th>
-                                    {certOpen && <th scope="col" className="w-14 pr-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
+                                    {certOpen && <th scope="col" className="w-14 pr-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         Cert</th>}
-                                    <th scope="col" className="w-[9%] py-1 px-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
+                                    <th scope="col" className="w-[9%] py-1 px-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('PO', ln)}#</th>
-                                    <th scope="col" className="w-[26%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
+                                    <th scope="col" className="w-[26%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Description', ln)}</th>
-                                    <th scope="col" className="w-[14%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
+                                    <th scope="col" className="w-[14%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {contTitle}</th>
-                                    <th scope="col" className="w-[8%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
+                                    <th scope="col" className="w-[8%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Quantity', ln)} MT</th>
-                                    <th scope="col" className="w-[9%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
-                                        <div className='table-caption'>{getTtl('UnitPrice', ln)} <span className='text-xs'>
+                                    <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
+                                        <div className='table-caption'>{getTtl('UnitPrice', ln)} <span className='responsiveTextTable'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-[9%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
-                                        <div>{getTtl('Total', ln)} <span className='text-xs'>
+                                    <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
+                                        <div>{getTtl('Total', ln)} <span className='responsiveTextTable'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-[16%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)] border-l border-[#b8ddf8]">
+                                    <th scope="col" className="w-[16%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)] border-l border-[#b8ddf8]">
                                         {getTtl('Stock', ln)}</th>
-                                    <th scope="col" className="w-[9%] px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]">
+                                    <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Available Quantity', ln)} (MT)</th>
                                 </tr>
                             </thead>
@@ -399,19 +399,20 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 </div>
                                             </td>
                                             <td className="px-1 py-2 w-6">
-                                                <div className="flex items-center h-5 text-[13px] text-gray-800">
+                                                <div className="flex items-center h-5 responsiveTextTable text-[var(--port-gore)]">
                                                     {i + 1}
                                                 </div>
                                             </td>
                                             {certOpen && <td>
                                                 <input value={obj.cert} onChange={e => handleCert(e, i)}
                                                     className="w-14 border rounded-md border-slate-400 h-7 
-                                focus:outline-0 focus:border-slate-600 indent-1.5 text-[13px] text-slate-500"
+                                focus:outline-0 focus:border-slate-600 indent-1.5"
+                                                style={{ fontSize: 'inherit' }}
                                                 />
                                             </td>}
                                             <td
                                                 data-label='po'
-                                                className="px-1 py-1 text-[13px] text-gray-800 whitespace-normal"
+                                                className="px-1 py-1 responsiveTextTable text-[var(--port-gore)] whitespace-normal"
                                                 onClick={() => !fnl && handleDoubleClick(obj, 'po')}
                                             >
                                                 {edit.status &&
@@ -420,7 +421,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
 
                                                     <input
                                                         className="input w-full border rounded-md border-slate-400 h-7 
-                                focus:outline-0 focus:border-slate-600 indent-1.5 text-[13px] text-slate-500"
+                                focus:outline-0 focus:border-slate-600 indent-1.5"
+                                                style={{ fontSize: 'inherit' }}
                                                         onKeyDown={handleKeyPress}
                                                         value={value1}
                                                         maxLength={15}
@@ -433,7 +435,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                             </td>
                                             <td
                                                 data-label='description'
-                                                className="px-1 py-1 text-[13px] text-gray-800 whitespace-normal"
+                                                className="px-1 py-1 responsiveTextTable text-[var(--port-gore)] whitespace-normal"
                                             >
                                                 <div className='flex items-center gap-1'>
                                                     {obj.mtrlStatus === 'select' || obj.isSelection ?
@@ -452,7 +454,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                 edit.header === 'description' ?
                                                                 <input
                                                                     className="inpiut  w-full border rounded-md border-slate-400 h-7 
-                                focus:outline-0 focus:border-slate-600 indent-1.5 text-[13px] text-slate-500"
+                                focus:outline-0 focus:border-slate-600 indent-1.5"
+                                                style={{ fontSize: 'inherit' }}
                                                                     onKeyDown={handleKeyPress3}
                                                                     value={valueDesc}
                                                                     maxLength={80}
@@ -478,7 +481,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 <td
                                                     key={key}
                                                     data-label={key}
-                                                    className={`px-1 py-1 text-[13px] text-gray-800 overflow-hidden
+                                                    className={`px-1 py-1 responsiveTextTable text-[var(--port-gore)] overflow-hidden
                                                     ${key === 'stock' ? 'border-l' : ''}`}
                                                     onClick={() => !fnl && handleDoubleClick(obj, key)}
                                                 >
@@ -488,7 +491,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                         <div className='group relative  whitespace-normal'>
                                                             <input
                                                                 className="input w-full border rounded-md border-slate-400 h-7 
-                                focus:outline-0 focus:border-slate-600 indent-1.5 text-[13px] text-slate-500"
+                                focus:outline-0 focus:border-slate-600 indent-1.5"
+                                                style={{ fontSize: 'inherit' }}
                                                                 onKeyDown={handleKeyPress}
                                                                 value={value1}
                                                                 maxLength={key === 'container' ? 17 : 100}
@@ -498,7 +502,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                             />
                                                             <span className={`absolute hidden ${(key === 'unitPrc' || key === 'qnty') && value1?.substring(0, 1) === "=" ? 'group-hover:flex' : ''}
                                                                  bottom-[30px] w-fit p-1  bg-slate-400 rounded-md text-center
-                                                                  text-white text-[13px] z-50 whitespace-nowrap -left-0.5`}>
+                                                                  text-white responsiveTextTable z-50 whitespace-nowrap -left-0.5`}>
                                                                 {value1}
                                                             </span>
 
@@ -561,11 +565,11 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <td className="py-2 pl-4"></td>
                                     <td className="py-2 pl-4"></td>
                                     <td className="py-2 pl-4"></td>
-                                    <td className="px-1 py-2 text-xs text-slate-600 whitespace-nowrap border-t border-slate-500">
+                                    <td className="px-1 py-2 responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap border-t border-slate-500">
                                         {getTtl('Total Amount', ln)}:
                                     </td>
                                     <td className="px-1 py-2 border-t border-slate-500"></td>
-                                    <td className="px-1 py-2 text-[13px] text-slate-800 whitespace-nowrap border-t border-slate-500">
+                                    <td className="px-1 py-2 responsiveTextTable text-[var(--port-gore)] whitespace-nowrap border-t border-slate-500">
                                         <NumericFormat
                                             value={value.totalAmount}
                                             displayType="text"
@@ -586,14 +590,15 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <td className="py-2 pl-4"></td>
                                     <td className="py-2 pl-4"></td>
                                     <td className="py-2 pl-4"></td>
-                                    <td className="px-1 py-2 text-xs text-slate-600 whitespace-nowrap ">
+                                    <td className="px-1 py-2 responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap ">
                                         {getTtl('Prepayment', ln)}:
                                     </td>
-                                    <td className="px-1 py-2 text-sm text-slate-800 whitespace-nowrap" onClick={() => !fnl && handleClick1()}>
+                                    <td className="px-1 py-2 responsiveText text-[var(--port-gore)] whitespace-nowrap" onClick={() => !fnl && handleClick1()}>
                                         {percent ?
                                             <input
                                                 className="w-full border rounded-md border-slate-400 h-7 
-                focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-slate-500"
+                focus:outline-0 focus:border-slate-600 indent-1.5"
+                                                style={{ fontSize: 'inherit' }}
                                                 onKeyDown={handleKeyPress1}
                                                 value={value1}
                                                 onChange={(e) =>
@@ -611,7 +616,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                             />
                                         }
                                     </td>
-                                    <td className="px-1 py-2 text-sm text-slate-800 whitespace-nowrap">
+                                    <td className="px-1 py-2 responsiveText text-[var(--port-gore)] whitespace-nowrap">
                                         <NumericFormat
                                             value={value.totalPrepayment}
                                             displayType="text"
@@ -633,15 +638,16 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                         <td className="py-2 pl-4"></td>
                                         <td className="py-2 pl-4"></td>
                                         <td className="py-2 pl-4"></td>
-                                        <td className="px-1 py-2 text-xs text-slate-600 whitespace-nowrap ">
+                                        <td className="px-1 py-2 responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap ">
                                             {getTtl('Prepaid Amount', ln)}:
                                         </td>
                                         <td className="py-2 pl-4"></td>
-                                        <td className="px-1 py-2 text-sm text-slate-800 whitespace-nowrap" onClick={() => !fnl && handleClick2()}>
+                                        <td className="px-1 py-2 responsiveText text-[var(--port-gore)] whitespace-nowrap" onClick={() => !fnl && handleClick2()}>
                                             {prepayment ?
                                                 <input
                                                     className="w-full border rounded-md border-slate-400 h-7 
-                focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-slate-500"
+                focus:outline-0 focus:border-slate-600 indent-1.5"
+                                                style={{ fontSize: 'inherit' }}
                                                     onKeyDown={handleKeyPress2}
                                                     value={value1}
                                                     onChange={(e) =>
@@ -672,11 +678,11 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                         <td className="py-2 pl-4"></td>
                                         <td className="py-2 pl-4"></td>
                                         <td className="py-2 pl-4"></td>
-                                        <td className="px-1 py-2 text-xs text-slate-600 whitespace-nowrap font-medium">
+                                        <td className="px-1 py-2 responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap font-medium">
                                             {getTtl('Balance Due', ln)}:
                                         </td>
                                         <td className="py-2 pl-4"></td>
-                                        <td className="px-1 py-2 text-sm text-slate-800 whitespace-nowrap">
+                                        <td className="px-1 py-2 responsiveText text-[var(--port-gore)] whitespace-nowrap">
                                             <NumericFormat
                                                 value={Math.ceil(value.balanceDue * 100) / 100}
                                                 displayType="text"
@@ -740,12 +746,12 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                             <div className='flex leading-7 items-center gap-1'>
                                 <CheckBox size='size-5' checked={value.draft ?? false}
                                     onChange={() => setValue({ ...value, draft: !value.draft })} />
-                                <span className='text-xs'>Draft</span>
+                                <span className='responsiveTextTable'>Draft</span>
                             </div>
                             <div className='flex leading-7 items-center gap-1'>
                                 <CheckBox size='size-5' checked={value.completed ?? false}
                                     onChange={() => setValue({ ...value, completed: !value.completed })} />
-                                <span className='text-xs'>Invoice completed</span>
+                                <span className='responsiveTextTable'>Invoice completed</span>
                             </div>
                         </div>
                         {

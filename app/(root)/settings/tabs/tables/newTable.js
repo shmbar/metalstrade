@@ -91,7 +91,7 @@ const Customtable = ({
         <div className="flex items-center gap-2 p-2">
           <div className="flex items-center relative w-[140px] h-7 border border-[var(--endeavour)] rounded-2xl bg-white shadow-sm">
             <input
-              className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full text-xs rounded-2xl"
+              className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full responsiveText rounded-2xl"
               placeholder="Search..."
               value={globalFilter ?? ''}
               onChange={e => setGlobalFilter(e.target.value)}
@@ -100,7 +100,7 @@ const Customtable = ({
             {globalFilter === '' ? (
               <FaSearch className="text-[var(--endeavour)] absolute right-3" style={{ fontSize: 12 }} />
             ) : (
-              <TiDeleteOutline className="text-gray-500 absolute right-3 cursor-pointer hover:text-red-500" onClick={() => setGlobalFilter('')} style={{ fontSize: 16 }} />
+              <TiDeleteOutline className="text-[var(--regent-gray)] absolute right-3 cursor-pointer hover:text-red-500" onClick={() => setGlobalFilter('')} style={{ fontSize: 16 }} />
             )}
           </div>
           <div className="w-7 h-7 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)]">
@@ -122,7 +122,7 @@ const Customtable = ({
                   {hdGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className="px-3 py-3 text-xs text-[var(--chathams-blue)] text-center font-medium font-poppins"
+                      className="px-3 py-3 responsiveTextTable text-[var(--chathams-blue)] text-center font-medium font-poppins"
                       style={{ width: `${header.column.getSize()}px` }}
                     >
                       {header.column.getCanSort() ? (
@@ -143,7 +143,7 @@ const Customtable = ({
                       )}
                       {filterOn && header.column.getCanFilter() && (
                         <input
-                          className="mt-1 w-full border border-[var(--selago)] rounded-full px-2 py-0.5 text-[10px] font-normal focus:outline-none focus:border-[var(--endeavour)]"
+                          className="mt-1 w-full border border-[var(--selago)] rounded-full px-2 py-0.5 responsiveTextTable font-normal focus:outline-none focus:border-[var(--endeavour)]"
                           value={header.column.getFilterValue() ?? ''}
                           onChange={e => header.column.setFilterValue(e.target.value)}
                           placeholder="Filter..."
@@ -166,20 +166,20 @@ const Customtable = ({
                     <td
                       key={cell.id}
                       data-label={cell.column.columnDef.header}
-                      className="px-3 py-2 text-[11px] font-normal text-center font-poppins"
+                      className="px-3 py-2 responsiveTextTable font-normal text-center font-poppins"
                     >
                       <div className="flex items-center justify-center">
                         {cell.column.id === 'edit' ? (
-                          <div className="px-2 py-0.5 rounded-full bg-green-100 border border-green-300 text-[11px] inline-flex items-center justify-center min-w-[60px]">
+                          <div className="px-2 py-0.5 rounded-full bg-green-100 border border-green-300 responsiveTextTable inline-flex items-center justify-center min-w-[60px]">
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         ) : cell.column.id === 'delete' ? (
-                          <div className="px-2 py-0.5 rounded-full bg-red-100 border border-red-300 text-[11px] inline-flex items-center justify-center min-w-[60px]">
+                          <div className="px-2 py-0.5 rounded-full bg-red-100 border border-red-300 responsiveTextTable inline-flex items-center justify-center min-w-[60px]">
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         ) : (
                           <div
-                            className="px-3 py-1 rounded-xl text-[11px] font-normal w-full"
+                            className="px-3 py-1 rounded-xl responsiveTextTable font-normal w-full"
                             style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}
                           >
                             {cell.getValue() != null && cell.getValue() !== ''

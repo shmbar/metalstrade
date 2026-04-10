@@ -407,29 +407,29 @@ const FloatingChat = () => {
                     <div className="px-3 py-2.5 border-b border-[#b8ddf8] flex items-center justify-between bg-[#dbeeff]">
                         <div className="flex items-center gap-2">
                             <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
-                            <span className="text-sm font-semibold text-[var(--port-gore)]">Assistant</span>
+                            <span className="responsiveText font-semibold text-[var(--port-gore)]">Assistant</span>
                         </div>
                         <div className="flex items-center gap-2">
                             {!dataLoading && (
                                 <div className="flex items-center gap-1.5">
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}>
+                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.62rem', backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}>
                                         {contractsData.length} Contracts
                                     </span>
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ backgroundColor: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
+                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.62rem', backgroundColor: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
                                         {invoicesData.length} Invoices
                                     </span>
                                 </div>
                             )}
                             <button
                                 onClick={handleClearChat}
-                                className="p-1 hover:text-[var(--endeavour)] text-gray-400 transition-colors"
+                                className="p-1 hover:text-[var(--endeavour)] text-[var(--regent-gray)] transition-colors"
                                 title="Reset chat"
                             >
                                 <Trash2 className="w-3.5 h-3.5" />
                             </button>
                             <button
                                 onClick={() => setChatOpen(false)}
-                                className="p-1 hover:text-[var(--endeavour)] text-gray-400 transition-colors"
+                                className="p-1 hover:text-[var(--endeavour)] text-[var(--regent-gray)] transition-colors"
                                 title="Close chat"
                             >
                                 <X className="w-3.5 h-3.5" />
@@ -450,7 +450,7 @@ const FloatingChat = () => {
                                     </div>
                                 )}
                                 <div
-                                    className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
+                                    className={`max-w-[80%] rounded-2xl px-3 py-2 responsiveText ${
                                         msg.role === 'user'
                                             ? 'rounded-br-sm'
                                             : msg.isError
@@ -463,7 +463,7 @@ const FloatingChat = () => {
                                         className="break-words leading-relaxed"
                                         dangerouslySetInnerHTML={{ __html: formatMessageContent(msg.content) }}
                                     />
-                                    <span className="text-[10px] mt-1 block text-right text-gray-400">
+                                    <span className="mt-1 block text-right text-[var(--regent-gray)]" style={{ fontSize: '0.62rem' }}>
                                         {msg.time}
                                     </span>
                                 </div>
@@ -481,7 +481,7 @@ const FloatingChat = () => {
                                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--endeavour)] to-[var(--chathams-blue)] flex items-center justify-center mr-2">
                                     <BsRobot className="w-3.5 h-3.5 text-white" />
                                 </div>
-                                <div className="bg-white text-gray-700 shadow-sm border border-gray-100 rounded-2xl rounded-bl-md px-3 py-2">
+                                <div className="bg-white text-[var(--port-gore)] shadow-sm border border-gray-100 rounded-2xl rounded-bl-md px-3 py-2">
                                     <div className="flex items-center gap-1.5">
                                         <div className="flex gap-1">
                                             <span className="w-1.5 h-1.5 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
@@ -507,8 +507,8 @@ const FloatingChat = () => {
                                 onKeyDown={handleKeyDown}
                                 placeholder="Ask me anything"
                                 disabled={isLoading || dataLoading}
-                                className="flex-1 outline-none text-sm text-[var(--port-gore)] placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-                                style={{ backgroundColor: 'transparent' }}
+                                className="flex-1 outline-none responsiveText text-[var(--port-gore)] placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                                style={{ fontSize: 'inherit', backgroundColor: 'transparent' }}
                             />
                             <button
                                 onClick={handleSendMessage}
@@ -532,7 +532,7 @@ const FloatingChat = () => {
                                             setNewMessage(action);
                                             setTimeout(() => handleSendMessage(), 100);
                                         }}
-                                        className="px-2.5 py-1 bg-white border border-gray-200 rounded-full text-xs text-gray-600 hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
+                                        className="px-2.5 py-1 bg-white border border-gray-200 rounded-full responsiveText text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
                                     >
                                         {action}
                                     </button>

@@ -184,7 +184,7 @@ const GlobalSearch = () => {
         <div className='relative flex-1 max-w-xl' ref={searchRef}>
             {/* Search Input */}
             <div className='relative w-full'>
-                <BiSearch className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg' />
+                <BiSearch className='absolute left-3 top-1/2 -translate-y-1/2 text-[var(--regent-gray)] w-5 h-5' />
                 <input
                     ref={inputRef}
                     type='text'
@@ -192,14 +192,14 @@ const GlobalSearch = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={handleFocus}
-                    className='w-full pl-10 pr-10 py-2.5 rounded-lg bg-white border border-gray-300 focus:border-[var(--rock-blue)] focus:outline-none text-sm text-gray-700 placeholder-gray-500 transition-all'
+                    className='w-full pl-10 pr-10 py-2.5 rounded-lg bg-white border border-gray-300 focus:border-[var(--rock-blue)] focus:outline-none responsiveText text-[var(--port-gore)] placeholder-gray-500 transition-all'
                 />
                 {searchQuery && (
                     <button
                         onClick={() => setSearchQuery('')}
-                        className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
+                        className='absolute right-3 top-1/2 -translate-y-1/2 text-[var(--regent-gray)] hover:text-[var(--port-gore)]'
                     >
-                        <IoClose className='text-lg' />
+                        <IoClose className='w-5 h-5' />
                     </button>
                 )}
             </div>
@@ -208,11 +208,11 @@ const GlobalSearch = () => {
             {isOpen && (
                 <div className='absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-200 z-50 max-h-[70vh] overflow-y-auto'>
                     {!searchQuery ? (
-                        <div className='p-4 text-center text-gray-400 text-sm'>
+                        <div className='p-4 text-center text-[var(--regent-gray)] responsiveText'>
                             {getTtl('Type to search contracts, invoices, expenses...', ln)}
                         </div>
                     ) : totalResults === 0 ? (
-                        <div className='p-4 text-center text-gray-500 text-sm'>
+                        <div className='p-4 text-center text-[var(--regent-gray)] responsiveText'>
                             {getTtl('No results found for', ln)} "{searchQuery}"
                         </div>
                     ) : (
@@ -226,11 +226,11 @@ const GlobalSearch = () => {
                                     >
                                         <div className='flex items-center gap-2'>
                                             <BsFileText className='text-green-600' />
-                                            <span className='text-xs font-semibold text-gray-600 uppercase'>
+                                            <span className='responsiveText font-semibold text-[var(--port-gore)] uppercase'>
                                                 {getTtl('Contracts', ln)} ({results.contracts.length})
                                             </span>
                                         </div>
-                                        <span className='text-xs text-gray-400'>View all →</span>
+                                        <span className='responsiveText text-[var(--regent-gray)]'>View all →</span>
                                     </button>
                                     {results.contracts.map((item) => (
                                         <button
@@ -239,17 +239,17 @@ const GlobalSearch = () => {
                                             className='w-full px-4 py-3 hover:bg-blue-50 flex items-center justify-between text-left transition-colors'
                                         >
                                             <div>
-                                                <p className='text-sm font-medium text-gray-800'>
+                                                <p className='responsiveText font-medium text-[var(--port-gore)]'>
                                                     <span className='text-green-600 font-semibold'>Contract</span> • PO# {item.order}
                                                 </p>
-                                                <p className='text-xs text-gray-500'>
+                                                <p className='responsiveText text-[var(--regent-gray)]'>
                                                     {getSettingValue('Supplier', item.supplier, 'nname')} • {item.date ? dateFormat(item.date, 'dd.mm.yy') : '-'}
                                                 </p>
                                             </div>
-                                            <span className={`px-2 py-0.5 rounded-full text-xs ${
+                                            <span className={`px-2 py-0.5 rounded-full responsiveText ${
                                                 item.conStatus === 'Completed' ? 'bg-green-100 text-green-700' :
                                                 item.conStatus === 'In Progress' ? 'bg-blue-100 text-blue-700' :
-                                                'bg-gray-100 text-gray-600'
+                                                'bg-gray-100 text-[var(--port-gore)]'
                                             }`}>
                                                 {item.conStatus || 'Open'}
                                             </span>
@@ -267,11 +267,11 @@ const GlobalSearch = () => {
                                     >
                                         <div className='flex items-center gap-2'>
                                             <HiOutlineDocumentText className='text-blue-600' />
-                                            <span className='text-xs font-semibold text-gray-600 uppercase'>
+                                            <span className='responsiveText font-semibold text-[var(--port-gore)] uppercase'>
                                                 {getTtl('Invoices', ln)} ({results.invoices.length})
                                             </span>
                                         </div>
-                                        <span className='text-xs text-gray-400'>View all →</span>
+                                        <span className='responsiveText text-[var(--regent-gray)]'>View all →</span>
                                     </button>
                                     {results.invoices.map((item) => (
                                         <button
@@ -280,18 +280,18 @@ const GlobalSearch = () => {
                                             className='w-full px-4 py-3 hover:bg-blue-50 flex items-center justify-between text-left transition-colors'
                                         >
                                             <div>
-                                                <p className='text-sm font-medium text-gray-800'>
+                                                <p className='responsiveText font-medium text-[var(--port-gore)]'>
                                                     <span className='text-blue-600 font-semibold'>Invoice</span> • #{item.invoice}
                                                 </p>
-                                                <p className='text-xs text-gray-500'>
+                                                <p className='responsiveText text-[var(--regent-gray)]'>
                                                     {item.client} • {item.totalAmount ? `${item.cur || ''} ${item.totalAmount}` : '-'}
                                                 </p>
                                             </div>
-                                            <span className={`px-2 py-0.5 rounded-full text-xs ${
+                                            <span className={`px-2 py-0.5 rounded-full responsiveText ${
                                                 item.invoiceStatus === 'Paid' ? 'bg-green-100 text-green-700' :
                                                 item.invoiceStatus === 'Draft' ? 'bg-yellow-100 text-yellow-700' :
                                                 item.canceled ? 'bg-red-100 text-red-700' :
-                                                'bg-gray-100 text-gray-600'
+                                                'bg-gray-100 text-[var(--port-gore)]'
                                             }`}>
                                                 {item.canceled ? 'Canceled' : item.invoiceStatus || 'Draft'}
                                             </span>
@@ -309,11 +309,11 @@ const GlobalSearch = () => {
                                     >
                                         <div className='flex items-center gap-2'>
                                             <HiOutlineCurrencyDollar className='text-purple-600' />
-                                            <span className='text-xs font-semibold text-gray-600 uppercase'>
+                                            <span className='responsiveText font-semibold text-[var(--port-gore)] uppercase'>
                                                 {getTtl('Expenses', ln)} ({results.expenses.length})
                                             </span>
                                         </div>
-                                        <span className='text-xs text-gray-400'>View all →</span>
+                                        <span className='responsiveText text-[var(--regent-gray)]'>View all →</span>
                                     </button>
                                     {results.expenses.map((item) => (
                                         <button
@@ -322,14 +322,14 @@ const GlobalSearch = () => {
                                             className='w-full px-4 py-3 hover:bg-blue-50 flex items-center justify-between text-left transition-colors'
                                         >
                                             <div>
-                                                <p className='text-sm font-medium text-gray-800'>
+                                                <p className='responsiveText font-medium text-[var(--port-gore)]'>
                                                     <span className='text-purple-600 font-semibold'>Expense</span> • {getSettingValue('Supplier', item.supplier, 'nname') || 'Expense'}
                                                 </p>
-                                                <p className='text-xs text-gray-500'>
+                                                <p className='responsiveText text-[var(--regent-gray)]'>
                                                     {getSettingValue('Expenses', item.expType, 'expType') || '-'} • {item.amount ? `${getSettingValue('Currency', item.cur, 'cur') || ''} ${item.amount}` : '-'}
                                                 </p>
                                             </div>
-                                            <span className={`px-2 py-0.5 rounded-full text-xs ${
+                                            <span className={`px-2 py-0.5 rounded-full responsiveText ${
                                                 item.paidUnpaid === 'Paid' ? 'bg-green-100 text-green-700' :
                                                 'bg-orange-100 text-orange-700'
                                             }`}>
@@ -349,11 +349,11 @@ const GlobalSearch = () => {
                                     >
                                         <div className='flex items-center gap-2'>
                                             <HiOutlineCalculator className='text-teal-600' />
-                                            <span className='text-xs font-semibold text-gray-600 uppercase'>
+                                            <span className='responsiveText font-semibold text-[var(--port-gore)] uppercase'>
                                                 {getTtl('Accounting', ln)} ({results.accounting.length})
                                             </span>
                                         </div>
-                                        <span className='text-xs text-gray-400'>View all →</span>
+                                        <span className='responsiveText text-[var(--regent-gray)]'>View all →</span>
                                     </button>
                                     {results.accounting.map((item) => (
                                         <button
@@ -362,10 +362,10 @@ const GlobalSearch = () => {
                                             className='w-full px-4 py-3 hover:bg-blue-50 flex items-center justify-between text-left transition-colors'
                                         >
                                             <div>
-                                                <p className='text-sm font-medium text-gray-800'>
+                                                <p className='responsiveText font-medium text-[var(--port-gore)]'>
                                                     <span className='text-teal-600 font-semibold'>Accounting</span> • {getSettingValue('Expenses', item.expType, 'expType') || 'Expense'} {getSettingValue('Supplier', item.supplier, 'nname')} • {item.salesInv}
                                                 </p>
-                                                <p className='text-xs text-gray-500'>
+                                                <p className='responsiveText text-[var(--regent-gray)]'>
                                                     {item.amount ? `${getSettingValue('Currency', item.cur, 'cur') || ''} ${item.amount}` : '-'}
                                                 </p>
                                             </div>

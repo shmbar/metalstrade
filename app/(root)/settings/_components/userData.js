@@ -17,10 +17,11 @@ const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, di
 
     return (
         <div className='flex gap-4 justify-between  my-3 w-full'>
-            <p className='flex text-sm font-medium whitespace-nowrap pt-1'>{title}:</p>
+            <p className='flex responsiveText font-medium whitespace-nowrap pt-1'>{title}:</p>
             <div className='w-full '>
                 <input
-                    className="input text-[12px] shadow-lg h-7 !rounded-full"
+                    className="input shadow-lg h-7 !rounded-full"
+                    style={{ fontSize: 'inherit' }}
                     type={type}
                     name={name}
                     value={value[name] || ''}  // Dynamically bind value
@@ -40,7 +41,7 @@ const USerDSelect = ({ data, value, setValue, name, errors, ln }) => {
 
     return (
         <div className='flex gap-4 justify-between'>
-            <p className='flex items-center text-sm font-medium whitespace-nowrap'>Title:</p>
+            <p className='flex items-center responsiveText font-medium whitespace-nowrap'>Title:</p>
             <div className='w-full'>
                 <Selector arr={data} value={value}
                     onChange={(e) => setValue(prev => ({ ...prev, [name]: e }))}
@@ -195,7 +196,7 @@ const UserData = ({ setIsOpen, data, setData, user, setUser }) => {
             />
 
 
-            <div className={`pt-2 text-lg font-medium leading-5 text-gray-900 flex gap-4 flex-wrap justify-center md:justify-start
+            <div className={`pt-2 responsiveText font-medium leading-5 text-[var(--port-gore)] flex gap-4 flex-wrap justify-center md:justify-start
                 ${isPending ? 'opacity-50' : ''}`}>
                 <button
                     type="button"

@@ -122,15 +122,15 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                             <thead style={{ background: '#dbeeff' }}>
                                 <tr>
                                     <th scope="col" className=" w-1/12 py-1 pl-4 "></th>
-                                    <th scope="col" className="w-1/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]"  >
+                                    <th scope="col" className="w-1/12 px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]"  >
                                         #</th>
-                                    <th scope="col" className="w-6/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
+                                    <th scope="col" className="w-6/12 px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]" >
                                         {getTtl('Description', ln)}  </th>
-                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
-                                        <div>   {getTtl('Quantity', ln)} <span className='font-bold'>
+                                    <th scope="col" className=" w-2/12 px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]" >
+                                        <div>   {getTtl('Quantity', ln)} <span className='font-medium'>
                                             {q !== '' ? '(' + q + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-2/12 px-1 py-1 text-left text-[13px] font-medium text-[var(--chathams-blue)]" >
-                                        <div>{getTtl('UnitPrice', ln)} <span className='font-bold'>
+                                    <th scope="col" className="w-2/12 px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]" >
+                                        <div>{getTtl('UnitPrice', ln)} <span className='font-medium'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
                                 </tr>
                             </thead>
@@ -144,7 +144,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                 </div>
                                             </td>
                                             <td className="px-1 py-2 ">
-                                                <div className="flex items-center h-5 text-[13px] text-gray-800">
+                                                <div className="flex items-center h-5 responsiveTextTable text-[var(--port-gore)]">
                                                     {i + 1}
                                                 </div>
                                             </td>
@@ -154,7 +154,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                     <td
                                                         key={key}
                                                         data-label={key}
-                                                        className="px-1 py-1 text-[13px] text-gray-800 whitespace-normal
+                                                        className="px-1 py-1 responsiveTextTable text-[var(--port-gore)] whitespace-normal
                                                        tableStyle relative"
                                                         onClick={() => handleDoubleClick(obj, key)}
                                                     >
@@ -164,7 +164,8 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                             <div className='group relative  whitespace-normal'>
                                                                 <input
                                                                     className="input w-full border rounded-md border-slate-400 h-7 
-                                focus:outline-0 focus:border-slate-600 indent-1.5 text-[13px] text-slate-500"
+                                focus:outline-0 focus:border-slate-600 indent-1.5"
+                                                                    style={{ fontSize: 'inherit' }}
                                                                     onKeyDown={handleKeyPress}
                                                                     value={value1}
                                                                     maxLength={70}
@@ -175,7 +176,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                 />
                                                                 <span className={`absolute hidden ${key === 'unitPrc' && value1.substr(0, 1) === "=" ? 'group-hover:flex' : ''}
                                                                  bottom-[30px] w-fit p-1  bg-slate-400 rounded-md text-center
-                                                                  text-white text-xs z-50 whitespace-nowrap -left-0.5`}>
+                                                                  text-white responsiveTextTable z-50 whitespace-nowrap -left-0.5`}>
                                                                     {value1}</span>
                                                             </div>
                                                         ) : key === 'unitPrc' ?

@@ -19,7 +19,7 @@ export default function Example({ languages, compData, setCompData, lang }) {
       <Listbox value={selected} onChange={(e) => setSelection(e)}>
         <div className="relative">
           <Listbox.Button className="cursor-pointer w-full h-8 rounded-full border border-[#E5E7EB] bg-white
-                     focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20 text-sm
+                     focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20 responsiveText
                      pl-4 pr-10 text-[var(--port-gore)] transition-all hover:border-[var(--rock-blue)]">
             {({ open }) => (
               <>
@@ -39,7 +39,7 @@ export default function Example({ languages, compData, setCompData, lang }) {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-sm shadow-lg border border-[#dbeeff] focus:outline-none z-50">
+            <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 responsiveText shadow-lg border border-[#dbeeff] focus:outline-none z-50">
               {languages.map((language, personIdx) => (
                 <Listbox.Option
                   key={personIdx}

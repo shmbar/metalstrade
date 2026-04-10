@@ -543,9 +543,9 @@ const Invoices = () => {
 						{/* Alert Section */}
 						{alertArr.length > 0 && (
 							<div className='mt-4 px-2 sm:px-3'>
-								<div className="text-sm font-semibold border border-[#b8ddf8] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
+								<div className="responsiveText font-medium border border-[#b8ddf8] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
 									<div style={{ color: 'var(--chathams-blue)' }}>
-										<span className='text-xs sm:text-sm border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
+										<span className='responsiveText border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
 										<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
 									</div>
 								</div>

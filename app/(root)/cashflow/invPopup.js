@@ -52,11 +52,11 @@ export default function InvPopup({ inv, onClose }) {
                     className="px-5 py-3"
                     style={{ background: '#dbeeff', borderBottom: '1px solid #b8ddf8' }}
                 >
-                    <DialogTitle className="text-sm font-semibold" style={{ color: '#003366' }}>
+                    <DialogTitle className="responsiveText font-semibold" style={{ color: '#003366' }}>
                         Invoice&nbsp;
                         <span style={{ color: 'var(--endeavour)' }}>{inv.invoice || '—'}</span>
                     </DialogTitle>
-                    <p className="text-[11px] mt-0.5" style={{ color: '#6b7280' }}>
+                    <p className="responsiveTextTable mt-0.5" style={{ color: 'var(--regent-gray)' }}>
                         {isClient ? 'Client Invoice' : 'Supplier Invoice'}
                     </p>
                 </DialogHeader>

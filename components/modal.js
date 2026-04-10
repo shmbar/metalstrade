@@ -40,7 +40,7 @@ const Modal = ({ isOpen, setIsOpen, title, children, w }) => {
                                  `}>
                                     <DialogTitle
                                         as="h3"
-                                        className="text-sm font-semibold leading-tight text-[var(--chathams-blue)] border-b border-[#b8ddf8] p-2.5 pl-3 pt-2.5 pb-2.5 rounded-t-xl"
+                                        className="responsiveText font-semibold leading-tight text-[var(--chathams-blue)] border-b border-[#b8ddf8] p-2.5 pl-3 pt-2.5 pb-2.5 rounded-t-xl"
                                         style={{ background: '#dbeeff' }}
                                     >
                                         <div className='flex justify-between items-center gap-3'>
@@ -48,7 +48,7 @@ const Modal = ({ isOpen, setIsOpen, title, children, w }) => {
                                                 <div className='w-0.5 h-4 bg-[var(--endeavour)] rounded-full'></div>
                                                 <span>{title}</span>
                                             </div>
-                                            <AiOutlineCloseCircle className='scale-110 text-gray-400 hover:text-[var(--endeavour)] cursor-pointer transition-colors'
+                                            <AiOutlineCloseCircle className='scale-110 text-[var(--regent-gray)] hover:text-[var(--endeavour)] cursor-pointer transition-colors'
                                                 onClick={() => setIsOpen(false)} />
                                         </div>
 

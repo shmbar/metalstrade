@@ -240,7 +240,7 @@ const Customtable = ({
                         {group.headers.map(header => (
                           <th
                             key={header.id}
-                            className="px-2 py-2 text-xs font-poppins font-medium"
+                            className="px-2 py-2 responsiveTextTable font-poppins font-medium"
                             style={{
                               color: 'var(--chathams-blue)',
  width: header.column.id === 'select' ? '50px' : undefined,
@@ -301,9 +301,9 @@ const Customtable = ({
                         return (
                           <td
                             key={cell.id}
-                            className={`px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect text-[11px]`}
+                            className={`px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect responsiveTextTable`}
                             style={{
-                              color: '#1F2937',
+                              color: 'var(--port-gore)',
                               width: cell.column.id === 'select' ? '50px' : undefined,
                               maxWidth: cell.column.id === 'select' ? '50px' : undefined,
                               fontWeight: '400',
@@ -316,17 +316,17 @@ const Customtable = ({
                               </div>
                             ) : isCompleted ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="px-3 py-1 rounded-xl text-[11px] font-normal" style={{ backgroundColor: cell.getValue() ? '#dcfce7' : '#fee2e2', color: cell.getValue() ? '#16a34a' : '#dc2626', border: `1px solid ${cell.getValue() ? '#bbf7d0' : '#fecaca'}` }}>{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
+                                <span className="px-3 py-1 rounded-xl responsiveTextTable font-normal" style={{ backgroundColor: cell.getValue() ? '#dcfce7' : '#fee2e2', color: cell.getValue() ? '#16a34a' : '#dc2626', border: `1px solid ${cell.getValue() ? '#bbf7d0' : '#fecaca'}` }}>{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
                               </div>
                             ) : isStatus ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="px-3 py-1 rounded-xl text-[11px] font-normal" style={{ backgroundColor: bg || undefined, color: bg === '#dcfce7' ? '#16a34a' : bg === '#fee2e2' ? '#dc2626' : undefined }}>{cell.getValue()}</span>
+                                <span className="px-3 py-1 rounded-xl responsiveTextTable font-normal" style={{ backgroundColor: bg || undefined, color: bg === '#dcfce7' ? '#16a34a' : bg === '#fee2e2' ? '#dc2626' : undefined }}>{cell.getValue()}</span>
                               </div>
                             ) : (
                               <div className="flex justify-center">
                                 {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
                                   <div
-                                    className="p-1.5 rounded-xl text-[11px] font-normal min-w-[70px]"
+                                    className="p-1.5 rounded-xl responsiveTextTable font-normal min-w-[70px]"
                                     style={{
                                       backgroundColor: '#f8fbff',
                                       border: '1px solid #d8e8f5',
@@ -335,7 +335,7 @@ const Customtable = ({
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="p-1.5 rounded-xl text-[11px] font-normal min-w-[70px]" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
+                                  <div className="p-1.5 rounded-xl responsiveTextTable font-normal min-w-[70px]" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}
@@ -361,19 +361,18 @@ const Customtable = ({
                           >
                             <source src="/logo/no-data.mp4" type="video/mp4" />
                           </video>
-                          <p 
-                            className="font-normal mb-2" 
-                            style={{ 
-                              color: '#1F2937',
-                              fontSize: 'clamp(12px, 1.0vw, 14px)' 
+                          <p
+                            className="font-normal mb-2 responsiveText"
+                            style={{
+                              color: 'var(--port-gore)',
                             }}
                           >
                             {getTtl('No data available', ln)}
                           </p>
-                          <p 
-                            style={{ 
-                              color: '#6B7280',
-                              fontSize: 'clamp(10px, 0.9vw, 12px)' 
+                          <p
+                            className="responsiveTextTable"
+                            style={{
+                              color: 'var(--regent-gray)',
                             }}
                           >
                             Try adjusting your filters or date range
@@ -416,7 +415,7 @@ const Customtable = ({
                       className="font-normal"
                       style={{ 
                         color: 'var(--endeavour)',
-                        fontSize: 'clamp(9px, 0.8vw, 10px)',
+                        fontSize: '0.62rem',
                         textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                       }}
                     >
@@ -449,8 +448,8 @@ const Customtable = ({
                           <div 
                             className="uppercase tracking-wider font-normal" 
                             style={{ 
-                              color: '#6B7280',
-                              fontSize: 'clamp(6px, 0.6vw, 7px)' 
+                              color: 'var(--regent-gray)',
+                              fontSize: '0.58rem'
                             }}
                           >
                             {cell.column.columnDef.header}
@@ -458,9 +457,9 @@ const Customtable = ({
                           <div 
                             className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                             style={{ 
-                              color: '#1F2937',
+                              color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
-                              fontSize: 'clamp(8px, 0.7vw, 10px)',
+                              fontSize: '0.62rem',
                               border: '1px solid #E5E7EB'
                             }}
                           >
@@ -495,8 +494,8 @@ const Customtable = ({
                   <p 
                     className="font-normal mb-2 text-center" 
                     style={{ 
-                      color: '#1F2937',
-                      fontSize: 'clamp(9px, 0.8vw, 10px)' 
+                      color: 'var(--port-gore)',
+                      fontSize: '0.62rem'
                     }}
                   >
                     {getTtl('No data available', ln)}
@@ -504,8 +503,8 @@ const Customtable = ({
                   <p 
                     className="text-center" 
                     style={{ 
-                      color: '#6B7280',
-                      fontSize: 'clamp(7px, 0.6vw, 9px)' 
+                      color: 'var(--regent-gray)',
+                      fontSize: '0.58rem'
                     }}
                   >
                     Try adjusting your filters or date range
@@ -528,10 +527,9 @@ const Customtable = ({
 
       {/* LEFT — Showing Range */}
       <div
-        className="whitespace-nowrap font-normal"
+        className="whitespace-nowrap font-normal responsiveTextTable"
         style={{
-          color: '#6B7280',
-          fontSize: 'clamp(10px, 0.8vw, 12px)'
+          color: 'var(--regent-gray)',
         }}
       >
         {`${

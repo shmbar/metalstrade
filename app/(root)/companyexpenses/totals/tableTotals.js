@@ -47,8 +47,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
         .custom-table-totals, .custom-table-totals * {
-          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
-          font-size: 10px;
+          font-family: var(--font-poppins), 'Geist', sans-serif;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
@@ -66,9 +65,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           }}
         >
           <p
-            className="text-[var(--endeavour)] font-medium text-center"
+            className="responsiveTextTable text-[var(--endeavour)] font-medium text-center"
             style={{
-              fontSize: 'clamp(11px, 1vw, 11px)',
               letterSpacing: '0.05em'
             }}
           >
@@ -86,18 +84,17 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           }}
         >
           <div
+            className="responsiveTextTable"
             style={{
               fontWeight: 500,
               color: 'var(--endeavour)'
             }}
-                      className="!text-[10px]"
-
           >
             Vendor
           </div>
 
           <div
-            className="!text-[10px]"
+            className="responsiveTextTable"
             style={{
               fontWeight: 500,
               color: 'var(--endeavour)'
@@ -116,7 +113,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
               tltpText={expensesToolTip(row, expensesData, settings, filt)}
             >
               <div
-                className="grid grid-cols-[1fr_auto] px-4 py-1 items-center hover:bg-[#f8fbff] transition text-[10px]"
+                className="grid grid-cols-[1fr_auto] px-4 py-1 items-center hover:bg-[#f8fbff] transition responsiveTextTable"
                 style={{
                   borderBottom: '1px solid var(--selago)'
                 }}
@@ -126,11 +123,11 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                     key={cell.id}
                     className={
                       cell.column.id === 'amount'
-                        ? 'font-medium text-right text-[10px]'
-                        : 'truncate text-[10px]'
+                        ? 'responsiveTextTable font-medium text-right'
+                        : 'responsiveTextTable truncate'
                     }
                     style={{
-                      color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : '#1F2937',
+                      color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : 'var(--port-gore)',
                       fontWeight: cell.column.id === 'amount' ? 500 : 400
                     }}
                   >

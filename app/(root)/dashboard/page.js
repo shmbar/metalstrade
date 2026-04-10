@@ -139,14 +139,14 @@ function StatKpiCard({
               {title}
             </div>
           </div>
-          <div className="px-1.5 py-0.5 rounded-md text-[9px] bg-white/20 text-white flex-shrink-0">
+          <div className="px-1.5 py-0.5 rounded-md bg-white/20 text-white flex-shrink-0" style={{ fontSize: '0.58rem' }}>
             {badgeText}
           </div>
         </div>
 
         {/* Middle Section - Left Aligned Value */}
         <div className="flex-1 flex items-center justify-start">
-          <div className="text-xl font-bold text-white">
+          <div className="responsiveTextTitle font-semibold text-white">
             {value}
           </div>
         </div>
@@ -248,7 +248,7 @@ function DebtSnapshotCard({ totalInvoices, totalContracts, totalExpenses, totalP
       <div className="p-4 h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">Debt Snapshot</h3>
+          <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">Debt Snapshot</h3>
           {/* <div className="flex items-center gap-1 px-2 py-1 rounded-md border border-gray-200 bg-gray-50 text-[10px] text-gray-500">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="4" width="18" height="18" rx="2" stroke="#9ca3af" strokeWidth="2"/>
@@ -274,11 +274,11 @@ function DebtSnapshotCard({ totalInvoices, totalContracts, totalExpenses, totalP
               <div className="flex items-center gap-2">
                 {m.icon}
               </div>
-              <div className="text-lg font-bold mt-0.5" style={{ color: m.valueColor }}>
+              <div className="responsiveTextTitle font-semibold mt-0.5" style={{ color: m.valueColor }}>
                 {m.value}
               </div>
-              <div className="responsiveTextTable text-gray-500 leading-tight">{m.label}</div>
-              {m.sub && <div className="responsiveTextTable text-gray-400 leading-tight">{m.sub}</div>}
+              <div className="responsiveTextTable text-[var(--regent-gray)] leading-tight">{m.label}</div>
+              {m.sub && <div className="responsiveTextTable text-[var(--regent-gray)] leading-tight">{m.sub}</div>}
             </motion.div>
           ))}
         </div>
@@ -449,7 +449,7 @@ const Dash = () => {
           <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
             {getTtl('Dashboard', ln)}
           </h1>
-          <p className="responsiveText text-gray-500 pl-3 mt-0.5">
+          <p className="responsiveText text-[var(--regent-gray)] pl-3 mt-0.5">
             Financial overview and analytics
           </p>
         </div>
@@ -476,7 +476,7 @@ const Dash = () => {
             <div className="p-4 h-full flex flex-col">
 
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">
+                <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">
                   Total Revenue
                 </h3>
 
@@ -548,20 +548,20 @@ const Dash = () => {
             <div className="p-4">
               <div className="flex justify-between mb-1">
                 <div>
-                  <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">Contracts - $</h3>
-                  <p className="responsiveTextTable text-gray-400">Contribution breakdown by contract values</p>
+                  <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">Contracts - $</h3>
+                  <p className="responsiveTextTable text-[var(--regent-gray)]">Contribution breakdown by contract values</p>
                 </div>
                 <div className="text-right">
-                  <div className="responsiveTextTable text-gray-400">Total Value</div>
-                  <span className="font-bold text-[var(--chathams-blue)]">{fmtAutoKM(totalContracts)}</span>
+                  <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
+                  <span className="font-semibold text-[var(--chathams-blue)]">{fmtAutoKM(totalContracts)}</span>
                 </div>
               </div>
 
               {/* Column Headers */}
               <div className="flex items-center gap-3 mb-2 mt-2">
-                <div className="w-[116px] text-[9px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0 whitespace-nowrap">Client Name</div>
-                <div className="flex-1 text-[9px] font-semibold text-gray-400 uppercase tracking-wide text-center">Contribution Share (0 – 1.0)</div>
-                <div className="w-16 text-right text-[9px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0">Value</div>
+                <div className="w-[116px] font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0 whitespace-nowrap" style={{ fontSize: '0.62rem' }}>Client Name</div>
+                <div className="flex-1 font-medium text-[var(--regent-gray)] uppercase tracking-wide text-center" style={{ fontSize: '0.62rem' }}>Contribution Share (0 – 1.0)</div>
+                <div className="w-16 text-right font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0" style={{ fontSize: '0.62rem' }}>Value</div>
               </div>
 
               <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
@@ -589,7 +589,8 @@ const Dash = () => {
                     >
                       {/* Avatar */}
                       <motion.div
-                        className="flex items-center justify-center rounded-full text-xs font-semibold text-white flex-shrink-0"
+                        className="flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0"
+                        style={{ fontSize: '0.62rem' }}
                         style={{ width: avatarSize, height: avatarSize, background: color }}
                         whileHover={{ scale: 1.1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
@@ -598,7 +599,7 @@ const Dash = () => {
                       </motion.div>
 
                       {/* Name */}
-                      <div className="w-20 responsiveText text-gray-700 truncate flex-shrink-0">
+                      <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">
                         {lbl}
                       </div>
 
@@ -618,7 +619,7 @@ const Dash = () => {
                             transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
                             whileHover={{ scaleY: 1.1 }}
                           >
-                            <span className="text-[9px] font-semibold text-white/95 leading-none">
+                            <span className="font-semibold text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
                               {(max > 0 ? value / max : 0).toFixed(2)}
                             </span>
                           </motion.div>
@@ -626,7 +627,7 @@ const Dash = () => {
                       </motion.div>
 
                       {/* Value */}
-                      <motion.div className="w-16 text-right responsiveText text-gray-700 font-semibold flex-shrink-0"
+                      <motion.div className="w-16 text-right responsiveText text-[var(--port-gore)] font-normal flex-shrink-0"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.4, delay: idx * 0.09 }}
@@ -645,20 +646,20 @@ const Dash = () => {
             <div className="p-4">
               <div className="flex justify-between mb-1">
                 <div>
-                  <h3 className="text-sm font-semibold font-poppins text-[var(--chathams-blue)]">Consignees - $</h3>
-                  <p className="responsiveTextTable text-gray-400">Contribution breakdown by client volume</p>
+                  <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">Consignees - $</h3>
+                  <p className="responsiveTextTable text-[var(--regent-gray)]">Contribution breakdown by client volume</p>
                 </div>
                 <div className="text-right">
-                  <div className="responsiveTextTable text-gray-400">Total Value</div>
-                  <span className="font-bold text-[var(--chathams-blue)]">{fmtAutoKM(totalInvoices)}</span>
+                  <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
+                  <span className="font-semibold text-[var(--chathams-blue)]">{fmtAutoKM(totalInvoices)}</span>
                 </div>
               </div>
 
               {/* Column Headers */}
               <div className="flex items-center gap-3 mb-2 mt-2">
-                <div className="w-[116px] text-[9px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0 whitespace-nowrap">Client Name</div>
-                <div className="flex-1 text-[9px] font-semibold text-gray-400 uppercase tracking-wide text-center">Contribution Share (0 – 1.0)</div>
-                <div className="w-16 text-right text-[9px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0">Value</div>
+                <div className="w-[116px] font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0 whitespace-nowrap" style={{ fontSize: '0.62rem' }}>Client Name</div>
+                <div className="flex-1 font-medium text-[var(--regent-gray)] uppercase tracking-wide text-center" style={{ fontSize: '0.62rem' }}>Contribution Share (0 – 1.0)</div>
+                <div className="w-16 text-right font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0" style={{ fontSize: '0.62rem' }}>Value</div>
               </div>
 
               <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
@@ -686,7 +687,8 @@ const Dash = () => {
                     >
                       {/* Avatar */}
                       <motion.div
-                        className="flex items-center justify-center rounded-full text-xs font-semibold text-white flex-shrink-0"
+                        className="flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0"
+                        style={{ fontSize: '0.62rem' }}
                         style={{ width: avatarSize, height: avatarSize, background: color }}
                         whileHover={{ scale: 1.1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
@@ -694,7 +696,7 @@ const Dash = () => {
                         {getInitials(lbl)}
                       </motion.div>
                       {/* Name */}
-                      <div className="w-20 responsiveText text-gray-700 truncate flex-shrink-0">
+                      <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">
                         {lbl}
                       </div>
                       {/* Bar */}
@@ -713,14 +715,14 @@ const Dash = () => {
                             transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
                             whileHover={{ scaleY: 1.1 }}
                           >
-                            <span className="text-[9px] font-semibold text-white/95 leading-none">
+                            <span className="font-semibold text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
                               {(max > 0 ? value / max : 0).toFixed(2)}
                             </span>
                           </motion.div>
                         </div>
                       </motion.div>
                       {/* Value */}
-                      <motion.div className="w-16 text-right responsiveText text-gray-700 font-semibold flex-shrink-0"
+                      <motion.div className="w-16 text-right responsiveText text-[var(--port-gore)] font-normal flex-shrink-0"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.4, delay: idx * 0.09 }}

@@ -198,28 +198,28 @@ const AssistantChat = () => {
                                 {/* Left - Assistant title */}
                                 <div className="flex items-center gap-2">
                                     <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
-                                    <span className="text-sm font-semibold text-[var(--port-gore)]">Assistant</span>
+                                    <span className="responsiveText font-semibold text-[var(--port-gore)]">Assistant</span>
                                 </div>
                                 {/* Right - badges + reset */}
                                 <div className="flex items-center gap-3">
                                     {dataLoading ? (
-                                        <span className="text-xs text-gray-400">Loading...</span>
+                                        <span className="responsiveTextTable text-[var(--regent-gray)]">Loading...</span>
                                     ) : (
                                         <>
-                                            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}>
+                                            <span className="px-3 py-1 rounded-full responsiveTextTable font-medium" style={{ backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}>
                                                 {contractsData.length} Contracts
                                             </span>
-                                            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
+                                            <span className="px-3 py-1 rounded-full responsiveTextTable font-medium" style={{ backgroundColor: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
                                                 {invoicesData.length} Invoices
                                             </span>
-                                            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#ede9fe', color: '#5b21b6', border: '1px solid #c4b5fd' }}>
+                                            <span className="px-3 py-1 rounded-full responsiveTextTable font-medium" style={{ backgroundColor: '#ede9fe', color: '#5b21b6', border: '1px solid #c4b5fd' }}>
                                                 {expensesData.length} Expenses
                                             </span>
                                         </>
                                     )}
                                     <button
                                         onClick={handleClearChat}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[var(--chathams-blue)] hover:text-[var(--endeavour)] border border-[#b8ddf8] hover:border-[var(--endeavour)] rounded-lg transition-colors bg-white"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 responsiveTextTable text-[var(--chathams-blue)] hover:text-[var(--endeavour)] border border-[#b8ddf8] hover:border-[var(--endeavour)] rounded-lg transition-colors bg-white"
                                         title="Reset conversation"
                                     >
                                         <MdRestartAlt className="w-4 h-4" />
@@ -243,10 +243,10 @@ const AssistantChat = () => {
                                                 style={{ width: '140px', height: '140px', objectFit: 'contain' }}
                                             />
                                         </div>
-                                        <h2 className="text-2xl font-normal text-gray-500 mb-1">
+                                        <h2 className="responsiveTextTitle font-normal text-[var(--regent-gray)] mb-1">
                                             Hi {userName},
                                         </h2>
-                                        <p className="text-gray-400 text-base">
+                                        <p className="responsiveText text-[var(--regent-gray)]">
                                             How can I help you today?
                                         </p>
                                     </div>
@@ -266,7 +266,7 @@ const AssistantChat = () => {
                                                 )}
 
                                                 <div
-                                                    className={`max-w-[75%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed ${
+                                                    className={`max-w-[75%] rounded-2xl px-4 py-3 responsiveText leading-relaxed ${
                                                         message.role === 'user'
                                                             ? 'rounded-br-sm'
                                                             : message.isError
@@ -279,7 +279,7 @@ const AssistantChat = () => {
                                                         className="break-words"
                                                         dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
                                                     />
-                                                    <div className="text-xs mt-1.5 text-right text-gray-400">
+                                                    <div className="responsiveTextTable mt-1.5 text-right text-[var(--regent-gray)]">
                                                         {message.time}
                                                     </div>
                                                 </div>
@@ -317,8 +317,8 @@ const AssistantChat = () => {
                             {/* Input Area */}
                             <div className="p-4 border-t border-[var(--selago)]" style={{ backgroundColor: '#ffffff' }}>
                                 {/* Input bar */}
-                                <div className="flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: '#dbeeff' }}>
-                                    <GrAttachment className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                <div className="responsiveText flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: '#dbeeff' }}>
+                                    <GrAttachment className="w-4 h-4 text-[var(--regent-gray)] flex-shrink-0" />
                                     <input
                                         ref={inputRef}
                                         type="text"
@@ -327,8 +327,8 @@ const AssistantChat = () => {
                                         onChange={(e) => setNewMessage(e.target.value)}
                                         onKeyDown={handleKeyDown}
                                         disabled={isLoading || dataLoading}
-                                        className="flex-1 outline-none text-[var(--port-gore)] placeholder-gray-400 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                                        style={{ backgroundColor: 'transparent' }}
+                                        className="flex-1 outline-none text-[var(--port-gore)] placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        style={{ backgroundColor: 'transparent', fontSize: 'inherit' }}
                                     />
                                     <button
                                         onClick={() => handleSendMessage()}
@@ -349,7 +349,7 @@ const AssistantChat = () => {
                                             key={index}
                                             onClick={() => handleSendMessage(action.text)}
                                             disabled={isLoading || dataLoading}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs text-gray-600 hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e5e7eb] rounded-full responsiveTextTable text-[var(--regent-gray)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                         >
                                             {action.icon}
                                             {action.text}

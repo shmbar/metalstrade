@@ -94,7 +94,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                  data-[state=closed]:animate-fade-zoom-out
 ">
                 <div className="grid gap-2">
-                    <div className="text-sm justify-end flex">
+                    <div className="responsiveText justify-end flex">
                         <MdClose
                             className="scale-[1.5] cursor-pointer"
                             onClick={() => setOpen(false)}
@@ -107,7 +107,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
 
                     <div className="flex flex-col md:flex-row justify-between pt-2 gap-3">
                         <div className="flex-1 min-w-0">
-                            <label className="text-sm justify-start flex">Date</label>
+                            <label className="responsiveText justify-start flex">Date</label>
                             {showDatepicker && (
                                 <Datepicker
                                     useRange={false}
@@ -117,25 +117,26 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                                     onChange={(val) => setDate(val)}
                                     displayFormat={"DD.MM.YY"}
                                     primaryColor="blue"
-                                    inputClassName="input w-full h-7 text-xs rounded-2xl border border-[var(--endeavour)] focus:outline-none focus:ring-1 focus:ring-blue-200 px-2"
+                                    inputClassName="input w-full h-7 rounded-2xl border border-[var(--endeavour)] focus:outline-none focus:ring-1 focus:ring-blue-200 px-2"
                                     containerClassName="react-tailwindcss-datepicker-container relative"
                                 />
                             )}
                         </div>
                         <div className="flex items-start md:items-end">
-                            <label className='text-sm justify-start flex'>%</label>
+                            <label className='responsiveText justify-start flex'>%</label>
                             <div className='flex'>
-                                <input type='text' className="pr-3 number-separator input h-7 shadow-sm text-xs w-20 md:w-14 rounded-full" name='invValue'
+                                <input type='text' className="pr-3 number-separator input h-7 shadow-sm w-20 md:w-14 rounded-full" style={{ fontSize: 'inherit' }} name='invValue'
                                     value={perc} onChange={e => handleValuePerc(e)} />
-                                <span className='ml-2 text-slate-600 flex items-center'>%</span>
+                                <span className='ml-2 text-[var(--port-gore)] flex items-center'>%</span>
 
                             </div>
                         </div>
                         <div className="flex-1 min-w-0">
-                            <label className="text-sm justify-start flex">Amount</label>
+                            <label className="responsiveText justify-start flex">Amount</label>
                             <input
                                 type="text"
-                                className="number-separator input h-7 shadow-sm text-xs w-full rounded-full"
+                                className="number-separator input h-7 shadow-sm w-full rounded-full"
+                                style={{ fontSize: 'inherit' }}
                                 value={addComma(pmnt)}
                                 onChange={handleValuePmnt}
                             />

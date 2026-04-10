@@ -193,7 +193,7 @@ const InvoiceModal = () => {
 			{loading && <Spinner />}
 			<div className='grid grid-cols-12 gap-1.5 pt-1'>
 				<div className='col-span-12 md:col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<p className='flex items-center text-sm text-[var(--port-gore)] font-medium'>{getTtl('Consignee', ln)}:</p>
+					<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Consignee', ln)}:</p>
 					<div>
 						{!fnl ?
 							<Selector arr={clts} value={valueInv}
@@ -201,42 +201,42 @@ const InvoiceModal = () => {
 								name='client'
 								clear={clear} />
 							:
-							<p className='pt-2 pl-1 text-sm font-medium text-[var(--port-gore)]'>{valueInv.client.client}</p>
+							<p className='pt-2 pl-1 responsiveText font-medium text-[var(--port-gore)]'>{valueInv.client.client}</p>
 						}
 						<ErrDiv field='client' errors={errors} />
 					</div>
 					{client && (
 						<>
-							<p className='pl-1 text-xs text-[var(--regent-gray)]'>{client.street}</p>
-							<p className='pl-1 text-xs text-[var(--regent-gray)]'>{client.city}</p>
-							<p className='pl-1 text-xs text-[var(--regent-gray)]'>{client.country}</p>
-							<p className='pl-1 text-xs text-[var(--regent-gray)]'>{client.other1}</p>
+							<p className='pl-1 responsiveText text-[var(--regent-gray)]'>{client.street}</p>
+							<p className='pl-1 responsiveText text-[var(--regent-gray)]'>{client.city}</p>
+							<p className='pl-1 responsiveText text-[var(--regent-gray)]'>{client.country}</p>
+							<p className='pl-1 responsiveText text-[var(--regent-gray)]'>{client.other1}</p>
 						</>
 					)}
 					{fnl && (
 						<>
-							<p className='pl-1 text-xs text-[var(--regent-gray)]'>{valueInv.client.street}</p>
-							<p className='pl-1 text-xs text-[var(--regent-gray)]'>{valueInv.client.city}</p>
-							<p className='pl-1 text-xs text-[var(--regent-gray)]'>{valueInv.client.country}</p>
-							<p className='pl-1 text-xs text-[var(--regent-gray)]'>{valueInv.client.other1}</p>
+							<p className='pl-1 responsiveText text-[var(--regent-gray)]'>{valueInv.client.street}</p>
+							<p className='pl-1 responsiveText text-[var(--regent-gray)]'>{valueInv.client.city}</p>
+							<p className='pl-1 responsiveText text-[var(--regent-gray)]'>{valueInv.client.country}</p>
+							<p className='pl-1 responsiveText text-[var(--regent-gray)]'>{valueInv.client.other1}</p>
 						</>
 					)}
 				</div>
 				<div className='col-span-12 md:col-span-2 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-col'>
-					<p className='text-sm text-[var(--port-gore)] font-medium indent-1'>{getTtl('Invoice Type', ln)}:</p>
+					<p className='responsiveText text-[var(--port-gore)] font-medium indent-1'>{getTtl('Invoice Type', ln)}:</p>
 					{!fnl ?
 						<InvoiceType setSelected={selectInvType} plans={settings.InvTypes.InvTypes} value={valueInv} ln={ln} />
 						:
-						<p className='pt-2 pl-1 text-xs text-[var(--port-gore)]'>{valueInv.invType}</p>
+						<p className='pt-2 pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.invType}</p>
 					}
 				</div>
 				<div className='col-span-12 md:col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-col'>
-					<p className='text-sm text-[var(--port-gore)] font-medium indent-1'>{getTtl('PO', ln)}#:</p>
+					<p className='responsiveText text-[var(--port-gore)] font-medium indent-1'>{getTtl('PO', ln)}#:</p>
 					{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col mt-1 ring-1 ring-[#b8ddf8] rounded-xl divide-y divide-[#b8ddf8]" >
 						{poArr.map((x, i) => {
 							return (
 								<li key={i}
-									className='items-center py-0.5 px-1.5 text-[0.8rem] text-[var(--port-gore)]
+									className='items-center py-0.5 px-1.5 responsiveText text-[var(--port-gore)]
 									truncate'>
 									{x}
 								</li>
@@ -247,7 +247,7 @@ const InvoiceModal = () => {
 				</div>
 				<div className='col-span-12 md:col-span-4 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex items-center'>
-						<p className='flex text-sm text-[var(--port-gore)] font-medium'>{getTtl('Date', ln)}:</p>
+						<p className='flex responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Date', ln)}:</p>
 						<div className='w-full px-2'>
 							{!fnl ?
 								<>
@@ -257,28 +257,28 @@ const InvoiceModal = () => {
 										popoverDirection='down'
 										onChange={handleDateChangeDate}
 										displayFormat={"DD-MMM-YYYY"}
-										inputClassName='input w-full shadow-lg h-7 text-xs'
+										inputClassName='input w-full shadow-lg h-7'
 									/>
 									<ErrDiv field='date' errors={errors} />
 								</>
 								:
-								<p className='pl-1 text-xs text-[var(--port-gore)]'>{valueInv.date}</p>
+								<p className='pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.date}</p>
 							}
 						</div>
 					</div>
 
 					<div className='flex pt-1'>
-						<p className='flex items-center text-sm font-medium whitespace-nowrap'>
+						<p className='flex items-center responsiveText font-medium whitespace-nowrap'>
 							{!fnl ? valueInv.invType === '1111' ? getTtl('Invoice', ln) + ' #:' : valueInv.invType === '2222' ?
 								getTtl('Credit Note', ln) + ' #:' : getTtl('Final Note', ln) + ' #:' :
 								valueInv.invType + ' No:'}</p>
 						<div className='w-full px-2 items-end flex'>
-							<p className='text-xs '>{String(valueInv.invoice).padStart(4, "0") + getprefixInv(valueInv)}</p>
+							<p className='responsiveText'>{String(valueInv.invoice).padStart(4, "0") + getprefixInv(valueInv)}</p>
 						</div>
 					</div>
 					<div className='flex pt-1 gap-3'>
-						<div className='flex items-center text-sm font-medium whitespace-nowrap'>{getTtl('Status', ln)}:</div>
-						<div className='flex items-center text-xs font-bold whitespace-nowrap'>
+						<div className='flex items-center responsiveText font-medium whitespace-nowrap'>{getTtl('Status', ln)}:</div>
+						<div className='flex items-center responsiveText font-semibold whitespace-nowrap'>
 							{!fnl ? 'Draft' :
 								fnl && !valueInv.canceled ? 'Finalized' :
 									(fnl && valueInv.canceled) && 'Canceled'}</div>
@@ -290,7 +290,7 @@ const InvoiceModal = () => {
 			<div className='grid grid-cols-3 gap-1.5 pt-1'>
 				<div className='col-span-12 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-2 justify-between'>
-						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
+						<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<>
@@ -301,13 +301,13 @@ const InvoiceModal = () => {
 									<ErrDiv field='shpType' errors={errors} />
 								</>
 								:
-								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.shpType}</p>
+								<p className=' pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.shpType}</p>
 							}
 						</div>
 					</div>
 
 					<div className='flex gap-2 justify-between pt-1'>
-						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Origin', ln)}:</p>
+						<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Origin', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<Selector arr={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]} value={valueInv}
@@ -315,12 +315,12 @@ const InvoiceModal = () => {
 									name='origin'
 									clear={clear} />
 								:
-								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.origin}</p>
+								<p className=' pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.origin}</p>
 							}
 						</div>
 					</div>
 					<div className='flex gap-2 justify-between pt-1'>
-						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Delivery Terms', ln)}:</p>
+						<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Delivery Terms', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<Selector arr={settings['Delivery Terms']['Delivery Terms']} value={valueInv}
@@ -328,12 +328,12 @@ const InvoiceModal = () => {
 									name='delTerm'
 									clear={clear} />
 								:
-								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.delTerm}</p>
+								<p className=' pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.delTerm}</p>
 							}
 						</div>
 					</div>
 					<div className='flex items-center justify-between pt-1'>
-						<p className='flex text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Delivery Date', ln)}:</p>
+						<p className='flex responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Delivery Date', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<Datepicker useRange={false}
@@ -342,10 +342,10 @@ const InvoiceModal = () => {
 									popoverDirection='down'
 									onChange={handleDateChangeDelvrDate}
 									displayFormat={"DD-MMM-YYYY"}
-									inputClassName='input w-full shadow-lg h-7 text-xs'
+									inputClassName='input w-full shadow-lg h-7'
 								/>
 								:
-								<p className='pl-1 text-xs text-[var(--port-gore)]'>{valueInv.delDate}</p>
+								<p className='pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.delDate}</p>
 							}
 						</div>
 					</div>
@@ -353,7 +353,7 @@ const InvoiceModal = () => {
 
 				<div className='col-span-12 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-2 justify-between'>
-						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
+						<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<Selector arr={settings.POL.POL} value={valueInv}
@@ -361,12 +361,12 @@ const InvoiceModal = () => {
 									name='pol'
 									clear={clear} />
 								:
-								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.pol}</p>
+								<p className=' pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.pol}</p>
 							}
 						</div>
 					</div>
 					<div className='flex gap-2 justify-between pt-1'>
-						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POD', ln)}:</p>
+						<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('POD', ln)}:</p>
 						<div className='w-full md:w-44'>
 							{!fnl ?
 								<Selector arr={settings.POD.POD} value={valueInv}
@@ -374,13 +374,13 @@ const InvoiceModal = () => {
 									name='pod'
 									clear={clear} />
 								:
-								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.pod}</p>
+								<p className=' pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.pod}</p>
 							}
 						</div>
 					</div>
 					{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
 						<div className='flex gap-2 justify-between pt-1'>
-							<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Packing', ln)}:</p>
+							<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Packing', ln)}:</p>
 							<div className='w-full md:w-44'>
 								{!fnl ?
 									<Selector arr={settings.Packing.Packing} value={valueInv}
@@ -389,7 +389,7 @@ const InvoiceModal = () => {
 										clear={clear}
 										disabled={valueInv.invType === '2222' || valueInv.invType === '3333'} />
 									:
-									<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.packing}</p>
+									<p className=' pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.packing}</p>
 								}
 							</div>
 						</div>}
@@ -397,38 +397,38 @@ const InvoiceModal = () => {
 
 				<div className='col-span-12 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
-						<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('totalNet', ln)}:</p>
-						<p className='text-xs pr-6 text-[var(--port-gore)]'>
+						<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('totalNet', ln)}:</p>
+						<p className='responsiveText pr-6 text-[var(--port-gore)]'>
 							{NetWTKgs}
 						</p>
 					</div>
 					{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
 						<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
-							<p className={`flex items-center text-sm ${(secondRule || fifthRule) && 'text-[var(--regent-gray)]'} font-medium whitespace-nowrap text-[var(--port-gore)]`}>{getTtl('totalTare', ln)}:</p>
-							<p className={`text-xs pr-6 ${parseInt(TotalTarre) < 0 ? 'text-red-400 font-medium' : 'text-[var(--port-gore)]'}`}>{secondRule || fifthRule ? '' : TotalTarre}</p>
+							<p className={`flex items-center responsiveText ${(secondRule || fifthRule) && 'text-[var(--regent-gray)]'} font-medium whitespace-nowrap text-[var(--port-gore)]`}>{getTtl('totalTare', ln)}:</p>
+							<p className={`responsiveText pr-6 ${parseInt(TotalTarre) < 0 ? 'text-red-400 font-medium' : 'text-[var(--port-gore)]'}`}>{secondRule || fifthRule ? '' : TotalTarre}</p>
 						</div>
 					}
 					<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
-						<p className={`flex items-center text-sm font-medium whitespace-nowrap text-[var(--port-gore)] ${(fourthRule || fifthRule) && 'text-[var(--regent-gray)]'}`}>{thirdRule ? 'QTY Ingots' : getTtl('totalGross', ln)}:</p>
-						<div className='flex items-center text-sm font-medium whitespace-nowrap'>{(fourthRule || fifthRule) ? '' :
+						<p className={`flex items-center responsiveText font-medium whitespace-nowrap text-[var(--port-gore)] ${(fourthRule || fifthRule) && 'text-[var(--regent-gray)]'}`}>{thirdRule ? 'QTY Ingots' : getTtl('totalGross', ln)}:</p>
+						<div className='flex items-center responsiveText font-medium whitespace-nowrap'>{(fourthRule || fifthRule) ? '' :
 							<div className='w-full  px-1'>
 								{!fnl ?
-									<input className="input shadow-lg h-7 text-xs" name='ttlGross' value={valueInv.ttlGross} onChange={handleValue} />
+									<input className="input shadow-lg h-7" style={{ fontSize: 'inherit' }} name='ttlGross' value={valueInv.ttlGross} onChange={handleValue} />
 									:
-									<p className='text-xs pr-5 text-[var(--port-gore)]'>{(valueInv.ttlGross * 1).toLocaleString(locale, options)}</p>
+									<p className='responsiveText pr-5 text-[var(--port-gore)]'>{(valueInv.ttlGross * 1).toLocaleString(locale, options)}</p>
 								}
 							</div>
 						}</div>
 					</div>
 					{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
 						<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
-							<p className={`flex items-center text-sm font-medium whitespace-nowrap text-[var(--port-gore)] ${(fourthRule || thirdRule) && 'text-[var(--regent-gray)]'}	`}>{getTtl('totalPack', ln)}:</p>
-							<div className='flex items-center text-sm font-medium whitespace-nowrap'>{(fourthRule || thirdRule) ? '' :
+							<p className={`flex items-center responsiveText font-medium whitespace-nowrap text-[var(--port-gore)] ${(fourthRule || thirdRule) && 'text-[var(--regent-gray)]'}	`}>{getTtl('totalPack', ln)}:</p>
+							<div className='flex items-center responsiveText font-medium whitespace-nowrap'>{(fourthRule || thirdRule) ? '' :
 								<div className='w-full  px-1'>
 									{!fnl ?
-										<input className="input shadow-lg h-7 text-xs" name='ttlPackages' value={valueInv.ttlPackages} onChange={handleValue} />
+										<input className="input shadow-lg h-7" style={{ fontSize: 'inherit' }} name='ttlPackages' value={valueInv.ttlPackages} onChange={handleValue} />
 										:
-										<p className='text-xs pr-5 text-[var(--port-gore)]'>{valueInv.ttlPackages}</p>
+										<p className='responsiveText pr-5 text-[var(--port-gore)]'>{valueInv.ttlPackages}</p>
 									}
 								</div>
 							}</div>
@@ -439,7 +439,7 @@ const InvoiceModal = () => {
 
 			<div className='grid grid-cols-2 gap-1.5 mt-1'>
 				<div className='col-span-12 md:col-span-1 flex border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap '>{getTtl('Bank Account', ln)}:</p>
+					<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap '>{getTtl('Bank Account', ln)}:</p>
 					<div className='w-full pl-4'>
 						{!fnl ?
 							<Selector arr={settings['Bank Account']['Bank Account']} value={valueInv}
@@ -447,13 +447,13 @@ const InvoiceModal = () => {
 								name='bankNname'
 								clear={clear} />
 							:
-							<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.bankName.bankNname}</p>
+							<p className=' pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.bankName.bankNname}</p>
 						}
 					</div>
 				</div>
 
 				<div className='hidden md:flex col-span-0 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<p className='flex items-center text-sm text-[var(--port-gore)] font-medium whitespace-nowrap '>HS Code:</p>
+					<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap '>HS Code:</p>
 					<div className='w-full pl-4'>
 						{!fnl ?
 							<div className='flex gap-5'>
@@ -475,8 +475,8 @@ const InvoiceModal = () => {
 							</div>
 							:
 							<div className='flex gap-5'>
-								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.hs1}</p>
-								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.hs2}</p>
+								<p className=' pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.hs1}</p>
+								<p className=' pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.hs2}</p>
 							</div>
 						}
 					</div>
@@ -496,7 +496,7 @@ const InvoiceModal = () => {
 				</div>
 				<div className='col-span-12 md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='gap-1.5'>
-						<p className='flex text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
+						<p className='flex responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
 						<div className='w-full '>
 							{!fnl ?
 								<>
@@ -508,7 +508,7 @@ const InvoiceModal = () => {
 									<ErrDiv field='cur' errors={errors} />
 								</>
 								:
-								<p className=' pl-1 text-xs text-[var(--port-gore)]'>{valueInv.cur.cur}</p>
+								<p className=' pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.cur.cur}</p>
 							}
 						</div>
 					</div>
@@ -520,9 +520,10 @@ const InvoiceModal = () => {
 					<Remarks value={valueInv} setValue={setValueInv} ln={ln} />
 				</div>
 				<div className='col-span-12 md:col-span-3 h-fit border-2 border-[#b8ddf8] p-2 py-1 pb-0 rounded-2xl'>
-					<p className='flex text-sm text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
+					<p className='flex responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="2" cols="60" name="comments"
-						className="input h-11 text-xs p-1 !rounded-xl"
+						className="input h-11 p-1 !rounded-xl"
+						style={{ fontSize: 'inherit' }}
 						value={valueInv.comments}
 						onChange={handleValue}
 					/>

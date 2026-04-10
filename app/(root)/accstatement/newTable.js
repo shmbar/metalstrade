@@ -174,7 +174,6 @@ const Customtable = ({
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
-          font-size: 12px !important;
         }
         .custom-table td {
           border: 1px solid #d8e8f5;
@@ -183,7 +182,6 @@ const Customtable = ({
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
-          font-size: 10px !important;
         }
         .custom-table th {
           background-color: #d4eafc;
@@ -235,7 +233,7 @@ const Customtable = ({
                       {hdGroup.headers.map((header, idx) => (
                         <th
                           key={header.id}
-                          className={`px-2 py-2 text-xs font-poppins font-medium ${header.column.id === 'select' ? 'text-left' : 'text-center'}`}
+                          className={`px-2 py-2 responsiveTextTable font-poppins font-medium ${header.column.id === 'select' ? 'text-left' : 'text-center'}`}
                           style={{
                             color: 'var(--chathams-blue)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
@@ -284,10 +282,9 @@ const Customtable = ({
                           key={cell.id}
                           className="px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect"
                           style={{
-                            color: '#1F2937',
+                            color: 'var(--port-gore)',
                             minWidth: cell.column.id === 'select' ? '50px' : '60px',
                             maxWidth: cell.column.id === 'select' ? '50px' : 'none',
-                            fontSize: 'clamp(11px, 1.0vw, 13px)',
                             fontWeight: '400',
                             zIndex: 1,
                             willChange: 'background-color, color',
@@ -295,7 +292,7 @@ const Customtable = ({
                           }}
                         >
                           <div
-                            className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f8fbff] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
+                            className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[#f8fbff] hover:text-[#545454] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in"
                           >
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
@@ -312,19 +309,14 @@ const Customtable = ({
                         <div className="flex flex-col items-center justify-center">
                           {renderEmptyStateMedia()}
                           <p
-                            className="font-normal mb-2"
-                            style={{
-                              color: '#1F2937',
-                              fontSize: 'clamp(12px, 1.0vw, 14px)'
-                            }}
+                            className="responsiveText font-normal mb-2"
+                            style={{ color: 'var(--port-gore)' }}
                           >
                             {getTtl('No data available', ln)}
                           </p>
                           <p
-                            style={{
-                              color: '#6B7280',
-                              fontSize: 'clamp(10px, 0.9vw, 12px)'
-                            }}
+                            className="responsiveTextTable"
+                            style={{ color: 'var(--regent-gray)' }}
                           >
                             Try adjusting your filters or date range
                           </p>
@@ -362,7 +354,7 @@ const Customtable = ({
                     <span
                       className="font-normal"
                       style={{
-                        fontSize: 'clamp(9px, 0.8vw, 10px)',
+                        fontSize: '0.62rem',
                         textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                       }}
                     >
@@ -392,8 +384,8 @@ const Customtable = ({
                           <div
                             className="uppercase tracking-wider font-normal"
                             style={{
-                              color: '#6B7280',
-                              fontSize: 'clamp(6px, 0.6vw, 7px)'
+                              color: 'var(--regent-gray)',
+                              fontSize: '0.58rem'
                             }}
                           >
                             {cell.column.columnDef.header}
@@ -401,9 +393,9 @@ const Customtable = ({
                           <div
                             className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
                             style={{
-                              color: '#1F2937',
+                              color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
-                              fontSize: 'clamp(8px, 0.7vw, 10px)',
+                              fontSize: '0.62rem',
                               border: '1px solid #E5E7EB'
                             }}
                           >
@@ -419,19 +411,16 @@ const Customtable = ({
                 <div className="flex flex-col items-center justify-center py-24 px-3">
                   {renderEmptyStateMedia()}
                   <p
-                    className="font-normal mb-2 text-center"
-                    style={{
-                      color: '#1F2937',
-                      fontSize: 'clamp(9px, 0.8vw, 10px)'
-                    }}
+                    className="responsiveTextTable font-normal mb-2 text-center"
+                    style={{ color: 'var(--port-gore)' }}
                   >
                     {getTtl('No data available', ln)}
                   </p>
                   <p
                     className="text-center"
                     style={{
-                      color: '#6B7280',
-                      fontSize: 'clamp(7px, 0.6vw, 9px)'
+                      color: 'var(--regent-gray)',
+                      fontSize: '0.58rem'
                     }}
                   >
                     Try adjusting your filters or date range
@@ -454,11 +443,8 @@ const Customtable = ({
 
       {/* LEFT — Showing Range */}
       <div
-        className="whitespace-nowrap justify-self-start"
-        style={{
-          color: '#6B7280',
-          fontSize: 'clamp(10px, 0.8vw, 12px)'
-        }}
+        className="responsiveTextTable whitespace-nowrap justify-self-start"
+        style={{ color: 'var(--regent-gray)' }}
       >
         {`${
           table.getState().pagination.pageIndex *

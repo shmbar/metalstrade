@@ -73,17 +73,17 @@ const Clients = () => {
     }
 
     const fieldRow = 'flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0';
-    const labelCls = 'sm:w-[80px] shrink-0 text-sm text-[#0c5aa6]';
-    const inputCls = 'w-full sm:flex-1 h-8 px-5 text-xs rounded-full border border-[#E5E7EB] bg-white';
+    const labelCls = 'sm:w-[80px] shrink-0 responsiveText text-[#0c5aa6]';
+    const inputCls = 'w-full sm:flex-1 h-8 px-5 responsiveText rounded-full border border-[#E5E7EB] bg-white';
 
     return (
         <div className='p-2 rounded-2xl flex flex-col md:flex-row w-full gap-4'>
             <div className="md:px-5 w-full md:w-[27%] flex-shrink-0 rounded-2xl p-2 bg-[#e3f3ff]">
-                <p className='flex items-center text-sm font-medium pl-2 text-[var(--endeavour)] mt-2'>{getTtl('Clients', ln)}:</p>
+                <p className='flex items-center responsiveText font-medium pl-2 text-[var(--endeavour)] mt-2'>{getTtl('Clients', ln)}:</p>
                 <ul className="flex flex-col mt-2 max-h-80 overflow-auto p-2 custom-scroll">
                     {sortArr((settings.Client?.Client || []).filter(q => !q.deleted), 'client').map((x, i) => (
                         <li key={i} onClick={() => SelectClient(x)}
-                            className={`cursor-pointer flex items-center gap-x-2 py-2 px-4 text-xs text-[var(--endeavour)] rounded-full hover:bg-[#dbeeff] ${value.id === x.id && 'font-medium bg-white'}`}>
+                            className={`cursor-pointer flex items-center gap-x-2 py-2 px-4 responsiveText text-[var(--endeavour)] rounded-full hover:bg-[#dbeeff] ${value.id === x.id && 'font-medium bg-white'}`}>
                             {x.client}
                         </li>
                     ))}

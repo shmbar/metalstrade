@@ -713,13 +713,13 @@ const Customtable = ({
                                     const focused = focusedCell === ck
                                     if (isCost) return (
                                         <div key={cell.id} className="flex justify-between items-center pb-2" style={{ borderBottom: '1px solid var(--selago)' }}>
-                                            <span style={{ color: '#6B7280', fontSize: '9px', textTransform: 'uppercase' }}>{cell.column.columnDef.header}</span>
+                                            <span style={{ color: 'var(--regent-gray)', fontSize: '0.58rem', textTransform: 'uppercase' }}>{cell.column.columnDef.header}</span>
                                             <span className="responsiveTextTable" style={{ color: '#003366', fontWeight: '600' }}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
                                         </div>
                                     )
                                     return (
                                         <div key={cell.id} className="flex flex-col space-y-1 pb-2 last:pb-0" style={{ borderBottom: '1px solid var(--selago)' }}>
-                                            <div style={{ color: '#6B7280', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cell.column.columnDef.header}</div>
+                                            <div style={{ color: 'var(--regent-gray)', fontSize: '0.58rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cell.column.columnDef.header}</div>
                                             <div style={{ backgroundColor: isFe ? '#eef6ff' : '#fff', border: `1px solid ${isFe ? '#93c5fd' : '#c7d7e8'}`, borderRadius: '8px', padding: '4px 8px', minHeight: '28px', display: 'flex', alignItems: 'center' }}>
                                                 <input
                                                     type="text"

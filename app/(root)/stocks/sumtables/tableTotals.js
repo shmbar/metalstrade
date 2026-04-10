@@ -72,14 +72,13 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                   color: 'var(--chathams-blue)',
                   minWidth: '60px',
                   maxWidth: '110px',
-                  fontSize: 'clamp(11px, 1.0vw, 13px)',
                   fontWeight: '600',
                   zIndex: 1,
                   willChange: 'background-color, color',
                   background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
                 }}
               >
-                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl transition-all duration-200 ease-in-out bg-[#e3f3ff] border-transparent"
+                <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl transition-all duration-200 ease-in-out bg-[#e3f3ff] border-transparent"
                   style={{ border: '1px solid #b8ddf8' }}>
                   {config.label}
                 </div>
@@ -91,17 +90,16 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 key={`${currency}-${index}`}
                 className="px-2 py-1 transition-colors duration-150 group/cell relative"
                 style={{
-                  color: '#1F2937',
+                  color: 'var(--port-gore)',
                   minWidth: '60px',
                   maxWidth: '110px',
-                  fontSize: 'clamp(11px, 1.0vw, 13px)',
                   fontWeight: '500',
                   zIndex: 1,
                   willChange: 'background-color, color',
                   background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
                 }}
               >
-                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]"
+                <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]"
                   style={{ border: '1px solid #e0e0e0' }}>
                   {/* Empty cell */}
                 </div>
@@ -113,17 +111,16 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 key={`${currency}-${index}`}
                 className="px-2 py-1 transition-colors duration-150 group/cell relative"
                 style={{
-                  color: '#1F2937',
+                  color: 'var(--port-gore)',
                   minWidth: '60px',
                   maxWidth: '110px',
-                  fontSize: 'clamp(11px, 1.0vw, 13px)',
                   fontWeight: '500',
                   zIndex: 1,
                   willChange: 'background-color, color',
                   background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
                 }}
               >
-                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff] hover:shadow-[inset_0_0_0_1px_#d1d1d1]"
+                <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff] hover:shadow-[inset_0_0_0_1px_#d1d1d1]"
                   style={{ border: '1px solid #e0e0e0' }}>
                   {formatNumber(quantity)}
                 </div>
@@ -135,17 +132,16 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 key={`${currency}-${index}`}
                 className="px-2 py-1 transition-colors duration-150 group/cell relative"
                 style={{
-                  color: '#1F2937',
+                  color: 'var(--port-gore)',
                   minWidth: '60px',
                   maxWidth: '110px',
-                  fontSize: 'clamp(11px, 1.0vw, 13px)',
                   fontWeight: '500',
                   zIndex: 1,
                   willChange: 'background-color, color',
                   background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
                 }}
               >
-                <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff] hover:shadow-[inset_0_0_0_1px_#d1d1d1]"
+                <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff] hover:shadow-[inset_0_0_0_1px_#d1d1d1]"
                   style={{ border: '1px solid #e0e0e0' }}>
                   {formatCurrency(total, config.code)}
                 </div>
@@ -160,7 +156,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
               }}
             >
-              <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]"
+              <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]"
                 style={{ border: '1px solid #e0e0e0' }} />
             </td>
           )
@@ -249,8 +245,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                       style={{
                         color: 'var(--chathams-blue)',
                         minWidth: '60px',
-                        fontSize: 'clamp(10px, 1.0vw, 13px)',
-                        letterSpacing: '0.05em',
+                                letterSpacing: '0.05em',
                         textAlign: 'center',
                         borderRadius: '12px',
                         border: '1px solid #b8ddf8'
@@ -259,7 +254,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                       {header.column.getCanSort() ? (
                         <div
                           onClick={header.column.getToggleSortingHandler()}
-                          className="text-xs flex cursor-pointer items-center gap-1 justify-center"
+                          className="responsiveTextTable flex cursor-pointer items-center gap-1 justify-center"
                         >
                           {header.column.columnDef.header}
                           {header.column.getIsSorted() === 'asc' && (
@@ -270,7 +265,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                           )}
                         </div>
                       ) : (
-                        <span className="text-xs">{header.column.columnDef.header}</span>
+                        <span className="responsiveTextTable">{header.column.columnDef.header}</span>
                       )}
                     </th>
                   ))}
@@ -290,11 +285,10 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         data-label={cell.column.columnDef.header}
                         className="px-2 py-1 transition-colors duration-150 group/cell relative"
                         style={{
-                          color: '#1F2937',
+                          color: 'var(--port-gore)',
                           minWidth: '60px',
                           maxWidth: '110px',
-                          fontSize: 'clamp(11px, 1.0vw, 13px)',
-                          fontWeight: '400',
+                                  fontWeight: '400',
                           zIndex: 1,
                           willChange: 'background-color, color',
                         }}
@@ -303,7 +297,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                           direction='right'
                           tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}
                         >
-                          <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
+                          <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         </Tltip>
@@ -315,7 +309,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 <tr>
                   <td
                     colSpan={columns.length}
-                    className="text-center py-8 text-gray-500"
+                    className="text-center py-8 text-[var(--regent-gray)]"
                   >
                     No data available
                   </td>

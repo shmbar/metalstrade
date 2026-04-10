@@ -85,7 +85,7 @@ const AccountStatement = () => {
           plcHolder='Select client' />
         <div className='flex group datepicker-wrapper w-full sm:w-auto'>
           <Datepicker
-            inputClassName='border border-[#0366ae] text-xs py-2 pl-3 pr-3 rounded-2xl text-[#103a7a] w-full sm:w-44
+            inputClassName='border border-[#0366ae] py-2 pl-3 pr-3 rounded-2xl text-[#103a7a] w-full sm:w-44
               focus:outline-none focus:ring-1 focus:ring-blue-200 cursor-pointer bg-white shadow-sm'
             useRange={false}
             asSingle={true}
@@ -367,7 +367,7 @@ const AccountStatement = () => {
             </div>
 
             {/* PDF Button Section */}
-            <div className="text-lg font-medium leading-5 text-gray-900 p-3 flex gap-4 flex-wrap justify-center md:justify-start ">
+            <div className="responsiveText font-medium leading-5 text-[var(--port-gore)] p-3 flex gap-4 flex-wrap justify-center md:justify-start ">
               <Tltip direction='top' tltpText='Create PDF document'>
                 <button
                   type="button"

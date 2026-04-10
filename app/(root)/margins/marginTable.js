@@ -90,7 +90,7 @@ const MarginTable = (props) => {
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                     <div className="text-center">
                                         <div 
-                                            className="font-medium mb-0.5 text-xs font-poppins"
+                                            className="font-medium mb-0.5 responsiveTextTable font-poppins"
                                             style={{
                                                 color: 'var(--endeavour)',
                                                                                                 lineHeight: '1.1'
@@ -102,7 +102,6 @@ const MarginTable = (props) => {
                                             className="font-normal"
                                             style={{
                                                 color: 'var(--endeavour)',
-                                                fontSize: 'clamp(10px, 0.8vw, 11px)',
                                                 fontWeight: '400',
                                                 lineHeight: '1.2'
                                             }}
@@ -120,7 +119,7 @@ const MarginTable = (props) => {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-medium mb-0.5 text-xs font-poppins"
+                                            className="font-medium mb-0.5 responsiveTextTable font-poppins"
                                             style={{
                                                 color: 'var(--endeavour)',
                                                                                                 lineHeight: '1.1'
@@ -132,7 +131,6 @@ const MarginTable = (props) => {
                                             className="font-normal"
                                             style={{
                                                 color: 'var(--endeavour)',
-                                                fontSize: 'clamp(10px, 0.8vw, 11px)',
                                                 fontWeight: '400',
                                                 lineHeight: '1.2'
                                             }}
@@ -151,7 +149,7 @@ const MarginTable = (props) => {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-medium mb-0.5 text-xs font-poppins"
+                                            className="font-medium mb-0.5 responsiveTextTable font-poppins"
                                             style={{
                                                 color: 'var(--endeavour)',
                                                                                                 lineHeight: '1.1'
@@ -163,7 +161,6 @@ const MarginTable = (props) => {
                                             className="font-normal"
                                             style={{
                                                 color: 'var(--endeavour)',
-                                                fontSize: 'clamp(10px, 0.8vw, 11px)',
                                                 fontWeight: '400',
                                                 lineHeight: '1.2'
                                             }}
@@ -181,7 +178,7 @@ const MarginTable = (props) => {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-medium mb-0.5 text-xs font-poppins"
+                                            className="font-medium mb-0.5 responsiveTextTable font-poppins"
                                             style={{
                                                 color: 'var(--endeavour)',
                                                                                                 lineHeight: '1.1'
@@ -193,7 +190,6 @@ const MarginTable = (props) => {
                                             className="font-normal"
                                             style={{
                                                 color: 'var(--endeavour)',
-                                                fontSize: 'clamp(10px, 0.8vw, 11px)',
                                                 fontWeight: '400',
                                                 lineHeight: '1.2'
                                             }}
@@ -217,7 +213,7 @@ const MarginTable = (props) => {
                                     style={{
                                         background: 'var(--endeavour)',
                                         color: '#FFFFFF',
-                                        fontSize: 'clamp(8px, 0.7vw, 10px)',
+                                        fontSize: '0.62rem',
                                         fontWeight: '400',
                                         border: '1px solid transparent',
                                         minWidth: '45px',
@@ -249,9 +245,7 @@ const MarginTable = (props) => {
                                         justifyContent: 'center'
                                     }}
                                 >
-                                    <FiTrash2 
-                                        style={{ fontSize: '14px' }}
-                                    />
+                                    <FiTrash2 className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         </div>

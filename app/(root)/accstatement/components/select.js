@@ -18,13 +18,13 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                 value={props.getValue()}
                 onValueChange={(e) => handleChangeSelect(e, props.row.index, month, name)}
             >
-                <SelectTrigger className="h-8 text-xs w-36 border border-[var(--endeavour)] text-[var(--endeavour)] focus:ring-1 focus:ring-offset-0 focus:border-[var(--endeavour)] focus:ring-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors rounded-2xl">
+                <SelectTrigger className="h-8 responsiveText w-36 border border-[var(--endeavour)] text-[var(--endeavour)] focus:ring-1 focus:ring-offset-0 focus:border-[var(--endeavour)] focus:ring-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors rounded-2xl">
                     <SelectValue placeholder={plHolder} />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectGroup>
                         {sortArr(data, 'nname').map((z, i) => (
-                            <SelectItem value={z.id} key={i} className='text-slate-600 text-xs'>
+                            <SelectItem value={z.id} key={i} className='text-[var(--port-gore)] responsiveText'>
                                 {z.nname}
                             </SelectItem>
                         ))}

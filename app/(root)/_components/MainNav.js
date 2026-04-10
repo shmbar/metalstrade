@@ -105,7 +105,7 @@ export const MainNav = () => {
             </button>
             </Tltip>
           ) : (
-            <div className="relative flex items-center">
+            <div className="relative flex items-center responsiveText">
               <input
                 type='text'
                 placeholder={getTtl('Search anything...', ln) || 'Search anything...'}
@@ -113,13 +113,13 @@ export const MainNav = () => {
                 autoFocus
                 onBlur={() => setOpenSearch(false)}
                 onChange={(e) => setQuery(e.target.value)}
-                className='ml-2 w-60 pl-3 pr-8 py-2 rounded-full bg-gray-50 border border-gray-200 shadow-sm focus:border-[var(--rock-blue)] focus:bg-white focus:outline-none text-sm text-gray-700 placeholder:text-gray-400 placeholder:opacity-100 transition-all'
-                style={{ color: query ? '#374151' : undefined }}
+                className='ml-2 w-60 pl-3 pr-8 py-2 rounded-full bg-gray-50 border border-gray-200 shadow-sm focus:border-[var(--rock-blue)] focus:bg-white focus:outline-none placeholder:text-gray-400 placeholder:opacity-100 transition-all'
+                style={{ fontSize: 'inherit', color: query ? 'var(--port-gore)' : 'var(--port-gore)' }}
               />
               <button
                 type="button"
                 onClick={() => { setOpenSearch(false); setQuery(''); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--regent-gray)] hover:text-red-500 transition-colors"
                 tabIndex={-1}
                 aria-label="Close search"
               >
@@ -139,12 +139,12 @@ export const MainNav = () => {
                     onClick={() => onPickResult(r)}
                     className='w-full text-left px-4 py-3 hover:bg-[var(--selago)] transition-all rounded-lg'
                   >
-                    <div className='text-sm font-semibold text-[var(--port-gore)]'>{r.title}</div>
-                    <div className='responsiveText text-gray-500 truncate'>{r.subtitle}</div>
+                    <div className='responsiveText font-medium text-[var(--port-gore)]'>{r.title}</div>
+                    <div className='responsiveText text-[var(--regent-gray)] truncate'>{r.subtitle}</div>
                   </button>
                 ))
               ) : (
-                <div className='responsiveText text-gray-400 px-4 py-2'>No results</div>
+                <div className='responsiveText text-[var(--regent-gray)] px-4 py-2'>No results</div>
               )}
             </div>
           )}
@@ -183,7 +183,7 @@ export const MainNav = () => {
         {/* User Role Button and Profile Icon: no gap between */}
         <div className="flex items-center ml-2">
   <span
-    className="inline-flex items-center px-3 py-2 rounded-md bg-[var(--endeavour)] text-white responsiveText font-semibold shadow-md"
+    className="inline-flex items-center px-3 py-2 rounded-md bg-[var(--endeavour)] text-white responsiveText font-medium shadow-md"
     style={{
       minWidth: 60,
       justifyContent: 'center',
@@ -200,17 +200,17 @@ export const MainNav = () => {
       className='flex items-center bg-white gap-2 p-1 rounded-md hover:bg-[var(--selago)] transition-all'
       aria-label='User menu'
     >
-      <div className='w-6  flex items-center justify-center text-white font-semibold text-sm overflow-hidden'>
+      <div className='w-6  flex items-center justify-center text-white overflow-hidden'>
         <img src="/logo/person.svg" alt="Profile" className="w-6 h-6 inline-block align-middle" />
       </div>
     </button>
     {showDropdown && (
       <div className='absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-[var(--selago)] py-2 z-[9999] overflow-visible'>
         <div className='px-4 py-3 border-b border-[var(--selago)]'>
-          <p className='text-sm font-semibold text-[var(--port-gore)]'>
+          <p className='responsiveText font-medium text-[var(--port-gore)]'>
             {user?.displayName || user?.email?.split('@')[0] || 'User'}
           </p>
-          <p className='responsiveText text-gray-500 truncate'>{user?.email || ''}</p>
+          <p className='responsiveText text-[var(--regent-gray)] truncate'>{user?.email || ''}</p>
         </div>
         <div className='py-1'>
           <button
@@ -218,14 +218,14 @@ export const MainNav = () => {
               router.push('/settings')
               setShowDropdown(false)
             }}
-            className='w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-[var(--selago)] hover:text-[var(--endeavour)] transition-all'
+            className='w-full flex items-center gap-3 px-4 py-2.5 responsiveText text-[var(--port-gore)] hover:bg-[var(--selago)] hover:text-[var(--endeavour)] transition-all'
           >
             <img src='/logo/Settings.svg' alt='Settings' className='w-4 h-4 mr-2' />
             {getTtl('Settings', ln) || 'Settings'}
           </button>
           <button
             onClick={LogOut}
-            className='w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-all'
+            className='w-full flex items-center gap-3 px-4 py-2.5 responsiveText text-red-500 hover:bg-red-50 transition-all'
           >
             <img src='/logo/logout.svg' alt='Logout' className='w-4 h-4 mr-2' />
             {getTtl('Logout', ln) || 'Logout'}

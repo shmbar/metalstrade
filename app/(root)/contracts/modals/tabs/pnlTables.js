@@ -143,7 +143,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
 
                     <div className='bg-[#f0f8ff] mt-2 lg:mt-0 flex flex-wrap items-center border border-[#b8ddf8] rounded-lg max-w-6xl'>
                         <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
-                            <div className='text-xs text-[var(--chathams-blue)] items-center flex text-[0.7rem]'>Outturn:</div>
+                            <div className='responsiveTextTable text-[var(--chathams-blue)] items-center flex'>Outturn:</div>
                             <Selector
                                 arr={OutTurn}
                                 value={dataValue[i]}
@@ -154,13 +154,13 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                         </div>
                         {dataValue[i].rcvd === '1234' &&
                             <div className='p-1 space-x-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
-                                <div className='text-xs text-[var(--chathams-blue)] items-center flex text-[0.7rem] text-nowrap'>Outturn Amount:</div>
-                                <input type='text' className="number-separator input shadow-lg h-6 text-xs max-w-44"
+                                <div className='responsiveTextTable text-[var(--chathams-blue)] items-center flex text-nowrap'>Outturn Amount:</div>
+                                <input type='text' className="number-separator input shadow-lg h-6 max-w-44" style={{ fontSize: 'inherit' }}
                                     name='outrnamnt' value={addComma(dataValue[i].outrnamnt, i)} onChange={e => handleValue(e, i)} />
                             </div>
                         }
                         <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
-                            <div className='text-xs text-[var(--chathams-blue)] items-center flex text-[0.7rem]'>{getTtl('Finalizing', ln)}:</div>
+                            <div className='responsiveTextTable text-[var(--chathams-blue)] items-center flex'>{getTtl('Finalizing', ln)}:</div>
                             <Selector
                                 arr={Finalizing}
                                 value={dataValue[i]}
@@ -170,7 +170,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                             />
                         </div>
                         <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
-                            <div className='text-xs text-[var(--chathams-blue)] items-center flex text-[0.7rem] whitespace-nowrap'>{getTtl('Release Status', ln)}:</div>
+                            <div className='responsiveTextTable text-[var(--chathams-blue)] items-center flex whitespace-nowrap'>{getTtl('Release Status', ln)}:</div>
                             <Selector
                                 arr={relStts}
                                 value={dataValue[i]}
@@ -181,25 +181,25 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                         </div>
 
                         <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
-                            <div className='text-xs text-[var(--chathams-blue)] items-center flex text-[0.8rem]'>ETD:</div>
+                            <div className='responsiveText text-[var(--chathams-blue)] items-center flex'>ETD:</div>
                             <Datepicker useRange={false}
                                 asSingle={true}
                                 value={dataValue[i].etd}
                                 popoverDirection='up'
                                 onChange={(e) => handleDate(e, 'etd', i)}
                                 displayFormat={"DD-MMM-YYYY"}
-                                inputClassName='input w-full shadow-lg h-6 text-xs'
+                                inputClassName='input w-full shadow-lg h-6'
                             />
                         </div>
                         <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
-                            <div className='text-xs text-[var(--chathams-blue)] items-center flex text-[0.8rem]'>ETA:</div>
+                            <div className='responsiveText text-[var(--chathams-blue)] items-center flex'>ETA:</div>
                             <Datepicker useRange={false}
                                 asSingle={true}
                                 value={dataValue[i].eta}
                                 popoverDirection='up'
                                 onChange={(e) => handleDate(e, 'eta', i)}
                                 displayFormat={"DD-MMM-YYYY"}
-                                inputClassName='input w-full shadow-lg h-6 text-xs'
+                                inputClassName='input w-full shadow-lg h-6'
                             />
                         </div>
 
@@ -207,11 +207,11 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
 
                     </div>
                     <Button
-                        className='h-7 mt-1 px-3 text-[13px]'
+                        className='h-7 mt-1 px-3'
                         onClick={() => SaveData(i)}
                     >
                         <Save />
-                        <p className='text-sm'> {getTtl('save', ln)}</p>
+                        <p className='responsiveText'> {getTtl('save', ln)}</p>
                     </Button>
 
                 </div>

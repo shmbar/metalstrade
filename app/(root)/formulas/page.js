@@ -135,7 +135,7 @@ const Page = () => {
 												key={z}
 												className={({ selected }) =>
 													classNames(
-														'px-5 py-1.5 text-xs font-medium rounded-full transition-colors',
+														'px-5 py-1.5 responsiveText font-medium rounded-full transition-colors',
 														'focus:outline-none',
 														selected
 															? 'bg-[var(--endeavour)] text-white shadow-sm'
@@ -152,7 +152,7 @@ const Page = () => {
 										<div className='bg-[var(--selago)] rounded-xl p-2 mb-2 w-fit'>
 											<div className='flex flex-wrap items-end gap-1.5'>
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium flex items-center justify-center gap-1'>
+													<span className='responsiveText text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium flex items-center justify-center gap-1'>
 														Ni LME
 														<button onClick={refreshMetal} title="Refresh live price" className="hover:text-[var(--chathams-blue)] transition-colors">
 															<RefreshCw className={`w-3 h-3 ${metalLoading ? 'animate-spin' : ''}`} />
@@ -160,7 +160,8 @@ const Page = () => {
 													</span>
 													<input
 														type='text'
-														className='px-2 py-0.5 text-xs font-semibold text-[#F44336] text-center bg-white focus:outline-none w-full'
+														className='px-2 py-0.5 font-semibold text-[#F44336] text-center bg-white focus:outline-none w-full'
+								style={{ fontSize: 'inherit' }}
 														name='nilme'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
@@ -170,10 +171,11 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Mo Oxide - Lb</span>
+													<span className='responsiveText text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Mo Oxide - Lb</span>
 													<input
 														type='text'
-														className='px-2 py-1 text-xs font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+														className='px-2 py-1 font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+								style={{ fontSize: 'inherit' }}
 														value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
 														name='MoOxideLb'
 														onChange={(e) => handleChange(e, 'general')}
@@ -183,10 +185,11 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Charge Cr - Lb</span>
+													<span className='responsiveText text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Charge Cr - Lb</span>
 													<input
 														type='text'
-														className='px-2 py-1 text-xs font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+														className='px-2 py-1 font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+								style={{ fontSize: 'inherit' }}
 														name='chargeCrLb'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'chargeCrLb' ? value.general?.chargeCrLb || '' : addComma(value.general?.chargeCrLb || '0')}
@@ -196,10 +199,11 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>1 MT</span>
+													<span className='responsiveText text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>1 MT</span>
 													<input
 														type='text'
-														className='px-2 py-1 text-xs font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+														className='px-2 py-1 font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+								style={{ fontSize: 'inherit' }}
 														value={(value.general?.mt || '0') + ' Lb'}
 														name='mt'
 														onChange={(e) => handleChange(e, 'general')}
@@ -207,10 +211,11 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-xs text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Euro / USD</span>
+													<span className='responsiveText text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Euro / USD</span>
 													<input
 														type='text'
-														className='px-2 py-1 text-xs font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+														className='px-2 py-1 font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+								style={{ fontSize: 'inherit' }}
 														value={(value.general?.euroRate || '0')}
 														name='euroRate'
 														onChange={(e) => handleChange(e, 'general')}
@@ -221,7 +226,7 @@ const Page = () => {
 													className='flex items-center justify-center rounded-xl border border-[var(--rock-blue)] overflow-hidden min-w-[80px] px-5 cursor-pointer bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] transition-colors self-stretch'
 													onClick={saveData}
 												>
-													<span className='text-sm font-semibold text-white'>Save</span>
+													<span className='responsiveText font-semibold text-white'>Save</span>
 												</div>
 											</div>
 										</div>

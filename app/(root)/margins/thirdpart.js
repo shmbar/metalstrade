@@ -18,7 +18,6 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                     background-color: #f8fbff;
                     text-align: center;
                     vertical-align: middle;
-                    font-size: 10px !important;
                     font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
                     padding: 6px;
                     border-radius: 4px;
@@ -38,11 +37,10 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
             `}</style>
 
             {/* Title with consistent typography - same as newTable empty state */}
-            <h1 
-                className="mb-2 margins-table"
-                style={{ 
+            <h1
+                className="mb-2 margins-table responsiveText"
+                style={{
                     color: '#003366',
-                    fontSize: '15px',
                     fontWeight: '400'
                 }}
             >
@@ -83,7 +81,6 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             style={{
                                                 color: '#003366',
                                                 minWidth: '60px',
-                                                fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                                                                 textAlign: 'center',
                                                 borderRadius: '12px',
                                                 border: '1px solid #b8ddf8'
@@ -96,7 +93,6 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             style={{
                                                 color: '#003366',
                                                 minWidth: '60px',
-                                                fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                                                                 textAlign: 'center',
                                                 borderRadius: '12px',
                                                 border: '1px solid #b8ddf8'
@@ -109,7 +105,6 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             style={{
                                                 color: '#003366',
                                                 minWidth: '60px',
-                                                fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                                                                 textAlign: 'center',
                                                 borderRadius: '12px',
                                                 border: '1px solid #b8ddf8'
@@ -122,7 +117,6 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             style={{
                                                 color: '#003366',
                                                 minWidth: '60px',
-                                                fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                                                                 textAlign: 'center',
                                                 borderRadius: '12px',
                                                 border: '1px solid #b8ddf8'
@@ -135,7 +129,6 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             style={{
                                                 color: '#003366',
                                                 minWidth: '60px',
-                                                fontSize: 'clamp(10px, 1.0vw, 13px)',
                                                                                                 textAlign: 'center',
                                                 borderRadius: '12px',
                                                 border: '1px solid #b8ddf8'
@@ -159,13 +152,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     color: '#003366',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
-                                                    fontSize: 'clamp(11px, 1.0vw, 13px)',
                                                     fontWeight: '400',
                                                     zIndex: 1,
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border border-[#d8e8f5] rounded-lg transition-all duration-200 ease-in-out bg-[#dbeeff] text-[#003366] fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border border-[#d8e8f5] rounded-lg transition-all duration-200 ease-in-out bg-[#dbeeff] text-[#003366] fade-in">
                                                     {z.month + "-" + yr}
                                                 </div>
                                             </td>
@@ -176,13 +168,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     color: '#003366',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
-                                                    fontSize: 'clamp(11px, 1.0vw, 13px)',
                                                     fontWeight: '400',
                                                     zIndex: 1,
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff] fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff] fade-in">
                                                     <NumericFormat
                                                         value={z.purchase}
                                                         displayType="text"
@@ -190,7 +181,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         allowNegative={true}
                                                         decimalScale={!Number.isInteger(z.purchase) && '2'}
                                                         fixedDecimalScale
-                                                        className="text-[11px]"
+                                                        className="responsiveTextTable"
                                                     />
                                                 </div>
                                             </td>
@@ -201,13 +192,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     color: '#003366',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
-                                                    fontSize: 'clamp(11px, 1.0vw, 13px)',
                                                     fontWeight: '400',
                                                     zIndex: 1,
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1]  fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1]  fade-in">
                                                     <NumericFormat
                                                         value={z.totalMargin}
                                                         displayType="text"
@@ -216,7 +206,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         prefix={'$'}
                                                         decimalScale="2"
                                                         fixedDecimalScale
-                                                        className="text-[11px]"
+                                                        className="responsiveTextTable"
                                                     />
                                                 </div>
                                             </td>
@@ -227,13 +217,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     color: '#003366',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
-                                                    fontSize: 'clamp(11px, 1.0vw, 13px)',
                                                     fontWeight: '400',
                                                     zIndex: 1,
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff] fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff] fade-in">
                                                     <NumericFormat
                                                         value={z.openShip}
                                                         displayType="text"
@@ -241,7 +230,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         allowNegative={true}
                                                         decimalScale={!Number.isInteger(z.openShip) && '2'}
                                                         fixedDecimalScale
-                                                        className="text-[11px]"
+                                                        className="responsiveTextTable"
                                                     />
                                                 </div>
                                             </td>
@@ -252,13 +241,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     color: '#003366',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
-                                                    fontSize: 'clamp(11px, 1.0vw, 13px)',
                                                     fontWeight: '400',
                                                     zIndex: 1,
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 text-[11px] font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff] fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff] fade-in">
                                                     <NumericFormat
                                                         value={z.remaining}
                                                         displayType="text"
@@ -267,7 +255,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         prefix={'$'}
                                                         decimalScale="2"
                                                         fixedDecimalScale
-                                                        className="text-[11px]"
+                                                        className="responsiveTextTable"
                                                     />
                                                 </div>
                                             </td>
@@ -282,14 +270,13 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 color: '#003366',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
-                                                fontSize: 'clamp(11px, 1.0vw, 13px)',
                                                 fontWeight: '600',
                                                 zIndex: 1,
                                                 willChange: 'background-color, color',
                                                 background: '#dbeeff'
                                             }}
                                         >
-                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
+                                            <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
                                                 Total
                                             </div>
                                         </td>
@@ -300,14 +287,13 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 color: '#003366',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
-                                                fontSize: 'clamp(11px, 1.0vw, 13px)',
                                                 fontWeight: '500',
                                                 zIndex: 1,
                                                 willChange: 'background-color, color',
                                                 background: '#dbeeff'
                                             }}
                                         >
-                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
+                                            <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
                                                 <NumericFormat
                                                     value={purchase}
                                                     displayType="text"
@@ -315,7 +301,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     allowNegative={true}
                                                     decimalScale={!Number.isInteger(purchase) && '2'}
                                                     fixedDecimalScale
-                                                    className="text-[11px]"
+                                                    className="responsiveTextTable"
                                                 />
                                             </div>
                                         </td>
@@ -326,14 +312,13 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 color: '#003366',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
-                                                fontSize: 'clamp(11px, 1.0vw, 13px)',
                                                 fontWeight: '500',
                                                 zIndex: 1,
                                                 willChange: 'background-color, color',
                                                 background: '#dbeeff'
                                             }}
                                         >
-                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
+                                            <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
                                                 <NumericFormat
                                                     value={totalMargin}
                                                     displayType="text"
@@ -342,7 +327,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     prefix={'$'}
                                                     decimalScale="2"
                                                     fixedDecimalScale
-                                                    className="text-[11px]"
+                                                    className="responsiveTextTable"
                                                 />
                                             </div>
                                         </td>
@@ -353,14 +338,13 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 color: '#003366',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
-                                                fontSize: 'clamp(11px, 1.0vw, 13px)',
                                                 fontWeight: '500',
                                                 zIndex: 1,
                                                 willChange: 'background-color, color',
                                                 background: '#dbeeff'
                                             }}
                                         >
-                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
+                                            <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
                                                 <NumericFormat
                                                     value={outStandingShip}
                                                     displayType="text"
@@ -368,7 +352,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     allowNegative={true}
                                                     decimalScale="2"
                                                     fixedDecimalScale
-                                                    className="text-[11px]"
+                                                    className="responsiveTextTable"
                                                 />
                                             </div>
                                         </td>
@@ -379,14 +363,13 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 color: '#003366',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
-                                                fontSize: 'clamp(11px, 1.0vw, 13px)',
                                                 fontWeight: '500',
                                                 zIndex: 1,
                                                 willChange: 'background-color, color',
                                                 background: '#dbeeff'
                                             }}
                                         >
-                                            <div className="px-2 py-1 text-[11px] font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
+                                            <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5]">
                                                 <NumericFormat
                                                     value={remaining}
                                                     displayType="text"
@@ -395,7 +378,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     prefix={'$'}
                                                     decimalScale="2"
                                                     fixedDecimalScale
-                                                    className="text-[11px]"
+                                                    className="responsiveTextTable"
                                                 />
                                             </div>
                                         </td>
@@ -428,7 +411,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <span 
                                             className="font-normal"
                                             style={{ 
-                                                fontSize: 'clamp(9px, 0.8vw, 10px)',
+                                                fontSize: '0.62rem',
                                                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                                             }}
                                         >
@@ -445,8 +428,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <div 
                                                 className="font-medium" 
                                                 style={{ 
-                                                    color: '#6B7280',
-                                                    fontSize: 'clamp(6px, 0.6vw, 7px)' 
+                                                    color: 'var(--regent-gray)',
+                                                    fontSize: '0.58rem' 
                                                 }}
                                             >
                                                 Month
@@ -456,7 +439,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 style={{
                                                     color: 'var(--endeavour)',
                                                     background: '#dbeeff',
-                                                    fontSize: 'clamp(8px, 0.7vw, 10px)',
+                                                    fontSize: '0.62rem',
                                                     border: '1px solid transparent'
                                                 }}
                                             >
@@ -471,8 +454,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <div 
                                                 className="font-medium" 
                                                 style={{ 
-                                                    color: '#6B7280',
-                                                    fontSize: 'clamp(6px, 0.6vw, 7px)' 
+                                                    color: 'var(--regent-gray)',
+                                                    fontSize: '0.58rem' 
                                                 }}
                                             >
                                                 Purchase
@@ -482,7 +465,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 style={{ 
                                                     color: '#003366',
                                                     background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
-                                                    fontSize: 'clamp(8px, 0.7vw, 10px)',
+                                                    fontSize: '0.62rem',
                                                     border: '1px solid #E5E7EB'
                                                 }}
                                             >
@@ -504,8 +487,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <div 
                                                 className="font-medium" 
                                                 style={{ 
-                                                    color: '#6B7280',
-                                                    fontSize: 'clamp(6px, 0.6vw, 7px)' 
+                                                    color: 'var(--regent-gray)',
+                                                    fontSize: '0.58rem' 
                                                 }}
                                             >
                                                 Profit
@@ -515,7 +498,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 style={{ 
                                                     color: '#003366',
                                                     background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
-                                                    fontSize: 'clamp(8px, 0.7vw, 10px)',
+                                                    fontSize: '0.62rem',
                                                     border: '1px solid #E5E7EB'
                                                 }}
                                             >
@@ -553,7 +536,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                     <span 
                                         className="font-semibold"
                                         style={{ 
-                                            fontSize: 'clamp(9px, 0.8vw, 10px)',
+                                            fontSize: '0.62rem',
                                             color: '#003366'
                                         }}
                                     >
@@ -570,8 +553,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-medium" 
                                             style={{ 
-                                                color: '#6B7280',
-                                                fontSize: 'clamp(6px, 0.6vw, 7px)' 
+                                                color: 'var(--regent-gray)',
+                                                fontSize: '0.58rem' 
                                             }}
                                         >
                                             Total Purchase
@@ -581,7 +564,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             style={{ 
                                                 color: '#003366',
                                                 background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
-                                                fontSize: 'clamp(8px, 0.7vw, 10px)',
+                                                fontSize: '0.62rem',
                                                 border: '1px solid #E5E7EB'
                                             }}
                                         >
@@ -603,8 +586,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-medium" 
                                             style={{ 
-                                                color: '#6B7280',
-                                                fontSize: 'clamp(6px, 0.6vw, 7px)' 
+                                                color: 'var(--regent-gray)',
+                                                fontSize: '0.58rem' 
                                             }}
                                         >
                                             Total Profit
@@ -614,7 +597,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             style={{ 
                                                 color: '#003366',
                                                 background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
-                                                fontSize: 'clamp(8px, 0.7vw, 10px)',
+                                                fontSize: '0.62rem',
                                                 border: '1px solid #E5E7EB'
                                             }}
                                         >
@@ -637,8 +620,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-medium" 
                                             style={{ 
-                                                color: '#6B7280',
-                                                fontSize: 'clamp(6px, 0.6vw, 7px)' 
+                                                color: 'var(--regent-gray)',
+                                                fontSize: '0.58rem' 
                                             }}
                                         >
                                             Outstanding Shipment
@@ -648,7 +631,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             style={{ 
                                                 color: '#003366',
                                                 background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
-                                                fontSize: 'clamp(8px, 0.7vw, 10px)',
+                                                fontSize: '0.62rem',
                                                 border: '1px solid #E5E7EB'
                                             }}
                                         >
@@ -669,8 +652,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-medium" 
                                             style={{ 
-                                                color: '#6B7280',
-                                                fontSize: 'clamp(6px, 0.6vw, 7px)' 
+                                                color: 'var(--regent-gray)',
+                                                fontSize: '0.58rem' 
                                             }}
                                         >
                                             Remaining
@@ -680,7 +663,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             style={{ 
                                                 color: '#003366',
                                                 background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
-                                                fontSize: 'clamp(8px, 0.7vw, 10px)',
+                                                fontSize: '0.62rem',
                                                 border: '1px solid #E5E7EB'
                                             }}
                                         >

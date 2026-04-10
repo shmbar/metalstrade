@@ -72,8 +72,8 @@ export const LineChart = (data1, data2) => {
                         return context.dataset.label + ': $' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { family: 'Inter', weight: 'bold' },
-                bodyFont: { family: 'Poppins' },
+                titleFont: { weight: 'bold' },
+                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -93,7 +93,7 @@ export const LineChart = (data1, data2) => {
                     callback: function (value) {
                         return value;
                     },
-                    font: { family: 'Inter', size: 11 },
+                    font: { size: 11 },
                     color: '#838ca7', // regent-gray
                     padding: 10,
                 },
@@ -104,7 +104,7 @@ export const LineChart = (data1, data2) => {
             },
             x: {
                 ticks: { 
-                    font: { family: 'Inter', size: 11 }, 
+                    font: { size: 11 }, 
                     color: '#838ca7', // regent-gray
                     padding: 5,
                 },
@@ -169,8 +169,8 @@ export const GroupedBarChart = (data1, data2) => {
                         return context.dataset.label + ': $' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { family: 'Inter', weight: 'bold' },
-                bodyFont: { family: 'Poppins' },
+                titleFont: { weight: 'bold' },
+                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -186,7 +186,7 @@ export const GroupedBarChart = (data1, data2) => {
                     callback: function (value) {
                         return value;
                     },
-                    font: { family: 'Inter', size: 11 },
+                    font: { size: 11 },
                     color: '#838ca7', // regent-gray
                     padding: 10,
                 },
@@ -197,7 +197,7 @@ export const GroupedBarChart = (data1, data2) => {
             },
             x: {
                 ticks: { 
-                    font: { family: 'Inter', size: 11 }, 
+                    font: { size: 11 }, 
                     color: '#838ca7', // regent-gray
                     padding: 5,
                 },
@@ -260,8 +260,8 @@ export const LineChartSmall = (data, color) => {
                         return '$' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { family: 'Inter', weight: 'bold' },
-                bodyFont: { family: 'Poppins' },
+                titleFont: { weight: 'bold' },
+                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -327,8 +327,8 @@ export const BarChart = (data, color) => {
                         return '$' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { family: 'Inter', weight: 'bold' },
-                bodyFont: { family: 'Poppins' },
+                titleFont: { weight: 'bold' },
+                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -343,7 +343,7 @@ export const BarChart = (data, color) => {
                         const YesNo = checkIfInArray(values)
                         return YesNo ? 0 : value / 1000000;
                     },
-                    font: { family: 'Inter', size: 11 },
+                    font: { size: 11 },
                     color: '#838ca7'
                 },
                 grid: {
@@ -352,7 +352,7 @@ export const BarChart = (data, color) => {
                 }
             },
             x: {
-                ticks: { font: { family: 'Inter', size: 11 }, color: '#838ca7' },
+                ticks: { font: { size: 11 }, color: '#838ca7' },
                 grid: {
                     display: false
                 },
@@ -419,8 +419,8 @@ export const BarChartContracts = (data, data1, color, color1) => {
                         return '$' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { family: 'Inter', weight: 'bold' },
-                bodyFont: { family: 'Poppins' },
+                titleFont: { weight: 'bold' },
+                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -435,7 +435,7 @@ export const BarChartContracts = (data, data1, color, color1) => {
                         const YesNo = checkIfInArray(values)
                         return YesNo ? 0 : value / 1000000;
                     },
-                    font: { family: 'Inter', size: 11 },
+                    font: { size: 11 },
                     color: '#838ca7'
                 },
                 grid: {
@@ -444,7 +444,7 @@ export const BarChartContracts = (data, data1, color, color1) => {
                 }
             },
             x: {
-                ticks: { font: { family: 'Inter', size: 11 }, color: '#838ca7' },
+                ticks: { font: { size: 11 }, color: '#838ca7' },
                 grid: {
                     display: false
                 },
@@ -522,8 +522,8 @@ export const HorizontalBar = (arr, text) => {
                         return context.label + ': $' + addCommas(context.parsed.x.toString())
                     },
                 },
-                titleFont: { family: 'Inter', weight: 'bold' },
-                bodyFont: { family: 'Poppins' },
+                titleFont: { weight: 'bold' },
+                bodyFont: {},
             }
         },
         maintainAspectRatio: false,
@@ -534,7 +534,7 @@ export const HorizontalBar = (arr, text) => {
                 },
                 beginAtZero: true,
                 ticks: {
-                    font: { family: 'Inter', size: 11 },
+                    font: { size: 11 },
                     color: '#28264f'
                 },
                 grid: {
@@ -543,7 +543,7 @@ export const HorizontalBar = (arr, text) => {
             },
             x: {
                 ticks: { 
-                    font: { family: 'Inter', size: 11 }, 
+                    font: { size: 11 }, 
                     color: '#838ca7',
                     callback: function (value) {
                         if (value >= 1000000) {
@@ -596,7 +596,7 @@ export const ExpCompare = (dtCrnt, dtCrntPrev, date, cur) => {
             title: {
                 display: true,
                 text: `Expenses - K (${cur})`,
-                font: { size: 16, family: 'Poppins' },
+                font: { size: 16 },
                 color: 'white'
             },
             legend: {
@@ -610,8 +610,8 @@ export const ExpCompare = (dtCrnt, dtCrntPrev, date, cur) => {
                         return addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { family: 'Poppins' },
-                bodyFont: { family: 'Poppins' },
+                titleFont: {},
+                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -626,7 +626,7 @@ export const ExpCompare = (dtCrnt, dtCrntPrev, date, cur) => {
                         const YesNo = checkIfInArray(values)
                         return YesNo ? 0 : value / 1000;    //addCommas(value/1000); //(value/1000).toFixed(1) //
                     },
-                    font: { family: 'Poppins' },
+                    font: {},
                     color: 'white',
                 },
                 grid: {
@@ -634,7 +634,7 @@ export const ExpCompare = (dtCrnt, dtCrntPrev, date, cur) => {
                 }
             },
             x: {
-                ticks: { font: { family: 'Poppins' }, color: 'white' },
+                ticks: { font: {}, color: 'white' },
                 grid: {
                     display: false,
                 },
@@ -697,7 +697,7 @@ export const RevenueCompare = (dtCrnt, dtPrev, dtCrnt1, dtPrev1, date, cur) => {
             title: {
                 display: true,
                 text: `Revenue - K (${cur})`,
-                font: { size: 16, family: 'Poppins' },
+                font: { size: 16 },
                 color: 'white',
             },
             legend: {
@@ -711,8 +711,8 @@ export const RevenueCompare = (dtCrnt, dtPrev, dtCrnt1, dtPrev1, date, cur) => {
                         return addCommas(context.parsed.y.toString())
                     },
                 },
-                titleFont: { family: 'Poppins' },
-                bodyFont: { family: 'Poppins' },
+                titleFont: {},
+                bodyFont: {},
             }
         },
         maintainAspectRatio: false,
@@ -727,7 +727,7 @@ export const RevenueCompare = (dtCrnt, dtPrev, dtCrnt1, dtPrev1, date, cur) => {
                         const YesNo = checkIfInArray(values)
                         return YesNo ? 0 : value / 1000;    //addCommas(value/1000); //(value/1000).toFixed(1) //
                     },
-                    font: { family: 'Poppins' },
+                    font: {},
                     color: 'white',
                 },
                 grid: {
@@ -738,7 +738,7 @@ export const RevenueCompare = (dtCrnt, dtPrev, dtCrnt1, dtPrev1, date, cur) => {
                 border: {
                     color: 'silver',
                 },
-                ticks: { font: { family: 'Poppins' }, color: 'white', },
+                ticks: { font: {}, color: 'white', },
                 grid: {
                     display: false
                 }
@@ -779,7 +779,7 @@ export const PLCompare = (dtCrnt, dtPrev, date, cur) => {
             title: {
                 display: true,
                 text: `P&L - K (${cur})`,
-                font: { size: 16, family: 'Poppins' },
+                font: { size: 16 },
                 color: 'white'
             },
             legend: {
@@ -793,8 +793,8 @@ export const PLCompare = (dtCrnt, dtPrev, date, cur) => {
                         return addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { family: 'Poppins' },
-                bodyFont: { family: 'Poppins' },
+                titleFont: {},
+                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -809,7 +809,7 @@ export const PLCompare = (dtCrnt, dtPrev, date, cur) => {
                         const YesNo = checkIfInArray(values)
                         return YesNo ? 0 : value / 1000;    //addCommas(value/1000); //(value/1000).toFixed(1) //
                     },
-                    font: { family: 'Poppins' },
+                    font: {},
                     color: 'white'
                 },
                 grid: {
@@ -817,7 +817,7 @@ export const PLCompare = (dtCrnt, dtPrev, date, cur) => {
                 }
             },
             x: {
-                ticks: { font: { family: 'Poppins' }, color: 'white' },
+                ticks: { font: {}, color: 'white' },
                 grid: {
                     display: false
                 },
@@ -858,11 +858,11 @@ export const ExpenseGroup = (expensesTitles, ExpGroup, lblType, cur) => {
             title: {
                 display: true,
                 text: `Expenses by Group - K (${cur})`,
-                font: { size: 16, family: 'Poppins' }
+                font: { size: 16 }
             },
             legend: {
                 display: false,
-                labels: { font: { family: 'Poppins' } },
+                labels: { font: {} },
             },
             tooltip: {
                 callbacks: {
@@ -874,8 +874,8 @@ export const ExpenseGroup = (expensesTitles, ExpGroup, lblType, cur) => {
                     },
 
                 },
-                titleFont: { family: 'Poppins' },
-                bodyFont: { family: 'Poppins' },
+                titleFont: {},
+                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -887,14 +887,14 @@ export const ExpenseGroup = (expensesTitles, ExpGroup, lblType, cur) => {
                         const YesNo = checkIfInArray(values)
                         return YesNo ? 0 : value / 1000;    //addCommas(value/1000); //(value/1000).toFixed(1) //
                     },
-                    font: { family: 'Poppins' },
+                    font: {},
                 },
                 grid: {
                     display: false
                 }
             },
             x: {
-                ticks: { font: { family: 'Poppins' }, },
+                ticks: { font: {}, },
                 grid: {
                     display: false
                 }
@@ -937,11 +937,11 @@ export const OccupPrcnt = (dtCrnt, dtCrntPrev, date) => {
             title: {
                 display: true,
                 text: `Properties Occupancy`,
-                font: { size: 16, family: 'Poppins' }
+                font: { size: 16 }
             },
             legend: {
                 position: 'bottom',
-                labels: { font: { family: 'Poppins' } },
+                labels: { font: {} },
             },
             tooltip: {
                 callbacks: {
@@ -949,8 +949,8 @@ export const OccupPrcnt = (dtCrnt, dtCrntPrev, date) => {
                         return context.parsed.y.toString() + '%'
                     }
                 },
-                titleFont: { family: 'Poppins' },
-                bodyFont: { family: 'Poppins' },
+                titleFont: {},
+                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -961,7 +961,7 @@ export const OccupPrcnt = (dtCrnt, dtCrntPrev, date) => {
                     callback: function (value, index, values) {
                         return value + '%';
                     },
-                    font: { family: 'Poppins' },
+                    font: {},
                 },
                 max: 100,
                 grid: {
@@ -969,7 +969,7 @@ export const OccupPrcnt = (dtCrnt, dtCrntPrev, date) => {
                 }
             },
             x: {
-                ticks: { font: { family: 'Poppins' }, },
+                ticks: { font: {}, },
                 grid: {
                     display: false
                 }

@@ -158,7 +158,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                     prefix={z.cur === "us" ? "$" : "€"}
                     decimalScale={3}
                     fixedDecimalScale
-                    className="!text-[11px]"
+                    className="responsiveTextTable"
                   />
                 </td>
                 <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "0.72rem", whiteSpace: "nowrap" }}>

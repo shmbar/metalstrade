@@ -104,10 +104,10 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                     boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1), 0 0 1px rgba(255, 255, 255, 0.2) inset',
                                 }}
                             >
-                                <span className="text-[11px] font-semibold text-[var(--endeavour)] text-center px-1">
+                                <span className="responsiveTextTable font-medium text-[var(--endeavour)] text-center px-1">
                                     {card.label}
                                 </span>
-                                <div className="text-[11px] font-semibold text-[var(--endeavour)] text-center">
+                                <div className="responsiveTextTable font-medium text-[var(--endeavour)] text-center">
                                     {card.value}
                                 </div>
 
@@ -124,10 +124,10 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                     className="stats-card flex flex-col items-center justify-center rounded-full bg-white py-1 px-1 shadow-lg border border-white/20"
                                     style={{ boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)' }}
                                 >
-                                    <span className="text-[11px] font-semibold text-[var(--endeavour)] text-center px-1">
+                                    <span className="responsiveTextTable font-medium text-[var(--endeavour)] text-center px-1">
                                         {card.label}
                                     </span>
-                                    <div className="text-[11px] font-semibold text-[var(--endeavour)] text-center">
+                                    <div className="responsiveTextTable font-medium text-[var(--endeavour)] text-center">
                                         {card.value}
                                     </div>
                                 </div>

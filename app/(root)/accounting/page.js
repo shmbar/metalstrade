@@ -600,7 +600,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       width: '100%',
     }}
   >
-    <FaWallet style={{ color: '#2563EB', fontSize: '17px', flexShrink: 0 }} />
+    <FaWallet className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#2563EB' }} />
     <span className="responsiveText" style={{ color: '#2563EB', fontWeight: 500 }}>
       {formatCurrency(totals.balance)}
     </span>
@@ -627,7 +627,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       width: '100%',
     }}
   >
-    <FaArrowTrendUp style={{ color: '#6366F1', fontSize: '17px', flexShrink: 0 }} />
+    <FaArrowTrendUp className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#6366F1' }} />
     <span className="responsiveText" style={{ color: '#6366F1', fontWeight: 500 }}>
       {formatCurrency(totals.totalIncome)}
     </span>
@@ -654,7 +654,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       width: '100%',
     }}
   >
-    <FaArrowTrendDown style={{ color: '#EF4444', fontSize: '17px', flexShrink: 0 }} />
+    <FaArrowTrendDown className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#EF4444' }} />
     <span className="responsiveText" style={{ color: '#EF4444', fontWeight: 500 }}>
       {formatCurrency(totals.totalExpense)}
     </span>
@@ -681,7 +681,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       width: '100%',
     }}
   >
-    <FaPiggyBank style={{ color: '#10B981', fontSize: '17px', flexShrink: 0 }} />
+    <FaPiggyBank className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#10B981' }} />
     <span className="responsiveText" style={{ color: '#10B981', fontWeight: 500 }}>
       {formatCurrency(totals.savings)}
     </span>
@@ -694,7 +694,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           </div>
            {/* Full Table */}
           <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff] relative">
-            <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)] mb-4">All Transactions</h3>
+            <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-4">All Transactions</h3>
             <Customtable data={invoicesAccData} columns={propDefaults}  onCellUpdate={onCellUpdate}
               excellReport={EXD(invoicesAccData, settings, getTtl('Accounting', ln), ln)} />
           </div>
@@ -703,7 +703,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6 mt-3">
             {/* Last Transaction */}
             <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
-              <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)] mb-2">Last Transaction</h3>
+              <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-2">Last Transaction</h3>
               <div className="space-y-0">
                 {recentTransactions.map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
@@ -735,7 +735,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
 
             {/* Invoices Sent */}
             <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
-              <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)] mb-2">Invoices Sent</h3>
+              <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-2">Invoices Sent</h3>
               <div className="space-y-0">
                 {recentInvoices.map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
@@ -756,7 +756,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
                     <div className="text-right flex-shrink-0 ml-2">
                       <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-0.5">{formatCurrency(item.amountInv || 0)}</p>
                       <span className={`inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-poppins ${
-                        idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'
+                        idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-[#f3f4f6] text-[var(--regent-gray)]'
                       }`}>
                         {idx % 2 === 0 ? 'Paid' : 'Pending'}
                       </span>
@@ -773,7 +773,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
             <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                 <div className="min-w-0">
-                  <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)]">Debit & Credit Overview</h3>
+                  <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)]">Debit & Credit Overview</h3>
                   <p className="responsiveText text-[var(--regent-gray)] truncate">
                     {formatCurrency(totals.totalExpense)} Debited & {formatCurrency(totals.totalIncome)} Credited
                   </p>
@@ -795,25 +795,25 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
             </div>
             {/* Summary Stats */}
             <div  className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl bg-[#f8fbff] overflow-hidden">
-              <h3 className="text-sm font-medium font-poppins text-[var(--chathams-blue)] mb-4">Financial Summary</h3>
+              <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-4">Financial Summary</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
                   <p className="text-[var(--port-gore)] responsiveText mb-1">Total Transactions</p>
-                  <p className="text-xl font-medium text-[var(--chathams-blue)]">{invoicesAccData.length}</p>
+                  <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">{invoicesAccData.length}</p>
                 </div>
                 <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
                   <p className="text-[var(--port-gore)] responsiveText mb-1">Avg. Transaction</p>
-                  <p className="text-xl font-medium text-[var(--chathams-blue)] truncate">
+                  <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">
                     {formatCurrency(invoicesAccData.length > 0 ? (totals.totalIncome + totals.totalExpense) / invoicesAccData.length : 0)}
                   </p>
                 </div>
                 <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
                   <p className="text-[var(--port-gore)] responsiveText mb-1">Net Profit</p>
-                  <p className="text-xl font-medium text-[var(--chathams-blue)] truncate">{formatCurrency(totals.balance)}</p>
+                  <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">{formatCurrency(totals.balance)}</p>
                 </div>
                 <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
                   <p className="text-[var(--port-gore)] responsiveText mb-1">Profit Margin</p>
-                  <p className="text-xl font-medium text-[var(--chathams-blue)]">
+                  <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">
                     {formatPercent(totals.totalIncome > 0 ? (totals.balance / totals.totalIncome) * 100 : 0)}
                   </p>
                 </div>

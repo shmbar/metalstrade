@@ -77,7 +77,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
                  data-[state=closed]:animate-fade-zoom-out
 ">
                 <div className="grid gap-2">
-                    <div className="text-sm justify-end flex">
+                    <div className="responsiveText justify-end flex">
                         <MdClose
                             className="scale-[1.5] cursor-pointer"
                             onClick={() => setOpen(false)}
@@ -90,7 +90,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
 
                     <div className="flex flex-col md:flex-row justify-between pt-2 gap-3">
                         <div className="flex-1 min-w-0">
-                            <label className="text-sm justify-start flex">Date</label>
+                            <label className="responsiveText justify-start flex">Date</label>
                             {showDatepicker && (
                                 <Datepicker
                                     useRange={false}
@@ -99,16 +99,17 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
                                     popoverDirection="down"
                                     onChange={(val) => setDate(val)}
                                     displayFormat={"DD-MMM-YYYY"}
-                                    inputClassName="input w-full shadow-lg h-7 text-xs rounded-full"
+                                    inputClassName="input w-full shadow-lg h-7 rounded-full"
                                 />
                             )}
                         </div>
 
                         <div className="flex-1 min-w-0">
-                            <label className="text-sm justify-start flex">Amount</label>
+                            <label className="responsiveText justify-start flex">Amount</label>
                             <input
                                 type="text"
-                                className="number-separator input h-7 shadow-sm text-xs w-full rounded-full"
+                                className="number-separator input h-7 shadow-sm w-full rounded-full"
+                                style={{ fontSize: 'inherit' }}
                                 value={addComma(pmnt)}
                                 onChange={handleValuePmnt}
                             />

@@ -217,8 +217,8 @@ const DraggableRow = ({ row, props, cName }) => {
                 prefix={currs.includes(cell.column.id) ? "$" : ""}
                 decimalScale={currs.includes(cell.column.id) ? 2 : 3}
                 fixedDecimalScale
-                className="w-full bg-transparent border-none outline-none px-1 text-[11px] text-[#1F2937] text-center"
-                style={{ fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif" }}
+                className="w-full bg-transparent border-none outline-none px-1 text-[var(--port-gore)] text-center"
+                style={{ fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif", fontSize: 'inherit' }}
               />
             )}
           </TableCell>
@@ -352,7 +352,7 @@ const Customtable = (props) => {
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
 >
-  <div className="w-full flex items-center justify-center text-xs font-medium font-poppins">
+  <div className="w-full flex items-center justify-center responsiveTextTable font-medium font-poppins">
     {header.isPlaceholder
       ? null
       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -376,10 +376,9 @@ const Customtable = (props) => {
                                             <TableRow>
                                                 <TableCell 
                                                     colSpan={columns.length} 
-                                                    className="text-center text-gray-500"
-                                                    style={{ 
+                                                    className="responsiveText text-center text-[var(--regent-gray)]"
+                                                    style={{
                                                         height: '60px',
-                                                        fontSize: '0.875rem',
                                                         padding: '16px'
                                                     }}
                                                 >
@@ -471,7 +470,7 @@ const Customtable = (props) => {
                                             onClick={e => props.deleteRow(e, rowIdx, row.month)}
                                             style={{ width: '20px', height: '20px' }}
                                         >
-                                            <MdDeleteOutline style={{ fontSize: '16px' }} />
+                                            <MdDeleteOutline className="w-4 h-4" />
                                         </button>
                                     </div>
                                     
@@ -581,9 +580,9 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                                 );
                                                             }
                                                             return (
-                                                                <span 
-                                                                    className='text-gray-600'
-                                                                    style={{ 
+                                                                <span
+                                                                    className='text-[var(--port-gore)]'
+                                                                    style={{
                                                                         fontSize: '0.65rem',
                                                                         lineHeight: '1.2'
                                                                     }}
@@ -599,10 +598,7 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                 </div>
                             ))
                         ) : (
-                            <div 
-                                className="text-center py-6 text-gray-500"
-                                style={{ fontSize: '0.875rem' }}
-                            >
+                            <div className="responsiveText text-center py-6 text-[var(--regent-gray)]">
                                 No results found.
                             </div>
                         )}

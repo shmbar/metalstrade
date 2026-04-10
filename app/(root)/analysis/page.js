@@ -21,7 +21,7 @@ const CB = (settings, setSelectedStock, selectedStock) => (
     value={selectedStock}
     name='supplier'
     classes='input border-slate-300 shadow-sm items-center flex'
-    classes2='text-lg'
+    classes2='responsiveText'
     dis={false}
   />
 );

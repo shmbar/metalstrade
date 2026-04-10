@@ -361,7 +361,7 @@ const Contracts = () => {
 								
 								className="blackButton whitespace-nowrap"
 							>
-								<TbLayoutGridAdd className="text-lg flex-shrink-0" />
+								<TbLayoutGridAdd className="w-4 h-4 flex-shrink-0" />
 								<span>{getTtl('New Contract', ln)}</span>
 							</button>
 						</Tltip>
@@ -372,7 +372,7 @@ const Contracts = () => {
 								
 								className="blackButton whitespace-nowrap"
 							>
-								<IoAnalyticsOutline className="text-lg flex-shrink-0" />
+								<IoAnalyticsOutline className="w-4 h-4 flex-shrink-0" />
 								<span>{getTtl('Weight Analysis', ln)}</span>
 							</button>
 						</Tltip>
@@ -381,9 +381,9 @@ const Contracts = () => {
 					{/* Alert Section */}
 					{alertArr.length > 0 && (
 						<div className='mt-4 px-2 sm:px-3'>
-							<div className="text-sm font-semibold border border-[#b8ddf8] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
+							<div className="responsiveText font-medium border border-[#b8ddf8] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
 								<div style={{ color: 'var(--chathams-blue)' }}>
-									<span className='responsiveText sm:text-sm border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
+									<span className='responsiveText border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
 									<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
 								</div>
 							</div>
