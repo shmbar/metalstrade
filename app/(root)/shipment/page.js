@@ -283,7 +283,7 @@ const ShipmentPage = () => {
                 {/* Outer card — title only */}
                 <div className="rounded-2xl p-2 sm:p-3 lg:p-5 mt-4 sm:mt-6 lg:mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
                     <div className="flex items-center justify-between pb-2 flex-wrap gap-2">
-                        <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">
+                        <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                             Shipments Tracking
                         </h1>
                     </div>

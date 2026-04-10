@@ -431,7 +431,7 @@ const Shipments = () => {
                     <div className="border border-[#b8ddf8] rounded-xl p-4 mt-8 shadow-lg bg-white relative">
 
                         <div className='flex items-center justify-between flex-wrap'>
-                            <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Invoices Statement', ln)}</h1>
+                            <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Invoices Statement', ln)}</h1>
                             <div className='flex group'>
                                 <DateRangePicker />
                                 <Tooltip txt='Select Dates Range' />
