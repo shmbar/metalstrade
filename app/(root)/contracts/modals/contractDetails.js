@@ -136,16 +136,18 @@ const ContractModal = () => {
 						</>
 					)}
 					{valueCon.showOriginSupplier &&
-						<div className='flex items-center gap-2 w-[20rem]'>
+						<div className='flex items-center gap-2 w-[20rem] overflow-hidden'>
 							<p className='flex p-1 pt-2 items-center responsiveText whitespace-nowrap font-medium'>Original Supplier:</p>
-							<Selector
-								arr={settings.Supplier.Supplier
-									.map(z => ({ ...z, originSupplier: z.id }))}
-								value={valueCon/*settings.Supplier.Supplier.find(x => x.id === valueCon.originSupplier)*/}
-								onChange={(e) => handleChange(e, 'originSupplier')}
-								name='originSupplier'
-								secondaryName='nname'
-								clear={clear} />
+							<div className='flex-1 min-w-0'>
+								<Selector
+									arr={settings.Supplier.Supplier
+										.map(z => ({ ...z, originSupplier: z.id }))}
+									value={valueCon/*settings.Supplier.Supplier.find(x => x.id === valueCon.originSupplier)*/}
+									onChange={(e) => handleChange(e, 'originSupplier')}
+									name='originSupplier'
+									secondaryName='nname'
+									clear={clear} />
+							</div>
 						</div>
 					}
 				</div>
