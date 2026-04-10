@@ -48,7 +48,6 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
         .custom-table-totals, .custom-table-totals * {
           font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
-          font-size: 10px !important;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
@@ -64,9 +63,9 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
             borderBottom: '1px solid var(--rock-blue)'
           }}
         >
-          <h3 className="text-[var(--chathams-blue)] font-semibold text-center"
+          <h3 className="responsiveTextTable text-[var(--chathams-blue)] font-semibold text-center"
             style={{
-              fontSize: 'clamp(11px, 1vw, 13px)',
+              fontSize: '0.72rem',
               letterSpacing: '0.02em'
             }}>
             {title}
@@ -102,12 +101,11 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                       key={cell.id}
                       className={
                         cell.column.id === 'amount'
-                          ? 'font-medium text-right'
-                          : 'truncate'
+                          ? 'responsiveTextTable font-medium text-right'
+                          : 'responsiveTextTable truncate'
                       }
                       style={{
                         color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : 'var(--port-gore)',
-                        fontSize: 'clamp(11px, 1vw, 13px)',
                         fontWeight: cell.column.id === 'amount' ? 500 : 400,
                         borderRight: idx === 0 ? '1px solid var(--selago)' : undefined // right border for first col
                       }}
@@ -129,8 +127,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
               borderRight: '1px solid var(--selago)',
               borderBottom: '1px solid var(--selago)'
             }}>
-            <div className="flex justify-between font-semibold"
-              style={{ color: 'var(--chathams-blue)', fontSize: 'clamp(11px, 1vw, 13px)' }}>
+            <div className="responsiveTextTable flex justify-between font-semibold"
+              style={{ color: 'var(--chathams-blue)' }}>
               <span>Total $:</span>
               <span>
                 {showAmount(
@@ -139,8 +137,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                 )}
               </span>
             </div>
-            <div className="flex justify-between font-semibold mt-2"
-              style={{ color: 'var(--chathams-blue)', fontSize: 'clamp(11px, 1vw, 13px)' }}>
+            <div className="responsiveTextTable flex justify-between font-semibold mt-2"
+              style={{ color: 'var(--chathams-blue)' }}>
               <span>Total €:</span>
               <span>
                 {showAmount(
