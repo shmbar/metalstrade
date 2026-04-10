@@ -463,9 +463,8 @@ const Customtable = ({
         <div className="flex flex-col items-center justify-center">
           {renderEmptyStateMedia()}
           <p
-            className="font-normal mb-2"
-            style={{ color: 'var(--port-gore)' }}
             className="responsiveTextTable font-normal mb-2"
+            style={{ color: 'var(--port-gore)' }}
           >
             {getTtl('No data available', ln)}
           </p>
