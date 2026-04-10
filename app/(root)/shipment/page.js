@@ -302,7 +302,8 @@ const ShipmentPage = () => {
                             {/* Search */}
                             <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--endeavour)] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
                                 <input
-                                    className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full responsiveText rounded-2xl"
+                                    className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full rounded-2xl"
+                                    style={{ fontSize: '0.68rem' }}
                                     placeholder="Search"
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
@@ -353,7 +354,8 @@ const ShipmentPage = () => {
                             {showFilters && <div className="flex items-center gap-1 flex-wrap">
                                 <button
                                     onClick={() => setStatusFilter('')}
-                                    className={`responsiveTextTable font-medium px-2.5 py-0.5 rounded-full border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]' : 'bg-white text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
+                                    className={`font-medium px-2.5 py-0.5 rounded-full border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]' : 'bg-white text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
+                                    style={{ fontSize: '0.68rem' }}
                                 >
                                     All ({contracts.length})
                                 </button>
@@ -363,8 +365,8 @@ const ShipmentPage = () => {
                                         <button
                                             key={s}
                                             onClick={() => setStatusFilter(prev => prev === s ? '' : s)}
-                                            className="responsiveTextTable font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                            style={{ ...STATUS_STYLES[s], opacity: statusFilter === s ? 1 : 0.75, outline: statusFilter === s ? `2px solid ${STATUS_STYLES[s].color}` : 'none', outlineOffset: '1px' }}
+                                            className="font-medium px-2.5 py-0.5 rounded-full transition-all"
+                                            style={{ ...STATUS_STYLES[s], fontSize: '0.68rem', opacity: statusFilter === s ? 1 : 0.75, outline: statusFilter === s ? `2px solid ${STATUS_STYLES[s].color}` : 'none', outlineOffset: '1px' }}
                                         >
                                             {s}: {count}
                                         </button>

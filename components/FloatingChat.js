@@ -507,8 +507,8 @@ const FloatingChat = () => {
                                 onKeyDown={handleKeyDown}
                                 placeholder="Ask me anything"
                                 disabled={isLoading || dataLoading}
-                                className="flex-1 outline-none responsiveText text-[var(--port-gore)] placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-                                style={{ fontSize: 'inherit', backgroundColor: 'transparent' }}
+                                className="flex-1 outline-none text-[var(--port-gore)] placeholder-[#6b8fb5] disabled:opacity-50 disabled:cursor-not-allowed"
+                                style={{ fontSize: '0.68rem', backgroundColor: 'transparent' }}
                             />
                             <button
                                 onClick={handleSendMessage}
@@ -532,7 +532,8 @@ const FloatingChat = () => {
                                             setNewMessage(action);
                                             setTimeout(() => handleSendMessage(), 100);
                                         }}
-                                        className="px-2.5 py-1 bg-white border border-gray-200 rounded-full responsiveText text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
+                                        className="px-2.5 py-1 bg-white border border-[#b8ddf8] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
+                                        style={{ fontSize: '0.68rem' }}
                                     >
                                         {action}
                                     </button>
