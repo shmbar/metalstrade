@@ -72,12 +72,9 @@ export const MainNav = () => {
       <div
         className='flex items-center '
         style={{
-          width: 'clamp(220px, 20vw, 240px)', // wider
+          width: 'clamp(220px, 20vw, 240px)',
           height: 'clamp(50px, 6vh, 70px)',
-          marginRight: 'clamp(6px, 1vw, 10px)', // slightly less right margin
-          marginBottom: 'clamp(10px, 1vw, 20px)',
-          padding: 'clamp(10px, 1vw, 40px)',
-          
+          marginRight: 'clamp(6px, 1vw, 10px)',
         }}
       >
         <img

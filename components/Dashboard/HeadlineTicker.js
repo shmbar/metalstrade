@@ -105,6 +105,9 @@ export default function HeadlineTicker({
       const elapsed  = half ? (Math.abs(baseOffsetRef.current) / half) * duration : 0;
       trackRef.current.style.animationDelay = `-${elapsed}s`;
       trackRef.current.style.transform      = '';
+      // Force a reflow so the browser registers the new animationDelay
+      // before the animation class is re-added — prevents the "stuck" bug
+      void trackRef.current.offsetWidth;
       trackRef.current.classList.add('animate-ticker');
     }
     setIsHovered(false);
