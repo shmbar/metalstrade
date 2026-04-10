@@ -148,9 +148,13 @@ const Customtable = ({
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
+          font-size: 0.68rem !important;
         }
         .custom-table th {
           background-color: #d4eafc;
+          font-size: 0.78rem !important;
+          font-weight: 500 !important;
+          color: #103a7a !important;
         }
         .custom-table td {
           background-color: #fff;

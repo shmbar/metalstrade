@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useContext, useEffect, useState, useRef } from 'react';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
@@ -263,9 +263,9 @@ const ShipmentPage = () => {
                 text-align: center;
                 vertical-align: middle;
                 padding: 6px;
-                border-radius: 4px;
-                font-size: 11px !important;
-            }
+                border-radius: 4px;r
+          font-size: 0.68rem !important;
+        }
             .custom-table td {
                 background-color: #fff;
                 border: 1px solid #e0e0e0;

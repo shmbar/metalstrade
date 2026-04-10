@@ -1,4 +1,4 @@
-
+﻿
 // 'use client'
 
 // // Fade-in animation for badges
@@ -249,8 +249,7 @@
 //         .custom-table th {
 //           border: 1px solid #d7d7d7;
 //           text-align: center;
-//           font-size: 12px !important;
-//           font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
+////           font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
 //           padding: 10px 8px !important;
 //           vertical-align: middle;
 //           white-space: nowrap;
@@ -949,19 +948,20 @@ const Customtable = ({
         .custom-table th {
           border: 1px solid #d7d7d7;
           text-align: center;
-          font-size: 12px !important;
           font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
           padding: 6px 8px !important;
           vertical-align: middle;
           white-space: nowrap;
-          font-weight: 500;
+          font-size: 0.78rem !important;
+          font-weight: 500 !important;
+          color: #103a7a !important;
         }
 
         /* ── Data cells ── */
         .custom-table td {
           border: 1px solid #d7d7d7;
           text-align: center;
-          font-size: 10px !important;
+          font-size: 0.68rem !important;
           font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
           padding: 3px 6px !important;
           vertical-align: middle;

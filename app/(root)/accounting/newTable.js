@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
@@ -180,12 +180,13 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
 
         .custom-table th {
           background-color: #dbeeff;
-          color: var(--chathams-blue);
+
           text-align: center;
           vertical-align: middle;
           padding: 8px 6px;
           border-bottom: 1px solid #b8ddf8;
-          border-right: 1px solid #b8ddf8;
+          border-right: 1px solid #b8ddf8;r
+          font-size: 0.68rem !important;
         }
 
         .custom-table th:last-child {

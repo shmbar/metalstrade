@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 if (typeof window !== 'undefined') {
   const style = document.createElement('style');
   style.innerHTML = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`;
@@ -249,7 +249,8 @@ const Customtable = ({
           text-align: center;
           vertical-align: middle;
           padding: 6px;
-          border-radius: 4px;
+          border-radius: 4px;r
+          font-size: 0.68rem !important;
         }
 
         .custom-table td {

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Header from "../../../components/table/header";
 import {
@@ -185,8 +185,9 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
-                    border-radius: 4px;
-                }
+                    border-radius: 4px;r
+          font-size: 0.68rem !important;
+        }
 
                 .custom-table td {
                     border: 1px solid #d8e8f5;

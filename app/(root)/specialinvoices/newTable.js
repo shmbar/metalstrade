@@ -204,6 +204,9 @@ const Customtable = ({
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
+                    font-size: 0.78rem !important;
+                    font-weight: 500 !important;
+                    color: #103a7a !important;
                 }
                 .custom-table td {
                     border: 1px solid #e8f0f8;
@@ -211,6 +214,7 @@ const Customtable = ({
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
+                    font-size: 0.68rem !important;
                 }
 
                 .summary-green-si {

@@ -46,9 +46,13 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                   text-align: center;
                   vertical-align: middle;
                   padding: 6px;
+                  font-size: 0.68rem !important;
                 }
                 .custom-table th {
                   background-color: #dbeeff;
+                  font-size: 0.78rem !important;
+                  font-weight: 500 !important;
+                  color: #103a7a !important;
                 }
                 .custom-table td {
                   background-color: #fff;

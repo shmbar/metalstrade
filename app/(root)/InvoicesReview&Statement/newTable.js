@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
   const style = document.createElement('style');
@@ -210,7 +210,8 @@ const Customtable = ({
           text-align: center;
           vertical-align: middle;
           padding: 6px;
-          border-radius: 4px;
+          border-radius: 4px;r
+          font-size: 0.68rem !important;
         }
 
         .custom-table td {
