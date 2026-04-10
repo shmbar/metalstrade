@@ -120,7 +120,7 @@ function StatKpiCard({
 }) {
   return (
     <motion.div
-      className={`relative h-full min-h-[115px] rounded-xl overflow-hidden bg-gradient-to-br ${grad} shadow-md flex flex-col`}
+      className={`relative h-full min-h-[130px] rounded-xl overflow-hidden bg-gradient-to-br ${grad} shadow-md flex flex-col`}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
