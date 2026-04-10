@@ -615,7 +615,7 @@ const Stainless = ({ value, handleChange }) => {
                     <div className="flex gap-2 items-end">
                     <div className="flex-1 min-w-0 px-2">
                     <div className="mb-2">
-                    <p className="text-xs text-gray-500 mb-1 text-center">
+                    <p className="text-xs text-[var(--regent-gray)] mb-1 text-center">
                         Composition
                     </p>
 
@@ -743,7 +743,7 @@ const Stainless = ({ value, handleChange }) => {
 
                     {/* Price Row */}
                     <div className="mt-2">
-                    <p className="text-xs font-normal text-gray-500 mb-1 text-center">
+                    <p className="text-xs font-normal text-[var(--regent-gray)] mb-1 text-center">
                         Price
                     </p>
 
@@ -905,7 +905,7 @@ const Stainless = ({ value, handleChange }) => {
                     <div className="flex gap-2 items-end">
                     <div className="flex-1 min-w-0 px-2">
                     <div className="mb-2">
-                    <p className="text-xs text-gray-500 mb-1 text-center">Composition</p>
+                    <p className="text-xs text-[var(--regent-gray)] mb-1 text-center">Composition</p>
 
                     <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-4">
                         {[
@@ -929,7 +929,7 @@ const Stainless = ({ value, handleChange }) => {
 
                     {/* Price */}
                     <div className="mt-2">
-                    <p className="text-xs font-normal text-gray-500 mb-1 text-center">Price</p>
+                    <p className="text-xs font-normal text-[var(--regent-gray)] mb-1 text-center">Price</p>
 
                     <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-4">
                         {/* Ni */}

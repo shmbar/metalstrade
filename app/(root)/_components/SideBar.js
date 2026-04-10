@@ -117,7 +117,7 @@ export default function Sidebar() {
     background: active ? "#ffffff" : "transparent",
     boxShadow: active ? "0 2px 10px 0 rgba(44, 130, 201, 0.18)" : "none",
     fontWeight: active ? 600 : 400,
-    color: "#003366",
+    color: "var(--chathams-blue)",
     marginLeft: isCollapsed ? "auto" : "8px",
     marginRight: isCollapsed ? "auto" : "8px",
     marginBottom: isCollapsed ? "0px" : "1px",
@@ -210,7 +210,7 @@ export default function Sidebar() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search anything..."
-              className="flex-1 bg-transparent border-0 outline-none placeholder:text-gray-400 pl-2 pr-5"
+              className="flex-1 bg-transparent border-0 outline-none placeholder:text-[var(--regent-gray)] pl-2 pr-5"
               style={{ fontSize: 'inherit', color: 'var(--chathams-blue)' }}
             />
             {searchQuery && (
@@ -235,7 +235,7 @@ export default function Sidebar() {
                 {searchResults.length === 0 ? (
                   <div className="responsiveText" style={{
                     textAlign: "center",
-                    color: "#003366",
+                    color: "var(--chathams-blue)",
                     opacity: 0.7,
                     padding: "20px 16px",
                   }}>
@@ -247,7 +247,7 @@ export default function Sidebar() {
                       fontWeight: 600,
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
-                      color: "#003366",
+                      color: "var(--chathams-blue)",
                       opacity: 0.75,
                       paddingLeft: "12px",
                       paddingBottom: "4px",
@@ -284,7 +284,7 @@ export default function Sidebar() {
                                   </span>
                                   <span style={{
                                     fontSize: "0.62rem",
-                                    color: "#003366", opacity: 0.7,
+                                    color: "var(--chathams-blue)", opacity: 0.7,
                                     whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                                   }}>
                                     {link.section}
@@ -340,7 +340,7 @@ export default function Sidebar() {
                           fontWeight: 600,
                           letterSpacing: "0.1em",
                           textTransform: "uppercase",
-                          color: "#003366",
+                          color: "var(--chathams-blue)",
                           opacity: 0.75,
                           paddingLeft: "12px",
                           paddingRight: "10px",
@@ -359,7 +359,7 @@ export default function Sidebar() {
                             transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
                           }}>
                             <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-                              <path d="M5 8l5 5 5-5" stroke="#003366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              <path d="M5 8l5 5 5-5" stroke="var(--chathams-blue)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                           </span>
                         )}

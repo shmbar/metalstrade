@@ -288,9 +288,9 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                         <ChkBox checked={checkedItems.includes(x.id)} size='size-5' onChange={() => checkItem(x.id)} />
                                     </div>
                                     {expand !== x.id ?
-                                        <CirclePlus className='mt-3 text-slate-500 mr-2 cursor-pointer' onClick={() => expandDiv(x.id)} />
+                                        <CirclePlus className='mt-3 text-[var(--regent-gray)] mr-2 cursor-pointer' onClick={() => expandDiv(x.id)} />
                                         :
-                                        <CircleMinus className='mt-3 text-slate-500 mr-2 cursor-pointer' onClick={() => expandDiv(x.id)} />
+                                        <CircleMinus className='mt-3 text-[var(--regent-gray)] mr-2 cursor-pointer' onClick={() => expandDiv(x.id)} />
                                     }
                                     <div className='gap-3 flex'>
                                         <div className=''>
@@ -316,7 +316,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                 <input type='text' disabled className="number-separator input border-slate-300 h-7 text-xs" name='blnc'
                                                     value={addComma(x.blnc, true)} />
                                                 <div className='group relative'>
-                                                    <ArrowBigRight className='text-slate-500 ml-3 cursor-pointer' onClick={switchToStocks} />
+                                                    <ArrowBigRight className='text-[var(--regent-gray)] ml-3 cursor-pointer' onClick={switchToStocks} />
                                                     <span className="absolute hidden group-hover:flex top-[30px] w-fit p-1
     bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
                                                         {getTtl('Stocks', ln)}</span>
@@ -337,7 +337,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                     return (
                                         <div key={k}>
                                             <div className='p-1 pl-28 flex items-center gap-6 flex-wrap'>
-                                                <p className='text-sm text-slate-500'>Payment #{k + 1}:</p>
+                                                <p className='text-sm text-[var(--regent-gray)]'>Payment #{k + 1}:</p>
 
                                                 <div className='md:max-w-36 pt-2 md:pt-0'>
                                                     <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Payment Date', ln)}:</p>
@@ -358,7 +358,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                     <div className='flex'>
                                                         <input type='text' className="number-separator input h-7  shadow-lg text-xs w-20" name='pmntPerc'
                                                             value={y.pmntPerc} onChange={e => handleValuePerc(e, x, y)} />
-                                                        <span className='relative right-6 text-slate-600 items-center flex'>%</span>
+                                                        <span className='relative right-6 text-[var(--port-gore)] items-center flex'>%</span>
                                                     </div>
                                                 </div>
 
@@ -373,7 +373,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                 </div>
 
                                                 <Button
-                                                    className="h-7 px-3 mt-4 text-slate-600 text-[13px]"
+                                                    className="h-7 px-3 mt-4 text-[var(--port-gore)] text-[13px]"
                                                     variant='outline'
                                                     onClick={() => deletePayment(x, y)}
                                                 >
@@ -387,7 +387,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                 <div className='flex gap-4 p-2 border-t'>
 
                                     <Button
-                                        className="h-7 px-2 text-slate-500"
+                                        className="h-7 px-2 text-[var(--regent-gray)]"
                                         variant='outline'
                                         onClick={() => addPaymnt(x)}
                                     >

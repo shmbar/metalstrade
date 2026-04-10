@@ -387,7 +387,7 @@ const Customtable = ({
                                         ? '#fce7f3'
                                         : '#f8fbff',
                                     border: cell.getValue() ? `1px solid ${cell.getValue() === 'Paid' ? '#ddd6fe' : cell.getValue() === 'Unpaid' ? '#fbcfe8' : '#cecece'}` : 'none',
-                                    color: cell.getValue() === 'Paid' ? '#7c3aed' : cell.getValue() === 'Unpaid' ? '#be185d' : '#1F2937'
+                                    color: cell.getValue() === 'Paid' ? '#7c3aed' : cell.getValue() === 'Unpaid' ? '#be185d' : 'var(--port-gore)'
                                   }}
                                 >
                                   {cell.getValue() || '\u00A0'}
@@ -554,7 +554,7 @@ const Customtable = ({
                             <div
                               className="responsiveTextTable font-medium mb-2.5 pb-2"
                               style={{
-                                color: '#6366F1',
+                                color: 'var(--endeavour)',
                                 borderBottom: '1px solid #E5E7EB'
                               }}
                             >

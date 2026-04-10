@@ -65,7 +65,7 @@ const Remraks = ({ value, setValue, settings }) => {
             <ul className="flex flex-col mt-1">
                 {value.remarks.map((x, i) => {
                     return (
-                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-0.5 px-2 text-[13px]  bg-white border text-gray-800 -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg
+                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-0.5 px-2 text-[13px]  bg-white border text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg
                         relative ">
                             {!x.isRmrkText ?
                                 <div className='w-full flex items-center gap-3'>
@@ -79,11 +79,11 @@ const Remraks = ({ value, setValue, settings }) => {
                                 </div>
                                 :
                                 <div className='flex pt-1 items-center w-full gap-x-3'>
-                                    <input type='text' className="input text-[13px] text-gray-800 shadow-lg h-[1.86rem] text-xs w-full rounded-lg
+                                    <input type='text' className="input text-[13px] text-[var(--port-gore)] shadow-lg h-[1.86rem] text-xs w-full rounded-lg
                                     truncate pr-10" name='rmrk'
                                         value={x.rmrk} onChange={(e) => handleValue(e, i)} />
                                     <div className='absolute right-12 '>
-                                        <X className="size-5 text-gray-300  hover:text-gray-500 cursor-pointer"
+                                        <X className="size-5 text-[var(--regent-gray)]  hover:text-[var(--regent-gray)] cursor-pointer"
                                             onClick={() => caneclEditText(i)} />
                                     </div>
                                     <Trash size={20} className='opacity-50 cursor-pointer' onClick={() => deleteItem(i)} />

@@ -30,8 +30,8 @@ export default function InvPopup({ inv, onClose }) {
 
     const Row = ({ label, value }) => (
         <div className="flex items-center justify-between py-1.5" style={{ borderBottom: '1px solid #eef4fb' }}>
-            <span className="text-[11px] font-medium" style={{ color: '#6b7280' }}>{label}</span>
-            <span className="text-[11px] font-semibold" style={{ color: '#003366' }}>{value}</span>
+            <span className="text-[11px] font-medium" style={{ color: 'var(--regent-gray)' }}>{label}</span>
+            <span className="text-[11px] font-semibold" style={{ color: 'var(--chathams-blue)' }}>{value}</span>
         </div>
     );
 
@@ -52,7 +52,7 @@ export default function InvPopup({ inv, onClose }) {
                     className="px-5 py-3"
                     style={{ background: '#dbeeff', borderBottom: '1px solid #b8ddf8' }}
                 >
-                    <DialogTitle className="responsiveText font-semibold" style={{ color: '#003366' }}>
+                    <DialogTitle className="responsiveText font-semibold" style={{ color: 'var(--chathams-blue)' }}>
                         Invoice&nbsp;
                         <span style={{ color: 'var(--endeavour)' }}>{inv.invoice || '—'}</span>
                     </DialogTitle>
@@ -92,10 +92,10 @@ export default function InvPopup({ inv, onClose }) {
                             <div className="space-y-1 max-h-32 overflow-y-auto pr-1">
                                 {inv.payments.map((p, i) => (
                                     <div key={i} className="flex justify-between items-center px-2 py-1 rounded-lg" style={{ background: '#eef6ff', border: '1px solid #d8e8f5' }}>
-                                        <span className="text-[10px]" style={{ color: '#6b7280' }}>
+                                        <span className="text-[10px]" style={{ color: 'var(--regent-gray)' }}>
                                             {p.date ? dateFormat(p.date, 'dd.mm.yy') : `#${i + 1}`}
                                         </span>
-                                        <span className="text-[11px] font-semibold" style={{ color: '#003366' }}>
+                                        <span className="text-[11px] font-semibold" style={{ color: 'var(--chathams-blue)' }}>
                                             {fmt(p.pmnt)}
                                         </span>
                                     </div>

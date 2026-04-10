@@ -21,14 +21,14 @@ const YearSelect = ({ yr, setYr }) => {
 
     return (
         <Menu>
-            <MenuButton className="border border-slate-400 rounded-full p-2 text-slate-600 text-xs px-3">
+            <MenuButton className="border border-slate-400 rounded-full p-2 text-[var(--port-gore)] text-xs px-3">
                 {yr.length > 1 ? yr.sort((a, b) => a - b).map((z, i) => {
                     return i === yr.length - 1 ? z : z + ', '
                 }) : yr.length === 1 ? yr[0] : 'Select Year'}
             </MenuButton>
             <MenuItems anchor="bottom" className="z-50 border border-slate-400 rounded-2xl p-2 mt-1 bg-white">
                 {yrArr.map((z) => (
-                    <MenuItem as="div" key={z} className="text-slate-600 text-sm">
+                    <MenuItem as="div" key={z} className="text-[var(--port-gore)] text-sm">
                         <div className='flex items-center gap-2'>
                             <CheckBox checked={yr.includes(z)} size='h-4 w-4'
                                 onChange={() => checkItem(z)} />

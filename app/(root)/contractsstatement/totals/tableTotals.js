@@ -92,8 +92,8 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                                                 <div onClick={header.column.getToggleSortingHandler()} className="responsiveTextTable flex cursor-pointer items-center gap-1 justify-center">
                                                     {header.column.columnDef.header}
                                                     {{
-                                                        asc: <TbSortAscending className="text-[#6366F1] scale-125" />,
-                                                        desc: <TbSortDescending className="text-[#6366F1] scale-125" />
+                                                        asc: <TbSortAscending className="text-[var(--endeavour)] scale-125" />,
+                                                        desc: <TbSortDescending className="text-[var(--endeavour)] scale-125" />
                                                     }[header.column.getIsSorted()]}
                                                 </div>
                                                 :

@@ -106,7 +106,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                           : 'truncate'
                       }
                       style={{
-                        color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : '#1F2937',
+                        color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : 'var(--port-gore)',
                         fontSize: 'clamp(11px, 1vw, 13px)',
                         fontWeight: cell.column.id === 'amount' ? 500 : 400,
                         borderRight: idx === 0 ? '1px solid var(--selago)' : undefined // right border for first col

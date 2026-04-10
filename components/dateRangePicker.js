@@ -178,7 +178,7 @@ const DateRangePicker = ({ displayLabel }) => {
     return (
         <div className="relative flex items-center w-full max-w-[240px] rounded-2xl">
             {displayLabel && (
-                <span className="text-[10px] font-medium text-gray-700 bg-gray-100 px-2 py-0.5 rounded-2xl shadow-sm whitespace-nowrap mr-2">
+                <span className="text-[10px] font-medium text-[var(--port-gore)] bg-gray-100 px-2 py-0.5 rounded-2xl shadow-sm whitespace-nowrap mr-2">
                     {displayLabel}
                 </span>
             )}

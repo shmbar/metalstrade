@@ -113,7 +113,7 @@ export const MainNav = () => {
                 autoFocus
                 onBlur={() => setOpenSearch(false)}
                 onChange={(e) => setQuery(e.target.value)}
-                className='ml-2 w-60 pl-3 pr-8 py-2 rounded-full bg-gray-50 border border-gray-200 shadow-sm focus:border-[var(--rock-blue)] focus:bg-white focus:outline-none placeholder:text-gray-400 placeholder:opacity-100 transition-all'
+                className='ml-2 w-60 pl-3 pr-8 py-2 rounded-full bg-gray-50 border border-gray-200 shadow-sm focus:border-[var(--rock-blue)] focus:bg-white focus:outline-none placeholder:text-[var(--regent-gray)] placeholder:opacity-100 transition-all'
                 style={{ fontSize: 'inherit', color: query ? 'var(--port-gore)' : 'var(--port-gore)' }}
               />
               <button

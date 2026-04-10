@@ -160,7 +160,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
         }}
       >
         {options.length === 0 ? (
-          <div className="px-4 py-2 text-gray-400 text-center text-xs">No options</div>
+          <div className="px-4 py-2 text-[var(--regent-gray)] text-center text-xs">No options</div>
         ) : (
           options.map((o) => (
             <Listbox.Option

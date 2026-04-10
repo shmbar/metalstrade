@@ -133,8 +133,8 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, cb, se
                                                             {header.column.columnDef.header}
                                                             {
                                                                 {
-                                                                    asc: <TbSortAscending className="text-slate-600 scale-125" />,
-                                                                    desc: <TbSortDescending className="text-slate-600 scale-125" />
+                                                                    asc: <TbSortAscending className="text-[var(--regent-gray)] scale-125" />,
+                                                                    desc: <TbSortDescending className="text-[var(--regent-gray)] scale-125" />
                                                                 }[header.column.getIsSorted()]
                                                             }
                                                         </div>
@@ -177,7 +177,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, cb, se
                     </table>
                 </div>
                 <div className="flex p-2 flex-wrap flex-shrink-0 rounded-b-2xl" style={{ borderTop: '1px solid #b8ddf8', background: '#ffffff' }}>
-                    <div className="hidden lg:flex text-gray-600 text-sm w-48 xl:w-96 p-2 items-center">
+                    <div className="hidden lg:flex text-[var(--regent-gray)] text-sm w-48 xl:w-96 p-2 items-center">
                         {`${getTtl('Showing', ln)} ${table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
                             (table.getFilteredRowModel().rows.length ? 1 : 0)}-${table.getRowModel().rows.length + table.getState().pagination.pageIndex * table.getState().pagination.pageSize}
                             ${getTtl('of', ln)} ${table.getFilteredRowModel().rows.length}`}

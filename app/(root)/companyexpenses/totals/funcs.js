@@ -131,13 +131,13 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                   transition: "background-color 150ms ease-in-out",
                 }}
               >
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
                   {z.poSupplier?.order ?? "Comp. Exp."}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
                   {z.expense}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
                   {settings.Expenses.Expenses.find((q) => q.id === z.expType)?.expType}
                 </td>
                 <td
@@ -161,10 +161,10 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                     className="responsiveTextTable"
                   />
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
                   {dateFormat(z.date, "dd-mmm-yy")}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "#1F2937", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
                   {z.paid === "111" ? "Paid" : "Unpaid"}
                 </td>
               </tr>

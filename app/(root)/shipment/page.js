@@ -26,7 +26,7 @@ const STATUS_STYLES = {
     'At Port':    { backgroundColor: '#ede9fe', border: '1px solid #ddd6fe', color: '#7c3aed' },
     'Delivered':  { backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#166534' },
     'On Hold':    { backgroundColor: '#fce7f3', border: '1px solid #fbcfe8', color: '#be185d' },
-    '':           { backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', color: '#6b7280' },
+    '':           { backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', color: 'var(--regent-gray)' },
 };
 
 function NotesCell({ value, contractId, contractDate, uidCollection, onChange }) {
@@ -51,7 +51,7 @@ function NotesCell({ value, contractId, contractDate, uidCollection, onChange })
                 value={local}
                 onChange={handleChange}
                 rows={1}
-                className="w-full min-w-[160px] responsiveTextTable text-gray-700 bg-transparent resize-none focus:outline-none placeholder:text-gray-400"
+                className="w-full min-w-[160px] responsiveTextTable text-[var(--port-gore)] bg-transparent resize-none focus:outline-none placeholder:text-[var(--regent-gray)]"
                 placeholder="Add notes..."
             />
         </div>
@@ -309,10 +309,10 @@ const ShipmentPage = () => {
                                     type="text"
                                 />
                                 {search === '' ? (
-                                    <FaSearch className="text-gray-400 absolute right-3 top-1.5" style={{ fontSize: 14 }} />
+                                    <FaSearch className="text-[var(--regent-gray)] absolute right-3 top-1.5" style={{ fontSize: 14 }} />
                                 ) : (
                                     <TiDeleteOutline
-                                        className="text-gray-500 absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors"
+                                        className="text-[var(--regent-gray)] absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors"
                                         onClick={() => setSearch('')}
                                         style={{ fontSize: 16 }}
                                     />
@@ -403,7 +403,7 @@ const ShipmentPage = () => {
                             <tbody>
                                 {filtered.length === 0 && !loading && (
                                     <tr>
-                                        <td colSpan={8} style={{ textAlign: 'center', padding: '32px', color: '#9ca3af' }}>
+                                        <td colSpan={8} style={{ textAlign: 'center', padding: '32px', color: 'var(--regent-gray)' }}>
                                             No shipments found.
                                         </td>
                                     </tr>
@@ -489,7 +489,7 @@ const ShipmentPage = () => {
                     {/* Cards — Mobile */}
                     <div className="block md:hidden px-2 py-2 space-y-3">
                         {filtered.length === 0 && !loading && (
-                            <div className="text-center py-8 text-gray-400 text-sm">No shipments found.</div>
+                            <div className="text-center py-8 text-[var(--regent-gray)] text-sm">No shipments found.</div>
                         )}
                         {paginated.map((contract) => {
                             const mainInv = getMainInvoice(contract);
@@ -510,7 +510,7 @@ const ShipmentPage = () => {
                                         </button>
                                         <span
                                             className="responsiveTextTable font-medium px-2.5 py-0.5 rounded-full"
-                                            style={status ? STATUS_STYLES[status] : { backgroundColor: '#f3f4f6', color: '#6b7280', border: '1px solid #d1d5db' }}
+                                            style={status ? STATUS_STYLES[status] : { backgroundColor: '#f3f4f6', color: 'var(--regent-gray)', border: '1px solid #d1d5db' }}
                                         >
                                             {status || 'No Status'}
                                         </span>
@@ -526,8 +526,8 @@ const ShipmentPage = () => {
                                             { label: 'Arrival Date',   value: formatDate(contract.dateRange?.endDate) },
                                         ].map(({ label, value }) => (
                                             <div key={label} className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid #f0f4f8' }}>
-                                                <span className="responsiveTextTable uppercase tracking-wider text-gray-400 font-medium">{label}</span>
-                                                <div className="px-2 py-1 rounded-xl responsiveTextTable text-gray-700" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+                                                <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">{label}</span>
+                                                <div className="px-2 py-1 rounded-xl responsiveTextTable text-[var(--port-gore)]" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
                                                     {value || '—'}
                                                 </div>
                                             </div>
@@ -535,7 +535,7 @@ const ShipmentPage = () => {
 
                                         {/* Status */}
                                         <div className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid #f0f4f8' }}>
-                                            <span className="responsiveTextTable uppercase tracking-wider text-gray-400 font-medium">Status</span>
+                                            <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">Status</span>
                                             <StatusSelect
                                                 value={status}
                                                 onChange={s => handleStatusChange(contract, s)}
@@ -544,7 +544,7 @@ const ShipmentPage = () => {
 
                                         {/* Notes */}
                                         <div className="flex flex-col space-y-1">
-                                            <span className="responsiveTextTable uppercase tracking-wider text-gray-400 font-medium">Notes</span>
+                                            <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">Notes</span>
                                             <NotesCell
                                                 value={contract.shipmentNotes}
                                                 contractId={contract.id}
@@ -565,7 +565,7 @@ const ShipmentPage = () => {
                             <div className="flex items-center justify-between">
 
                                 {/* Left — count */}
-                                <div className="text-sm font-medium" style={{ color: '#6B7280' }}>
+                                <div className="text-sm font-medium" style={{ color: 'var(--regent-gray)' }}>
                                     {startRow}–{endRow} of {filtered.length}
                                 </div>
 

@@ -1208,7 +1208,7 @@ const Customtable = ({
                                 <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px] text-center"
                                   style={{
                                     backgroundColor: isUnpaidValue ? '#fce7f3' : isPaidValue ? '#ede9fe' : '#f8fbff',
-                                    color: isPaidValue ? '#7c3aed' : isUnpaidValue ? '#be185d' : '#1F2937',
+                                    color: isPaidValue ? '#7c3aed' : isUnpaidValue ? '#be185d' : 'var(--port-gore)',
                                     border: `1px solid ${isPaidValue ? '#ddd6fe' : isUnpaidValue ? '#fbcfe8' : '#cecece'}`,
                                     fontWeight: isPaidValue || isUnpaidValue ? '600' : '400'
                                   }}>

@@ -41,7 +41,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                         }}
                         className="absolute right-6 top-1/2 -translate-y-1/2 z-50 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                        <X className="size-4 text-slate-500" />
+                        <X className="size-4 text-[var(--regent-gray)]" />
                     </div>
                 }
 

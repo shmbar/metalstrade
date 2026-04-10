@@ -52,7 +52,7 @@ const DataModal = ({ isOpen, setIsOpen, valueCon, setToast }) => {
                         {list.map((x, i) => {
                             return (
                                 <li key={i} className="justify-between flex items-center gap-x-2 py-2 px-4 text-xs
-                             text-slate-700 hover:bg-[#f4f9ff]">
+                             text-[var(--port-gore)] hover:bg-[#f4f9ff]">
                                     <Link href={x.url} target="_blank">
                                         <p className='text-xs'>{x.name}</p>
                                     </Link>

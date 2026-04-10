@@ -36,7 +36,7 @@ export default function InvType({ setSelected, plans, value , ln}) {
                                                 <div className="text-xs">
                                                     <RadioGroup.Label
                                                         as="p"
-                                                        className={`font-medium ${checked ? 'text-[var(--endeavour)]' : 'text-gray-900'}`}
+                                                        className={`font-medium ${checked ? 'text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`}
                                                     >
                                                        {getTtl(plan.invType, ln)} 
                                                     </RadioGroup.Label>

@@ -47,7 +47,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-[#2d4a6e]
+  text-[var(--chathams-blue)]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -100,7 +100,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-[#2d4a6e]
+  text-[var(--chathams-blue)]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -126,7 +126,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-[#2d4a6e]
+  text-[var(--chathams-blue)]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -151,7 +151,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-[#2d4a6e]
+  text-[var(--chathams-blue)]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -176,7 +176,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-[#2d4a6e]
+  text-[var(--chathams-blue)]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -204,7 +204,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-[#2d4a6e]
+  text-[var(--chathams-blue)]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -228,7 +228,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-[#2d4a6e]
+  text-[var(--chathams-blue)]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -252,7 +252,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-[#2d4a6e]
+  text-[var(--chathams-blue)]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -287,7 +287,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-[#2d4a6e]
+  text-[var(--chathams-blue)]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -311,7 +311,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-[#2d4a6e]
+  text-[var(--chathams-blue)]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -341,7 +341,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-[#2d4a6e]
+  text-[var(--chathams-blue)]
   outline-none
   transition
   focus:border-[#0A5DB8]
@@ -365,7 +365,7 @@ className="
   border
   border-[#E5E7EB]
   bg-white
-  text-[#2d4a6e]
+  text-[var(--chathams-blue)]
   outline-none
   transition
   focus:border-[#0A5DB8]

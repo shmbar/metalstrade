@@ -101,7 +101,7 @@ const SideBarMini = () => {
           </div>
           <div className='relative' ref={searchRef}>
             <BiSearch
-              className="w-5 h-5 text-[#003366] cursor-pointer ml-4"
+              className="w-5 h-5 text-[var(--chathams-blue)] cursor-pointer ml-4"
               onClick={() => {
                 setSearchOpen((v) => !v);
                 setShowDropdown(true);
@@ -149,7 +149,7 @@ const SideBarMini = () => {
             {({ close }) => (
               <>
                 <div className='flex h-full'>
-                  <MenuButton className="flex items-center justify-center px-4 text-[#003366] focus:outline-none">
+                  <MenuButton className="flex items-center justify-center px-4 text-[var(--chathams-blue)] focus:outline-none">
                     <ImMenu className='opacity-90' />
                   </MenuButton>
                 </div>
@@ -176,7 +176,7 @@ const SideBarMini = () => {
     {sideBar().map((x, i) => (
       <div key={i} className="py-2">
         {x.ttl && (
-          <div className='responsiveTextTable font-semibold tracking-widest uppercase text-[#003366]/80 px-4 pb-2 pt-3' style={{letterSpacing: '0.12em'}}>
+          <div className='responsiveTextTable font-semibold tracking-widest uppercase text-[var(--chathams-blue)]/80 px-4 pb-2 pt-3' style={{letterSpacing: '0.12em'}}>
             {getTtl(x.ttl, ln)}
           </div>
         )}
@@ -193,10 +193,10 @@ const SideBarMini = () => {
                         <Link href={`/${sub.page}`} key={subIdx} onClick={e => { close(); }}>
                           <div className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-150 responsiveText mt-1
                             ${isSubActive
-                              ? 'bg-white text-[#003366] font-medium scale-[1.01]'
-                              : 'text-[#003366] hover:bg-white/50 hover:translate-x-0.5'}`}
+                              ? 'bg-white text-[var(--chathams-blue)] font-medium scale-[1.01]'
+                              : 'text-[var(--chathams-blue)] hover:bg-white/50 hover:translate-x-0.5'}`}
                           >
-                            <span style={{color: "#003366"}}>{sub.img}</span>
+                            <span style={{color: 'var(--chathams-blue)'}}>{sub.img}</span>
                             <span className="responsiveText whitespace-nowrap font-normal">{getTtl(sub.item, ln)}</span>
                           </div>
                         </Link>
@@ -212,9 +212,9 @@ const SideBarMini = () => {
                 <div className="flex px-2 py-1 responsiveText items-center">
                   <div className={`gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150
                     ${isActive
-                      ? 'bg-white text-[#003366] font-medium scale-[1.01]'
-                      : 'text-[#003366] hover:bg-white/50 hover:translate-x-0.5'}`}>
-                    <span className="transition-colors" style={{color: "#003366"}}>{y.img}</span>
+                      ? 'bg-white text-[var(--chathams-blue)] font-medium scale-[1.01]'
+                      : 'text-[var(--chathams-blue)] hover:bg-white/50 hover:translate-x-0.5'}`}>
+                    <span className="transition-colors" style={{color: 'var(--chathams-blue)'}}>{y.img}</span>
                     <span className="responsiveText whitespace-nowrap font-normal">{getTtl(y.item, ln)}</span>
                   </div>
                 </div>
@@ -229,8 +229,8 @@ const SideBarMini = () => {
   <div className='py-2'>
     <Link href='/settings' onClick={e => close()}>
       <div className="flex px-2 py-1 responsiveText items-center">
-        <div className="gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150 text-[#003366] hover:bg-white/50">
-          <FiSettings className='w-4 h-4' style={{color: "#003366"}} />
+        <div className="gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150 text-[var(--chathams-blue)] hover:bg-white/50">
+          <FiSettings className='w-4 h-4' style={{color: 'var(--chathams-blue)'}} />
           <span className='responsiveText font-normal'>{getTtl('Settings', ln)}</span>
         </div>
       </div>
@@ -238,8 +238,8 @@ const SideBarMini = () => {
   </div>
   <div className='py-2'>
     <div className="flex px-2 py-1 responsiveText items-center cursor-pointer" onClick={() => { LogOut(); close(); }}>
-      <div className="gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150 text-[#003366] hover:bg-white/50">
-        <BiLogOutCircle className='w-4 h-4' style={{color: "#003366"}} />
+      <div className="gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150 text-[var(--chathams-blue)] hover:bg-white/50">
+        <BiLogOutCircle className='w-4 h-4' style={{color: 'var(--chathams-blue)'}} />
         <span className='responsiveText font-normal'>{getTtl('Logout', ln)}</span>
       </div>
     </div>

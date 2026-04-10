@@ -402,7 +402,7 @@ const Customtable = ({
                                         ? '#fce7f3'
                                         : '#f8fbff',
                                     border: value ? `1px solid ${value === 'Paid' ? '#ddd6fe' : value === 'Unpaid' ? '#fbcfe8' : '#cecece'}` : 'none',
-                                    color: value === 'Paid' ? '#7c3aed' : value === 'Unpaid' ? '#be185d' : '#1F2937'
+                                    color: value === 'Paid' ? '#7c3aed' : value === 'Unpaid' ? '#be185d' : 'var(--port-gore)'
                                   }}
                                 >
                                   {value || '\u00A0'}

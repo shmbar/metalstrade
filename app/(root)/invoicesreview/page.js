@@ -539,7 +539,7 @@ const Shipments = () => {
           {/* {loading && <Spin />} */}
           <div className="border border-[#b8ddf8] rounded-xl p-4 mt-8 shadow-md relative bg-[#f8fbff]">
             <div className='flex items-center justify-between flex-wrap'>
-              <div className="text-3xl p-1 pb-2 text-slate-500">{getTtl('Invoices Review', ln)}</div>
+              <div className="text-3xl p-1 pb-2 text-[var(--regent-gray)]">{getTtl('Invoices Review', ln)}</div>
               <div className='flex group'>
                 <DateRangePicker />
                 <Tooltip txt='Select Dates Range' />

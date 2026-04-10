@@ -25,14 +25,14 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
 
                 .margins-table th {
                     background-color: #dbeeff;
-                    color: #003366;
+                    color: var(--chathams-blue);
                     font-weight: 600;
                 }
 
                 .margins-table td {
                     background-color: #fff;
                     border: 1px solid var(--selago);
-                    color: #003366;
+                    color: var(--chathams-blue);
                 }
             `}</style>
 
@@ -40,7 +40,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
             <h1
                 className="mb-2 margins-table responsiveText"
                 style={{
-                    color: '#003366',
+                    color: 'var(--chathams-blue)',
                     fontWeight: '400'
                 }}
             >
@@ -79,7 +79,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <th
                                             className="px-2 py-2 text-center"
                                             style={{
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                                                                 textAlign: 'center',
                                                 borderRadius: '12px',
@@ -91,7 +91,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <th
                                             className="px-2 py-2 text-center"
                                             style={{
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                                                                 textAlign: 'center',
                                                 borderRadius: '12px',
@@ -103,7 +103,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <th
                                             className="px-2 py-2 text-center"
                                             style={{
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                                                                 textAlign: 'center',
                                                 borderRadius: '12px',
@@ -115,7 +115,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <th
                                             className="px-2 py-2 text-center"
                                             style={{
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                                                                 textAlign: 'center',
                                                 borderRadius: '12px',
@@ -127,7 +127,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <th
                                             className="px-2 py-2 text-center"
                                             style={{
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                                                                 textAlign: 'center',
                                                 borderRadius: '12px',
@@ -149,7 +149,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <td
                                                 className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                                 style={{
-                                                    color: '#003366',
+                                                    color: 'var(--chathams-blue)',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
                                                     fontWeight: '400',
@@ -157,7 +157,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border border-[#d8e8f5] rounded-lg transition-all duration-200 ease-in-out bg-[#dbeeff] text-[#003366] fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border border-[#d8e8f5] rounded-lg transition-all duration-200 ease-in-out bg-[#dbeeff] text-[var(--chathams-blue)] fade-in">
                                                     {z.month + "-" + yr}
                                                 </div>
                                             </td>
@@ -165,7 +165,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <td
                                                 className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                                 style={{
-                                                    color: '#003366',
+                                                    color: 'var(--chathams-blue)',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
                                                     fontWeight: '400',
@@ -189,7 +189,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <td
                                                 className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                                 style={{
-                                                    color: '#003366',
+                                                    color: 'var(--chathams-blue)',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
                                                     fontWeight: '400',
@@ -214,7 +214,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <td
                                                 className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                                 style={{
-                                                    color: '#003366',
+                                                    color: 'var(--chathams-blue)',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
                                                     fontWeight: '400',
@@ -238,7 +238,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <td
                                                 className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                                 style={{
-                                                    color: '#003366',
+                                                    color: 'var(--chathams-blue)',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
                                                     fontWeight: '400',
@@ -267,7 +267,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <td
                                             className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                             style={{
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
                                                 fontWeight: '600',
@@ -284,7 +284,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <td
                                             className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                             style={{
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
                                                 fontWeight: '500',
@@ -309,7 +309,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <td
                                             className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                             style={{
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
                                                 fontWeight: '500',
@@ -335,7 +335,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <td
                                             className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                             style={{
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
                                                 fontWeight: '500',
@@ -360,7 +360,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <td
                                             className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                             style={{
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
                                                 fontWeight: '500',
@@ -463,7 +463,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <div 
                                                 className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                                 style={{ 
-                                                    color: '#003366',
+                                                    color: 'var(--chathams-blue)',
                                                     background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                     fontSize: '0.62rem',
                                                     border: '1px solid #E5E7EB'
@@ -496,7 +496,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <div 
                                                 className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                                 style={{ 
-                                                    color: '#003366',
+                                                    color: 'var(--chathams-blue)',
                                                     background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                     fontSize: '0.62rem',
                                                     border: '1px solid #E5E7EB'
@@ -537,7 +537,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         className="font-semibold"
                                         style={{ 
                                             fontSize: '0.62rem',
-                                            color: '#003366'
+                                            color: 'var(--chathams-blue)'
                                         }}
                                     >
                                         TOTALS
@@ -562,7 +562,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-semibold break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                             style={{ 
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                 fontSize: '0.62rem',
                                                 border: '1px solid #E5E7EB'
@@ -595,7 +595,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-semibold break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                             style={{ 
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                 fontSize: '0.62rem',
                                                 border: '1px solid #E5E7EB'
@@ -629,7 +629,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-semibold break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                             style={{ 
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                 fontSize: '0.62rem',
                                                 border: '1px solid #E5E7EB'
@@ -661,7 +661,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-semibold break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                             style={{ 
-                                                color: '#003366',
+                                                color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                 fontSize: '0.62rem',
                                                 border: '1px solid #E5E7EB'

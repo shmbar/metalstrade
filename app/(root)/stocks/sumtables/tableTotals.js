@@ -258,10 +258,10 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         >
                           {header.column.columnDef.header}
                           {header.column.getIsSorted() === 'asc' && (
-                            <TbSortAscending className="text-[#6366F1] scale-110 md:scale-125" />
+                            <TbSortAscending className="text-[var(--endeavour)] scale-110 md:scale-125" />
                           )}
                           {header.column.getIsSorted() === 'desc' && (
-                            <TbSortDescending className="text-[#6366F1] scale-110 md:scale-125" />
+                            <TbSortDescending className="text-[var(--endeavour)] scale-110 md:scale-125" />
                           )}
                         </div>
                       ) : (

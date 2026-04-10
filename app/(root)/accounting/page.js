@@ -600,11 +600,11 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       width: '100%',
     }}
   >
-    <FaWallet className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#2563EB' }} />
-    <span className="responsiveText" style={{ color: '#2563EB', fontWeight: 500 }}>
+    <FaWallet className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--endeavour)' }} />
+    <span className="responsiveText" style={{ color: 'var(--endeavour)', fontWeight: 500 }}>
       {formatCurrency(totals.balance)}
     </span>
-    <span className="responsiveTextTable" style={{ color: '#2563EB', fontWeight: 400 }}>
+    <span className="responsiveTextTable" style={{ color: 'var(--endeavour)', fontWeight: 400 }}>
       My Balance
     </span>
   </div>
@@ -627,11 +627,11 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       width: '100%',
     }}
   >
-    <FaArrowTrendUp className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#6366F1' }} />
-    <span className="responsiveText" style={{ color: '#6366F1', fontWeight: 500 }}>
+    <FaArrowTrendUp className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--endeavour)' }} />
+    <span className="responsiveText" style={{ color: 'var(--endeavour)', fontWeight: 500 }}>
       {formatCurrency(totals.totalIncome)}
     </span>
-    <span className="responsiveTextTable" style={{ color: '#6366F1', fontWeight: 400 }}>
+    <span className="responsiveTextTable" style={{ color: 'var(--endeavour)', fontWeight: 400 }}>
       Income
     </span>
   </div>

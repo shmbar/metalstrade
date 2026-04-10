@@ -203,7 +203,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
             </div>
 
 
-            <div className="text-lg font-medium leading-5 text-gray-900 px-3 flex gap-4 flex-wrap justify-center md:justify-start ">
+            <div className="text-lg font-medium leading-5 text-[var(--chathams-blue)] px-3 flex gap-4 flex-wrap justify-center md:justify-start ">
                 <div className='flex gap-4 p-2'>
                     <Tltip direction='top' tltpText='Save/Update data'>
                         <Button
