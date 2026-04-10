@@ -217,7 +217,9 @@ const Customtable = ({
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
-          font-size: 11px !important;
+          font-size: 0.78rem !important;
+          font-weight: 500 !important;
+          color: #103a7a !important;
         }
 
         .custom-table td {
@@ -227,7 +229,7 @@ const Customtable = ({
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
-          font-size: 10px !important;
+          font-size: 0.68rem !important;
         }
 
         .custom-table th {

@@ -108,11 +108,11 @@ export function QuickSumButton({
       <button
         type="button"
         onClick={toggleEnabled}
-        className={`px-3 py-1 rounded-2xl text-[11px] font-medium transition-all border
+        className={`px-2 py-0.5 rounded-2xl responsiveTextTable font-medium transition-all border
           ${enabled
-            ? 'bg-[var(--endeavour)] border-[var(--endeavour)]'
-            : 'bg-white text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
-        style={enabled ? { color: '#ffffff' } : {}}
+            ? 'bg-[var(--chathams-blue)] border-[var(--chathams-blue)]'
+            : 'bg-white text-[var(--chathams-blue)] border-[var(--chathams-blue)] hover:bg-[var(--selago)]'}`}
+        style={enabled ? { color: '#ffffff', fontSize: '0.68rem' } : { fontSize: '0.68rem' }}
         title="Quick Sum"
       >
         Quick Sum
