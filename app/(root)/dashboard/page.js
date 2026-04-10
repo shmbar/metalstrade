@@ -590,8 +590,7 @@ const Dash = () => {
                       {/* Avatar */}
                       <motion.div
                         className="flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0"
-                        style={{ fontSize: '0.62rem' }}
-                        style={{ width: avatarSize, height: avatarSize, background: color }}
+                        style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
                         whileHover={{ scale: 1.1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                       >
@@ -688,8 +687,7 @@ const Dash = () => {
                       {/* Avatar */}
                       <motion.div
                         className="flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0"
-                        style={{ fontSize: '0.62rem' }}
-                        style={{ width: avatarSize, height: avatarSize, background: color }}
+                        style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
                         whileHover={{ scale: 1.1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                       >
