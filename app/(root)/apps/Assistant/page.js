@@ -219,7 +219,8 @@ const AssistantChat = () => {
                                     )}
                                     <button
                                         onClick={handleClearChat}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 responsiveTextTable text-[var(--chathams-blue)] hover:text-[var(--endeavour)] border border-[#b8ddf8] hover:border-[var(--endeavour)] rounded-lg transition-colors bg-white"
+                                        className="flex items-center gap-1.5 px-3 py-1 rounded-full responsiveTextTable font-medium transition-colors"
+                                        style={{ backgroundColor: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5' }}
                                         title="Reset conversation"
                                     >
                                         <MdRestartAlt className="w-4 h-4" />
@@ -327,13 +328,13 @@ const AssistantChat = () => {
                                         onChange={(e) => setNewMessage(e.target.value)}
                                         onKeyDown={handleKeyDown}
                                         disabled={isLoading || dataLoading}
-                                        className="flex-1 outline-none text-[var(--port-gore)] placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex-1 outline-none text-[var(--port-gore)] placeholder-[#6b8fb5] disabled:opacity-50 disabled:cursor-not-allowed"
                                         style={{ backgroundColor: 'transparent', fontSize: 'inherit' }}
                                     />
                                     <button
                                         onClick={() => handleSendMessage()}
                                         disabled={!newMessage.trim() || isLoading || dataLoading}
-                                        className="p-1.5 bg-[var(--endeavour)] text-white rounded-lg hover:bg-[var(--chathams-blue)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+                                        className="p-2 bg-[var(--endeavour)] text-white rounded-full hover:bg-[var(--chathams-blue)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
                                     >
                                         {isLoading
                                             ? <IoRefresh className="w-4 h-4 animate-spin" />
@@ -349,7 +350,7 @@ const AssistantChat = () => {
                                             key={index}
                                             onClick={() => handleSendMessage(action.text)}
                                             disabled={isLoading || dataLoading}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e5e7eb] rounded-full responsiveTextTable text-[var(--regent-gray)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#b8ddf8] rounded-full responsiveTextTable text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                         >
                                             {action.icon}
                                             {action.text}
