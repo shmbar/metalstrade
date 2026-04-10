@@ -208,7 +208,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col rounded-2xl border border-[#b8ddf8] bg-white overflow-hidden"
+        <div className="flex flex-col rounded-2xl border border-[#b8ddf8] bg-white"
           style={{ boxShadow: '0 2px 12px rgba(3,102,174,0.07)' }}
         >
 

@@ -92,7 +92,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
         table.resetColumnFilters()
     }
     return (
-        <div className="flex flex-col relative rounded-2xl border border-[#b8ddf8] bg-white overflow-hidden">
+        <div className="flex flex-col relative rounded-2xl border border-[#b8ddf8] bg-white">
             <div>
                 <div className="flex-shrink-0 rounded-t-2xl" style={{ borderBottom: '1px solid #b8ddf8', background: '#ffffff' }}>
                     <Header globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}

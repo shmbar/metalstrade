@@ -289,7 +289,7 @@ const ShipmentPage = () => {
                     </div>
 
                     {/* Inner card — toolbar + table */}
-                    <div className="rounded-2xl border border-[#b8ddf8] overflow-hidden" style={{ background: '#f8fbff' }}>
+                    <div className="rounded-2xl border border-[#b8ddf8]" style={{ background: '#f8fbff' }}>
 
                     {/* Toolbar */}
                     <div

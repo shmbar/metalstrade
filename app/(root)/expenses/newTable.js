@@ -994,7 +994,7 @@ const Customtable = ({
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col rounded-2xl" style={{ border: '1px solid #b8ddf8', overflow: 'hidden' }}>
+        <div className="flex flex-col rounded-2xl" style={{ border: '1px solid #b8ddf8' }}>
 
           {/* ── TOOLBAR ── */}
           <div className="flex-shrink-0 rounded-t-2xl"

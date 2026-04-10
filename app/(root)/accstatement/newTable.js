@@ -200,7 +200,6 @@ const Customtable = ({
         <div className="flex flex-col rounded-2xl"
           style={{
             border: '1px solid #b8ddf8',
-            overflow: 'hidden',
           }}
         >
           {/* HEADER */}
