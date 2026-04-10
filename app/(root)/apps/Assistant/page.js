@@ -350,7 +350,8 @@ const AssistantChat = () => {
                                             key={index}
                                             onClick={() => handleSendMessage(action.text)}
                                             disabled={isLoading || dataLoading}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#b8ddf8] rounded-full responsiveTextTable text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                            className="flex items-center gap-1 px-2.5 py-1 bg-white border border-[#b8ddf8] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                            style={{ fontSize: '0.68rem' }}
                                         >
                                             {action.icon}
                                             {action.text}
