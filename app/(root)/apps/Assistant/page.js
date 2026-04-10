@@ -198,7 +198,7 @@ const AssistantChat = () => {
                                 {/* Left - Assistant title */}
                                 <div className="flex items-center gap-2">
                                     <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
-                                    <span className="responsiveText font-semibold text-[var(--port-gore)]">Assistant</span>
+                                    <span className="responsiveTextTitle font-semibold text-[var(--port-gore)]">Assistant</span>
                                 </div>
                                 {/* Right - badges + reset */}
                                 <div className="flex items-center gap-3">
@@ -219,8 +219,8 @@ const AssistantChat = () => {
                                     )}
                                     <button
                                         onClick={handleClearChat}
-                                        className="flex items-center gap-1.5 px-3 py-1 rounded-full responsiveTextTable font-medium transition-colors"
-                                        style={{ backgroundColor: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5' }}
+                                        className="flex items-center gap-1.5 px-3 py-1 rounded-full font-medium transition-colors"
+                                        style={{ backgroundColor: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', fontSize: '0.62rem' }}
                                         title="Reset conversation"
                                     >
                                         <MdRestartAlt className="w-4 h-4" />
