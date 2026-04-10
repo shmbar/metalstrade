@@ -407,10 +407,7 @@ const Customtable = ({
                                 {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
                                   <div
                                     className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]"
-                                    style={{
-                                      backgroundColor: '#f8fbff',
-                                      border: '1px solid #d8e8f5',
-                                    }}
+                                    style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}
                                   >
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
@@ -526,9 +523,9 @@ const Customtable = ({
                           >
                             {cell.column.columnDef.header}
                           </div>
-                          <div 
-                            className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
-                            style={{ 
+                          <div
+                            className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                            style={{
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                               fontSize: '0.62rem',

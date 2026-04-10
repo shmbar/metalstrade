@@ -84,11 +84,10 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                                 <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
                                     {hdGroup.headers.map(header => (
                                         <th key={header.id}
-                                            className="responsiveTextTable px-2 py-2 uppercase text-center font-medium font-poppins"
+                                            className="responsiveTextTable px-2 py-2 text-center font-medium font-poppins"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
-                                                letterSpacing: '0.05em',
                                                 textAlign: 'center',
                                             }}
                                         >

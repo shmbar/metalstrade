@@ -172,7 +172,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
                                             )
                                         }
                                         return (
-                                            <td key={cell.id} data-label={cell.column.columnDef.header} className={`table_cell text-xs md:py-3 ${cell.column.columnDef.bgr}`}>
+                                            <td key={cell.id} data-label={cell.column.columnDef.header} className={`table_cell text-xs md:py-3 ${cell.column.columnDef.bgr}`} style={{ whiteSpace: 'nowrap' }}>
                                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                             </td>
                                         )
