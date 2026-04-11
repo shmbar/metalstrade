@@ -14,6 +14,7 @@ import { Selector } from '../../../components/selectors/selectShad.js'
 import { EXD } from './excel'
 import { getTtl } from '../../../utils/languages';
 import SumTable from './sumtables/sumTable'
+import GradeTable from './sumtables/gradeTable'
 import { isNumber } from 'mathjs';
 import dateFormat from 'dateformat';
 
@@ -362,6 +363,11 @@ const Stocks = () => {
                   settings={settings}
                   dataTable={data}
                   ln={ln}
+                />
+                <GradeTable
+                  dataTable={data}
+                  loading={loading}
+                  settings={settings}
                 />
               </div>
             </div>

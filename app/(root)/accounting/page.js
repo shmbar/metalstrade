@@ -398,26 +398,56 @@ useEffect(() => {
   // Chart data for Debit & Credit Overview
   const chartData = useMemo(() => {
     const days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+    const debitByDay = new Array(7).fill(0);
+    const creditByDay = new Array(7).fill(0);
+
+    invoicesAccData.forEach(item => {
+      if (item.amountExp && item.dateExp) {
+        const d = new Date(item.dateExp);
+        if (!isNaN(d)) {
+          const day = d.getDay(); // 0=Sun … 6=Sat
+          const idx = day === 6 ? 0 : day + 1; // Sat→0, Sun→1 … Fri→6
+          debitByDay[idx] += Number(item.amountExp) || 0;
+        }
+      }
+      if (item.amountInv && item.dateInv) {
+        const d = new Date(item.dateInv);
+        if (!isNaN(d)) {
+          const day = d.getDay();
+          const idx = day === 6 ? 0 : day + 1;
+          creditByDay[idx] += Number(item.amountInv) || 0;
+        }
+      }
+    });
+
     return {
       labels: days,
       datasets: [
         {
           label: 'Debit',
-          data: [45, 60, 55, 70, 50, 65, 40],
+          data: debitByDay,
           backgroundColor: '#103a7a',
           borderRadius: 6,
           barPercentage: 0.6,
         },
         {
           label: 'Credit',
-          data: [35, 50, 45, 55, 40, 50, 30],
+          data: creditByDay,
           backgroundColor: '#9fb8d4',
           borderRadius: 6,
           barPercentage: 0.6,
         },
       ],
     };
-  }, []);
+  }, [invoicesAccData]);
+
+  const fmtChartVal = (v) => {
+    const abs = Math.abs(v);
+    if (abs >= 1000000000) return '$' + (v / 1000000000).toFixed(2) + 'B';
+    if (abs >= 1000000) return '$' + (v / 1000000).toFixed(2) + 'M';
+    if (abs >= 1000) return '$' + (v / 1000).toFixed(2) + 'K';
+    return '$' + v;
+  };
 
   const chartOptions = {
     responsive: true,
@@ -432,13 +462,16 @@ useEffect(() => {
         borderWidth: 1,
         cornerRadius: 8,
         padding: 12,
+        callbacks: {
+          label: (ctx) => ` ${ctx.dataset.label}: ${fmtChartVal(ctx.parsed.y)}`,
+        },
       },
     },
     scales: {
       y: {
         beginAtZero: true,
         grid: { color: 'rgba(159,184,212,0.2)' },
-        ticks: { color: '#838ca7', font: { size: 11 } },
+        ticks: { color: '#838ca7', font: { size: 11 }, callback: fmtChartVal },
         border: { display: false },
       },
       x: {

@@ -187,32 +187,32 @@ function StatKpiCard({
 // ─────────────────────────────────────────────
 // FIX #1 — NEW: Debt Snapshot Card Component
 // ─────────────────────────────────────────────
-function DebtSnapshotCard({ totalInvoices, totalContracts, totalExpenses, totalPL }) {
-  const [debtRange, setDebtRange] = useState('Jan 1% – 31 Dec 2%');
+function DebtSnapshotCard({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT }) {
+  const profitColor = avgProfitPerMT >= 0 ? '#16a34a' : '#dc2626';
 
   const metrics = [
     {
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="#16a34a" strokeWidth="2" fill="#dcfce7"/>
-          <polyline points="9 22 9 12 15 12 15 22" stroke="#16a34a" strokeWidth="2"/>
+          <rect x="2" y="7" width="20" height="14" rx="2" stroke="#16a34a" strokeWidth="2" fill="#dcfce7"/>
+          <path d="M8 11h8M8 14h5" stroke="#16a34a" strokeWidth="2" strokeLinecap="round"/>
         </svg>
       ),
-      value: fmtAutoKM(totalInvoices),
-      label: 'after model Prepayment',
-      sub: '20% of scheduled',
+      value: `${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`,
+      label: 'Total MT Purchased',
+      sub: 'for selected period',
       valueColor: '#16a34a',
     },
     {
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke="#ea580c" strokeWidth="2" fill="#ffedd5"/>
-          <path d="M12 6v6l4 2" stroke="#ea580c" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M12 8v4l3 3" stroke="#ea580c" strokeWidth="2" strokeLinecap="round"/>
         </svg>
       ),
-      value: fmtAutoKM(totalContracts),
-      label: 'after debit Prepayment',
-      sub: '98% all aligned',
+      value: fmtAutoKM(avgCostPerMT),
+      label: 'Avg Cost / MT',
+      sub: 'purchase cost per MT',
       valueColor: '#ea580c',
     },
     {
@@ -223,23 +223,22 @@ function DebtSnapshotCard({ totalInvoices, totalContracts, totalExpenses, totalP
           <circle cx="12" cy="14" r="2" fill="#2563eb"/>
         </svg>
       ),
-      value: fmtAutoKM(totalExpenses),
-      label: 'Ahead of plan',
-      sub: '',
+      value: fmtAutoKM(avgExpensePerMT),
+      label: 'Avg Expense / MT',
+      sub: 'expenses per MT',
       valueColor: '#2563eb',
     },
     {
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="#dc2626" strokeWidth="2" fill="#fee2e2"/>
-          <path d="M12 8v4" stroke="#dc2626" strokeWidth="2" strokeLinecap="round"/>
-          <circle cx="12" cy="16" r="1" fill="#dc2626"/>
+          <circle cx="12" cy="12" r="10" stroke={profitColor} strokeWidth="2" fill={avgProfitPerMT >= 0 ? '#dcfce7' : '#fee2e2'}/>
+          <path d={avgProfitPerMT >= 0 ? 'M8 12l3 3 5-5' : 'M8 12l3-3 5 5'} stroke={profitColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       ),
-      value: fmtAutoKM(totalPL),
-      label: 'Debt Summary',
-      sub: 'Target 200 days/day',
-      valueColor: '#dc2626',
+      value: fmtAutoKM(avgProfitPerMT),
+      label: 'Avg Profit / MT',
+      sub: 'net profit per MT',
+      valueColor: profitColor,
     },
   ];
 
@@ -248,7 +247,7 @@ function DebtSnapshotCard({ totalInvoices, totalContracts, totalExpenses, totalP
       <div className="p-4 h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
-          <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">Debt Snapshot</h3>
+          <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">Per-MT Metrics</h3>
           {/* <div className="flex items-center gap-1 px-2 py-1 rounded-md border border-gray-200 bg-gray-50 text-[10px] text-gray-500">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="4" width="18" height="18" rx="2" stroke="#9ca3af" strokeWidth="2"/>
@@ -298,6 +297,7 @@ const Dash = () => {
   const [dataPL, setDataPL] = useState([]);
   const [dataPieSupps, setDataPieSupps] = useState([]);
   const [dataPieClnts, setDataPieClnts] = useState([]);
+  const [totalMT, setTotalMT] = useState(0);
 
   useEffect(() => {
 
@@ -323,6 +323,7 @@ const Dash = () => {
       setDataContracts(tmpData.accumulatedPmnt);
       setDataExpenses(tmpData.accumulatedExp);
       setDataPieSupps(tmpData.pieArrSupps);
+      setTotalMT(tmpData.totalMT || 0);
 
       let arrInvoices = setMonthsInvoices(dtConTmp, settings);
       setDataInvoices(arrInvoices.accumulatedPmnt);
@@ -353,6 +354,10 @@ const Dash = () => {
   const totalInvoices = useMemo(() => sumObj(dataInvoices), [dataInvoices]);
   const totalContracts = useMemo(() => sumObj(dataContracts), [dataContracts]);
   const totalExpenses = useMemo(() => sumObj(dataExpenses), [dataExpenses]);
+
+  const avgCostPerMT = useMemo(() => totalMT > 0 ? totalContracts / totalMT : 0, [totalContracts, totalMT]);
+  const avgExpensePerMT = useMemo(() => totalMT > 0 ? totalExpenses / totalMT : 0, [totalExpenses, totalMT]);
+  const avgProfitPerMT = useMemo(() => totalMT > 0 ? totalPL / totalMT : 0, [totalPL, totalMT]);
 
   // Prepare horizontal bar data objects (use real dataPie* sources)
   const hbSupps = HorizontalBar(dataPieSupps || {});
@@ -749,10 +754,10 @@ const Dash = () => {
               mirroring Total Revenue on the left.
           ───────────────────────────────────────── */}
           <DebtSnapshotCard
-            totalInvoices={totalInvoices}
-            totalContracts={totalContracts}
-            totalExpenses={totalExpenses}
-            totalPL={totalPL}
+            totalMT={totalMT}
+            avgCostPerMT={avgCostPerMT}
+            avgExpensePerMT={avgExpensePerMT}
+            avgProfitPerMT={avgProfitPerMT}
           />
 
           {/* KPI GRID */}
@@ -769,7 +774,7 @@ const Dash = () => {
               iconBg="rgba(255,255,255,0.2)"
             />
             <StatKpiCard
-              title="Invoices"
+              title="Sales Revenue"
               badgeText="Sales"
               value={fmtAutoKM(totalInvoices)}
               chartData={dataInvoices}
@@ -779,9 +784,9 @@ const Dash = () => {
               iconBg="rgba(255,255,255,0.2)"
             />
             <StatKpiCard
-              title="Contracts & Expenses"
+              title="Total Costs"
               badgeText="Costs"
-              value={fmtAutoKM(totalContracts)}
+              value={fmtAutoKM(totalContracts + totalExpenses)}
               chartData={dataContracts}
               grad="from-[#C42840] to-[#902030]"
               chartColor="rgba(255,255,255,0.95)"
@@ -789,17 +794,17 @@ const Dash = () => {
               iconBg="rgba(255,255,255,0.2)"
             />
             <StatKpiCard
-              title="Sales Contracts"
-              badgeText="Sales"
-              value={fmtAutoKM(totalContracts)}
+              title="MT Purchased"
+              badgeText="Volume"
+              value={`${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`}
               chartData={dataContracts}
               grad="from-[#2255C8] to-[#1A3A98]"
               chartColor="rgba(255,255,255,0.95)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M12 12l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#fff" strokeWidth="2"/><path d="M7 10h10M7 14h6" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
               iconBg="rgba(255,255,255,0.2)"
             />
             <StatKpiCard
-              title="Expenses"
+              title="Other Expenses"
               badgeText="Costs"
               value={fmtAutoKM(totalExpenses)}
               chartData={dataExpenses}
@@ -809,13 +814,13 @@ const Dash = () => {
               iconBg="rgba(255,255,255,0.2)"
             />
             <StatKpiCard
-              title="Purchase Contracts"
-              badgeText="Purchases"
-              value={fmtAutoKM(totalInvoices)}
-              chartData={dataInvoices}
+              title="Avg Profit / MT"
+              badgeText="Per MT"
+              value={fmtAutoKM(avgProfitPerMT)}
+              chartData={dataPL}
               grad="from-[#BF6A18] to-[#8A3E0A]"
               chartColor="rgba(255,255,255,0.95)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="10" rx="2" stroke="#fff" strokeWidth="2"/><path d="M9 11h6" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M9 14h4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 17l4-4 4 4 4-8 4 4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
               iconBg="rgba(255,255,255,0.2)"
             />
 

@@ -158,6 +158,7 @@ export const calContracts = (data, settings) => {
     let accumulatedPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedExp = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedTop5Sup = data.map(x => x.supplier).reduce((o, key) => ({ ...o, [key]: 0 }), {})
+    let totalMT = 0
 
     data.map((x, i) => {
         let mult = x.euroToUSD
@@ -167,6 +168,10 @@ export const calContracts = (data, settings) => {
         accumulatedPmnt[dateFormat(x.dateRange.startDate, 'm') * 1] += tmp;
         //top 5 suppliers
         accumulatedTop5Sup[x.supplier] += tmp * 1
+        // total MT purchased (sum productsData quantities)
+        if (Array.isArray(x.productsData)) {
+            x.productsData.forEach(p => { totalMT += parseFloat(p.qnty) || 0 })
+        }
 
         //expenses
         x.expenses.forEach(obj => {
@@ -189,7 +194,7 @@ export const calContracts = (data, settings) => {
 
     let pieArrSupps = setPieArrs(arrTmp)
 
-    return { accumulatedPmnt, accumulatedExp, pieArrSupps };
+    return { accumulatedPmnt, accumulatedExp, pieArrSupps, totalMT };
 }
 
 
