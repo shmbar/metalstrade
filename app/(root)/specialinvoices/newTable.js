@@ -157,7 +157,7 @@ const Customtable = ({
 
     return (
         <div className="w-full">
-            <style jsx global>{`
+            <style>{`
                 /* Import Poppins and set table font */
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
@@ -197,7 +197,7 @@ const Customtable = ({
 
                 /* Add border, background, and text alignment styles for table cells */
                 .custom-table th{
-                    border: 1px solid #d8e8f5;
+                    border: 0.5px solid rgba(0,0,0,0.04);
                     background-color: #dbeeff;
                     text-align: center;
                     vertical-align: middle;
@@ -207,7 +207,7 @@ const Customtable = ({
                     color: #103a7a !important;
                 }
                 .custom-table td {
-                    border: 1px solid #e8f0f8;
+                    border: 0.5px solid rgba(0,0,0,0.04);
                     background-color: #fff;
                     text-align: center;
                     vertical-align: middle;
@@ -238,6 +238,7 @@ const Customtable = ({
                     border: none !important;
                 }
             `}</style>
+
 
             <div className="custom-table">
                 <div className="flex flex-col rounded-2xl glass-table"

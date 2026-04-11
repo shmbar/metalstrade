@@ -58,211 +58,74 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
     const { quantity, total } = totals[currency]
 
     return (
-      <tr 
-        key={currency}
-        className="cursor-pointer"
-      >
-        {columns.map((col, index) => {
-          if (index === 0) {
-            return (
-              <td
-                key={`${currency}-${index}`}
-                className="px-2 py-1 transition-colors duration-150 group/cell relative"
-                style={{
-                  color: 'var(--chathams-blue)',
-                  minWidth: '60px',
-                  maxWidth: '110px',
-                  fontWeight: '600',
-                  zIndex: 1,
-                  willChange: 'background-color, color',
-                  background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
-                }}
-              >
-                <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl transition-all duration-200 ease-in-out bg-[#e3f3ff] border-transparent"
-                  style={{ border: '1px solid #b8ddf8' }}>
-                  {config.label}
-                </div>
-              </td>
-            )
-          } else if (index === 1) {
-            return (
-              <td
-                key={`${currency}-${index}`}
-                className="px-2 py-1 transition-colors duration-150 group/cell relative"
-                style={{
-                  color: 'var(--port-gore)',
-                  minWidth: '60px',
-                  maxWidth: '110px',
-                  fontWeight: '500',
-                  zIndex: 1,
-                  willChange: 'background-color, color',
-                  background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
-                }}
-              >
-                <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]"
-                  style={{ border: '1px solid #e0e0e0' }}>
-                  {/* Empty cell */}
-                </div>
-              </td>
-            )
-          } else if (index === 2) {
-            return (
-              <td
-                key={`${currency}-${index}`}
-                className="px-2 py-1 transition-colors duration-150 group/cell relative"
-                style={{
-                  color: 'var(--port-gore)',
-                  minWidth: '60px',
-                  maxWidth: '110px',
-                  fontWeight: '500',
-                  zIndex: 1,
-                  willChange: 'background-color, color',
-                  background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
-                }}
-              >
-                <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff] hover:shadow-[inset_0_0_0_1px_#d1d1d1]"
-                  style={{ border: '1px solid #e0e0e0' }}>
-                  {formatNumber(quantity)}
-                </div>
-              </td>
-            )
-          } else if (index === 3) {
-            return (
-              <td
-                key={`${currency}-${index}`}
-                className="px-2 py-1 transition-colors duration-150 group/cell relative"
-                style={{
-                  color: 'var(--port-gore)',
-                  minWidth: '60px',
-                  maxWidth: '110px',
-                  fontWeight: '500',
-                  zIndex: 1,
-                  willChange: 'background-color, color',
-                  background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
-                }}
-              >
-                <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff] hover:shadow-[inset_0_0_0_1px_#d1d1d1]"
-                  style={{ border: '1px solid #e0e0e0' }}>
-                  {formatCurrency(total, config.code)}
-                </div>
-              </td>
-            )
-          }
-          return (
-            <td
-              key={`${currency}-${index}`}
-              className="px-2 py-1 transition-colors duration-150 group/cell relative"
-              style={{
-                background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
-              }}
-            >
-              <div className="px-2 py-1 responsiveTextTable font-semibold flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff]"
-                style={{ border: '1px solid #e0e0e0' }} />
-            </td>
-          )
-        })}
+      <tr key={currency}>
+        {columns.map((col, index) => (
+          <td
+            key={`${currency}-${index}`}
+            className="responsiveTextTable font-medium text-center"
+            style={{
+              color: 'var(--chathams-blue)',
+              background: '#dbeeff',
+              padding: '6px 10px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {index === 0 ? config.label : index === 2 ? formatNumber(quantity) : index === 3 ? formatCurrency(total, config.code) : ''}
+          </td>
+        ))}
       </tr>
     )
   }, [totals, columns, formatNumber, formatCurrency])
 
   return (
     <div className="w-full">
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-        
-        .stocks-table, .stocks-table * {
-          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
-          font-size: 10px !important;
-          transition-duration: 150ms !important;
-          transition-timing-function: ease-in-out !important;
-        }
-
-        /* Add border, background, and text alignment styles for table cells */
-        .stocks-table th, .stocks-table td {
-          background-color: #f8fbff;
-          text-align: center;
-          vertical-align: middle;
-          padding: 6px;
-          border-radius: 4px;
-        }
-
-        .stocks-table th {
-          background-color: #d4eafc;
-        }
-
-        .stocks-table td {
-          background-color: #fff;
-          border: 1px solid #e0e0e0;
-        }
-        
-        .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-        .dashboard-scroll::-webkit-scrollbar-track { background: linear-gradient(180deg, #F8F8F8, #F0F0F0); border-radius: 6px; }
-        .dashboard-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #E0E0E0, #CCCCCC); border-radius: 6px; border: 2px solid #F8F8F8; }
-        .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #CCCCCC, #B0B0B0); border-color: #F0F0F0; }
-      `}</style>
       <div
         className="w-full"
         style={{
-          borderRadius: '24px',
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset',
+          borderRadius: '16px',
+          border: '1px solid #b8ddf8',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
           overflow: 'hidden'
         }}
       >
         {/* Title */}
         <div
+          className="responsiveTextTable font-medium text-center"
           style={{
             background: '#dbeeff',
-            borderTopLeftRadius: '24px',
-            borderTopRightRadius: '24px',
-            padding: '10px 16px',
+            padding: '8px 16px',
             borderBottom: '1px solid #b8ddf8',
-            textAlign: 'center',
-            fontWeight: '500',
-            color: 'var(--chathams-blue)'
+            color: 'var(--chathams-blue)',
+            fontWeight: '500'
           }}
         >
           Summary - Stocks
         </div>
-        {/* Header section matching newTable */}
-        <div
-          className="flex-shrink-0"
-          style={{
-            borderBottom: '2px solid #E5E7EB',
-            background: '#d4eafc',
-          }}
-        >
-          <div className="overflow-x-auto dashboard-scroll">
-            <table className="stocks-table w-full rounded-xl" style={{ tableLayout: 'auto', borderSpacing: '6px' }}>
-            <thead className="sticky top-0 z-10">
+        <div className="overflow-x-auto">
+          <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'collapse' }}>
+            <thead>
               {table.getHeaderGroups().map(hdGroup => (
-                <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
-                  {hdGroup.headers.map((header, idx) => (
+                <tr key={hdGroup.id}>
+                  {hdGroup.headers.map(header => (
                     <th
                       key={header.id}
-                      className="px-2 py-2 text-center font-medium font-poppins"
+                      className="responsiveTextTable font-medium text-center"
                       style={{
                         color: 'var(--chathams-blue)',
-                        minWidth: '60px',
-                        textAlign: 'center',
-                        borderRadius: '12px',
-                        border: '1px solid #b8ddf8'
+                        background: '#dbeeff',
+                        padding: '6px 10px',
+                        borderBottom: '1px solid #b8ddf8',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {header.column.getCanSort() ? (
-                        <div
-                          onClick={header.column.getToggleSortingHandler()}
-                          className="responsiveTextTable flex cursor-pointer items-center gap-1 justify-center"
-                        >
+                        <div onClick={header.column.getToggleSortingHandler()} className="flex cursor-pointer items-center gap-1 justify-center">
                           {header.column.columnDef.header}
-                          {header.column.getIsSorted() === 'asc' && (
-                            <TbSortAscending className="text-[var(--endeavour)] scale-110 md:scale-125" />
-                          )}
-                          {header.column.getIsSorted() === 'desc' && (
-                            <TbSortDescending className="text-[var(--endeavour)] scale-110 md:scale-125" />
-                          )}
+                          {header.column.getIsSorted() === 'asc' && <TbSortAscending className="text-[var(--endeavour)] scale-110" />}
+                          {header.column.getIsSorted() === 'desc' && <TbSortDescending className="text-[var(--endeavour)] scale-110" />}
                         </div>
                       ) : (
-                        <span className="responsiveTextTable">{header.column.columnDef.header}</span>
+                        <span>{header.column.columnDef.header}</span>
                       )}
                     </th>
                   ))}
@@ -272,31 +135,20 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             <tbody>
               {table.getRowModel().rows.length > 0 ? (
                 table.getRowModel().rows.map(row => (
-                  <tr
-                    key={row.id}
-                    className="cursor-pointer transition-colors"
-                  >
-                    {row.getVisibleCells().map((cell, idx) => (
+                  <tr key={row.id} className="cursor-pointer hover:bg-[var(--selago)]">
+                    {row.getVisibleCells().map(cell => (
                       <td
                         key={cell.id}
-                        data-label={cell.column.columnDef.header}
-                        className="px-2 py-1 transition-colors duration-150 group/cell relative"
+                        className="responsiveTextTable text-center"
                         style={{
-                          color: 'var(--port-gore)',
-                          minWidth: '60px',
-                          maxWidth: '110px',
-                                  fontWeight: '400',
-                          zIndex: 1,
-                          willChange: 'background-color, color',
+                          color: 'var(--chathams-blue)',
+                          padding: '6px 10px',
+                          borderBottom: '1px solid #E5E7EB',
+                          whiteSpace: 'nowrap',
                         }}
                       >
-                        <Tltip
-                          direction='right'
-                          tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}
-                        >
-                          <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200 ease-in-out bg-[#f8fbff] hover:shadow-[inset_0_0_0_1px_#d1d1d1] fade-in">
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </div>
+                        <Tltip direction='right' tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}>
+                          <span>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
                         </Tltip>
                       </td>
                     ))}
@@ -304,10 +156,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan={columns.length}
-                    className="text-center py-8 text-[var(--regent-gray)]"
-                  >
+                  <td colSpan={columns.length} className="responsiveTextTable text-center py-8" style={{ color: 'var(--regent-gray)' }}>
                     No data available
                   </td>
                 </tr>
@@ -316,8 +165,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             <tfoot>
               {Object.keys(CURRENCIES).map(currency => renderTotalRow(currency))}
             </tfoot>
-            </table>
-          </div>
+          </table>
         </div>
       </div>
     </div>
