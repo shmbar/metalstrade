@@ -836,7 +836,7 @@ return (
         ) : (
             <>
                 {stockDataNoSold.map((x, i) => (
-                    <div className="bg-white py-0 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
+                    <div className="bg-white py-0.5 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
                         <MyAccordion title={
                             <div className="flex w-full justify-between">
                                 <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
@@ -922,7 +922,7 @@ return (
                     }
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
                             <div className="w-full">
-                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Stocks - Paid</span>
                                     <div className="flex items-center gap-2">
@@ -932,7 +932,7 @@ return (
                                 </div>
                                 {stockData1.map((x, i) => {
                                     return (
-                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
+                                        <div className="bg-white py-0.5 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
                                                         <div className="responsiveText items-center font-normal text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0"
@@ -986,7 +986,7 @@ return (
 
 
 
-                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Stocks - UnPaid</span>
                                     <div className="flex items-center gap-2">
@@ -997,7 +997,7 @@ return (
 
                                 {stockData2.map((x, i) => {
                                     return (
-                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
+                                        <div className="bg-white py-0.5 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
                                                     <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1047,7 +1047,7 @@ return (
                             </div>
 
 
-                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Clients - Payment</span>
                                     <div className="flex items-center gap-2">
@@ -1058,7 +1058,7 @@ return (
 
                                 {clientInvoices2.map((x, i) => {
                                     return (
-                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
+                                        <div className="bg-white py-0.5 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
                                                     <div className="responsiveText text-[var(--port-gore)] font-normal items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1106,7 +1106,7 @@ return (
                             </div>
 
 
-                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Clients - Balances</span>
                                     <div className="flex items-center gap-2">
@@ -1117,7 +1117,7 @@ return (
 
                                 {clientInvoices1.map((x, i) => {
                                     return (
-                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
+                                        <div className="bg-white py-0.5 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
                                                     <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1221,9 +1221,9 @@ return (
                         </div>
 
 
-<div className="w-full border-l border-[#dedede] pt-0">
+<div className="w-full pt-0">
 
-                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Supplier - Payment</span>
                                     <div className="flex items-center gap-2">
@@ -1236,7 +1236,7 @@ return (
 
                                 {supPayments2.map((x, i) => {
                                     return (
-                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
+                                        <div className="bg-white py-0.5 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                     <span className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words w-full min-w-0"
@@ -1286,7 +1286,7 @@ return (
                             </div>
 
 
-                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Supplier - Balances</span>
                                     <div className="flex items-center gap-2">
@@ -1299,7 +1299,7 @@ return (
 
                                 {supPayments1.map((x, i) => {
                                     return (
-                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
+                                        <div className="bg-white py-0.5 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                     <span className="responsiveText items-center font-normal text-[var(--port-gore)] flex outline-none whitespace-normal break-words w-full min-w-0"
@@ -1348,7 +1348,7 @@ return (
                                 </div>
                             </div>
 
-                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
                                     <span className="text-[var(--endeavour)] responsiveText font-medium">Expenses</span>
                                     <div className="flex items-center gap-2">
@@ -1359,7 +1359,7 @@ return (
 
                                 {expenses.map((x, i) => {
                                     return (
-                                        <div className="bg-white py-0 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
+                                        <div className="bg-white py-0.5 px-1 border-b border-[#e8f0f8] hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex justify-between leading-4 2xl:leading-6 w-full">
                                                     <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"              >
@@ -1407,7 +1407,7 @@ return (
                                 </div>
                             </div>
 
-                            <div className="p-2 bg-white border-b border-[#e8f0f8] flex flex-col cf-card">
+                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 {
                                     userTitle === 'Admin' &&
                                     <div className='mt-1 p-1'>

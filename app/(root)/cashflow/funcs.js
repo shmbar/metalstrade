@@ -323,7 +323,6 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                     <tr>
                         <th className="text-left w-12">PO#</th>
                         <th className="text-left w-16">Supplier</th>
-                        <th className="text-left w-14">Org Sup.</th>
                         <th className="text-left w-28 max-w-28">Description</th>
                         <th className="text-right w-14">Quantity</th>
                         <th className="text-right w-20">Unit Price</th>
@@ -338,8 +337,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
-                                <td className="text-left w-16"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></Tltip></td>
-                                <td className="text-left w-14"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
+                                <td className="text-left w-16"><Tltip direction='top' tltpText={[settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></Tltip></td>
                                 <td className="text-left w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.descriptionName || ''}><span className="block truncate cursor-default">{z.descriptionName}</span></Tltip>
                                 </td>
@@ -389,8 +387,6 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                         </th>
                         <th>
                         </th>
-                        <th>
-                        </th>
                         <th className="text-right">
                             {
                                 <NumericFormat
@@ -430,7 +426,6 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                 <thead>
                     <tr>
                         <th className="text-left w-12">PO#</th>
-                        <th className="text-left w-14">Org Sup.</th>
                         <th className="text-left w-28 max-w-28">Description</th>
                         <th className="text-right w-14">Quantity</th>
                         <th className="text-right w-20">Unit Price</th>
@@ -444,8 +439,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                                 <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
-                                    <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
-                                <td className="text-left w-14"><Tltip direction='top' tltpText={settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname || ''}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname}</span></Tltip></td>
+                                    <Tltip direction='top' tltpText={[z.order, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate">{z.order}</span></Tltip></td>
                                 <td className="text-left w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.description || ''}><span className="block truncate cursor-default">{z.description}</span></Tltip>
                                 </td>
@@ -491,7 +485,6 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                         <th className="text-left">
                             Total
                         </th>
-                        <th></th>
                         <th></th>
                         <th className="text-right">
                             {
