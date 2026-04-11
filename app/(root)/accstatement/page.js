@@ -85,8 +85,8 @@ const AccountStatement = () => {
           plcHolder='Select client' />
         <div className='flex group datepicker-wrapper w-full sm:w-auto'>
           <Datepicker
-            inputClassName='border border-[#0366ae] py-2 pl-3 pr-3 rounded-2xl text-[#103a7a] w-full sm:w-44
-              focus:outline-none focus:ring-1 focus:ring-blue-200 cursor-pointer bg-white shadow-sm'
+            inputClassName='border border-[#0366ae] py-2 pl-3 pr-3 rounded-full text-[#103a7a] placeholder:text-[#103a7a] w-full sm:w-44
+              focus:outline-none focus:ring-1 focus:ring-blue-200 cursor-pointer bg-white shadow-sm text-[0.68rem]'
             useRange={false}
             asSingle={true}
             value={valueDate}
