@@ -79,7 +79,7 @@ const BankAccount = () => {
 
     const fieldRow = 'flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0';
     const labelCls = 'sm:w-[110px] shrink-0 responsiveText text-[var(--endeavour)]';
-    const inputCls = 'w-full sm:flex-1 h-8 px-5 responsiveText rounded-full border border-[#E5E7EB] bg-white';
+    const inputCls = 'w-full sm:flex-1 h-[26px] px-5 responsiveText rounded-full border border-[#E5E7EB] bg-white';
 
     return (
         <div className='p-4 rounded-2xl flex flex-col md:flex-row w-full gap-4'>
@@ -98,23 +98,23 @@ const BankAccount = () => {
             <div className='flex flex-col w-full bg-[#f7f7f7] p-4 rounded-2xl'>
                 <div className='pb-2 rounded-2xl mt-1 w-full gap-4 flex flex-wrap h-fit'>
                     <Tltip direction='top' tltpText='Add new bank'>
-                        <button className={`supplierAddButton py-1 ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton} onClick={addItem}>
+                        <button className={`supplierAddButton ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton} onClick={addItem}>
                             <IoAddCircleOutline className='scale-110' />   {getTtl('Add', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update bank data'>
-                        <button className='supplierButton py-1' onClick={updateList}>
+                        <button className='supplierButton' onClick={updateList}>
                             <BiEditAlt className='scale-125 text-[var(--endeavour)]' />
                             {getTtl('Update', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Delete bank'>
-                        <button className='supplierButton py-1' onClick={() => setIsDeleteOpen(true)} disabled={!value.id}>
+                        <button className='supplierButton' onClick={() => setIsDeleteOpen(true)} disabled={!value.id}>
                             <MdDeleteOutline className='scale-125 text-[var(--endeavour)]' />{getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Clear form'>
-                        <button className='supplierButton py-1' onClick={clickClear}>
+                        <button className='supplierButton' onClick={clickClear}>
                             <AiOutlineClear className='scale-125 text-[var(--endeavour)]' />{getTtl('Clear', ln)}
                         </button>
                     </Tltip>

@@ -129,7 +129,7 @@ const Page = () => {
 
 							<div className="w-full">
 								<TabGroup>
-									<TabList className="flex space-x-2 mb-2 mt-2">
+									<TabList className="flex space-x-2 mb-2 mt-2 pb-2">
 										{tabs.map((z) => (
 											<Tab
 												key={z}
@@ -139,7 +139,7 @@ const Page = () => {
 														'focus:outline-none',
 														selected
 															? 'bg-[var(--endeavour)] text-white shadow-sm'
-															: 'text-[var(--endeavour)] hover:bg-[var(--selago)]'
+															: 'text-[var(--endeavour)] bg-[#dbeeff] border border-[#b8ddf8] hover:bg-[#c5e4f8]'
 													)
 												}
 											>

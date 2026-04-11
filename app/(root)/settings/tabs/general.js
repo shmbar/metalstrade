@@ -41,7 +41,7 @@ const General = () => {
                                     type='input'
 className="
   w-full
-  h-8
+  h-[26px]
   px-4
   rounded-full
   border
@@ -93,7 +93,7 @@ className="
                                             type='input'
 className="
   w-full
-  h-8
+  h-[26px]
   px-4
     ml-4
   rounded-full
@@ -119,7 +119,7 @@ className="
                                             type='input'
 className="
   w-full
-  h-8
+  h-[26px]
   px-4
   ml-7
   rounded-full
@@ -145,7 +145,7 @@ className="
                                             type='input'
 className="
   w-full
-  h-8
+  h-[26px]
   px-4
   rounded-full
   border
@@ -170,7 +170,7 @@ className="
                                             type='input'
 className="
   w-full
-  h-8
+  h-[26px]
   px-4
   rounded-full
   border
@@ -198,7 +198,7 @@ className="
                                             type='input'
 className="
   w-full
-  h-8
+  h-[26px]
   px-4
   rounded-full
   border
@@ -222,7 +222,7 @@ className="
                                             type='input'
 className="
   w-full
-  h-8
+  h-[26px]
   px-4
   rounded-full
   border
@@ -246,7 +246,7 @@ className="
                                             type='input'
 className="
   w-full
-  h-8
+  h-[26px]
   px-4
   rounded-full
   border
@@ -281,7 +281,7 @@ className="
                                     type='input'
 className="
   w-full
-  h-8
+  h-[26px]
   px-4
   rounded-full
   border
@@ -305,7 +305,7 @@ className="
                                     type='input'
 className="
   w-full
-  h-8
+  h-[26px]
   px-4
   rounded-full
   border
@@ -335,7 +335,7 @@ className="
                                     type='input'
 className="
   w-full
-  h-8
+  h-[26px]
   px-4
   rounded-full
   border
@@ -359,7 +359,7 @@ className="
                                     type='input'
 className="
   w-full
-  h-8
+  h-[26px]
   px-4
   rounded-full
   border
@@ -385,7 +385,7 @@ className="
                     <div className="flex mt-3 ml-3">
                         <Tltip direction='top' tltpText='Save/update company data'>
                             <button
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-4 h-8 responsiveText rounded-full hover:opacity-90 transition-all"
+                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-4 h-[26px] responsiveText rounded-full hover:opacity-90 transition-all"
                                 onClick={() => updateCompanyData(uidCollection)}
                             >
                                 {getTtl('save', ln)}
@@ -397,7 +397,7 @@ className="
 
                         <div className='flex flex-wrap gap-4 items-center' >
                             <p className='text-sm font-medium whitespace-nowrap text-slate-600'>Start Invoice Number From:</p>
-                            <input type='number' className='input max-w-[10rem] w-full  h-8' value={invNum}
+                            <input type='number' className='input max-w-[10rem] w-full  h-[26px]' value={invNum}
                                 onChange={(e) => setInvNum(e.target.value)} />
                         </div>
 

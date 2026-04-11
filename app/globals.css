@@ -83,10 +83,10 @@ tr td {
     @apply bg-white border-[var(--rock-blue)] hover:bg-[var(--selago)] text-[var(--port-gore)] flex items-center gap-2 justify-center rounded-xl border px-3 py-1.5 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] font-medium focus:outline-none shadow-md transition-colors
   }
     .supplierButton {
-    @apply bg-[#dbeeff] hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border-0 px-3 py-2 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] focus:outline-none shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+    @apply bg-[#dbeeff] hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] focus:outline-none shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
   }
    .supplierAddButton {
-    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-2 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] focus:outline-none shadow-md transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] focus:outline-none shadow-md transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
   }
 }
 

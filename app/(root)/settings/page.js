@@ -54,9 +54,9 @@ const Page = () => {
       <Toast />
       <VideoLoader loading={loading} fullScreen={true} />
       <div className="p-1 md:p-4 bg-white rounded-2xl border border-[#b8ddf8] shadow-sm">
-        <div className="mt-5 text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Settings', ln)}</div>
+        <div className="mt-5 text-[var(--chathams-blue)] font-poppins text-[0.875rem] xl:text-[0.9375rem] 2xl:text-[1rem] 3xl:text-[1.0625rem] font-medium border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Settings', ln)}</div>
 
-        <div className="w-full px-2 sm:px-0 mt-5">
+        <div className="w-full px-2 sm:px-0 mt-2">
           <TabGroup >
 <TabList
   className="
@@ -64,7 +64,7 @@ const Page = () => {
     ml-1
     gap-3
     bg-transparent
-    pb-0
+    pb-2
     p-0
     overflow-x-auto
   "
@@ -74,7 +74,7 @@ const Page = () => {
   key={z}
   className={({ selected }) =>
     classNames(
-      'px-4 py-1.5 responsiveText font-poppins whitespace-nowrap transition-all text-[var(--endeavour)]',
+      'px-4 h-[24px] flex items-center responsiveText font-poppins whitespace-nowrap transition-all text-[var(--endeavour)]',
       'focus:outline-none',
       selected
         ? `
@@ -86,7 +86,9 @@ const Page = () => {
         : `
           text-[var(--endeavour)]
           rounded-full
-          hover:bg-[var(--selago)]
+          bg-[#dbeeff]
+          border border-[#b8ddf8]
+          hover:bg-[#c5e4f8]
         `
     )
   }
