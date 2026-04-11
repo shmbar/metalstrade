@@ -357,6 +357,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                                         style={{
                                                                             backgroundColor: '#f8fbff',
                                                                             border: '1px solid #d8e8f5',
+                                                                            whiteSpace: 'nowrap',
                                                                         }}
                                                                     >
                                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}

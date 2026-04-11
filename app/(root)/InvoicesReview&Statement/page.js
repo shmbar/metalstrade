@@ -767,7 +767,7 @@ const Shipments = () => {
       },
     },
     {
-      accessorKey: 'supInvoices', header: getTtl('Supplier inv', ln), cell: (props) => { const arr = Array.isArray(props.getValue()) ? props.getValue() : [props.getValue()]; const full = props.row.original.supInvoicesFull || arr; return <div>{arr.map((item, i) => { const isTrunc = full[i] && full[i] !== item; return <Tltip key={i} tltpText={full[i]} show={isTrunc} direction="top"><div className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5 cursor-default' : 'py-0.5 cursor-default'}>{item}</div></Tltip>; })}</div>; },
+      accessorKey: 'supInvoices', header: getTtl('Supplier inv', ln), cell: (props) => { const arr = Array.isArray(props.getValue()) ? props.getValue() : [props.getValue()]; const full = props.row.original.supInvoicesFull || arr; return <div>{arr.map((item, i) => { const isTrunc = full[i] && full[i] !== item; return <Tltip key={i} tltpText={full[i]} show={isTrunc} direction="top"><div style={{ whiteSpace: 'nowrap' }} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5 cursor-default' : 'py-0.5 cursor-default'}>{item}</div></Tltip>; })}</div>; },
       meta: { excludeFromQuickSum: true },
     },
     { accessorKey: 'expType', header: getTtl('Invoice Type', ln), },
