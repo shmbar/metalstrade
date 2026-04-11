@@ -135,7 +135,7 @@ const Page = () => {
 												key={z}
 												className={({ selected }) =>
 													classNames(
-														'px-5 py-1.5 responsiveText font-medium rounded-full transition-colors',
+														'px-5 h-[24px] flex items-center responsiveText font-medium rounded-full transition-colors',
 														'focus:outline-none',
 														selected
 															? 'bg-[var(--endeavour)] text-white shadow-sm'
@@ -160,7 +160,7 @@ const Page = () => {
 													</span>
 													<input
 														type='text'
-														className='px-2 py-0.5 font-semibold text-[#F44336] text-center bg-white focus:outline-none w-full'
+														className='px-2 py-0.5 font-medium text-[#F44336] text-center bg-white focus:outline-none w-full'
 								style={{ fontSize: 'inherit' }}
 														name='nilme'
 														onChange={(e) => handleChange(e, 'general')}
@@ -174,7 +174,7 @@ const Page = () => {
 													<span className='responsiveText text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Mo Oxide - Lb</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none'
 								style={{ fontSize: 'inherit' }}
 														value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
 														name='MoOxideLb'
@@ -188,7 +188,7 @@ const Page = () => {
 													<span className='responsiveText text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Charge Cr - Lb</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none'
 								style={{ fontSize: 'inherit' }}
 														name='chargeCrLb'
 														onChange={(e) => handleChange(e, 'general')}
@@ -202,7 +202,7 @@ const Page = () => {
 													<span className='responsiveText text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>1 MT</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none'
 								style={{ fontSize: 'inherit' }}
 														value={(value.general?.mt || '0') + ' Lb'}
 														name='mt'
@@ -214,7 +214,7 @@ const Page = () => {
 													<span className='responsiveText text-[var(--endeavour)] bg-[#dbeeff] text-center py-1 font-medium'>Euro / USD</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-semibold text-[#F44336] text-center bg-white focus:outline-none'
+														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none'
 								style={{ fontSize: 'inherit' }}
 														value={(value.general?.euroRate || '0')}
 														name='euroRate'
@@ -226,7 +226,7 @@ const Page = () => {
 													className='flex items-center justify-center rounded-xl border border-[var(--rock-blue)] overflow-hidden min-w-[80px] px-5 cursor-pointer bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] transition-colors self-stretch'
 													onClick={saveData}
 												>
-													<span className='responsiveText font-semibold text-white'>Save</span>
+													<span className='responsiveText font-medium text-white'>Save</span>
 												</div>
 											</div>
 										</div>

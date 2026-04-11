@@ -347,10 +347,10 @@ const MaterialTables = () => {
                                     {getTtl('Material Tables', ln)}
                                 </h1>
                                 <div className="flex items-center gap-2">
-                                    <button onClick={addTable} className="flex items-center gap-1 bg-[var(--endeavour)] text-white responsiveText font-medium px-3 h-7 rounded-full hover:opacity-90 transition-all">
+                                    <button onClick={addTable} className="flex items-center gap-1 bg-[var(--endeavour)] text-white responsiveTextTable font-medium px-3 h-[25px] rounded-full hover:opacity-90 transition-all">
                                         + {getTtl('Add Table', ln) || 'Add Table'}
                                     </button>
-                                    <button onClick={saveTable} className="flex items-center text-[var(--endeavour)] border border-[var(--rock-blue)] responsiveText font-medium px-3 h-7 rounded-full hover:bg-[var(--selago)] transition-all">
+                                    <button onClick={saveTable} className="flex items-center text-[var(--endeavour)] border border-[var(--rock-blue)] responsiveTextTable font-medium px-3 h-[25px] rounded-full hover:bg-[var(--selago)] transition-all">
                                         {getTtl('Save', ln) || 'Save'}
                                     </button>
                                 </div>

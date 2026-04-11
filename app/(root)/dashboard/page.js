@@ -493,7 +493,7 @@ const Dash = () => {
     labels: Object.keys(dataInvoices),
     datasets: [
       {
-        label: 'TotalIncome',
+        label: 'Sales Revenue',
         data: Object.values(dataInvoices),
         backgroundColor: '#4F99FF',
         borderRadius: { topLeft: 999, topRight: 999, bottomLeft: 0, bottomRight: 0 },
@@ -502,7 +502,7 @@ const Dash = () => {
         maxBarThickness: 18,
       },
       {
-        label: 'TotalOutcome',
+        label: 'Purchase Costs',
         data: Object.values(dataContracts),
         backgroundColor: '#1D3A8A',
         borderRadius: { topLeft: 999, topRight: 999, bottomLeft: 0, bottomRight: 0 },

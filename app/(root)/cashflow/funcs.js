@@ -1042,7 +1042,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                         <th className="text-right">Payment</th>
                         <th className="text-right">Balance</th>
                         <th className="text-center">Pmn</th>
-                        <th className="py-0">
+                        <th className="text-center py-0">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
                                     {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleSupplier[filteredArr[0]?.supplier + '-' + type]}
@@ -1212,7 +1212,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                         <th className="text-left">Exp. Type</th>
                         <th className="text-right">Amount</th>
                         <th className="text-left">Date</th>
-                        <th className="text-left">Payment</th>
+                        <th className="text-center">Payment</th>
                         <th className="text-center">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-center'>
@@ -1249,7 +1249,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                                 <td className="text-left">
                                     {dateFormat(z.date, 'dd.mm.yy')}
                                 </td>
-                                <td className="text-left">
+                                <td className="text-center">
                                     <span className={z.paid === '111' ? 'text-green-600' : 'text-orange-500'}>{z.paid === '111' ? 'Paid' : 'Unpaid'}</span>
                                 </td>
                                 <td className="text-center !py-1">
