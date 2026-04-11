@@ -25,6 +25,13 @@ export const MainNav = () => {
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
 
+  const [now, setNow] = useState(null)
+  useEffect(() => {
+    setNow(new Date())
+    const timer = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
   const LogOut = async () => {
     await SignOut()
     router.push('/')
@@ -86,6 +93,20 @@ export const MainNav = () => {
           }}
         />
       </div>
+
+      {/* Date / Time Widget — centered in remaining space */}
+      {now && (
+        <div className='flex-1 flex justify-center items-center select-none pointer-events-none'>
+          <div className='flex flex-col items-center leading-tight'>
+            <span style={{ fontSize: '0.62rem', color: 'var(--chathams-blue)', fontWeight: 400, opacity: 0.7 }}>
+              {now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
+            </span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--chathams-blue)', fontWeight: 600, letterSpacing: '0.05em' }}>
+              {now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Right Side: All icons and controls in a row, all functional */}
       <div className='flex items-center gap-1 ml-auto'>
