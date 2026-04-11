@@ -78,7 +78,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
 }
             `}</style>
            
-            <div className="glass-table rounded-2xl shadow-lg border border-[var(--selago)] p-2 sm:p-4 mb-6 w-full flex flex-col h-full"
+            <div className="glass-table rounded-2xl shadow-lg border border-[#b8ddf8] p-2 sm:p-4 mb-6 w-full flex flex-col h-full"
                 style={{
                     borderRadius: '16px',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
@@ -96,7 +96,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                  <div className="hidden sm:block flex-1 rounded-2xl ">
 
                         <div
-                        className="rounded-2xl overflow-hidden border border-[var(--selago)]"
+                        className="rounded-2xl overflow-hidden border border-[#b8ddf8]"
                         style={{
                             borderRadius: '16px',
                             boxShadow: '0 3px 8px rgba(0,0,0,0.06)',
@@ -108,7 +108,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         className="responsiveTextTable px-6 py-4 text-center font-medium font-poppins"
                         style={{
                             background: '#dbeeff',
-                            color: 'var(--endeavour)'
+                            color: 'var(--chathams-blue)'
                         }}
                         >
                         {title}

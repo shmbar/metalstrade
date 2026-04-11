@@ -38,7 +38,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
       className="bg-white rounded-xl shadow border overflow-hidden"
       style={{
         width: TABLE_WIDTH,
-        borderColor: 'var(--selago)',
+        borderColor: '#b8ddf8',
         borderWidth: 1,
         borderRadius: '16px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
@@ -63,9 +63,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
             borderBottom: '1px solid var(--rock-blue)'
           }}
         >
-          <h3 className="responsiveTextTable text-[var(--chathams-blue)] font-semibold text-center"
+          <h3 className="responsiveTextTable text-[var(--chathams-blue)] font-medium text-center"
             style={{
-              fontSize: '0.72rem',
               letterSpacing: '0.02em'
             }}>
             {title}

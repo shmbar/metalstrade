@@ -211,16 +211,14 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
         {/* Title */}
         <div
           style={{
-            background: '#d4eafc',
+            background: '#dbeeff',
             borderTopLeftRadius: '24px',
             borderTopRightRadius: '24px',
             padding: '10px 16px',
             borderBottom: '1px solid #b8ddf8',
             textAlign: 'center',
             fontWeight: '500',
-            fontSize: '0.8rem',
-            color: 'var(--chathams-blue)',
-            letterSpacing: '0.03em'
+            color: 'var(--chathams-blue)'
           }}
         >
           Summary - Stocks
@@ -241,11 +239,10 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                   {hdGroup.headers.map((header, idx) => (
                     <th
                       key={header.id}
-                      className="px-2 py-2 uppercase text-center font-medium font-poppins"
+                      className="px-2 py-2 text-center font-medium font-poppins"
                       style={{
                         color: 'var(--chathams-blue)',
                         minWidth: '60px',
-                                letterSpacing: '0.05em',
                         textAlign: 'center',
                         borderRadius: '12px',
                         border: '1px solid #b8ddf8'

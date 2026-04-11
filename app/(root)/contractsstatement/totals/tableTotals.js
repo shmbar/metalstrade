@@ -63,7 +63,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                 .dashboard-scroll::-webkit-scrollbar-thumb { background: #9fb8d4; border-radius: 6px; }
                 .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: #0366ae; }
             `}</style>
-            <div className="glass-table rounded-2xl shadow-lg border border-[var(--selago)] overflow-hidden">
+            <div className="glass-table rounded-2xl shadow-lg border border-[#b8ddf8] overflow-hidden">
                 {/* Header */}
                 <div className="flex justify-between items-center px-4 py-2 rounded-t-2xl" style={{
                     background: '#dbeeff',

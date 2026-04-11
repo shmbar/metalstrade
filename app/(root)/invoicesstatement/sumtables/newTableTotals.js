@@ -42,7 +42,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
     return (
         <div className="custom-table-totals bg-white rounded-xl shadow border overflow-hidden"
             style={{
-                borderColor: 'var(--selago)',
+                borderColor: '#b8ddf8',
                 borderWidth: 1,
                 borderRadius: '16px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
@@ -70,12 +70,11 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                 <tr key={hdGroup.id} style={{ borderBottom: '1px solid var(--selago)' }}>
                                     {hdGroup.headers.map(header =>
                                         <th key={header.id}
-                                            className="responsiveTextTable relative px-6 py-2 text-left font-medium font-poppins uppercase"
+                                            className="responsiveTextTable relative px-6 py-2 text-left font-medium font-poppins"
                                             style={{
                                                 color: 'var(--chathams-blue)',
-                                                letterSpacing: '0.05em',
-                                                borderRight: '1px solid var(--selago)',
-                                                borderBottom: '1px solid var(--selago)'
+                                                borderRight: '1px solid #b8ddf8',
+                                                borderBottom: '1px solid #b8ddf8'
                                             }}>
                                             {header.column.getCanSort() ?
                                                 <div onClick={header.column.getToggleSortingHandler()} className="flex cursor-pointer items-center gap-1">
