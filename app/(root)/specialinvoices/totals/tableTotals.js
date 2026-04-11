@@ -2,7 +2,6 @@
 
 import { flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
 import { TbSortDescending, TbSortAscending } from "react-icons/tb"
-import { usePathname } from 'next/navigation'
 import '../../contracts/style.css'
 import Tltip from "../../../../components/tlTip"
 import { expensesToolTip } from "./funcs"
@@ -36,7 +35,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     text-align: center !important;
                     vertical-align: middle !important;
                     padding: 8px 6px !important;
-                    border: 1px solid var(--selago);
+                    border: none;
+                    border-bottom: 1px solid #E5E7EB;
                     background: #fff;
                 }
                 .glass-table th > *, .glass-table td > * {
@@ -66,11 +66,11 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                 }
                     .glass-table th,
 .glass-table td {
-    border-bottom: 1px solid var(--selago);
+    border-bottom: 1px solid #E5E7EB;
 }
 
 .glass-table th {
-    border-top: 1px solid var(--selago);
+    border-top: 1px solid #E5E7EB;
 }
 
 .glass-table tr:last-child td {
@@ -113,7 +113,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         >
                         {title}
                         </div>
-                        <table className="w-full glass-table">
+                        <table className="w-full glass-table" style={{ borderCollapse: 'collapse' }}>
                             {!totalsOnly && (
                                 <thead>
                                     {table1.getHeaderGroups().map(hdGroup => (

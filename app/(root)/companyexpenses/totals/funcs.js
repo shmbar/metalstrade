@@ -39,10 +39,9 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 textAlign: "left",
                 padding: "8px 16px 8px 8px",
                 color: "var(--chathams-blue)",
-                fontWeight: 600,
-                fontSize: "0.72rem",
+                fontWeight: 500,
+                fontSize: "0.68rem",
                 letterSpacing: "0.05em",
-                textTransform: "uppercase",
                 whiteSpace: "nowrap",
               }}
             >
@@ -53,10 +52,9 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 textAlign: "left",
                 padding: "8px 16px 8px 8px",
                 color: "var(--chathams-blue)",
-                fontWeight: 600,
-                fontSize: "0.72rem",
+                fontWeight: 500,
+                fontSize: "0.68rem",
                 letterSpacing: "0.05em",
-                textTransform: "uppercase",
                 whiteSpace: "nowrap",
               }}
             >
@@ -67,10 +65,9 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 textAlign: "left",
                 padding: "8px 16px 8px 8px",
                 color: "var(--chathams-blue)",
-                fontWeight: 600,
-                fontSize: "0.72rem",
+                fontWeight: 500,
+                fontSize: "0.68rem",
                 letterSpacing: "0.05em",
-                textTransform: "uppercase",
                 whiteSpace: "nowrap",
               }}
             >
@@ -81,10 +78,9 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 textAlign: "left",
                 padding: "8px 16px 8px 8px",
                 color: "var(--chathams-blue)",
-                fontWeight: 600,
-                fontSize: "0.72rem",
+                fontWeight: 500,
+                fontSize: "0.68rem",
                 letterSpacing: "0.05em",
-                textTransform: "uppercase",
                 whiteSpace: "nowrap",
               }}
             >
@@ -95,10 +91,9 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 textAlign: "left",
                 padding: "8px 16px 8px 8px",
                 color: "var(--chathams-blue)",
-                fontWeight: 600,
-                fontSize: "0.72rem",
+                fontWeight: 500,
+                fontSize: "0.68rem",
                 letterSpacing: "0.05em",
-                textTransform: "uppercase",
                 whiteSpace: "nowrap",
               }}
             >
@@ -109,10 +104,9 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 textAlign: "left",
                 padding: "8px 16px 8px 8px",
                 color: "var(--chathams-blue)",
-                fontWeight: 600,
-                fontSize: "0.72rem",
+                fontWeight: 500,
+                fontSize: "0.68rem",
                 letterSpacing: "0.05em",
-                textTransform: "uppercase",
                 whiteSpace: "nowrap",
               }}
             >
@@ -131,13 +125,13 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                   transition: "background-color 150ms ease-in-out",
                 }}
               >
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.68rem", whiteSpace: "nowrap" }}>
                   {z.poSupplier?.order ?? "Comp. Exp."}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.68rem", whiteSpace: "nowrap" }}>
                   {z.expense}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.68rem", whiteSpace: "nowrap" }}>
                   {settings.Expenses.Expenses.find((q) => q.id === z.expType)?.expType}
                 </td>
                 <td
@@ -146,7 +140,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                     padding: "8px 16px 8px 8px",
                     color: "var(--chathams-blue)",
                     fontWeight: 500,
-                    fontSize: "0.72rem",
+                    fontSize: "0.68rem",
                     whiteSpace: "nowrap",
                   }}
                 >
@@ -161,10 +155,10 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                     className="responsiveTextTable"
                   />
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
-                  {dateFormat(z.date, "dd-mmm-yy")}
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.68rem", whiteSpace: "nowrap" }}>
+                  {dateFormat(z.date, "dd.mm.yy")}
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
+                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: "0.68rem", whiteSpace: "nowrap" }}>
                   {z.paid === "111" ? "Paid" : "Unpaid"}
                 </td>
               </tr>
