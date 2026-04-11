@@ -320,19 +320,22 @@ const Customtable = ({
                   ))}
                 </thead>
 
-                {/* TBODY - Professional rows with card-inspired hover */}
+                {/* TBODY */}
                 <tbody>
-                  {table.getRowModel().rows.map(row => (
+                  {table.getRowModel().rows.map(row => {
+                    // Sub-rows are shown in the inline detail panel — skip them here
+                    if (row.depth > 0) return null;
+
+                    return (
                     <Fragment key={row.id}>
                       <tr
                         tabIndex={0}
                         className={`cursor-pointer transition-colors hover-row ${row.getIsExpanded() ? 'bg-[#dbeeff]' : ''}`}
-                        style={row.depth > 0 ? { boxShadow: 'inset 3px 0 0 #7ab8f5' } : undefined}
                       >
                         {row.getVisibleCells().map((cell) => {
                           if (cell.column.id === 'expander') {
                             return (
-                              <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '60px', maxWidth: 'none', ...(row.depth > 0 ? { backgroundColor: '#E9E2FF' } : {}) }}>
+                              <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '60px', maxWidth: 'none' }}>
                                 <div className="flex justify-center">
                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </div>
@@ -348,80 +351,101 @@ const Customtable = ({
                               </td>
                             )
                           }
-                          const isCompleted = cell.column.id === 'completed';
                           const isStatus = cell.column.id === 'status';
+                          const val = cell.getValue();
 
-                        return (
-                          <td
-                            key={cell.id}
-                            className="px-2 py-2 text-center"
-                            style={{
-                              minWidth: cell.column.id === 'select' ? '50px' : '60px',
-                              maxWidth: cell.column.id === 'select' ? '50px' : 'none',
-                              whiteSpace: 'nowrap',
-                              ...(row.depth > 0 ? { backgroundColor: '#E9E2FF' } : {})
-                            }}
-                          >
-                            {isCompleted ? (
-                              <div className="flex justify-center">
-                                <div
-                                  className="px-3 py-1 rounded-xl responsiveTextTable font-normal flex items-center justify-center"
-                                  style={{
-                                    backgroundColor: cell.getValue() ? '#dcfce7' : '#fee2e2',
-                                    color: cell.getValue() ? '#16a34a' : '#dc2626',
-                                    border: `1px solid ${cell.getValue() ? '#bbf7d0' : '#fecaca'}`
-                                  }}
-                                >
-                                  {cell.getValue() ? 'Completed' : 'Incompleted'}
-                                </div>
-                              </div>
-                            ) : isStatus ? (
-                              <div className="flex justify-center">
-                                <div
-                                  className="px-3 py-1 rounded-xl responsiveTextTable font-normal flex items-center justify-center"
-                                  style={{
-                                    backgroundColor:
-                                      cell.getValue() === 'Paid'
-                                        ? '#ede9fe'
-                                        : cell.getValue() === 'Unpaid'
-                                        ? '#fce7f3'
-                                        : '#f8fbff',
-                                    border: cell.getValue() ? `1px solid ${cell.getValue() === 'Paid' ? '#ddd6fe' : cell.getValue() === 'Unpaid' ? '#fbcfe8' : '#cecece'}` : 'none',
-                                    color: cell.getValue() === 'Paid' ? '#7c3aed' : cell.getValue() === 'Unpaid' ? '#be185d' : 'var(--port-gore)'
-                                  }}
-                                >
-                                  {cell.getValue() || '\u00A0'}
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="flex justify-center">
-                                {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
+                          return (
+                            <td
+                              key={cell.id}
+                              className="px-2 py-2 text-center"
+                              style={{ minWidth: '60px', whiteSpace: 'nowrap' }}
+                            >
+                              {isStatus ? (
+                                <div className="flex justify-center">
                                   <div
-                                    className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center"
+                                    className="px-3 py-1 rounded-xl responsiveTextTable font-normal flex items-center justify-center"
                                     style={{
-                                      backgroundColor:
-                                        cell.getValue() === 'Paid'
-                                          ? '#ede9fe'
-                                          : cell.getValue() === 'Not Paid'
-                                          ? '#fce7f3'
-                                          : '#f8fbff',
-                                      border: '1px solid #d8e8f5',
+                                      backgroundColor: val === 'Paid' ? '#ede9fe' : val === 'Unpaid' ? '#fce7f3' : '#f8fbff',
+                                      border: val ? `1px solid ${val === 'Paid' ? '#ddd6fe' : val === 'Unpaid' ? '#fbcfe8' : '#cecece'}` : 'none',
+                                      color: val === 'Paid' ? '#7c3aed' : val === 'Unpaid' ? '#be185d' : 'var(--port-gore)'
                                     }}
                                   >
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    {val || '\u00A0'}
                                   </div>
-                                ) : (
-                                  <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal w-full" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
-                                )}
-                              </div>
-                            )}
-                          </td>
-                        )
+                                </div>
+                              ) : (
+                                <div className="flex justify-center">
+                                  {val !== null && val !== undefined && val !== '' ? (
+                                    <div
+                                      className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center"
+                                      style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}
+                                    >
+                                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </div>
+                                  ) : (
+                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
+                                  )}
+                                </div>
+                              )}
+                            </td>
+                          )
                         })}
                       </tr>
 
+                      {/* ── Inline Detail Panel ── */}
+                      {row.getIsExpanded() && row.subRows && row.subRows.length > 0 && (
+                        <tr>
+                          <td
+                            colSpan={columnsWithSelection.length}
+                            style={{ padding: '0 12px 10px 52px', background: '#f0f6ff' }}
+                          >
+                            <div style={{
+                              border: '1px solid #b8ddf8',
+                              borderRadius: '10px',
+                              overflow: 'hidden',
+                              boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
+                            }}>
+                              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                  <tr>
+                                    {row.subRows[0].getVisibleCells()
+                                      .filter(c => !['expander','select','date','order','supplier','poWeight','shiipedWeight','remaining'].includes(c.column.id))
+                                      .map(c => (
+                                        <th key={c.column.id}
+                                          className="responsiveTextTable font-medium"
+                                          style={{ padding: '6px 10px', background: '#dbeeff', color: 'var(--chathams-blue)', textAlign: 'center', whiteSpace: 'nowrap', borderBottom: '1px solid #b8ddf8' }}
+                                        >
+                                          {c.column.columnDef.header}
+                                        </th>
+                                      ))
+                                    }
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {row.subRows.map((sub, si) => (
+                                    <tr key={sub.id} style={{ background: si % 2 === 0 ? '#fff' : '#f8fbff' }}>
+                                      {sub.getVisibleCells()
+                                        .filter(c => !['expander','select','date','order','supplier','poWeight','shiipedWeight','remaining'].includes(c.column.id))
+                                        .map(c => (
+                                          <td key={c.id}
+                                            className="responsiveTextTable"
+                                            style={{ padding: '5px 10px', textAlign: 'center', color: 'var(--chathams-blue)', whiteSpace: 'nowrap', borderBottom: si < row.subRows.length - 1 ? '1px solid #e8f0f8' : 'none' }}
+                                          >
+                                            {flexRender(c.column.columnDef.cell, c.getContext())}
+                                          </td>
+                                        ))
+                                      }
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
                     </Fragment>
-                  ))}
+                    );
+                  })}
                   {/* EMPTY STATE */}
                   {table.getRowModel().rows.length === 0 && (
                     <tr>

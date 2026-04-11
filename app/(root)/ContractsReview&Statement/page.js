@@ -606,7 +606,7 @@ const ContractsMerged = () => {
             accessorKey: 'qntyReceived', header: 'Mat. Table', cell: (props) => <span>
                 {(() => {
                     const v = props.getValue();
-                    return v === 'Details expanded' ? v : v === 0 ? '-' : showWeight(v);
+                    return !v || v === 0 ? '-' : showWeight(v);
                 })()
                 }</span>
         },
@@ -747,19 +747,19 @@ const ContractsMerged = () => {
                     return total + obj.poWeight * 1;
                 }, 0),
                 unitPrc: '',
-                description: getTtl('Details expanded', ln),
+                description: '',
                 shiipedWeight: i.reduce((total, obj) => {
                     return total + obj.shiipedWeight * 1;
                 }, 0),
                 remaining: i.reduce((total, obj) => {
                     return total + obj.remaining * 1;
                 }, 0),
-                qntyReceived: getTtl('Details expanded', ln),
-                client: getTtl('Details expanded', ln),
-                totalPo: getTtl('Details expanded', ln),
-                destination: getTtl('Details expanded', ln),
-                status: getTtl('Details expanded', ln),
-                invoiceNum: getTtl('Details expanded', ln),
+                qntyReceived: '',
+                client: '',
+                totalPo: '',
+                destination: '',
+                status: '',
+                invoiceNum: '',
                 subRows: i.map(z => ({
                     ...z, client: z.client.map((item, index) => {
                         return <div key={index}>{item}</div>
