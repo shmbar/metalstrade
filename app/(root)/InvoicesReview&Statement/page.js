@@ -631,7 +631,7 @@ const Shipments = () => {
   let propDefaults = Object.keys(settings).length === 0 ? [] : [
     {
       accessorKey: 'order', header: getTtl('PO', ln) + '#', bgt: 'bg-green-500', bgr: 'bg-green-50',
-      cell: (props) => { const val = props.getValue(); const full = props.row.original.orderFull; const isTrunc = full && full !== val; return <Tltip tltpText={full} show={isTrunc} direction="top"><span className="cursor-default">{val}</span></Tltip>; },
+      cell: (props) => { const val = props.getValue(); const full = props.row.original.orderFull; const isTrunc = full && full !== val; return <Tltip tltpText={full} show={isTrunc} direction="top"><span style={{ whiteSpace: 'nowrap' }} className="cursor-default">{val}</span></Tltip>; },
       ttlUS: getTtl('Total', ln) + ' $:', ttlEU: getTtl('Total', ln) + ' €:',
       meta: { excludeFromQuickSum: true }
     }, //false
