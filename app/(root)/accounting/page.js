@@ -465,13 +465,13 @@ useEffect(() => {
     const sign = amount < 0 ? '-' : '';
     
     if (absAmount >= 1000000000000) {
-      return sign + '$' + (absAmount / 1000000000000).toFixed(1) + 'T';
+      return sign + '$' + (absAmount / 1000000000000).toFixed(2) + 'T';
     } else if (absAmount >= 1000000000) {
-      return sign + '$' + (absAmount / 1000000000).toFixed(1) + 'B';
+      return sign + '$' + (absAmount / 1000000000).toFixed(2) + 'B';
     } else if (absAmount >= 1000000) {
-      return sign + '$' + (absAmount / 1000000).toFixed(1) + 'M';
+      return sign + '$' + (absAmount / 1000000).toFixed(2) + 'M';
     } else if (absAmount >= 1000) {
-      return sign + '$' + (absAmount / 1000).toFixed(1) + 'K';
+      return sign + '$' + (absAmount / 1000).toFixed(2) + 'K';
     }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -494,7 +494,7 @@ useEffect(() => {
   const formatPercent = (value) => {
     if (!isFinite(value) || isNaN(value)) return '0%';
     if (Math.abs(value) > 999) return value > 0 ? '>999%' : '<-999%';
-    return value.toFixed(1) + '%';
+    return value.toFixed(2) + '%';
   };
 const onCellUpdate = async ({ rowIndex, columnId, value }) => {
   const row = invoicesAccData[rowIndex];
