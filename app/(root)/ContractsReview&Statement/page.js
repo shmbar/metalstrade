@@ -18,6 +18,7 @@ import { UserAuth } from "../../../contexts/useAuthContext"
 import { getInvoices, groupedArrayInvoice, getD } from '../../../utils/utils'
 import Spin from '../../../components/spinTable';
 import { ContractsValue, SumAllPayments, SumAllExp } from './funcs'
+import Tltip from '../../../components/tlTip'
 import CBox from '../../../components/combobox.js'
 import { EXD } from './excel'
 import { EXD as EXDStatement } from '../contractsstatement/excel'
@@ -573,7 +574,15 @@ const ContractsMerged = () => {
             filterFn: 'dateBetweenFilterFn'
         },
         {
-            accessorKey: 'order', header: getTtl('PO', ln) + '#'
+            accessorKey: 'order', header: getTtl('PO', ln) + '#',
+            cell: (props) => {
+                const val = props.getValue();
+                return (
+                    <Tltip direction="right" tltpText={val}>
+                        <div className="truncate max-w-[80px]">{val}</div>
+                    </Tltip>
+                );
+            },
         },
         {
             accessorKey: 'supplier', header: getTtl('Supplier', ln),
@@ -585,12 +594,13 @@ const ContractsMerged = () => {
             accessorKey: 'client', header: getTtl('Consignee', ln),
             filterFn: arrayIncludesString,
             cell: (props) => {
-                return enabledSwitch ? props.getValue() : (
-                    <div className="flex flex-col">
-                        {props.getValue().map((client, index) => (
-                            <div key={index}>{client}</div>
-                        ))}
-                    </div>
+                const val = props.getValue();
+                if (enabledSwitch) return val;
+                const joined = Array.isArray(val) ? val.join(', ') : val;
+                return (
+                    <Tltip direction="right" tltpText={joined}>
+                        <div className="truncate max-w-[100px]">{joined}</div>
+                    </Tltip>
                 );
             },
         },
@@ -614,12 +624,13 @@ const ContractsMerged = () => {
             accessorKey: 'status', header: getTtl('Status', ln),
             filterFn: arrayIncludesString,
             cell: (props) => {
-                return enabledSwitch ? props.getValue() : (
-                    <div className="flex flex-col">
-                        {props.getValue().map((status, index) => (
-                            <div key={index}>{status}</div>
-                        ))}
-                    </div>
+                const val = props.getValue();
+                if (enabledSwitch) return val;
+                const joined = Array.isArray(val) ? val.join(', ') : val;
+                return (
+                    <Tltip direction="right" tltpText={joined}>
+                        <div className="truncate max-w-[140px]">{joined}</div>
+                    </Tltip>
                 );
             },
         },

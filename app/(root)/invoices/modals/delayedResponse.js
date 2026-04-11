@@ -26,13 +26,13 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                     <table id='my-table' className="table-fixed min-w-full divide-y divide-[#dbeeff] font-poppins">
                         <thead style={{ background: '#dbeeff' }}>
                             <tr>
-                                <th scope="col" className="w-28 py-2 px-4 text-left text-xs font-medium" style={{ color: 'var(--chathams-blue)' }}>Customer</th>
-                                <th scope="col" className="w-16 pr-1 py-2 text-left text-xs font-medium" style={{ color: 'var(--chathams-blue)' }}>Invoice</th>
-                                <th scope="col" className="w-16 pr-1 py-2 text-left text-xs font-medium" style={{ color: 'var(--chathams-blue)' }}>ETA</th>
-                                <th scope="col" className="w-12 pr-1 py-2 text-left text-xs font-medium" style={{ color: 'var(--chathams-blue)' }}>Δ ETA</th>
-                                <th scope="col" className="w-16 pr-1 py-2 text-left text-xs font-medium" style={{ color: 'var(--chathams-blue)' }}>ETD</th>
-                                <th scope="col" className="w-12 pr-1 py-2 text-left text-xs font-medium" style={{ color: 'var(--chathams-blue)' }}>Δ ETD</th>
-                                <th scope="col" className="w-16 pr-1 py-2 text-left text-xs font-medium" style={{ color: 'var(--chathams-blue)' }}>Keep Alerting</th>
+                                <th scope="col" className="w-28 py-2 px-4 text-left responsiveTextTable font-medium" style={{ color: 'var(--chathams-blue)' }}>Customer</th>
+                                <th scope="col" className="w-16 pr-1 py-2 text-left responsiveTextTable font-medium" style={{ color: 'var(--chathams-blue)' }}>Invoice</th>
+                                <th scope="col" className="w-16 pr-1 py-2 text-left responsiveTextTable font-medium" style={{ color: 'var(--chathams-blue)' }}>ETA</th>
+                                <th scope="col" className="w-12 pr-1 py-2 text-left responsiveTextTable font-medium" style={{ color: 'var(--chathams-blue)' }}>Δ ETA</th>
+                                <th scope="col" className="w-16 pr-1 py-2 text-left responsiveTextTable font-medium" style={{ color: 'var(--chathams-blue)' }}>ETD</th>
+                                <th scope="col" className="w-12 pr-1 py-2 text-left responsiveTextTable font-medium" style={{ color: 'var(--chathams-blue)' }}>Δ ETD</th>
+                                <th scope="col" className="w-16 pr-1 py-2 text-left responsiveTextTable font-medium" style={{ color: 'var(--chathams-blue)' }}>Keep Alerting</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#dbeeff]">
@@ -40,22 +40,22 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                 return (
                                     <tr key={i}>
                                         <td className="py-2 pl-4">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--chathams-blue)' }}>
                                                 {settings.Client.Client.find(z => z.id === obj.client).nname}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--chathams-blue)' }}>
                                                 {obj.invoice}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--chathams-blue)' }}>
                                                 {dateFormat(obj.shipData?.eta?.endDate, 'dd.mm.yy')}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--chathams-blue)' }}>
                                                 {(() => {
                                                     const date2 = new Date(obj.shipData?.eta?.endDate);
                                                     const today = new Date();
@@ -66,12 +66,12 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--chathams-blue)' }}>
                                                 {obj.shipData?.etd?.endDate ? dateFormat(obj.shipData?.etd?.endDate, 'dd.mm.yy') : '-'}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--chathams-blue)' }}>
                                                 {(() => {
                                                     const date2 = new Date(obj.shipData?.etd?.endDate);
                                                     const today = new Date();
@@ -82,7 +82,7 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs">
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal">
                                                 <CheckBox checked={obj.alert} size='h-4 w-4' onChange={() => { setAlert(obj) }} />
                                             </div>
                                         </td>
