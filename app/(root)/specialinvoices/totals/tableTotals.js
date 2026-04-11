@@ -121,15 +121,15 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                             {hdGroup.headers.map(header => (
                                                 <th key={header.id}>
                                                     {header.column.getCanSort() ? (
-                                                        <div onClick={header.column.getToggleSortingHandler()} className="responsiveTextTable flex cursor-pointer items-center gap-1 justify-center text-[var(--endeavour)]">
+                                                        <div onClick={header.column.getToggleSortingHandler()} className="responsiveTextTable flex cursor-pointer items-center gap-1 justify-center text-[var(--chathams-blue)]">
                                                             {header.column.columnDef.header}
                                                             {{
-                                                                asc: <TbSortAscending className="text-[var(--endeavour)] scale-125" />,
-                                                                desc: <TbSortDescending className="text-[var(--endeavour)] scale-125" />
+                                                                asc: <TbSortAscending className="text-[var(--chathams-blue)] scale-125" />,
+                                                                desc: <TbSortDescending className="text-[var(--chathams-blue)] scale-125" />
                                                             }[header.column.getIsSorted()]}
                                                         </div>
                                                     ) : (
-                                                        <span className="responsiveTextTable" style={{color:'var(--endeavour)'}}>{header.column.columnDef.header}</span>
+                                                        <span className="responsiveTextTable" style={{color:'var(--chathams-blue)'}}>{header.column.columnDef.header}</span>
                                                     )}
                                                 </th>
                                             ))}
@@ -144,7 +144,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                             {row.getVisibleCells().map(cell => (
                                                 <td key={cell.id}>
                                                     <Tltip direction='right' tltpText={expensesToolTip(row, expensesData, settings, filt)}>
-                                                        <span className="responsiveTextTable items-center flex outline-none whitespace-normal break-words cursor-default" style={{color:'var(--endeavour)'}}>
+                                                        <span className="responsiveTextTable items-center flex outline-none whitespace-normal break-words cursor-default" style={{color:'var(--chathams-blue)'}}>
                                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                         </span>
                                                     </Tltip>
@@ -156,10 +156,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                             )}
                             <tfoot>
                                 <tr>
-                                    <th>
-                                        Total $
-                                    </th>
-                                    <th>
+                                    <th className="responsiveTextTable font-medium">Total $</th>
+                                    <th className="responsiveTextTable font-medium">
                                         {showAmount(
                                             data.filter(item => item.cur === "us").reduce((sum, item) => sum * 1 + item.total * 1, 0),
                                             'usd'
@@ -167,10 +165,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                     </th>
                                 </tr>
                                 <tr>
-                                    <th>
-                                        Total €
-                                    </th>
-                                    <th>
+                                    <th className="responsiveTextTable font-medium">Total €</th>
+                                    <th className="responsiveTextTable font-medium">
                                         {showAmount(
                                             data.filter(item => item.cur === "eu").reduce((sum, item) => sum + item.total, 0),
                                             'eur'

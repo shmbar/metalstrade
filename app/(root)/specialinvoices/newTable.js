@@ -18,8 +18,6 @@ import {
 } from "@tanstack/react-table";
 
 import { Fragment, useEffect, useMemo, useState, useContext } from "react";
-import { TbSortDescending, TbSortAscending } from "react-icons/tb";
-
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -199,7 +197,7 @@ const Customtable = ({
 
                 /* Add border, background, and text alignment styles for table cells */
                 .custom-table th{
-                    border: 1px solid #e8f0f8;
+                    border: 1px solid #d8e8f5;
                     background-color: #dbeeff;
                     text-align: center;
                     vertical-align: middle;
