@@ -19,9 +19,10 @@ const METAL_META = {
 }
 
 // Simple in-memory cache — 30 min TTL
-let _cache   = null
-let _cacheAt = 0
-const CACHE_MS = 30 * 60 * 1000
+let _cache      = null
+let _cacheAt    = 0
+let _prevPrices = null   // previous fetch cycle — used as change fallback
+const CACHE_MS  = 30 * 60 * 1000
 
 function dateStr(offsetDays = 0) {
     const d = new Date(Date.now() + offsetDays * 86400000)
@@ -34,6 +35,9 @@ export async function GET() {
         if (_cache && now - _cacheAt < CACHE_MS) {
             return NextResponse.json(_cache)
         }
+
+        // Save current prices before overwriting — used as fallback for change calc
+        if (_cache?.prices) _prevPrices = _cache.prices
 
         // ── 1. Fetch current prices ────────────────────────────────────────────
         const url = `https://metals-api.com/api/latest?access_key=${API_KEY}&base=USD&symbols=${SYMBOLS}`
@@ -74,6 +78,11 @@ export async function GET() {
                 const startPrice = Math.round((1 / f.start_rate) * TROY_OZ_PER_MT / divisor * 100) / 100
                 change     = Math.round((price - startPrice) * 100) / 100
                 change_pct = Math.round(f.change_pct * 100) / 100
+            } else if (_prevPrices?.[sym]?.price != null) {
+                // Fallback: calculate change from previous cached price cycle
+                const prev = _prevPrices[sym].price
+                change     = Math.round((price - prev) * 100) / 100
+                change_pct = prev !== 0 ? Math.round(((price - prev) / prev) * 10000) / 100 : null
             }
 
             prices[sym] = { ...meta, unit: 'USD/MT', price, change, change_pct }

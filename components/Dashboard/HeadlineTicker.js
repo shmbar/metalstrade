@@ -36,9 +36,9 @@ export default function HeadlineTicker({
       titleText:     'text-[var(--chathams-blue)]',
       subText:       'text-[var(--endeavour)] text-xs',
       tickerDot:     'bg-[#b8ddf8]',
-      itemLabel:     'text-slate-600 text-xs',
-      itemValue:     'text-slate-900 text-sm font-bold',
-      itemSub:       'text-slate-500 text-xs',
+      itemLabel:     'text-[var(--port-gore)] responsiveTextTable',
+      itemValue:     'text-[var(--chathams-blue)] responsiveTextTable font-bold',
+      itemSub:       'text-[var(--regent-gray)] responsiveTextTable',
       itemPill:      'bg-white border border-[#b8ddf8] rounded-full shadow-sm',
       itemIcon:      'text-[var(--endeavour)]/70',
       hover:         'hover:shadow-md hover:border-[#b8ddf8]',
@@ -231,7 +231,7 @@ export default function HeadlineTicker({
               return (
                 <div
                   key={`${it.key}-${idx}`}
-                  className={['flex items-center whitespace-nowrap rounded-full px-2 py-0.5', theme.itemPill].join(' ')}
+                  className={['flex items-center whitespace-nowrap rounded-full px-2 py-0.5 responsiveTextTable', theme.itemPill].join(' ')}
                 >
                   {Icon ? <Icon className={['w-3.5 h-3.5 mr-2', theme.itemIcon].join(' ')} /> : null}
                   <div className="flex items-center">
@@ -240,7 +240,7 @@ export default function HeadlineTicker({
                     <span className={['text-xs font-bold', theme.itemValue].join(' ')}>{it.value}</span>
                     {it.change != null && (
                       <span style={{
-                        fontSize: '10px', fontWeight: 600, marginLeft: 5,
+                        fontSize: 'inherit', fontWeight: 600, marginLeft: 5,
                         color: it.change >= 0 ? '#16a34a' : '#dc2626',
                       }}>
                         {it.change >= 0 ? '+' : ''}{it.change.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
