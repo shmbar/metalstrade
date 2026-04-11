@@ -213,6 +213,7 @@ const Customtable = ({
                     vertical-align: middle;
                     padding: 6px;
                     font-size: 0.68rem !important;
+                    white-space: nowrap;
                 }
 
                 .summary-green-si {
@@ -277,7 +278,7 @@ const Customtable = ({
     }}
   >
                         <div className="overflow-x-auto dashboard-scroll">
-                            <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0 }}>
+                            <table className="w-full custom-table" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0 }}>
 
                                 {/* THEAD */}
                                 <thead className="sticky top-0 z-10">
@@ -396,7 +397,7 @@ const Customtable = ({
             className="px-2 py-2 text-center"
             style={{
               minWidth: cell.column.id === 'select' ? '50px' : '60px',
-              maxWidth: cell.column.id === 'select' ? '50px' : '150px',
+              whiteSpace: 'nowrap',
             }}
           >
             {isCompleted ? (
@@ -443,6 +444,7 @@ const Customtable = ({
                           ? '#fce7f3'
                           : '#f8fbff',
                       border: '1px solid #d8e8f5',
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
