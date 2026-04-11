@@ -461,7 +461,7 @@ const Customtable = (props) => {
                                     <div className="bg-[#dbeeff] px-3 py-2 border-b border-[#dbeeff] flex justify-between items-center min-h-[32px]">
                                         <span 
                                             className="font-medium text-[var(--chathams-blue)]"
-                                            style={{ fontSize: '0.75rem', lineHeight: '1.2' }}
+                                            style={{ fontSize: '0.68rem', lineHeight: '1.2' }}
                                         >
                                             Entry #{rowIdx + 1}
                                         </span>
@@ -485,7 +485,7 @@ const Customtable = (props) => {
                                                 >
                                                     <span 
                                                         className="font-medium text-[var(--port-gore)] min-w-[80px] flex-shrink-0"
-                                                        style={{ fontSize: '0.65rem', lineHeight: '1.2' }}
+                                                        style={{ fontSize: '0.68rem', lineHeight: '1.2' }}
                                                     >
                                                         {typeof col.header === 'string' ? col.header : ''}
                                                     </span>
@@ -571,7 +571,7 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                                         decimalScale={currs.includes(col.accessorKey) ? 2 : 3} 
                                                                         fixedDecimalScale 
                                                                         style={{ 
-                                                                            fontSize: '0.65rem',
+                                                                            fontSize: '0.68rem',
                                                                             color: 'var(--port-gore)',
                                                                             fontWeight: '500',
                                                                             lineHeight: '1.2'
@@ -583,7 +583,7 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                                 <span
                                                                     className='text-[var(--port-gore)]'
                                                                     style={{
-                                                                        fontSize: '0.65rem',
+                                                                        fontSize: '0.68rem',
                                                                         lineHeight: '1.2'
                                                                     }}
                                                                 >
