@@ -30,8 +30,8 @@ export default function InvPopup({ inv, onClose }) {
 
     const Row = ({ label, value }) => (
         <div className="flex items-center justify-between py-1.5" style={{ borderBottom: '1px solid #eef4fb' }}>
-            <span className="text-[11px] font-medium" style={{ color: 'var(--regent-gray)' }}>{label}</span>
-            <span className="text-[11px] font-semibold" style={{ color: 'var(--chathams-blue)' }}>{value}</span>
+            <span className="responsiveTextTable font-medium" style={{ color: 'var(--regent-gray)' }}>{label}</span>
+            <span className="responsiveTextTable font-semibold" style={{ color: 'var(--chathams-blue)' }}>{value}</span>
         </div>
     );
 
@@ -86,16 +86,16 @@ export default function InvPopup({ inv, onClose }) {
                     {/* Payment history */}
                     {isClient && inv.payments?.length > 0 && (
                         <div className="mt-3">
-                            <p className="text-[10px] uppercase tracking-wider font-semibold mb-1.5" style={{ color: '#9fb8d4' }}>
+                            <p className="responsiveTextTable uppercase tracking-wider font-semibold mb-1.5" style={{ color: '#9fb8d4' }}>
                                 Payment History
                             </p>
                             <div className="space-y-1 max-h-32 overflow-y-auto pr-1">
                                 {inv.payments.map((p, i) => (
                                     <div key={i} className="flex justify-between items-center px-2 py-1 rounded-lg" style={{ background: '#eef6ff', border: '1px solid #d8e8f5' }}>
-                                        <span className="text-[10px]" style={{ color: 'var(--regent-gray)' }}>
+                                        <span className="responsiveTextTable" style={{ color: 'var(--regent-gray)' }}>
                                             {p.date ? dateFormat(p.date, 'dd.mm.yy') : `#${i + 1}`}
                                         </span>
-                                        <span className="text-[11px] font-semibold" style={{ color: 'var(--chathams-blue)' }}>
+                                        <span className="responsiveTextTable font-semibold" style={{ color: 'var(--chathams-blue)' }}>
                                             {fmt(p.pmnt)}
                                         </span>
                                     </div>

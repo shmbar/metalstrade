@@ -803,13 +803,13 @@ return (
                     <div className="inline-flex gap-1 mb-2 bg-[#e3f3ff] border border-[#b8ddf8] rounded-full p-0">
                         <button
                             onClick={() => setActiveTab('general')}
-                            className={`px-4 py-1 responsiveText rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
+                            className={`px-4 py-1 text-[0.72rem] xl:text-[0.75rem] rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
                         >
                             General Cashflow
                         </button>
                         <button
                             onClick={() => setActiveTab('unsold')}
-                            className={`px-4 py-1 responsiveText rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
+                            className={`px-4 py-1 text-[0.72rem] xl:text-[0.75rem] rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
                         >
                             Unsold Stocks
                         </button>
@@ -819,7 +819,7 @@ return (
 {activeTab === 'unsold' ? (
     <div className="w-full max-w-2xl border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
         <div className="flex items-center justify-between mb-2 pb-1 border-b border-[#d4eafc]">
-            <div className="text-[var(--endeavour)] responsiveText font-medium">Unsold Stocks</div>
+            <div className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Unsold Stocks</div>
             <div className="flex items-center gap-2">
             {stocksSortName2 ?
                 <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName2()} />
@@ -863,7 +863,7 @@ return (
                 ))}
 
                 <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">Total</div>
+                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">Total</div>
                     <NumericFormat
                         value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
                         displayType="text"
@@ -883,7 +883,7 @@ return (
   {userTitle === 'Admin' &&
                         <div className="w-full p-2 border-b border-[var(--selago)]">
                             <div className="flex gap-2">
-                                <span className="responsiveText items-center flex w-44 text-[var(--endeavour)]">Future</span>
+                                <span className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium items-center flex w-44 text-[var(--endeavour)]">Future</span>
                                 <label className="pl-1">{
                                     <NumericFormat
                                         value={incoming}
@@ -901,17 +901,17 @@ return (
                                 initialData?.map((z, i) => {
                                     return (
                                         <div className="flex gap-2 my-1 items-center" key={i}>
-                                            <input className="responsiveTextInput items-center flex outline-none w-44 truncate text-[var(--endeavour)]" value={z.title}
+                                            <input className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium items-center flex outline-none w-44 truncate text-[var(--endeavour)]" value={z.title}
                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
                                             <input className='input w-44 h-6 responsiveTextTotal rounded-full'
                                                 value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
                                             <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-md hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
                                             {i === initialData.length - 1 && <>
                                                 <Tltip direction='bottom' tltpText='Save added data'>
-                                                    <button type="button" className="bg-[var(--endeavour)] border border-[#d8e8f5] text-white px-5 h-7 responsiveText rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
+                                                    <button type="button" className="bg-[var(--endeavour)] border border-[#d8e8f5] text-white px-5 h-7 text-[0.72rem] rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
                                                 </Tltip>
                                                 <Tltip direction='bottom' tltpText='Add new item above'>
-                                                    <button type="button" className="border border-[#d8e8f5] text-[var(--endeavour)] px-5 h-7 responsiveText rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all" onClick={addItem}>Add</button>
+                                                    <button type="button" className="border border-[#d8e8f5] text-[var(--endeavour)] px-5 h-7 text-[0.72rem] rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all" onClick={addItem}>Add</button>
                                                 </Tltip>
                                             </>}
                                         </div>
@@ -924,7 +924,7 @@ return (
                             <div className="w-full">
                             <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Stocks - Paid</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Stocks - Paid</span>
                                     <div className="flex items-center gap-2">
                                         {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} />}
                                         {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} />}
@@ -965,7 +965,7 @@ return (
                                     )
                                 })}  
                                 <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -988,7 +988,7 @@ return (
 
                             <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Stocks - UnPaid</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Stocks - UnPaid</span>
                                     <div className="flex items-center gap-2">
                                         {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} />}
                                         {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} />}
@@ -1028,7 +1028,7 @@ return (
                                     )
                                 })}
                                 <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1049,7 +1049,7 @@ return (
 
                             <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Clients - Payment</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Clients - Payment</span>
                                     <div className="flex items-center gap-2">
                                         {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} />}
                                         {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} />}
@@ -1087,7 +1087,7 @@ return (
                                     )
                                 })}
                                 <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1108,7 +1108,7 @@ return (
 
                             <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Clients - Balances</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Clients - Balances</span>
                                     <div className="flex items-center gap-2">
                                         {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} />}
                                         {clientSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} />}
@@ -1147,7 +1147,7 @@ return (
                                     })}
 
                                 <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1171,10 +1171,10 @@ return (
                                     userTitle === 'Admin' &&
                                     <div className='mt-1 p-1'>
                                         <div className='flex justify-between p-2 pb-1 border-b border-[#d4eafc]'>
-                                            <span className="text-[var(--endeavour)] responsiveText font-medium">Financing</span>
+                                            <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Financing</span>
                                             <button
                                                 type="button"
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 responsiveText rounded-full hover:opacity-90 transition-all"
+                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
                                                 onClick={() => setFinancedLeft([...financedLeft, { title: '', num: '' }])}
                                             >
                                                 Add
@@ -1200,7 +1200,7 @@ return (
                                         </div>
 
                                         <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                            <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
+                                            <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                                 Total
                                             </div>
                                             <NumericFormat
@@ -1221,11 +1221,11 @@ return (
                         </div>
 
 
-<div className="w-full pt-0">
+<div className="w-full border-l border-[#b8ddf8] pt-0">
 
                             <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Supplier - Payment</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Supplier - Payment</span>
                                     <div className="flex items-center gap-2">
                                         {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
                                         {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} />}
@@ -1267,7 +1267,7 @@ return (
                                     )
                                 })}
                                 <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1288,7 +1288,7 @@ return (
 
                             <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Supplier - Balances</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Supplier - Balances</span>
                                     <div className="flex items-center gap-2">
                                         {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
                                         {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} />}
@@ -1330,7 +1330,7 @@ return (
                                 })}
 
                                 <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1350,7 +1350,7 @@ return (
 
                             <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
-                                    <span className="text-[var(--endeavour)] responsiveText font-medium">Expenses</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Expenses</span>
                                     <div className="flex items-center gap-2">
                                         {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} />}
                                         {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} />}
@@ -1389,7 +1389,7 @@ return (
                                     )
                                 })}
                                 <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1412,10 +1412,10 @@ return (
                                     userTitle === 'Admin' &&
                                     <div className='mt-1 p-1'>
                                         <div className='flex justify-between pb-1 border-b border-[#d4eafc]'>
-                                            <span className="text-[var(--endeavour)] responsiveText font-medium">Financing</span>
+                                            <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Financing</span>
                                             <button
                                                 type="button"
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 responsiveText rounded-full hover:opacity-90 transition-all"
+                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
                                                 onClick={() => setFinancedRight([...financedRight, { title: '', num: '' }])}
                                             >
                                                 Add
@@ -1439,7 +1439,7 @@ return (
                                         </div>
 
                                         <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                            <div className="responsiveTextTotal text-[var(--endeavour)] font-semibold">
+                                            <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                                 Total
                                             </div>
                                             <NumericFormat
