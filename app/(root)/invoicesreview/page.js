@@ -388,19 +388,19 @@ const Shipments = () => {
       accessorKey: 'originSupplier', header: 'Original supplier', bgt: 'bg-green-500', bgr: 'bg-green-50',
     },
     {
-      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); const full = props.row.original.supplierInvFull || []; const item = arr[0]; const fullItem = full[0]; return <span title={fullItem && fullItem !== item ? fullItem : item} className="truncate block">{item}</span>; },
+      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); const full = props.row.original.supplierInvFull || []; return <div>{arr.map((item, i) => <div key={i} title={full[i] && full[i] !== item ? full[i] : undefined} style={{ whiteSpace: 'nowrap' }} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{item}</div>)}</div>; },
       meta: { excludeFromQuickSum: true },
     },
     {
-      accessorKey: 'supplierInvAmount', header: getTtl('Sup Inv amount', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <span className="truncate block">{showAmountPO(arr[0], props)}</span>; }, ttlUS: showAmountTtl(totals[0]?.us.supplierInvAmount, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierInvAmount, 'EUR'),
+      accessorKey: 'supplierInvAmount', header: getTtl('Sup Inv amount', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{showAmountPO(item, props)}</div>)}</div>; }, ttlUS: showAmountTtl(totals[0]?.us.supplierInvAmount, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierInvAmount, 'EUR'),
       enableColumnFilter: false,
     },
     {
-      accessorKey: 'supplierPrepayment', header: getTtl('Sup Prepayment', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <span className="truncate block">{showAmountPO(arr[0], props)}</span>; }, ttlUS: showAmountTtl(totals[0]?.us.supplierPrepayment, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierPrepayment, 'EUR'),
+      accessorKey: 'supplierPrepayment', header: getTtl('Sup Prepayment', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{showAmountPO(item, props)}</div>)}</div>; }, ttlUS: showAmountTtl(totals[0]?.us.supplierPrepayment, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierPrepayment, 'EUR'),
       enableColumnFilter: false,
     },
     {
-      accessorKey: 'supBlnc', header: getTtl('Balance', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <span className="truncate block">{showAmountPO(arr[0], props)}</span>; }, ttlUS: showAmountTtl(totals[0]?.us.supBlnc, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supBlnc, 'EUR'),
+      accessorKey: 'supBlnc', header: getTtl('Balance', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{showAmountPO(item, props)}</div>)}</div>; }, ttlUS: showAmountTtl(totals[0]?.us.supBlnc, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supBlnc, 'EUR'),
       meta: {
         filterVariant: 'range',
       },

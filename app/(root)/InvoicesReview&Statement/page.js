@@ -642,7 +642,7 @@ const Shipments = () => {
       },
     },
     {
-      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); const full = props.row.original.supplierInvFull || []; return <div>{arr.map((item, i) => { const isTrunc = full[i] && full[i] !== item; return <Tltip key={i} tltpText={full[i]} show={isTrunc} direction="top"><div className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5 cursor-default' : 'py-0.5 cursor-default'}>{item}</div></Tltip>; })}</div>; },
+      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); const full = props.row.original.supplierInvFull || []; return <div>{arr.map((item, i) => { const isTrunc = full[i] && full[i] !== item; return <Tltip key={i} tltpText={full[i]} show={isTrunc} direction="top"><div style={{ whiteSpace: 'nowrap' }} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5 cursor-default' : 'py-0.5 cursor-default'}>{item}</div></Tltip>; })}</div>; },
       meta: { excludeFromQuickSum: true },
     },
     {
