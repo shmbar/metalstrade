@@ -157,14 +157,14 @@ const Customtable = ({
           border: 1px solid #e8f0f8;
           text-align: center;
 
-          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;r
+          font-family: var(--font-poppins), 'Poppins', sans-serif;r
           font-size: 0.68rem !important;
         }
         .custom-table td {
           border: 1px solid #e8f0f8;
           text-align: center;
           font-size: 10px !important;
-          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
+          font-family: var(--font-poppins), 'Poppins', sans-serif;
 
         }
         .header-blue {

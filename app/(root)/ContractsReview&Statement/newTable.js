@@ -237,7 +237,7 @@ const Customtable = ({
         }
 
         .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: var(--font-poppins), 'Geist', sans-serif;
+          font-family: var(--font-poppins), 'Poppins', sans-serif;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;

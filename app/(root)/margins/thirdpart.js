@@ -8,7 +8,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
             {/* Import Poppins font and apply consistent styling exactly like newTable */}
             <style jsx global>{`
                 .margins-table, .margins-table * {
-                    font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
+                    font-family: var(--font-poppins), 'Poppins', sans-serif;
                     transition-duration: 150ms !important;
                     transition-timing-function: ease-in-out !important;
                 }
@@ -18,7 +18,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                     background-color: #f8fbff;
                     text-align: center;
                     vertical-align: middle;
-                    font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
+                    font-family: var(--font-poppins), 'Poppins', sans-serif;
                     padding: 6px;
                     border-radius: 4px;
                 }

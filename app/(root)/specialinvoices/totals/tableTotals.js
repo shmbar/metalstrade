@@ -28,7 +28,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
             <style jsx global>{`
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
                 .glass-table, .glass-table * {
-                    font-family: var(--font-poppins), 'Geist', sans-serif !important;
+                    font-family: var(--font-poppins), 'Poppins', sans-serif !important;
                     color: var(--chathams-blue);
                 }
                 .glass-table th, .glass-table td {

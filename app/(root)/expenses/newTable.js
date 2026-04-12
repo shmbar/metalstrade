@@ -249,7 +249,7 @@
 //         .custom-table th {
 //           border: 1px solid #d7d7d7;
 //           text-align: center;
-////           font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
+////           font-family: var(--font-poppins), 'Poppins', sans-serif;
 //           padding: 10px 8px !important;
 //           vertical-align: middle;
 //           white-space: nowrap;
@@ -260,7 +260,7 @@
 //           border: 1px solid #d7d7d7;
 //           text-align: center;
 //           font-size: 10px !important;
-//           font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
+//           font-family: var(--font-poppins), 'Poppins', sans-serif;
 //           padding: 8px 6px !important;
 //           vertical-align: middle;
 //           height: 40px;
@@ -948,7 +948,7 @@ const Customtable = ({
         .custom-table th {
           border: 1px solid #d7d7d7;
           text-align: center;
-          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
+          font-family: var(--font-poppins), 'Poppins', sans-serif;
           padding: 6px 8px !important;
           vertical-align: middle;
           white-space: nowrap;
@@ -962,7 +962,7 @@ const Customtable = ({
           border: 1px solid #d7d7d7;
           text-align: center;
           font-size: 0.68rem !important;
-          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
+          font-family: var(--font-poppins), 'Poppins', sans-serif;
           padding: 3px 6px !important;
           vertical-align: middle;
         }

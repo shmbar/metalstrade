@@ -25,7 +25,7 @@ body,
 :root {
   height: 100%;
   overflow-x: hidden;
-  font-family: var(--font-poppins), 'Geist Sans', sans-serif;
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
 }
 
 /* Row hover: ensure all tds inherit tr hover background */

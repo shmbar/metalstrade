@@ -30,7 +30,7 @@ const Customtable = ({ data, columns }) => {
                     tableLayout: 'auto',
                     borderCollapse: 'separate',
                     borderSpacing: 0,
-                    fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
+                    fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                 }}
             >
                 <thead className="hidden" />

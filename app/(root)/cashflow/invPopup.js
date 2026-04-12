@@ -44,7 +44,7 @@ export default function InvPopup({ inv, onClose }) {
                     borderRadius: '20px',
                     border: '1px solid #d8e8f5',
                     boxShadow: '0 20px 60px rgba(3,102,174,0.15)',
-                    fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
+                    fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                 }}
             >
                 {/* Header */}

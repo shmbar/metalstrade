@@ -21,7 +21,7 @@ export const detailsToolTip = (row, data, settings, dataTable,) => {
             overflowY: 'auto',
             boxShadow: '0 8px 32px rgba(3,102,174,0.13)',
             border: '1px solid #b8ddf8',
-            fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
+            fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
             minWidth: '400px',
         }}>
             {/* Title bar */}

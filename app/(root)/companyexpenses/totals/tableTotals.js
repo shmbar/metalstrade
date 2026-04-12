@@ -47,7 +47,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
         .custom-table-totals, .custom-table-totals * {
-          font-family: var(--font-poppins), 'Geist', sans-serif;
+          font-family: var(--font-poppins), 'Poppins', sans-serif;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;

@@ -45,7 +45,7 @@ export const Input = ({ props, handleChange, month, name, styles, addCur }) => {
         transition
         `
       )}
-      style={{ minHeight: '26px', fontFamily: "var(--font-poppins), 'Geist', sans-serif" }}
+      style={{ minHeight: '26px', fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
     />
   );
 };

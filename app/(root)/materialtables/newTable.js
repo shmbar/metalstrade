@@ -271,7 +271,7 @@ const Customtable = ({
         background: unit === u ? 'var(--endeavour)' : 'transparent',
         color: unit === u ? '#fff' : 'var(--endeavour)',
         cursor: 'pointer', transition: 'all 0.15s',
-        fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
+        fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
     })
 
     const smallBtn = (active) => ({
@@ -280,13 +280,13 @@ const Customtable = ({
         background: active ? '#eef6ff' : 'transparent',
         color: active ? 'var(--endeavour)' : 'var(--chathams-blue)',
         cursor: 'pointer',
-        fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
+        fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
     })
 
     const inputStyle = {
         padding: '1px 8px', height: '22px', borderRadius: '8px',
         border: '1px solid #d8e8f5', background: '#f8fbff', outline: 'none',
-        fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
+        fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
     }
 
     return (
@@ -307,7 +307,7 @@ const Customtable = ({
                                 color: 'var(--chathams-blue)', background: 'transparent',
                                 border: 'none', outline: 'none', borderBottom: '1px dashed #c8d8e8',
                                 width: '100%', maxWidth: '280px', padding: '1px 4px',
-                                fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
+                                fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                             }}
                         />
                     </div>
@@ -382,7 +382,7 @@ const Customtable = ({
                                                 padding: '4px 10px', borderRadius: '6px',
                                                 border: '1px solid #e8f0f8', background: '#f8fbff',
                                                 color: 'var(--chathams-blue)', cursor: 'pointer', textAlign: 'left',
-                                                fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
+                                                fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                                             }}
                                             onMouseEnter={e => e.currentTarget.style.background = '#e8f4ff'}
                                             onMouseLeave={e => e.currentTarget.style.background = '#f8fbff'}
@@ -403,7 +403,7 @@ const Customtable = ({
                                     background: showHelp ? 'var(--endeavour)' : '#f8fbff',
                                     color: showHelp ? '#fff' : 'var(--chathams-blue)',
                                     cursor: 'pointer', fontWeight: '600',
-                                    fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
+                                    fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                                 }}
                             >?</button>
                             {showHelp && (
@@ -412,7 +412,7 @@ const Customtable = ({
                                     background: '#fff', border: '1px solid #b8ddf8',
                                     borderRadius: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
                                     padding: '10px 14px', minWidth: '340px',
-                                    fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
+                                    fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                                 }}>
                                     <p className="responsiveTextTable" style={{ fontWeight: '700', color: 'var(--chathams-blue)', marginBottom: '6px' }}>How to use this table</p>
                                     {[
@@ -488,7 +488,7 @@ const Customtable = ({
                                             fontSize: 'inherit', fontWeight: '600', width: '50px', textAlign: 'right',
                                             background: 'transparent', border: 'none', outline: 'none',
                                             color: isNi ? '#0366ae' : 'var(--port-gore)',
-                                            fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
+                                            fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                                         }}
                                     />
                                     {isNi && (
@@ -503,7 +503,7 @@ const Customtable = ({
                                                     fontSize: 'inherit', fontWeight: '600', width: '28px', textAlign: 'center',
                                                     background: 'transparent', border: 'none', outline: 'none',
                                                     color: '#0366ae',
-                                                    fontFamily: "var(--font-poppins), 'Geist Sans', sans-serif",
+                                                    fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                                                 }}
                                             />
                                             <span className="responsiveTextTable" style={{ color: '#0366ae', fontWeight: '600' }}>%</span>
@@ -519,7 +519,7 @@ const Customtable = ({
             {/* ── Desktop table ── */}
             <div className="hidden sm:block">
                 <div className="overflow-auto" style={{ maxHeight: '700px' }}>
-                    <table className="w-full responsiveTextTable" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: "var(--font-poppins),'Geist Sans',sans-serif" }}>
+                    <table className="w-full responsiveTextTable" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: "var(--font-poppins),'Poppins',sans-serif" }}>
 
                         {/* THEAD */}
                         <thead>
@@ -558,7 +558,7 @@ const Customtable = ({
                                                                         onChange={e => setAddElemInput(e.target.value)}
                                                                         onKeyDown={e => { if (e.key === 'Enter') handleAddElement(); if (e.key === 'Escape') { setAddElemInput(''); setShowAddElem(false) } }}
                                                                         placeholder="Al"
-                                                                        className="responsiveTextTable" style={{ width: '26px', textAlign: 'center', background: 'transparent', border: 'none', outline: 'none', borderBottom: '1px solid #d8e8f5', fontFamily: "var(--font-poppins),'Geist Sans',sans-serif" }}
+                                                                        className="responsiveTextTable" style={{ width: '26px', textAlign: 'center', background: 'transparent', border: 'none', outline: 'none', borderBottom: '1px solid #d8e8f5', fontFamily: "var(--font-poppins),'Poppins',sans-serif" }}
                                                                     />
                                                                     <button onClick={() => { setAddElemInput(''); setShowAddElem(false) }} className="responsiveTextTable" style={{ color: 'var(--chathams-blue)', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
                                                                 </div>
@@ -648,7 +648,7 @@ const Customtable = ({
                                                             onBlur={() => setFocusedCell(null)}
                                                             value={focused ? (cell.getContext().getValue() ?? '') : fmt(cell.getContext().getValue(), colId)}
                                                             style={{
-                                                                fontFamily: "var(--font-poppins),'Geist Sans',sans-serif",
+                                                                fontFamily: "var(--font-poppins),'Poppins',sans-serif",
                                                                 color: isFe ? 'var(--endeavour)' : 'var(--port-gore)',
                                                                 background: 'transparent',
                                                                 textAlign: isLeft ? 'left' : 'center',
@@ -729,7 +729,7 @@ const Customtable = ({
                                                     onFocus={() => setFocusedCell(ck)}
                                                     onBlur={() => setFocusedCell(null)}
                                                     value={focused ? (cell.getContext().getValue() ?? '') : fmt(cell.getContext().getValue(), colId)}
-                                                    style={{ fontFamily: "var(--font-poppins),'Geist Sans',sans-serif", color: isFe ? 'var(--endeavour)' : 'var(--port-gore)', background: 'transparent' }}
+                                                    style={{ fontFamily: "var(--font-poppins),'Poppins',sans-serif", color: isFe ? 'var(--endeavour)' : 'var(--port-gore)', background: 'transparent' }}
                                                 />
                                             </div>
                                         </div>

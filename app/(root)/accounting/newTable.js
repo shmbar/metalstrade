@@ -172,7 +172,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
         }
 
         .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: var(--font-poppins), 'Plus Jakarta Sans', sans-serif;
+          font-family: var(--font-poppins), 'Poppins', sans-serif;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;

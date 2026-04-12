@@ -94,10 +94,12 @@ export const MainNav = () => {
         />
       </div>
 
-      {/* Date / Time Widget — centered in remaining space */}
-      {now && (
-        <div className='flex-1 flex justify-center items-center select-none pointer-events-none'>
-          <div className='flex flex-col items-center leading-tight'>
+
+      {/* Right Side: All icons and controls in a row, all functional */}
+      <div className='flex items-center gap-3 ml-auto'>
+        {/* Date / Time Widget — top right */}
+        {now && (
+          <div className='flex flex-col items-end leading-tight select-none pointer-events-none'>
             <span style={{ fontSize: '0.62rem', color: 'var(--chathams-blue)', fontWeight: 400, opacity: 0.7 }}>
               {now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
             </span>
@@ -105,11 +107,8 @@ export const MainNav = () => {
               {now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </span>
           </div>
-        </div>
-      )}
-
-      {/* Right Side: All icons and controls in a row, all functional */}
-      <div className='flex items-center gap-1 ml-auto'>
+        )}
+        <div className='w-px h-6 bg-[#b8ddf8] opacity-50'></div>
         {/* Global Search */}
         <div className='relative flex items-center' ref={searchRef}>
           {!openSearch ? (
