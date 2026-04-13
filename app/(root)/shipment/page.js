@@ -289,11 +289,12 @@ const ShipmentPage = () => {
                     </div>
 
                     {/* Inner card — toolbar + table */}
-                    <div className="rounded-2xl border border-[#b8ddf8] overflow-hidden" style={{ background: '#f8fbff' }}>
+                    <div className="relative rounded-2xl" style={{ background: '#f8fbff' }}>
+                      <div className="absolute inset-0 rounded-2xl border border-[#b8ddf8] pointer-events-none z-[25]" />
 
                     {/* Toolbar */}
                     <div
-                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-2 py-2 gap-2"
+                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-2 py-2 gap-2 rounded-t-2xl"
                         style={{ borderBottom: '1px solid #b8ddf8', background: '#ffffff' }}
                     >
                         {/* Left: Search + Status filter chips */}

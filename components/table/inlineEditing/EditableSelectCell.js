@@ -4,6 +4,7 @@ import { Listbox, Transition } from "@headlessui/react";
 import { createPortal } from "react-dom";
 import { HiSelector, HiCheck } from "react-icons/hi";
 import Tltip from "../../tlTip";
+import { delTimeList } from "../../const";
 
 // Simple event bus for dropdown open/close
 const dropdownEventBus = {
@@ -85,7 +86,9 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
   if (!isEditMode) {
     const val = initialValue;
     const found = options.find(o => String(o.value) === String(val));
-    const rawLabel = found?.label ?? val ?? "";
+    // Fallback to delTimeList if options lookup fails (e.g. settings not yet loaded)
+    const fallback = !found && val ? delTimeList.find(d => String(d.id) === String(val))?.deltime : null;
+    const rawLabel = found?.label ?? fallback ?? val ?? "";
     const safeLabel =
       typeof rawLabel === "string" || typeof rawLabel === "number"
         ? rawLabel

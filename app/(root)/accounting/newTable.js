@@ -208,13 +208,13 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col rounded-2xl border border-[#b8ddf8] bg-white overflow-hidden"
-          style={{ boxShadow: '0 2px 12px rgba(3,102,174,0.07)' }}
-        >
+        <div className="relative flex flex-col rounded-2xl">
+          {/* Border overlay — renders above children so corners always visible */}
+          <div className="absolute inset-0 rounded-2xl border border-[#b8ddf8] pointer-events-none z-[15]" />
 
           {/* HEADER */}
           <div
-            className="flex-shrink-0"
+            className="flex-shrink-0 rounded-t-2xl"
             style={{
               borderBottom: '1px solid #b8ddf8',
               background: '#ffffff'
