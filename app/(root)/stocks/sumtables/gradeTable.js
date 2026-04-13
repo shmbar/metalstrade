@@ -63,6 +63,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
             padding: '8px 16px',
             borderBottom: '1px solid #b8ddf8',
             color: 'var(--chathams-blue)',
+            fontWeight: '500'
           }}
         >
           Avg Cost Price per Grade
@@ -71,10 +72,10 @@ const GradeTable = ({ dataTable, loading, settings }) => {
           <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th className="responsiveTextTable text-center" style={thStyle}>Description</th>
-                <th className="responsiveTextTable text-center" style={thStyle}>Total Weight (MT)</th>
-                <th className="responsiveTextTable text-center" style={thStyle}>Avg Cost /MT</th>
-                <th className="responsiveTextTable text-center" style={thStyle}>Cur</th>
+                <th className="responsiveTextTable font-medium text-center" style={thStyle}>Description</th>
+                <th className="responsiveTextTable font-medium text-center" style={thStyle}>Total Weight (MT)</th>
+                <th className="responsiveTextTable font-medium text-center" style={thStyle}>Avg Cost /MT</th>
+                <th className="responsiveTextTable font-medium text-center" style={thStyle}>Cur</th>
               </tr>
             </thead>
             <tbody>
@@ -83,7 +84,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                 const curCode = gCur(r.curId)
                 const isoCode = curCode?.toLowerCase() === 'eur' ? 'EUR' : 'USD'
                 return (
-                  <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#f4f9ff' }}>
+                  <tr key={i} style={{ background: '#fff' }}>
                     <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '14px' }}>
                       {r.descriptionName}
                     </td>
