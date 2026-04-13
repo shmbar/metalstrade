@@ -25,7 +25,7 @@ export const detailsToolTip = (row, data, settings, dataTable,) => {
             minWidth: '400px',
         }}>
             {/* Title bar */}
-            <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 500, fontSize: '0.6rem', color: 'var(--chathams-blue)', borderBottom: '1px solid #b8ddf8' }}>
+            <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 500, fontSize: '0.68rem', color: 'var(--chathams-blue)', borderBottom: '1px solid #b8ddf8' }}>
                 Stock Details
             </div>
             <table style={{ fontFamily: 'inherit', fontSize: '0.6rem', width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>
