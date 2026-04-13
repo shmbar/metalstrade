@@ -197,14 +197,14 @@ const Customtable = ({
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col rounded-2xl"
+        <div className="flex flex-col rounded-2xl overflow-hidden"
           style={{
             border: '1px solid #b8ddf8',
           }}
         >
           {/* HEADER */}
           <div
-            className="flex-shrink-0 rounded-t-2xl"
+            className="flex-shrink-0"
             style={{
               borderBottom: '1px solid #b8ddf8',
               background: '#ffffff',
@@ -227,8 +227,8 @@ const Customtable = ({
           </div>
 
           {/* DESKTOP */}
-          <div className="hidden md:block">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: '700px', borderRadius: '24px', border: '1px solid #d8e8f5' }}>
+          <div className="hidden md:block flex-1">
+            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: '700px' }}>
               <table className="w-full" style={{ tableLayout: 'auto' }}>
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(hdGroup => (
