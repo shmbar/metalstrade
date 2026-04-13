@@ -110,8 +110,8 @@ export function QuickSumButton({
         onClick={toggleEnabled}
         className={`h-7 px-2 rounded-2xl responsiveTextTable font-medium transition-all border
           ${enabled
-            ? 'bg-[var(--chathams-blue)] border-[var(--chathams-blue)]'
-            : 'bg-white text-[var(--chathams-blue)] border-[var(--chathams-blue)] hover:bg-[var(--selago)]'}`}
+            ? 'bg-[var(--chathams-blue)] border-[var(--selago)]'
+            : 'bg-white text-[var(--chathams-blue)] border-[var(--selago)] hover:bg-[var(--selago)]'}`}
         style={enabled ? { color: '#ffffff', fontSize: '0.68rem' } : { fontSize: '0.68rem' }}
         title="Quick Sum"
       >
@@ -124,7 +124,7 @@ export function QuickSumButton({
             ref={triggerRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="h-7 px-2 rounded-2xl text-[11px] font-medium transition-all bg-white text-[var(--port-gore)] border border-[var(--rock-blue)]/50 hover:border-[var(--endeavour)]"
+            className="h-7 px-2 rounded-2xl text-[11px] font-medium transition-all bg-white text-[var(--port-gore)] border border-[var(--selago)] hover:border-[var(--selago)]"
             title="Choose columns"
           >
             Columns ▾
