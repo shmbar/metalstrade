@@ -208,13 +208,13 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col rounded-2xl border border-[#b8ddf8] bg-white"
+        <div className="flex flex-col rounded-2xl border border-[#b8ddf8] bg-white overflow-hidden"
           style={{ boxShadow: '0 2px 12px rgba(3,102,174,0.07)' }}
         >
 
           {/* HEADER */}
           <div
-            className="flex-shrink-0 rounded-t-2xl"
+            className="flex-shrink-0"
             style={{
               borderBottom: '1px solid #b8ddf8',
               background: '#ffffff'
@@ -237,12 +237,11 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
           </div>
 
           {/* DESKTOP */}
-          <div className="hidden md:block">
+          <div className="hidden md:block flex-1">
             <div
-              className="overflow-auto dashboard-scroll rounded-3xl border border-[#d8e8f5]"
+              className="overflow-auto dashboard-scroll"
               style={{
                 maxHeight: dynamicMaxHeight,
-                borderRadius: '24px'
               }}
             >
               <div>
