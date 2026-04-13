@@ -110,8 +110,8 @@ export function QuickSumButton({
         onClick={toggleEnabled}
         className={`h-7 px-2 rounded-2xl responsiveTextTable font-medium transition-all border
           ${enabled
-            ? 'bg-[var(--chathams-blue)] border-[var(--selago)]'
-            : 'bg-white text-[var(--chathams-blue)] border-[var(--selago)] hover:bg-[var(--selago)]'}`}
+            ? 'bg-[var(--chathams-blue)] border-[#d8e8f5]'
+            : 'bg-white text-[var(--chathams-blue)] border-[#d8e8f5] hover:bg-[var(--selago)]'}`}
         style={enabled ? { color: '#ffffff', fontSize: '0.68rem' } : { fontSize: '0.68rem' }}
         title="Quick Sum"
       >
@@ -124,7 +124,7 @@ export function QuickSumButton({
             ref={triggerRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="h-7 px-2 rounded-2xl text-[11px] font-medium transition-all bg-white text-[var(--port-gore)] border border-[var(--selago)] hover:border-[var(--selago)]"
+            className="h-7 px-2 rounded-2xl text-[11px] font-medium transition-all bg-white text-[var(--port-gore)] border border-[#d8e8f5] hover:border-[#d8e8f5]"
             title="Choose columns"
           >
             Columns ▾
@@ -138,7 +138,7 @@ export function QuickSumButton({
               />
               <div
                 style={dropdownStyle}
-                className="bg-white border border-[var(--selago)] rounded-xl shadow-lg p-3"
+                className="bg-white border border-[#d8e8f5] rounded-xl shadow-lg p-3"
               >
                 <div className="text-sm font-medium text-[var(--port-gore)] mb-2 pl-1">
                   Select numeric columns
@@ -167,7 +167,7 @@ export function QuickSumButton({
                   </div>
                 )}
 
-                <div className="mt-2 pt-2 border-t border-[var(--selago)] flex items-center justify-between">
+                <div className="mt-2 pt-2 border-t border-[#d8e8f5] flex items-center justify-between">
                   <button
                     type="button"
                     className="text-xs text-[var(--endeavour)] hover:underline"
@@ -227,7 +227,7 @@ export function QuickSumTotals({
           if (t.byCurrency.EUR != null) parts.push(`€${fmt(t.byCurrency.EUR)}`);
           if (t.byCurrency.plain != null) parts.push(fmt(t.byCurrency.plain));
           return (
-            <span key={t.id} className="bg-white border border-[var(--selago)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
+            <span key={t.id} className="bg-white border border-[#d8e8f5] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
               {label}: <span className="text-[var(--endeavour)]">{parts.join(' | ')}</span>
             </span>
           );
@@ -235,7 +235,7 @@ export function QuickSumTotals({
 
         // Single currency / plain number
         return (
-          <span key={t.id} className="bg-white border border-[var(--selago)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
+          <span key={t.id} className="bg-white border border-[#d8e8f5] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
             {label}: <span className="text-[var(--endeavour)]">{fmt(t.total)}</span>
           </span>
         );

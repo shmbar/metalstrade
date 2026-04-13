@@ -193,10 +193,10 @@ const DateRangePicker = ({ displayLabel }) => {
                         w-full
                         bg-white
                         rounded-2xl
-                        border border-[var(--selago)]
+                        border border-[#d8e8f5]
                         shadow-sm
                         cursor-pointer
-                        hover:border-[var(--selago)]
+                        hover:border-[#d8e8f5]
                         focus:outline-none
                         focus:ring-1 focus:ring-blue-200
                         tracking-normal
