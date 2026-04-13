@@ -181,9 +181,21 @@ const UserData = ({ setIsOpen, data, setData, user, setUser }) => {
                 <CheckBox size='size-5' checked={checked} onChange={() => setChecked(!checked)} />
             </div>
 
-            <UserD title='Password Verification' value={user} onChange={handleChange} type='password'
-                placeholder='Repeat Password' name='password1' errors={errors} ln={ln}
-                dis={!checked} />
+            <div className='flex gap-4 justify-between my-3 w-full'>
+                <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem]'>Password Verification:</p>
+                <div className='max-w-xs'>
+                    <input
+                        className="input shadow-lg h-7 !rounded-full text-[0.75rem]"
+                        type='password'
+                        name='password1'
+                        value={user.password1 || ''}
+                        onChange={handleChange}
+                        placeholder='Repeat Password'
+                        disabled={!checked}
+                    />
+                    <ErrDiv field='password1' errors={errors} ln={ln} />
+                </div>
+            </div>
 
 
             <USerDSelect
