@@ -26,14 +26,14 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                     <table id='my-table' className=" table-fixed min-w-full divide-y divide-[#dbeeff]">
                         <thead style={{ background: '#dbeeff' }}>
                             <tr>
-                                <th scope="col" className="w-0/12 py-2 px-4 text-left text-xs font-semibold" style={{ color: 'var(--chathams-blue)' }}>Supplier</th>
-                                <th scope="col" className="w-0/12 pr-1 py-2 text-left text-xs font-semibold" style={{ color: 'var(--chathams-blue)' }}>
+                                <th scope="col" className="w-0/12 py-2 px-4 text-left text-xs font-semibold" style={{ color: 'var(--regent-gray)' }}>Supplier</th>
+                                <th scope="col" className="w-0/12 pr-1 py-2 text-left text-xs font-semibold" style={{ color: 'var(--regent-gray)' }}>
                                     Contract</th>
-                                <th scope="col" className="w-0/12 pr-1 py-2 text-left text-xs font-semibold" style={{ color: 'var(--chathams-blue)' }}>
+                                <th scope="col" className="w-0/12 pr-1 py-2 text-left text-xs font-semibold" style={{ color: 'var(--regent-gray)' }}>
                                     Date</th>
-                                <th scope="col" className="w-20 pr-1 py-2 text-left text-xs font-semibold flex" style={{ color: 'var(--chathams-blue)' }}>
+                                <th scope="col" className="w-20 pr-1 py-2 text-left text-xs font-semibold flex" style={{ color: 'var(--regent-gray)' }}>
                                     Days from Date</th>
-                                <th scope="col" className="w-20 pr-1 py-2 text-left text-xs font-semibold" style={{ color: 'var(--chathams-blue)' }}>
+                                <th scope="col" className="w-20 pr-1 py-2 text-left text-xs font-semibold" style={{ color: 'var(--regent-gray)' }}>
                                     Keep Alerting</th>
                             </tr>
                         </thead>
@@ -42,22 +42,22 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                 return (
                                     <tr key={i}>
                                         <td className="py-2 pl-4">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--regent-gray)' }}>
                                                 {settings.Supplier.Supplier.find(z => z.id === obj.supplier).nname}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--regent-gray)' }}>
                                                 {obj.order}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--regent-gray)' }}>
                                                 {dateFormat(obj.dateRange?.endDate, 'dd.mm.yy')}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--regent-gray)' }}>
                                                 {(() => {
                                                     const date2 = new Date(obj.dateRange?.endDate);
                                                     const today = new Date();

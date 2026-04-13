@@ -42,23 +42,23 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                 return (
                                     <tr key={i}>
                                         <td className="py-2 pl-4">
-                                            <div className="flex items-center h-5 text-sm">
+                                            <div className="flex items-center h-5 text-sm" style={{ color: 'var(--regent-gray)' }}>
                                                 {settings.Supplier.Supplier.find(z => z.id === obj.supplier).nname}
 
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-sm text-gray-800">
+                                            <div className="flex items-center h-5 text-sm" style={{ color: 'var(--regent-gray)' }}>
                                                 {obj.order}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-sm text-gray-800">
+                                            <div className="flex items-center h-5 text-sm" style={{ color: 'var(--regent-gray)' }}>
                                                 {dateFormat(obj.dateRange?.endDate, 'dd.mm.yy')}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-sm text-gray-800">
+                                            <div className="flex items-center h-5 text-sm" style={{ color: 'var(--regent-gray)' }}>
                                                 {(() => {
                                                     const date2 = new Date(obj.dateRange?.endDate);
                                                     const today = new Date();
@@ -70,7 +70,7 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-sm text-gray-800">
+                                            <div className="flex items-center h-5 text-sm">
                                                 <CheckBox checked={obj.alert} size='h-5 w-5' onChange={() => { setAlert(obj) }} />
                                             </div>
                                         </td>

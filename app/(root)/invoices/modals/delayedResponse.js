@@ -40,22 +40,22 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                 return (
                                     <tr key={i}>
                                         <td className="py-2 pl-4">
-                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--regent-gray)' }}>
                                                 {settings.Client.Client.find(z => z.id === obj.client).nname}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--regent-gray)' }}>
                                                 {obj.invoice}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--regent-gray)' }}>
                                                 {dateFormat(obj.shipData?.eta?.endDate, 'dd.mm.yy')}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--regent-gray)' }}>
                                                 {(() => {
                                                     const date2 = new Date(obj.shipData?.eta?.endDate);
                                                     const today = new Date();
@@ -66,12 +66,12 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--regent-gray)' }}>
                                                 {obj.shipData?.etd?.endDate ? dateFormat(obj.shipData?.etd?.endDate, 'dd.mm.yy') : '-'}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--chathams-blue)' }}>
+                                            <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--regent-gray)' }}>
                                                 {(() => {
                                                     const date2 = new Date(obj.shipData?.etd?.endDate);
                                                     const today = new Date();
