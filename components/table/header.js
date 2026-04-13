@@ -152,7 +152,7 @@ const Header = ({
         </div>
       ) : (
       /* All other pages: original layout */
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-2 gap-2">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-3 py-2 gap-2">
 
         {/* Left Section: Search + All Action Icons */}
         <div className='flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0 flex-1'>
