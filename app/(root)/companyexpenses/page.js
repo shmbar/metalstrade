@@ -244,7 +244,7 @@ const Expenses = () => {
                                 <button
                                 type="button"
                                 onClick={addNewExpense}
-                                className="flex items-center gap-2 bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-4 py-1.5 responsiveText rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                className="flex items-center gap-2 bg-[var(--endeavour)] border border-[var(--chathams-blue)] text-white px-4 h-[26px] text-[0.8rem] font-medium responsiveText rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                 >
                                 <TbLayoutGridAdd className="w-4 h-4" />
                                 <span>New Expense</span>
