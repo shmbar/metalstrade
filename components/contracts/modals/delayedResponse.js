@@ -42,23 +42,23 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                 return (
                                     <tr key={i}>
                                         <td className="py-2 pl-4">
-                                            <div className="flex items-center h-5 text-sm" style={{ color: 'var(--regent-gray)' }}>
+                                            <div className="flex items-center h-5 text-sm" style={{ color: 'var(--port-gore)' }}>
                                                 {settings.Supplier.Supplier.find(z => z.id === obj.supplier).nname}
 
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-sm" style={{ color: 'var(--regent-gray)' }}>
+                                            <div className="flex items-center h-5 text-sm" style={{ color: 'var(--port-gore)' }}>
                                                 {obj.order}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-sm" style={{ color: 'var(--regent-gray)' }}>
+                                            <div className="flex items-center h-5 text-sm" style={{ color: 'var(--port-gore)' }}>
                                                 {dateFormat(obj.dateRange?.endDate, 'dd.mm.yy')}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-sm" style={{ color: 'var(--regent-gray)' }}>
+                                            <div className="flex items-center h-5 text-sm" style={{ color: 'var(--port-gore)' }}>
                                                 {(() => {
                                                     const date2 = new Date(obj.dateRange?.endDate);
                                                     const today = new Date();
