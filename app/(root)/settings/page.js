@@ -62,7 +62,7 @@ const Page = () => {
   className="
     flex
     ml-1
-    gap-3
+    gap-4
     bg-transparent
     pb-2
     p-0
@@ -74,21 +74,23 @@ const Page = () => {
   key={z}
   className={({ selected }) =>
     classNames(
-      'px-4 h-[24px] flex items-center responsiveText font-poppins whitespace-nowrap transition-all text-[var(--endeavour)]',
-      'focus:outline-none',
+      'px-5 py-2 h-[32px] flex items-center text-[0.75rem] font-poppins whitespace-nowrap transition-all focus:outline-none rounded-full',
       selected
         ? `
-          rounded-full
-          shadow-sm
+          font-semibold
           text-white
           bg-[var(--endeavour)]
+          shadow-md
+          border border-[var(--endeavour)]
         `
         : `
           text-[var(--endeavour)]
-          rounded-full
           bg-[#dbeeff]
           border border-[#b8ddf8]
+          font-medium
           hover:bg-[#c5e4f8]
+          hover:border-[var(--endeavour)]
+          hover:shadow-sm
         `
     )
   }
