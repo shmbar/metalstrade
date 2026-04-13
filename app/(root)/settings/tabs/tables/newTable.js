@@ -89,7 +89,7 @@ const Customtable = ({
       <div>
         {/* Custom header: Search + Edit + Columns + Filter icons */}
         <div className="flex items-center gap-2 p-2">
-          <div className="flex items-center relative w-[140px] h-7 border border-[var(--endeavour)] rounded-2xl bg-white shadow-sm">
+          <div className="flex items-center relative w-[140px] h-7 border border-[var(--selago)] rounded-2xl bg-white shadow-sm">
             <input
               className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full text-[0.75rem] rounded-2xl"
               placeholder="Search..."
@@ -115,7 +115,7 @@ const Customtable = ({
         </div>
 
         <div className="w-full rounded-2xl border border-[var(--selago)] overflow-x-auto shadow-sm">
-          <table className="w-full min-w-[700px] border-collapse text-center table-fixed">
+          <table className="w-full min-w-[700px] border-collapse text-center table-fixed border border-[var(--selago)]">
             <thead className="md:sticky md:top-0 md:z-10 bg-[#dbeeff]">
               {table.getHeaderGroups().map((hdGroup) => (
                 <tr key={hdGroup.id} className="divide-x divide-[var(--selago)]">
