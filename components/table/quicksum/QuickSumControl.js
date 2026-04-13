@@ -108,7 +108,7 @@ export function QuickSumButton({
       <button
         type="button"
         onClick={toggleEnabled}
-        className={`px-2 py-0.5 rounded-2xl responsiveTextTable font-medium transition-all border
+        className={`h-7 px-2 rounded-2xl responsiveTextTable font-medium transition-all border
           ${enabled
             ? 'bg-[var(--chathams-blue)] border-[var(--chathams-blue)]'
             : 'bg-white text-[var(--chathams-blue)] border-[var(--chathams-blue)] hover:bg-[var(--selago)]'}`}
@@ -124,7 +124,7 @@ export function QuickSumButton({
             ref={triggerRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="px-2 py-1 rounded-2xl text-[11px] font-medium transition-all bg-white text-[var(--port-gore)] border border-[var(--rock-blue)]/50 hover:border-[var(--endeavour)]"
+            className="h-7 px-2 rounded-2xl text-[11px] font-medium transition-all bg-white text-[var(--port-gore)] border border-[var(--rock-blue)]/50 hover:border-[var(--endeavour)]"
             title="Choose columns"
           >
             Columns ▾
