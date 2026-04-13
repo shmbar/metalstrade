@@ -242,7 +242,7 @@ const Customtable = ({
 
           {/* HEADER */}
           <div
-            className="flex-shrink-0 rounded-t-2xl"
+            className="flex-shrink-0"
             style={{
               borderBottom: '1px solid #b8ddf8',
               background: '#ffffff',
@@ -265,8 +265,8 @@ const Customtable = ({
           </div>
 
           {/* DESKTOP */}
-          <div className="hidden md:block">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderRadius: '24px', border: '1px solid #d8e8f5' }}>
+          <div className="hidden md:block flex-1">
+            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, border: '1px solid #d8e8f5' }}>
               <table className="w-full" style={{ tableLayout: 'auto' }}>
 
                 {/* THEAD - Multi-color gradient inspired by all cards */}
