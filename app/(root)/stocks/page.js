@@ -328,14 +328,14 @@ const Stocks = () => {
             {/* Main Card */}
             <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
               {/* Header Section */}
-              <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+              <div className='flex items-center justify-between flex-wrap gap-2'>
                 <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                   {getTtl('Stocks', ln)}
                 </h1>
               </div>
 
               {/* Table Component */}
-              <div className='mt-5'>
+              <div className='mt-2'>
                 <Customtable
                   data={getFormatted(data)}
                   columns={propDefaults}

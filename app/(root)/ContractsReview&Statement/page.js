@@ -898,7 +898,7 @@ const ContractsMerged = () => {
 
                             {/* Review Tab Content */}
                             {activeTab === 'review' && (
-                                <div>
+                                <div className='mt-2'>
                                     <Customtable data={loading ? [] : getFormatted(dataTable)} datattl={loading ? [] : totals} columns={propDefaults} SelectRow={SelectRow}
                                         invisible={invisible} 
                                         excellReport={EXD(dataTable.filter(x => filteredData.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Review', ln),
@@ -913,7 +913,7 @@ const ContractsMerged = () => {
 
                             {/* Statement Tab Content */}
                             {activeTab === 'statement' && (
-                                <>
+                                <div className='mt-2'>
                                     {enabledSwitch ?
                                         <CustomtableStatement data={loading ? [] : groupedArrayInvoiceStatement(getFormattedStatement(dataTableStatement))} columns={propDefaultsStatement}
                                             excellReport={EXDStatement(dataTableStatement.filter(x => filteredDataStatement.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
@@ -934,7 +934,7 @@ const ContractsMerged = () => {
                                         <TableTotals data={sortArr(totalsStatement.map(z => ({ ...z, spName: gQ(z.supplier, 'Supplier', 'nname') })), 'spName')} columns={colsTotals} expensesData={dataTableStatement}
                                             settings={settings} />
                                     </div>
-                                </>
+                                </div>
                             )}
                         </div>
 

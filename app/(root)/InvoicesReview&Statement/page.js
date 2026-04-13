@@ -911,7 +911,7 @@ const Shipments = () => {
             {/* Main Card */}
             <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8]  w-full bg-white">
               {/* Header Section */}
-              <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+              <div className='flex items-center justify-between flex-wrap gap-2 pb-1'>
                 <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                   {getTtl('Invoices', ln)}
                 </h1>
@@ -922,7 +922,7 @@ const Shipments = () => {
               </div>
 
               {/* Tabs */}
-              <div className='flex gap-8 mt-4 mb-6'>
+              <div className='flex gap-8'>
                 <button
                   onClick={() => setActiveTab('review')}
                   className={`pb-1 responsiveTextTable font-medium transition-all border-b-2 ${
@@ -949,7 +949,7 @@ const Shipments = () => {
 
               {/* Review Tab Content */}
               {activeTab === 'review' && (
-                <div className='mt-5'>
+                <div className='mt-2'>
                   <Customtable data={loading ? [] : getFormatted(dataTable)} columns={propDefaults} SelectRow={SelectRow}
                     setFilteredData={setFilteredData} valCur={valCur}
                     setValCur={setValCur} invisible={invisible}
@@ -960,15 +960,13 @@ const Shipments = () => {
 
               {/* Statement Tab Content */}
               {activeTab === 'statement' && (
-                <>
-                  <div className='mt-5'>
-                    <CustomtableStatement data={loading ? [] : getFormattedStatement(dataTableStatement)} columns={propDefaultsStatement} SelectRow={SelectRowStatement}
-                      ln={ln} invisible={invisibleStatement}
-                      excellReport={EXDStatement(dataTableStatement.filter(x => new Set(filteredArrayStatement.map(z => `${z.id}-${z.type}`)).has(`${x.id}-${x.type}`)),
-                        settings, getTtl('Invoices Statement', ln), ln, dtSumSupplers, dtSumClients)}
-                      setFilteredArray={setFilteredArrayStatement}
-                    />
-                  </div>
+                <div className='mt-2'>
+                  <CustomtableStatement data={loading ? [] : getFormattedStatement(dataTableStatement)} columns={propDefaultsStatement} SelectRow={SelectRowStatement}
+                    ln={ln} invisible={invisibleStatement}
+                    excellReport={EXDStatement(dataTableStatement.filter(x => new Set(filteredArrayStatement.map(z => `${z.id}-${z.type}`)).has(`${x.id}-${x.type}`)),
+                      settings, getTtl('Invoices Statement', ln), ln, dtSumSupplers, dtSumClients)}
+                    setFilteredArray={setFilteredArrayStatement}
+                  />
 
                   <div className='flex gap-2 flex-wrap xl:flex-nowrap'>
                     <SumTableSupplier dtSumSupplers={dtSumSupplers} loading={loading} settings={settings}
@@ -976,7 +974,7 @@ const Shipments = () => {
                     <SumTableClient dtSumClients={dtSumClients} loading={loading} settings={settings}
                       ln={ln} dataTable={getFormattedStatement(dataTableStatement)} rmrk='clnt' />
                   </div>
-                </>
+                </div>
               )}
             </div>
 
