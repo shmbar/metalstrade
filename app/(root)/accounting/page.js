@@ -620,6 +620,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
     style={{
       display: 'flex',
       alignItems: 'center',
+      flexWrap: 'nowrap',
       gap: '8px',
       background: '#ffffff',
       borderRadius: '999px',
@@ -627,10 +628,6 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       border: '1.5px solid #bfdbfe',
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       whiteSpace: 'nowrap',
-      flex: '1 1 160px',
-      maxWidth: '180px',
-      minWidth: '140px',
-      width: '100%',
     }}
   >
     <FaWallet className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--endeavour)' }} />
@@ -647,6 +644,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
     style={{
       display: 'flex',
       alignItems: 'center',
+      flexWrap: 'nowrap',
       gap: '8px',
       background: '#ffffff',
       borderRadius: '999px',
@@ -654,10 +652,6 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       border: '1.5px solid #c7d2fe',
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       whiteSpace: 'nowrap',
-      flex: '1 1 160px',
-      maxWidth: '180px',
-      minWidth: '140px',
-      width: '100%',
     }}
   >
     <FaArrowTrendUp className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--endeavour)' }} />
@@ -674,6 +668,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
     style={{
       display: 'flex',
       alignItems: 'center',
+      flexWrap: 'nowrap',
       gap: '8px',
       background: '#ffffff',
       borderRadius: '999px',
@@ -681,10 +676,6 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       border: '1.5px solid #fecaca',
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       whiteSpace: 'nowrap',
-      flex: '1 1 160px',
-      maxWidth: '180px',
-      minWidth: '140px',
-      width: '100%',
     }}
   >
     <FaArrowTrendDown className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#EF4444' }} />
@@ -701,6 +692,7 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
     style={{
       display: 'flex',
       alignItems: 'center',
+      flexWrap: 'nowrap',
       gap: '8px',
       background: '#ffffff',
       borderRadius: '999px',
@@ -708,10 +700,6 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
       border: '1.5px solid #a7f3d0',
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       whiteSpace: 'nowrap',
-      flex: '1 1 160px',
-      maxWidth: '180px',
-      minWidth: '140px',
-      width: '100%',
     }}
   >
     <FaPiggyBank className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#10B981' }} />
