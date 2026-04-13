@@ -871,7 +871,7 @@ const ContractsMerged = () => {
                             </div>
 
                             {/* Tabs */}
-                            <div className='flex gap-8 mb-1'>
+                            <div className='flex gap-8'>
                                 <button
                                     onClick={() => setActiveTab('review')}
                                     className={`pb-1 responsiveTextTable font-medium transition-all border-b-2 ${
@@ -898,7 +898,7 @@ const ContractsMerged = () => {
 
                             {/* Review Tab Content */}
                             {activeTab === 'review' && (
-                                <div className='mt-5'>
+                                <div>
                                     <Customtable data={loading ? [] : getFormatted(dataTable)} datattl={loading ? [] : totals} columns={propDefaults} SelectRow={SelectRow}
                                         invisible={invisible} 
                                         excellReport={EXD(dataTable.filter(x => filteredData.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Review', ln),
