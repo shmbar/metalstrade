@@ -240,7 +240,7 @@ export const MainNav = () => {
         </div>
         {/* Date / Time Widget — far right */}
         {now && (
-          <div className='flex flex-col items-end leading-tight select-none pointer-events-none pl-4 ml-4 border-l border-[#b8ddf8]'>
+          <div className='flex flex-col items-end leading-tight select-none pointer-events-none pl-4 border-l border-[#b8ddf8]'>
             <span style={{ fontSize: '0.62rem', color: 'var(--chathams-blue)', fontWeight: 400, opacity: 0.7 }}>
               {now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
             </span>
