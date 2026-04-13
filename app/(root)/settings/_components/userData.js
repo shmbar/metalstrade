@@ -17,7 +17,7 @@ const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, di
 
     return (
         <div className='flex gap-4 justify-between  my-3 w-full'>
-            <p className='flex responsiveText font-medium whitespace-nowrap pt-1'>{title}:</p>
+            <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem]'>{title}:</p>
             <div className='w-full '>
                 <input
                     className="input shadow-lg h-7 !rounded-full text-[0.75rem]"
@@ -41,7 +41,7 @@ const USerDSelect = ({ data, value, setValue, name, errors, ln }) => {
 
     return (
         <div className='flex gap-4 justify-between'>
-            <p className='flex items-center responsiveText font-medium whitespace-nowrap'>Title:</p>
+            <p className='flex items-center responsiveText font-medium whitespace-nowrap text-[0.75rem]'>Title:</p>
             <div className='w-full'>
                 <Selector arr={data} value={value}
                     onChange={(e) => setValue(prev => ({ ...prev, [name]: e }))}
