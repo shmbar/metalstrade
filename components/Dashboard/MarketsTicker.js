@@ -94,7 +94,7 @@ export default function MarketsTicker({ className = '' }) {
 
             {/* ===== FX ===== */}
             <div className="flex items-center gap-2 px-1 mb-1">
-                <span className="responsiveTextTitle font-medium text-[var(--chathams-blue)] flex items-center">
+                <span className="responsiveText font-semibold text-[var(--chathams-blue)] flex items-center">
                     Exchange Rates
                 </span>
             </div>
@@ -103,7 +103,7 @@ export default function MarketsTicker({ className = '' }) {
             {/* ===== METALS ===== */}
             <div className="flex items-center justify-between px-1 mb-1 mt-2">
                 <div className="flex items-center gap-2">
-                    <span className="responsiveTextTitle font-medium text-[var(--chathams-blue)] flex items-center">
+                    <span className="responsiveText font-semibold text-[var(--chathams-blue)] flex items-center">
                         <HiCube className="mr-2" />
                         Metal Prices
                     </span>

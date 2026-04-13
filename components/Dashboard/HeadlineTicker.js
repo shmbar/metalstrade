@@ -25,6 +25,9 @@ export default function HeadlineTicker({
 
   const baseOffsetRef = useRef(0);   // current manual translateX (px, ≤ 0)
   const halfTrackRef  = useRef(0);   // half the track scrollWidth (= one loop length)
+  const isDraggingRef = useRef(false); // true while thumb is being dragged
+  const dragStartXRef = useRef(0);     // mouseX at drag start
+  const dragStartPctRef = useRef(0);   // thumbPct at drag start
 
   const hasHeader = Boolean(title || subtitle || LeftIcon || rightSlot);
 
@@ -99,6 +102,8 @@ export default function HeadlineTicker({
 
   // ── hover leave: restore animation from where we left off ─────────────────
   const handleMouseLeave = useCallback(() => {
+    // Don't resume animation while user is dragging the scrollbar
+    if (isDraggingRef.current) return;
     if (trackRef.current) {
       // Resume CSS animation from the same visual position via negative delay
       const half     = halfTrackRef.current;
@@ -137,6 +142,37 @@ export default function HeadlineTicker({
     }
     setThumbPct(pct);
   }, []);
+
+  // ── thumb drag ─────────────────────────────────────────────────────────────
+  const handleThumbMouseDown = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isDraggingRef.current  = true;
+    dragStartXRef.current  = e.clientX;
+    dragStartPctRef.current = thumbPct;
+
+    const onMove = (moveE) => {
+      if (!isDraggingRef.current || !wrapRef.current) return;
+      const wrapW   = wrapRef.current.getBoundingClientRect().width;
+      const deltaPx = moveE.clientX - dragStartXRef.current;
+      const deltaPct = deltaPx / wrapW;
+      const newPct  = Math.max(0, Math.min(1, dragStartPctRef.current + deltaPct));
+      baseOffsetRef.current = -newPct * halfTrackRef.current;
+      if (trackRef.current) {
+        trackRef.current.style.transform = `translateX(${baseOffsetRef.current}px)`;
+      }
+      setThumbPct(newPct);
+    };
+
+    const onUp = () => {
+      isDraggingRef.current = false;
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup',   onUp);
+    };
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup',   onUp);
+  }, [thumbPct]);
 
   if (!items?.length) return null;
 
@@ -270,14 +306,16 @@ export default function HeadlineTicker({
           }}
         >
           <div
+            onMouseDown={handleThumbMouseDown}
             style={{
               position: 'absolute', height: '100%',
               width: `${thumbWidthPct}%`,
               left:  `${thumbLeftPct}%`,
               background: 'var(--endeavour)',
               borderRadius: 2,
-              transition: 'left 0.08s ease',
-              pointerEvents: 'none',
+              transition: isDraggingRef.current ? 'none' : 'left 0.08s ease',
+              cursor: 'grab',
+              pointerEvents: 'auto',
             }}
           />
         </div>

@@ -186,7 +186,7 @@ export const MainNav = () => {
         {/* User Role Button and Profile Icon: no gap between */}
         <div className="flex items-center ml-2">
           <span
-            className="inline-flex items-center px-3 py-2 rounded-md bg-[var(--endeavour)] text-white responsiveText font-medium shadow-md"
+            className="inline-flex items-center px-2 py-1.5 rounded-md bg-[var(--endeavour)] text-white responsiveText font-medium shadow-md"
             style={{
               minWidth: 60,
               justifyContent: 'center',
