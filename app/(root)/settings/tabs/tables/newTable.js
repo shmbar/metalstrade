@@ -91,7 +91,7 @@ const Customtable = ({
         <div className="flex items-center gap-2 p-2">
           <div className="flex items-center relative w-[140px] h-7 border border-[var(--endeavour)] rounded-2xl bg-white shadow-sm">
             <input
-              className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full responsiveText rounded-2xl"
+              className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full text-[0.75rem] rounded-2xl"
               placeholder="Search..."
               value={globalFilter ?? ''}
               onChange={e => setGlobalFilter(e.target.value)}

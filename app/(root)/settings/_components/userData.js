@@ -183,7 +183,7 @@ const UserData = ({ setIsOpen, data, setData, user, setUser }) => {
 
             <div className='flex gap-4 justify-between my-3 w-full'>
                 <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem]'>Password Verification:</p>
-                <div className='max-w-xs'>
+                <div className='max-w-[30rem]'>
                     <input
                         className="input shadow-lg h-7 !rounded-full text-[0.75rem]"
                         type='password'

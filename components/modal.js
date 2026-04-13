@@ -40,7 +40,7 @@ const Modal = ({ isOpen, setIsOpen, title, children, w }) => {
                                  `}>
                                     <DialogTitle
                                         as="h3"
-                                        className="responsiveText font-semibold leading-tight text-[var(--chathams-blue)] border-b border-[#b8ddf8] p-2.5 pl-3 pt-2.5 pb-2.5 rounded-t-xl"
+                                        className="text-[0.85rem] font-semibold leading-tight text-[var(--chathams-blue)] border-b border-[#b8ddf8] p-2.5 pl-3 pt-2.5 pb-2.5 rounded-t-xl"
                                         style={{ background: '#dbeeff' }}
                                     >
                                         <div className='flex justify-between items-center gap-3'>
