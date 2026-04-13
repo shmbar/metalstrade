@@ -871,7 +871,7 @@ const ContractsMerged = () => {
                             </div>
 
                             {/* Tabs */}
-                            <div className='flex gap-8 mt-4 mb-6 '>
+                            <div className='flex gap-8 mt-1 mb-2'>
                                 <button
                                     onClick={() => setActiveTab('review')}
                                     className={`pb-1 responsiveTextTable font-medium transition-all border-b-2 ${
