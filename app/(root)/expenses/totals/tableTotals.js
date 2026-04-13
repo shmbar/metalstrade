@@ -59,7 +59,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         <div
           style={{
             background: '#dbeeff',
-            padding: '12px 16px',
+            padding: '6px 16px',
             borderBottom: '1px solid var(--rock-blue)'
           }}
         >
