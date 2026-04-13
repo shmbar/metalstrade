@@ -50,7 +50,7 @@ const StockComb = ({ value, setValue }) => {
                 <ListboxOption
                   key={personIdx}
                   className={({ active }) =>
-                    `responsiveText relative cursor-pointer select-none py-2 pl-10 pr-4 ${active ? 'bg-[#dbeeff] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'
+                    `responsiveText relative cursor-pointer select-none py-2 pl-10 pr-4 text-[0.75rem] ${active ? 'bg-[#dbeeff] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'
                     }`
                   }
                   value={tp}
