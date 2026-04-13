@@ -26,7 +26,7 @@ const StockComb = ({ value, setValue }) => {
         <div className="relative ">
           <ListboxButton className='cursor-pointer w-full h-8 rounded-full border border-[#E5E7EB] bg-white
                      focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20
-                     pl-4 pr-10 responsiveText text-[var(--port-gore)] transition-all hover:border-[var(--rock-blue)] text-left'>
+                     pl-4 pr-10 responsiveText text-[var(--port-gore)] transition-all hover:border-[var(--rock-blue)] text-left text-[0.75rem]'>
             {({ open }) => (
               <>
                 <span className="block truncate">{value.sType === '' ? selected?.sType : value?.sType}</span>
@@ -45,7 +45,7 @@ const StockComb = ({ value, setValue }) => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <ListboxOptions className="absolute mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 responsiveText shadow-lg border border-[#dbeeff] focus:outline-none z-50">
+            <ListboxOptions className="absolute mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 responsiveText shadow-lg border border-[#dbeeff] focus:outline-none z-50 text-[0.75rem]">
               {types.map((tp, personIdx) => (
                 <ListboxOption
                   key={personIdx}
