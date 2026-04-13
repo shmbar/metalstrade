@@ -56,7 +56,7 @@ const Page = () => {
       <div className="p-1 md:p-4 bg-white rounded-2xl border border-[#b8ddf8] shadow-sm">
         <div className="mt-5 text-[var(--chathams-blue)] font-poppins text-[0.875rem] xl:text-[0.9375rem] 2xl:text-[1rem] 3xl:text-[1.0625rem] font-medium border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Settings', ln)}</div>
 
-        <div className="w-full px-2 sm:px-0 mt-2">
+        <div className="w-full px-3 mt-2 border border-[#b8ddf8] rounded-xl bg-white p-3">
           <TabGroup >
 <TabList
   className="
