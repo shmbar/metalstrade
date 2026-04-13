@@ -289,11 +289,11 @@ const ShipmentPage = () => {
                     </div>
 
                     {/* Inner card — toolbar + table */}
-                    <div className="rounded-2xl border border-[#b8ddf8]" style={{ background: '#f8fbff' }}>
+                    <div className="rounded-2xl border border-[#b8ddf8] overflow-hidden" style={{ background: '#f8fbff' }}>
 
                     {/* Toolbar */}
                     <div
-                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-2 py-2 gap-2 rounded-t-xl"
+                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-2 py-2 gap-2"
                         style={{ borderBottom: '1px solid #b8ddf8', background: '#ffffff' }}
                     >
                         {/* Left: Search + Status filter chips */}
@@ -383,8 +383,8 @@ const ShipmentPage = () => {
                     </div>
 
                     {/* Table — Desktop */}
-                    <div className="custom-table hidden md:block">
-                    <div className="overflow-x-auto overflow-y-auto dashboard-scroll rounded-3xl border border-[#d8e8f5]" style={{ borderRadius: '24px', maxHeight: `${Math.min(paginated.length * 53 + 60, 620)}px` }}>
+                    <div className="custom-table hidden md:block flex-1">
+                    <div className="overflow-x-auto overflow-y-auto dashboard-scroll" style={{ maxHeight: `${Math.min(paginated.length * 53 + 60, 620)}px` }}>
                         <table className="w-full" style={{ minWidth: '700px' }}>
                             <thead className="sticky top-0 z-10">
                                 <tr>
