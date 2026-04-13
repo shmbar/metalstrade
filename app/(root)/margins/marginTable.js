@@ -98,13 +98,8 @@ const MarginTable = (props) => {
                                         >
                                             Qty (MT)
                                         </div>
-                                        <div 
+                                        <div
                                             className="font-normal"
-                                            style={{
-                                                color: 'var(--endeavour)',
-                                                fontWeight: '400',
-                                                lineHeight: '1.2'
-                                            }}
                                         >
                                             <NumericFormat
                                                 value={purchase}
@@ -113,6 +108,12 @@ const MarginTable = (props) => {
                                                 allowNegative
                                                 decimalScale={3}
                                                 fixedDecimalScale
+                                                style={{
+                                                    color: 'var(--chathams-blue)',
+                                                    fontWeight: '700',
+                                                    fontSize: '0.75rem',
+                                                    lineHeight: '1.2'
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -127,13 +128,8 @@ const MarginTable = (props) => {
                                         >
                                             Total Margin
                                         </div>
-                                        <div 
+                                        <div
                                             className="font-normal"
-                                            style={{
-                                                color: 'var(--endeavour)',
-                                                fontWeight: '400',
-                                                lineHeight: '1.2'
-                                            }}
                                         >
                                             <NumericFormat
                                                 value={totalMargin}
@@ -143,6 +139,12 @@ const MarginTable = (props) => {
                                                 prefix="$"
                                                 decimalScale={2}
                                                 fixedDecimalScale
+                                                style={{
+                                                    color: 'var(--chathams-blue)',
+                                                    fontWeight: '700',
+                                                    fontSize: '0.75rem',
+                                                    lineHeight: '1.2'
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -157,13 +159,8 @@ const MarginTable = (props) => {
                                         >
                                             Open Ship
                                         </div>
-                                        <div 
+                                        <div
                                             className="font-normal"
-                                            style={{
-                                                color: 'var(--endeavour)',
-                                                fontWeight: '400',
-                                                lineHeight: '1.2'
-                                            }}
                                         >
                                             <NumericFormat
                                                 value={totalOpenShip}
@@ -172,6 +169,12 @@ const MarginTable = (props) => {
                                                 allowNegative
                                                 decimalScale={3}
                                                 fixedDecimalScale
+                                                style={{
+                                                    color: 'var(--chathams-blue)',
+                                                    fontWeight: '700',
+                                                    fontSize: '0.75rem',
+                                                    lineHeight: '1.2'
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -186,13 +189,8 @@ const MarginTable = (props) => {
                                         >
                                             Remaining
                                         </div>
-                                        <div 
+                                        <div
                                             className="font-normal"
-                                            style={{
-                                                color: 'var(--endeavour)',
-                                                fontWeight: '400',
-                                                lineHeight: '1.2'
-                                            }}
                                         >
                                             <NumericFormat
                                                 value={remaining}
@@ -201,6 +199,12 @@ const MarginTable = (props) => {
                                                 allowNegative
                                                 decimalScale={2}
                                                 fixedDecimalScale
+                                                style={{
+                                                    color: 'var(--chathams-blue)',
+                                                    fontWeight: '700',
+                                                    fontSize: '0.75rem',
+                                                    lineHeight: '1.2'
+                                                }}
                                             />
                                         </div>
                                     </div>

@@ -431,9 +431,9 @@ const Customtable = (props) => {
                                                                     decimalScale={currs.includes(accessorKey) ? 2 : 3}
                                                                     fixedDecimalScale
                                                                     style={{
-                                                                        fontSize: '0.72rem',
-                                                                        color: 'var(--endeavour)',
-                                                                        fontWeight: '600',
+                                                                        fontSize: '0.68rem',
+                                                                        color: 'var(--chathams-blue)',
+                                                                        fontWeight: '700',
                                                                         lineHeight: '1.2'
                                                                     }}
                                                                 />
@@ -459,9 +459,9 @@ const Customtable = (props) => {
                                 >
                                     {/* Compact Card Header */}
                                     <div className="bg-[#dbeeff] px-3 py-2 border-b border-[#dbeeff] flex justify-between items-center min-h-[32px]">
-                                        <span 
-                                            className="font-medium text-[var(--chathams-blue)]"
-                                            style={{ fontSize: '0.68rem', lineHeight: '1.2' }}
+                                        <span
+                                            className="font-bold text-[var(--chathams-blue)]"
+                                            style={{ fontSize: '0.65rem', lineHeight: '1.2' }}
                                         >
                                             Entry #{rowIdx + 1}
                                         </span>
@@ -479,13 +479,13 @@ const Customtable = (props) => {
                                         {columns
                                             .filter(col => col.accessorKey && col.accessorKey !== 'del')
                                             .map((col, colIdx) => (
-                                                <div 
-                                                    key={col.accessorKey || colIdx} 
-                                                    className="flex justify-between items-center gap-2 py-1 border-b border-gray-100 last:border-b-0 min-h-[24px]"
+                                                <div
+                                                    key={col.accessorKey || colIdx}
+                                                    className="flex justify-between items-center gap-2 py-1.5 border-b border-gray-100 last:border-b-0 min-h-[28px]"
                                                 >
-                                                    <span 
-                                                        className="font-medium text-[var(--port-gore)] min-w-[80px] flex-shrink-0"
-                                                        style={{ fontSize: '0.68rem', lineHeight: '1.2' }}
+                                                    <span
+                                                        className="font-bold text-[var(--chathams-blue)] min-w-[80px] flex-shrink-0"
+                                                        style={{ fontSize: '0.65rem', lineHeight: '1.2' }}
                                                     >
                                                         {typeof col.header === 'string' ? col.header : ''}
                                                     </span>
@@ -570,10 +570,10 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                                         prefix={currs.includes(col.accessorKey) ? '$' : ''} 
                                                                         decimalScale={currs.includes(col.accessorKey) ? 2 : 3} 
                                                                         fixedDecimalScale 
-                                                                        style={{ 
-                                                                            fontSize: '0.68rem',
-                                                                            color: 'var(--port-gore)',
-                                                                            fontWeight: '500',
+                                                                        style={{
+                                                                            fontSize: '0.65rem',
+                                                                            color: 'var(--chathams-blue)',
+                                                                            fontWeight: '700',
                                                                             lineHeight: '1.2'
                                                                         }}
                                                                     />

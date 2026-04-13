@@ -77,10 +77,8 @@ export const MainNav = () => {
     >
       {/* Logo Section (left) */}
       <div
-        className='flex items-center '
+        className='flex items-center gap-4'
         style={{
-          width: 'clamp(220px, 20vw, 240px)',
-          height: 'clamp(50px, 6vh, 70px)',
           marginRight: 'clamp(6px, 1vw, 10px)',
         }}
       >
@@ -88,7 +86,7 @@ export const MainNav = () => {
           src='/logo/ims_main.svg'
           alt='IMS Logo'
           style={{
-            width: 'clamp(120px, 18vw, 200px)', // wider logo
+            width: 'clamp(120px, 18vw, 200px)',
             height: 'auto',
           }}
         />
@@ -96,19 +94,7 @@ export const MainNav = () => {
 
 
       {/* Right Side: All icons and controls in a row, all functional */}
-      <div className='flex items-center gap-3 ml-auto'>
-        {/* Date / Time Widget — top right */}
-        {now && (
-          <div className='flex flex-col items-end leading-tight select-none pointer-events-none'>
-            <span style={{ fontSize: '0.62rem', color: 'var(--chathams-blue)', fontWeight: 400, opacity: 0.7 }}>
-              {now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
-            </span>
-            <span style={{ fontSize: '0.85rem', color: 'var(--chathams-blue)', fontWeight: 600, letterSpacing: '0.05em' }}>
-              {now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </span>
-          </div>
-        )}
-        <div className='w-px h-6 bg-[#b8ddf8] opacity-50'></div>
+      <div className='flex items-center gap-2 ml-auto'>
         {/* Global Search */}
         <div className='relative flex items-center' ref={searchRef}>
           {!openSearch ? (
@@ -199,59 +185,70 @@ export const MainNav = () => {
         </Tltip>
         {/* User Role Button and Profile Icon: no gap between */}
         <div className="flex items-center ml-2">
-  <span
-    className="inline-flex items-center px-3 py-2 rounded-md bg-[var(--endeavour)] text-white responsiveText font-medium shadow-md"
-    style={{
-      minWidth: 60,
-      justifyContent: 'center',
-      marginRight: 0,
-      borderTopRightRadius: 0,
-      borderBottomRightRadius: 0
-    }}
-  >
-    {user?.displayName || user?.email?.split('@')[0] || 'User'}
-  </span>
-  <div className='relative' ref={dropdownRef} style={{marginLeft: 0}}>
-    <button
-      onClick={() => setShowDropdown(!showDropdown)}
-      className='flex items-center bg-white gap-2 p-1 rounded-md hover:bg-[var(--selago)] transition-all'
-      aria-label='User menu'
-    >
-      <div className='w-6  flex items-center justify-center text-white overflow-hidden'>
-        <img src="/logo/person.svg" alt="Profile" className="w-6 h-6 inline-block align-middle" />
-      </div>
-    </button>
-    {showDropdown && (
-      <div className='absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-[var(--selago)] py-2 z-[9999] overflow-visible'>
-        <div className='px-4 py-3 border-b border-[var(--selago)]'>
-          <p className='responsiveText font-medium text-[var(--port-gore)]'>
-            {user?.displayName || user?.email?.split('@')[0] || 'User'}
-          </p>
-          <p className='responsiveText text-[var(--regent-gray)] truncate'>{user?.email || ''}</p>
-        </div>
-        <div className='py-1'>
-          <button
-            onClick={() => {
-              router.push('/settings')
-              setShowDropdown(false)
+          <span
+            className="inline-flex items-center px-3 py-2 rounded-md bg-[var(--endeavour)] text-white responsiveText font-medium shadow-md"
+            style={{
+              minWidth: 60,
+              justifyContent: 'center',
+              marginRight: 0,
+              borderTopRightRadius: 0,
+              borderBottomRightRadius: 0
             }}
-            className='w-full flex items-center gap-3 px-4 py-2.5 responsiveText text-[var(--port-gore)] hover:bg-[var(--selago)] hover:text-[var(--endeavour)] transition-all'
           >
-            <img src='/logo/Settings.svg' alt='Settings' className='w-4 h-4 mr-2' />
-            {getTtl('Settings', ln) || 'Settings'}
-          </button>
-          <button
-            onClick={LogOut}
-            className='w-full flex items-center gap-3 px-4 py-2.5 responsiveText text-red-500 hover:bg-red-50 transition-all'
-          >
-            <img src='/logo/logout.svg' alt='Logout' className='w-4 h-4 mr-2' />
-            {getTtl('Logout', ln) || 'Logout'}
-          </button>
+            {user?.displayName || user?.email?.split('@')[0] || 'User'}
+          </span>
+          <div className='relative' ref={dropdownRef} style={{marginLeft: 0}}>
+            <button
+              onClick={() => setShowDropdown(!showDropdown)}
+              className='flex items-center bg-white gap-2 p-1 rounded-md hover:bg-[var(--selago)] transition-all'
+              aria-label='User menu'
+            >
+              <div className='w-6  flex items-center justify-center text-white overflow-hidden'>
+                <img src="/logo/person.svg" alt="Profile" className="w-6 h-6 inline-block align-middle" />
+              </div>
+            </button>
+            {showDropdown && (
+              <div className='absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-[var(--selago)] py-2 z-[9999] overflow-visible'>
+                <div className='px-4 py-3 border-b border-[var(--selago)]'>
+                  <p className='responsiveText font-medium text-[var(--port-gore)]'>
+                    {user?.displayName || user?.email?.split('@')[0] || 'User'}
+                  </p>
+                  <p className='responsiveText text-[var(--regent-gray)] truncate'>{user?.email || ''}</p>
+                </div>
+                <div className='py-1'>
+                  <button
+                    onClick={() => {
+                      router.push('/settings')
+                      setShowDropdown(false)
+                    }}
+                    className='w-full flex items-center gap-3 px-4 py-2.5 responsiveText text-[var(--port-gore)] hover:bg-[var(--selago)] hover:text-[var(--endeavour)] transition-all'
+                  >
+                    <img src='/logo/Settings.svg' alt='Settings' className='w-4 h-4 mr-2' />
+                    {getTtl('Settings', ln) || 'Settings'}
+                  </button>
+                  <button
+                    onClick={LogOut}
+                    className='w-full flex items-center gap-3 px-4 py-2.5 responsiveText text-red-500 hover:bg-red-50 transition-all'
+                  >
+                    <img src='/logo/logout.svg' alt='Logout' className='w-4 h-4 mr-2' />
+                    {getTtl('Logout', ln) || 'Logout'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    )}
-  </div>
-</div>
+        {/* Date / Time Widget — far right */}
+        {now && (
+          <div className='flex flex-col items-end leading-tight select-none pointer-events-none pl-4 ml-4 border-l border-[#b8ddf8]'>
+            <span style={{ fontSize: '0.62rem', color: 'var(--chathams-blue)', fontWeight: 400, opacity: 0.7 }}>
+              {now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
+            </span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--chathams-blue)', fontWeight: 600, letterSpacing: '0.05em' }}>
+              {now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   )
