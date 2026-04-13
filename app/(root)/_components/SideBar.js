@@ -320,10 +320,10 @@ export default function Sidebar() {
                       transition: "background 0.2s",
                       marginLeft: "4px",
                       marginRight: "4px",
-                      marginBottom: "2px",
+                      marginBottom: "4px",
                       paddingBottom: "2px",
                     }
-                  : { marginBottom: "2px" };
+                  : { marginBottom: "4px" };
 
                 return (
                   <div key={i} style={sectionWrapStyle}>

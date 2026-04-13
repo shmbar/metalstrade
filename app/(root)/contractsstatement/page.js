@@ -287,7 +287,7 @@ const Contracts = () => {
 			},
 		},
 		{ accessorKey: 'poWeight', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props.getValue())}</p> },
-		{ accessorKey: 'description', header: getTtl('Description', ln), cell: (props) => <p className='text-wrap w-20  md:w-64'>{props.getValue()}</p> },
+		{ accessorKey: 'description', header: getTtl('Description', ln), cell: (props) => <p className='text-wrap w-20 md:w-64 text-center'>{props.getValue()}</p> },
 		{ accessorKey: 'unitPrc', header: getTtl('purchaseValue', ln), cell: (props) => <p>{showAmount(props)}</p> },
 		// { accessorKey: 'salesPrice', header: 'Sales Price' },
 		{ accessorKey: 'shiipedWeight', header: getTtl('Shipped Weight', ln) + ' MT', cell: (props) => <p>{showWeight(props.getValue())}</p> },

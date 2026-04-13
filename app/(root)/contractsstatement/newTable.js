@@ -395,7 +395,7 @@ const Customtable = ({
                         <tr>
                           <td
                             colSpan={columnsWithSelection.length}
-                            style={{ padding: '0 12px 10px 52px', background: '#f0f6ff' }}
+                            style={{ padding: '0 8px 10px 24px', background: '#f0f6ff' }}
                           >
                             <div style={{
                               border: '1px solid #b8ddf8',
@@ -411,7 +411,7 @@ const Customtable = ({
                                       .map(c => (
                                         <th key={c.column.id}
                                           className="responsiveTextTable font-medium"
-                                          style={{ padding: '6px 10px', background: '#dbeeff', color: 'var(--chathams-blue)', textAlign: 'center', whiteSpace: 'nowrap', borderBottom: '1px solid #b8ddf8' }}
+                                          style={{ padding: '6px 6px', background: '#dbeeff', color: 'var(--chathams-blue)', textAlign: 'center', whiteSpace: 'nowrap', borderBottom: '1px solid #b8ddf8', ...(c.column.id === 'description' ? { maxWidth: '120px', whiteSpace: 'normal' } : {}) }}
                                         >
                                           {c.column.columnDef.header}
                                         </th>
@@ -427,9 +427,15 @@ const Customtable = ({
                                         .map(c => (
                                           <td key={c.id}
                                             className="responsiveTextTable"
-                                            style={{ padding: '5px 10px', textAlign: 'center', color: 'var(--chathams-blue)', whiteSpace: 'nowrap', borderBottom: si < row.subRows.length - 1 ? '1px solid #e8f0f8' : 'none' }}
+                                            style={{ padding: '5px 6px', textAlign: 'center', color: 'var(--chathams-blue)', whiteSpace: 'nowrap', borderBottom: si < row.subRows.length - 1 ? '1px solid #e8f0f8' : 'none', ...(c.column.id === 'description' ? { maxWidth: '120px', whiteSpace: 'normal', wordBreak: 'break-word', textAlign: 'center' } : {}) }}
                                           >
-                                            {flexRender(c.column.columnDef.cell, c.getContext())}
+                                            {c.column.id === 'description' ? (
+                                              <div className="flex justify-center [&>p]:w-auto [&>p]:text-center">
+                                                {flexRender(c.column.columnDef.cell, c.getContext())}
+                                              </div>
+                                            ) : (
+                                              flexRender(c.column.columnDef.cell, c.getContext())
+                                            )}
                                           </td>
                                         ))
                                       }
