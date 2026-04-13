@@ -161,8 +161,7 @@ const Page = () => {
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none w-full text-[0.75rem]'
-								style={{ fontSize: 'inherit' }}
-														name='nilme'
+																						name='nilme'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
 														onFocus={() => setFocusedField('nilme')}
@@ -175,8 +174,7 @@ const Page = () => {
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
-								style={{ fontSize: 'inherit' }}
-														value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
+																						value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
 														name='MoOxideLb'
 														onChange={(e) => handleChange(e, 'general')}
 														onFocus={() => setFocusedField('MoOxideLb')}
@@ -189,8 +187,7 @@ const Page = () => {
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
-								style={{ fontSize: 'inherit' }}
-														name='chargeCrLb'
+																						name='chargeCrLb'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'chargeCrLb' ? value.general?.chargeCrLb || '' : addComma(value.general?.chargeCrLb || '0')}
 														onFocus={() => setFocusedField('chargeCrLb')}
@@ -203,8 +200,7 @@ const Page = () => {
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
-								style={{ fontSize: 'inherit' }}
-														value={(value.general?.mt || '0') + ' Lb'}
+																						value={(value.general?.mt || '0') + ' Lb'}
 														name='mt'
 														onChange={(e) => handleChange(e, 'general')}
 													/>
@@ -215,8 +211,7 @@ const Page = () => {
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
-								style={{ fontSize: 'inherit' }}
-														value={(value.general?.euroRate || '0')}
+																						value={(value.general?.euroRate || '0')}
 														name='euroRate'
 														onChange={(e) => handleChange(e, 'general')}
 													/>
