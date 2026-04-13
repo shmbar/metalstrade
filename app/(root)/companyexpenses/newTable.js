@@ -222,7 +222,7 @@ const Customtable = ({
           }}
         >
           <div
-            className="flex-shrink-0 rounded-t-2xl"
+            className="flex-shrink-0"
             style={{
               borderBottom: '1px solid #b8ddf8',
               background: '#ffffff',
@@ -243,9 +243,9 @@ const Customtable = ({
               setQuickSumColumns={setQuickSumColumns}
             />
           </div>
-          <div className="hidden md:block" >
+          <div className="hidden md:block flex-1" >
 <div
-  className="overflow-auto dashboard-scroll rounded-3xl border border-[#d8e8f5] shadow-sm"
+  className="overflow-auto dashboard-scroll  shadow-sm"
   style={{
     maxHeight: dynamicMaxHeight,
     borderRadius: '20px'
