@@ -81,11 +81,11 @@ const AccountStatement = () => {
           idx={0}
           value={settings.Client.Client.find(z => z.id === selectedClient.client)}
           name='nname'
-          classes='shadow-md h-9 text-[0.75rem] w-full sm:max-w-[140px]'
+          classes='shadow-md h-7 text-[0.75rem] w-full sm:max-w-[140px]'
           plcHolder='Select client' />
         <div className='flex group datepicker-wrapper w-full sm:w-auto'>
           <Datepicker
-            inputClassName='border border-[#0366ae] h-9 py-2 pl-3 pr-3 rounded-full text-[#103a7a] placeholder:text-[#103a7a] w-full sm:w-44
+            inputClassName='border border-[#0366ae] h-7 py-2 pl-3 pr-3 rounded-full text-[#103a7a] placeholder:text-[#103a7a] w-full sm:w-44
               focus:outline-none focus:ring-1 focus:ring-blue-200 cursor-pointer bg-white shadow-sm text-[0.75rem]'
             useRange={false}
             asSingle={true}
