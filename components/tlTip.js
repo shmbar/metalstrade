@@ -21,7 +21,7 @@ const Tltip = ({ children, direction, tltpText, show }) => {
                 <TooltipContent className={contentClass} 
                 side={direction} >
                     {isString ? (
-                        <span className="text-white text-xs capitalize font-normal">{tltpText}</span>
+                        <span className="text-white text-[0.65rem] capitalize font-normal">{tltpText}</span>
                     ) : (
                         // allow JSX/tooltip content (tables, lists) to render unwrapped
                         tltpText
