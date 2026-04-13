@@ -395,7 +395,6 @@ const Margins = () => {
                                     <Tooltip txt='Select year' />
                                 </div>
                             </div>
-                            <div className="rounded-2xl bg-[#dbeeff] py-2 px-3">
                             {/* Stats Section */}
                             <FirstPart
                                 incoming={incoming}
@@ -404,7 +403,6 @@ const Margins = () => {
                                 totalMargin={totalMargin}
                                 shipped={shipped}
                             />
-                            </div>
 
                             {/* Action Buttons - Keep original position */}
                             <div className="rounded-2xl border border-[#b8ddf8]">
