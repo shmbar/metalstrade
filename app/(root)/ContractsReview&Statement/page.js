@@ -860,7 +860,7 @@ const ContractsMerged = () => {
                         {/* Main Card */}
                         <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8]  w-full bg-white">
                             {/* Header Section */}
-                            <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+                            <div className='flex items-center justify-between flex-wrap gap-2 pb-1'>
                                 <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                                     {getTtl('Contracts', ln)}
                                 </h1>
@@ -871,7 +871,7 @@ const ContractsMerged = () => {
                             </div>
 
                             {/* Tabs */}
-                            <div className='flex gap-8 mt-1 mb-2'>
+                            <div className='flex gap-8 mb-1'>
                                 <button
                                     onClick={() => setActiveTab('review')}
                                     className={`pb-1 responsiveTextTable font-medium transition-all border-b-2 ${
