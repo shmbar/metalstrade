@@ -68,9 +68,9 @@ const GradeTable = ({ dataTable, loading, settings }) => {
         >
           Avg Cost Price per Grade
         </div>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" style={{ maxHeight: '380px', overflowY: 'auto' }}>
           <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'collapse' }}>
-            <thead>
+            <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
               <tr>
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Description</th>
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Total Weight (MT)</th>
