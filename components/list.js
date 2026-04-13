@@ -91,7 +91,7 @@ const List = ({ list, updateList, ttl, name }) => {
                         <li key={i} className="justify-between flex items-center gap-x-2 py-2 px-4 responsiveText text-[var(--endeavour)]">
                             {edit.status && edit.id === x.id ?
                                 <input
-                                    className="w-full border rounded-full border-[var(--endeavour)] h-7
+                                    className="w-full border rounded-full border-[var(--endeavour)] h-7 text-[0.75rem]
 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-[var(--endeavour)]"
                                     style={{ fontSize: 'inherit' }}
                                     onKeyDown={handleKeyPress}

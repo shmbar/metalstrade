@@ -20,7 +20,7 @@ const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, di
             <p className='flex responsiveText font-medium whitespace-nowrap pt-1'>{title}:</p>
             <div className='w-full '>
                 <input
-                    className="input shadow-lg h-7 !rounded-full"
+                    className="input shadow-lg h-7 !rounded-full text-[0.75rem]"
                     style={{ fontSize: 'inherit' }}
                     type={type}
                     name={name}

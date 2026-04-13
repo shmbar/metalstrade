@@ -74,7 +74,7 @@ const Clients = () => {
 
     const fieldRow = 'flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0';
     const labelCls = 'sm:w-[80px] shrink-0 responsiveText text-[var(--endeavour)]';
-    const inputCls = 'w-full sm:flex-1 h-[26px] px-5 responsiveText rounded-full border border-[#E5E7EB] bg-white';
+    const inputCls = 'w-full sm:flex-1 h-[26px] px-5 responsiveText rounded-full border border-[#E5E7EB] bg-white text-[0.75rem]';
 
     return (
         <div className='p-2 rounded-2xl flex flex-col md:flex-row w-full gap-4'>

@@ -53,6 +53,7 @@ className="
   focus:border-[#0A5DB8]
   focus:ring-2
   focus:ring-[#0A5DB8]/20
+  text-[0.75rem]
 "
 
                                     value={compData?.name || ''}
@@ -106,6 +107,7 @@ className="
   focus:border-[#0A5DB8]
   focus:ring-2
   focus:ring-[#0A5DB8]/20
+  text-[0.75rem]
 "
 
                                             value={compData?.street || ''}
@@ -132,6 +134,7 @@ className="
   focus:border-[#0A5DB8]
   focus:ring-2
   focus:ring-[#0A5DB8]/20
+  text-[0.75rem]
 "
 
                                             value={compData?.city || ''}
@@ -157,6 +160,7 @@ className="
   focus:border-[#0A5DB8]
   focus:ring-2
   focus:ring-[#0A5DB8]/20
+  text-[0.75rem]
 "
 
                                             value={compData?.country || ''}
@@ -182,6 +186,7 @@ className="
   focus:border-[#0A5DB8]
   focus:ring-2
   focus:ring-[#0A5DB8]/20
+  text-[0.75rem]
 "
 
                                             value={compData?.zip || ''}
@@ -210,6 +215,7 @@ className="
   focus:border-[#0A5DB8]
   focus:ring-2
   focus:ring-[#0A5DB8]/20
+  text-[0.75rem]
 "
 
                                             value={compData?.reg || ''}
@@ -234,6 +240,7 @@ className="
   focus:border-[#0A5DB8]
   focus:ring-2
   focus:ring-[#0A5DB8]/20
+  text-[0.75rem]
 "
 
                                             value={compData?.vat || ''}
@@ -258,6 +265,7 @@ className="
   focus:border-[#0A5DB8]
   focus:ring-2
   focus:ring-[#0A5DB8]/20
+  text-[0.75rem]
 "
 
                                             value={compData?.eori || ''}
@@ -293,6 +301,7 @@ className="
   focus:border-[#0A5DB8]
   focus:ring-2
   focus:ring-[#0A5DB8]/20
+  text-[0.75rem]
 "
                                     value={compData?.email || ''}
                                     onChange={e => setCompData({ ...(compData || {}), email: e.target.value })}
@@ -317,6 +326,7 @@ className="
   focus:border-[#0A5DB8]
   focus:ring-2
   focus:ring-[#0A5DB8]/20
+  text-[0.75rem]
 "
                                     value={compData?.website || ''}
                                     onChange={e => setCompData({ ...(compData || {}), website: e.target.value })}
@@ -347,6 +357,7 @@ className="
   focus:border-[#0A5DB8]
   focus:ring-2
   focus:ring-[#0A5DB8]/20
+  text-[0.75rem]
 "
                                     value={compData?.phone || ''}
                                     onChange={e => setCompData({ ...(compData || {}), phone: e.target.value })}
@@ -371,6 +382,7 @@ className="
   focus:border-[#0A5DB8]
   focus:ring-2
   focus:ring-[#0A5DB8]/20
+  text-[0.75rem]
 "
                                     value={compData?.mobile || ''}
                                     onChange={e => setCompData({ ...(compData || {}), mobile: e.target.value })}
