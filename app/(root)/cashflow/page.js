@@ -52,7 +52,20 @@ const Cashflow = () => {
     const { valueExp, setValueExp, isOpen, setIsOpen } = useContext(ExpensesContext);
     const { blankInvoice } = useContext(InvoiceContext);
     const [invPreview, setInvPreview] = useState(null);
-    const openInvModal = (z, type) => setInvPreview({ ...z, _type: type });
+    const openInvModal = (z, type) => {
+        const supplierName = type === 'supplier'
+            ? settings.Supplier?.Supplier?.find(s => s.id === z.supplier)?.nname
+            : null;
+        const clientName = type === 'client'
+            ? settings.Client?.Client?.find(c => c.id === z.client)?.nname
+            : null;
+        setInvPreview({
+            ...z,
+            _type: type,
+            supplierName: supplierName || z.supplierName || null,
+            clientName: clientName || z.clientName || null,
+        });
+    };
     const currentYear = new Date().getFullYear();
     const [yr, setYr] = useState([currentYear - 1])
     const [incoming, setIncoming] = useState();
@@ -818,7 +831,7 @@ return (
 
 {activeTab === 'unsold' ? (
     <div className="w-full max-w-2xl border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
-        <div className="flex items-center justify-between mb-2 pb-1 border-b border-[#d4eafc]">
+        <div className="flex items-center justify-between mb-2">
             <div className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Unsold Stocks</div>
             <div className="flex items-center gap-2">
             {stocksSortName2 ?
@@ -862,7 +875,7 @@ return (
                     </div>
                 ))}
 
-                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
                     <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">Total</div>
                     <NumericFormat
                         value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
@@ -923,8 +936,8 @@ return (
 <div className="w-full border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white">
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
                             <div className="w-full">
-                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
+                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Stocks - Paid</span>
                                     <div className="flex items-center gap-2">
                                         {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} />}
@@ -965,7 +978,7 @@ return (
 
                                     )
                                 })}  
-                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
                                     <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
@@ -987,8 +1000,8 @@ return (
 
 
 
-                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
+                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Stocks - UnPaid</span>
                                     <div className="flex items-center gap-2">
                                         {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} />}
@@ -1028,7 +1041,7 @@ return (
 
                                     )
                                 })}
-                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
                                     <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
@@ -1048,8 +1061,8 @@ return (
                             </div>
 
 
-                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
+                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Clients - Payment</span>
                                     <div className="flex items-center gap-2">
                                         {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} />}
@@ -1087,7 +1100,7 @@ return (
                                         </div>
                                     )
                                 })}
-                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
                                     <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
@@ -1107,8 +1120,8 @@ return (
                             </div>
 
 
-                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
+                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Clients - Balances</span>
                                     <div className="flex items-center gap-2">
                                         {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} />}
@@ -1147,7 +1160,7 @@ return (
                                         )
                                     })}
 
-                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
                                     <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
@@ -1171,7 +1184,7 @@ return (
                                 {
                                     userTitle === 'Admin' &&
                                     <div className='mt-1 p-1'>
-                                        <div className='flex justify-between p-2 pb-1 border-b border-[#d4eafc]'>
+                                        <div className='flex justify-between p-2'>
                                             <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Financing</span>
                                             <button
                                                 type="button"
@@ -1200,7 +1213,7 @@ return (
                                                 })}
                                         </div>
 
-                                        <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                        <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
                                             <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                                 Total
                                             </div>
@@ -1224,8 +1237,8 @@ return (
 
 <div className="w-full border-l border-[#b8ddf8] pt-0">
 
-                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
+                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Supplier - Payment</span>
                                     <div className="flex items-center gap-2">
                                         {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
@@ -1267,7 +1280,7 @@ return (
 
                                     )
                                 })}
-                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
                                     <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
@@ -1287,8 +1300,8 @@ return (
                             </div>
 
 
-                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
+                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Supplier - Balances</span>
                                     <div className="flex items-center gap-2">
                                         {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
@@ -1330,7 +1343,7 @@ return (
                                     )
                                 })}
 
-                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
                                     <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
@@ -1349,8 +1362,8 @@ return (
                                 </div>
                             </div>
 
-                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1 pb-1 border-b border-[#d4eafc]">
+                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                <div className="flex items-center justify-between mb-1">
                                     <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Expenses</span>
                                     <div className="flex items-center gap-2">
                                         {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} />}
@@ -1389,7 +1402,7 @@ return (
 
                                     )
                                 })}
-                                <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
                                     <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                         Total
                                     </div>
@@ -1408,11 +1421,11 @@ return (
                                 </div>
                             </div>
 
-                            <div className="p-2 bg-white mb-3 border-b border-[#b8ddf8] flex flex-col cf-card">
+                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                 {
                                     userTitle === 'Admin' &&
                                     <div className='mt-1 p-1'>
-                                        <div className='flex justify-between pb-1 border-b border-[#d4eafc]'>
+                                        <div className='flex justify-between'>
                                             <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Financing</span>
                                             <button
                                                 type="button"
@@ -1439,7 +1452,7 @@ return (
                                                 })}
                                         </div>
 
-                                        <div className="bg-[#e3f3ff] rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                        <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
                                             <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
                                                 Total
                                             </div>

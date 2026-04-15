@@ -66,6 +66,19 @@ export default function InvPopup({ inv, onClose }) {
                     <Row label="Contract #" value={isClient ? (inv.poSupplier?.order || '—') : (inv.order || '—')} />
                     {inv.clientName && <Row label="Client" value={inv.clientName} />}
                     {inv.supplierName && <Row label="Supplier" value={inv.supplierName} />}
+                    <Row label="Currency" value={inv.cur === 'us' ? 'USD ($)' : 'EUR (€)'} />
+                    {inv.orderData?.date && (
+                        <Row label="Contract Date" value={dateFormat(inv.orderData.date, 'dd.mm.yy')} />
+                    )}
+                    {inv.poSupplier?.date && isClient && (
+                        <Row label="Invoice Date" value={dateFormat(inv.poSupplier.date, 'dd.mm.yy')} />
+                    )}
+                    {inv.shipData?.etd?.startDate && (
+                        <Row label="ETD" value={dateFormat(inv.shipData.etd.startDate, 'dd.mm.yy')} />
+                    )}
+                    {inv.shipData?.eta?.startDate && (
+                        <Row label="ETA" value={dateFormat(inv.shipData.eta.startDate, 'dd.mm.yy')} />
+                    )}
                     <Row label="Invoice Amount" value={fmt(total)} />
                     <Row label="Paid" value={fmt(paid)} />
                     <Row
@@ -76,14 +89,24 @@ export default function InvPopup({ inv, onClose }) {
                             </span>
                         }
                     />
-                    {inv.shipData?.etd?.startDate && (
-                        <Row label="ETD" value={dateFormat(inv.shipData.etd.startDate, 'dd.mm.yy')} />
-                    )}
-                    {inv.shipData?.eta?.startDate && (
-                        <Row label="ETA" value={dateFormat(inv.shipData.eta.startDate, 'dd.mm.yy')} />
+                    {!isClient && inv.cur !== 'us' && inv.euroToUSD && (
+                        <Row label="EUR → USD Rate" value={inv.euroToUSD} />
                     )}
 
-                    {/* Payment history */}
+                    {/* Supplier single payment */}
+                    {!isClient && inv.pmnt * 1 > 0 && (
+                        <div className="mt-3">
+                            <p className="responsiveTextTable uppercase tracking-wider font-semibold mb-1.5" style={{ color: '#9fb8d4' }}>
+                                Payment
+                            </p>
+                            <div className="flex justify-between items-center px-2 py-1 rounded-lg" style={{ background: '#eef6ff', border: '1px solid #d8e8f5' }}>
+                                <span className="responsiveTextTable" style={{ color: 'var(--regent-gray)' }}>Amount Paid</span>
+                                <span className="responsiveTextTable font-semibold" style={{ color: 'var(--chathams-blue)' }}>{fmt(inv.pmnt)}</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Client payment history */}
                     {isClient && inv.payments?.length > 0 && (
                         <div className="mt-3">
                             <p className="responsiveTextTable uppercase tracking-wider font-semibold mb-1.5" style={{ color: '#9fb8d4' }}>
