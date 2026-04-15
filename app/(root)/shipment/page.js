@@ -123,7 +123,14 @@ const ShipmentPage = () => {
                 (invoicesData || []).filter(Boolean).forEach(inv => {
                     const cid = inv.poSupplier?.id;
                     if (cid && inv.invType === '1111' && !map[cid]) {
-                        map[cid] = { client: inv.client };
+                        map[cid] = {
+                            client: inv.client,
+                            etd: inv.shipData?.etd?.startDate || null,
+                            eta: inv.shipData?.eta?.startDate || null,
+                            pol: inv.pol || null,
+                            pod: inv.pod || null,
+                            shpType: inv.shpType || null,
+                        };
                     }
                 });
 
@@ -153,6 +160,30 @@ const ShipmentPage = () => {
         if (!clts || !inv) return '—';
         return clts.find(c => c.id === inv.client)?.nname ||
                clts.find(c => c.id === inv.client)?.client || '—';
+    };
+
+    const getETD = (contractId) => formatDate(invoiceMap[contractId]?.etd);
+    const getETA = (contractId) => formatDate(invoiceMap[contractId]?.eta);
+
+    const getPOL = (contract) => {
+        const list = settings?.POL?.POL;
+        const polId = invoiceMap[contract.id]?.pol || contract.pol;
+        if (!list || !polId) return '—';
+        return list.find(p => p.id === polId)?.pol || '—';
+    };
+
+    const getPOD = (contract) => {
+        const list = settings?.POD?.POD;
+        const podId = invoiceMap[contract.id]?.pod || contract.pod;
+        if (!list || !podId) return '—';
+        return list.find(p => p.id === podId)?.pod || '—';
+    };
+
+    const SHP_TYPE_MAP = { '323': 'Container', '434': 'Truck', '565': 'Container+', '787': 'Flight' };
+    const getShpType = (contract) => {
+        const shpType = invoiceMap[contract.id]?.shpType || contract.shpType;
+        if (!shpType) return '—';
+        return SHP_TYPE_MAP[shpType] || shpType;
     };
 
     const getMainInvoice = (contract) => {
@@ -223,13 +254,18 @@ const ShipmentPage = () => {
         wb.creator = 'IMS';
         const sheet = wb.addWorksheet('Shipments Tracking');
         sheet.columns = [
-            { header: 'Contract #',    key: 'order',          width: 20 },
+            { header: 'Contract #',    key: 'order',          width: 18 },
             { header: 'Supplier',      key: 'supplier',       width: 20 },
-            { header: 'Invoice #',     key: 'invoice',        width: 15 },
+            { header: 'Invoice #',     key: 'invoice',        width: 14 },
             { header: 'Client',        key: 'client',         width: 20 },
-            { header: 'Shipment Date', key: 'shipmentDate',   width: 18 },
-            { header: 'Arrival Date',  key: 'arrivalDate',    width: 18 },
-            { header: 'Status',        key: 'status',         width: 15 },
+            { header: 'Shipment Date', key: 'shipmentDate',   width: 16 },
+            { header: 'Arrival Date',  key: 'arrivalDate',    width: 16 },
+            { header: 'ETD',           key: 'etd',            width: 14 },
+            { header: 'ETA',           key: 'eta',            width: 14 },
+            { header: 'POL',           key: 'pol',            width: 16 },
+            { header: 'POD',           key: 'pod',            width: 16 },
+            { header: 'Ship Type',     key: 'shpType',        width: 14 },
+            { header: 'Status',        key: 'status',         width: 14 },
             { header: 'Notes',         key: 'notes',          width: 40 },
         ];
         sheet.getRow(1).font = { bold: true };
@@ -242,6 +278,11 @@ const ShipmentPage = () => {
                 client:       getClientName(c.id),
                 shipmentDate: formatDate(c.date),
                 arrivalDate:  formatDate(c.dateRange?.endDate),
+                etd:          getETD(c.id),
+                eta:          getETA(c.id),
+                pol:          getPOL(c),
+                pod:          getPOD(c),
+                shpType:      getShpType(c),
                 status:       c.shipmentStatus || '',
                 notes:        c.shipmentNotes || '',
             });
@@ -386,18 +427,23 @@ const ShipmentPage = () => {
                     {/* Table — Desktop */}
                     <div className="custom-table hidden md:block flex-1">
                     <div className="overflow-x-auto overflow-y-auto dashboard-scroll" style={{ maxHeight: `${Math.min(paginated.length * 53 + 60, 620)}px` }}>
-                        <table className="w-full" style={{ minWidth: '700px' }}>
+                        <table className="w-full" style={{ minWidth: '1100px' }}>
                             <thead className="sticky top-0 z-10">
                                 <tr>
                                     {[
-                                        { label: 'Contract #',     width: '9%'  },
-                                        { label: 'Supplier',       width: '9%'  },
-                                        { label: 'Invoice #',      width: '8%'  },
-                                        { label: 'Client',         width: '9%'  },
-                                        { label: 'Shipment Date',  width: '9%'  },
-                                        { label: 'Arrival Date',   width: '9%'  },
-                                        { label: 'Status',         width: '10%' },
-                                        { label: 'Notes',          width: '37%' },
+                                        { label: 'Contract #',    width: '7%'  },
+                                        { label: 'Supplier',      width: '8%'  },
+                                        { label: 'Invoice #',     width: '6%'  },
+                                        { label: 'Client',        width: '8%'  },
+                                        { label: 'Shipment Date', width: '7%'  },
+                                        { label: 'Arrival Date',  width: '7%'  },
+                                        { label: 'ETD',           width: '6%'  },
+                                        { label: 'ETA',           width: '6%'  },
+                                        { label: 'POL',           width: '7%'  },
+                                        { label: 'POD',           width: '7%'  },
+                                        { label: 'Ship Type',     width: '7%'  },
+                                        { label: 'Status',        width: '8%'  },
+                                        { label: 'Notes',         width: '16%' },
                                     ].map(({ label, width }) => (
                                         <th key={label} className="font-poppins responsiveTextTable font-medium py-2" style={{ color: 'var(--chathams-blue)', letterSpacing: '0.05em', textAlign: 'center', width }}>{label}</th>
                                     ))}
@@ -406,7 +452,7 @@ const ShipmentPage = () => {
                             <tbody>
                                 {filtered.length === 0 && !loading && (
                                     <tr>
-                                        <td colSpan={8} style={{ textAlign: 'center', padding: '32px', color: 'var(--regent-gray)' }}>
+                                        <td colSpan={13} style={{ textAlign: 'center', padding: '32px', color: 'var(--regent-gray)' }}>
                                             No shipments found.
                                         </td>
                                     </tr>
@@ -461,6 +507,41 @@ const ShipmentPage = () => {
                                                 <div className="flex justify-center">
                                                     <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {formatDate(contract.dateRange?.endDate)}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="flex justify-center">
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                        {getETD(contract.id)}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="flex justify-center">
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                        {getETA(contract.id)}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="flex justify-center">
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                        {getPOL(contract)}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="flex justify-center">
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                        {getPOD(contract)}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="flex justify-center">
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                        {getShpType(contract)}
                                                     </div>
                                                 </div>
                                             </td>
@@ -522,11 +603,16 @@ const ShipmentPage = () => {
                                     {/* Card body */}
                                     <div className="p-3 space-y-2">
                                         {[
-                                            { label: 'Supplier',       value: getSupplierName(contract) },
-                                            { label: 'Invoice #',      value: mainInv ? String(mainInv.invoice) : '—' },
-                                            { label: 'Client',         value: getClientName(contract.id) },
-                                            { label: 'Shipment Date',  value: formatDate(contract.date) },
-                                            { label: 'Arrival Date',   value: formatDate(contract.dateRange?.endDate) },
+                                            { label: 'Supplier',      value: getSupplierName(contract) },
+                                            { label: 'Invoice #',     value: mainInv ? String(mainInv.invoice) : '—' },
+                                            { label: 'Client',        value: getClientName(contract.id) },
+                                            { label: 'Shipment Date', value: formatDate(contract.date) },
+                                            { label: 'Arrival Date',  value: formatDate(contract.dateRange?.endDate) },
+                                            { label: 'ETD',           value: getETD(contract.id) },
+                                            { label: 'ETA',           value: getETA(contract.id) },
+                                            { label: 'POL',           value: getPOL(contract) },
+                                            { label: 'POD',           value: getPOD(contract) },
+                                            { label: 'Ship Type',     value: getShpType(contract) },
                                         ].map(({ label, value }) => (
                                             <div key={label} className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid #f0f4f8' }}>
                                                 <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">{label}</span>
