@@ -171,22 +171,22 @@ const PNL = () => {
           </div>
         </div>
         <div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>
-          <div className='flex justify-between'>
+          <div className='flex justify-between whitespace-nowrap gap-2'>
             <p className='responsiveText'>{getTtl('invValueSale', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings), settings)}</p>
           </div>
           <div className='w-full text-right h-4 -mt-2'>-</div>
-          <div className='flex justify-between'>
-            <p className='responsiveText w-full'>{getTtl('purchaseValue', ln)}:</p>
+          <div className='flex justify-between whitespace-nowrap gap-2'>
+            <p className='responsiveText'>{getTtl('purchaseValue', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
           </div>
           <div className='w-full text-right h-4 -mt-2'>-</div>
-          <div className='flex justify-between'>
+          <div className='flex justify-between whitespace-nowrap gap-2'>
             <p className='responsiveText w-28'>{getTtl('Expenses', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, TotalArrsExp(pnlData, valCur, valueCon.euroToUSD), settings)}</p>
           </div>
           <div className='pt-1.5 border-t border-slate-500'></div>
-          <div className='flex justify-between font-semibold'>
+          <div className='flex justify-between whitespace-nowrap gap-2 font-semibold'>
             <p className='responsiveText w-28'>{getTtl('Profit', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, (Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings) -
               TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD) - TotalArrsExp(pnlData, valCur, valueCon.euroToUSD)), settings)}</p>
@@ -204,7 +204,7 @@ const PNL = () => {
             <p className='text-sm'>Save</p></button>
         </div>
           */}
-        <div className='col-span-12 hidden md:flex md:col-span-4'>
+        <div className='hidden md:flex w-fit border border-[#b8ddf8] rounded-2xl overflow-hidden'>
           <TableIbvPurchs valueCon={valueCon} setValueCon={setValueCon} saveData_PoInvoices={saveData_PoInvoices} ln={ln} />
         </div>
       </div>

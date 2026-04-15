@@ -33,14 +33,15 @@ const General = () => {
             {compData && Object.keys(compData).length === 0 ?
                 <Spinner />
                 : <>
-                    <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-1 flex flex-wrap md:flex-nowrap w-full space-x-4'>
-                                    <div className='gap-4 flex items-center w-full' >
-                            <p className='responsiveText font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>
+                    <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-1'>
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            <div className='gap-4 flex items-center' >
+                            <p className='responsiveText font-normal whitespace-nowrap w-[85px] md:w-[100px] text-[var(--chathams-blue)]'>
                                 {getTtl('cmpName', ln)}:</p>
                                 <input
                                     type='input'
 className="
-  w-full
+  flex-1
   h-[26px]
   px-4
   rounded-full
@@ -62,7 +63,7 @@ className="
                         </div>
 
                                     <div className='gap-4 flex items-center w-full' >
-  <p className="text-sm font-normal  text-[var(--chathams-blue)]">
+  <p className="text-sm font-normal w-[85px] md:w-[100px] text-[var(--chathams-blue)]">
     {getTtl("lng", ln)}:
   </p>
 
@@ -77,10 +78,7 @@ className="
     />
   </div>
 </div>
-
-
-
-
+                        </div>
                     </div>
 
                     <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-5'>
@@ -88,12 +86,12 @@ className="
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2'>
                                     <div className='gap-4 flex items-center' >
-                                        <p className='responsiveText font-normal  text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-normal whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>
                                             {getTtl('street', ln)}:</p>
                                         <input
                                             type='input'
 className="
-  w-full
+  flex-1
   h-[26px]
   px-4
     ml-4
@@ -115,12 +113,12 @@ className="
                                         />
                                     </div>
                                     <div className='flex gap-4 items-center ' >
-                                        <p className='responsiveText font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-normal whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>
                                             {getTtl('city', ln)}: </p>
                                         <input
                                             type='input'
 className="
-  w-full
+  flex-1
   h-[26px]
   px-4
   ml-7
@@ -142,12 +140,12 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-normal whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>
                                             {getTtl('country', ln)}:</p>
                                         <input
                                             type='input'
 className="
-  w-full
+  flex-1
   h-[26px]
   px-4
   rounded-full
@@ -168,12 +166,12 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-normal whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>
                                             {getTtl('zipCode', ln)}:</p>
                                         <input
                                             type='input'
 className="
-  w-full
+  flex-1
   h-[26px]
   px-4
   rounded-full
@@ -198,11 +196,11 @@ className="
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2'>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>Reg No.:</p>
+                                        <p className='responsiveText font-normal whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>Reg No.:</p>
                                         <input
                                             type='input'
 className="
-  w-full
+  flex-1
   h-[26px]
   px-4
   rounded-full
@@ -223,11 +221,11 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>VAT No.:</p>
+                                        <p className='responsiveText font-normal whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>VAT No.:</p>
                                         <input
                                             type='input'
 className="
-  w-full
+  flex-1
   h-[26px]
   px-4
   rounded-full
@@ -248,11 +246,11 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-normal whitespace-nowrap  text-[var(--chathams-blue)]'>EORI No.:</p>
+                                        <p className='responsiveText font-normal whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>EORI No.:</p>
                                         <input
                                             type='input'
 className="
-  w-full
+  flex-1
   h-[26px]
   px-4
   rounded-full
@@ -283,12 +281,12 @@ className="
                     <div className='border border-[#E5E7EB] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-normal whitespace-nowrap text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-normal whitespace-nowrap w-[85px] md:w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpemail', ln)}:</p>
                                 <input
                                     type='input'
 className="
-  w-full
+  flex-1
   h-[26px]
   px-4
   rounded-full
@@ -308,12 +306,12 @@ className="
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-normal whitespace-nowrap text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-normal whitespace-nowrap w-[85px] md:w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpwebsite', ln)}:</p>
                                 <input
                                     type='input'
 className="
-  w-full
+  flex-1
   h-[26px]
   px-4
   rounded-full
@@ -339,12 +337,12 @@ className="
                     <div className=' border border-[#E5E7EB] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-normal whitespace-nowrap   text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-normal whitespace-nowrap w-[85px] md:w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpPhone', ln)}:</p>
                                 <input
                                     type='input'
 className="
-  w-full
+  flex-1
   h-[26px]
   px-4
   rounded-full
@@ -364,12 +362,12 @@ className="
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-normal whitespace-nowrap   text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-normal whitespace-nowrap w-[85px] md:w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpMobile', ln)}:</p>
                                 <input
                                     type='input'
 className="
-  w-full
+  flex-1
   h-[26px]
   px-4
   rounded-full

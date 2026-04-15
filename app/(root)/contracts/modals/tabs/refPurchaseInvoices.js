@@ -25,8 +25,8 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
     }
 
     return (
-        <div className='max-h-64 relative overflow-auto'>
-            <div className="flex relative overflow-x-auto">
+        <div className='relative'>
+            <div className="flex relative">
                 <div className="overflow-x-auto rounded-l-md">
                     <table className="w-full border border-r-0">
                         <thead className="divide-y divide-gray-200 ">
@@ -48,7 +48,7 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                         </tbody>
                     </table>
                 </div>
-                <div className="overflow-auto rounded-r-md">
+                <div className="rounded-r-md">
                     <table className="w-full border ">
                         <thead className="divide-y divide-gray-200 ">
                             <tr className='text-center' >
@@ -74,8 +74,8 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                 <tr key={i}>
                                     {[... new Set(valueCon.invoices.map(x => x.invoice))].map((x, q) => (
                                         <td key={q} data-label={q} className={`table_cell py-1 border text-[0.7rem]
-                                        w-2 h-[1.55rem] cursor-pointer 
-                                        ${[... new Set(valueCon.invoices.map(x => x.invoice))].length === 1 && 'flex w-full justify-center'} 
+                                        w-2 h-[1.55rem] cursor-pointer
+                                        ${[... new Set(valueCon.invoices.map(x => x.invoice))].length === 1 && 'flex w-full justify-center'}
                                         ${y.invRef.includes(x.toString()) ? 'bg-slate-500 text-white hover:bg-slate-500' : 'hover:bg-slate-100'}
                                         `} onClick={e => setRef(y, x)} >
 

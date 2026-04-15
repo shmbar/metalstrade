@@ -876,7 +876,7 @@ return (
                 ))}
 
                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">Total</div>
+                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">Total</div>
                     <NumericFormat
                         value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
                         displayType="text"
@@ -885,7 +885,7 @@ return (
                         prefix={'$'}
                         decimalScale='2'
                         fixedDecimalScale
-                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
+                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
                     />
                 </div>
             </>
@@ -979,7 +979,7 @@ return (
                                     )
                                 })}  
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
+                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -992,7 +992,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
+                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
                                     />
                                 </div>
 
@@ -1042,7 +1042,7 @@ return (
                                     )
                                 })}
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
+                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1055,7 +1055,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
+                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
                                     />
                                 </div>
                             </div>
@@ -1101,7 +1101,7 @@ return (
                                     )
                                 })}
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
+                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1114,7 +1114,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
+                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
                                     />
                                 </div>
                             </div>
@@ -1161,7 +1161,7 @@ return (
                                     })}
 
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
+                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1174,7 +1174,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
+                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
                                     />
                                 </div>
                             </div>
@@ -1214,7 +1214,7 @@ return (
                                         </div>
 
                                         <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                            <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
+                                            <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                 Total
                                             </div>
                                             <NumericFormat
@@ -1225,7 +1225,7 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
+                                                className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
                                             />
                                         </div>
                                     </div>
@@ -1281,7 +1281,7 @@ return (
                                     )
                                 })}
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
+                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1294,7 +1294,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
+                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
                                     />
                                 </div>
                             </div>
@@ -1344,7 +1344,7 @@ return (
                                 })}
 
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
+                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1357,7 +1357,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
+                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
                                     />
                                 </div>
                             </div>
@@ -1403,7 +1403,7 @@ return (
                                     )
                                 })}
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
+                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1416,7 +1416,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
+                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
                                     />
                                 </div>
                             </div>
@@ -1453,7 +1453,7 @@ return (
                                         </div>
 
                                         <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                            <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
+                                            <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                 Total
                                             </div>
                                             <NumericFormat
@@ -1464,7 +1464,7 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
+                                                className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
                                             />
                                         </div>
 
@@ -1483,7 +1483,7 @@ return (
                     <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
                         
                         <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
-                            <span className="font-bold text-[var(--endeavour)] responsiveText whitespace-nowrap">
+                            <span className="font-semibold text-[var(--endeavour)] responsiveText whitespace-nowrap">
                                 Total (Left)
                             </span>
                             <NumericFormat
@@ -1499,7 +1499,7 @@ return (
                         </div>
 
                         <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-full px-3 py-0.5">
-                            <span className="font-bold responsiveText whitespace-nowrap">
+                            <span className="font-semibold responsiveText whitespace-nowrap">
                                 Balance
                             </span>
                             <NumericFormat
@@ -1515,7 +1515,7 @@ return (
                         </div>
 
                         <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
-                            <span className="font-bold text-[var(--endeavour)] responsiveText whitespace-nowrap">
+                            <span className="font-semibold text-[var(--endeavour)] responsiveText whitespace-nowrap">
                                 Total (Right)
                             </span>
                             <NumericFormat
