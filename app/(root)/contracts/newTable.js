@@ -42,7 +42,8 @@ const Customtable = ({
   setFilteredData,
   highlightId,
   onCellUpdate,
-  excellReport
+  excellReport,
+  extraActions
 }) => {
   const [globalFilter, setGlobalFilter] = useState('')
   const [columnVisibility, setColumnVisibility] = useState(invisible)
@@ -272,6 +273,7 @@ const Customtable = ({
               setQuickSumEnabled={setQuickSumEnabled}
               quickSumColumns={quickSumColumns}
               setQuickSumColumns={setQuickSumColumns}
+              extraActions={extraActions}
             />
           </div>
 

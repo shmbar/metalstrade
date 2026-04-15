@@ -832,7 +832,7 @@ return (
 {activeTab === 'unsold' ? (
     <div className="w-full max-w-2xl border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
         <div className="flex items-center justify-between mb-2">
-            <div className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Unsold Stocks</div>
+            <div className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Unsold Stocks</div>
             <div className="flex items-center gap-2">
             {stocksSortName2 ?
                 <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName2()} />
@@ -852,7 +852,7 @@ return (
                     <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
                         <MyAccordion title={
                             <div className="flex w-full justify-between">
-                                <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
+                                <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
                                     {x.supplierName}
                                 </div>
                                 <div className="leading-4 2xl:leading-6">
@@ -864,7 +864,7 @@ return (
                                         prefix={x.cur === 'us' ? '$' : '€'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveText font-normal text-[var(--port-gore)]'
+                                        className='responsiveText font-medium text-[var(--port-gore)]'
                                     />
                                 </div>
                             </div>
@@ -876,7 +876,7 @@ return (
                 ))}
 
                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">Total</div>
+                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">Total</div>
                     <NumericFormat
                         value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
                         displayType="text"
@@ -885,7 +885,7 @@ return (
                         prefix={'$'}
                         decimalScale='2'
                         fixedDecimalScale
-                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
                     />
                 </div>
             </>
@@ -896,7 +896,7 @@ return (
   {userTitle === 'Admin' &&
                         <div className="w-full p-2 mb-2">
                             <div className="flex gap-2">
-                                <span className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium items-center flex w-44 text-[var(--endeavour)]">Future</span>
+                                <span className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold items-center flex w-44 text-[var(--endeavour)]">Future</span>
                                 <label className="pl-1">{
                                     <NumericFormat
                                         value={incoming}
@@ -914,17 +914,17 @@ return (
                                 initialData?.map((z, i) => {
                                     return (
                                         <div className="flex gap-2 my-1 items-center" key={i}>
-                                            <input className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium items-center flex outline-none w-44 truncate text-[var(--endeavour)]" value={z.title}
+                                            <input className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold items-center flex outline-none w-44 truncate text-[var(--endeavour)]" value={z.title}
                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
                                             <input className='input w-44 h-6 responsiveTextTotal rounded-full'
                                                 value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
                                             <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-md hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
                                             {i === initialData.length - 1 && <>
                                                 <Tltip direction='bottom' tltpText='Save added data'>
-                                                    <button type="button" className="bg-[var(--endeavour)] border border-[#d8e8f5] text-white px-5 h-7 text-[0.72rem] rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
+                                                    <button type="button" className="bg-[var(--endeavour)] border border-[#d8e8f5] text-white px-5 h-7 text-[0.72rem] font-medium rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
                                                 </Tltip>
                                                 <Tltip direction='bottom' tltpText='Add new item above'>
-                                                    <button type="button" className="border border-[#d8e8f5] text-[var(--endeavour)] px-5 h-7 text-[0.72rem] rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all" onClick={addItem}>Add</button>
+                                                    <button type="button" className="border border-[#d8e8f5] text-[var(--endeavour)] px-5 h-7 text-[0.72rem] font-medium rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all" onClick={addItem}>Add</button>
                                                 </Tltip>
                                             </>}
                                         </div>
@@ -938,7 +938,7 @@ return (
                             <div className="w-full">
                             <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Stocks - Paid</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Stocks - Paid</span>
                                     <div className="flex items-center gap-2">
                                         {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} />}
                                         {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} />}
@@ -949,7 +949,7 @@ return (
                                         <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                        <div className="responsiveText items-center font-normal text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0"
+                                                        <div className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
                                                     </div>
@@ -963,7 +963,7 @@ return (
                                                             prefix={x.cur === 'us' ? '$' : '€'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[var(--port-gore)] '
+                                                            className='responsiveText font-medium text-[var(--port-gore)] '
                                                         />
                                                     </div>
                                                 </div>
@@ -979,7 +979,7 @@ return (
                                     )
                                 })}  
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -992,7 +992,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
                                     />
                                 </div>
 
@@ -1002,7 +1002,7 @@ return (
 
                             <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Stocks - UnPaid</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Stocks - UnPaid</span>
                                     <div className="flex items-center gap-2">
                                         {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} />}
                                         {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} />}
@@ -1014,7 +1014,7 @@ return (
                                         <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                    <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                    <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
                                                     </div>
@@ -1028,7 +1028,7 @@ return (
                                                             prefix={x.cur === 'us' ? '$' : '€'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[var(--port-gore)]'
+                                                            className='responsiveText font-medium text-[var(--port-gore)]'
                                                         />
                                                     </div>
                                                 </div>
@@ -1042,7 +1042,7 @@ return (
                                     )
                                 })}
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1055,7 +1055,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
                                     />
                                 </div>
                             </div>
@@ -1063,7 +1063,7 @@ return (
 
                             <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Clients - Payment</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Clients - Payment</span>
                                     <div className="flex items-center gap-2">
                                         {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} />}
                                         {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} />}
@@ -1088,7 +1088,7 @@ return (
                                                             prefix={x.cur === 'us' ? '$' : '€'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[var(--port-gore)]'
+                                                            className='responsiveText font-medium text-[var(--port-gore)]'
                                                         />
 
                                                     </div>
@@ -1101,7 +1101,7 @@ return (
                                     )
                                 })}
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1114,7 +1114,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
                                     />
                                 </div>
                             </div>
@@ -1122,7 +1122,7 @@ return (
 
                             <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Clients - Balances</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Clients - Balances</span>
                                     <div className="flex items-center gap-2">
                                         {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} />}
                                         {clientSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} />}
@@ -1134,7 +1134,7 @@ return (
                                         <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between">
-                                                    <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                    <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
                                                     >
                                                         {settings.Client.Client.find(z => z.id === x.client)?.nname}
                                                     </div>
@@ -1147,7 +1147,7 @@ return (
                                                             prefix={x.cur === 'us' ? '$' : '€'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[var(--port-gore)]'
+                                                            className='responsiveText font-medium text-[var(--port-gore)]'
                                                         />
 
                                                     </div>
@@ -1161,7 +1161,7 @@ return (
                                     })}
 
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1174,7 +1174,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
                                     />
                                 </div>
                             </div>
@@ -1185,7 +1185,7 @@ return (
                                     userTitle === 'Admin' &&
                                     <div className='mt-1 p-1'>
                                         <div className='flex justify-between p-2'>
-                                            <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Financing</span>
+                                            <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Financing</span>
                                             <button
                                                 type="button"
                                     className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
@@ -1214,7 +1214,7 @@ return (
                                         </div>
 
                                         <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                            <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
+                                            <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
                                                 Total
                                             </div>
                                             <NumericFormat
@@ -1225,7 +1225,7 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                                className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
                                             />
                                         </div>
                                     </div>
@@ -1239,7 +1239,7 @@ return (
 
                             <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Supplier - Payment</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Supplier - Payment</span>
                                     <div className="flex items-center gap-2">
                                         {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
                                         {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} />}
@@ -1253,7 +1253,7 @@ return (
                                         <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                    <span className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words w-full min-w-0"
+                                                    <span className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words w-full min-w-0"
                                                     >
                                                         {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                     </span>
@@ -1266,7 +1266,7 @@ return (
                                                             prefix={'$'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[var(--port-gore)]'
+                                                            className='responsiveText font-medium text-[var(--port-gore)]'
                                                         />
                                                     </div>
                                                 </div>
@@ -1281,7 +1281,7 @@ return (
                                     )
                                 })}
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1294,7 +1294,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
                                     />
                                 </div>
                             </div>
@@ -1302,7 +1302,7 @@ return (
 
                             <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Supplier - Balances</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Supplier - Balances</span>
                                     <div className="flex items-center gap-2">
                                         {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
                                         {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} />}
@@ -1316,7 +1316,7 @@ return (
                                         <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                    <span className="responsiveText items-center font-normal text-[var(--port-gore)] flex outline-none whitespace-normal break-words w-full min-w-0"
+                                                    <span className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words w-full min-w-0"
                                                     >
                                                         {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                     </span>
@@ -1329,7 +1329,7 @@ return (
                                                             prefix={'$'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[var(--port-gore)]'
+                                                            className='responsiveText font-medium text-[var(--port-gore)]'
                                                         />
                                                     </div>
                                                 </div>
@@ -1344,7 +1344,7 @@ return (
                                 })}
 
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1357,14 +1357,14 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
                                     />
                                 </div>
                             </div>
 
                             <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Expenses</span>
+                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Expenses</span>
                                     <div className="flex items-center gap-2">
                                         {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} />}
                                         {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} />}
@@ -1376,7 +1376,7 @@ return (
                                         <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
                                             <MyAccordion title={
                                                 <div className="flex justify-between leading-4 2xl:leading-6 w-full">
-                                                    <div className="responsiveText font-normal text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"              >
+                                                    <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"              >
                                                         {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                     </div>
 
@@ -1389,7 +1389,7 @@ return (
                                                             prefix={'$'}
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveText font-normal text-[var(--port-gore)]'
+                                                            className='responsiveText font-medium text-[var(--port-gore)]'
                                                         />
                                                     </div>
                                                 </div>
@@ -1403,7 +1403,7 @@ return (
                                     )
                                 })}
                                 <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
+                                    <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
                                         Total
                                     </div>
                                     <NumericFormat
@@ -1416,7 +1416,7 @@ return (
                                         prefix='$'
                                         decimalScale='2'
                                         fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                        className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
                                     />
                                 </div>
                             </div>
@@ -1426,7 +1426,7 @@ return (
                                     userTitle === 'Admin' &&
                                     <div className='mt-1 p-1'>
                                         <div className='flex justify-between'>
-                                            <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-medium">Financing</span>
+                                            <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Financing</span>
                                             <button
                                                 type="button"
                                     className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
@@ -1453,7 +1453,7 @@ return (
                                         </div>
 
                                         <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                            <div className="responsiveTextTotal text-[var(--endeavour)] font-medium">
+                                            <div className="responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5">
                                                 Total
                                             </div>
                                             <NumericFormat
@@ -1464,7 +1464,7 @@ return (
                                                 prefix='$'
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                className='responsiveTextTotal text-[var(--endeavour)] font-semibold'
+                                                className='responsiveTextTotal text-[var(--endeavour)] font-bold border-t border-[var(--endeavour)] pt-0.5'
                                             />
                                         </div>
 
@@ -1483,7 +1483,7 @@ return (
                     <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
                         
                         <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
-                            <span className="font-normal text-[var(--endeavour)] responsiveText whitespace-nowrap">
+                            <span className="font-bold text-[var(--endeavour)] responsiveText whitespace-nowrap">
                                 Total (Left)
                             </span>
                             <NumericFormat
@@ -1494,12 +1494,12 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-normal text-[var(--endeavour)] responsiveText whitespace-nowrap"
+                                className="font-bold text-[var(--endeavour)] responsiveText whitespace-nowrap"
                             />
                         </div>
 
                         <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-full px-3 py-0.5">
-                            <span className="font-normal responsiveText whitespace-nowrap">
+                            <span className="font-bold responsiveText whitespace-nowrap">
                                 Balance
                             </span>
                             <NumericFormat
@@ -1510,12 +1510,12 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-normal responsiveText whitespace-nowrap"
+                                className="font-bold responsiveText whitespace-nowrap"
                             />
                         </div>
 
                         <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
-                            <span className="font-normal text-[var(--endeavour)] responsiveText whitespace-nowrap">
+                            <span className="font-bold text-[var(--endeavour)] responsiveText whitespace-nowrap">
                                 Total (Right)
                             </span>
                             <NumericFormat
@@ -1526,7 +1526,7 @@ return (
                                 prefix="$"
                                 decimalScale={2}
                                 fixedDecimalScale
-                                className="font-normal text-[var(--endeavour)] responsiveText whitespace-nowrap"
+                                className="font-bold text-[var(--endeavour)] responsiveText whitespace-nowrap"
                             />
                         </div>
 
@@ -1538,9 +1538,9 @@ return (
                             const key = `total${z}`;
                             return (
                                 <div className="flex gap-2 my-1" key={z}>
-                                    <span className="responsiveText items-center flex w-28 text-[var(--endeavour)] whitespace-nowrap">Total for {z}</span>
+                                    <span className="responsiveText items-center flex w-28 text-[var(--endeavour)] whitespace-nowrap font-medium">Total for {z}</span>
                                     <input
-                                        className='input w-44 h-6 responsiveText font-normal text-[var(--endeavour)] text-right px-3 bg-[#f8fbff] border-[#d8e8f5] rounded-full'
+                                        className='input w-44 h-6 responsiveText font-medium text-[var(--endeavour)] text-right px-3 bg-[#f8fbff] border-[#d8e8f5] rounded-full'
                                         value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
                                         onChange={e => handleChange(e, z)}
                                     />

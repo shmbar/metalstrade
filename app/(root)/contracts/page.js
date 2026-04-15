@@ -339,43 +339,43 @@ const Contracts = () => {
 						</div>
 
 						{/* Table Component */}
-						<Customtable 
+						<Customtable
 							data={sortArr(contractsData, 'order')}
-							columns={propDefaults} 
+							columns={propDefaults}
 							SelectRow={SelectRow}
 							invisible={invisible}
 							excellReport={EXD(contractsData.filter(x => filteredData.map(z => z.id).includes(x.id)),
 								settings, getTtl('Contracts', ln), ln)}
 							setFilteredData={setFilteredData}
-							highlightId={highlightId} 
-							onCellUpdate={onCellUpdate} 
+							highlightId={highlightId}
+							onCellUpdate={onCellUpdate}
+							extraActions={
+								<>
+									<Tltip direction='bottom' tltpText='Create new Contract'>
+										<button
+											type="button"
+											onClick={addNewContract}
+											className="flex items-center gap-1 h-7 px-2 rounded-2xl responsiveTextTable font-medium transition-all border bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[var(--selago)] whitespace-nowrap"
+											style={{ fontSize: '0.68rem' }}
+										>
+											<TbLayoutGridAdd className="w-3.5 h-3.5 flex-shrink-0" />
+											<span>{getTtl('New Contract', ln)}</span>
+										</button>
+									</Tltip>
+									<Tltip direction='bottom' tltpText='Quantities analysis report'>
+										<button
+											type="button"
+											onClick={() => router.push('/analysis')}
+											className="flex items-center gap-1 h-7 px-2 rounded-2xl responsiveTextTable font-medium transition-all border bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[var(--selago)] whitespace-nowrap"
+											style={{ fontSize: '0.68rem' }}
+										>
+											<IoAnalyticsOutline className="w-3.5 h-3.5 flex-shrink-0" />
+											<span>{getTtl('Weight Analysis', ln)}</span>
+										</button>
+									</Tltip>
+								</>
+							}
 						/>
-					</div>
-
-					{/* Action Buttons */}
-					<div className="flex flex-col sm:flex-row gap-3 mt-4 ml-4">
-						<Tltip direction='bottom' tltpText='Create new Contract'>
-							<button
-								type="button"
-								onClick={addNewContract}
-								
-								className="blackButton whitespace-nowrap"
-							>
-								<TbLayoutGridAdd className="w-4 h-4 flex-shrink-0" />
-								<span>{getTtl('New Contract', ln)}</span>
-							</button>
-						</Tltip>
-						<Tltip direction='bottom' tltpText='Quantities analysis report'>
-							<button
-								type="button"
-								onClick={() => router.push('/analysis')}
-								
-								className="blackButton whitespace-nowrap"
-							>
-								<IoAnalyticsOutline className="w-4 h-4 flex-shrink-0" />
-								<span>{getTtl('Weight Analysis', ln)}</span>
-							</button>
-						</Tltip>
 					</div>
 
 					{/* Alert Section */}

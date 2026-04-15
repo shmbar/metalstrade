@@ -40,6 +40,7 @@ const Header = ({
   setQuickSumEnabled = () => {},
   quickSumColumns = [],
   setQuickSumColumns = () => {},
+  extraActions,
 }) => {
 
   const { ln } = useContext(SettingsContext);
@@ -191,6 +192,9 @@ const Header = ({
               selectedColumnIds={quickSumColumns}
               setSelectedColumnIds={setQuickSumColumns}
             />
+
+            {/* Page-specific action buttons (e.g. New Contract, Weight Analysis) */}
+            {extraActions}
 
             {/* Edit Mode */}
             {showEditButton && typeof setIsEditMode === 'function' && (
