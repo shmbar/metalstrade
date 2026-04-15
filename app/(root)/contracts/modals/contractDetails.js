@@ -109,11 +109,11 @@ const ContractModal = () => {
 	return (
 		<div className="px-1">
 
-			<div className='grid grid-cols-6 gap-3 pt-1'>
+			<div className='grid grid-cols-1 md:grid-cols-6 gap-3 pt-1'>
 				<div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex gap-4 items-center'>
-						<p className='flex pt-1 responsiveText font-medium'>{getTtl('Supplier Name', ln)}:</p>
-						<div className='w-72'>
+					<div className='flex flex-col md:flex-row gap-3 items-start md:items-center'>
+						<p className='flex pt-2responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Supplier Name', ln)}:</p>
+						<div className='flex-1 min-w-0'>
 							<Selector arr={sups} value={valueCon}
 								onChange={(e) => handleChange(e, 'supplier')}
 								name='supplier'
@@ -136,7 +136,7 @@ const ContractModal = () => {
 						</>
 					)}
 					{valueCon.showOriginSupplier &&
-						<div className='flex items-center gap-2 w-[20rem] overflow-hidden'>
+						<div className='flex items-center gap-2 w-full'>
 							<p className='flex p-1 pt-2 items-center responsiveText whitespace-nowrap font-medium'>Original Supplier:</p>
 							<div className='flex-1 min-w-0'>
 								<Selector
@@ -155,30 +155,30 @@ const ContractModal = () => {
 
 				</div>
 				<div className='col-span-12 md:col-span-2 border border-[#b8ddf8] p-2 rounded-2xl'>
-					<p className='flex items-center responsiveText font-medium'>{getTtl('PoOrderNo', ln)}:</p>
-					<div className='w-full md:w-48 responsiveText'>
-						<input className="input shadow-lg h-8" style={{ fontSize: 'inherit' }} name='order' value={valueCon.order} onChange={handleValue} />
+					<p className='flex items-center responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('PoOrderNo', ln)}:</p>
+					<div className='w-full responsiveText'>
+						<input className="border border-[#b8ddf8] rounded-full px-3 py-1 h-7 text-[0.75rem] focus:outline-none focus:ring-1 focus:ring-blue-200" style={{ fontSize: 'inherit' }} name='order' value={valueCon.order} onChange={handleValue} />
 						<ErrDiv field='order' errors={errors} ln={ln} />
 					</div>
-					<p className='flex items-center responsiveText mt-3 font-medium'>{getTtl('Date', ln)}:</p>
-					<div className='w-full md:w-48 '>
+					<p className='flex items-center responsiveText mt-3 font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Date', ln)}:</p>
+					<div className='w-full '>
 						<Datepicker useRange={false}
 							asSingle={true}
 							value={valueCon.dateRange}
 							popoverDirection='down'
 							onChange={handleDateChange}
 							displayFormat={"DD-MMM-YYYY"}
-							inputClassName='input w-full shadow-lg h-8'
+							inputClassName='border border-[#b8ddf8] rounded-full px-3 py-1 h-7 text-[0.75rem] focus:outline-none focus:ring-1 focus:ring-blue-200 w-full'
 						/>
 						<ErrDiv field='date' errors={errors} ln={ln} />
 					</div>
 				</div>
 			</div>
-			<div className='grid grid-cols-3 gap-3 pt-2'>
+			<div className='grid grid-cols-1 md:grid-cols-3 gap-3 pt-2'>
 				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex gap-2 justify-between'>
-						<p className='flex pt-1 responsiveText items-center font-medium whitespace-nowrap'>{getTtl('Shipment', ln)}:</p>
-						<div className='w-full md:w-44 min-w-0'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center'>
+						<p className='flex pt-2responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Shipment', ln)}:</p>
+						<div className='flex-1 min-w-0'>
 							<Selector arr={settings.Shipment.Shipment} value={valueCon}
 								onChange={(e) => handleChange(e, 'shpType')}
 								name='shpType'
@@ -186,18 +186,18 @@ const ContractModal = () => {
 							<ErrDiv field='shpType' errors={errors} ln={ln} />
 						</div>
 					</div>
-					<div className='flex gap-2 justify-between pt-1 overflow-hidden'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap'>{getTtl('Origin', ln)}:</p>
-						<div className='w-full md:w-44 min-w-0'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center pt-2'>
+						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Origin', ln)}:</p>
+						<div className='flex-1 min-w-0'>
 							<Selector arr={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]} value={valueCon}
 								onChange={(e) => handleChange(e, 'origin')}
 								name='origin'
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex gap-2 justify-between pt-1 overflow-hidden'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap'>{getTtl('Delivery Terms', ln)}:</p>
-						<div className='w-full md:w-44 min-w-0'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center pt-2'>
+						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Delivery Terms', ln)}:</p>
+						<div className='flex-1 min-w-0'>
 							<Selector arr={settings['Delivery Terms']['Delivery Terms']} value={valueCon}
 								onChange={(e) => handleChange(e, 'delTerm')}
 								name='delTerm'
@@ -207,27 +207,27 @@ const ContractModal = () => {
 				</div>
 
 				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex gap-2 justify-between'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap'>{getTtl('POL', ln)}:</p>
-						<div className='w-full md:w-44 min-w-0'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center'>
+						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('POL', ln)}:</p>
+						<div className='flex-1 min-w-0'>
 							<Selector arr={settings.POL.POL} value={valueCon}
 								onChange={(e) => handleChange(e, 'pol')}
 								name='pol'
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex gap-2 justify-between pt-1 overflow-hidden'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap'>{getTtl('POD', ln)}:</p>
-						<div className='w-full md:w-44 min-w-0'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center pt-2'>
+						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('POD', ln)}:</p>
+						<div className='flex-1 min-w-0'>
 							<Selector arr={settings.POD.POD} value={valueCon}
 								onChange={(e) => handleChange(e, 'pod')}
 								name='pod'
 								clear={clear} disabled={firstRule} />
 						</div>
 					</div>
-					<div className='flex gap-2 justify-between pt-1 overflow-hidden'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap'>{getTtl('Packing', ln)}:</p>
-						<div className='w-full md:w-44 min-w-0'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center pt-2'>
+						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Packing', ln)}:</p>
+						<div className='flex-1 min-w-0'>
 							<Selector arr={settings.Packing.Packing} value={valueCon}
 								onChange={(e) => handleChange(e, 'packing')}
 								name='packing'
@@ -237,28 +237,28 @@ const ContractModal = () => {
 				</div>
 
 				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex gap-2 justify-between'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap'>{getTtl('Container Type', ln)}:</p>
-						<div className='w-full md:w-44 min-w-0'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center'>
+						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Container Type', ln)}:</p>
+						<div className='flex-1 min-w-0'>
 							<Selector arr={settings['Container Type']['Container Type']} value={valueCon}
 								onChange={(e) => handleChange(e, 'contType')}
 								name='contType' disabled={secondRule}
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex gap-2 justify-between pt-1 overflow-hidden'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap'>{getTtl('Size', ln)}:</p>
-						<div className='w-full md:w-44 min-w-0'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center pt-2'>
+						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Size', ln)}:</p>
+						<div className='flex-1 min-w-0'>
 							<Selector arr={settings.Size.Size} value={valueCon}
 								onChange={(e) => handleChange(e, 'size')}
 								name='size'
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex gap-2 justify-between pt-1 overflow-hidden'>
-						<p className='flex responsiveText font-medium whitespace-nowrap'>{getTtl('Delivery Time', ln)}:</p>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center pt-2'>
+						<p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Delivery Time', ln)}:</p>
 						{!valueCon.isDeltimeText ?
-							<div className='w-full md:w-44 min-w-0'>
+							<div className='flex-1 min-w-0'>
 								<Selector arr={[...settings['Delivery Time']['Delivery Time'], { deltime: '..Edit Text', id: 'EditTextDelTime' }]}
 									value={valueCon}
 									onChange={(e) => handleChange(e, 'deltime')}
@@ -266,7 +266,7 @@ const ContractModal = () => {
 									clear={clear} />
 							</div>
 							:
-							<div className='flex pt-1 left-5 relative w-7/12 responsiveText'>
+							<div className='flex pt-2left-5 relative w-7/12 responsiveText'>
 								<input type='text' className="input shadow-lg h-[1.86rem] w-full rounded-lg" style={{ fontSize: 'inherit' }} name='deltime'
 									value={valueCon.deltime} onChange={handleValue} />
 								<button className='relative right-6 '>
@@ -279,7 +279,7 @@ const ContractModal = () => {
 			</div>
 
 			<div className='mt-2 w-full border border-[#b8ddf8] p-2 rounded-2xl'>
-				<p className='flex items-center responsiveText font-medium'>{getTtl('Payment Terms', ln)}:</p>
+				<p className='flex items-center responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Payment Terms', ln)}:</p>
 				<div className='w-full '>
 					<Selector arr={settings['Payment Terms']['Payment Terms']} value={valueCon}
 						onChange={(e) => handleChange(e, 'termPmnt')}
@@ -288,7 +288,7 @@ const ContractModal = () => {
 				</div>
 			</div>
 
-			<div className='grid grid-cols-4 gap-3 pt-2'>
+			<div className='grid grid-cols-1 md:grid-cols-4 gap-3 pt-2'>
 				<div className='col-span-12 md:col-span-3 '>
 					<div className='w-full border border-[#b8ddf8] p-2 rounded-2xl'>
 						<ProductsTable value={valueCon} setValue={setValueCon} currency={settings.Currency.Currency}
@@ -298,9 +298,9 @@ const ContractModal = () => {
 					</div>
 				</div>
 				<div className='col-span-12 md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex gap-2 justify-between'>
-						<p className='flex pt-1 responsiveText items-center font-medium whitespace-nowrap'>{getTtl('Currency', ln)}:</p>
-						<div className='w-full md:w-44 min-w-0'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center'>
+						<p className='flex pt-2responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Currency', ln)}:</p>
+						<div className='flex-1 min-w-0'>
 							<Selector arr={settings.Currency.Currency} value={valueCon}
 								onChange={(e) => handleChange(e, 'cur')}
 								name='cur'
@@ -309,8 +309,8 @@ const ContractModal = () => {
 						</div>
 					</div>
 					<div className='flex gap-2 justify-between items-center pt-1'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap'>{getTtl('Quantity', ln)}:</p>
-						<div className='w-full md:w-44 min-w-0'>
+						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Quantity', ln)}:</p>
+						<div className='flex-1 min-w-0'>
 							<Selector arr={settings.Quantity.Quantity} value={valueCon}
 								onChange={(e) => handleChange(e, 'qTypeTable')}
 								name='qTypeTable'
@@ -330,7 +330,7 @@ const ContractModal = () => {
 				</div>
 			</div>
 
-			<div className='grid grid-cols-4 gap-3 pt-2'>
+			<div className='grid grid-cols-1 md:grid-cols-4 gap-3 pt-2'>
 				<div className='col-span-12 md:col-span-3 '>
 					<div className='mt-2 w-full border border-[#b8ddf8] p-2 rounded-2xl'>
 						<Remarks settings={settings} value={valueCon} setValue={setValueCon} />
@@ -340,9 +340,9 @@ const ContractModal = () => {
 					</div>
 				</div>
 				<div className='col-span-12 md:col-span-1 mt-1'>
-					<p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
+					<p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="5" cols="60" name="comments"
-						className="input h-24 p-1 !rounded-xl"
+						className="border border-[#b8ddf8] rounded-lg px-3 py-2 h-24 text-[0.75rem] focus:outline-none focus:ring-1 focus:ring-blue-200 resize-none w-full"
 						style={{ fontSize: 'inherit' }}
 						value={valueCon.comments} onChange={handleValue} />
 					<div className='flex leading-7 items-center gap-2'>
@@ -356,7 +356,7 @@ const ContractModal = () => {
 
 
 
-			<div className="p-3 pl-6 flex gap-2 flex-wrap justify-center md:justify-start">
+			<div className="p-3 flex gap-2 flex-wrap justify-start flex-col sm:flex-row">
 				<Tltip direction='top' tltpText='Save/Update contract'>
 					<button
 						className="blackButton py-1"

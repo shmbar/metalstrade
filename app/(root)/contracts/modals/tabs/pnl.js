@@ -151,13 +151,13 @@ const PNL = () => {
     <div className='p-1'>
       <div className='grid grid-cols-12 pt-3 gap-4 '>
         <div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl '>
-          <p className='responsiveText'>{getTtl('selectCurr', ln)}:</p>
+          <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('selectCurr', ln)}:</p>
           <Selector arr={settings.Currency.Currency} value={valCur}
             onChange={(e) => handleChange(e, 'cur')}
             name='cur'
            />
           <div className='flex gap-2 pt-2 flex-wrap'>
-            <p className='responsiveText'>{getTtl('purchaseValue', ln)}:</p>
+            <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('purchaseValue', ln)}:</p>
             <p className='responsiveText items-center flex text-[var(--port-gore)] font-medium'>
               {setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
 
@@ -172,22 +172,22 @@ const PNL = () => {
         </div>
         <div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>
           <div className='flex justify-between whitespace-nowrap gap-2'>
-            <p className='responsiveText'>{getTtl('invValueSale', ln)}:</p>
+            <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('invValueSale', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings), settings)}</p>
           </div>
           <div className='w-full text-right h-4 -mt-2'>-</div>
           <div className='flex justify-between whitespace-nowrap gap-2'>
-            <p className='responsiveText'>{getTtl('purchaseValue', ln)}:</p>
+            <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('purchaseValue', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
           </div>
           <div className='w-full text-right h-4 -mt-2'>-</div>
           <div className='flex justify-between whitespace-nowrap gap-2'>
-            <p className='responsiveText w-28'>{getTtl('Expenses', ln)}:</p>
+            <p className='responsiveText w-28 font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Expenses', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, TotalArrsExp(pnlData, valCur, valueCon.euroToUSD), settings)}</p>
           </div>
           <div className='pt-1.5 border-t border-slate-500'></div>
           <div className='flex justify-between whitespace-nowrap gap-2 font-semibold'>
-            <p className='responsiveText w-28'>{getTtl('Profit', ln)}:</p>
+            <p className='responsiveText w-28 font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Profit', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, (Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings) -
               TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD) - TotalArrsExp(pnlData, valCur, valueCon.euroToUSD)), settings)}</p>
           </div>
@@ -210,13 +210,13 @@ const PNL = () => {
       </div>
 
       <div className='block md:flex flex-wrap mt-4 gap-2 '>
-        <p className='p-2 responsiveText'>{getTtl('Invoices summary', ln)}:</p>
+        <p className='p-2 responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Invoices summary', ln)}:</p>
         <TotalPnlTable data={pnlData} val={valCur} mult={valueCon.euroToUSD} />
       </div>
 
 
       <div className='flex items-center pt-4 gap-2'>
-        <p className='responsiveText'>{enabledSwitch ? getTtl('Hide Details', ln) : getTtl('Show Details', ln)}</p>
+        <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{enabledSwitch ? getTtl('Hide Details', ln) : getTtl('Show Details', ln)}</p>
         <Switch enabled={enabledSwitch} setEnabled={setEnabledSwitch} />
       </div>
 

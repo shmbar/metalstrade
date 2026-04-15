@@ -160,19 +160,19 @@ const Inventory = () => {
             <div className='mt-3 border border-[#b8ddf8] p-2 rounded-2xl max-w-72 ]'>
 
                 <div className='flex justify-between'>
-                    <p className='text-[0.8rem]'>{getTtl('Purchase QTY', ln)} / MT</p>
-                    <p className='text-[0.8rem]'>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings))}</p>
+                    <p className='text-[0.75rem] font-medium text-[var(--chathams-blue)]'>{getTtl('Purchase QTY', ln)} / MT</p>
+                    <p className='text-[0.75rem] text-[var(--port-gore)]'>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings))}</p>
                 </div>
 
                 <div className='w-full text-right h-4 -mt-2'>-</div>
                 <div className='flex justify-between'>
-                    <p className='text-[0.8rem] w-full'>{getTtl('Invoices summary', ln)}:</p>
-                    <p className='text-[0.8rem]'>{frm(Total(data, 'productsDataInvoice', 'qnty'))}</p>
+                    <p className='text-[0.75rem] font-medium text-[var(--chathams-blue)] w-full'>{getTtl('Invoices summary', ln)}:</p>
+                    <p className='text-[0.75rem] text-[var(--port-gore)]'>{frm(Total(data, 'productsDataInvoice', 'qnty'))}</p>
                 </div>
                 <div className='pt-1.5 border-t border-slate-500'></div>
                 <div className='flex justify-between font-bold'>
-                    <p className='text-[0.8rem] full'>{getTtl('Remaining QTY', ln)} / MT:</p>
-                    <p className='text-[0.8rem]'>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings) -
+                    <p className='text-[0.75rem] font-medium text-[var(--chathams-blue)] full'>{getTtl('Remaining QTY', ln)} / MT:</p>
+                    <p className='text-[0.75rem] text-[var(--port-gore)]'>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings) -
                         Total(data, 'productsDataInvoice', 'qnty'))}</p>
                 </div>
             </div>

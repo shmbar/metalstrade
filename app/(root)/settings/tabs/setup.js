@@ -87,7 +87,7 @@ const Setup = () => {
                   className={`
                     inline-flex items-center gap-x-2
                     py-2 px-5
-                    text-xs  text-[var(--endeavour)] 
+                    responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem] 
                     cursor-pointer whitespace-nowrap
                     rounded-full mx-2
                     hover:bg-[var(--selago)]
