@@ -19,6 +19,7 @@ const newUser = {
   emailVerified: true,
   password: '',
   displayName: '',
+  phoneNumber: '',
   photoURL: 'http://www.example.com/12345678/photo.png',
   disabled: false,
   password1: '',
