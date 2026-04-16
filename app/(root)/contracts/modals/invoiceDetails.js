@@ -249,7 +249,7 @@ const ContractModal = () => {
 		<div className="px-1">
 			{loading && <Spinner />}
 			<div className='grid grid-cols-12 gap-3 pt-1'>
-				<div className='col-span-12 md:col-span-2  border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='col-span-12 md:col-span-1  border border-[#b8ddf8] p-2 rounded-2xl'>
 					<p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Invoices', ln)}:</p>
 					{valueCon.invoices.length > 0 &&
 						<ul className="flex flex-col mt-1 overflow-auto rounded-2xl divide-y" >
@@ -325,45 +325,46 @@ const ContractModal = () => {
 					</ul>}
 
 				</div>
-				<div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex items-center pt-1'>
-						<p className='flex responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Date', ln)}:</p>
-						<div className='w-full px-2'>
-							{!fnl ?
-								<>
-									<Datepicker useRange={false}
-										asSingle={true}
-										value={valueInv.dateRange}
-										popoverDirection='down'
-										onChange={handleDateChangeDate}
-										displayFormat={"DD-MMM-YYYY"}
-										inputClassName='input w-full shadow-lg h-7'
-									/>
-									<ErrDiv field='date' errors={errors} ln={ln} />
-								</>
-								:
-								<p className='pl-1 responsiveText'>{valueInv.date}</p>
-							}
+				<div className='col-span-12 md:col-span-4 border border-[#b8ddf8] p-2 rounded-2xl'>
+					<div className='grid grid-cols-2 gap-x-3 gap-y-1.5'>
+						<div className='flex items-center gap-2'>
+							<p className='responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Date', ln)}:</p>
+							<div className='flex-1'>
+								{!fnl ?
+									<>
+										<Datepicker useRange={false}
+											asSingle={true}
+											value={valueInv.dateRange}
+											popoverDirection='down'
+											onChange={handleDateChangeDate}
+											displayFormat={"DD-MMM-YYYY"}
+											inputClassName='input w-full shadow-lg h-7'
+										/>
+										<ErrDiv field='date' errors={errors} ln={ln} />
+									</>
+									:
+									<p className='pl-1 responsiveText'>{valueInv.date}</p>
+								}
+							</div>
+						</div>
+						<div className='flex items-center gap-2'>
+							<p className='responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>
+								{!fnl ? valueInv.invType === '1111' ? getTtl('Invoice', ln) + ' #:' : valueInv.invType === '2222' ?
+									getTtl('Credit Note', ln) + ' #:' : getTtl('Final Note', ln) + ' #:' :
+									valueInv.invType + ' No:'}
+							</p>
+							<p className='responsiveText font-medium text-[var(--port-gore)]'>
+								{(valueInv.id === '' && !isInvCreationCNFL) ? String(invNum).padStart(4, "0") + getprefixInv(valueInv) :
+									String(valueInv.invoice).padStart(4, "0") + getprefixInv(valueInv)}
+							</p>
+						</div>
+						<div className='flex items-center gap-2'>
+							<p className='responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Status', ln)}:</p>
+							<p className='responsiveText font-semibold'>
+								{!fnl ? 'Draft' : fnl && !valueInv.canceled ? 'Finalized' : (fnl && valueInv.canceled) && 'Canceled'}
+							</p>
 						</div>
 					</div>
-					<div className='flex pt-2'>
-						<p className='flex pt-1 responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>
-							{!fnl ? valueInv.invType === '1111' ? getTtl('Invoice', ln) + ' #:' : valueInv.invType === '2222' ?
-								getTtl('Credit Note', ln) + ' #:' : getTtl('Final Note', ln) + ' #:' :
-								valueInv.invType + ' No:'}</p>
-						<div className='w-full px-2 items-end flex'>
-							<p className='responsiveText'>{(valueInv.id === '' && !isInvCreationCNFL) ? String(invNum).padStart(4, "0") + getprefixInv(valueInv) :
-								String(valueInv.invoice).padStart(4, "0") + getprefixInv(valueInv)}</p>
-						</div>
-					</div>
-					<div className='flex pt-2 gap-3'>
-						<div className='flex items-center responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Status', ln)}:</div>
-						<div className='flex items-center responsiveText font-semibold whitespace-nowrap'>
-							{!fnl ? 'Draft' :
-								fnl && !valueInv.canceled ? 'Finalized' :
-									(fnl && valueInv.canceled) && 'Canceled'}</div>
-					</div>
-
 				</div>
 			</div>
 
