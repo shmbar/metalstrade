@@ -325,29 +325,29 @@ const ContractModal = () => {
 					</ul>}
 
 				</div>
-				<div className='col-span-12 md:col-span-4 border border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='grid grid-cols-2 gap-x-3 gap-y-1.5'>
-						<div className='flex items-center gap-2'>
-							<p className='responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Date', ln)}:</p>
-							<div className='flex-1'>
-								{!fnl ?
-									<>
-										<Datepicker useRange={false}
-											asSingle={true}
-											value={valueInv.dateRange}
-											popoverDirection='down'
-											onChange={handleDateChangeDate}
-											displayFormat={"DD-MMM-YYYY"}
-											inputClassName='input w-full shadow-lg h-7'
-										/>
-										<ErrDiv field='date' errors={errors} ln={ln} />
-									</>
-									:
-									<p className='pl-1 responsiveText'>{valueInv.date}</p>
-								}
-							</div>
+				<div className='col-span-12 md:col-span-4 border border-[#b8ddf8] p-2 rounded-2xl flex flex-col gap-1.5'>
+					<div className='flex items-center gap-2'>
+						<p className='responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Date', ln)}:</p>
+						<div className='flex-1'>
+							{!fnl ?
+								<>
+									<Datepicker useRange={false}
+										asSingle={true}
+										value={valueInv.dateRange}
+										popoverDirection='down'
+										onChange={handleDateChangeDate}
+										displayFormat={"DD-MMM-YYYY"}
+										inputClassName='input w-full shadow-lg h-7'
+									/>
+									<ErrDiv field='date' errors={errors} ln={ln} />
+								</>
+								:
+								<p className='pl-1 responsiveText'>{valueInv.date}</p>
+							}
 						</div>
-						<div className='flex items-center gap-2'>
+					</div>
+					<div className='flex items-center gap-4 flex-wrap'>
+						<div className='flex items-center gap-1.5'>
 							<p className='responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>
 								{!fnl ? valueInv.invType === '1111' ? getTtl('Invoice', ln) + ' #:' : valueInv.invType === '2222' ?
 									getTtl('Credit Note', ln) + ' #:' : getTtl('Final Note', ln) + ' #:' :
@@ -358,7 +358,7 @@ const ContractModal = () => {
 									String(valueInv.invoice).padStart(4, "0") + getprefixInv(valueInv)}
 							</p>
 						</div>
-						<div className='flex items-center gap-2'>
+						<div className='flex items-center gap-1.5'>
 							<p className='responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Status', ln)}:</p>
 							<p className='responsiveText font-semibold'>
 								{!fnl ? 'Draft' : fnl && !valueInv.canceled ? 'Finalized' : (fnl && valueInv.canceled) && 'Canceled'}

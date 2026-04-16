@@ -245,10 +245,10 @@ const InvoiceModal = () => {
 					</ul>}
 
 				</div>
-				<div className='col-span-12 md:col-span-4 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex items-center'>
-						<p className='flex responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Date', ln)}:</p>
-						<div className='w-full px-2'>
+				<div className='col-span-12 md:col-span-4 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-col gap-1.5'>
+					<div className='flex items-center gap-2'>
+						<p className='responsiveText font-medium whitespace-nowrap text-[var(--port-gore)]'>{getTtl('Date', ln)}:</p>
+						<div className='flex-1'>
 							{!fnl ?
 								<>
 									<Datepicker useRange={false}
@@ -266,22 +266,23 @@ const InvoiceModal = () => {
 							}
 						</div>
 					</div>
-
-					<div className='flex pt-1'>
-						<p className='flex items-center responsiveText font-medium whitespace-nowrap'>
-							{!fnl ? valueInv.invType === '1111' ? getTtl('Invoice', ln) + ' #:' : valueInv.invType === '2222' ?
-								getTtl('Credit Note', ln) + ' #:' : getTtl('Final Note', ln) + ' #:' :
-								valueInv.invType + ' No:'}</p>
-						<div className='w-full px-2 items-end flex'>
-							<p className='responsiveText'>{String(valueInv.invoice).padStart(4, "0") + getprefixInv(valueInv)}</p>
+					<div className='flex items-center gap-4 flex-wrap'>
+						<div className='flex items-center gap-1.5'>
+							<p className='responsiveText font-medium whitespace-nowrap text-[var(--port-gore)]'>
+								{!fnl ? valueInv.invType === '1111' ? getTtl('Invoice', ln) + ' #:' : valueInv.invType === '2222' ?
+									getTtl('Credit Note', ln) + ' #:' : getTtl('Final Note', ln) + ' #:' :
+									valueInv.invType + ' No:'}
+							</p>
+							<p className='responsiveText font-medium text-[var(--port-gore)]'>
+								{String(valueInv.invoice).padStart(4, "0") + getprefixInv(valueInv)}
+							</p>
 						</div>
-					</div>
-					<div className='flex pt-1 gap-3'>
-						<div className='flex items-center responsiveText font-medium whitespace-nowrap'>{getTtl('Status', ln)}:</div>
-						<div className='flex items-center responsiveText font-semibold whitespace-nowrap'>
-							{!fnl ? 'Draft' :
-								fnl && !valueInv.canceled ? 'Finalized' :
-									(fnl && valueInv.canceled) && 'Canceled'}</div>
+						<div className='flex items-center gap-1.5'>
+							<p className='responsiveText font-medium whitespace-nowrap text-[var(--port-gore)]'>{getTtl('Status', ln)}:</p>
+							<p className='responsiveText font-semibold'>
+								{!fnl ? 'Draft' : fnl && !valueInv.canceled ? 'Finalized' : (fnl && valueInv.canceled) && 'Canceled'}
+							</p>
+						</div>
 					</div>
 				</div>
 			</div>
