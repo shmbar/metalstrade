@@ -28,7 +28,7 @@ const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, di
                     placeholder={placeholder}
                     disabled={dis}
                 />
-                <ErrDiv field={name} errors={errors} ln={ln} />
+                {errors && <ErrDiv field={name} errors={errors} ln={ln} />}
             </div>
         </div>
     );
