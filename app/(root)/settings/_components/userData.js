@@ -173,15 +173,13 @@ const UserData = ({ setIsOpen, data, setData, user, setUser }) => {
             <UserD title='Email' value={user} onChange={handleChange}
                 placeholder='Email Address' name='email' errors={errors} ln={ln} />
 
-            <div className='flex gap-3 items-start my-3 w-full'>
+            <div className='flex gap-3 items-center w-full'>
                 <div className='flex-1'>
                     <UserD title='Password' value={user} onChange={handleChange} type='password'
                         placeholder='Password' name='password' errors={errors} ln={ln}
                         dis={!checked} />
                 </div>
-                <div className='flex items-center pt-7'>
-                    <CheckBox size='size-5' checked={checked} onChange={() => setChecked(!checked)} />
-                </div>
+                <CheckBox size='size-5' checked={checked} onChange={() => setChecked(!checked)} />
             </div>
 
             <div className='flex gap-4 justify-between my-3 w-full'>
