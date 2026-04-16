@@ -468,7 +468,7 @@ const ContractModal = () => {
 						<div className='flex items-center'>{(fourthRule || fifthRule) ? '' :
 							<div className='w-full px-1'>
 								{!fnl ?
-									<input type='number' className="input shadow-lg h-8" style={{ fontSize: 'inherit' }} name='ttlGross' value={valueInv.ttlGross} onChange={handleValue} />
+									<input type='number' className="input shadow-lg h-8 text-[0.75rem]" name='ttlGross' value={valueInv.ttlGross} onChange={handleValue} />
 									:
 									<p className='responsiveText pr-5 text-[var(--port-gore)]'>{(valueInv.ttlGross * 1).toLocaleString(locale, options)}</p>
 								}
@@ -482,7 +482,7 @@ const ContractModal = () => {
 							<div className='flex items-center'>{(fourthRule || thirdRule) ? '' :
 								<div className='w-full px-1'>
 									{!fnl ?
-										<input type='text' className="input shadow-lg h-8" style={{ fontSize: 'inherit' }} name='ttlPackages' value={valueInv.ttlPackages} onChange={handleValue} />
+										<input type='text' className="input shadow-lg h-8 text-[0.75rem]" name='ttlPackages' value={valueInv.ttlPackages} onChange={handleValue} />
 										:
 										<p className='responsiveText pr-5 text-[var(--port-gore)]'>{valueInv.ttlPackages}</p>
 									}
