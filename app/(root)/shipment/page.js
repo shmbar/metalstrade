@@ -260,8 +260,6 @@ const ShipmentPage = () => {
             { header: 'Client',        key: 'client',         width: 20 },
             { header: 'Shipment Date', key: 'shipmentDate',   width: 16 },
             { header: 'Arrival Date',  key: 'arrivalDate',    width: 16 },
-            { header: 'ETD',           key: 'etd',            width: 14 },
-            { header: 'ETA',           key: 'eta',            width: 14 },
             { header: 'POL',           key: 'pol',            width: 16 },
             { header: 'POD',           key: 'pod',            width: 16 },
             { header: 'Ship Type',     key: 'shpType',        width: 14 },
@@ -276,10 +274,8 @@ const ShipmentPage = () => {
                 supplier:     getSupplierName(c),
                 invoice:      inv?.invoice || '',
                 client:       getClientName(c.id),
-                shipmentDate: formatDate(c.date),
-                arrivalDate:  formatDate(c.dateRange?.endDate),
-                etd:          getETD(c.id),
-                eta:          getETA(c.id),
+                shipmentDate: getETD(c.id),
+                arrivalDate:  getETA(c.id),
                 pol:          getPOL(c),
                 pod:          getPOD(c),
                 shpType:      getShpType(c),
@@ -304,8 +300,8 @@ const ShipmentPage = () => {
                 text-align: center;
                 vertical-align: middle;
                 padding: 6px;
-                border-radius: 4px;r
-          font-size: 0.68rem !important;
+                border-radius: 4px;
+                font-size: 0.68rem !important;
         }
             .custom-table td {
                 background-color: #fff;
@@ -431,19 +427,17 @@ const ShipmentPage = () => {
                             <thead className="sticky top-0 z-10">
                                 <tr>
                                     {[
-                                        { label: 'Contract #',    width: '7%'  },
-                                        { label: 'Supplier',      width: '8%'  },
-                                        { label: 'Invoice #',     width: '6%'  },
-                                        { label: 'Client',        width: '8%'  },
-                                        { label: 'Shipment Date', width: '7%'  },
-                                        { label: 'Arrival Date',  width: '7%'  },
-                                        { label: 'ETD',           width: '6%'  },
-                                        { label: 'ETA',           width: '6%'  },
-                                        { label: 'POL',           width: '7%'  },
-                                        { label: 'POD',           width: '7%'  },
-                                        { label: 'Ship Type',     width: '7%'  },
-                                        { label: 'Status',        width: '8%'  },
-                                        { label: 'Notes',         width: '16%' },
+                                        { label: 'Contract #',    width: '8%'  },
+                                        { label: 'Supplier',      width: '9%'  },
+                                        { label: 'Invoice #',     width: '7%'  },
+                                        { label: 'Client',        width: '9%'  },
+                                        { label: 'Shipment Date', width: '8%'  },
+                                        { label: 'Arrival Date',  width: '8%'  },
+                                        { label: 'POL',           width: '8%'  },
+                                        { label: 'POD',           width: '8%'  },
+                                        { label: 'Ship Type',     width: '8%'  },
+                                        { label: 'Status',        width: '9%'  },
+                                        { label: 'Notes',         width: '18%' },
                                     ].map(({ label, width }) => (
                                         <th key={label} className="font-poppins responsiveTextTable font-medium py-2" style={{ color: 'var(--chathams-blue)', letterSpacing: '0.05em', textAlign: 'center', width }}>{label}</th>
                                     ))}
@@ -452,7 +446,7 @@ const ShipmentPage = () => {
                             <tbody>
                                 {filtered.length === 0 && !loading && (
                                     <tr>
-                                        <td colSpan={13} style={{ textAlign: 'center', padding: '32px', color: 'var(--regent-gray)' }}>
+                                        <td colSpan={11} style={{ textAlign: 'center', padding: '32px', color: 'var(--regent-gray)' }}>
                                             No shipments found.
                                         </td>
                                     </tr>
@@ -493,20 +487,6 @@ const ShipmentPage = () => {
                                                 <div className="flex justify-center">
                                                     <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {getClientName(contract.id)}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
-                                                        {formatDate(contract.date)}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
-                                                        {formatDate(contract.dateRange?.endDate)}
                                                     </div>
                                                 </div>
                                             </td>
@@ -606,10 +586,8 @@ const ShipmentPage = () => {
                                             { label: 'Supplier',      value: getSupplierName(contract) },
                                             { label: 'Invoice #',     value: mainInv ? String(mainInv.invoice) : '—' },
                                             { label: 'Client',        value: getClientName(contract.id) },
-                                            { label: 'Shipment Date', value: formatDate(contract.date) },
-                                            { label: 'Arrival Date',  value: formatDate(contract.dateRange?.endDate) },
-                                            { label: 'ETD',           value: getETD(contract.id) },
-                                            { label: 'ETA',           value: getETA(contract.id) },
+                                            { label: 'Shipment Date', value: getETD(contract.id) },
+                                            { label: 'Arrival Date',  value: getETA(contract.id) },
                                             { label: 'POL',           value: getPOL(contract) },
                                             { label: 'POD',           value: getPOD(contract) },
                                             { label: 'Ship Type',     value: getShpType(contract) },
