@@ -36,7 +36,7 @@ const General = () => {
                     <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-1'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='gap-4 flex items-center' >
-                            <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[85px] md:w-[100px] text-[var(--chathams-blue)]'>
+                            <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                 {getTtl('cmpName', ln)}:</p>
                                 <input
                                     type='input'
@@ -63,7 +63,7 @@ className="
                         </div>
 
                                     <div className='gap-4 flex items-center w-full' >
-  <p className="responsiveText font-medium text-[0.825rem] w-[85px] md:w-[100px] text-[var(--chathams-blue)]">
+  <p className="responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]">
     {getTtl("lng", ln)}:
   </p>
 
@@ -86,61 +86,27 @@ className="
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2'>
                                     <div className='gap-4 flex items-center' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                             {getTtl('street', ln)}:</p>
                                         <input
                                             type='input'
-className="
-  flex-1
-  h-[26px]
-  px-4
-    ml-4
-  rounded-full
-  border
-  border-[#E5E7EB]
-  bg-white
-  text-[var(--chathams-blue)]
-  outline-none
-  transition
-  focus:border-[#0A5DB8]
-  focus:ring-2
-  focus:ring-[#0A5DB8]/20
-  text-[0.75rem]
-"
-
+className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
                                             value={compData?.street || ''}
                                             onChange={e => setCompData({ ...(compData || {}), street: e.target.value })}
                                         />
                                     </div>
                                     <div className='flex gap-4 items-center ' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                             {getTtl('city', ln)}: </p>
                                         <input
                                             type='input'
-className="
-  flex-1
-  h-[26px]
-  px-4
-  ml-7
-  rounded-full
-  border
-  border-[#E5E7EB]
-  bg-white
-  text-[var(--chathams-blue)]
-  outline-none
-  transition
-  focus:border-[#0A5DB8]
-  focus:ring-2
-  focus:ring-[#0A5DB8]/20
-  text-[0.75rem]
-"
-
+className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
                                             value={compData?.city || ''}
                                             onChange={e => setCompData({ ...(compData || {}), city: e.target.value })}
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                             {getTtl('country', ln)}:</p>
                                         <input
                                             type='input'
@@ -166,7 +132,7 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                             {getTtl('zipCode', ln)}:</p>
                                         <input
                                             type='input'
@@ -196,7 +162,7 @@ className="
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2'>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>Reg No.:</p>
+                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Reg No.:</p>
                                         <input
                                             type='input'
 className="
@@ -221,7 +187,7 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>VAT No.:</p>
+                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>VAT No.:</p>
                                         <input
                                             type='input'
 className="
@@ -246,7 +212,7 @@ className="
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[60px] md:w-[70px] text-[var(--chathams-blue)]'>EORI No.:</p>
+                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>EORI No.:</p>
                                         <input
                                             type='input'
 className="
@@ -281,7 +247,7 @@ className="
                     <div className='border border-[#E5E7EB] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[85px] md:w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpemail', ln)}:</p>
                                 <input
                                     type='input'
@@ -306,7 +272,7 @@ className="
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[85px] md:w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpwebsite', ln)}:</p>
                                 <input
                                     type='input'
@@ -337,7 +303,7 @@ className="
                     <div className=' border border-[#E5E7EB] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[85px] md:w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpPhone', ln)}:</p>
                                 <input
                                     type='input'
@@ -362,7 +328,7 @@ className="
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[85px] md:w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpMobile', ln)}:</p>
                                 <input
                                     type='input'
