@@ -69,7 +69,7 @@ export const EXD = (dataTable, settings, name, ln) => {
             let item = dataTable[i]
 
             sheet.addRow({
-                opDate: dateFormat(item.opDate, 'dd-mmm-yy HH:MM'),
+                opDate: dateFormat(item.opDate, 'dd.mm.yy - HH:MM'),
                 lstSaved: dateFormat(item.lstSaved, 'dd-mmm-yy HH:MM'),
                 order: item.order,
                 date: dateFormat(item.dateRange.startDate, 'dd.mm.yy'),

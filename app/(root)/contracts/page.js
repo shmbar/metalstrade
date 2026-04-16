@@ -145,7 +145,7 @@ const Contracts = () => {
 	}
 
 	let propDefaults = Object.keys(settings).length === 0 ? [] : [
-		{ accessorKey: 'opDate', header: getTtl('Operation Time', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
+		{ accessorKey: 'opDate', header: getTtl('Operation Time', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy - HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
 		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
 		{ accessorKey: 'order', header: getTtl('PO', ln) + '#', meta: { excludeFromQuickSum: true } },
 		{

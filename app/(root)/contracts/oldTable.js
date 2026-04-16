@@ -171,7 +171,7 @@ const Customtable = ({ data, propDefaults, SelectRow, lastAction, name, excellRe
 											x === 'invoiceStatus' && obj.final && obj.canceled ? 'Canceled' :
 												x === 'invoice' ? obj.invoice + getprefixInv(obj) :
 													x === 'order' ? obj?.poSupplier?.order || obj[x] :
-														x === 'opDate' || x === 'lstSaved' ? dateFormat(obj[x], 'dd-mmm-yy HH:MM') :
+														x === 'opDate' || x === 'lstSaved' ? dateFormat(obj[x], 'dd.mm.yy - HH:MM') :
 															x === 'supplier' ? tmp.arr.find(q => q.id === obj[x]).nname :
 																obj[x]
 

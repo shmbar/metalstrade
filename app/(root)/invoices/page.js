@@ -183,7 +183,7 @@ const Invoices = () => {
 		{
 			accessorKey: 'opDate',
 			header: getTtl('Operation Time', ln),
-			cell: (props) => <span className="whitespace-nowrap">{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</span>,
+			cell: (props) => <span className="whitespace-nowrap">{dateFormat(props.getValue(), 'dd.mm.yy - HH:MM')}</span>,
 			meta: { excludeFromQuickSum: true },
 			size: 150
 		},
