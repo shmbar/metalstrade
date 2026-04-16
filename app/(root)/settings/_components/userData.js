@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useState, useTransition } from 'react'
 import { VscSaveAs } from 'react-icons/vsc';
 import { Selector } from '../../../../components/selectors/selectShad'
 import { ErrDiv, validate } from '../../../../utils/utils';
-import { getTtl } from '../../../../utils/languages';
 import { SettingsContext } from '../../../../contexts/useSettingsContext';
 import { createNewUser, updateUser } from '../../../../actions/pass';
 import { checkEmail, checkName, checkPassLenght, checkPassMatch } from '../../../../actions/validations';
@@ -17,7 +16,7 @@ const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, di
 
     return (
         <div className='flex gap-4 justify-between my-3 w-full'>
-            <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem] w-[120px] md:w-[150px]'>{title}:</p>
+            <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem] shrink-0'>{title}:</p>
             <div className='flex-1'>
                 <input
                     className="input shadow-lg h-7 !rounded-full text-[0.75rem] w-full"
@@ -186,7 +185,7 @@ const UserData = ({ setIsOpen, data, setData, user, setUser }) => {
             </div>
 
             <div className='flex gap-4 justify-between my-3 w-full'>
-                <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem] w-[120px] md:w-[150px]'>Password Verification:</p>
+                <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem] shrink-0'>Password Verification:</p>
                 <div className='flex-1'>
                     <input
                         className="input shadow-lg h-7 !rounded-full text-[0.75rem] w-full"
