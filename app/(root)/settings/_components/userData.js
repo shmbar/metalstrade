@@ -16,11 +16,11 @@ import { Titles } from '../../../../components/const';
 const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, dis }) => {
 
     return (
-        <div className='flex gap-4 justify-between  my-3 w-full'>
-            <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem]'>{title}:</p>
-            <div className='w-full '>
+        <div className='flex gap-4 justify-between my-3 w-full'>
+            <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem] w-[120px] md:w-[150px]'>{title}:</p>
+            <div className='flex-1'>
                 <input
-                    className="input shadow-lg h-7 !rounded-full text-[0.75rem]"
+                    className="input shadow-lg h-7 !rounded-full text-[0.75rem] w-full"
                     type={type}
                     name={name}
                     value={value[name] || ''}  // Dynamically bind value
@@ -28,7 +28,7 @@ const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, di
                     placeholder={placeholder}
                     disabled={dis}
                 />
-                {name !== 'phoneNumber' && <ErrDiv field={name} errors={errors} ln={ln} />}
+                <ErrDiv field={name} errors={errors} ln={ln} />
             </div>
         </div>
     );
@@ -174,18 +174,24 @@ const UserData = ({ setIsOpen, data, setData, user, setUser }) => {
             <UserD title='Email' value={user} onChange={handleChange}
                 placeholder='Email Address' name='email' errors={errors} ln={ln} />
 
-            <div className='flex gap-3 items-center'>
-                <UserD title='Password' value={user} onChange={handleChange} type='password'
-                    placeholder='Password' name='password' errors={errors} ln={ln}
-                    dis={!checked} />
-                <CheckBox size='size-5' checked={checked} onChange={() => setChecked(!checked)} />
+            <div className='flex gap-4 justify-between my-3 w-full'>
+                <div className='flex gap-3 items-center flex-1'>
+                    <div className='flex-1'>
+                        <UserD title='Password' value={user} onChange={handleChange} type='password'
+                            placeholder='Password' name='password' errors={errors} ln={ln}
+                            dis={!checked} />
+                    </div>
+                    <div className='flex items-center pt-7'>
+                        <CheckBox size='size-5' checked={checked} onChange={() => setChecked(!checked)} />
+                    </div>
+                </div>
             </div>
 
             <div className='flex gap-4 justify-between my-3 w-full'>
-                <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem]'>Password Verification:</p>
-                <div className='max-w-[30rem]'>
+                <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem] w-[120px] md:w-[150px]'>Password Verification:</p>
+                <div className='flex-1'>
                     <input
-                        className="input shadow-lg h-7 !rounded-full text-[0.75rem]"
+                        className="input shadow-lg h-7 !rounded-full text-[0.75rem] w-full"
                         type='password'
                         name='password1'
                         value={user.password1 || ''}
