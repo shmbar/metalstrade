@@ -299,8 +299,8 @@ const Customtable = ({
                               style={{
                                 backgroundColor: '#FFFFFF',
                                 borderBottom: '2px solid #E5E7EB',
-                                minWidth: header.column.id === 'select' ? '50px' : '60px',
-                                maxWidth: header.column.id === 'select' ? '50px' : '150px',
+                                minWidth: header.column.id === 'select' ? '50px' : header.column.columnDef.meta?.filterVariant === 'dates' ? '220px' : '60px',
+                                maxWidth: header.column.id === 'select' ? '50px' : 'none',
                               }}
                             >
                               {header.column.getCanFilter() && (
