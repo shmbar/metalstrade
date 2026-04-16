@@ -431,9 +431,9 @@ const Customtable = (props) => {
                                                                     decimalScale={currs.includes(accessorKey) ? 2 : 3}
                                                                     fixedDecimalScale
                                                                     style={{
-                                                                        fontSize: '0.68rem',
+                                                                        fontSize: 'inherit',
                                                                         color: 'var(--chathams-blue)',
-                                                                        fontWeight: '700',
+                                                                        fontWeight: '600',
                                                                         lineHeight: '1.2'
                                                                     }}
                                                                 />

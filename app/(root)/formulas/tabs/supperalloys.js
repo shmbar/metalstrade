@@ -483,7 +483,7 @@
 //                 {/* Results Section - Two columns on desktop, stack on mobile */}
 //                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
 //                     {/* Cost Column */}
-//                     <div className="flex flex-col items-center">
+//                     <div className="flex flex-col items-start">
 //                         <div className='border border-slate-500 w-full max-w-[200px] flex flex-col justify-center text-center mb-4'>
 //                             <span className='title_style bg-customOrange text-xs sm:text-sm'>Formula Intrinsic</span>
 //                             <input 
@@ -556,7 +556,7 @@
 //                     </div>
 
 //                     {/* Sales Column */}
-//                     <div className="flex flex-col items-center">
+//                     <div className="flex flex-col items-start">
 //                         <div className='border border-slate-500 w-full max-w-[200px] flex flex-col justify-center mb-4'>
 //                             <span className='title_style bg-customOrange text-center text-xs sm:text-sm'>Formula Intrinsic</span>
 //                             <input 
@@ -662,10 +662,10 @@ const SupperAlloys = ({ value, handleChange }) => {
 
         return value.supperalloys != null ? (
         <div className="w-full bg-[#f8fbff] rounded-xl border border-[#b8ddf8] shadow-sm p-2">
-          <h3 className='text-xs font-medium text-[var(--endeavour)] mb-1.5 text-center'>Cost</h3>
+          <h3 className='text-xs font-medium text-[var(--endeavour)] mb-1.5 text-left pl-6'>Cost</h3>
 
             {/* Composition */}
-            <div className="mb-2 px-2 w-fit mx-auto">
+            <div className="mb-2 px-2 w-fit">
             <p className="text-xs text-[#979797] mb-1 text-center">
                 Composition
             </p>
@@ -726,7 +726,7 @@ const SupperAlloys = ({ value, handleChange }) => {
             </div>
 
             {/* Price / Lbs */}
-            <div className="mb-2 px-2 w-fit mx-auto">
+            <div className="mb-2 px-2 w-fit">
             <p className="text-xs text-[#979797] mb-1 text-center">
                 Price / Lbs
             </p>
@@ -799,10 +799,10 @@ const SupperAlloys = ({ value, handleChange }) => {
             </div>
             </div>
 
-<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-2 px-2">
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-2 px-2 max-w-[780px]">
 
   {/* LEFT — COST RESULTS */}
-  <div className="flex flex-col items-center">
+  <div className="flex flex-col items-start">
     {/* Formula Intrinsic */}
     <div className="mb-2">
       <div className="w-32 rounded-xl overflow-hidden border border-[#b8ddf8] bg-[#f8fbff]">
@@ -814,7 +814,7 @@ const SupperAlloys = ({ value, handleChange }) => {
         />
       </div>
     </div>
-    <div className="flex flex-wrap gap-2 mb-2 justify-center">
+    <div className="flex flex-wrap gap-2 mb-2">
       <ResultBox title="Solids Price" bg="#FFECEC" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100).toFixed(2))} />
       <ResultBox title="Price per MT" bg="#FFECEC" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 * value.general.mt).toFixed(2))} />
     </div>
@@ -824,7 +824,7 @@ const SupperAlloys = ({ value, handleChange }) => {
   </div>
 
   {/* RIGHT — PRICE RESULTS */}
-  <div className="flex flex-col items-center">
+  <div className="flex flex-col items-start">
     {/* Formula Intrinsic */}
     <div className="mb-2">
       <div className="w-32 rounded-xl overflow-hidden border border-[#b8ddf8] bg-[#f8fbff]">
@@ -836,7 +836,7 @@ const SupperAlloys = ({ value, handleChange }) => {
         />
       </div>
     </div>
-    <div className="flex flex-wrap gap-2 mb-2 justify-center">
+    <div className="flex flex-wrap gap-2 mb-2">
       <ResultBox title="Solids Price" bg="#EAF4FF" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100).toFixed(2))} />
       <ResultBox title="Price per MT" bg="#EAF4FF" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 * value.general.mt).toFixed(2))} />
     </div>

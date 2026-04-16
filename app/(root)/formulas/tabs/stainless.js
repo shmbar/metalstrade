@@ -609,7 +609,7 @@ const Stainless = ({ value, handleChange }) => {
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 items-start">
                 {/* COST SECTION */}
                 <div className="w-full bg-white rounded-xl border border-[#b8ddf8] shadow-sm p-3 text-center">
-                    <h3 className='text-xs font-medium text-[var(--endeavour)] mb-2'>Cost</h3>
+                    <h3 className='text-xs font-medium text-[var(--endeavour)] mb-2 text-left pl-3'>Cost</h3>
 
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end">
@@ -900,7 +900,7 @@ const Stainless = ({ value, handleChange }) => {
 
                 {/* SALES SECTION */}
                 <div className="w-full bg-white rounded-xl border border-[#b8ddf8] shadow-sm p-3 text-center">
-                    <h3 className='text-xs font-medium text-[var(--endeavour)] mb-2'>Sales</h3>
+                    <h3 className='text-xs font-medium text-[var(--endeavour)] mb-2 text-left pl-3'>Sales</h3>
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end">
                     <div className="px-2">

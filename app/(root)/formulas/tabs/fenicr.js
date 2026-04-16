@@ -921,7 +921,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
                 {/* COST SECTION */}
                 <div className="w-full bg-white rounded-xl border border-[#b8ddf8] shadow-sm p-2 text-center">
-                    <h3 className="text-xs font-medium text-[var(--endeavour)] mb-1">Cost</h3>
+                    <h3 className="text-xs font-medium text-[var(--endeavour)] mb-1 text-left pl-3">Cost</h3>
 
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end mb-1.5 mt-1">
@@ -1030,7 +1030,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                 {/* SALES SECTION */}
                 <div className="w-full bg-white rounded-xl border border-[#b8ddf8] shadow-sm p-2 text-center">
-                    <h3 className="text-xs font-medium text-[var(--endeavour)] mb-1">Sales</h3>
+                    <h3 className="text-xs font-medium text-[var(--endeavour)] mb-1 text-left pl-3">Sales</h3>
 
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end mb-1.5 mt-1">

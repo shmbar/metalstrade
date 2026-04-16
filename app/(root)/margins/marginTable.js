@@ -110,8 +110,8 @@ const MarginTable = (props) => {
                                                 fixedDecimalScale
                                                 style={{
                                                     color: 'var(--chathams-blue)',
-                                                    fontWeight: '700',
-                                                    fontSize: '0.75rem',
+                                                    fontWeight: '600',
+                                                    fontSize: '0.85rem',
                                                     lineHeight: '1.2'
                                                 }}
                                             />
@@ -141,8 +141,8 @@ const MarginTable = (props) => {
                                                 fixedDecimalScale
                                                 style={{
                                                     color: 'var(--chathams-blue)',
-                                                    fontWeight: '700',
-                                                    fontSize: '0.75rem',
+                                                    fontWeight: '600',
+                                                    fontSize: '0.85rem',
                                                     lineHeight: '1.2'
                                                 }}
                                             />
@@ -171,8 +171,8 @@ const MarginTable = (props) => {
                                                 fixedDecimalScale
                                                 style={{
                                                     color: 'var(--chathams-blue)',
-                                                    fontWeight: '700',
-                                                    fontSize: '0.75rem',
+                                                    fontWeight: '600',
+                                                    fontSize: '0.85rem',
                                                     lineHeight: '1.2'
                                                 }}
                                             />
@@ -197,12 +197,13 @@ const MarginTable = (props) => {
                                                 displayType="text"
                                                 thousandSeparator
                                                 allowNegative
+                                                prefix="$"
                                                 decimalScale={2}
                                                 fixedDecimalScale
                                                 style={{
                                                     color: 'var(--chathams-blue)',
-                                                    fontWeight: '700',
-                                                    fontSize: '0.75rem',
+                                                    fontWeight: '600',
+                                                    fontSize: '0.85rem',
                                                     lineHeight: '1.2'
                                                 }}
                                             />
