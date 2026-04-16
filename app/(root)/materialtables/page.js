@@ -356,7 +356,7 @@ const MaterialTables = () => {
                                 </div>
                             </div>
                             <div className="w-full overflow-x-auto mt-1">
-                                {data.map(table => (
+                                {data.map((table) => (
                                     <div key={table.id} className="mb-2 rounded-2xl border border-[#b8ddf8] shadow-sm">
                                         <Table
                                             data={table.data}
@@ -396,13 +396,13 @@ const MaterialTables = () => {
                                     </div>
                                 ))}
                             </div>
-                            {(data.length && !Object.values(totals).some(v => isNaN(v))) ? (
-                                <div className="w-full pt-2 overflow-x-auto">
-                                    <div className="rounded-2xl border border-[#b8ddf8] shadow-sm overflow-hidden">
+                            {(data.length > 0 && !Object.values(totals).some(v => isNaN(v))) && (
+                                <div className="w-full pt-3 overflow-x-auto">
+                                    <div className="rounded-2xl border border-[#c8b8f8] shadow-sm overflow-hidden">
                                         <TableTotals data={[totals]} columns={totalsColumns} />
                                     </div>
                                 </div>
-                            ) : null}
+                            )}
                         </div>
                     </>
                 }

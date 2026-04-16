@@ -609,13 +609,13 @@ const Stainless = ({ value, handleChange }) => {
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 items-start">
                 {/* COST SECTION */}
                 <div className="w-full bg-white rounded-xl border border-[#b8ddf8] shadow-sm p-3 text-center">
-                    <h3 className='text-xs font-medium text-[var(--endeavour)] mb-2 text-left pl-3'>Cost</h3>
+                    <h3 className='text-xs font-medium text-[var(--endeavour)] mb-1 text-left pl-3'>Cost</h3>
 
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end">
                     <div className="px-2">
                     <div className="mb-2">
-                    <p className="text-xs text-[var(--regent-gray)] mb-1 text-center">
+                    <p className="text-xs text-[#979797] mb-1 text-center">
                         Composition
                     </p>
 
@@ -743,7 +743,7 @@ const Stainless = ({ value, handleChange }) => {
 
                     {/* Price Row */}
                     <div className="mt-2">
-                    <p className="text-xs font-normal text-[var(--regent-gray)] mb-1 text-center">
+                    <p className="text-xs font-normal text-[#979797] mb-1 text-center">
                         Price
                     </p>
 
@@ -892,7 +892,7 @@ const Stainless = ({ value, handleChange }) => {
                         </div>
                     </div>
 
-                    <div className='text-xs mt-2 text-[var(--endeavour)] space-y-0.5 text-left pl-2'>
+                    <div className='text-xs mt-3 text-[var(--endeavour)] space-y-0.5 text-left pl-2'>
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>
@@ -900,12 +900,12 @@ const Stainless = ({ value, handleChange }) => {
 
                 {/* SALES SECTION */}
                 <div className="w-full bg-white rounded-xl border border-[#b8ddf8] shadow-sm p-3 text-center">
-                    <h3 className='text-xs font-medium text-[var(--endeavour)] mb-2 text-left pl-3'>Sales</h3>
+                    <h3 className='text-xs font-medium text-[var(--endeavour)] mb-1 text-left pl-3'>Sales</h3>
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end">
                     <div className="px-2">
                     <div className="mb-2">
-                    <p className="text-xs text-[var(--regent-gray)] mb-1 text-center">Composition</p>
+                    <p className="text-xs text-[#979797] mb-1 text-center">Composition</p>
 
                     <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-[85px_85px_85px_85px]">
                         {[
@@ -929,7 +929,7 @@ const Stainless = ({ value, handleChange }) => {
 
                     {/* Price */}
                     <div className="mt-2">
-                    <p className="text-xs font-normal text-[var(--regent-gray)] mb-1 text-center">Price</p>
+                    <p className="text-xs font-normal text-[#979797] mb-1 text-center">Price</p>
 
                     <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-[85px_85px_85px_85px]">
                         {/* Ni */}
@@ -1033,7 +1033,7 @@ const Stainless = ({ value, handleChange }) => {
                         </div>
                     </div>
 
-                    <div className='text-xs mt-2 text-[var(--endeavour)] space-y-0.5 text-left pl-2'>
+                    <div className='text-xs mt-3 text-[var(--endeavour)] space-y-0.5 text-left pl-2'>
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>

@@ -264,7 +264,6 @@ const Customtable = ({
 
     const headers = table.getHeaderGroups()[0]?.headers ?? []
     const totalCols = headers.length
-
     const unitBtn = (u) => ({
         padding: '1px 9px', height: '22px', borderRadius: '99px',
         border: `1px solid ${unit === u ? 'var(--endeavour)' : '#d8e8f5'}`,
