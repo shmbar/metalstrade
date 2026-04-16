@@ -29,8 +29,9 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
 
     const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 500 })
     const pagination = useMemo(() => ({ pageIndex, pageSize, }), [pageIndex, pageSize])
-    const pathName = usePathname()
+    usePathname()
     const [columnFilters, setColumnFilters] = useState([]) //Column filter
+    const [sorting, setSorting] = useState([])
 
     const columnsWithSelection = useMemo(() => {
         if (!quickSumEnabled) return columns
@@ -70,11 +71,13 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
             pagination,
             columnFilters,
             rowSelection,
+            sorting,
         },
-        onColumnFiltersChange: setColumnFilters, ////Column filter
+        onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
         onGlobalFilterChange: setGlobalFilter,
         onColumnVisibilityChange: setColumnVisibility,
+        onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onPaginationChange: setPagination,
@@ -109,7 +112,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
                 <div className=" overflow-x-auto">
                     <table className="w-full">
                         <thead className="divide-y">
-                            {table.getHeaderGroups().map((hdGroup, i) =>
+                            {table.getHeaderGroups().map((hdGroup) =>
                                 <Fragment key={hdGroup.id}>
                                     <tr className="cursor-pointer bg-[#dbeeff]">
                                         {hdGroup.headers.map(
@@ -128,32 +131,25 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, /*cb,*
                                         )}
                                     </tr>
                                     <tr key={hdGroup.id + '-row'} className='border-b'>
-                                        {hdGroup.headers.map(
-                                            header =>
-                                                <th key={header.id + '-header'} className={`relative px-6 py-1 text-left text-sm font-medium  uppercase
-                                     border-b ${header.column.columnDef.bgt}`}>
-                                                    {header.column.getCanSort() ?
-
-                                                        <div onClick={header.column.getToggleSortingHandler()}
-                                                            className='table-caption cursor-pointer items-center gap-1 text-white text-xs'>
-                                                            {header.column.columnDef.header}
-                                                            {
-                                                                {
-                                                                    asc: <TbSortAscending className="text-[var(--regent-gray)] scale-125" />,
-                                                                    desc: <TbSortDescending className="text-[var(--regent-gray)] scale-125" />
-                                                                }[header.column.getIsSorted()]
-                                                            }
-                                                        </div>
-                                                        :
-                                                        <span className="text-white table-caption">{header.column.columnDef.header}</span>
-                                                    }
-                                                    {header.column.getCanFilter() ? (
-                                                        <div>
-                                                            <Filter column={header.column} table={table} filterOn={filterOn} />
-                                                        </div>
-                                                    ) : null}
-                                                </th>
-                                        )}
+                                        {hdGroup.headers.map(header => (
+                                            <th
+                                                key={header.id + '-header'}
+                                                className={`relative px-6 py-1 text-left text-sm font-medium uppercase border-b ${header.column.columnDef.bgt}`}
+                                                onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                                                style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', userSelect: 'none' }}
+                                            >
+                                                <div className="flex items-center gap-1 text-white text-xs">
+                                                    {header.column.columnDef.header}
+                                                    {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: '0.85rem', color: 'var(--white)' }} />}
+                                                    {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--white)' }} />}
+                                                </div>
+                                                {header.column.getCanFilter() ? (
+                                                    <div>
+                                                        <Filter column={header.column} table={table} filterOn={filterOn} />
+                                                    </div>
+                                                ) : null}
+                                            </th>
+                                        ))}
                                     </tr>
                                 </Fragment>
                             )}

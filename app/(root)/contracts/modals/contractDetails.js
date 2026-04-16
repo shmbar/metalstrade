@@ -342,8 +342,7 @@ const ContractModal = () => {
 				<div className='col-span-12 md:col-span-1 mt-1'>
 					<p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="5" cols="60" name="comments"
-						className="border border-[#b8ddf8] rounded-lg px-3 py-2 h-24 text-[0.75rem] focus:outline-none focus:ring-1 focus:ring-blue-200 resize-none w-full"
-						style={{ fontSize: 'inherit' }}
+						className="input h-24 p-1 !rounded-xl resize-none"
 						value={valueCon.comments} onChange={handleValue} />
 					<div className='flex leading-7 items-center gap-2'>
 						<CheckBox size='size-5' checked={valueCon.completed ?? false}

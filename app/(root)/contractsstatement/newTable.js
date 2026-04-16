@@ -56,6 +56,7 @@ const Customtable = ({
 
   const [expanded, setExpanded] = useState({})
   const [columnFilters, setColumnFilters] = useState([])
+  const [sorting, setSorting] = useState([])
 
   const [quickSumEnabled, setQuickSumEnabled] = useState(false)
   const [quickSumColumns, setQuickSumColumns] = useState([])
@@ -125,6 +126,7 @@ const Customtable = ({
       expanded,
       columnFilters,
       rowSelection,
+      sorting,
     },
     onGlobalFilterChange: setGlobalFilter,
     onColumnVisibilityChange: setColumnVisibility,
@@ -132,6 +134,7 @@ const Customtable = ({
     onPaginationChange: setPagination,
     onExpandedChange: setExpanded,
     onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
   })
 
   useEffect(() => {
@@ -209,8 +212,7 @@ const Customtable = ({
           text-align: center;
           vertical-align: middle;
           padding: 6px;
-          border-radius: 4px;r
-          font-size: 0.68rem !important;
+          border-radius: 4px;
         }
 
         .custom-table td {
@@ -282,9 +284,16 @@ const Customtable = ({
                               maxWidth: header.column.id === 'select' ? '50px' : header.column.id === 'expander' ? '80px' : 'none',
                               letterSpacing: '0.05em',
                               textAlign: 'center',
+                              cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                              userSelect: 'none',
                             }}
+                            onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                           >
-                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                              {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                            </div>
                           </th>
                         ))}
                       </tr>

@@ -32,6 +32,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, cb, se
     const pathName = usePathname()
 
     const [columnFilters, setColumnFilters] = useState([]) //Column filter
+    const [sorting, setSorting] = useState([])
 
     const columnsWithSelection = useMemo(() => {
         if (!quickSumEnabled) return columns
@@ -71,11 +72,13 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, cb, se
             pagination,
             columnFilters,
             rowSelection,
+            sorting,
         },
-        onColumnFiltersChange: setColumnFilters, ////Column filter
+        onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
         onGlobalFilterChange: setGlobalFilter,
         onColumnVisibilityChange: setColumnVisibility,
+        onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onPaginationChange: setPagination,
@@ -113,7 +116,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, cb, se
                 <div className=" overflow-x-auto">
                     <table className="w-full">
                         <thead className="divide-y divide-gray-200">
-                            {table.getHeaderGroups().map((hdGroup, i) =>
+                            {table.getHeaderGroups().map((hdGroup) =>
                                 <Fragment key={hdGroup.id}>
                                     <tr className="border-b cursor-pointer bg-[#dbeeff]">
                                         {hdGroup.headers.map(
@@ -124,30 +127,25 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, cb, se
                                         )}
                                     </tr>
                                     <tr key={hdGroup.id + '-row'} className='border-b'>
-                                        {hdGroup.headers.map(
-                                            header =>
-                                                <th key={header.id + '-header'} className="relative px-6 py-2 text-left font-poppins text-xs font-medium text-[var(--chathams-blue)] uppercase border-b">
-                                                    {header.column.getCanSort() ?
-
-                                                        <div onClick={header.column.getToggleSortingHandler()} className="table-caption text-xs cursor-pointer items-center gap-1">
-                                                            {header.column.columnDef.header}
-                                                            {
-                                                                {
-                                                                    asc: <TbSortAscending className="text-[var(--regent-gray)] scale-125" />,
-                                                                    desc: <TbSortDescending className="text-[var(--regent-gray)] scale-125" />
-                                                                }[header.column.getIsSorted()]
-                                                            }
-                                                        </div>
-                                                        :
-                                                        <span className="text-xs table-caption">{header.column.columnDef.header}</span>
-                                                    }
-                                                    {header.column.getCanFilter() ? (
-                                                        <div>
-                                                            <Filter column={header.column} table={table} filterOn={filterOn} />
-                                                        </div>
-                                                    ) : null}
-                                                </th>
-                                        )}
+                                        {hdGroup.headers.map(header => (
+                                            <th
+                                                key={header.id + '-header'}
+                                                className="relative px-6 py-2 text-left font-poppins text-xs font-medium text-[var(--chathams-blue)] uppercase border-b"
+                                                onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                                                style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', userSelect: 'none' }}
+                                            >
+                                                <div className="flex items-center gap-1">
+                                                    {header.column.columnDef.header}
+                                                    {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                                                    {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                                                </div>
+                                                {header.column.getCanFilter() ? (
+                                                    <div>
+                                                        <Filter column={header.column} table={table} filterOn={filterOn} />
+                                                    </div>
+                                                ) : null}
+                                            </th>
+                                        ))}
                                     </tr>
                                 </Fragment>
                             )}

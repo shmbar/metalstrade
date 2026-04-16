@@ -241,7 +241,7 @@ export const MainNav = () => {
         {/* Date / Time Widget — far right */}
         {now && (
           <div className='flex flex-col items-end leading-tight select-none pointer-events-none pl-4 border-l border-[#b8ddf8]'>
-            <span style={{ fontSize: '0.62rem', color: 'var(--chathams-blue)', fontWeight: 400, opacity: 0.7 }}>
+            <span style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)', fontWeight: 500, opacity: 0.8 }}>
               {now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
             </span>
             <span style={{ fontSize: '0.85rem', color: 'var(--chathams-blue)', fontWeight: 600, letterSpacing: '0.05em' }}>

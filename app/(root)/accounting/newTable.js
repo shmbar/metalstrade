@@ -43,6 +43,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
   const { ln } = useContext(SettingsContext);
 
   const [columnFilters, setColumnFilters] = useState([])
+  const [sorting, setSorting] = useState([])
   const [quickSumEnabled, setQuickSumEnabled] = useState(false)
   const [quickSumColumns, setQuickSumColumns] = useState([])
   const [rowSelection, setRowSelection] = useState({})
@@ -106,12 +107,13 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
     enableRowSelection: quickSumEnabled,
     getCoreRowModel: getCoreRowModel(),
     filterFns: { dateBetweenFilterFn },
-    state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection },
+    state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection, sorting },
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
     onColumnVisibilityChange: setColumnVisibility,
+    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
@@ -256,15 +258,22 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                           <th
                             key={header.id}
                             className="font-poppins responsiveTextTable font-medium"
+                            onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                             style={{
                               color: 'var(--chathams-blue)',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',
                               maxWidth: header.column.id === 'select' ? '50px' : 'none',
                               letterSpacing: '0.05em',
                               textAlign: 'center',
+                              cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                              userSelect: 'none',
                             }}
                           >
-                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            <span className="inline-flex items-center justify-center gap-1">
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                              {header.column.getIsSorted() === 'asc'  && <TbSortAscending  style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                            </span>
                           </th>
                         ))}
                       </tr>

@@ -17,6 +17,7 @@ import { Workbook } from 'exceljs';
 import { saveAs } from 'file-saver';
 import { Menu, Transition, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { Fragment } from 'react';
+import { TbSortAscending, TbSortDescending } from 'react-icons/tb';
 
 const STATUSES = ['', 'Pending', 'In Transit', 'At Port', 'Delivered', 'On Hold'];
 
@@ -108,6 +109,19 @@ const ShipmentPage = () => {
     const [showFilters, setShowFilters] = useState(true);
     const [pageIndex, setPageIndex] = useState(0);
     const [pageSize, setPageSize] = useState(25);
+    const [sortCol, setSortCol] = useState(null);
+    const [sortDir, setSortDir] = useState('asc');
+
+    const handleSort = (col) => {
+        if (sortCol === col) {
+            if (sortDir === 'asc') setSortDir('desc');
+            else if (sortDir === 'desc') { setSortCol(null); setSortDir('asc'); }
+        } else {
+            setSortCol(col);
+            setSortDir('asc');
+        }
+        setPageIndex(0);
+    };
 
     useEffect(() => {
         if (!uidCollection || !dateSelect?.start) return;
@@ -230,13 +244,39 @@ const ShipmentPage = () => {
         );
     });
 
+    const getSortValue = (c, col) => {
+        const inv = getMainInvoice(c);
+        switch (col) {
+            case 'order':        return (c.order || '').toLowerCase();
+            case 'supplier':     return getSupplierName(c).toLowerCase();
+            case 'invoice':      return inv?.invoice?.toString().toLowerCase() || '';
+            case 'client':       return getClientName(c.id).toLowerCase();
+            case 'etd':          return invoiceMap[c.id]?.etd || '';
+            case 'eta':          return invoiceMap[c.id]?.eta || '';
+            case 'pol':          return getPOL(c).toLowerCase();
+            case 'pod':          return getPOD(c).toLowerCase();
+            case 'shpType':      return getShpType(c).toLowerCase();
+            case 'status':       return (c.shipmentStatus || '').toLowerCase();
+            default:             return '';
+        }
+    };
+
+    const sortedFiltered = sortCol
+        ? [...filtered].sort((a, b) => {
+            const av = getSortValue(a, sortCol);
+            const bv = getSortValue(b, sortCol);
+            const cmp = av < bv ? -1 : av > bv ? 1 : 0;
+            return sortDir === 'asc' ? cmp : -cmp;
+          })
+        : filtered;
+
     // Reset to first page when filters change
     useEffect(() => { setPageIndex(0); }, [search, statusFilter]);
 
-    const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+    const pageCount = Math.max(1, Math.ceil(sortedFiltered.length / pageSize));
     const safePageIndex = Math.min(pageIndex, pageCount - 1);
-    const paginated = filtered.slice(safePageIndex * pageSize, (safePageIndex + 1) * pageSize);
-    const startRow = filtered.length === 0 ? 0 : safePageIndex * pageSize + 1;
+    const paginated = sortedFiltered.slice(safePageIndex * pageSize, (safePageIndex + 1) * pageSize);
+    const startRow = sortedFiltered.length === 0 ? 0 : safePageIndex * pageSize + 1;
     const endRow = safePageIndex * pageSize + paginated.length;
 
     const getPageNumbers = () => {
@@ -426,19 +466,27 @@ const ShipmentPage = () => {
                             <thead className="sticky top-0 z-10">
                                 <tr>
                                     {[
-                                        { label: 'Contract #',    width: '8%'  },
-                                        { label: 'Supplier',      width: '9%'  },
-                                        { label: 'Invoice #',     width: '7%'  },
-                                        { label: 'Client',        width: '9%'  },
-                                        { label: 'Shipment Date', width: '8%'  },
-                                        { label: 'Arrival Date',  width: '8%'  },
-                                        { label: 'POL',           width: '8%'  },
-                                        { label: 'POD',           width: '8%'  },
-                                        { label: 'Ship Type',     width: '8%'  },
-                                        { label: 'Status',        width: '9%'  },
-                                        { label: 'Notes',         width: '18%' },
-                                    ].map(({ label, width }) => (
-                                        <th key={label} className="font-poppins responsiveTextTable font-medium py-2" style={{ color: 'var(--chathams-blue)', letterSpacing: '0.05em', textAlign: 'center', width }}>{label}</th>
+                                        { label: 'Contract #',    width: '8%',  col: 'order'    },
+                                        { label: 'Supplier',      width: '9%',  col: 'supplier' },
+                                        { label: 'Invoice #',     width: '7%',  col: 'invoice'  },
+                                        { label: 'Client',        width: '9%',  col: 'client'   },
+                                        { label: 'Shipment Date', width: '8%',  col: 'etd'      },
+                                        { label: 'Arrival Date',  width: '8%',  col: 'eta'      },
+                                        { label: 'POL',           width: '8%',  col: 'pol'      },
+                                        { label: 'POD',           width: '8%',  col: 'pod'      },
+                                        { label: 'Ship Type',     width: '8%',  col: 'shpType'  },
+                                        { label: 'Status',        width: '9%',  col: 'status'   },
+                                        { label: 'Notes',         width: '18%', col: null       },
+                                    ].map(({ label, width, col }) => (
+                                        <th key={label} className="font-poppins responsiveTextTable font-medium py-2"
+                                            onClick={col ? () => handleSort(col) : undefined}
+                                            style={{ color: 'var(--chathams-blue)', letterSpacing: '0.05em', textAlign: 'center', width, cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
+                                            <span className="inline-flex items-center justify-center gap-1">
+                                                {label}
+                                                {col && sortCol === col && sortDir === 'asc' && <TbSortAscending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                                                {col && sortCol === col && sortDir === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                                            </span>
+                                        </th>
                                     ))}
                                 </tr>
                             </thead>

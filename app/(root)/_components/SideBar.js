@@ -323,7 +323,7 @@ export default function Sidebar() {
                       marginBottom: "4px",
                       paddingBottom: "2px",
                     }
-                  : { marginBottom: "4px" };
+                  : { marginBottom: "10px" };
 
                 return (
                   <div key={i} style={sectionWrapStyle}>
@@ -341,7 +341,6 @@ export default function Sidebar() {
                           letterSpacing: "0.1em",
                           textTransform: "uppercase",
                           color: "var(--chathams-blue)",
-                          opacity: 0.75,
                           paddingLeft: "12px",
                           paddingRight: "10px",
                           paddingTop: i === 0 ? "4px" : "clamp(4px, 0.5vh, 6px)",

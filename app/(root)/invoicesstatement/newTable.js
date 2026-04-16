@@ -41,6 +41,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
     const [isEditMode, setIsEditMode] = useState(false)
     const [rowSelection, setRowSelection] = useState({});
     const [columnFilters, setColumnFilters] = useState([])
+    const [sorting, setSorting] = useState([])
     const [isEmptyStateVideoError, setIsEmptyStateVideoError] = useState(false)
 
     const columnsWithSelection = useMemo(() => {
@@ -102,12 +103,14 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
             pagination,
             columnFilters,
             rowSelection,
+            sorting,
         },
         onRowSelectionChange: setRowSelection,
         onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
         onGlobalFilterChange: setGlobalFilter,
         onColumnVisibilityChange: setColumnVisibility,
+        onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onPaginationChange: setPagination,
@@ -185,9 +188,8 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
-                    border-radius: 4px;r
-          font-size: 0.68rem !important;
-        }
+                    border-radius: 4px;
+                }
 
                 .custom-table td {
                     border: 1px solid #d8e8f5;
@@ -252,9 +254,16 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                         maxWidth: header.column.id === 'select' ? '50px' : 'none',
                                                         letterSpacing: '0.05em',
                                                         textAlign: 'center',
+                                                        cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                                                        userSelect: 'none',
                                                     }}
+                                                    onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                                                 >
-                                                    {flexRender(header.column.columnDef.header, header.getContext())}
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                                        {flexRender(header.column.columnDef.header, header.getContext())}
+                                                        {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                                                        {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                                                    </div>
                                                 </th>
                                             ))}
                                         </tr>

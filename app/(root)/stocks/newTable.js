@@ -45,6 +45,7 @@ const Customtable = ({
   const [filterOn, setFilterOn] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [columnFilters, setColumnFilters] = useState([{ id: 'sType', value: 'Warehouse' }]);
+  const [sorting, setSorting] = useState([]);
   const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 });
 
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize]);
@@ -104,12 +105,13 @@ const Customtable = ({
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     filterFns: { dateBetweenFilterFn },
-    state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection },
+    state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection, sorting },
     onGlobalFilterChange: setGlobalFilter,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
-    onRowSelectionChange: setRowSelection
+    onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
   });
 
   useEffect(() => {
@@ -170,8 +172,7 @@ const Customtable = ({
           text-align: center;
           vertical-align: middle;
           padding: 6px;
-          border-radius: 4px;r
-          font-size: 0.68rem !important;
+          border-radius: 4px;
         }
           .custom-table td {
           border: 1px solid #d8e8f5;
@@ -241,12 +242,19 @@ const Customtable = ({
                             className="px-2 py-2 responsiveTextTable font-poppins font-medium"
                             style={{
                               color: 'var(--chathams-blue)',
- width: header.column.id === 'select' ? '50px' : undefined,
+                              width: header.column.id === 'select' ? '50px' : undefined,
                               letterSpacing: '0.05em',
                               textAlign: 'center',
+                              cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                              userSelect: 'none',
                             }}
+                            onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                           >
-                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                              {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                            </div>
                           </th>
                         ))}
                       </tr>

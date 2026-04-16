@@ -271,9 +271,9 @@ export default function HeadlineTicker({
                 >
                   {Icon ? <Icon className={['w-3.5 h-3.5 mr-2', theme.itemIcon].join(' ')} /> : null}
                   <div className="flex items-center">
-                    <span className={['text-xs font-semibold', theme.itemLabel].join(' ')}>{it.label}</span>
+                    <span className={['responsiveTextTable font-medium', theme.itemLabel].join(' ')}>{it.label}</span>
                     <span className="mx-6 w-px h-4 bg-slate-200" />
-                    <span className={['text-xs font-bold', theme.itemValue].join(' ')}>{it.value}</span>
+                    <span className={['responsiveTextTable font-semibold', theme.itemValue].join(' ')}>{it.value}</span>
                     {it.change != null && (
                       <span style={{
                         fontSize: 'inherit', fontWeight: 600, marginLeft: 5,

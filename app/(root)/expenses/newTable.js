@@ -710,6 +710,7 @@ import {
 } from "@tanstack/react-table"
 
 import { Fragment, useEffect, useLayoutEffect, useMemo, useState, useContext, useRef } from "react"
+import { TbSortAscending, TbSortDescending } from 'react-icons/tb'
 
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
@@ -746,6 +747,7 @@ const Customtable = ({
   const [columnVisibility, setColumnVisibility] = useState(invisible)
   const [filterOn, setFilterOn]                 = useState(false)
   const [columnFilters, setColumnFilters]       = useState([])
+  const [sorting, setSorting]                   = useState([])
   const [quickSumEnabled, setQuickSumEnabled]   = useState(false)
   const [quickSumColumns, setQuickSumColumns]   = useState([])
   const [isEditMode, setIsEditMode]             = useState(false)
@@ -814,12 +816,13 @@ const Customtable = ({
     enableRowSelection: quickSumEnabled,
     getCoreRowModel: getCoreRowModel(),
     filterFns: { dateBetweenFilterFn },
-    state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection },
+    state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection, sorting },
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
     onColumnVisibilityChange: setColumnVisibility,
+    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
@@ -1132,13 +1135,20 @@ const Customtable = ({
                         <th
                           key={header.id}
                           className="header-blue font-poppins responsiveTextTable font-medium"
+                          onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                           style={{
                             minWidth:
                               header.column.id === 'paid'   ? '110px' :
                               header.column.id === 'select' ? '50px'  : '80px',
+                            cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                            userSelect: 'none',
                           }}
                         >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          <span className="inline-flex items-center justify-center gap-1">
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {header.column.getIsSorted() === 'asc'  && <TbSortAscending  style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                            {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                          </span>
                         </th>
                       ))}
                     </tr>

@@ -18,6 +18,7 @@ import {
 } from "@tanstack/react-table";
 
 import { Fragment, useEffect, useMemo, useState, useContext } from "react";
+import { TbSortAscending, TbSortDescending } from "react-icons/tb";
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -45,6 +46,7 @@ const Customtable = ({
     const [filterOn, setFilterOn] = useState(false)
     const [selectedRowId, setSelectedRowId] = useState(null)
     const [columnFilters, setColumnFilters] = useState([])
+    const [sorting, setSorting] = useState([])
     const [rowSelection, setRowSelection] = useState({})
     const [isEmptyStateVideoError, setIsEmptyStateVideoError] = useState(false)
 
@@ -129,13 +131,15 @@ const Customtable = ({
             columnVisibility,
             pagination,
             columnFilters,
-            rowSelection
+            rowSelection,
+            sorting,
         },
         onGlobalFilterChange: setGlobalFilter,
         onColumnFiltersChange: setColumnFilters,
         onColumnVisibilityChange: setColumnVisibility,
         onPaginationChange: setPagination,
-        onRowSelectionChange: setRowSelection
+        onRowSelectionChange: setRowSelection,
+        onSortingChange: setSorting,
     })
 
     useEffect(() => {
@@ -319,8 +323,8 @@ const Customtable = ({
                                             <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
                                                 {group.headers.map(header => (
                                                     <th
-  key={header.id}
-  className="font-poppins responsiveTextTable font-medium"
+                                                        key={header.id}
+                                                        className="font-poppins responsiveTextTable font-medium"
                                                         style={{
                                                             color: 'var(--chathams-blue)',
                                                             backgroundColor: '#dbeeff',
@@ -328,9 +332,16 @@ const Customtable = ({
                                                             maxWidth: header.column.id === 'select' ? '50px' : 'none',
                                                             letterSpacing: '0.05em',
                                                             textAlign: 'center',
+                                                            cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                                                            userSelect: 'none',
                                                         }}
+                                                        onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                                                     >
-                                                        {flexRender(header.column.columnDef.header, header.getContext())}
+                                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                                            {flexRender(header.column.columnDef.header, header.getContext())}
+                                                            {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                                                            {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                                                        </div>
                                                     </th>
                                                 ))}
                                             </tr>

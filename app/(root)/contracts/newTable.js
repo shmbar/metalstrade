@@ -82,6 +82,7 @@ const Customtable = ({
   const [rowSelection, setRowSelection] = useState({});
 
   const [columnFilters, setColumnFilters] = useState([])
+  const [sorting, setSorting] = useState([])
   const [isEmptyStateVideoError, setIsEmptyStateVideoError] = useState(false)
 
   // ---------- Selection Column ----------
@@ -147,12 +148,14 @@ const Customtable = ({
       pagination,
       columnFilters,
       rowSelection,
+      sorting,
     },
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
     onColumnVisibilityChange: setColumnVisibility,
+    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
@@ -310,15 +313,22 @@ const Customtable = ({
                         <th
                           key={header.id}
                           className="font-poppins responsiveTextTable font-medium py-2"
+                          onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                           style={{
                             color: 'var(--chathams-blue)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                             maxWidth: header.column.id === 'select' ? '50px' : 'none',
                             letterSpacing: '0.05em',
                             textAlign: 'center',
+                            cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                            userSelect: 'none',
                           }}
                         >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          <span className="inline-flex items-center justify-center gap-1">
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {header.column.getIsSorted() === 'asc' && <TbSortAscending className="shrink-0" style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                            {header.column.getIsSorted() === 'desc' && <TbSortDescending className="shrink-0" style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                          </span>
                         </th>
                         ))}
                       </tr>

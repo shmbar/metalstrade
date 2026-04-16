@@ -116,7 +116,7 @@ export default function MarketsTicker({ className = '' }) {
                     </button>
                 </div>
                 {updatedLabel && (
-                    <span style={{ fontSize: '11px', color: '#6b8fb5' }}>
+                    <span className="text-[0.72rem] font-medium" style={{ color: '#3a6a9e' }}>
                         {metals.apiDate ? `LME · ${metals.apiDate}` : ''}{metals.apiDate && metals.lastUpdated ? ' · ' : ''}{metals.lastUpdated ? updatedLabel.split('·')[1]?.trim() || '' : updatedLabel}
                     </span>
                 )}
