@@ -31,7 +31,7 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                     <table className="w-full border border-r-0">
                         <thead className="divide-y divide-gray-200 ">
                             <tr className='text-center' >
-                                <th className='font-medium text-xs bg-[#dbeeff] whitespace-normal h-10 min-w-20' rowSpan="2">{getTtl('POInvoices', ln)}</th>
+                                <th className='font-medium text-xs bg-[#dbeeff] whitespace-nowrap h-10 px-3' rowSpan="2">{getTtl('POInvoices', ln)}</th>
                             </tr>
 
                         </thead>
@@ -39,7 +39,7 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                             {valueCon.poInvoices.map((y, i) => (
                                 <tr key={i}>
                                     <td key={i} className='bg-[#dbeeff] table_cell p-1 border border-r-0 text-[0.7rem]
-                                        min-w-[4rem] px-0.5 text-center ' >
+                                        whitespace-nowrap px-2 text-center ' >
                                         {y.inv}
                                     </td>
 
@@ -60,8 +60,8 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                     <th
                                         scope="col"
                                         key={k}
-                                        className='bg-[#dbeeff] border-b px-5  text-[0.7rem] font-medium text-[var(--chathams-blue)]
-                                    h-5 text-center  min-w-[3rem]'
+                                        className='bg-[#dbeeff] border-b px-3  text-[0.7rem] font-medium text-[var(--chathams-blue)]
+                                    h-5 text-center whitespace-nowrap'
                                     >
                                         {y}
                                     </th>

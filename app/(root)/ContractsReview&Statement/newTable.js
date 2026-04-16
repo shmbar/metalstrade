@@ -51,6 +51,7 @@ const Customtable = ({
 
   const pathName = usePathname()
   const [columnFilters, setColumnFilters] = useState([])
+  const [sorting, setSorting] = useState([])
 
   const [quickSumEnabled, setQuickSumEnabled] = useState(false)
   const [quickSumColumns, setQuickSumColumns] = useState([])
@@ -111,12 +112,14 @@ const Customtable = ({
       pagination,
       columnFilters,
       rowSelection,
+      sorting,
     },
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
     onColumnVisibilityChange: setColumnVisibility,
+    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
@@ -347,9 +350,16 @@ const Customtable = ({
                               maxWidth: header.column.id === 'select' ? '50px' : 'none',
                               letterSpacing: '0.05em',
                               textAlign: 'center',
+                              cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                              userSelect: 'none',
                             }}
+                            onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                           >
-                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                              {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                            </div>
                           </th>
                         ))}
                       </tr>

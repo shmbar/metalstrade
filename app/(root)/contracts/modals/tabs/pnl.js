@@ -204,7 +204,7 @@ const PNL = () => {
             <p className='text-sm'>Save</p></button>
         </div>
           */}
-        <div className='hidden md:flex w-fit border border-[#b8ddf8] rounded-2xl overflow-hidden'>
+        <div className='hidden md:flex col-span-12 md:col-span-6 border border-[#b8ddf8] rounded-2xl overflow-hidden'>
           <TableIbvPurchs valueCon={valueCon} setValueCon={setValueCon} saveData_PoInvoices={saveData_PoInvoices} ln={ln} />
         </div>
       </div>
