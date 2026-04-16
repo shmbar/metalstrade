@@ -301,7 +301,6 @@ const ShipmentPage = () => {
                 vertical-align: middle;
                 padding: 6px;
                 border-radius: 4px;
-                font-size: 0.68rem !important;
         }
             .custom-table td {
                 background-color: #fff;
