@@ -925,16 +925,16 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end mb-1.5 mt-1">
-                    <div className="flex-1 min-w-0 px-2">
+                    <div className="px-2">
                         <p className="text-xs text-[#979797] mb-1 text-center">Composition</p>
                         <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white mb-1">
-                            <div className="grid grid-cols-4 bg-[#EAF4FF] text-[#2F6FDB] text-xs">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[#EAF4FF] text-[#2F6FDB] text-xs">
                                 <div className="py-1 text-center">Ni</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8]">Cr</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8]">Mo</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8]">Fe</div>
                             </div>
-                            <div className="grid grid-cols-4 bg-white text-xs">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-white text-xs">
                                 <input type="text" className="w-full text-center py-1 outline-none text-[#F44336] bg-[#fafafa]"
                                     value={value?.fenicr?.ni + '%'} name="ni"
                                     onChange={(e) => handleChange({ target: { name: e.target.name, value: e.target.value.replace('%','') } }, "fenicr")}
@@ -957,13 +957,13 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                         </div>
                         <p className="text-xs text-[#979797] mb-1 text-center">Price</p>
                         <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white">
-                            <div className="grid grid-cols-4 bg-[#E9E2FF] text-[#2F6FDB] text-xs">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[#E9E2FF] text-[#2F6FDB] text-xs">
                                 <div className="py-1 text-center">Ni</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8]">Cr</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8]">Mo</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8]">Fe</div>
                             </div>
-                            <div className="grid grid-cols-4 bg-white text-xs">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-white text-xs">
                                 <input readOnly className="w-full text-center py-1 bg-white outline-none text-[#2F6FDB]"
                                     value={formatCurrency((value.general?.nilme * value.fenicr?.formulaNiCost / 100).toFixed(2))}
                                 />
@@ -1034,16 +1034,16 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end mb-1.5 mt-1">
-                    <div className="flex-1 min-w-0 px-2">
+                    <div className="px-2">
                         <p className="text-xs text-[#979797] mb-1 text-center">Composition</p>
                         <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white mb-1">
-                            <div className="grid grid-cols-4 bg-[#EAF4FF] text-[#2F6FDB] text-xs">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[#EAF4FF] text-[#2F6FDB] text-xs">
                                 <div className="py-1 text-center">Ni</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8]">Cr</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8]">Mo</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8]">Fe</div>
                             </div>
-                            <div className="grid grid-cols-4 bg-[#fafafa] text-xs">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[#fafafa] text-xs">
                                 <div className="py-1 text-center text-[#F44336]">{value?.fenicr?.ni}%</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8] text-[#F44336]">{value?.fenicr?.cr}%</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8] text-[#2F6FDB]">{value?.fenicr?.mo}%</div>
@@ -1052,13 +1052,13 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                         </div>
                         <p className="text-xs text-[#979797] mb-1 text-center">Price</p>
                         <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white">
-                            <div className="grid grid-cols-4 bg-[#E9E2FF] text-[#2F6FDB] text-xs">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[#E9E2FF] text-[#2F6FDB] text-xs">
                                 <div className="py-1 text-center">Ni</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8]">Cr</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8]">Mo</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8]">Fe</div>
                             </div>
-                            <div className="grid grid-cols-4 bg-[#fafafa] text-xs">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[#fafafa] text-xs">
                                 <div className="py-1 text-center text-[#2F6FDB]">{formatCurrency((value.general?.nilme * value.fenicr?.formulaNiPrice / 100).toFixed(2))}</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8] text-[#F44336]">{formatCurrency((value.general?.chargeCrLb * value.general?.mt * value.fenicr?.crPriceArgus / 100).toFixed(2))}</div>
                                 <div className="py-1 text-center border-l border-[#b8ddf8] text-[#F44336]">{formatCurrency((value.general?.MoOxideLb * value.fenicr?.moPriceArgus * value.general?.mt / 100).toFixed(2))}</div>

@@ -613,13 +613,13 @@ const Stainless = ({ value, handleChange }) => {
 
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end">
-                    <div className="flex-1 min-w-0 px-2">
+                    <div className="px-2">
                     <div className="mb-2">
                     <p className="text-xs text-[var(--regent-gray)] mb-1 text-center">
                         Composition
                     </p>
 
-                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-4">
+                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-[85px_85px_85px_85px]">
                         {/* Ni */}
                         <div>
                         <div className="bg-[#EAF4FF]  py-1 text-xs text-center text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
@@ -747,7 +747,7 @@ const Stainless = ({ value, handleChange }) => {
                         Price
                     </p>
 
-                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-4">
+                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-[85px_85px_85px_85px]">
                         {/* Ni */}
                         <div>
                         <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
@@ -903,11 +903,11 @@ const Stainless = ({ value, handleChange }) => {
                     <h3 className='text-xs font-medium text-[var(--endeavour)] mb-2'>Sales</h3>
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end">
-                    <div className="flex-1 min-w-0 px-2">
+                    <div className="px-2">
                     <div className="mb-2">
                     <p className="text-xs text-[var(--regent-gray)] mb-1 text-center">Composition</p>
 
-                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-4">
+                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-[85px_85px_85px_85px]">
                         {[
                         { label: 'Ni', value: value?.stainless?.ni + '%' },
                         { label: 'Cr', value: value?.stainless?.cr + '%' },
@@ -931,7 +931,7 @@ const Stainless = ({ value, handleChange }) => {
                     <div className="mt-2">
                     <p className="text-xs font-normal text-[var(--regent-gray)] mb-1 text-center">Price</p>
 
-                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-4">
+                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-[85px_85px_85px_85px]">
                         {/* Ni */}
                         <div>
                         <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
