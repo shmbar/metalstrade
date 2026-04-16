@@ -46,7 +46,6 @@ const Customtable = ({
   extraActions
 }) => {
   const [globalFilter, setGlobalFilter] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState(invisible)
   const [filterOn, setFilterOn] = useState(false)
   const [selectedRowId, setSelectedRowId] = useState(null)
 
@@ -58,6 +57,21 @@ const Customtable = ({
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
 
   const pathName = usePathname()
+
+  const storageKey = `col-vis-${pathName}`
+  const getInitialVisibility = () => {
+    if (typeof window === 'undefined') return invisible
+    try {
+      const saved = localStorage.getItem(storageKey)
+      if (saved) return { ...invisible, ...JSON.parse(saved) }
+    } catch {}
+    return invisible
+  }
+  const [columnVisibility, setColumnVisibility] = useState(getInitialVisibility)
+
+  useEffect(() => {
+    try { localStorage.setItem(storageKey, JSON.stringify(columnVisibility)) } catch {}
+  }, [columnVisibility, storageKey])
   const { ln } = useContext(SettingsContext);
 
   const [quickSumEnabled, setQuickSumEnabled] = useState(false);
