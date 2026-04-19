@@ -42,7 +42,7 @@ export default function Sidebar() {
 
   const pathName = usePathname();
   const { setDates, compData } = useContext(SettingsContext);
-  const { userTitle, user } = UserAuth();
+  const { userTitle, user, gisAccount } = UserAuth();
   const ln = compData?.lng || "English";
   
   const collapsibleSections = [];
@@ -77,11 +77,11 @@ export default function Sidebar() {
     });
   };
 
-  // ── Build a flat list of ALL searchable links from sideBar() ─────────────────
+  // ── Build a flat list of ALL searchable links from sideBar(userTitle, gisAccount) ─────────────────
   // Include Settings as well since it's manually appended in IMS Summary
   const allLinks = useMemo(() => {
     const links = [];
-    sideBar().forEach((section) => {
+    sideBar(userTitle, gisAccount).forEach((section) => {
       section.items.forEach((item) => {
         if (item.hasDropdown) {
           item.subItems?.forEach((sub) => {
@@ -302,7 +302,7 @@ export default function Sidebar() {
             ) : (
 
               /* ── NORMAL SIDEBAR MODE ───────────────────────────────────────── */
-              sideBar().map((section, i) => {
+              sideBar(userTitle, gisAccount).map((section, i) => {
                 const isCollapsible = collapsibleSections.includes(section.ttl);
                 const isOpen = openSections[section.ttl];
                 const sectionHasActiveItem =

@@ -12,14 +12,12 @@ import { MdOutlineWarehouse } from "react-icons/md";
 import { CgEreader } from "react-icons/cg";
 import { TbReportMoney } from "react-icons/tb";
 import { GiProfit } from "react-icons/gi";
-import { UserAuth } from "../contexts/useAuthContext";
 import { TbBrandCashapp } from "react-icons/tb";
 import { FaTableList } from "react-icons/fa6";
 import { RiFormula } from "react-icons/ri";
 import { BiMessageRoundedDetail, BiPhone, BiCalendar } from "react-icons/bi";
 
-export const sideBar = () => {
-    const { userTitle, gisAccount } = UserAuth(); // Assuming this is a hook that provides the user role
+export const sideBar = (userTitle, gisAccount) => {
 
     const sb = [
         {
