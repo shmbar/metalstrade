@@ -1,8 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function NavbarMenu({ isMenuOpen }) {
+  const pathname = usePathname();
+
   if (!isMenuOpen) return null;
 
   const links = [
@@ -15,19 +18,23 @@ export default function NavbarMenu({ isMenuOpen }) {
   ];
 
   return (
-    <div className="flex flex-col space-y-3">
+    <div className="flex flex-col space-y-1 pt-2 pb-3">
       {links.map((link) => (
         <Link
           key={link.href}
           href={link.href}
-          className="text-[var(--chathams-blue)] hover:text-[var(--endeavour)] font-medium text-sm py-2 transition-colors"
+          className={`font-medium text-sm py-2 px-3 rounded-lg transition-all duration-200 ${
+            pathname === link.href
+              ? 'text-[var(--endeavour)] bg-[#dbeeff]'
+              : 'text-[var(--chathams-blue)] hover:text-[var(--endeavour)] hover:bg-[#dbeeff]/60'
+          }`}
         >
           {link.label}
         </Link>
       ))}
       <Link
         href="/signin"
-        className="text-white hover:text-[#b8ddf8] font-medium text-sm py-2 transition-colors"
+        className="mt-2 bg-[var(--endeavour)] text-white font-medium text-sm py-2 px-3 rounded-lg text-center hover:bg-[var(--chathams-blue)] transition-all duration-200"
       >
         Sign In
       </Link>
