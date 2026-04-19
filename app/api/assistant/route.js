@@ -1,9 +1,12 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+let openai;
+function getOpenAI() {
+    if (!openai) openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    return openai;
+}
 
 // System prompt that gives the AI context about the IMS system
 const SYSTEM_PROMPT = `You are an intelligent assistant for IMS (Inventory Management System) - a metals trading and inventory management platform. You help users navigate the system, answer questions, look up data, and guide them through workflows.
@@ -246,7 +249,7 @@ ${dataContext}`;
         }
 
         // Call OpenAI API
-        const completion = await openai.chat.completions.create({
+        const completion = await getOpenAI().chat.completions.create({
             model: 'gpt-4o-mini',
             messages: [
                 { role: 'system', content: systemContext },
