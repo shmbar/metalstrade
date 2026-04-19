@@ -119,7 +119,5 @@
     "url": "https://github.com/zakaurrehman/IMS/issues"
   },
   "homepage": "https://github.com/zakaurrehman/IMS#readme",
-  "overrides": {
-    "@types/react": "19.2.14"
-  }
+  "overrides": {}
 }
