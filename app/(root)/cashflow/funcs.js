@@ -1275,12 +1275,16 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                         <th></th>
                         <th className="text-right">
                             <div>{
-                                showAmount(filteredArr.reduce((sum, item) => sum + (item.cur === 'us' ?
-                                    parseFloat(item.amount) || 0 : 0), 0), 'usd')
+                                showAmount(filteredArr.reduce((sum, item) => {
+                                    const amt = parseFloat(item.amount) || 0;
+                                    return sum + (item.cur === 'us' ? amt : amt * 1.08);
+                                }, 0), 'usd')
                             }</div>
                             <div className="pt-0.5">{
-                                showAmount(filteredArr.reduce((sum, item) => sum + (item.cur === 'eu' ?
-                                    parseFloat(item.amount) || 0 : 0), 0), 'eur')
+                                showAmount(filteredArr.reduce((sum, item) => {
+                                    const amt = parseFloat(item.amount) || 0;
+                                    return sum + (item.cur === 'eu' ? amt : amt / 1.08);
+                                }, 0), 'eur')
                             }</div>
                         </th>
                         <th></th>
