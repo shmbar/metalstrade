@@ -228,7 +228,7 @@ const useContractsState = (props) => {
                 let bb = z.productsData.find(a => a.id === z.description);
                 return (
                     {
-                        compName: z.compName, date: z.indDate.startDate,
+                        compName: z.compName, date: z.indDate?.startDate ?? null,
                         supplier: z.supplier, order: z.order,
                         invoice: aa?.inv, id: z.id,
                         salesInvoice: aa?.invRef[0] || '',

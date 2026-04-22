@@ -106,11 +106,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
         setShowPoInvModal(true)
     }
 
-    const checkIfAlllowed = () => {
-        return value.id !== '' ?
-            (contractsData.find(x => x.id === value.id)?.poInvoices)?.length > 0 ? true : false :
-            false
-    }
+    const checkIfAlllowed = () => value.id !== ''
     //overflow-x-auto
 
     return (
