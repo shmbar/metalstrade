@@ -116,9 +116,9 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
     return (
         <div className="w-full justify-center flex">
             <div className="flex flex-col w-full">
-                <div className="relative">
-                    <div className="border border-[#b8ddf8] rounded-lg  relative">
-                        <table className=" table-fixed min-w-full divide-y divide-[#b8ddf8]">
+                <div className="relative overflow-x-auto">
+                    <div className="border-2 border-[#b8ddf8] rounded-lg  relative">
+                        <table className=" table-fixed min-w-[640px] w-full divide-y divide-[#b8ddf8]">
                             <thead style={{ background: '#dbeeff' }}>
                                 <tr>
                                     <th scope="col" className=" w-1/12 py-1 pl-4 "></th>
@@ -137,7 +137,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                             <tbody className="divide-y divide-[#b8ddf8] relative">
                                 {reOrderTableCon(value.productsData.filter(x => !x.import)).map((obj, i) => {
                                     return (
-                                        <tr key={i} className='relative'>
+                                        <tr key={i} className='relative hover:z-10'>
                                             <td className="py-2 pl-4">
                                                 <div className="flex items-center h-5">
                                                     <ChkBox checked={checkedItems.includes(obj.id)} size='h-5 w-5' onChange={() => checkItem(obj.id)} />
@@ -154,8 +154,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                     <td
                                                         key={key}
                                                         data-label={key}
-                                                        className="px-1 py-1 responsiveTextTable text-[var(--port-gore)] whitespace-normal
-                                                       tableStyle relative"
+                                                        className="px-1 py-1 responsiveTextTable text-[var(--port-gore)] whitespace-normal tableStyle relative overflow-visible"
                                                         onClick={() => handleDoubleClick(obj, key)}
                                                     >
                                                         {edit.status &&
@@ -165,7 +164,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                 <input
                                                                     className="input w-full border rounded-md border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
-                                                                    style={{ fontSize: 'inherit' }}
+                                                                    style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                                     onKeyDown={handleKeyPress}
                                                                     value={value1}
                                                                     maxLength={70}

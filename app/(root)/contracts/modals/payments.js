@@ -129,8 +129,8 @@ const Payments = ({ showPayments }) => {
 
     return (
 
-        <div className={`z-10 relative mt-2 border border-[#b8ddf8] rounded-2xl
-        ${showPayments ? 'flex animated-div' : 'hidden'}`} style={{background:'#f4f9ff'}}>
+        <div className={`z-10 relative mt-2 border-2 border-[#b8ddf8] rounded-2xl bg-[#f4f9ff]
+        ${showPayments ? 'flex animated-div' : 'hidden'}`}>
             <div className=' flex gap-3 p-2 w-full'>
 
                 <div className=' p-2 h-fit'>
@@ -156,7 +156,7 @@ const Payments = ({ showPayments }) => {
                                 <div >
                                     <p className='flex responsiveText font-medium whitespace-nowrap text-[0.75rem] text-[var(--chathams-blue)]'>{getTtl('Actual Payment', ln)}:</p>
                                     <div className='flex'>
-                                        <input type='text' className="number-separator input shadow-lg h-[1.84rem] -mt-[0.03rem] text-[0.75rem]" name='pmnt'
+                                        <input type='text' className="number-separator input shadow-lg h-[1.84rem] -mt-[0.03rem] text-[0.75rem]" style={{ fontFamily: 'inherit' }} name='pmnt'
                                             value={addComma(x.pmnt)} onChange={e => handleValue(e, i)} />
                                         {i === 0 && <button className='relative right-6 '>
                                             <MdPayments className='scale-125 text-[var(--regent-gray)]' onClick={setPrepPayment} />

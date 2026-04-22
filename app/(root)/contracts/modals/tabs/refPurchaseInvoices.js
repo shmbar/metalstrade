@@ -31,14 +31,14 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                     <table className="w-full border border-r-0">
                         <thead className="divide-y divide-gray-200 ">
                             <tr className='text-center' >
-                                <th className='font-medium text-xs bg-[#dbeeff] whitespace-nowrap h-10 px-3' rowSpan="2">{getTtl('POInvoices', ln)}</th>
+                                <th className='font-medium responsiveTextTable bg-[#dbeeff] whitespace-nowrap h-10 px-3' rowSpan="2">{getTtl('POInvoices', ln)}</th>
                             </tr>
 
                         </thead>
                         <tbody className="divide-y divide-gray-200 ">
                             {valueCon.poInvoices.map((y, i) => (
                                 <tr key={i}>
-                                    <td key={i} className='bg-[#dbeeff] table_cell p-1 border border-r-0 text-[0.7rem]
+                                    <td key={i} className='bg-[#dbeeff] table_cell p-1 border border-r-0 responsiveTextTable
                                         whitespace-nowrap px-2 text-center ' >
                                         {y.inv}
                                     </td>
@@ -52,7 +52,7 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                     <table className="w-full border ">
                         <thead className="divide-y divide-gray-200 ">
                             <tr className='text-center' >
-                                <th className='font-medium text-xs bg-[#dbeeff] h-5 whitespace-nowrap'
+                                <th className='font-medium responsiveTextTable bg-[#dbeeff] h-5 whitespace-nowrap'
                                     colSpan={[... new Set(valueCon.invoices.map(x => x.invoice))].length}>{getTtl('SalesInvoices', ln)}</th>
                             </tr>
                             <tr>
@@ -60,7 +60,7 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                     <th
                                         scope="col"
                                         key={k}
-                                        className='bg-[#dbeeff] border-b px-3  text-[0.7rem] font-medium text-[var(--chathams-blue)]
+                                        className='bg-[#dbeeff] border-b px-3  responsiveTextTable font-medium text-[var(--chathams-blue)]
                                     h-5 text-center whitespace-nowrap'
                                     >
                                         {y}
@@ -73,7 +73,7 @@ const refPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                             {valueCon.poInvoices.map((y, i) => (
                                 <tr key={i}>
                                     {[... new Set(valueCon.invoices.map(x => x.invoice))].map((x, q) => (
-                                        <td key={q} data-label={q} className={`table_cell py-1 border text-[0.7rem]
+                                        <td key={q} data-label={q} className={`table_cell py-1 border responsiveTextTable
                                         w-2 h-[1.55rem] cursor-pointer
                                         ${[... new Set(valueCon.invoices.map(x => x.invoice))].length === 1 && 'flex w-full justify-center'}
                                         ${y.invRef.includes(x.toString()) ? 'bg-slate-500 text-white hover:bg-slate-500' : 'hover:bg-slate-100'}

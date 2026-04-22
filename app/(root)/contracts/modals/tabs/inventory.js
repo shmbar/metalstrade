@@ -157,30 +157,30 @@ const Inventory = () => {
     return (
         <div className='p-1'>
 
-            <div className='mt-3 border border-[#b8ddf8] p-2 rounded-2xl max-w-72 ]'>
+            <div className='mt-3 border-2 border-[#b8ddf8] p-2 rounded-2xl max-w-xs'>
 
                 <div className='flex justify-between'>
-                    <p className='text-[0.75rem] font-medium text-[var(--chathams-blue)]'>{getTtl('Purchase QTY', ln)} / MT</p>
-                    <p className='text-[0.75rem] text-[var(--port-gore)]'>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings))}</p>
+                    <p className='responsiveTextTable font-medium text-[var(--chathams-blue)]'>{getTtl('Purchase QTY', ln)} / MT</p>
+                    <p className='responsiveTextTable text-[var(--port-gore)] whitespace-nowrap'>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings))}</p>
                 </div>
 
                 <div className='w-full text-right h-4 -mt-2'>-</div>
                 <div className='flex justify-between'>
-                    <p className='text-[0.75rem] font-medium text-[var(--chathams-blue)] w-full'>{getTtl('Invoices summary', ln)}:</p>
-                    <p className='text-[0.75rem] text-[var(--port-gore)]'>{frm(Total(data, 'productsDataInvoice', 'qnty'))}</p>
+                    <p className='responsiveTextTable font-medium text-[var(--chathams-blue)] w-full'>{getTtl('Invoices summary', ln)}:</p>
+                    <p className='responsiveTextTable text-[var(--port-gore)] whitespace-nowrap'>{frm(Total(data, 'productsDataInvoice', 'qnty'))}</p>
                 </div>
                 <div className='pt-1.5 border-t border-slate-500'></div>
                 <div className='flex justify-between font-bold'>
-                    <p className='text-[0.75rem] font-medium text-[var(--chathams-blue)] full'>{getTtl('Remaining QTY', ln)} / MT:</p>
-                    <p className='text-[0.75rem] text-[var(--port-gore)]'>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings) -
+                    <p className='responsiveTextTable font-medium text-[var(--chathams-blue)] full'>{getTtl('Remaining QTY', ln)} / MT:</p>
+                    <p className='responsiveTextTable text-[var(--port-gore)] whitespace-nowrap'>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings) -
                         Total(data, 'productsDataInvoice', 'qnty'))}</p>
                 </div>
             </div>
 
 
-            <div className='mt-4 border border-[#b8ddf8] p-2 rounded-2xl flex md:w-fit' >
-                <div className="w-full overflow-x-auto border-[#b8ddf8] border rounded-2xl ">
-                    <table className='w-full'>
+            <div className='mt-4 border-2 border-[#b8ddf8] p-2 rounded-2xl w-fit' >
+                <div className="overflow-x-auto border-[#b8ddf8] border rounded-2xl ">
+                    <table className=''>
                         <thead style={{ background: '#dbeeff' }} className="divide-y divide-[#b8ddf8]">
                             <tr className='border-b border-[#b8ddf8]'>
                                 {cols.map(x => x.header)
@@ -188,7 +188,7 @@ const Inventory = () => {
                                         <th
                                             scope="col"
                                             key={k}
-                                            className="px-3 py-1 text-left text-[0.75rem] font-medium uppercase text-[var(--chathams-blue)] text-wrap max-w-40"
+                                            className="px-3 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)] text-wrap max-w-40"
                                         >
                                             {y}
                                         </th>
@@ -200,7 +200,7 @@ const Inventory = () => {
                             {data.map((obj, i) => (
                                 <tr key={i}>
                                     {cols.map(y => (
-                                        <td key={y.field} data-label={y.header} className={`table_cell px-3 py-0.5 text-[0.7rem] items-center`} >
+                                        <td key={y.field} data-label={y.header} className={`table_cell px-3 py-0.5 responsiveTextTable items-center`} >
                                             <div className='py-1'>
                                                 {showDetail(obj, y.field, i)}
                                             </div>

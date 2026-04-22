@@ -150,7 +150,7 @@ const PNL = () => {
   return (
     <div className='p-1'>
       <div className='grid grid-cols-12 pt-3 gap-4 '>
-        <div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl '>
+        <div className='col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl '>
           <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('selectCurr', ln)}:</p>
           <Selector arr={settings.Currency.Currency} value={valCur}
             onChange={(e) => handleChange(e, 'cur')}
@@ -170,7 +170,7 @@ const PNL = () => {
 
           </div>
         </div>
-        <div className='col-span-12 md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>
+        <div className='col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
           <div className='flex justify-between whitespace-nowrap gap-2'>
             <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('invValueSale', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings), settings)}</p>
@@ -193,7 +193,7 @@ const PNL = () => {
           </div>
         </div>
         {/*
-        <div className='col-span-12 md:col-span-2 border border-[#b8ddf8] p-2 rounded-2xl'>
+        <div className='col-span-12 md:col-span-2 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
           <p className='responsiveText'>Contract Status:</p>
           
           <button className='mt-2 py-0.5 bg-slate-100  px-2 border border-slate-400 shadow-md rounded-lg text-slate-700
@@ -204,12 +204,12 @@ const PNL = () => {
             <p className='text-sm'>Save</p></button>
         </div>
           */}
-        <div className='hidden md:flex col-span-12 md:col-span-6 border border-[#b8ddf8] rounded-2xl overflow-hidden'>
+        <div className='flex col-span-6 border-2 border-[#b8ddf8] rounded-2xl overflow-hidden'>
           <TableIbvPurchs valueCon={valueCon} setValueCon={setValueCon} saveData_PoInvoices={saveData_PoInvoices} ln={ln} />
         </div>
       </div>
 
-      <div className='block md:flex flex-wrap mt-4 gap-2 '>
+      <div className='flex flex-wrap mt-4 gap-2 '>
         <p className='p-2 responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Invoices summary', ln)}:</p>
         <TotalPnlTable data={pnlData} val={valCur} mult={valueCon.euroToUSD} />
       </div>

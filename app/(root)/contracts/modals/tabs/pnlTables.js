@@ -138,11 +138,11 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
     return runData && (
         <div>
             {data.map((x, i) => {
-                return <div className='mt-4  border border-[#b8ddf8] p-2 rounded-2xl block lg:flex flex-wrap gap-2' key={i}>
+                return <div className='mt-4 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-wrap gap-2' key={i}>
                     <Customtable data={data[i]} propDefaults={propDefaults} val={val} mult={mult} />
 
-                    <div className='bg-[#f0f8ff] mt-2 lg:mt-0 flex flex-wrap items-center border border-[#b8ddf8] rounded-lg max-w-6xl'>
-                        <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
+                    <div className='bg-[#f0f8ff] mt-2 lg:mt-0 flex flex-wrap items-center border-2 border-[#b8ddf8] rounded-lg max-w-6xl'>
+                        <div className='p-1 gap-2 h-fit flex justify-normal w-full'>
                             <div className='responsiveTextTable text-[var(--chathams-blue)] items-center flex'>Outturn:</div>
                             <Selector
                                 arr={OutTurn}
@@ -153,13 +153,13 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                             />
                         </div>
                         {dataValue[i].rcvd === '1234' &&
-                            <div className='p-1 space-x-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
+                            <div className='p-1 space-x-2 h-fit flex justify-normal w-full'>
                                 <div className='responsiveTextTable text-[var(--chathams-blue)] items-center flex text-nowrap'>Outturn Amount:</div>
-                                <input type='text' className="number-separator input shadow-lg h-6 max-w-44" style={{ fontSize: 'inherit' }}
+                                <input type='text' className="number-separator input shadow-lg h-6 max-w-44" style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                     name='outrnamnt' value={addComma(dataValue[i].outrnamnt, i)} onChange={e => handleValue(e, i)} />
                             </div>
                         }
-                        <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
+                        <div className='p-1 gap-2 h-fit flex justify-normal w-full'>
                             <div className='responsiveTextTable text-[var(--chathams-blue)] items-center flex'>{getTtl('Finalizing', ln)}:</div>
                             <Selector
                                 arr={Finalizing}
@@ -169,7 +169,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                                 classes='h-6 w-20'
                             />
                         </div>
-                        <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
+                        <div className='p-1 gap-2 h-fit flex justify-normal w-full'>
                             <div className='responsiveTextTable text-[var(--chathams-blue)] items-center flex whitespace-nowrap'>{getTtl('Release Status', ln)}:</div>
                             <Selector
                                 arr={relStts}
@@ -180,7 +180,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                             />
                         </div>
 
-                        <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
+                        <div className='p-1 gap-2 h-fit flex justify-normal w-full'>
                             <div className='responsiveText text-[var(--chathams-blue)] items-center flex'>ETD:</div>
                             <Datepicker useRange={false}
                                 asSingle={true}
@@ -191,7 +191,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                                 inputClassName='input w-full shadow-lg h-6'
                             />
                         </div>
-                        <div className='p-1 gap-2 h-fit flex justify-between md:justify-normal w-full md:w-auto'>
+                        <div className='p-1 gap-2 h-fit flex justify-normal w-full'>
                             <div className='responsiveText text-[var(--chathams-blue)] items-center flex'>ETA:</div>
                             <Datepicker useRange={false}
                                 asSingle={true}

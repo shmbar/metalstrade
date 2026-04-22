@@ -281,7 +281,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                 {valueCon.poInvoices.map((x, i) => {
 
                     return (
-                        <div className='flex gap-4 p-1  border border-[#b8ddf8] rounded-2xl flex-col' style={{background:'#f4f9ff'}} key={x.id}>
+                        <div className='flex gap-4 p-1 border-2 border-[#b8ddf8] rounded-2xl flex-col bg-[#f4f9ff]' key={x.id}>
                             <div className=''>
                                 <div className='flex items-center'>
                                     <div className='items-center flex pt-3 pr-2'>
@@ -294,31 +294,31 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                     }
                                     <div className='gap-3 flex'>
                                         <div className=''>
-                                            <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}> {getTtl('PurchaseInv', ln)}#:</p>
-                                            <input type='text' className="number-separator input h-7  shadow-lg text-xs" name='inv'
+                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' > {getTtl('PurchaseInv', ln)}#:</p>
+                                            <input type='text' className="number-separator input h-7 shadow-lg responsiveTextTable" name='inv'
                                                 value={x.inv} onChange={e => handleValue(e, x)} />
                                         </div>
                                         <div className=''>
-                                            <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('InvoiceValue', ln)}:</p>
-                                            <input type='text' className="number-separator input h-7 shadow-lg text-xs" name='invValue'
+                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('InvoiceValue', ln)}:</p>
+                                            <input type='text' className="number-separator input h-7 shadow-lg responsiveTextTable" name='invValue'
                                                 value={addComma(x.invValue, true)} onChange={e => handleValue(e, x)} />
                                         </div>
                                         <div className=''>
-                                            <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>
+                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >
                                                 Total Payment:
                                             </p>
-                                            <input type='text' className="number-separator input border-slate-300 h-7 text-xs" name='pmnt'
+                                            <input type='text' className="number-separator input border-slate-300 h-7 responsiveTextTable" name='pmnt'
                                                 value={addComma(x.pmnt, true)} disabled />
                                         </div>
                                         <div className=''>
-                                            <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Balance', ln)}:</p>
+                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Balance', ln)}:</p>
                                             <div className='flex pr-3'>
-                                                <input type='text' disabled className="number-separator input border-slate-300 h-7 text-xs" name='blnc'
+                                                <input type='text' disabled className="number-separator input border-slate-300 h-7 responsiveTextTable" name='blnc'
                                                     value={addComma(x.blnc, true)} />
                                                 <div className='group relative'>
                                                     <ArrowBigRight className='text-[var(--regent-gray)] ml-3 cursor-pointer' onClick={switchToStocks} />
                                                     <span className="absolute hidden group-hover:flex top-[30px] w-fit p-1
-    bg-slate-400 rounded-md text-center text-white text-xs z-10 whitespace-nowrap -left-2">
+    bg-slate-400 rounded-md text-center text-white responsiveTextTable z-10 whitespace-nowrap -left-2">
                                                         {getTtl('Stocks', ln)}</span>
                                                 </div>
                                             </div>
@@ -337,43 +337,43 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                     return (
                                         <div key={k}>
                                             <div className='p-1 pl-28 flex items-center gap-6 flex-wrap'>
-                                                <p className='text-sm text-[var(--regent-gray)]'>Payment #{k + 1}:</p>
+                                                <p className='responsiveTextTable text-[var(--regent-gray)]'>Payment #{k + 1}:</p>
 
                                                 <div className='md:max-w-36 pt-2 md:pt-0'>
-                                                    <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Payment Date', ln)}:</p>
+                                                    <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Payment Date', ln)}:</p>
                                                     <div className='flex flex-col'>
                                                         <Datepicker useRange={false}
                                                             asSingle={true}
                                                             value={y.pmntDate}
-                                                            popoverDirection='down'
+                                                            popoverDirection='up'
                                                             onChange={e => handleDateChange(e, x, y)}
                                                             displayFormat={"DD-MMM-YYYY"}
-                                                            inputClassName='input w-full shadow-lg h-7 text-xs'
+                                                            inputClassName='input w-full shadow-lg h-7 responsiveTextTable'
                                                         />
                                                     </div>
                                                 </div>
 
                                                 <div className=''>
-                                                    <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>Payment %:</p>
+                                                    <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >Payment %:</p>
                                                     <div className='flex'>
-                                                        <input type='text' className="number-separator input h-7  shadow-lg text-xs w-20" name='pmntPerc'
+                                                        <input type='text' className="number-separator input h-7  shadow-lg responsiveTextTable w-20" name='pmntPerc'
                                                             value={y.pmntPerc} onChange={e => handleValuePerc(e, x, y)} />
                                                         <span className='relative right-6 text-[var(--port-gore)] items-center flex'>%</span>
                                                     </div>
                                                 </div>
 
                                                 <div className=''>
-                                                    <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>
+                                                    <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >
                                                         {getTtl('Payment', ln)}:
                                                     </p>
                                                     <div className='flex'>
-                                                        <input type='text' className="number-separator input shadow-lg h-7 text-xs w-28" name='pmnt'
+                                                        <input type='text' className="number-separator input shadow-lg h-7 responsiveTextTable w-28" name='pmnt'
                                                             value={addComma(y.pmnt, true)} onChange={e => handleValuePmnt(e, x, y)} />
                                                     </div>
                                                 </div>
 
                                                 <Button
-                                                    className="h-7 px-3 mt-4 text-[var(--port-gore)] text-[13px]"
+                                                    className="h-7 px-3 mt-4 text-[var(--port-gore)] responsiveTextTable"
                                                     variant='outline'
                                                     onClick={() => deletePayment(x, y)}
                                                 >

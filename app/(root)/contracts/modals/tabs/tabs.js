@@ -37,18 +37,18 @@ const Page = () => {
             <div className="border border-transparent border-slate-200  p-1">
                 <div className="w-full px-0 ">
                     <Tab.Group >
-                        <Tab.List className="max-w-xl flex space-x-1 p-1">
+                        <Tab.List className="flex space-x-1 p-1">
                             {tabs.map((z, i) => (
                                 <Tab
                                     disabled={((i === 1 || i == 2 || i == 3) && valueCon.id === '') || isButtonDisabled}
                                     key={z}
                                     className={({ selected }) =>
                                         classNames(
-                                            'w-full rounded-full py-1.5 text-xs font-medium leading-4 transition-colors',
+                                            'rounded-full py-1.5 px-4 text-xs font-medium leading-4 transition-colors whitespace-nowrap',
                                             'focus:outline-none',
                                             selected
                                                 ? 'text-white bg-[var(--endeavour)] shadow-sm'
-                                                : 'text-[var(--endeavour)] hover:bg-[var(--selago)] border border-[var(--rock-blue)]'
+                                                : 'text-[var(--endeavour)] hover:bg-[var(--selago)] border-2 border-[#b8ddf8]'
                                         )
                                     }
                                 >

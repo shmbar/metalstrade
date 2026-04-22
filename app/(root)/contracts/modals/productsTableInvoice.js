@@ -422,7 +422,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                     <input
                                                         className="input w-full border rounded-md border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
-                                                style={{ fontSize: 'inherit' }}
+                                                style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                         onKeyDown={handleKeyPress}
                                                         value={value1}
                                                         maxLength={15}
@@ -455,7 +455,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                 <input
                                                                     className="inpiut  w-full border rounded-md border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
-                                                style={{ fontSize: 'inherit' }}
+                                                style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                                     onKeyDown={handleKeyPress3}
                                                                     value={valueDesc}
                                                                     maxLength={80}
@@ -492,7 +492,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                             <input
                                                                 className="input w-full border rounded-md border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
-                                                style={{ fontSize: 'inherit' }}
+                                                style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                                 onKeyDown={handleKeyPress}
                                                                 value={value1}
                                                                 maxLength={key === 'container' ? 17 : 100}
@@ -598,7 +598,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                             <input
                                                 className="w-full border rounded-md border-slate-400 h-7 
                 focus:outline-0 focus:border-slate-600 indent-1.5"
-                                                style={{ fontSize: 'inherit' }}
+                                                style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                 onKeyDown={handleKeyPress1}
                                                 value={value1}
                                                 onChange={(e) =>
@@ -647,7 +647,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 <input
                                                     className="w-full border rounded-md border-slate-400 h-7 
                 focus:outline-0 focus:border-slate-600 indent-1.5"
-                                                style={{ fontSize: 'inherit' }}
+                                                style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                     onKeyDown={handleKeyPress2}
                                                     value={value1}
                                                     onChange={(e) =>

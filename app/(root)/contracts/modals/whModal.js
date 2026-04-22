@@ -242,13 +242,13 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 {data.map((x, i) => {
 
                     return (
-                        <div className='md:flex p-1 gap-2 border border-[#b8ddf8] rounded-2xl flex-wrap' style={{background:'#f4f9ff'}} key={x.id}>
+                        <div className='flex flex-wrap p-1 gap-2 border-2 border-[#b8ddf8] rounded-2xl bg-[#f4f9ff]' key={x.id}>
                             <div className='flex'>
                                 <div className='items-center flex pt-3 pr-2'>
                                     <ChkBox checked={checkedItems.includes(x.id)} size='h-5 w-5' onChange={() => checkItem(x.id)} />
                                 </div>
                                 <div className='md:max-w-52 w-full pt-2 md:pt-0'>
-                                    <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Description', ln)}:</p>
+                                    <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Description', ln)}:</p>
                                     <div className='flex flex-col w-36'>
                                         <Selector
                                             arr={valueCon.productsData} value={data[i]}
@@ -262,31 +262,31 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
 
                             <div className='md:max-w-24 pt-2 md:pt-0'>
-                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Quantity', ln)} {`(${getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')})`}</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Quantity', ln)} {`(${getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')})`}</p>
                                 <div className='flex flex-col'>
-                                    <input type='text' className="number-separator input shadow-lg h-7 text-xs" name='qnty'
+                                    <input type='text' className="number-separator input shadow-lg h-7 responsiveTextTable" name='qnty' style={{ fontFamily: 'inherit' }}
                                         value={addComma(x.qnty, false)} onChange={e => handleValueQnty(e, i)} />
                                 </div>
                             </div>
                             <div className='md:max-w-24 pt-2 md:pt-0'>
-                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Price', ln)}:</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Price', ln)}:</p>
                                 <div className='flex flex-col'>
-                                    <input type='text' className="number-separator input shadow-lg h-7 text-xs" name='unitPrc'
+                                    <input type='text' className="number-separator input shadow-lg h-7 responsiveTextTable" name='unitPrc' style={{ fontFamily: 'inherit' }}
                                         value={addComma(x.unitPrc, true)} placeholder="text"
                                         onChange={e => handleValuePmnt(e, i)} />
                                 </div>
                             </div>
 
                             <div className='md:max-w-24 pt-2 md:pt-0'>
-                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Total', ln)}:</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Total', ln)}:</p>
                                 <div className='flex'>
-                                    <input type='text' disabled className="number-separator input border-slate-300 h-7 text-xs" name='total'
+                                    <input type='text' disabled className="number-separator input border-slate-300 h-7 responsiveTextTable" name='total'
                                         value={addComma(x.total, true, 'total')} onChange={e => handleValue(e, i)} />
                                 </div>
                             </div>
 
                             <div className='md:max-w-36 pt-2 md:pt-0'>
-                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('PurchaseInv', ln)}#:</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('PurchaseInv', ln)}#:</p>
                                 <div className='flex flex-col w-36'>
                                     <Selector
                                         arr={valueCon.poInvoices.map(x => ({ id: x.id, poInvoice: x.inv }))}
@@ -298,7 +298,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='md:max-w-36 pt-2 md:pt-0'>
-                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Arrival Date', ln)}:</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Arrival Date', ln)}:</p>
                                 <div className='flex flex-col'>
                                     <Datepicker useRange={false}
                                         asSingle={true}
@@ -306,7 +306,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                         popoverDirection='down'
                                         onChange={e => handleDateChange(e, i)}
                                         displayFormat={"DD-MMM-YYYY"}
-                                        inputClassName='input w-full shadow-lg h-7 text-xs'
+                                        inputClassName='input w-full shadow-lg h-7 responsiveTextTable'
                                     />
                                 </div>
                             </div>
@@ -314,7 +314,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
 
                             <div className='md:max-w-44 pt-2 md:pt-0'>
-                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Stock', ln)}:</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Stock', ln)}:</p>
                                 <div className='flex flex-col w-36'>
                                     <Selector
                                         arr={settings.Stocks.Stocks}
@@ -327,7 +327,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='md:max-w-28 pt-2 md:pt-0'>
-                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Status', ln)}</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Status', ln)}</p>
                                 <div className='flex flex-col w-24'>
                                     <Selector
                                         arr={statusArr}
@@ -339,16 +339,16 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='md:max-w-24 pt-2 md:pt-0'>
-                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>Sales Po#</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >Sales Po#</p>
                                 <div className='flex flex-col'>
-                                    <input type='text' className="number-separator input shadow-lg h-7 text-xs truncate" name='salesPo'
+                                    <input type='text' className="number-separator input shadow-lg h-7 responsiveTextTable truncate" name='salesPo' style={{ fontFamily: 'inherit' }}
                                         value={x.salesPo} placeholder="Sales Po#"
                                         onChange={e => handleValue1(e, i)} />
                                 </div>
                             </div>
 
                             <div className='md:max-w-40 pt-2 md:pt-0'>
-                                <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Consignee', ln)}</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Consignee', ln)}</p>
                                 <div className='flex flex-col w-40'>
                                     <Selector
                                         arr={settings.Client.Client}
@@ -371,10 +371,10 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </Tltip >
                             {x.spInv &&
                                 <div className='md:max-w-28 pt-2 md:pt-0'>
-                                    <p className='flex text-xs font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>Comp. Name</p>
+                                    <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >Comp. Name</p>
                                     <div className='flex flex-col'>
-                                        <input type='text' className="number-separator input shadow-lg h-7 text-xs truncate"
-                                            name='compName' value={x.compName} onChange={e => handleValue1(e, i)} />
+                                        <input type='text' className="number-separator input shadow-lg h-7 responsiveTextTable truncate"
+                                            name='compName' style={{ fontFamily: 'inherit' }} value={x.compName} onChange={e => handleValue1(e, i)} />
                                     </div>
                                 </div>
                             }
