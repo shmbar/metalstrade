@@ -83,8 +83,8 @@ const Expenses = ({ showExpenses }) => {
     return valueExp && (
         <div className={`z-10 relative mt-2 border border-[#b8ddf8] rounded-2xl
         ${showExpenses ? 'flex animated-div' : 'hidden'}`} style={{background:'#f4f9ff'}}>
-            <div className='grid grid-cols-4  gap-3 p-2 w-full'>
-                <div className='col-span-12 md:col-span-1 border border-[#b8ddf8] rounded-2xl p-2 h-fit'>
+            <div className='grid grid-cols-1 md:grid-cols-4 gap-3 p-2 w-full'>
+                <div className='md:col-span-1 border border-[#b8ddf8] rounded-2xl p-2 h-fit'>
                     <p className='responsiveText font-medium' style={{color:'var(--chathams-blue)'}}>{getTtl('Expenses', ln)}:</p>
                     {valueInv.expenses.length > 0 &&
                         <ul className="flex flex-col mt-1 overflow-auto rounded-2xl divide-y" style={{border:'1px solid #b8ddf8'}}>
@@ -104,13 +104,13 @@ const Expenses = ({ showExpenses }) => {
                                 )
                             })}
                         </ul>}</div>
-                <div className='col-span-12 md:col-span-3'>
-                    <div className='grid grid-cols-3  gap-3 w-full'>
-                        <div className='col-span-12 md:col-span-1  px-2'>
+                <div className='md:col-span-3'>
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-3 w-full'>
+                        <div className='px-2'>
                             <div>
                                 <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Invoice', ln)}:</p>
                                 <div className='w-full '>
-                                    <input className="input shadow-lg h-8" style={{ fontSize: 'inherit' }} name='expense' value={valueExp.expense} onChange={handleValue} />
+                                    <input className="input shadow-lg h-8 w-full" style={{ fontFamily: 'inherit' }} name='expense' value={valueExp.expense} onChange={handleValue} />
                                     <ErrDiv field='expense' errors={errorsExp} />
                                 </div>
                             </div>
@@ -129,12 +129,12 @@ const Expenses = ({ showExpenses }) => {
                             <div className='pt-1'>
                                 <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Amount', ln)}:</p>
                                 <div className='w-full '>
-                                    <input type='number' className="input shadow-lg h-8" style={{ fontSize: 'inherit' }} name='amount' value={valueExp.amount} onChange={handleValue} />
+                                    <input type='number' className="input shadow-lg h-8 w-full" style={{ fontFamily: 'inherit' }} name='amount' value={valueExp.amount} onChange={handleValue} />
                                     <ErrDiv field='amount' errors={errorsExp} />
                                 </div>
                             </div>
                         </div>
-                        <div className='col-span-12 md:col-span-1  px-2'>
+                        <div className='px-2'>
                             <div>
                                 <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Vendor', ln)}:</p>
                                 <div className='w-full '>
@@ -178,12 +178,12 @@ const Expenses = ({ showExpenses }) => {
                                 </div>
                             </div>
                         </div>
-                        <div className='col-span-12 md:col-span-1  px-2'>
+                        <div className='px-2'>
                             <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
                             <div>
-                                <textarea rows="5" cols="60" name="comments"
-                                    className="input shadow-lg h-24 p-1 !rounded-xl"
-                                    style={{ fontSize: 'inherit' }}
+                                <textarea rows="5" name="comments"
+                                    className="input shadow-lg h-24 p-1 !rounded-xl w-full"
+                                    style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
                                     value={valueExp.comments} onChange={handleValue} />
                             </div>
                             <div className='flex gap-3 m-2 flex-wrap'>

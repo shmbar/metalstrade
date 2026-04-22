@@ -61,6 +61,7 @@ tr td {
 
   .input {
     @apply w-full border rounded-full border-[#d8e8f5] h-10 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] text-[var(--port-gore)] bg-[#f8fbff];
+    font-family: inherit;
   }
 
   .dashBox {
