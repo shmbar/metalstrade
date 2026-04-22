@@ -94,7 +94,7 @@
     "@types/cors": "^2.8.19",
     "@types/file-saver": "^2.0.7",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/react": "^19.2.14",
+    "@types/react": "19.2.14",
     "@types/request": "^2.48.13",
     "@types/tough-cookie": "^4.0.5",
     "eslint": "^9.39.4",

@@ -34,7 +34,7 @@ export const ErrDiv = ({ field, errors, ln }) => {
   return (
     <>
       {errors[field] &&
-        <div className='text-[12px] text-red-600'>
+        <div className='text-xs text-red-600'>
           {getTtl('mustFilled', ln)}
         </div>
       }

@@ -11,7 +11,7 @@ import { TbLayoutGridAdd } from 'react-icons/tb';
 import ModalToDelete from '../../../../components/modalToProceed';
 import MyDetailsModal from '../_components/dataModal.js'
 import { Titles } from '../../../../components/const.js';
-
+import { User } from 'lucide-react';
 
 const newUser = {
   uid: '',
@@ -53,14 +53,6 @@ const Users = () => {
       enableColumnFilter: false
     },
     {
-      accessorKey: 'edit', header: 'Edit ', size: 65, cell: (props) => (
-        <button onClick={() => Edit(props)} className="flex items-center justify-center">
-          <LiaEdit className='text-green-600 scale-[1.3]' />
-        </button>
-      ),
-      enableColumnFilter: false
-    },
-    {
       accessorKey: 'delete', header: 'Delete ', size: 65, cell: (props) => (
         <button onClick={() => Delete(props)} className="flex items-center justify-center">
           <RiDeleteBin5Line className='text-red-500 scale-[1.2]' />
@@ -70,16 +62,16 @@ const Users = () => {
     },
   ];
 
-  const Edit = (props) => {
-    let obj = props.row.original;
+  const Edit = (row) => {
+    let obj = row.original;
 
     setUser({
       ...obj, title: Titles.find(z => z.title === obj.title)?.id,
       password: '', password1: ''
     })
     setIsOpenUser(true)
-
   }
+
   const Delete = (props) => {
     setIsDeleteOpen(true)
     setRow(props)
@@ -114,10 +106,11 @@ const Users = () => {
 
 
   return (
-    <div className='border border-[var(--rock-blue)] p-4 rounded-2xl flex flex-col w-full gap-4 '>
+    <div className='p-2 rounded-2xl flex flex-col w-full gap-4 '>
 
       <div className='max-w-6xl z-0 users-no-quicksum'>
         <Customtable data={data} columns={propDefaults} SelectRow={() => { }}
+        Edit={Edit}
 							/* excellReport={EXD(invoicesData, settings, getTtl('Invoices', ln), ln)}*/ />
       </div>
       <div className="text-left pt-6 ">
@@ -127,7 +120,7 @@ const Users = () => {
           onClick={addNewUser}
           className="bg-[var(--endeavour)] text-white focus:outline-none font-medium rounded-full text-[0.75rem] px-4 py-2 text-center gap-1.5 items-center flex hover:opacity-90 transition-all"
         >
-          <TbLayoutGridAdd className="scale-110" />
+          <User size={16} />
           Add New User
         </button>
 
@@ -137,6 +130,7 @@ const Users = () => {
         title={user.uid === '' ? 'New User' : `${'User'}: ${user.displayName}`}
         user={user}
         setUser={setUser}
+        Delete={Delete}
       />
 
       <ModalToDelete isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}
@@ -144,15 +138,6 @@ const Users = () => {
         doAction={() => deleteUser()}
       />
 
-      <style jsx global>{`
-        .users-no-quicksum .flex.flex-wrap.items-center.gap-1\.5.sm\:gap-2.min-w-0 > div:has(> div > button[title="Quick Sum"]) {
-          display: none !important;
-        }
-
-        .users-no-quicksum .relative.flex.items-center.w-full.max-w-\[240px\].rounded-2xl {
-          display: none !important;
-        }
-      `}</style>
     </div>
 
   )

@@ -8,11 +8,12 @@ import { createNewUser, updateUser } from '../../../../actions/pass';
 import { checkEmail, checkName, checkPassLenght, checkPassMatch } from '../../../../actions/validations';
 import CheckBox from '../../../../components/checkbox';
 import { Titles } from '../../../../components/const';
+import { Button } from '@components/ui/button';
+import { Save, Trash  } from 'lucide-react';
 
 
 
-
-const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, dis }) => {
+const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, dis, }) => {
 
     return (
         <div className='flex gap-4 justify-between my-3 w-full'>
@@ -52,7 +53,7 @@ const USerDSelect = ({ data, value, setValue, name, errors, ln }) => {
     )
 }
 
-const UserData = ({ setIsOpen, data, setData, user, setUser }) => {
+const UserData = ({ setIsOpen, data, setData, user, setUser, Delete }) => {
 
     const { uidCollection } = UserAuth();
     const [isPending, startTransition] = useTransition();
@@ -208,18 +209,24 @@ const UserData = ({ setIsOpen, data, setData, user, setUser }) => {
             />
 
 
-            <div className={`pt-2 responsiveText font-medium leading-5 text-[var(--port-gore)] flex gap-4 flex-wrap justify-center md:justify-start
-                ${isPending ? 'opacity-50' : ''}`}>
-                <button
-                    type="button"
-                    className="blackButton"
-                    onClick={SaveUser}
-                    disabled={isPending}
+            <div className={`pt-4 responsiveText font-medium leading-5 text-[var(--port-gore)] flex gap-4 flex-wrap justify-center md:justify-start
+                ${isPending ? 'opacity-70' : ''}`}>
 
-                >
-                    <VscSaveAs className='scale-110' />
-                    Save
-                </button>
+                <Button onClick={SaveUser}
+                    disabled={isPending}
+                    variant='customBlue'>
+                    <Save />Save
+                </Button>
+
+                {/* <Button onClick={Delete}
+                    disabled={isPending}
+                    variant='customWhite'
+                     >
+                    
+                    <Trash />Delete
+                </Button> */}
+                
+
             </div>
         </div>
     )

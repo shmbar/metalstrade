@@ -26,6 +26,8 @@ const buttonVariants = cva(
         // @replit no hover, transparent border
         ghost: "border border-transparent",
         link: "text-primary underline-offset-4 hover:underline",
+        customBlue: "bg-[#0366ae] text-white rounded-full text-xs px-2 gap-2",
+        customWhite: "text-[#9fb8d4] rounded-full text-xs px-2 gap-2 hover:bg-[#ebf2fc]",
       },
       size: {
         // @replit changed sizes

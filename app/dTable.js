@@ -18,7 +18,7 @@ let propDefaults = Object.keys(settings).length === 0 ? [] : [
         { accessorKey: 'fe', header: 'Fe', cell: (props) => <p>{props.getValue()}</p> },
         { accessorKey: 'ti', header: 'Ti', cell: (props) => <p>{props.getValue()}</p> },
     ];
-console.log(table)
+
   return (
     <div className='py-3 max-w-4xl'>
     
