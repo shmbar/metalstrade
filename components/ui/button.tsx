@@ -27,11 +27,11 @@ const buttonVariants = cva(
         ghost: "border border-transparent",
         link: "text-primary underline-offset-4 hover:underline",
         customBlue: "bg-[#0366ae] text-white rounded-full text-xs px-2 gap-2",
-        customWhite: "text-[#9fb8d4] rounded-full text-xs px-2 gap-2 hover:bg-[#ebf2fc]",
+        customWhite: "text-[#0366ae] rounded-full text-xs px-2 gap-2 hover:bg-[#ebf2fc] border border-[#9fb8d4]",
       },
       size: {
         // @replit changed sizes
-        default: "min-h-9 px-4 py-2",
+        default: "min-h-7 px-4 py-2",
         sm: "min-h-8 rounded-md px-3 text-xs",
         lg: "min-h-10 rounded-md px-8",
         icon: "h-9 w-9",

@@ -5,13 +5,13 @@ import { SettingsContext } from '../../../../contexts/useSettingsContext';
 import { getTtl } from '../../../../utils/languages'
 import React, { useContext, useEffect, useState } from 'react'
 import dateFormat from "dateformat";
-import { LiaEdit } from "react-icons/lia";
-import { RiDeleteBin5Line } from "react-icons/ri";
-import { TbLayoutGridAdd } from 'react-icons/tb';
+
 import ModalToDelete from '../../../../components/modalToProceed';
 import MyDetailsModal from '../_components/dataModal.js'
 import { Titles } from '../../../../components/const.js';
 import { User } from 'lucide-react';
+import { Trash } from 'lucide-react';
+
 
 const newUser = {
   uid: '',
@@ -54,8 +54,11 @@ const Users = () => {
     },
     {
       accessorKey: 'delete', header: 'Delete ', size: 65, cell: (props) => (
-        <button onClick={() => Delete(props)} className="flex items-center justify-center">
-          <RiDeleteBin5Line className='text-red-500 scale-[1.2]' />
+        <button
+          onClick={() => Delete(props)}
+          className="flex items-center justify-center w-full"
+        >
+          <Trash className="text-red-500" size={14} />
         </button>
       ),
       enableColumnFilter: false
@@ -110,11 +113,11 @@ const Users = () => {
 
       <div className='max-w-6xl z-0 users-no-quicksum'>
         <Customtable data={data} columns={propDefaults} SelectRow={() => { }}
-        Edit={Edit}
+          Edit={Edit}
 							/* excellReport={EXD(invoicesData, settings, getTtl('Invoices', ln), ln)}*/ />
       </div>
       <div className="text-left pt-6 ">
-      
+
         <button
           type="button"
           onClick={addNewUser}
@@ -130,7 +133,6 @@ const Users = () => {
         title={user.uid === '' ? 'New User' : `${'User'}: ${user.displayName}`}
         user={user}
         setUser={setUser}
-        Delete={Delete}
       />
 
       <ModalToDelete isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}

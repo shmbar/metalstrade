@@ -6,7 +6,7 @@ const DataModal = ({ isOpen, setIsOpen, title, data, setData, user, setUser, Del
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={title} w='max-w-sm' >
             <UserData setIsOpen={setIsOpen} data={data} setData={setData} 
-            user={user} setUser={setUser} Delete={Delete}/>
+            user={user} setUser={setUser} />
         </Modal>
     )
 }

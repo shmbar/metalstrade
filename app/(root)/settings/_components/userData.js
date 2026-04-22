@@ -1,6 +1,5 @@
 import { UserAuth } from '../../../../contexts/useAuthContext';
 import React, { useContext, useEffect, useState, useTransition } from 'react'
-import { VscSaveAs } from 'react-icons/vsc';
 import { Selector } from '../../../../components/selectors/selectShad'
 import { ErrDiv, validate } from '../../../../utils/utils';
 import { SettingsContext } from '../../../../contexts/useSettingsContext';
@@ -9,7 +8,7 @@ import { checkEmail, checkName, checkPassLenght, checkPassMatch } from '../../..
 import CheckBox from '../../../../components/checkbox';
 import { Titles } from '../../../../components/const';
 import { Button } from '@components/ui/button';
-import { Save, Trash  } from 'lucide-react';
+import { Save  } from 'lucide-react';
 
 
 
@@ -53,7 +52,7 @@ const USerDSelect = ({ data, value, setValue, name, errors, ln }) => {
     )
 }
 
-const UserData = ({ setIsOpen, data, setData, user, setUser, Delete }) => {
+const UserData = ({ setIsOpen, data, setData, user, setUser }) => {
 
     const { uidCollection } = UserAuth();
     const [isPending, startTransition] = useTransition();
@@ -217,15 +216,6 @@ const UserData = ({ setIsOpen, data, setData, user, setUser, Delete }) => {
                     variant='customBlue'>
                     <Save />Save
                 </Button>
-
-                {/* <Button onClick={Delete}
-                    disabled={isPending}
-                    variant='customWhite'
-                     >
-                    
-                    <Trash />Delete
-                </Button> */}
-                
 
             </div>
         </div>

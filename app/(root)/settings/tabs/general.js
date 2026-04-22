@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react'
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
-import { MdOutlineSaveAs } from 'react-icons/md';
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import Spinner from '../../../../components/spinner';
 //import Modal from '../../../../components/modalToProceed';
@@ -8,6 +7,9 @@ import CBox from '../_components/combobox.js'
 import { getTtl } from '../../../../utils/languages'
 import Logos from './logos.js';
 import Tltip from '../../../../components/tlTip.js';
+import { Button } from '@components/ui/button';
+import { Save } from 'lucide-react';
+
 
 export const getLng = () => {
     return;
@@ -36,11 +38,11 @@ const General = () => {
                     <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-1'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='gap-4 flex items-center' >
-                            <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
-                                {getTtl('cmpName', ln)}:</p>
+                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                    {getTtl('cmpName', ln)}:</p>
                                 <input
                                     type='input'
-className="
+                                    className="
   flex-1
   h-[26px]
   px-4
@@ -60,24 +62,24 @@ className="
                                     value={compData?.name || ''}
                                     onChange={e => setCompData({ ...(compData || {}), name: e.target.value })}
                                 />
-                        </div>
+                            </div>
 
-                                    <div className='gap-4 flex items-center w-full' >
-  <p className="responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]">
-    {getTtl("lng", ln)}:
-  </p>
+                            <div className='gap-4 flex items-center w-full' >
+                                <p className="responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]">
+                                    {getTtl("lng", ln)}:
+                                </p>
 
-  <div className="relative w-full">
-    <CBox
-      languages={languages}
-      compData={compData}
-      setCompData={setCompData}
-      lang={languages.find(
-        x => x.lng === (compData?.lng || "English")
-      )}
-    />
-  </div>
-</div>
+                                <div className="relative w-full">
+                                    <CBox
+                                        languages={languages}
+                                        compData={compData}
+                                        setCompData={setCompData}
+                                        lang={languages.find(
+                                            x => x.lng === (compData?.lng || "English")
+                                        )}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -90,7 +92,7 @@ className="
                                             {getTtl('street', ln)}:</p>
                                         <input
                                             type='input'
-className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                            className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
                                             value={compData?.street || ''}
                                             onChange={e => setCompData({ ...(compData || {}), street: e.target.value })}
                                         />
@@ -100,7 +102,7 @@ className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white te
                                             {getTtl('city', ln)}: </p>
                                         <input
                                             type='input'
-className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                            className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
                                             value={compData?.city || ''}
                                             onChange={e => setCompData({ ...(compData || {}), city: e.target.value })}
                                         />
@@ -110,7 +112,7 @@ className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white te
                                             {getTtl('country', ln)}:</p>
                                         <input
                                             type='input'
-className="
+                                            className="
   flex-1
   h-[26px]
   px-4
@@ -136,7 +138,7 @@ className="
                                             {getTtl('zipCode', ln)}:</p>
                                         <input
                                             type='input'
-className="
+                                            className="
   flex-1
   h-[26px]
   px-4
@@ -165,7 +167,7 @@ className="
                                         <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Reg No.:</p>
                                         <input
                                             type='input'
-className="
+                                            className="
   flex-1
   h-[26px]
   px-4
@@ -190,7 +192,7 @@ className="
                                         <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>VAT No.:</p>
                                         <input
                                             type='input'
-className="
+                                            className="
   flex-1
   h-[26px]
   px-4
@@ -215,7 +217,7 @@ className="
                                         <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>EORI No.:</p>
                                         <input
                                             type='input'
-className="
+                                            className="
   flex-1
   h-[26px]
   px-4
@@ -251,7 +253,7 @@ className="
                                     {getTtl('cmpemail', ln)}:</p>
                                 <input
                                     type='input'
-className="
+                                    className="
   flex-1
   h-[26px]
   px-4
@@ -276,7 +278,7 @@ className="
                                     {getTtl('cmpwebsite', ln)}:</p>
                                 <input
                                     type='input'
-className="
+                                    className="
   flex-1
   h-[26px]
   px-4
@@ -307,7 +309,7 @@ className="
                                     {getTtl('cmpPhone', ln)}:</p>
                                 <input
                                     type='input'
-className="
+                                    className="
   flex-1
   h-[26px]
   px-4
@@ -332,10 +334,7 @@ className="
                                     {getTtl('cmpMobile', ln)}:</p>
                                 <input
                                     type='input'
-className="
-  flex-1
-  h-[26px]
-  px-4
+                                    className="  flex-1 h-[26px] px-4
   rounded-full
   border
   border-[#E5E7EB]
@@ -360,13 +359,11 @@ className="
                     </div> */}
                     <div className="flex mt-3 ml-3">
                         <Tltip direction='top' tltpText='Save/update company data'>
-                            <button
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-4 h-[26px] responsiveText rounded-full hover:opacity-90 transition-all"
+                            <Button variant='customBlue'
                                 onClick={() => updateCompanyData(uidCollection)}
-                            >
-                                {getTtl('save', ln)}
-                            </button>
+                            >  <Save />  {getTtl('save', ln)}</Button>
                         </Tltip>
+
                     </div>
                     {/*
                     <div className='flex flex-wrap gap-4 border border-slate-300 p-4 rounded-2xl  mt-5 max-w-3xl'>

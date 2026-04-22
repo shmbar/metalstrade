@@ -11,6 +11,7 @@ import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
 import CBox from '../_components/stocksComb'
 import Tltip from '../../../../components/tlTip';
+import { Selector } from '@components/selectors/selectShad';
 
 const Stocks = () => {
 
@@ -89,6 +90,10 @@ const Stocks = () => {
     const labelCls = 'sm:w-[100px] shrink-0 responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]';
     const inputCls = 'w-full sm:flex-1 h-[26px] px-5 text-[0.75rem] rounded-full border border-[#E5E7EB] bg-white';
 
+    const clear = (name) => {
+        setValue(prev => ({ ...prev, [name]: '' }))
+    }
+
     return (
         <div className='p-4 rounded-2xl flex flex-col md:flex-row w-full gap-4'>
             <div className="md:px-5 w-full md:w-[27%] flex-shrink-0 rounded-2xl p-2 bg-[#e3f3ff]">
@@ -151,6 +156,12 @@ const Stocks = () => {
                                 <div className="w-full sm:flex-1">
                                     <CBox value={value} setValue={setValue} />
                                 </div>
+                                {/* <div className="w-full sm:flex-1">
+                                    <Selector arr={[{ sType: "Warehouse", id: 1 }, { sType: "Virtual", id: 2 }]} value={value}
+                                        onChange={(e) => setValue({ ...value, sType: e })}
+                                        name="sType"
+                                        clear={clear} />
+                                </div> */}
                             </div>
                         </div>
                         <div className="space-y-4">
