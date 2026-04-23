@@ -169,26 +169,46 @@ function FilterSelect({ value, onChange, placeholder, options }) {
 
 function StatusSelect({ value, onChange }) {
     const [open, setOpen] = useState(false);
-    const ref = useRef(null);
+    const [pos, setPos] = useState({ top: 0, left: 0, width: 0 });
+    const btnRef = useRef(null);
+    const dropRef = useRef(null);
 
     useEffect(() => {
-        const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+        const handler = (e) => {
+            if (
+                btnRef.current && !btnRef.current.contains(e.target) &&
+                dropRef.current && !dropRef.current.contains(e.target)
+            ) setOpen(false);
+        };
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
+    const handleToggle = () => {
+        if (!open && btnRef.current) {
+            const r = btnRef.current.getBoundingClientRect();
+            setPos({ top: r.bottom + 2, left: r.left, width: r.width });
+        }
+        setOpen(p => !p);
+    };
+
     return (
-        <div ref={ref} className="relative flex justify-center">
+        <div className="flex justify-center">
             <button
-                onClick={() => setOpen(p => !p)}
+                ref={btnRef}
+                onClick={handleToggle}
                 className="flex items-center gap-1.5 rounded-xl px-3 py-1 font-medium responsiveTextTable cursor-pointer focus:outline-none w-full justify-between min-w-[110px]"
                 style={STATUS_STYLES[value]}
             >
                 <span>{value || '— Select —'}</span>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
             </button>
-            {open && (
-                <div className="absolute z-50 top-full mt-1 left-0 min-w-full rounded-xl overflow-hidden shadow-lg" style={{ border: '1px solid #d8e8f5', backgroundColor: '#fff' }}>
+            {open && typeof document !== 'undefined' && createPortal(
+                <div
+                    ref={dropRef}
+                    className="rounded-xl overflow-hidden shadow-lg"
+                    style={{ position: 'fixed', top: pos.top, left: pos.left, minWidth: pos.width, zIndex: 99999, border: '1px solid #d8e8f5', backgroundColor: '#fff' }}
+                >
                     {STATUSES.map(s => (
                         <div
                             key={s}
@@ -199,7 +219,8 @@ function StatusSelect({ value, onChange }) {
                             {s || '— Select —'}
                         </div>
                     ))}
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
