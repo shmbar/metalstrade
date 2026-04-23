@@ -1,12 +1,10 @@
 import { useRef, useEffect, useContext } from 'react'
-import { BiEditAlt } from 'react-icons/bi';
-import { MdDeleteOutline } from 'react-icons/md';
 import { useState } from 'react'
-import { IoAddCircleOutline } from 'react-icons/io5';
 import { v4 as uuidv4 } from 'uuid';
 import { sortArr } from '../utils/utils'
 import { SettingsContext } from "../contexts/useSettingsContext";
 import { getTtl } from "../utils/languages";
+import { CirclePlus , PenLine, Trash } from 'lucide-react';
 
 const List = ({ list, updateList, ttl, name }) => {
 
@@ -81,7 +79,7 @@ const List = ({ list, updateList, ttl, name }) => {
                 <p className='flex items-center responsiveText font-medium pl-2 text-[var(--endeavour)]' >{ttl!=='Hs' ? getTtl(ttl, ln): ttl}:</p>
                 <button className="blackButton py-1"
                     onClick={() => addItem()}>
-                    <IoAddCircleOutline className='scale-110' /> {getTtl('Add', ln)}
+                    <CirclePlus size={12} /> {getTtl('Add', ln)}
                 </button>
             </div>
 
@@ -105,8 +103,8 @@ focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-[var(--endeavour
                             }
 
                             {edit.id !== x.id && <div className='flex gap-4'>
-                                <BiEditAlt className='scale-125 text-green-500 cursor-pointer hover:text-green-700' onClick={() => editItem(x)} />
-                                <MdDeleteOutline className='scale-125 text-red-500 cursor-pointer hover:text-red-700' onClick={() => deleteItem(x)} />
+                                <PenLine size={14} className='text-green-500 cursor-pointer hover:text-green-700' onClick={() => editItem(x)} />
+                                <Trash size={14} className='text-red-500 cursor-pointer hover:text-red-700' onClick={() => deleteItem(x)} />
                             </div>}
                         </li>
                     )

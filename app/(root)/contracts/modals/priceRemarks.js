@@ -63,7 +63,7 @@ const PriceRemarks = ({ value, setValue }) => {
                 <div className='group relative '>
                     <Button className="h-7 px-2"
                         onClick={() => addItem()}>
-                        <CirclePlus /> {getTtl('Add', ln)}
+                        <CirclePlus size={10}/> {getTtl('Add', ln)}
                     </Button>
                     <span className="absolute hidden group-hover:flex top-8 w-fit p-1
     bg-slate-400 rounded-md text-center text-white responsiveTextTable z-10 whitespace-nowrap -left-1.5">
@@ -93,8 +93,8 @@ focus:outline-0 focus:border-slate-600 indent-1.5 responsiveTextTable text-[var(
                             }
 
                             {edit.id !== x.id && <div className='flex gap-4'>
-                                <Pencil size={20} className='opacity-50 cursor-pointer' onClick={() => editItem(x)} />
-                                <Trash size={20} className='opacity-50 cursor-pointer' onClick={() => deleteItem(x)} />
+                                <Pencil size={16} className='opacity-50 cursor-pointer' onClick={() => editItem(x)} />
+                                <Trash size={16} className='opacity-50 cursor-pointer' onClick={() => deleteItem(x)} />
                             </div>}
                         </li>
 

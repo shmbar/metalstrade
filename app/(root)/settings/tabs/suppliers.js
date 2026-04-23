@@ -10,6 +10,8 @@ import { getTtl } from '../../../../utils/languages';
 import Tltip from '../../../../components/tlTip';
 import { FiUpload } from 'react-icons/fi';
 import { RiEraserLine } from 'react-icons/ri';
+import { CirclePlus, PenLine, Trash, Paintbrush   } from 'lucide-react';
+
 
 const Suppliers = () => {
 
@@ -93,23 +95,23 @@ const Suppliers = () => {
                 <div className='pb-4 mt-1 w-full gap-4 flex flex-wrap'>
                     <Tltip direction='top' tltpText='Add new supplier'>
                         <button className={`supplierAddButton ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton} onClick={addItem}>
-                            <IoAddCircleOutline className='scale-110' />  {getTtl('Add', ln)}
+                            <CirclePlus size={12} />  {getTtl('Add', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update supplier data'>
                         <button className='supplierButton' onClick={updateList}>
-                            <FiUpload className='scale-125 text-[var(--endeavour)]' />
+                            <PenLine size={12} />
                             {getTtl('Update', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Delete supplier'>
                         <button className='supplierButton' onClick={() => setIsDeleteOpen(true)} disabled={!value.id}>
-                            <MdDeleteOutline className='scale-125 text-[var(--endeavour)]' />  {getTtl('Delete', ln)}
+                            <Trash size={12} />  {getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Clear form'>
                         <button className='supplierButton' onClick={clickClear}>
-                            <RiEraserLine className='scale-125 text-[var(--endeavour)]' />{getTtl('Clear', ln)}
+                            <Paintbrush size={12} />{getTtl('Clear', ln)}
                         </button>
                     </Tltip>
                 </div>

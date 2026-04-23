@@ -1,17 +1,14 @@
 import { useState, useContext, useEffect } from 'react';
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { v4 as uuidv4 } from 'uuid';
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { MdDeleteOutline } from 'react-icons/md';
-import { BiEditAlt } from 'react-icons/bi';
-import { AiOutlineClear } from 'react-icons/ai';
 import { validate, ErrDiv, sortArr } from '../../../../utils/utils'
 import ModalToDelete from '../../../../components/modalToProceed';
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
-import CBox from '../_components/stocksComb'
 import Tltip from '../../../../components/tlTip';
 import { Selector } from '@components/selectors/selectShad';
+import { CirclePlus, PenLine, Trash, Paintbrush   } from 'lucide-react';
+
 
 const Stocks = () => {
 
@@ -93,7 +90,7 @@ const Stocks = () => {
     const clear = (name) => {
         setValue(prev => ({ ...prev, [name]: '' }))
     }
-
+    console.log(value)
     return (
         <div className='p-4 rounded-2xl flex flex-col md:flex-row w-full gap-4'>
             <div className="md:px-5 w-full md:w-[27%] flex-shrink-0 rounded-2xl p-2 bg-[#e3f3ff]">
@@ -112,23 +109,23 @@ const Stocks = () => {
                 <div className='pb-2 rounded-2xl mt-1 w-full gap-4 flex flex-wrap h-fit'>
                     <Tltip direction='top' tltpText='Add new stock'>
                         <button className={`supplierAddButton ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton} onClick={addItem}>
-                            <IoAddCircleOutline className='scale-110' />   {getTtl('Add', ln)}
+                            <CirclePlus size={12} />   {getTtl('Add', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update stock data'>
                         <button className='supplierButton' onClick={updateList}>
-                            <BiEditAlt className='scale-125' />
+                            <PenLine size={12} />
                             {getTtl('Update', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Delete stock'>
                         <button className='supplierButton' onClick={() => setIsDeleteOpen(true)} disabled={!value.id}>
-                            <MdDeleteOutline className='scale-125' /> {getTtl('Delete', ln)}
+                            <Trash size={12} /> {getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Clear form'>
                         <button className='supplierButton' onClick={clickClear}>
-                            <AiOutlineClear className='scale-125' />{getTtl('Clear', ln)}
+                            <Paintbrush  size={12} />{getTtl('Clear', ln)}
                         </button>
                     </Tltip>
                 </div>
@@ -154,14 +151,11 @@ const Stocks = () => {
                             <div className={fieldRow}>
                                 <label className={labelCls}>{getTtl('Stock type', ln)}:</label>
                                 <div className="w-full sm:flex-1">
-                                    <CBox value={value} setValue={setValue} />
-                                </div>
-                                {/* <div className="w-full sm:flex-1">
-                                    <Selector arr={[{ sType: "Warehouse", id: 1 }, { sType: "Virtual", id: 2 }]} value={value}
+                                    <Selector arr={[{ sType: "Warehouse", id: 'Warehouse' }, { sType: "Virtual", id: 'Virtual' }]} value={value}
                                         onChange={(e) => setValue({ ...value, sType: e })}
                                         name="sType"
                                         clear={clear} />
-                                </div> */}
+                                </div>
                             </div>
                         </div>
                         <div className="space-y-4">

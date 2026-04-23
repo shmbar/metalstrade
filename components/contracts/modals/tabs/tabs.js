@@ -2,7 +2,7 @@
 import { useContext } from 'react'
 import { Tab } from '@headlessui/react'
 import Invoice from '../invoiceDetails'
-import Contract from '../contractDetails';
+import Contract from '../contractDetails --what is it';
 import Profit from './pnl';
 import Inventory from './inventory'
 import { ContractsContext } from "@contexts/useContractsContext";

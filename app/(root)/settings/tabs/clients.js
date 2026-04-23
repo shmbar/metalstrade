@@ -1,15 +1,13 @@
 import { useState, useContext, useEffect } from 'react';
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { v4 as uuidv4 } from 'uuid';
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { MdDeleteOutline } from 'react-icons/md';
-import { BiEditAlt } from 'react-icons/bi';
-import { AiOutlineClear } from 'react-icons/ai';
 import { sortArr, validate, ErrDiv } from '../../../../utils/utils'
 import ModalToDelete from '../../../../components/modalToProceed';
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
 import Tltip from '../../../../components/tlTip';
+import { CirclePlus, PenLine, Trash, Paintbrush   } from 'lucide-react';
+
 
 const Clients = () => {
 
@@ -94,23 +92,23 @@ const Clients = () => {
                 <div className='pb-2 rounded-2xl mt-1 w-full gap-4 flex flex-wrap'>
                     <Tltip direction='top' tltpText='Add new client'>
                         <button className={`supplierAddButton ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton} onClick={addItem}>
-                            <IoAddCircleOutline className='scale-110' />  {getTtl('Add', ln)}
+                            <CirclePlus size={12} />  {getTtl('Add', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update client data'>
                         <button className='supplierButton' onClick={updateList}>
-                            <BiEditAlt className='scale-125' />
+                            <PenLine size={12} />
                             {getTtl('Update', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Delete client'>
                         <button className='supplierButton' onClick={() => setIsDeleteOpen(true)} disabled={!value.id}>
-                            <MdDeleteOutline className='scale-125' />{getTtl('Delete', ln)}
+                            <Trash size={12} />{getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Clear form'>
                         <button className='supplierButton' onClick={clickClear}>
-                            <AiOutlineClear className='scale-125' />{getTtl('Clear', ln)}
+                            <Paintbrush size={12} />{getTtl('Clear', ln)}
                         </button>
                     </Tltip>
                 </div>

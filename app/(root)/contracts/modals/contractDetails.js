@@ -112,7 +112,7 @@ const ContractModal = () => {
 			<div className='grid grid-cols-1 md:grid-cols-6 gap-3 pt-1'>
 				<div className='md:col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex flex-col md:flex-row gap-3 items-start md:items-center'>
-						<p className='flex pt-2 responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Supplier Name', ln)}:</p>
+						<p className='flex responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Supplier Name', ln)}:</p>
 						<div className='flex-1 min-w-0'>
 							<Selector arr={sups} value={valueCon}
 								onChange={(e) => handleChange(e, 'supplier')}
@@ -137,12 +137,12 @@ const ContractModal = () => {
 					)}
 					{valueCon.showOriginSupplier &&
 						<div className='flex items-center gap-2 w-full'>
-							<p className='flex p-1 pt-2 items-center responsiveText whitespace-nowrap font-medium'>Original Supplier:</p>
-							<div className='flex-1 min-w-0'>
+							<p className='flex p-1 pt-2 items-center responsiveText whitespace-nowrap font-medium text-[var(--chathams-blue)]'>Original Supplier:</p>
+							<div className='flex-1 min-w-0 max-w-[18rem]'>
 								<Selector
 									arr={settings.Supplier.Supplier
 										.map(z => ({ ...z, originSupplier: z.id }))}
-									value={valueCon/*settings.Supplier.Supplier.find(x => x.id === valueCon.originSupplier)*/}
+									value={valueCon}
 									onChange={(e) => handleChange(e, 'originSupplier')}
 									name='originSupplier'
 									secondaryName='nname'
@@ -176,9 +176,9 @@ const ContractModal = () => {
 			</div>
 			<div className='grid grid-cols-1 md:grid-cols-3 gap-3 pt-2'>
 				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex flex-col md:flex-row gap-2 md:items-center'>
-						<p className='flex pt-2 responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Shipment', ln)}:</p>
-						<div className='flex-1 min-w-0'>
+					<div className='flex  gap-2 md:items-center justify-between'>
+						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Shipment', ln)}:</p>
+						<div className='flex-1 min-w-0 max-w-[15rem]'>
 							<Selector arr={settings.Shipment.Shipment} value={valueCon}
 								onChange={(e) => handleChange(e, 'shpType')}
 								name='shpType'
@@ -186,18 +186,18 @@ const ContractModal = () => {
 							<ErrDiv field='shpType' errors={errors} ln={ln} />
 						</div>
 					</div>
-					<div className='flex flex-row gap-2 items-center pt-2'>
+					<div className='flex flex-row gap-2 items-center pt-2 justify-between'>
 						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Origin', ln)}:</p>
-						<div className='flex-1 min-w-0'>
+						<div className='flex-1 min-w-0 max-w-[15rem]'>
 							<Selector arr={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]} value={valueCon}
 								onChange={(e) => handleChange(e, 'origin')}
 								name='origin'
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex flex-row gap-2 items-center pt-2'>
+					<div className='flex flex-row gap-2 items-center pt-2 justify-between'>
 						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Delivery Terms', ln)}:</p>
-						<div className='flex-1 min-w-0'>
+						<div className='flex-1 min-w-0 max-w-[15rem]'>
 							<Selector arr={settings['Delivery Terms']['Delivery Terms']} value={valueCon}
 								onChange={(e) => handleChange(e, 'delTerm')}
 								name='delTerm'
@@ -207,27 +207,27 @@ const ContractModal = () => {
 				</div>
 
 				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex flex-col md:flex-row gap-2 md:items-center'>
+					<div className='flex gap-2 md:items-center justify-between'>
 						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('POL', ln)}:</p>
-						<div className='flex-1 min-w-0'>
+						<div className='flex-1 min-w-0 max-w-[15rem]'>
 							<Selector arr={settings.POL.POL} value={valueCon}
 								onChange={(e) => handleChange(e, 'pol')}
 								name='pol'
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex flex-row gap-2 items-center pt-2'>
+					<div className='flex flex-row gap-2 items-center pt-2 justify-between'>
 						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('POD', ln)}:</p>
-						<div className='flex-1 min-w-0'>
+						<div className='flex-1 min-w-0 max-w-[15rem]'>
 							<Selector arr={settings.POD.POD} value={valueCon}
 								onChange={(e) => handleChange(e, 'pod')}
 								name='pod'
 								clear={clear} disabled={firstRule} />
 						</div>
 					</div>
-					<div className='flex flex-row gap-2 items-center pt-2'>
+					<div className='flex flex-row gap-2 items-center pt-2 justify-between'>
 						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Packing', ln)}:</p>
-						<div className='flex-1 min-w-0'>
+						<div className='flex-1 min-w-0 max-w-[15rem]'>
 							<Selector arr={settings.Packing.Packing} value={valueCon}
 								onChange={(e) => handleChange(e, 'packing')}
 								name='packing'
@@ -237,28 +237,28 @@ const ContractModal = () => {
 				</div>
 
 				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex flex-col md:flex-row gap-2 md:items-center'>
+					<div className='flex gap-2 md:items-center justify-between'>
 						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Container Type', ln)}:</p>
-						<div className='flex-1 min-w-0'>
+						<div className='flex-1 min-w-0  max-w-[15rem]'>
 							<Selector arr={settings['Container Type']['Container Type']} value={valueCon}
 								onChange={(e) => handleChange(e, 'contType')}
 								name='contType' disabled={secondRule}
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex flex-row gap-2 items-center pt-2'>
+					<div className='flex flex-row gap-2 items-center pt-2 justify-between'>
 						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Size', ln)}:</p>
-						<div className='flex-1 min-w-0'>
+						<div className='flex-1 min-w-0 max-w-[15rem]'>
 							<Selector arr={settings.Size.Size} value={valueCon}
 								onChange={(e) => handleChange(e, 'size')}
 								name='size'
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex flex-row gap-2 items-center pt-2'>
+					<div className='flex flex-row gap-2 items-center pt-2 justify-between'>
 						<p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Delivery Time', ln)}:</p>
 						{!valueCon.isDeltimeText ?
-							<div className='flex-1 min-w-0'>
+							<div className='flex-1 min-w-0 max-w-[15rem]'>
 								<Selector arr={[...settings['Delivery Time']['Delivery Time'], { deltime: '..Edit Text', id: 'EditTextDelTime' }]}
 									value={valueCon}
 									onChange={(e) => handleChange(e, 'deltime')}
@@ -266,8 +266,8 @@ const ContractModal = () => {
 									clear={clear} />
 							</div>
 							:
-							<div className='flex relative w-7/12 responsiveText'>
-								<input type='text' className="input shadow-lg h-[1.86rem] w-full rounded-lg" style={{ fontSize: 'inherit', fontFamily: 'inherit' }} name='deltime'
+							<div className='flex relative w-[16rem] responsiveText'>
+								<input type='text' className="input shadow-lg h-[1.86rem] w-full rounded-full" style={{ fontSize: 'inherit', fontFamily: 'inherit' }} name='deltime'
 									value={valueCon.deltime} onChange={handleValue} />
 								<button className='relative right-6 '>
 									<X className="size-4 text-[var(--regent-gray)]" onClick={caneclEditText} />

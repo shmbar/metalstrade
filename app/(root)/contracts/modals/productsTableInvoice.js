@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { NumericFormat } from 'react-number-format';
 import ChkBox from '@components/checkbox.js'
-import {  } from 'lucide-react';
+import { } from 'lucide-react';
 import { filteredArray, getD, loadStockDataPerDescription, sortArr } from '@utils/utils.js';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import SlctOpt from '@components/invoicePrdSlct'
@@ -355,6 +355,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
         }));
     };
 
+  
 
     return (
         <div className="w-full justify-center flex">
@@ -407,7 +408,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 <input value={obj.cert} onChange={e => handleCert(e, i)}
                                                     className="w-14 border rounded-md border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
-                                                style={{ fontSize: 'inherit' }}
+                                                    style={{ fontSize: 'inherit' }}
                                                 />
                                             </td>}
                                             <td
@@ -422,7 +423,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                     <input
                                                         className="input w-full border rounded-md border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
-                                                style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
+                                                        style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                         onKeyDown={handleKeyPress}
                                                         value={value1}
                                                         maxLength={15}
@@ -455,7 +456,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                 <input
                                                                     className="inpiut  w-full border rounded-md border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
-                                                style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
+                                                                    style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                                     onKeyDown={handleKeyPress3}
                                                                     value={valueDesc}
                                                                     maxLength={80}
@@ -492,7 +493,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                             <input
                                                                 className="input w-full border rounded-md border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
-                                                style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
+                                                                style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                                 onKeyDown={handleKeyPress}
                                                                 value={value1}
                                                                 maxLength={key === 'container' ? 17 : 100}
@@ -558,7 +559,10 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                             <Selector arr={sortArr(settings.Stocks.Stocks, 'stock')}
                                                                 value={value.productsDataInvoice[i]}
                                                                 onChange={(e) => handleChangeStockAvailability(e, 'stock', i)}
-                                                                name='stock'  disabled={obj.descriptionId === ''}
+                                                                name='stock'
+                                                                secondaryName='nname'
+                                                                disabled={obj.descriptionId === ''}
+                                                             
                                                             />
                                                             :
                                                             key === 'stock' && obj.qnty === "s" ?
@@ -669,7 +673,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 <input
                                                     className="w-full border rounded-md border-slate-400 h-7 
                 focus:outline-0 focus:border-slate-600 indent-1.5"
-                                                style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
+                                                    style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                     onKeyDown={handleKeyPress2}
                                                     value={value1}
                                                     onChange={(e) =>
