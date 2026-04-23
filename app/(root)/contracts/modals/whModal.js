@@ -12,7 +12,7 @@ import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad.js';
 import { Button } from '@components/ui/button.jsx';
-import {  Save, CirclePlus, ScrollText, Trash, } from "lucide-react";
+import { Save, CirclePlus, ScrollText, Trash, } from "lucide-react";
 
 
 
@@ -235,6 +235,14 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
         }
     }
 
+    const clear = (name, row) => {
+        setData(prev =>
+            prev.map((item, i) =>
+                i === row ? { ...item, [name]: '' } : item
+            )
+        );
+    }
+
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)}
             w={data.map(z => z.spInv).includes(true) ? 'max-w-[1660px]' : 'max-w-[1540px]'}>
@@ -356,6 +364,8 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                         onChange={(e) => handleChange(e, 'client', i)}
                                         name='client' classes='h-7'
                                         secondaryName='nname'
+                                        clear={clear}
+                                        row={i}
                                     />
                                 </div>
                             </div>

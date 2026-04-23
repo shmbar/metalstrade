@@ -11,13 +11,13 @@ import { sortArr } from "@utils/utils"
 import { X } from "lucide-react"
 
 
-export function Selector({ arr, value, onChange, name, clear, disabled, secondaryName, classes }) {
+export function Selector({ arr, value, onChange, name, clear, disabled, secondaryName, classes, row }) {
 
 
     const clearSelection = (e) => {
         e.stopPropagation()
         e.preventDefault()
-        clear(name)
+        clear(name, row)
     }
 
     return (
