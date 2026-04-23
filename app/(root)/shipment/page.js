@@ -110,6 +110,63 @@ function DateCell({ rawDate, onOpen, onClear }) {
     );
 }
 
+function FilterSelect({ value, onChange, placeholder, options }) {
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
+
+    useEffect(() => {
+        const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    const active = value !== '';
+    const label = active ? options.find(o => o.id === value)?.label || placeholder : placeholder;
+
+    return (
+        <div ref={ref} className="relative">
+            <button
+                onClick={() => setOpen(p => !p)}
+                className="flex items-center gap-1.5 font-medium px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none transition-colors whitespace-nowrap"
+                style={{
+                    fontSize: '0.68rem',
+                    borderColor: active ? 'var(--endeavour)' : '#b8ddf8',
+                    color: active ? '#fff' : 'var(--chathams-blue)',
+                    backgroundColor: active ? 'var(--endeavour)' : '#fff',
+                }}
+            >
+                <span>{label}</span>
+                <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+            </button>
+            {open && (
+                <div className="absolute z-[200] top-full mt-1 left-0 rounded-2xl shadow-lg overflow-hidden" style={{ border: '1px solid #d8e8f5', backgroundColor: '#fff', minWidth: '140px', maxHeight: '220px', overflowY: 'auto' }}>
+                    <div
+                        onClick={() => { onChange(''); setOpen(false); }}
+                        className="px-3 py-1.5 cursor-pointer transition-colors"
+                        style={{ fontSize: '0.68rem', color: value === '' ? 'var(--endeavour)' : 'var(--chathams-blue)', fontWeight: value === '' ? 600 : 400, backgroundColor: value === '' ? 'var(--selago)' : '#fff' }}
+                        onMouseEnter={e => { if (value !== '') e.currentTarget.style.backgroundColor = '#f0f7ff'; }}
+                        onMouseLeave={e => { if (value !== '') e.currentTarget.style.backgroundColor = '#fff'; }}
+                    >
+                        {placeholder}
+                    </div>
+                    {options.map(o => (
+                        <div
+                            key={o.id}
+                            onClick={() => { onChange(o.id); setOpen(false); }}
+                            className="px-3 py-1.5 cursor-pointer transition-colors"
+                            style={{ fontSize: '0.68rem', color: value === o.id ? 'var(--endeavour)' : 'var(--port-gore)', fontWeight: value === o.id ? 600 : 400, backgroundColor: value === o.id ? 'var(--selago)' : '#fff' }}
+                            onMouseEnter={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = '#f0f7ff'; }}
+                            onMouseLeave={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = '#fff'; }}
+                        >
+                            {o.label}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 function StatusSelect({ value, onChange }) {
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
@@ -608,32 +665,26 @@ const ShipmentPage = () => {
                                 })}
 
                                 {/* Supplier filter */}
-                                <select
+                                <FilterSelect
                                     value={supplierFilter}
-                                    onChange={e => setSupplierFilter(e.target.value)}
-                                    className="font-medium px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none transition-colors"
-                                    style={{ fontSize: '0.68rem', borderColor: supplierFilter ? 'var(--endeavour)' : '#b8ddf8', color: supplierFilter ? 'var(--endeavour)' : 'var(--chathams-blue)', backgroundColor: supplierFilter ? 'var(--selago)' : '#fff' }}
-                                >
-                                    <option value="">All Suppliers</option>
-                                    {uniqueSupplierIds.map(id => {
+                                    onChange={setSupplierFilter}
+                                    placeholder="All Suppliers"
+                                    options={uniqueSupplierIds.flatMap(id => {
                                         const s = settings?.Supplier?.Supplier?.find(x => x.id === id);
-                                        return s ? <option key={id} value={id}>{s.nname || s.supplier}</option> : null;
+                                        return s ? [{ id, label: s.nname || s.supplier }] : [];
                                     })}
-                                </select>
+                                />
 
                                 {/* Client filter */}
-                                <select
+                                <FilterSelect
                                     value={clientFilter}
-                                    onChange={e => setClientFilter(e.target.value)}
-                                    className="font-medium px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none transition-colors"
-                                    style={{ fontSize: '0.68rem', borderColor: clientFilter ? 'var(--endeavour)' : '#b8ddf8', color: clientFilter ? 'var(--endeavour)' : 'var(--chathams-blue)', backgroundColor: clientFilter ? 'var(--selago)' : '#fff' }}
-                                >
-                                    <option value="">All Clients</option>
-                                    {uniqueClientIds.map(id => {
+                                    onChange={setClientFilter}
+                                    placeholder="All Clients"
+                                    options={uniqueClientIds.flatMap(id => {
                                         const c = settings?.Client?.Client?.find(x => x.id === id);
-                                        return c ? <option key={id} value={id}>{c.nname || c.client}</option> : null;
+                                        return c ? [{ id, label: c.nname || c.client }] : [];
                                     })}
-                                </select>
+                                />
                             </div>}
 
                         </div>
