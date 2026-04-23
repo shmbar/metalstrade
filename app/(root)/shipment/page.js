@@ -1,11 +1,13 @@
 ﻿'use client';
 import { useContext, useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { loadData, updateContractField } from '../../../utils/utils';
 import VideoLoader from '../../../components/videoLoader';
 import Toast from '../../../components/toast.js';
 import DateRangePicker from '../../../components/dateRangePicker';
+import Datepicker from "react-tailwindcss-datepicker";
 import { useRouter } from 'next/navigation';
 import { FaSearch } from 'react-icons/fa';
 import { TiDeleteOutline } from 'react-icons/ti';
@@ -55,6 +57,55 @@ function NotesCell({ value, contractId, contractDate, uidCollection, onChange })
                 className="w-full min-w-[160px] responsiveTextTable text-[var(--port-gore)] bg-transparent resize-none focus:outline-none placeholder:text-[var(--regent-gray)]"
                 placeholder="Add notes..."
             />
+        </div>
+    );
+}
+
+const fmtDate = (d) => {
+    if (!d) return null;
+    try {
+        const [y, m, day] = d.split('-');
+        if (!y || !m || !day) return null;
+        return `${day}.${m}.${y.slice(2)}`;
+    } catch { return null; }
+};
+
+function DateCell({ rawDate, onOpen, onClear }) {
+    const ref = useRef(null);
+    const display = fmtDate(rawDate);
+
+    const handleClick = (e) => {
+        e.stopPropagation();
+        if (!ref.current) return;
+        const r = ref.current.getBoundingClientRect();
+        // Library renders its arrow at ~19px (ml-[1.2rem]) + ~8px (half of w-4) from the
+        // popover's left edge. Shift the popover left by that offset so the arrow — not
+        // the popover center — points at the cell center. Then clamp to viewport.
+        const POPOVER_W = 320;
+        const ARROW_OFFSET = 27;
+        const desired = r.left + r.width / 2 - ARROW_OFFSET;
+        const left = Math.max(8, Math.min(desired, window.innerWidth - POPOVER_W - 8));
+        const top = Math.min(r.bottom + 2, window.innerHeight - 360);
+        onOpen({ top, left });
+    };
+
+    return (
+        <div
+            ref={ref}
+            className="h-7 responsiveTextTable flex items-center justify-center px-2 rounded-lg cursor-pointer select-none w-full relative"
+            style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', minWidth: '72px' }}
+            onClick={handleClick}
+        >
+            <span className={display ? 'text-[var(--port-gore)]' : 'text-[var(--regent-gray)]'}>
+                {display || '—'}
+            </span>
+            {display && (
+                <button
+                    onClick={(e) => { e.stopPropagation(); onClear(); }}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-[var(--regent-gray)] hover:text-red-400 transition-colors leading-none"
+                    style={{ fontSize: '13px' }}
+                >×</button>
+            )}
         </div>
     );
 }
@@ -112,6 +163,12 @@ const ShipmentPage = () => {
     const [sortCol, setSortCol] = useState(null);
     const [sortDir, setSortDir] = useState('asc');
 
+    // Shared floating datepicker (always mounted, repositioned on cell click)
+    const [floatingPicker, setFloatingPicker] = useState(null);
+    // { contractId, field, contractDate, pos: { top, left } }
+    const [floatingValue, setFloatingValue] = useState({ startDate: null, endDate: null });
+    const floatingPickerRef = useRef(null);
+
     const handleSort = (col) => {
         if (sortCol === col) {
             if (sortDir === 'asc') setSortDir('desc');
@@ -128,10 +185,28 @@ const ShipmentPage = () => {
         const load = async () => {
             setLoading(true);
             try {
-                const [contractsData, invoicesData] = await Promise.all([
-                    loadData(uidCollection, 'contracts', dateSelect),
-                    loadData(uidCollection, 'invoices', dateSelect),
-                ]);
+                const contractsData = await loadData(uidCollection, 'contracts', dateSelect);
+
+                const sortedContracts = (contractsData || []).filter(Boolean)
+                    .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+                setContracts(sortedContracts);
+
+                // Load invoices spanning all years found in contract invoice dates
+                // so delivered contracts with older invoices still show data
+                const invYears = sortedContracts.flatMap(c =>
+                    (c.invoices || []).map(inv => (inv.date || '').substring(0, 4)).filter(Boolean)
+                );
+                let invoicesData = [];
+                if (invYears.length > 0) {
+                    const minYr = invYears.reduce((a, b) => a < b ? a : b);
+                    const maxYr = invYears.reduce((a, b) => a > b ? a : b);
+                    invoicesData = await loadData(uidCollection, 'invoices', {
+                        start: minYr + '-01-01',
+                        end: maxYr + '-12-31',
+                    });
+                } else {
+                    invoicesData = await loadData(uidCollection, 'invoices', dateSelect);
+                }
 
                 const map = {};
                 (invoicesData || []).filter(Boolean).forEach(inv => {
@@ -148,11 +223,6 @@ const ShipmentPage = () => {
                     }
                 });
 
-                const sorted = (contractsData || [])
-                    .filter(Boolean)
-                    .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-
-                setContracts(sorted);
                 setInvoiceMap(map);
             } finally {
                 setLoading(false);
@@ -176,8 +246,48 @@ const ShipmentPage = () => {
                clts.find(c => c.id === inv.client)?.client || '—';
     };
 
-    const getETD = (contractId) => formatDate(invoiceMap[contractId]?.etd);
-    const getETA = (contractId) => formatDate(invoiceMap[contractId]?.eta);
+    // Direct contract date overrides invoice date; falls back to invoice date if not set
+    const getRawETD = (contract) => contract.shipmentEtd || invoiceMap[contract.id]?.etd || '';
+    const getRawETA = (contract) => contract.shipmentEta || invoiceMap[contract.id]?.eta || '';
+
+    const handleDateFieldChange = (contractId, field, value) => {
+        setContracts(prev => prev.map(c => c.id === contractId ? { ...c, [field]: value } : c));
+    };
+
+    const openFloatingPicker = (pos, contract, field) => {
+        if (!pos) return;
+        const rawDate = field === 'shipmentEtd' ? getRawETD(contract) : getRawETA(contract);
+        setFloatingValue({ startDate: rawDate || null, endDate: rawDate || null });
+        setFloatingPicker({ contractId: contract.id, field, contractDate: contract.date, pos });
+    };
+
+    // Click the datepicker input after it mounts (conditional render = always fresh/closed state)
+    useEffect(() => {
+        if (!floatingPicker) return;
+        const timer = setTimeout(() => {
+            floatingPickerRef.current?.querySelector('input')?.focus();
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [floatingPicker]);
+
+    const handleFloatingPickerChange = (val) => {
+        const d = val?.startDate || '';
+        if (floatingPicker) {
+            handleDateFieldChange(floatingPicker.contractId, floatingPicker.field, d);
+            updateContractField(uidCollection, floatingPicker.contractId, floatingPicker.contractDate, { [floatingPicker.field]: d });
+        }
+        setFloatingPicker(null);
+    };
+
+    // Close floating picker on outside click
+    useEffect(() => {
+        if (!floatingPicker) return;
+        const handler = (e) => {
+            if (!floatingPickerRef.current?.contains(e.target)) setFloatingPicker(null);
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [floatingPicker]);
 
     const getPOL = (contract) => {
         const list = settings?.POL?.POL;
@@ -251,8 +361,8 @@ const ShipmentPage = () => {
             case 'supplier':     return getSupplierName(c).toLowerCase();
             case 'invoice':      return inv?.invoice?.toString().toLowerCase() || '';
             case 'client':       return getClientName(c.id).toLowerCase();
-            case 'etd':          return invoiceMap[c.id]?.etd || '';
-            case 'eta':          return invoiceMap[c.id]?.eta || '';
+            case 'etd':          return getRawETD(c);
+            case 'eta':          return getRawETA(c);
             case 'pol':          return getPOL(c).toLowerCase();
             case 'pod':          return getPOD(c).toLowerCase();
             case 'shpType':      return getShpType(c).toLowerCase();
@@ -314,8 +424,8 @@ const ShipmentPage = () => {
                 supplier:     getSupplierName(c),
                 invoice:      inv?.invoice || '',
                 client:       getClientName(c.id),
-                shipmentDate: getETD(c.id),
-                arrivalDate:  getETA(c.id),
+                shipmentDate: formatDate(getRawETD(c)),
+                arrivalDate:  formatDate(getRawETA(c)),
                 pol:          getPOL(c),
                 pod:          getPOD(c),
                 shpType:      getShpType(c),
@@ -350,14 +460,51 @@ const ShipmentPage = () => {
                 padding: 6px;
                 border-radius: 4px;
                 font-size: 10px !important;
+                overflow: visible;
+            }
+            .td-truncate {
+                overflow: hidden !important;
+            }
+            .td-truncate .pill-inner {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .date-cell-clean button.absolute {
+                display: none !important;
+            }
+            .date-cell-clean {
+                position: relative;
+                z-index: 20;
             }
         `}</style>
+
+            {/* Floating datepicker — portal to body so position:absolute is doc-relative, immune to transforms */}
+            {floatingPicker && typeof document !== 'undefined' && createPortal(
+                <div
+                    ref={floatingPickerRef}
+                    className="date-cell-clean"
+                    style={{ position: 'fixed', top: floatingPicker.pos.top, left: floatingPicker.pos.left, zIndex: 99999 }}
+                >
+                    <Datepicker
+                        useRange={false}
+                        asSingle={true}
+                        value={floatingValue}
+                        onChange={handleFloatingPickerChange}
+                        displayFormat="DD.MM.YY"
+                        popoverDirection="down"
+                        inputClassName="opacity-0 h-0 w-0 p-0 border-0 absolute overflow-hidden"
+                    />
+                </div>,
+                document.body
+            )}
+
             <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
                 <VideoLoader loading={loading} fullScreen={true} />
                 <Toast />
 
                 {/* Outer card — title only */}
-                <div className="rounded-2xl p-2 sm:p-3 lg:p-5 mt-4 sm:mt-6 lg:mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
+                <div className="rounded-2xl p-2 sm:p-3 lg:p-5 mt-4 sm:mt-6 lg:mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff] overflow-x-auto">
                     <div className="flex items-center justify-between pb-2 flex-wrap gap-2">
                         <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                             Shipments Tracking
@@ -461,22 +608,22 @@ const ShipmentPage = () => {
 
                     {/* Table — Desktop */}
                     <div className="custom-table hidden md:block flex-1">
-                    <div className="overflow-x-auto overflow-y-auto dashboard-scroll" style={{ maxHeight: `${Math.min(paginated.length * 53 + 60, 620)}px` }}>
-                        <table className="w-full" style={{ minWidth: '1100px' }}>
-                            <thead className="sticky top-0 z-10">
+                    <div>
+                        <table className="w-full" style={{ minWidth: '1200px', tableLayout: 'fixed' }}>
+                            <thead>
                                 <tr>
                                     {[
                                         { label: 'Contract #',    width: '8%',  col: 'order'    },
                                         { label: 'Supplier',      width: '9%',  col: 'supplier' },
                                         { label: 'Invoice #',     width: '7%',  col: 'invoice'  },
                                         { label: 'Client',        width: '9%',  col: 'client'   },
-                                        { label: 'Shipment Date', width: '8%',  col: 'etd'      },
-                                        { label: 'Arrival Date',  width: '8%',  col: 'eta'      },
+                                        { label: 'Shipment Date', width: '9%',  col: 'etd'      },
+                                        { label: 'Arrival Date',  width: '9%',  col: 'eta'      },
                                         { label: 'POL',           width: '8%',  col: 'pol'      },
                                         { label: 'POD',           width: '8%',  col: 'pod'      },
                                         { label: 'Ship Type',     width: '8%',  col: 'shpType'  },
                                         { label: 'Status',        width: '9%',  col: 'status'   },
-                                        { label: 'Notes',         width: '18%', col: null       },
+                                        { label: 'Notes',         width: '16%', col: null       },
                                     ].map(({ label, width, col }) => (
                                         <th key={label} className="font-poppins responsiveTextTable font-medium py-2"
                                             onClick={col ? () => handleSort(col) : undefined}
@@ -503,21 +650,21 @@ const ShipmentPage = () => {
                                     const status = contract.shipmentStatus || '';
                                     return (
                                         <tr key={contract.id} className="hover-row cursor-pointer transition-colors">
-                                            <td>
-                                                <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
-                                                        <button onClick={() => navigateTo(contract.id)} className="text-[var(--endeavour)] hover:underline">
+                                            <td className="td-truncate">
+                                                <Tltip direction="bottom" tltpText={contract.order || '—'}>
+                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                        <button onClick={() => navigateTo(contract.id)} className="text-[var(--endeavour)] hover:underline w-full overflow-hidden text-ellipsis whitespace-nowrap block">
                                                             {contract.order || '—'}
                                                         </button>
                                                     </div>
-                                                </div>
+                                                </Tltip>
                                             </td>
-                                            <td>
-                                                <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                            <td className="td-truncate">
+                                                <Tltip direction="bottom" tltpText={getSupplierName(contract)}>
+                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {getSupplierName(contract)}
                                                     </div>
-                                                </div>
+                                                </Tltip>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
@@ -530,40 +677,44 @@ const ShipmentPage = () => {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
-                                                <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                            <td className="td-truncate">
+                                                <Tltip direction="bottom" tltpText={getClientName(contract.id)}>
+                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {getClientName(contract.id)}
                                                     </div>
+                                                </Tltip>
+                                            </td>
+                                            <td>
+                                                <div className="flex justify-center">
+                                                    <DateCell
+                                                        rawDate={getRawETD(contract)}
+                                                        onOpen={(pos) => openFloatingPicker(pos, contract, 'shipmentEtd')}
+                                                        onClear={() => { handleDateFieldChange(contract.id, 'shipmentEtd', ''); updateContractField(uidCollection, contract.id, contract.date, { shipmentEtd: '' }); }}
+                                                    />
                                                 </div>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
-                                                        {getETD(contract.id)}
-                                                    </div>
+                                                    <DateCell
+                                                        rawDate={getRawETA(contract)}
+                                                        onOpen={(pos) => openFloatingPicker(pos, contract, 'shipmentEta')}
+                                                        onClear={() => { handleDateFieldChange(contract.id, 'shipmentEta', ''); updateContractField(uidCollection, contract.id, contract.date, { shipmentEta: '' }); }}
+                                                    />
                                                 </div>
                                             </td>
-                                            <td>
-                                                <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
-                                                        {getETA(contract.id)}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                            <td className="td-truncate">
+                                                <Tltip direction="bottom" tltpText={getPOL(contract)}>
+                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {getPOL(contract)}
                                                     </div>
-                                                </div>
+                                                </Tltip>
                                             </td>
-                                            <td>
-                                                <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                            <td className="td-truncate">
+                                                <Tltip direction="bottom" tltpText={getPOD(contract)}>
+                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
                                                         {getPOD(contract)}
                                                     </div>
-                                                </div>
+                                                </Tltip>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
@@ -572,7 +723,7 @@ const ShipmentPage = () => {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td style={{ overflow: 'visible', position: 'relative', zIndex: 15 }}>
                                                 <div className="flex justify-center">
                                                     <StatusSelect
                                                         value={status}
@@ -580,7 +731,7 @@ const ShipmentPage = () => {
                                                     />
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td style={{ overflow: 'visible' }}>
                                                 <NotesCell
                                                     value={contract.shipmentNotes}
                                                     contractId={contract.id}
@@ -633,8 +784,8 @@ const ShipmentPage = () => {
                                             { label: 'Supplier',      value: getSupplierName(contract) },
                                             { label: 'Invoice #',     value: mainInv ? String(mainInv.invoice) : '—' },
                                             { label: 'Client',        value: getClientName(contract.id) },
-                                            { label: 'Shipment Date', value: getETD(contract.id) },
-                                            { label: 'Arrival Date',  value: getETA(contract.id) },
+                                            { label: 'Shipment Date', value: formatDate(getRawETD(contract)) },
+                                            { label: 'Arrival Date',  value: formatDate(getRawETA(contract)) },
                                             { label: 'POL',           value: getPOL(contract) },
                                             { label: 'POD',           value: getPOD(contract) },
                                             { label: 'Ship Type',     value: getShpType(contract) },
