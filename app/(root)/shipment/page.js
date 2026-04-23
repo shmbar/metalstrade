@@ -162,6 +162,8 @@ const ShipmentPage = () => {
     const [pageSize, setPageSize] = useState(25);
     const [sortCol, setSortCol] = useState(null);
     const [sortDir, setSortDir] = useState('asc');
+    const [supplierFilter, setSupplierFilter] = useState('');
+    const [clientFilter, setClientFilter] = useState('');
 
     // Shared floating datepicker (always mounted, repositioned on cell click)
     const [floatingPicker, setFloatingPicker] = useState(null);
@@ -339,10 +341,18 @@ const ShipmentPage = () => {
         } catch { return d; }
     };
 
-    // Filter contracts by search + status
+    // Unique suppliers/clients present in the loaded contracts (for filter dropdowns)
+    const uniqueSupplierIds = [...new Set(contracts.map(c => c.supplier).filter(Boolean))];
+    const uniqueClientIds = [...new Set(contracts.map(c => invoiceMap[c.id]?.client).filter(Boolean))];
+
+    // Filter contracts by search + status + supplier + client
     const filtered = contracts.filter(c => {
         const matchStatus = statusFilter === '' || (c.shipmentStatus || '') === statusFilter;
         if (!matchStatus) return false;
+        const matchSupplier = supplierFilter === '' || c.supplier === supplierFilter;
+        if (!matchSupplier) return false;
+        const matchClient = clientFilter === '' || invoiceMap[c.id]?.client === clientFilter;
+        if (!matchClient) return false;
         if (!search.trim()) return true;
         const q = search.toLowerCase();
         const inv = getMainInvoice(c);
@@ -381,7 +391,7 @@ const ShipmentPage = () => {
         : filtered;
 
     // Reset to first page when filters change
-    useEffect(() => { setPageIndex(0); }, [search, statusFilter]);
+    useEffect(() => { setPageIndex(0); }, [search, statusFilter, supplierFilter, clientFilter]);
 
     const pageCount = Math.max(1, Math.ceil(sortedFiltered.length / pageSize));
     const safePageIndex = Math.min(pageIndex, pageCount - 1);
@@ -574,7 +584,7 @@ const ShipmentPage = () => {
                                 </button>
                             </Tltip>
 
-                            {/* Status filter chips */}
+                            {/* Status filter chips + Supplier / Client dropdowns */}
                             {showFilters && <div className="flex items-center gap-1 flex-wrap">
                                 <button
                                     onClick={() => setStatusFilter('')}
@@ -596,6 +606,34 @@ const ShipmentPage = () => {
                                         </button>
                                     );
                                 })}
+
+                                {/* Supplier filter */}
+                                <select
+                                    value={supplierFilter}
+                                    onChange={e => setSupplierFilter(e.target.value)}
+                                    className="font-medium px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none transition-colors"
+                                    style={{ fontSize: '0.68rem', borderColor: supplierFilter ? 'var(--endeavour)' : '#b8ddf8', color: supplierFilter ? 'var(--endeavour)' : 'var(--chathams-blue)', backgroundColor: supplierFilter ? 'var(--selago)' : '#fff' }}
+                                >
+                                    <option value="">All Suppliers</option>
+                                    {uniqueSupplierIds.map(id => {
+                                        const s = settings?.Supplier?.Supplier?.find(x => x.id === id);
+                                        return s ? <option key={id} value={id}>{s.nname || s.supplier}</option> : null;
+                                    })}
+                                </select>
+
+                                {/* Client filter */}
+                                <select
+                                    value={clientFilter}
+                                    onChange={e => setClientFilter(e.target.value)}
+                                    className="font-medium px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none transition-colors"
+                                    style={{ fontSize: '0.68rem', borderColor: clientFilter ? 'var(--endeavour)' : '#b8ddf8', color: clientFilter ? 'var(--endeavour)' : 'var(--chathams-blue)', backgroundColor: clientFilter ? 'var(--selago)' : '#fff' }}
+                                >
+                                    <option value="">All Clients</option>
+                                    {uniqueClientIds.map(id => {
+                                        const c = settings?.Client?.Client?.find(x => x.id === id);
+                                        return c ? <option key={id} value={id}>{c.nname || c.client}</option> : null;
+                                    })}
+                                </select>
                             </div>}
 
                         </div>
