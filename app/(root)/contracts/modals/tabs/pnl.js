@@ -100,11 +100,12 @@ const PNL = () => {
   useEffect(() => {
 
     const loadInvoices = async () => {
-      let yrs = [...new Set(valueCon.invoices.map(x => x.date.substring(0, 4)))]
+      const invoices = valueCon.invoices || [];
+      let yrs = [...new Set(invoices.map(x => x.date.substring(0, 4)))]
       let arrTmp = [];
       for (let i = 0; i < yrs.length; i++) {
         let yr = yrs[i]
-        let tmpDt = [...new Set(valueCon.invoices.filter(x => x.date.substring(0, 4) === yr).map(y => y.invoice))]
+        let tmpDt = [...new Set(invoices.filter(x => x.date.substring(0, 4) === yr).map(y => y.invoice))]
         let obj = { yr: yr, arrInv: tmpDt }
         arrTmp.push(obj)
       }
