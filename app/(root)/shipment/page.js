@@ -221,6 +221,7 @@ const ShipmentPage = () => {
     const [sortDir, setSortDir] = useState('asc');
     const [supplierFilter, setSupplierFilter] = useState('');
     const [clientFilter, setClientFilter] = useState('');
+    const [shipTypeFilter, setShipTypeFilter] = useState('');
 
     // Shared floating datepicker (always mounted, repositioned on cell click)
     const [floatingPicker, setFloatingPicker] = useState(null);
@@ -398,11 +399,12 @@ const ShipmentPage = () => {
         } catch { return d; }
     };
 
-    // Unique suppliers/clients present in the loaded contracts (for filter dropdowns)
+    // Unique suppliers/clients/shiptypes present in the loaded contracts (for filter dropdowns)
     const uniqueSupplierIds = [...new Set(contracts.map(c => c.supplier).filter(Boolean))];
     const uniqueClientIds = [...new Set(contracts.map(c => invoiceMap[c.id]?.client).filter(Boolean))];
+    const uniqueShipTypeIds = [...new Set(contracts.map(c => invoiceMap[c.id]?.shpType || c.shpType).filter(Boolean))];
 
-    // Filter contracts by search + status + supplier + client
+    // Filter contracts by search + status + supplier + client + ship type
     const filtered = contracts.filter(c => {
         const matchStatus = statusFilter === '' || (c.shipmentStatus || '') === statusFilter;
         if (!matchStatus) return false;
@@ -410,6 +412,8 @@ const ShipmentPage = () => {
         if (!matchSupplier) return false;
         const matchClient = clientFilter === '' || invoiceMap[c.id]?.client === clientFilter;
         if (!matchClient) return false;
+        const matchShipType = shipTypeFilter === '' || (invoiceMap[c.id]?.shpType || c.shpType) === shipTypeFilter;
+        if (!matchShipType) return false;
         if (!search.trim()) return true;
         const q = search.toLowerCase();
         const inv = getMainInvoice(c);
@@ -448,7 +452,7 @@ const ShipmentPage = () => {
         : filtered;
 
     // Reset to first page when filters change
-    useEffect(() => { setPageIndex(0); }, [search, statusFilter, supplierFilter, clientFilter]);
+    useEffect(() => { setPageIndex(0); }, [search, statusFilter, supplierFilter, clientFilter, shipTypeFilter]);
 
     const pageCount = Math.max(1, Math.ceil(sortedFiltered.length / pageSize));
     const safePageIndex = Math.min(pageIndex, pageCount - 1);
@@ -684,6 +688,14 @@ const ShipmentPage = () => {
                                         const c = settings?.Client?.Client?.find(x => x.id === id);
                                         return c ? [{ id, label: c.nname || c.client }] : [];
                                     })}
+                                />
+
+                                {/* Ship Type filter */}
+                                <FilterSelect
+                                    value={shipTypeFilter}
+                                    onChange={setShipTypeFilter}
+                                    placeholder="All Ship Types"
+                                    options={uniqueShipTypeIds.map(id => ({ id, label: SHP_TYPE_MAP[id] || id }))}
                                 />
                             </div>}
 
