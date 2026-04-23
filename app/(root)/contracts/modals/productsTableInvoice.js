@@ -361,7 +361,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
             <div className="flex flex-col w-full">
                 <div className=" overflow-x-auto">
                     <div className="border-2 border-[#b8ddf8] rounded-lg overflow-hidden">
-                        <table id='my-table' className="table-fixed min-w-full divide-y divide-[#b8ddf8]">
+                        <table id='my-table' className="table-fixed min-w-[640px] w-full divide-y divide-[#b8ddf8]">
                             <thead style={{ background: '#dbeeff' }}>
                                 <tr>
                                     <th scope="col" className="w-8 py-1 px-2"></th>
@@ -392,7 +392,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                             <tbody className="divide-y divide-[#b8ddf8]">
                                 {value.productsDataInvoice.map((obj, i) => {
                                     return (
-                                        <tr key={i}>
+                                        <tr key={i} className='relative hover:z-10'>
                                             <td className="py-2 px-2 w-8">
                                                 <div className="flex items-center h-5">
                                                     <ChkBox checked={checkedItems.includes(obj.id)} size='h-5 w-5' onChange={() => checkItem(obj.id)} />
@@ -481,7 +481,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 <td
                                                     key={key}
                                                     data-label={key}
-                                                    className={`px-1 py-1 responsiveTextTable text-[var(--port-gore)] overflow-hidden
+                                                    className={`px-1 py-1 responsiveTextTable text-[var(--port-gore)] overflow-visible
                                                     ${key === 'stock' ? 'border-l' : ''}`}
                                                     onClick={() => !fnl && handleDoubleClick(obj, key)}
                                                 >
@@ -509,7 +509,24 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
 
                                                         </div>
                                                     ) :
-                                                        key === 'unitPrc' || key === 'total' ? (
+                                                        key === 'unitPrc' ? (
+                                                            <div className='group relative'>
+                                                                <NumericFormat
+                                                                    value={obj[key]}
+                                                                    displayType="text"
+                                                                    thousandSeparator
+                                                                    allowNegative={true}
+                                                                    prefix={currentCur}
+                                                                    decimalScale='2'
+                                                                    fixedDecimalScale
+                                                                />
+                                                                {(obj.eqUnitPrc || obj.eq) && (
+                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-slate-400 rounded-md text-center text-white responsiveTextTable z-50 whitespace-nowrap -left-0.5'>
+                                                                        {obj.eqUnitPrc || obj.eq}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        ) : key === 'total' ? (
                                                             <NumericFormat
                                                                 value={obj[key]}
                                                                 displayType="text"
@@ -520,7 +537,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                 fixedDecimalScale
                                                             />
                                                         ) : key === 'qnty' ? (
-                                                            <div>
+                                                            <div className='group relative'>
                                                                 {obj[key] !== 's' ? <NumericFormat
                                                                     value={obj[key]}
                                                                     displayType="text"
@@ -531,6 +548,11 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                 />
                                                                     :
                                                                     <span>Service</span>}
+                                                                {obj.eqQnty && (
+                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-slate-400 rounded-md text-center text-white responsiveTextTable z-50 whitespace-nowrap -left-0.5'>
+                                                                        {obj.eqQnty}
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         ) : key === 'stock' && obj.qnty !== "s" ?
                                                             <Selector arr={sortArr(settings.Stocks.Stocks, 'stock')}

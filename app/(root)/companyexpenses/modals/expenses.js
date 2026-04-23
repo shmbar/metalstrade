@@ -58,8 +58,8 @@ const Expenses = () => {
         <div>
             <div className='z-10 relative mt-2 rounded-2xl flex m-2 pb-4' style={{ border: '1px solid #b8ddf8', background: '#f4f9ff' }}>
 
-                <div className='grid grid-cols-12 gap-3 w-full p-2'>
-                    <div className='col-span-12 md:col-span-4  px-2'>
+                <div className='grid grid-cols-1 md:grid-cols-12 gap-3 w-full p-2'>
+                    <div className='md:col-span-4 px-2'>
                         <div>
                             <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Invoice', ln)}</p>
                             <div className='w-full '>
@@ -87,7 +87,7 @@ const Expenses = () => {
                             </div>
                         </div>
                     </div>
-                    <div className='col-span-12 md:col-span-4  px-2'>
+                    <div className='md:col-span-4 px-2'>
                         <div>
                             <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Vendor', ln)}:</p>
                             <div className='w-full '>
@@ -130,11 +130,12 @@ const Expenses = () => {
                             </div>
                         </div>
                     </div>
-                    <div className='col-span-12 md:col-span-4  px-2'>
+                    <div className='md:col-span-4 px-2'>
                         <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
                         <div>
-                            <textarea rows="5" cols="60" name="comments"
-                                className="input h-32 text-xs p-1 rounded-xl border-[#b8ddf8] bg-white"
+                            <textarea rows="5" name="comments"
+                                className="input h-32 p-1 rounded-xl border-[#b8ddf8] bg-white w-full"
+                                style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
                                 value={valueExp.comments} onChange={handleValue} />
                         </div>
 

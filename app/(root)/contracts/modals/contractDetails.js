@@ -109,9 +109,9 @@ const ContractModal = () => {
 	return (
 		<div className="px-1">
 
-			<div className='grid grid-cols-6 gap-3 pt-1'>
-				<div className='col-span-4 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex flex-row gap-3 items-center'>
+			<div className='grid grid-cols-1 md:grid-cols-6 gap-3 pt-1'>
+				<div className='md:col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+					<div className='flex flex-col md:flex-row gap-3 items-start md:items-center'>
 						<p className='flex pt-2 responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Supplier Name', ln)}:</p>
 						<div className='flex-1 min-w-0'>
 							<Selector arr={sups} value={valueCon}
@@ -151,7 +151,10 @@ const ContractModal = () => {
 						</div>
 					}
 				</div>
-				<div className='col-span-2 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='hidden md:flex md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+
+				</div>
+				<div className='md:col-span-2 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<p className='flex items-center responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('PoOrderNo', ln)}:</p>
 					<div className='w-full responsiveText'>
 						<input className="border-2 border-[#b8ddf8] rounded-full px-3 py-1 h-7 text-[0.75rem] focus:outline-none focus:ring-1 focus:ring-blue-200 w-full" style={{ fontSize: 'inherit', fontFamily: 'inherit' }} name='order' value={valueCon.order} onChange={handleValue} />
@@ -171,9 +174,9 @@ const ContractModal = () => {
 					</div>
 				</div>
 			</div>
-			<div className='grid grid-cols-3 gap-3 pt-2'>
+			<div className='grid grid-cols-1 md:grid-cols-3 gap-3 pt-2'>
 				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex flex-row gap-2 items-center'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center'>
 						<p className='flex pt-2 responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Shipment', ln)}:</p>
 						<div className='flex-1 min-w-0'>
 							<Selector arr={settings.Shipment.Shipment} value={valueCon}
@@ -204,7 +207,7 @@ const ContractModal = () => {
 				</div>
 
 				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex flex-row gap-2 items-center'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center'>
 						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('POL', ln)}:</p>
 						<div className='flex-1 min-w-0'>
 							<Selector arr={settings.POL.POL} value={valueCon}
@@ -234,7 +237,7 @@ const ContractModal = () => {
 				</div>
 
 				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex flex-row gap-2 items-center'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center'>
 						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Container Type', ln)}:</p>
 						<div className='flex-1 min-w-0'>
 							<Selector arr={settings['Container Type']['Container Type']} value={valueCon}
@@ -285,8 +288,8 @@ const ContractModal = () => {
 				</div>
 			</div>
 
-			<div className='grid grid-cols-4 gap-3 pt-2'>
-				<div className='col-span-3'>
+			<div className='grid grid-cols-1 md:grid-cols-4 gap-3 pt-2'>
+				<div className='md:col-span-3'>
 					<div className='w-full border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 						<ProductsTable value={valueCon} setValue={setValueCon} currency={settings.Currency.Currency}
 							quantityTable={settings.Quantity.Quantity} setShowPoInvModal={setShowPoInvModal}
@@ -294,7 +297,7 @@ const ContractModal = () => {
 						/>
 					</div>
 				</div>
-				<div className='col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex flex-col gap-0.5'>
 						<p className='flex responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Currency', ln)}:</p>
 						<div className='flex-1 min-w-0'>
@@ -327,8 +330,8 @@ const ContractModal = () => {
 				</div>
 			</div>
 
-			<div className='grid grid-cols-4 gap-3 pt-2'>
-				<div className='col-span-3'>
+			<div className='grid grid-cols-1 md:grid-cols-4 gap-3 pt-2'>
+				<div className='md:col-span-3'>
 					<div className='mt-2 w-full border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 						<Remarks settings={settings} value={valueCon} setValue={setValueCon} />
 					</div>
@@ -336,7 +339,7 @@ const ContractModal = () => {
 						<PriceRemarks value={valueCon} setValue={setValueCon} />
 					</div>
 				</div>
-				<div className='col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='md:col-span-1 mt-1'>
 					<p className='flex responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="5" name="comments"
 						className="input h-24 p-1 !rounded-xl resize-none w-full"

@@ -370,9 +370,9 @@ const ContractModal = () => {
 			</div>
 
 
-			<div className='grid grid-cols-3 gap-3 pt-2'>
+			<div className='grid grid-cols-1 md:grid-cols-3 gap-3 pt-2'>
 				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex flex-row gap-2 items-center'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center'>
 						<p className='flex pt-1 items-center responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Shipment', ln)}:</p>
 						<div className='flex-1 min-w-0'>
 							<Selector arr={settings.Shipment.Shipment} value={valueInv}
@@ -419,7 +419,7 @@ const ContractModal = () => {
 				</div>
 
 				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex flex-row gap-2 items-center'>
+					<div className='flex flex-col md:flex-row gap-2 md:items-center'>
 						<p className='flex items-center responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('POL', ln)}:</p>
 						<div className='flex-1 min-w-0'>
 							<Selector arr={settings.POL.POL} value={valueInv}
@@ -450,7 +450,7 @@ const ContractModal = () => {
 				</div>
 
 				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className={`flex flex-row gap-2 items-center ${fnl ? 'py-0.5' : 'py-1.5'}`}>
+					<div className={`flex flex-col md:flex-row gap-2 md:items-center ${fnl ? 'py-0.5' : 'py-1.5'}`}>
 						<p className='flex items-center responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('totalNet', ln)}:</p>
 						<p className='responsiveText pr-6 text-[var(--port-gore)]'>
 							{NetWTKgs}
@@ -494,10 +494,10 @@ const ContractModal = () => {
 				</div>
 			</div>
 
-			<div className='grid grid-cols-2 gap-3 mt-2'>
-				<div className='flex flex-row border items-center border-[#b8ddf8] p-2 rounded-2xl gap-2'>
+			<div className='grid grid-cols-1 md:grid-cols-2 gap-3 mt-2'>
+				<div className='flex flex-col md:flex-row border items-start md:items-center border-[#b8ddf8] p-2 rounded-2xl gap-1 md:gap-0'>
 					<p className='flex items-center responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Bank Account', ln)}:</p>
-					<div className='w-full pl-4'>
+					<div className='w-full md:pl-4'>
 						<Selector arr={settings['Bank Account']['Bank Account']} value={valueInv}
 							onChange={(e) => handleChange(e, 'bankNname')}
 							name='bankNname'
@@ -546,22 +546,22 @@ const ContractModal = () => {
 			</div>
 
 
-			<div className='grid grid-cols-8 gap-3 mt-2'>
-				<div className='col-span-5 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+			<div className='grid grid-cols-1 md:grid-cols-8 gap-3 mt-2'>
+				<div className='md:col-span-5 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<Remarks value={valueInv} setValue={setValueInv} ln={ln} />
 				</div>
 
-				<div className='col-span-2 border-2 border-[#b8ddf8] p-2 py-1 pb-0 rounded-2xl'>
+				<div className='md:col-span-2 border-2 border-[#b8ddf8] p-2 py-1 pb-0 rounded-2xl'>
 					<p className='flex responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Comments', ln)}:</p>
-					<textarea rows="3" name="comments"
-						className="input w-full h-20 p-1 !rounded-xl"
-						style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
+					<textarea rows="2" name="comments"
+						className={`input w-full p-1 !rounded-xl`}
+						style={{ fontSize: '0.75rem', fontFamily: 'inherit', height: valueInv.remarks.length === 0 ? '40px' : valueInv.remarks.length * 40 + 'px' }}
 						value={valueInv.comments}
 						onChange={handleValue}
 					/>
 				</div>
 
-				<div className='col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-col gap-2'>
+				<div className='md:col-span-1 border-2 border-[#b8ddf8] p-2 rounded-2xl gap-4'>
 					<p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Currency', ln)}:</p>
 					<div className='w-full '>
 						<Selector arr={settings.Currency.Currency} value={valueInv}
