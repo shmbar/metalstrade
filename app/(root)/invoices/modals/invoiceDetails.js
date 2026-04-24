@@ -290,25 +290,24 @@ const InvoiceModal = () => {
 
 			<div className='grid grid-cols-1 md:grid-cols-3 gap-1.5 pt-1'>
 				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex flex-col gap-0.5'>
+					<div className='flex gap-0.5 justify-between items-center'>
 						<p className='responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Shipment', ln)}:</p>
-						<div>
-							{!fnl ?
-								<>
-									<Selector arr={settings.Shipment.Shipment} value={valueInv}
-										onChange={(e) => handleChange(e, 'shpType')}
-										name='shpType'
-										clear={clear} />
-									<ErrDiv field='shpType' errors={errors} />
-								</>
-								:
-								<p className='pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.shpType}</p>
-							}
-						</div>
+						{!fnl ?
+							<div className='flex-1 min-w-0 max-w-[15rem]'>
+								<Selector arr={settings.Shipment.Shipment} value={valueInv}
+									onChange={(e) => handleChange(e, 'shpType')}
+									name='shpType'
+									clear={clear} />
+								<ErrDiv field='shpType' errors={errors} />
+							</div>
+							:
+							<p className='pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.shpType}</p>
+						}
+
 					</div>
-					<div className='flex flex-col gap-0.5 pt-1'>
+					<div className='flex gap-0.5 justify-between items-center pt-1'>
 						<p className='responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Origin', ln)}:</p>
-						<div>
+						<div className='flex-1 min-w-0 max-w-[15rem]'>
 							{!fnl ?
 								<Selector arr={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]} value={valueInv}
 									onChange={(e) => handleChange(e, 'origin')}
@@ -319,9 +318,9 @@ const InvoiceModal = () => {
 							}
 						</div>
 					</div>
-					<div className='flex flex-col gap-0.5 pt-1'>
+					<div className='flex gap-0.5 justify-between items-center pt-1'>
 						<p className='responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Delivery Terms', ln)}:</p>
-						<div>
+						<div className='flex-1 min-w-0 max-w-[15rem]'>
 							{!fnl ?
 								<Selector arr={settings['Delivery Terms']['Delivery Terms']} value={valueInv}
 									onChange={(e) => handleChange(e, 'delTerm')}
@@ -332,9 +331,9 @@ const InvoiceModal = () => {
 							}
 						</div>
 					</div>
-					<div className='flex flex-col gap-0.5 pt-1'>
+					<div className='flex gap-0.5 justify-between items-center pt-1'>
 						<p className='responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Delivery Date', ln)}:</p>
-						<div>
+						<div className='flex-1 min-w-0 max-w-[15rem]'>
 							{!fnl ?
 								<Datepicker useRange={false}
 									asSingle={true}
@@ -352,9 +351,9 @@ const InvoiceModal = () => {
 				</div>
 
 				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
-					<div className='flex flex-col gap-0.5'>
+					<div className='flex gap-0.5 justify-between items-center pt-1'>
 						<p className='responsiveText text-[var(--port-gore)] font-medium'>{getTtl('POL', ln)}:</p>
-						<div>
+						<div className='flex-1 min-w-0 max-w-[15rem]'>
 							{!fnl ?
 								<Selector arr={settings.POL.POL} value={valueInv}
 									onChange={(e) => handleChange(e, 'pol')}
@@ -365,9 +364,9 @@ const InvoiceModal = () => {
 							}
 						</div>
 					</div>
-					<div className='flex flex-col gap-0.5 pt-1'>
+					<div className='flex gap-0.5 justify-between items-center pt-1'>
 						<p className='responsiveText text-[var(--port-gore)] font-medium'>{getTtl('POD', ln)}:</p>
-						<div>
+						<div className='flex-1 min-w-0 max-w-[15rem]'>
 							{!fnl ?
 								<Selector arr={settings.POD.POD} value={valueInv}
 									onChange={(e) => handleChange(e, 'pod')}
@@ -379,9 +378,9 @@ const InvoiceModal = () => {
 						</div>
 					</div>
 					{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
-						<div className='flex flex-col gap-0.5 pt-1'>
+						<div className='flex gap-0.5 justify-between items-center pt-1'>
 							<p className='responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Packing', ln)}:</p>
-							<div>
+							<div className='flex-1 min-w-0 max-w-[15rem]'>
 								{!fnl ?
 									<Selector arr={settings.Packing.Packing} value={valueInv}
 										onChange={(e) => handleChange(e, 'packing')}
@@ -405,15 +404,15 @@ const InvoiceModal = () => {
 					{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
 						<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
 							<p className={`flex items-center responsiveText ${(secondRule || fifthRule) && 'text-[var(--regent-gray)]'} font-medium text-[var(--port-gore)]`}>{getTtl('totalTare', ln)}:</p>
-							<p className={`responsiveText pr-6 ${parseInt(TotalTarre) < 0 ? 'text-red-400 font-medium' : 'text-[var(--port-gore)]'}`}>{secondRule || fifthRule ? '' : TotalTarre}</p>
+							<p className={`responsiveText pr-2 ${parseInt(TotalTarre) < 0 ? 'text-red-400 font-medium' : 'text-[var(--port-gore)]'}`}>{secondRule || fifthRule ? '' : TotalTarre}</p>
 						</div>
 					}
 					<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
 						<p className={`flex items-center responsiveText font-medium text-[var(--port-gore)] ${(fourthRule || fifthRule) && 'text-[var(--regent-gray)]'}`}>{thirdRule ? 'QTY Ingots' : getTtl('totalGross', ln)}:</p>
 						<div className='flex items-center responsiveText font-medium whitespace-nowrap'>{(fourthRule || fifthRule) ? '' :
-							<div className='px-1'>
+							<div className='flex-1 min-w-0 max-w-[15rem]'>
 								{!fnl ?
-									<input className="input shadow-lg h-7 text-[0.75rem] w-20" name='ttlGross' value={valueInv.ttlGross} onChange={handleValue} />
+									<input className="input shadow-lg h-7 text-[0.75rem] w-full" name='ttlGross' value={valueInv.ttlGross} onChange={handleValue} />
 									:
 									<p className='responsiveText pr-5 text-[var(--port-gore)]'>{(valueInv.ttlGross * 1).toLocaleString(locale, options)}</p>
 								}
@@ -424,9 +423,9 @@ const InvoiceModal = () => {
 						<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
 							<p className={`flex items-center responsiveText font-medium text-[var(--port-gore)] ${(fourthRule || thirdRule) && 'text-[var(--regent-gray)]'}`}>{getTtl('totalPack', ln)}:</p>
 							<div className='flex items-center responsiveText font-medium whitespace-nowrap'>{(fourthRule || thirdRule) ? '' :
-								<div className='px-1'>
+								<div className='flex-1 min-w-0 max-w-[15rem]'>
 									{!fnl ?
-										<input className="input shadow-lg h-7 text-[0.75rem] w-20" name='ttlPackages' value={valueInv.ttlPackages} onChange={handleValue} />
+										<input className="input shadow-lg h-7 text-[0.75rem] w-full" name='ttlPackages' value={valueInv.ttlPackages} onChange={handleValue} />
 										:
 										<p className='responsiveText pr-5 text-[var(--port-gore)]'>{valueInv.ttlPackages}</p>
 									}

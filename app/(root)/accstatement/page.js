@@ -8,10 +8,9 @@ import { InvoiceContext } from "../../../contexts/useInvoiceContext";
 import { loadAcntStatement, loadData, loadDataWeightAnalysis, loadInvoice, sortArr } from '../../../utils/utils'
 import Spinner from '../../../components/spinner';
 import { UserAuth } from "../../../contexts/useAuthContext"
-import { groupedArrayInvoice, getD } from '../../../utils/utils'
-import Spin from '../../../components/spinTable';
+
 import { Numcur, SumValuesSupplier } from '../ContractsReview&Statement/funcs'
-import CBox from '../../../components/combobox.js'
+
 import dateFormat from "dateformat";
 import { EXD } from './excel'
 import { getTtl } from '../../../utils/languages';
@@ -20,12 +19,12 @@ import { FaFilePdf } from 'react-icons/fa';
 import { PdfAccountStatement } from '../contracts/modals/pdf/pdfAccountStatement';
 import Tooltip from '../../../components/tooltip';
 import Tltip from '../../../components/tlTip';
-import MyComboboxSelect from './components/comboboxSelect';
-import { Button } from '../../../components/ui/button';
+
 import Datepicker from "react-tailwindcss-datepicker";
-// import { userAgentFromString } from '@node_modules/next/server';
+
 import { disabledDates } from './disabledDates';
 import VideoLoader from '../../../components/videoLoader';
+import { Selector } from '@components/selectors/selectShad';
 
 const fieldOrder = [
   "invoice",
@@ -47,7 +46,7 @@ const AccountStatement = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [dataTable, setDataTable] = useState([])
   const [selectedClient, setselectedClient] = useState({ client: '' })
-
+  console.log(selectedClient)
   const [valueDate, setValueDate] = useState({
     startDate: null,
     endDate: null
@@ -68,21 +67,26 @@ const AccountStatement = () => {
     setValueDate(newValue);
   }
 
-  const handleUpdateClient = (e) => {
-    setselectedClient({ client: e.id })
-  }
+  // const handleUpdateClient = (e) => {
+  //   setselectedClient({ client: e.id })
+  // }
 
-  const CB = (settings, selectedClient) => {
+  const CB = (settings) => {
     return (
       <div className='flex flex-col sm:flex-row items-start sm:items-center gap-2'>
-        <MyComboboxSelect
-          data={sortArr(settings.Client.Client.filter(x => !x.deleted), 'nname')}
-          setValue={handleUpdateClient}
-          idx={0}
-          value={settings.Client.Client.find(z => z.id === selectedClient.client)}
-          name='nname'
-          classes='shadow-md h-7 text-[0.75rem] w-full sm:max-w-[140px]'
-          plcHolder='Select client' />
+       
+        <div className='flex-1 w-[12rem]'>
+          <Selector
+            arr={settings.Client.Client}
+            value={selectedClient}
+            onChange={(e) => setselectedClient({ client: e })}
+            name="client"
+            secondaryName="nname"
+          />
+
+        </div>
+
+
         <div className='flex group datepicker-wrapper w-full sm:w-auto'>
           <Datepicker
             inputClassName='border border-[#b8ddf8] h-7 py-2 pl-3 pr-3 rounded-full text-[#103a7a] placeholder:text-[#103a7a] w-full sm:w-44

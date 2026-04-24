@@ -29,7 +29,7 @@ const CB = (settings, handleSelectStock, selectedStock) => {
   return (
     <div className='w-full sm:w-44'>
       <Selector
-        arr={dt}
+        arr={dt}  
         value={selectedStock}
         onChange={(e) => handleSelectStock(dt.find(x => x.id === e))}
         name='stock'
