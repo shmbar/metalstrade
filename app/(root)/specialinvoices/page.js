@@ -33,8 +33,10 @@ const SpecialInvoices = () => {
             setLoading(false)
         }
 
+        if (!uidCollection) return;
         Load();
-    }, [dateSelect])
+
+    }, [dateSelect, uidCollection])
 
 
     useEffect(() => {

@@ -9,7 +9,10 @@ function useSettingsState() {
     const [settings, setSettings] = useState({});
     const [compData, setCompData] = useState({ lng: 'English' });
     const [loading, setLoading] = useState(false);
-
+    const [uidCollection, setUidCollection] = useState(null)
+    const accounts=[{id:'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2', uidCollection:'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2', name:'IMS'},
+        {id:'aB3dE7FgHi9JkLmNoPqRsTuVwGIS', uidCollection:'aB3dE7FgHi9JkLmNoPqRsTuVwGIS', name:'GIS'}
+    ]
     // Computed language value for easy access
     const ln = useMemo(() => compData?.lng || 'English', [compData?.lng]);
 
@@ -77,6 +80,8 @@ function useSettingsState() {
         dateYr,
         setDateYr,
         ln, // Computed language value for easy access
+        uidCollection, setUidCollection,
+        accounts
     };
 }
 

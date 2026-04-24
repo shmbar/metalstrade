@@ -41,8 +41,8 @@ const Expenses = () => {
 	const [totalsAll, setTotalsAll] = useState([])
 	const [filteredId, setFilteredId] = useState([])
 	const [highlightId, setHighlightId] = useState(null)
-		const { upsertSourceItems } = useGlobalSearch();
-const [isEditMode, setIsEditMode] = useState(false);
+	const { upsertSourceItems } = useGlobalSearch();
+	const [isEditMode, setIsEditMode] = useState(false);
 
 	// Inline editing hook
 	const { updateField } = useInlineEdit('expenses', setExpensesData);
@@ -82,9 +82,10 @@ const [isEditMode, setIsEditMode] = useState(false);
 			setLoading(false)
 		}
 
+		if (!uidCollection) return;
 		Load();
 
-	}, [dateSelect])
+	}, [dateSelect, uidCollection])
 
 
 	useEffect(() => {
@@ -134,35 +135,36 @@ const [isEditMode, setIsEditMode] = useState(false);
 		setTotalsAll(totalsAll);
 
 	}, [filteredId])
-useEffect(() => {
-  if (!expensesData || !expensesData.length || Object.keys(settings).length === 0) {
-    upsertSourceItems('expenses', []);
-    return;
-  }
+	
+	useEffect(() => {
+		if (!expensesData || !expensesData.length || Object.keys(settings).length === 0) {
+			upsertSourceItems('expenses', []);
+			return;
+		}
 
-  const items = expensesData.map(e => ({
-    key: `expense_${e.id}`,
-    route: '/expenses',
-    rowId: e.id,
+		const items = expensesData.map(e => ({
+			key: `expense_${e.id}`,
+			route: '/expenses',
+			rowId: e.id,
 
-    title: `Expense • ${gQ(e.supplier, 'Supplier', 'nname') || ''} • ${e.expense || ''}`,
-    subtitle: `${e.salesInv || ''} • ${e.amount ?? ''} • ${e.comments || ''}`,
+			title: `Expense • ${gQ(e.supplier, 'Supplier', 'nname') || ''} • ${e.expense || ''}`,
+			subtitle: `${e.salesInv || ''} • ${e.amount ?? ''} • ${e.comments || ''}`,
 
-    // This is what we actually search against:
-    searchText: [
-      gQ(e.supplier, 'Supplier', 'nname'),
-      e.expense,
-      e.salesInv,
-      e.comments,
-      e.amount,
-      e.cur,
-      e.expType,
-      e.paid
-    ].filter(Boolean).join(' ')
-  }));
+			// This is what we actually search against:
+			searchText: [
+				gQ(e.supplier, 'Supplier', 'nname'),
+				e.expense,
+				e.salesInv,
+				e.comments,
+				e.amount,
+				e.cur,
+				e.expType,
+				e.paid
+			].filter(Boolean).join(' ')
+		}));
 
-  upsertSourceItems('expenses', items);
-}, [expensesData, settings]);
+		upsertSourceItems('expenses', items);
+	}, [expensesData, settings]);
 
 
 
@@ -189,17 +191,17 @@ useEffect(() => {
 	const caseInsensitiveEquals = (row, columnId, filterValue) =>
 		row.getValue(columnId).toLowerCase() === filterValue.toLowerCase();
 
-		let propDefaults = Object.keys(settings).length === 0 ? [] : [
+	let propDefaults = Object.keys(settings).length === 0 ? [] : [
 		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p className="whitespace-nowrap">{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
-  {
-    accessorKey: 'supplier',
-    header: getTtl('Vendor', ln),
-    cell: EditableSelectCell,
-    meta: {
-      filterVariant: 'selectSupplier',
-      options: settings.Supplier?.Supplier?.map(s => ({ value: s.id, label: s.nname })) ?? []
-    }
-  },
+		{
+			accessorKey: 'supplier',
+			header: getTtl('Vendor', ln),
+			cell: EditableSelectCell,
+			meta: {
+				filterVariant: 'selectSupplier',
+				options: settings.Supplier?.Supplier?.map(s => ({ value: s.id, label: s.nname })) ?? []
+			}
+		},
 		{
 			accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
 			meta: {
@@ -209,44 +211,44 @@ useEffect(() => {
 		},
 		{ accessorKey: 'salesInv', header: getTtl('SalesInvoices', ln), meta: { excludeFromQuickSum: true } },
 		{ accessorKey: 'poSupplierOrder', header: getTtl('PoOrderNo', ln), meta: { excludeFromQuickSum: true } },
-		  {
-    accessorKey: 'cur',
-		header: '$/€',
-    cell: EditableSelectCell,
-    meta: {
-      options: settings.Currency?.Currency?.map(c => ({ value: c.id, label: c.cur })) ?? []
-    }
-  },
-	{
-  accessorKey: 'amount',
-  header: getTtl('Amount', ln),
-  cell: (props) => {
-    const isEditMode = !!props.table?.options?.meta?.isEditMode;
-    if (isEditMode) return <EditableCell {...props} />;
-    return <span>{showAmount1(props)}</span>;
-  },
-  meta: { filterVariant: 'range' },
-},
+		{
+			accessorKey: 'cur',
+			header: '$/€',
+			cell: EditableSelectCell,
+			meta: {
+				options: settings.Currency?.Currency?.map(c => ({ value: c.id, label: c.cur })) ?? []
+			}
+		},
+		{
+			accessorKey: 'amount',
+			header: getTtl('Amount', ln),
+			cell: (props) => {
+				const isEditMode = !!props.table?.options?.meta?.isEditMode;
+				if (isEditMode) return <EditableCell {...props} />;
+				return <span>{showAmount1(props)}</span>;
+			},
+			meta: { filterVariant: 'range' },
+		},
 
-		 { accessorKey: 'expense', header: getTtl('Expense Invoice', ln) + '#', cell: EditableCell, meta: { excludeFromQuickSum: true } },
-		  {
-    accessorKey: 'expType',
-    header: getTtl('Expense Type', ln),
-    cell: EditableSelectCell,
-    meta: {
-      options: settings.Expenses?.Expenses?.map(e => ({ value: e.id, label: e.expType })) ?? []
-    }
-  },
-	{
-  accessorKey: 'paid',
-  header: getTtl('Paid / Unpaid', ln),
-  cell: EditableSelectCell,
-  meta: {
-    filterVariant: 'paidNotPaidExp',
-    options: settings.ExpPmnt?.ExpPmnt?.map(p => ({ value: p.id, label: p.paid })) ?? [],
-  },
-  filterFn: caseInsensitiveEquals,
-},
+		{ accessorKey: 'expense', header: getTtl('Expense Invoice', ln) + '#', cell: EditableCell, meta: { excludeFromQuickSum: true } },
+		{
+			accessorKey: 'expType',
+			header: getTtl('Expense Type', ln),
+			cell: EditableSelectCell,
+			meta: {
+				options: settings.Expenses?.Expenses?.map(e => ({ value: e.id, label: e.expType })) ?? []
+			}
+		},
+		{
+			accessorKey: 'paid',
+			header: getTtl('Paid / Unpaid', ln),
+			cell: EditableSelectCell,
+			meta: {
+				filterVariant: 'paidNotPaidExp',
+				options: settings.ExpPmnt?.ExpPmnt?.map(p => ({ value: p.id, label: p.paid })) ?? [],
+			},
+			filterFn: caseInsensitiveEquals,
+		},
 
 		{ accessorKey: 'comments', header: getTtl('Comments', ln), cell: EditableCell },
 
@@ -293,36 +295,36 @@ useEffect(() => {
 		setDateYr(row.dateRange?.startDate?.substring(0, 4));
 		setIsOpen(true);
 	};
-const onCellUpdate = async ({ rowIndex, columnId, value }) => {
-  const row = expensesData[rowIndex];
-  if (!row?.id) return;
+	const onCellUpdate = async ({ rowIndex, columnId, value }) => {
+		const row = expensesData[rowIndex];
+		if (!row?.id) return;
 
-  // fix numeric
-  const newValue = columnId === "amount" ? (parseFloat(value) || 0) : value;
+		// fix numeric
+		const newValue = columnId === "amount" ? (parseFloat(value) || 0) : value;
 
-  // optimistic UI update
-  const prev = expensesData;
-  const next = prev.map((x, i) => (i === rowIndex ? { ...x, [columnId]: newValue } : x));
-  setExpensesData(next);
+		// optimistic UI update
+		const prev = expensesData;
+		const next = prev.map((x, i) => (i === rowIndex ? { ...x, [columnId]: newValue } : x));
+		setExpensesData(next);
 
-  try {
-    await updateExpenseField(uidCollection, row.id, row.date, { [columnId]: newValue });
-  } catch (e) {
-    console.error(e);
-    setExpensesData(prev); // revert on fail
-  }
-};
+		try {
+			await updateExpenseField(uidCollection, row.id, row.date, { [columnId]: newValue });
+		} catch (e) {
+			console.error(e);
+			setExpensesData(prev); // revert on fail
+		}
+	};
 
 	return (
-			<div className="w-full " style={{ background: "#f8fbff" }}>
+		<div className="w-full " style={{ background: "#f8fbff" }}>
 			<div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
 				{Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
 					<>
 						<Toast />
-							<VideoLoader loading={loading} fullScreen={true} />
+						<VideoLoader loading={loading} fullScreen={true} />
 						{/* Main Card */}
 						<div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
-							
+
 							{/* Header Section */}
 							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
 								<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
@@ -337,15 +339,15 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
 							</div>
 
 							{/* Table Component */}
-							<Customtable 
+							<Customtable
 								data={expensesData.map(x => ({ ...x, poSupplierOrder: x.poSupplier?.order }))}
-								columns={propDefaults} 
+								columns={propDefaults}
 								SelectRow={SelectRow}
 								invisible={invisible}
 								excellReport={EXD(expensesData.filter(x => filteredId.includes(x.id)).map(x => ({ ...x, poSupplierOrder: x.poSupplier?.order })),
 									settings, getTtl('Expenses', ln), ln)}
 								setFilteredId={setFilteredId}
-								highlightId={highlightId} 
+								highlightId={highlightId}
 								onCellUpdate={onCellUpdate}
 							/>
 
@@ -364,10 +366,10 @@ const onCellUpdate = async ({ rowIndex, columnId, value }) => {
 
 						{/* Modals */}
 						{valueExp && (
-							<MyDetailsModal 
-								isOpen={isOpen} 
+							<MyDetailsModal
+								isOpen={isOpen}
 								setIsOpen={setIsOpen}
-								title={getTtl('Existing Expense', ln)} 
+								title={getTtl('Existing Expense', ln)}
 							/>
 						)}
 					</>

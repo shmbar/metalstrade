@@ -88,9 +88,10 @@ const Contracts = () => {
 			let dt = await loadData(uidCollection, 'contracts', dateSelect);
 			setContractsData(dt)
 		}
-
+		if (!uidCollection) return;
 		Object.keys(settings).length !== 0 && Load();
-	}, [dateSelect, settings])
+
+	}, [dateSelect, settings, uidCollection])
 
 	const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
 

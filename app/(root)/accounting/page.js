@@ -119,21 +119,21 @@ const makeGroup = (arr) => {
   return groupedByPoSupplierId;
 }
 
-const loadContracts = async (uidCollection, invoice) => {
-  let obj = invoice[0][0].poSupplier
+// const loadContracts = async (uidCollection, invoice) => {
+//   let obj = invoice[0][0].poSupplier
 
-  let con = await loadInvoice(uidCollection, 'contracts', obj)
-  return con;
-}
+//   let con = await loadInvoice(uidCollection, 'contracts', obj)
+//   return con;
+// }
 
 
 const Accounting = () => {
 
   const { invoicesAccData, setInvoicesAccData } = useContext(InvoiceContext);
-  
+
   const { settings, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
   const { uidCollection } = UserAuth();
-const { upsertSourceItems } = useGlobalSearch();
+  const { upsertSourceItems } = useGlobalSearch();
 
 
   const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
@@ -170,13 +170,14 @@ const { upsertSourceItems } = useGlobalSearch();
           dateInv: l.final ? l.date : l.dateRange.endDate,
           saleInvoice: l.invoice + getprefixInv(l),
           clientInv: l.final ? l.client.id || l.client : l.client,              // store ID
-clientInvName: l.final ? l.client.nname : gQ(l.client, 'Client', 'nname'),    // for display
+          clientInvName: l.final ? l.client.nname : gQ(l.client, 'Client', 'nname'),    // for display
           amountInv: l.totalAmount,
           invType: getprefixInv1(l),
           invoice: l.invoice,
- curINV: l.final ? l.cur.cur : gQ(l.cur, 'Currency', 'cur'),
-           invoiceId: l.id,
-  invoiceDate: l.dateRange?.startDate ?? l.date        }
+          curINV: l.final ? l.cur.cur : gQ(l.cur, 'Currency', 'cur'),
+          invoiceId: l.id,
+          invoiceDate: l.dateRange?.startDate ?? l.date
+        }
         invArr = [...invArr, item]
       }
 
@@ -233,9 +234,10 @@ clientInvName: l.final ? l.client.nname : gQ(l.client, 'Client', 'nname'),    //
           amountExp: l.amount,
           expType: l.expType,
           invoice: l.salesInv.replace(/\D/g, ''),
- curEX: gQ(l.cur, 'Currency', 'cur'),
-            expenseId: l.id,
-  expenseDate: l.dateRange?.startDate ?? l.date        }
+          curEX: gQ(l.cur, 'Currency', 'cur'),
+          expenseId: l.id,
+          expenseDate: l.dateRange?.startDate ?? l.date
+        }
         expArr = [...expArr, item]
       }
 
@@ -248,65 +250,69 @@ clientInvName: l.final ? l.client.nname : gQ(l.client, 'Client', 'nname'),    //
       setLoading(false)
     }
 
+    if (!uidCollection) return;
     Object.keys(settings).length !== 0 && Load();
-  }, [dateSelect, settings])
-useEffect(() => {
-  if (!invoicesAccData || invoicesAccData.length === 0 || Object.keys(settings).length === 0) {
-    upsertSourceItems('accounting', []);
-    return;
-  }
 
-  const items = invoicesAccData.map((row, idx) => {
-    // Determine source + navigation
-    const isExpense = !!row.expenseId;
-    const isInvoice = !!row.invoiceId && !row.expenseId;
-    const isPurchase = row.expType === 'Purchase';
+  }, [dateSelect, settings, uidCollection])
 
-    let route = '/accounting';
-    let rowId = idx.toString(); // fallback
 
-    if (isExpense) {
-      route = '/expenses';
-      rowId = row.expenseId;
-    } else if (isInvoice) {
-      route = '/invoices';
-      rowId = row.invoiceId;
-    } else if (isPurchase) {
-      route = '/contracts';
-      rowId = row.invoice;
+  useEffect(() => {
+    if (!invoicesAccData || invoicesAccData.length === 0 || Object.keys(settings).length === 0) {
+      upsertSourceItems('accounting', []);
+      return;
     }
 
-    const clientLabel =
-      row.clientExp
-        ? gQ(row.clientExp, 'Supplier', 'nname')
-        : row.clientInvName || '';
+    const items = invoicesAccData.map((row, idx) => {
+      // Determine source + navigation
+      const isExpense = !!row.expenseId;
+      const isInvoice = !!row.invoiceId && !row.expenseId;
+      const isPurchase = row.expType === 'Purchase';
 
-    const amount =
-      row.amountInv != null ? row.amountInv :
-      row.amountExp != null ? row.amountExp : '';
+      let route = '/accounting';
+      let rowId = idx.toString(); // fallback
 
-    return {
-      key: `accounting_${idx}`,
-      route,
-      rowId,
+      if (isExpense) {
+        route = '/expenses';
+        rowId = row.expenseId;
+      } else if (isInvoice) {
+        route = '/invoices';
+        rowId = row.invoiceId;
+      } else if (isPurchase) {
+        route = '/contracts';
+        rowId = row.invoice;
+      }
 
-      title: `Accounting • ${clientLabel || 'Transaction'}`,
-      subtitle: `${row.saleInvoice || row.expInvoice || ''} • ${amount}`,
+      const clientLabel =
+        row.clientExp
+          ? gQ(row.clientExp, 'Supplier', 'nname')
+          : row.clientInvName || '';
 
-      searchText: [
-        clientLabel,
-        row.saleInvoice,
-        row.expInvoice,
-        row.invoice,
-        row.expType,
-        row.invType,
-        amount,
-      ].filter(Boolean).join(' ')
-    };
-  });
+      const amount =
+        row.amountInv != null ? row.amountInv :
+          row.amountExp != null ? row.amountExp : '';
 
-  upsertSourceItems('accounting', items);
-}, [invoicesAccData, settings]);
+      return {
+        key: `accounting_${idx}`,
+        route,
+        rowId,
+
+        title: `Accounting • ${clientLabel || 'Transaction'}`,
+        subtitle: `${row.saleInvoice || row.expInvoice || ''} • ${amount}`,
+
+        searchText: [
+          clientLabel,
+          row.saleInvoice,
+          row.expInvoice,
+          row.invoice,
+          row.expType,
+          row.invType,
+          amount,
+        ].filter(Boolean).join(' ')
+      };
+    });
+
+    upsertSourceItems('accounting', items);
+  }, [invoicesAccData, settings]);
 
 
   let showAmountExp = (x) => {
@@ -342,45 +348,46 @@ useEffect(() => {
       },
       filterFn: 'dateBetweenFilterFn'
     },
-   { accessorKey: 'expInvoice', header: getTtl('Expense Invoice', ln) + '#', cell: (props) => { const isEditMode = !!props.table?.options?.meta?.isEditMode; if (isEditMode) return <EditableCell {...props} />; const val = props.getValue() ?? ''; const isTrunc = val.length > 14; return <Tltip tltpText={val} show={isTrunc} direction="top"><span className="cursor-default">{isTrunc ? val.slice(0, 14) + '\u2026' : val}</span></Tltip>; }, meta: { excludeFromQuickSum: true } },
+    { accessorKey: 'expInvoice', header: getTtl('Expense Invoice', ln) + '#', cell: (props) => { const isEditMode = !!props.table?.options?.meta?.isEditMode; if (isEditMode) return <EditableCell {...props} />; const val = props.getValue() ?? ''; const isTrunc = val.length > 14; return <Tltip tltpText={val} show={isTrunc} direction="top"><span className="cursor-default">{isTrunc ? val.slice(0, 14) + '\u2026' : val}</span></Tltip>; }, meta: { excludeFromQuickSum: true } },
     {
-  accessorKey: 'clientExp',
-  header: getTtl('Supplier', ln),
-  cell: EditableSelectCell,
-  meta: {
-    options: settings.Supplier?.Supplier?.map(s => ({
-      value: s.id,
-      label: s.nname
-    })) ?? []
-  }
-},
+      accessorKey: 'clientExp',
+      header: getTtl('Supplier', ln),
+      cell: EditableSelectCell,
+      meta: {
+        options: settings.Supplier?.Supplier?.map(s => ({
+          value: s.id,
+          label: s.nname
+        })) ?? []
+      }
+    },
     { accessorKey: 'amountExp', header: getTtl('Amount', ln), cell: EditableCell },
 
-  {
-  accessorKey: 'expType',
-  header: getTtl('Expense Type', ln),
-  cell: EditableSelectCell,
-  meta: {
-    options: settings.Expenses?.Expenses?.map(e => ({
-      value: e.id,
-      label: e.expType
-    })) ?? []
-  }},
+    {
+      accessorKey: 'expType',
+      header: getTtl('Expense Type', ln),
+      cell: EditableSelectCell,
+      meta: {
+        options: settings.Expenses?.Expenses?.map(e => ({
+          value: e.id,
+          label: e.expType
+        })) ?? []
+      }
+    },
 
 
     { accessorKey: 'dateInv', header: getTtl('Date', ln), cell: (props) => <p>{props.getValue() ? dateFormat(props.getValue(), 'dd.mm.yy') : ''}</p>, meta: { excludeFromQuickSum: true } },
     { accessorKey: 'saleInvoice', header: getTtl('Invoice', ln), cell: (props) => <p>{props.getValue()}</p>, meta: { excludeFromQuickSum: true } },
     {
-  accessorKey: 'clientInv',
-  header: getTtl('Consignee', ln),
-  cell: EditableSelectCell,
-  meta: {
-    options: settings.Client?.Client?.map(c => ({
-      value: c.id,
-      label: c.nname
-    })) ?? []
-  }
-},
+      accessorKey: 'clientInv',
+      header: getTtl('Consignee', ln),
+      cell: EditableSelectCell,
+      meta: {
+        options: settings.Client?.Client?.map(c => ({
+          value: c.id,
+          label: c.nname
+        })) ?? []
+      }
+    },
 
     { accessorKey: 'amountInv', header: getTtl('Amount', ln), cell: (props) => <p>{showAmountInv(props)}</p> },
     { accessorKey: 'invType', header: getTtl('Invoice Type', ln), cell: (props) => <p>{props.getValue()}</p> },
@@ -496,7 +503,7 @@ useEffect(() => {
     if (amount == null || isNaN(amount)) return '$0';
     const absAmount = Math.abs(amount);
     const sign = amount < 0 ? '-' : '';
-    
+
     if (absAmount >= 1000000000000) {
       return sign + '$' + (absAmount / 1000000000000).toFixed(2) + 'T';
     } else if (absAmount >= 1000000000) {
@@ -529,322 +536,322 @@ useEffect(() => {
     if (Math.abs(value) > 999) return value > 0 ? '>999%' : '<-999%';
     return value.toFixed(2) + '%';
   };
-const onCellUpdate = async ({ rowIndex, columnId, value }) => {
-  const row = invoicesAccData[rowIndex];
-  if (!row) return;
 
-  if (row.expType === 'Purchase') return;
+  const onCellUpdate = async ({ rowIndex, columnId, value }) => {
+    const row = invoicesAccData[rowIndex];
+    if (!row) return;
 
-  const prev = invoicesAccData;
-  const next = prev.map((x, i) =>
-    i === rowIndex ? { ...x, [columnId]: value } : x
-  );
-  setInvoicesAccData(next);
+    if (row.expType === 'Purchase') return;
 
-  try {
-    // EXPENSE SIDE
-    if (['expInvoice', 'amountExp', 'expType', 'clientExp'].includes(columnId)) {
-      if (!row.expenseId || !row.expenseDate)
-        throw new Error("Missing expense mapping");
+    const prev = invoicesAccData;
+    const next = prev.map((x, i) =>
+      i === rowIndex ? { ...x, [columnId]: value } : x
+    );
+    setInvoicesAccData(next);
 
-      const patch =
-        columnId === 'expInvoice' ? { expense: value } :
-        columnId === 'amountExp' ? { amount: parseFloat(value) || 0 } :
-        columnId === 'expType' ? { expType: value } :
-        columnId === 'clientExp' ? { supplier: value } : {};
+    try {
+      // EXPENSE SIDE
+      if (['expInvoice', 'amountExp', 'expType', 'clientExp'].includes(columnId)) {
+        if (!row.expenseId || !row.expenseDate)
+          throw new Error("Missing expense mapping");
 
-      await updateExpenseField(
-        uidCollection,
-        row.expenseId,
-        row.expenseDate,
-        patch
-      );
+        const patch =
+          columnId === 'expInvoice' ? { expense: value } :
+            columnId === 'amountExp' ? { amount: parseFloat(value) || 0 } :
+              columnId === 'expType' ? { expType: value } :
+                columnId === 'clientExp' ? { supplier: value } : {};
+
+        await updateExpenseField(
+          uidCollection,
+          row.expenseId,
+          row.expenseDate,
+          patch
+        );
+      }
+
+      // INVOICE SIDE
+      if (columnId === 'clientInv') {
+        if (!row.invoiceId || !row.invoiceDate)
+          throw new Error("Missing invoice mapping");
+
+        await updateInvoiceField(
+          uidCollection,
+          row.invoiceId,
+          row.invoiceDate,
+          { client: value }
+        );
+      }
+
+    } catch (e) {
+      console.error(e);
+      setInvoicesAccData(prev); // revert
     }
-
-    // INVOICE SIDE
-    if (columnId === 'clientInv') {
-      if (!row.invoiceId || !row.invoiceDate)
-        throw new Error("Missing invoice mapping");
-
-      await updateInvoiceField(
-        uidCollection,
-        row.invoiceId,
-        row.invoiceDate,
-        { client: value }
-      );
-    }
-
-  } catch (e) {
-    console.error(e);
-    setInvoicesAccData(prev); // revert
-  }
-};
+  };
 
   return (
-  <div className="w-full ">
-    <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
-      {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
-        <>
-          <Toast />
-          <VideoLoader loading={loading} fullScreen={true} />
+    <div className="w-full ">
+      <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
+        {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
+          <>
+            <Toast />
+            <VideoLoader loading={loading} fullScreen={true} />
 
-          {/* Header + Stats Wrapper */}
-          <div className="rounded-2xl border border-[#b8ddf8] bg-[#f8fbff] shadow-sm p-4 mb-6">
+            {/* Header + Stats Wrapper */}
+            <div className="rounded-2xl border border-[#b8ddf8] bg-[#f8fbff] shadow-sm p-4 mb-6">
 
-          {/* Header Section */}
-          <div className='flex items-center justify-between flex-wrap gap-2 pb-3'>
-            <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-              {getTtl('Accounting', ln)}
-            </h1>
-          </div>
+              {/* Header Section */}
+              <div className='flex items-center justify-between flex-wrap gap-2 pb-3'>
+                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
+                  {getTtl('Accounting', ln)}
+                </h1>
+              </div>
 
-          {/* Summary Cards */}
-<div
-  style={{
-    background: '#dff0fb',
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '40px',
-    padding: '10px 12px',
-    flexWrap: 'wrap',
-    margin: '0 auto',
-    borderRadius: '1rem',
-    border: '1px solid #b8ddf8',
-  }}
->
+              {/* Summary Cards */}
+              <div
+                style={{
+                  background: '#dff0fb',
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '40px',
+                  padding: '10px 12px',
+                  flexWrap: 'wrap',
+                  margin: '0 auto',
+                  borderRadius: '1rem',
+                  border: '1px solid #b8ddf8',
+                }}
+              >
 
-  {/* ── My Balance ── */}
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      flexWrap: 'nowrap',
-      gap: '8px',
-      background: '#ffffff',
-      borderRadius: '999px',
-      padding: '7px 14px',
-      border: '1.5px solid #bfdbfe',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-      whiteSpace: 'nowrap',
-    }}
-  >
-    <FaWallet className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--endeavour)' }} />
-    <span className="responsiveText" style={{ color: 'var(--endeavour)', fontWeight: 500 }}>
-      {formatCurrency(totals.balance)}
-    </span>
-    <span className="responsiveTextTable" style={{ color: 'var(--endeavour)', fontWeight: 400 }}>
-      My Balance
-    </span>
-  </div>
+                {/* ── My Balance ── */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexWrap: 'nowrap',
+                    gap: '8px',
+                    background: '#ffffff',
+                    borderRadius: '999px',
+                    padding: '7px 14px',
+                    border: '1.5px solid #bfdbfe',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <FaWallet className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--endeavour)' }} />
+                  <span className="responsiveText" style={{ color: 'var(--endeavour)', fontWeight: 500 }}>
+                    {formatCurrency(totals.balance)}
+                  </span>
+                  <span className="responsiveTextTable" style={{ color: 'var(--endeavour)', fontWeight: 400 }}>
+                    My Balance
+                  </span>
+                </div>
 
-  {/* ── Income ── */}
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      flexWrap: 'nowrap',
-      gap: '8px',
-      background: '#ffffff',
-      borderRadius: '999px',
-      padding: '7px 14px',
-      border: '1.5px solid #c7d2fe',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-      whiteSpace: 'nowrap',
-    }}
-  >
-    <FaArrowTrendUp className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--endeavour)' }} />
-    <span className="responsiveText" style={{ color: 'var(--endeavour)', fontWeight: 500 }}>
-      {formatCurrency(totals.totalIncome)}
-    </span>
-    <span className="responsiveTextTable" style={{ color: 'var(--endeavour)', fontWeight: 400 }}>
-      Income
-    </span>
-  </div>
+                {/* ── Income ── */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexWrap: 'nowrap',
+                    gap: '8px',
+                    background: '#ffffff',
+                    borderRadius: '999px',
+                    padding: '7px 14px',
+                    border: '1.5px solid #c7d2fe',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <FaArrowTrendUp className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--endeavour)' }} />
+                  <span className="responsiveText" style={{ color: 'var(--endeavour)', fontWeight: 500 }}>
+                    {formatCurrency(totals.totalIncome)}
+                  </span>
+                  <span className="responsiveTextTable" style={{ color: 'var(--endeavour)', fontWeight: 400 }}>
+                    Income
+                  </span>
+                </div>
 
-  {/* ── Expense ── */}
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      flexWrap: 'nowrap',
-      gap: '8px',
-      background: '#ffffff',
-      borderRadius: '999px',
-      padding: '7px 14px',
-      border: '1.5px solid #fecaca',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-      whiteSpace: 'nowrap',
-    }}
-  >
-    <FaArrowTrendDown className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#EF4444' }} />
-    <span className="responsiveText" style={{ color: '#EF4444', fontWeight: 500 }}>
-      {formatCurrency(totals.totalExpense)}
-    </span>
-    <span className="responsiveTextTable" style={{ color: '#EF4444', fontWeight: 400 }}>
-      Expense
-    </span>
-  </div>
+                {/* ── Expense ── */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexWrap: 'nowrap',
+                    gap: '8px',
+                    background: '#ffffff',
+                    borderRadius: '999px',
+                    padding: '7px 14px',
+                    border: '1.5px solid #fecaca',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <FaArrowTrendDown className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#EF4444' }} />
+                  <span className="responsiveText" style={{ color: '#EF4444', fontWeight: 500 }}>
+                    {formatCurrency(totals.totalExpense)}
+                  </span>
+                  <span className="responsiveTextTable" style={{ color: '#EF4444', fontWeight: 400 }}>
+                    Expense
+                  </span>
+                </div>
 
-  {/* ── Savings ── */}
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      flexWrap: 'nowrap',
-      gap: '8px',
-      background: '#ffffff',
-      borderRadius: '999px',
-      padding: '7px 14px',
-      border: '1.5px solid #a7f3d0',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-      whiteSpace: 'nowrap',
-    }}
-  >
-    <FaPiggyBank className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#10B981' }} />
-    <span className="responsiveText" style={{ color: '#10B981', fontWeight: 500 }}>
-      {formatCurrency(totals.savings)}
-    </span>
-    <span className="responsiveTextTable" style={{ color: '#10B981', fontWeight: 400 }}>
-      Savings
-    </span>
-  </div>
+                {/* ── Savings ── */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexWrap: 'nowrap',
+                    gap: '8px',
+                    background: '#ffffff',
+                    borderRadius: '999px',
+                    padding: '7px 14px',
+                    border: '1.5px solid #a7f3d0',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <FaPiggyBank className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#10B981' }} />
+                  <span className="responsiveText" style={{ color: '#10B981', fontWeight: 500 }}>
+                    {formatCurrency(totals.savings)}
+                  </span>
+                  <span className="responsiveTextTable" style={{ color: '#10B981', fontWeight: 400 }}>
+                    Savings
+                  </span>
+                </div>
 
-</div>
-          </div>
-           {/* Full Table */}
-          <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff] relative">
-            <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-4">All Transactions</h3>
-            <Customtable data={invoicesAccData} columns={propDefaults}  onCellUpdate={onCellUpdate}
-              excellReport={EXD(invoicesAccData, settings, getTtl('Accounting', ln), ln)} />
-          </div>
+              </div>
+            </div>
+            {/* Full Table */}
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff] relative">
+              <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-4">All Transactions</h3>
+              <Customtable data={invoicesAccData} columns={propDefaults} onCellUpdate={onCellUpdate}
+                excellReport={EXD(invoicesAccData, settings, getTtl('Accounting', ln), ln)} />
+            </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6 mt-3">
-            {/* Last Transaction */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
-              <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-2">Last Transaction</h3>
-              <div className="space-y-0">
-                {recentTransactions.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 bg-[var(--selago)] rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-[var(--endeavour)] responsiveText font-medium font-poppins">
-                          {(gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'N').charAt(0).toUpperCase()}
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6 mt-3">
+              {/* Last Transaction */}
+              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
+                <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-2">Last Transaction</h3>
+                <div className="space-y-0">
+                  {recentTransactions.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 bg-[var(--selago)] rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-[var(--endeavour)] responsiveText font-medium font-poppins">
+                            {(gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'N').charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] truncate">
+                            {gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'Transaction'}
+                          </p>
+                          <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">
+                            {item.dateExp ? dateFormat(item.dateExp, 'dd mmm yyyy') : item.dateInv ? dateFormat(item.dateInv, 'dd mmm yyyy') : ''}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-2">
+                        <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">{item.expType || item.invType || ''}</p>
+                        <p className={`responsiveText font-medium font-poppins ${item.amountInv ? 'text-emerald-500' : 'text-red-500'}`}>
+                          {item.amountInv ? '+' : '-'}{formatCurrency(item.amountInv || item.amountExp || 0)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Invoices Sent */}
+              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
+                <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-2">Invoices Sent</h3>
+                <div className="space-y-0">
+                  {recentInvoices.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <div className="w-7 h-7 bg-[var(--rock-blue)]/20 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-[var(--chathams-blue)] responsiveText font-medium font-poppins">
+                            {(item.clientInvName || item.clientInv || 'C').charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">{item.saleInvoice || 'Invoice'}</p>
+                          <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] truncate">{item.clientInvName || item.clientInv || 'Client'}</p>
+                          <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">
+                            {item.dateInv ? dateFormat(item.dateInv, 'dd mmm yyyy') : ''}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-2">
+                        <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-0.5">{formatCurrency(item.amountInv || 0)}</p>
+                        <span className={`inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-poppins ${idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-[#f3f4f6] text-[var(--regent-gray)]'
+                          }`}>
+                          {idx % 2 === 0 ? 'Paid' : 'Pending'}
                         </span>
                       </div>
-                      <div className="min-w-0">
-                        <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] truncate">
-                          {gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'Transaction'}
-                        </p>
-                        <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">
-                          {item.dateExp ? dateFormat(item.dateExp, 'dd mmm yyyy') : item.dateInv ? dateFormat(item.dateInv, 'dd mmm yyyy') : ''}
-                        </p>
-                      </div>
                     </div>
-                    <div className="text-right flex-shrink-0 ml-2">
-                      <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">{item.expType || item.invType || ''}</p>
-                      <p className={`responsiveText font-medium font-poppins ${item.amountInv ? 'text-emerald-500' : 'text-red-500'}`}>
-                        {item.amountInv ? '+' : '-'}{formatCurrency(item.amountInv || item.amountExp || 0)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Invoices Sent */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
-              <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-2">Invoices Sent</h3>
-              <div className="space-y-0">
-                {recentInvoices.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <div className="w-7 h-7 bg-[var(--rock-blue)]/20 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-[var(--chathams-blue)] responsiveText font-medium font-poppins">
-                          {(item.clientInvName || item.clientInv || 'C').charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">{item.saleInvoice || 'Invoice'}</p>
-                        <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] truncate">{item.clientInvName || item.clientInv || 'Client'}</p>
-                        <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">
-                          {item.dateInv ? dateFormat(item.dateInv, 'dd mmm yyyy') : ''}
-                        </p>
-                      </div>
+            {/* Chart Section */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+              {/* Debit & Credit Overview */}
+              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                  <div className="min-w-0">
+                    <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)]">Debit & Credit Overview</h3>
+                    <p className="responsiveText text-[var(--regent-gray)] truncate">
+                      {formatCurrency(totals.totalExpense)} Debited & {formatCurrency(totals.totalIncome)} Credited
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 responsiveText flex-shrink-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-[var(--chathams-blue)]"></span>
+                      <span className="text-[var(--regent-gray)]">Debit</span>
                     </div>
-                    <div className="text-right flex-shrink-0 ml-2">
-                      <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-0.5">{formatCurrency(item.amountInv || 0)}</p>
-                      <span className={`inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-poppins ${
-                        idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-[#f3f4f6] text-[var(--regent-gray)]'
-                      }`}>
-                        {idx % 2 === 0 ? 'Paid' : 'Pending'}
-                      </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-[var(--rock-blue)]"></span>
+                      <span className="text-[var(--regent-gray)]">Credit</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Chart Section */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-            {/* Debit & Credit Overview */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-                <div className="min-w-0">
-                  <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)]">Debit & Credit Overview</h3>
-                  <p className="responsiveText text-[var(--regent-gray)] truncate">
-                    {formatCurrency(totals.totalExpense)} Debited & {formatCurrency(totals.totalIncome)} Credited
-                  </p>
                 </div>
-                <div className="flex items-center gap-4 responsiveText flex-shrink-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-[var(--chathams-blue)]"></span>
-                    <span className="text-[var(--regent-gray)]">Debit</span>
+                <div className="h-52">
+                  <Bar data={chartData} options={chartOptions} />
+                </div>
+              </div>
+              {/* Summary Stats */}
+              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl bg-[#f8fbff] overflow-hidden">
+                <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-4">Financial Summary</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
+                    <p className="text-[var(--port-gore)] responsiveText mb-1">Total Transactions</p>
+                    <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">{invoicesAccData.length}</p>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-[var(--rock-blue)]"></span>
-                    <span className="text-[var(--regent-gray)]">Credit</span>
+                  <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
+                    <p className="text-[var(--port-gore)] responsiveText mb-1">Avg. Transaction</p>
+                    <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">
+                      {formatCurrency(invoicesAccData.length > 0 ? (totals.totalIncome + totals.totalExpense) / invoicesAccData.length : 0)}
+                    </p>
+                  </div>
+                  <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
+                    <p className="text-[var(--port-gore)] responsiveText mb-1">Net Profit</p>
+                    <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">{formatCurrency(totals.balance)}</p>
+                  </div>
+                  <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
+                    <p className="text-[var(--port-gore)] responsiveText mb-1">Profit Margin</p>
+                    <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">
+                      {formatPercent(totals.totalIncome > 0 ? (totals.balance / totals.totalIncome) * 100 : 0)}
+                    </p>
                   </div>
                 </div>
               </div>
-              <div className="h-52">
-                <Bar data={chartData} options={chartOptions} />
-              </div>
             </div>
-            {/* Summary Stats */}
-            <div  className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl bg-[#f8fbff] overflow-hidden">
-              <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-4">Financial Summary</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
-                  <p className="text-[var(--port-gore)] responsiveText mb-1">Total Transactions</p>
-                  <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">{invoicesAccData.length}</p>
-                </div>
-                <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
-                  <p className="text-[var(--port-gore)] responsiveText mb-1">Avg. Transaction</p>
-                  <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">
-                    {formatCurrency(invoicesAccData.length > 0 ? (totals.totalIncome + totals.totalExpense) / invoicesAccData.length : 0)}
-                  </p>
-                </div>
-                <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
-                  <p className="text-[var(--port-gore)] responsiveText mb-1">Net Profit</p>
-                  <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">{formatCurrency(totals.balance)}</p>
-                </div>
-                <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
-                  <p className="text-[var(--port-gore)] responsiveText mb-1">Profit Margin</p>
-                  <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">
-                    {formatPercent(totals.totalIncome > 0 ? (totals.balance / totals.totalIncome) * 100 : 0)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      }
+          </>
+        }
+      </div>
     </div>
-  </div>
   );
 }
 

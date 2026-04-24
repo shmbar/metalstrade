@@ -143,8 +143,10 @@ const Cashflow = () => {
             ])
         }
 
+        if (!uidCollection) return;
         loadData()
-    }, [yr])
+
+    }, [yr, uidCollection])
 
 
     useEffect(() => {
@@ -219,8 +221,11 @@ const Cashflow = () => {
 
             setLoading(false)
         }
+
+        if (!uidCollection) return;
         Object.keys(settings).length !== 0 && Load();
-    }, [yr, settings,])
+
+    }, [yr, settings, uidCollection])
 
     useEffect(() => {
         if (!isNaN(incoming)) {
@@ -656,7 +661,8 @@ const Cashflow = () => {
                 {
                     ...x, pmnt: x.invValue, blnc: 0,
                     payments: [...tmp, {
-                        pmntId: uuidv4(), pmntDate: obj.date, pmntPerc: obj.perc, pmnt: obj.pmnt }]
+                        pmntId: uuidv4(), pmntDate: obj.date, pmntPerc: obj.perc, pmnt: obj.pmnt
+                    }]
                 } :
                 x)
 
@@ -761,12 +767,12 @@ const Cashflow = () => {
             cur: inv.cur, date: obj.date, id: uuidv4(),
             pmnt: obj.pmnt
         }
-   
+
         inv = {
             ...inv, payments: inv.payments.length > 0 ? [...inv.payments, obj1] : [obj1],
             debtBlnc: inv.debtBlnc - obj1.pmnt
         }
- 
+
 
         let success;
 
@@ -793,796 +799,796 @@ const Cashflow = () => {
         setClientInvoices2(getTotals(newArr.filter(z => z.payments.length === 0)))
 
     }
-// ...existing code...
+    // ...existing code...
 
-return (
-	<div className="w-full" style={{ background: "#f8fbff" }}>
-		<div className="mx-auto max-w-full px-1 md:px-2 pb-4 mt-[72px]">
-			{Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
-            <>
-                <Toast />
-                <VideoLoader loading={loading} fullScreen={true} />
-                <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-lg w-full bg-white">
-                    <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-                        <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-                            {getTtl('Cashflow', ln)}
-                        </h1>
-                        <div className="flex items-center gap-2 group">
-                            <YearSelect yr={yr} setYr={setYr} />
+    return (
+        <div className="w-full" style={{ background: "#f8fbff" }}>
+            <div className="mx-auto max-w-full px-1 md:px-2 pb-4 mt-[72px]">
+                {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
+                    <>
+                        <Toast />
+                        <VideoLoader loading={loading} fullScreen={true} />
+                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-lg w-full bg-white">
+                            <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+                                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
+                                    {getTtl('Cashflow', ln)}
+                                </h1>
+                                <div className="flex items-center gap-2 group">
+                                    <YearSelect yr={yr} setYr={setYr} />
+                                </div>
+                            </div>
+
+                            {/* Tabs */}
+                            <div className="inline-flex gap-1 mb-2 bg-[#e3f3ff] border border-[#b8ddf8] rounded-full p-0">
+                                <button
+                                    onClick={() => setActiveTab('general')}
+                                    className={`px-4 py-1 text-[0.72rem] xl:text-[0.75rem] rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
+                                >
+                                    General Cashflow
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('unsold')}
+                                    className={`px-4 py-1 text-[0.72rem] xl:text-[0.75rem] rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
+                                >
+                                    Unsold Stocks
+                                </button>
+                            </div>
+
+
+                            {activeTab === 'unsold' ? (
+                                <div className="w-full max-w-2xl border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Unsold Stocks</div>
+                                        <div className="flex items-center gap-2">
+                                            {stocksSortName2 ?
+                                                <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName2()} />
+                                                :
+                                                <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName2()} />}
+                                            {stocksSort2 ?
+                                                <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks2()} />
+                                                :
+                                                <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks2()} />}
+                                        </div>
+                                    </div>
+                                    {stockDataNoSold.length === 0 ? (
+                                        <div className="text-[var(--regent-gray)] responsiveText py-4 text-center">No unsold stocks</div>
+                                    ) : (
+                                        <>
+                                            {stockDataNoSold.map((x, i) => (
+                                                <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                    <MyAccordion title={
+                                                        <div className="flex w-full justify-between">
+                                                            <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
+                                                                {x.supplierName}
+                                                            </div>
+                                                            <div className="leading-4 2xl:leading-6">
+                                                                <NumericFormat
+                                                                    value={x.total || 0}
+                                                                    displayType="text"
+                                                                    thousandSeparator
+                                                                    allowNegative={true}
+                                                                    prefix={x.cur === 'us' ? '$' : '€'}
+                                                                    decimalScale='2'
+                                                                    fixedDecimalScale
+                                                                    className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    }>
+                                                        {stocksUnSold(x.supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
+                                                            setValueCon, setIsOpenCon, blankInvoice, router)}
+                                                    </MyAccordion>
+                                                </div>
+                                            ))}
+
+                                            <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">Total</div>
+                                                <NumericFormat
+                                                    value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
+                                                    displayType="text"
+                                                    thousandSeparator
+                                                    allowNegative={true}
+                                                    prefix={'$'}
+                                                    decimalScale='2'
+                                                    fixedDecimalScale
+                                                    className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            ) : (
+                                <>
+                                    {userTitle === 'Admin' &&
+                                        <div className="w-full p-2 mb-2">
+                                            <div className="flex gap-2">
+                                                <span className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold items-center flex w-44 text-[var(--endeavour)]">Future</span>
+                                                <label className="pl-1">{
+                                                    <NumericFormat
+                                                        value={incoming}
+                                                        displayType="text"
+                                                        thousandSeparator
+                                                        allowNegative={true}
+                                                        prefix={'$'}
+                                                        decimalScale='2'
+                                                        fixedDecimalScale
+                                                        className='responsiveTextTotal font-normal'
+                                                    />
+                                                }</label>
+                                            </div>
+                                            {
+                                                initialData?.map((z, i) => {
+                                                    return (
+                                                        <div className="flex gap-2 my-1 items-center" key={i}>
+                                                            <input className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold items-center flex outline-none w-44 truncate text-[var(--endeavour)]" value={z.title}
+                                                                onChange={e => handleChangeInitial(e, i, 'title')} />
+                                                            <input className='input w-44 h-6 responsiveTextTotal rounded-full'
+                                                                value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
+                                                            <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-md hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
+                                                            {i === initialData.length - 1 && <>
+                                                                <Tltip direction='bottom' tltpText='Save added data'>
+                                                                    <button type="button" className="bg-[var(--endeavour)] border border-[#d8e8f5] text-white px-5 h-7 text-[0.72rem] font-medium rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
+                                                                </Tltip>
+                                                                <Tltip direction='bottom' tltpText='Add new item above'>
+                                                                    <button type="button" className="border border-[#d8e8f5] text-[var(--endeavour)] px-5 h-7 text-[0.72rem] font-medium rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all" onClick={addItem}>Add</button>
+                                                                </Tltip>
+                                                            </>}
+                                                        </div>
+                                                    )
+                                                })}
+                                        </div>
+
+                                    }
+                                    <div className="w-full border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white">
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
+                                            <div className="w-full">
+                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Stocks - Paid</span>
+                                                        <div className="flex items-center gap-2">
+                                                            {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} />}
+                                                            {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} />}
+                                                        </div>
+                                                    </div>
+                                                    {stockData1.map((x, i) => {
+                                                        return (
+                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                <MyAccordion title={
+                                                                    <div className="flex w-full justify-between">
+                                                                        <div className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0"
+                                                                        >
+                                                                            {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
+                                                                        </div>
+
+                                                                        <div className="leading-4 2xl:leading-6">
+                                                                            <NumericFormat
+                                                                                value={x.total}
+                                                                                displayType="text"
+                                                                                thousandSeparator
+                                                                                allowNegative={true}
+                                                                                prefix={x.cur === 'us' ? '$' : '€'}
+                                                                                decimalScale='2'
+                                                                                fixedDecimalScale
+                                                                                className='responsiveText font-medium text-[var(--port-gore)] '
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                }>
+
+                                                                    {stoclToolTip(x.stock, stockDataAll, settings, uidCollection,
+                                                                        setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router,)}
+                                                                </MyAccordion>
+
+
+                                                            </div>
+
+                                                        )
+                                                    })}
+                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                            Total
+                                                        </div>
+                                                        <NumericFormat
+                                                            value={stockData1.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.total) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                        />
+                                                    </div>
+
+                                                </div>
+
+
+
+                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Stocks - UnPaid</span>
+                                                        <div className="flex items-center gap-2">
+                                                            {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} />}
+                                                            {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} />}
+                                                        </div>
+                                                    </div>
+
+                                                    {stockData2.map((x, i) => {
+                                                        return (
+                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                <MyAccordion title={
+                                                                    <div className="flex w-full justify-between">
+                                                                        <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                                        >
+                                                                            {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
+                                                                        </div>
+
+                                                                        <div className="leading-4 2xl:leading-6">
+                                                                            <NumericFormat
+                                                                                value={x.total}
+                                                                                displayType="text"
+                                                                                thousandSeparator
+                                                                                allowNegative={true}
+                                                                                prefix={x.cur === 'us' ? '$' : '€'}
+                                                                                decimalScale='2'
+                                                                                fixedDecimalScale
+                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                }>
+
+                                                                    {stoclToolTip(x.stock, stockDataNoPayment, settings, uidCollection,
+                                                                        setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router,)}
+                                                                </MyAccordion>
+                                                            </div>
+
+                                                        )
+                                                    })}
+                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                            Total
+                                                        </div>
+                                                        <NumericFormat
+                                                            value={stockData2.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.total) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                        />
+                                                    </div>
+                                                </div>
+
+
+                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Clients - Payment</span>
+                                                        <div className="flex items-center gap-2">
+                                                            {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} />}
+                                                            {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} />}
+                                                        </div>
+                                                    </div>
+
+                                                    {clientInvoices2.map((x, i) => {
+                                                        return (
+                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                <MyAccordion title={
+                                                                    <div className="flex w-full justify-between">
+                                                                        <div className="responsiveText text-[var(--port-gore)] font-normal items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                                        >
+                                                                            {settings.Client.Client.find(z => z.id === x.client)?.nname}
+                                                                        </div>
+                                                                        <div className='leading-4 2xl:leading-6 '>
+                                                                            <NumericFormat
+                                                                                value={x.debtBlnc}
+                                                                                displayType="text"
+                                                                                thousandSeparator
+                                                                                allowNegative={true}
+                                                                                prefix={x.cur === 'us' ? '$' : '€'}
+                                                                                decimalScale='2'
+                                                                                fixedDecimalScale
+                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                            />
+
+                                                                        </div>
+                                                                    </div>}>
+                                                                    {clientDetails(x.client, clientsData, 'InDebt', uidCollection, setDateSelect,
+                                                                        setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient, toggleCheckClientAll,
+                                                                        toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal)}
+                                                                </MyAccordion>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                            Total
+                                                        </div>
+                                                        <NumericFormat
+                                                            value={clientInvoices2.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.debtBlnc) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                        />
+                                                    </div>
+                                                </div>
+
+
+                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Clients - Balances</span>
+                                                        <div className="flex items-center gap-2">
+                                                            {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} />}
+                                                            {clientSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} />}
+                                                        </div>
+                                                    </div>
+
+                                                    {clientInvoices1.map((x, i) => {
+                                                        return (
+                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                <MyAccordion title={
+                                                                    <div className="flex w-full justify-between">
+                                                                        <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                                        >
+                                                                            {settings.Client.Client.find(z => z.id === x.client)?.nname}
+                                                                        </div>
+                                                                        <div className='leading-4 2xl:leading-6'>
+                                                                            <NumericFormat
+                                                                                value={x.debtBlnc}
+                                                                                displayType="text"
+                                                                                thousandSeparator
+                                                                                allowNegative={true}
+                                                                                prefix={x.cur === 'us' ? '$' : '€'}
+                                                                                decimalScale='2'
+                                                                                fixedDecimalScale
+                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                            />
+
+                                                                        </div>
+                                                                    </div>}>
+                                                                    {clientDetails(x.client, clientsData, 'PartPaid', uidCollection, setDateSelect,
+                                                                        setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient,
+                                                                        toggleCheckClientAll, toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal)}
+                                                                </MyAccordion>
+                                                            </div>
+                                                        )
+                                                    })}
+
+                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                            Total
+                                                        </div>
+                                                        <NumericFormat
+                                                            value={clientInvoices1.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.debtBlnc) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                        />
+                                                    </div>
+                                                </div>
+
+
+                                                <div>
+                                                    {
+                                                        userTitle === 'Admin' &&
+                                                        <div className='mt-1 p-1'>
+                                                            <div className='flex justify-between p-2'>
+                                                                <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Financing</span>
+                                                                <button
+                                                                    type="button"
+                                                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
+                                                                    onClick={() => setFinancedLeft([...financedLeft, { title: '', num: '' }])}
+                                                                >
+                                                                    Add
+                                                                </button>
+                                                            </div>
+                                                            <div className="py-0 px-3 mb-1 ">
+                                                                {
+                                                                    financedLeft?.map((z, i) => {
+                                                                        return (
+                                                                            <div className="flex gap-2 rounded-xl px-1 responsiveTextInput hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                                <button onClick={() => setFinancedLeft(financedLeft.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
+                                                                                <input className={cn('items-center flex-1 min-w-0 outline-none h-6 bg-transparent text-[var(--chathams-blue)]',
+                                                                                    z.title === '' ? 'input' : '')} value={z.title}
+                                                                                    onChange={e => handleChangeFinance(e, i, 'left', 'title')} />
+                                                                                <input className={cn('h-6 bg-transparent w-24 flex-shrink-0 text-[var(--chathams-blue)]',
+                                                                                    z.num === '' ? 'input text-left' : 'text-right outline-none')}
+                                                                                    value={addComma(z.num)} onChange={e => handleChangeFinance(e, i, 'left', 'num')}
+                                                                                />
+
+                                                                            </div>
+                                                                        )
+                                                                    })}
+                                                            </div>
+
+                                                            <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                                <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                                    Total
+                                                                </div>
+                                                                <NumericFormat
+                                                                    value={Array.isArray(financedLeft) ? financedLeft.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
+                                                                    displayType="text"
+                                                                    thousandSeparator
+                                                                    allowNegative={true}
+                                                                    prefix='$'
+                                                                    decimalScale='2'
+                                                                    fixedDecimalScale
+                                                                    className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    }
+
+                                                </div>
+                                            </div>
+
+
+                                            <div className="w-full border-l border-[#b8ddf8] pt-0">
+
+                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Supplier - Payment</span>
+                                                        <div className="flex items-center gap-2">
+                                                            {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
+                                                            {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} />}
+                                                        </div>
+                                                    </div>
+
+
+
+                                                    {supPayments2.map((x, i) => {
+                                                        return (
+                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                <MyAccordion title={
+                                                                    <div className="flex w-full justify-between leading-4 2xl:leading-6">
+                                                                        <span className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words w-full min-w-0"
+                                                                        >
+                                                                            {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
+                                                                        </span>
+                                                                        <div className="w-full text-right">
+                                                                            <NumericFormat
+                                                                                value={x.blnc}
+                                                                                displayType="text"
+                                                                                thousandSeparator
+                                                                                allowNegative={true}
+                                                                                prefix={'$'}
+                                                                                decimalScale='2'
+                                                                                fixedDecimalScale
+                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                }>
+                                                                    {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 === 0),
+                                                                        uidCollection, setDateSelect,
+                                                                        setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
+                                                                        toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal)}
+                                                                </MyAccordion>
+                                                            </div>
+
+                                                        )
+                                                    })}
+                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                            Total
+                                                        </div>
+                                                        <NumericFormat
+                                                            value={supPayments2?.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.blnc) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                        />
+                                                    </div>
+                                                </div>
+
+
+                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Supplier - Balances</span>
+                                                        <div className="flex items-center gap-2">
+                                                            {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
+                                                            {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} />}
+                                                        </div>
+                                                    </div>
+
+
+
+                                                    {supPayments1.map((x, i) => {
+                                                        return (
+                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                <MyAccordion title={
+                                                                    <div className="flex w-full justify-between leading-4 2xl:leading-6">
+                                                                        <span className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words w-full min-w-0"
+                                                                        >
+                                                                            {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
+                                                                        </span>
+                                                                        <div className="w-full text-right">
+                                                                            <NumericFormat
+                                                                                value={x.blnc}
+                                                                                displayType="text"
+                                                                                thousandSeparator
+                                                                                allowNegative={true}
+                                                                                prefix={'$'}
+                                                                                decimalScale='2'
+                                                                                fixedDecimalScale
+                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                }>
+                                                                    {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 > 0),
+                                                                        uidCollection, setDateSelect,
+                                                                        setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
+                                                                        toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal)}
+                                                                </MyAccordion>
+                                                            </div>
+                                                        )
+                                                    })}
+
+                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                            Total
+                                                        </div>
+                                                        <NumericFormat
+                                                            value={supPayments1?.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.blnc) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Expenses</span>
+                                                        <div className="flex items-center gap-2">
+                                                            {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} />}
+                                                            {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} />}
+                                                        </div>
+                                                    </div>
+
+                                                    {expenses.map((x, i) => {
+                                                        return (
+                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                <MyAccordion title={
+                                                                    <div className="flex justify-between leading-4 2xl:leading-6 w-full">
+                                                                        <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"              >
+                                                                            {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
+                                                                        </div>
+
+                                                                        <div className="items-center flex">
+                                                                            <NumericFormat
+                                                                                value={x.amount}
+                                                                                displayType="text"
+                                                                                thousandSeparator
+                                                                                allowNegative={true}
+                                                                                prefix={'$'}
+                                                                                decimalScale='2'
+                                                                                fixedDecimalScale
+                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                }>
+                                                                    {expensesToolTip(x.supplier, expensesAll, settings, uidCollection, setDateSelect,
+                                                                        setValueExp, setIsOpen, blankInvoice, router, toggleCheckExp, toggleCheckExpAll,
+                                                                        toggleExp, savePmntExp)}
+                                                                </MyAccordion>
+                                                            </div>
+
+                                                        )
+                                                    })}
+                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                            Total
+                                                        </div>
+                                                        <NumericFormat
+                                                            value={expenses?.reduce((total, obj) => {
+                                                                return total + (parseFloat(obj.amount) || 0);
+                                                            }, 0)}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative={true}
+                                                            prefix='$'
+                                                            decimalScale='2'
+                                                            fixedDecimalScale
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                    {
+                                                        userTitle === 'Admin' &&
+                                                        <div className='mt-1 p-1'>
+                                                            <div className='flex justify-between'>
+                                                                <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Financing</span>
+                                                                <button
+                                                                    type="button"
+                                                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
+                                                                    onClick={() => setFinancedRight([...financedRight, { title: '', num: '' }])}
+                                                                >
+                                                                    Add
+                                                                </button>
+                                                            </div>
+                                                            <div className="flex gap-1 mt-1 pt-2 flex-col" >
+                                                                {
+                                                                    financedRight?.map((z, i) => {
+                                                                        return (
+                                                                            <div className="flex gap-2 rounded-xl px-0.5 responsiveTextInput hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                                <button onClick={() => setFinancedRight(financedRight.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
+                                                                                <input className={cn('items-center flex-1 min-w-0 outline-none h-6 text-[var(--chathams-blue)] bg-transparent',
+                                                                                    z.title === '' ? 'input' : '')}
+                                                                                    value={z.title} onChange={e => handleChangeFinance(e, i, 'right', 'title')} />
+                                                                                <input className={cn('w-24 flex-shrink-0 h-6 text-[var(--chathams-blue)] outline-none bg-transparent',
+                                                                                    z.num === '' ? 'input text-left' : 'text-right')}
+                                                                                    value={addComma(z.num)} onChange={e => handleChangeFinance(e, i, 'right', 'num')} />
+                                                                            </div>
+                                                                        )
+                                                                    })}
+                                                            </div>
+
+                                                            <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                                <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                                    Total
+                                                                </div>
+                                                                <NumericFormat
+                                                                    value={Array.isArray(financedRight) ? financedRight.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
+                                                                    displayType="text"
+                                                                    thousandSeparator
+                                                                    allowNegative={true}
+                                                                    prefix='$'
+                                                                    decimalScale='2'
+                                                                    fixedDecimalScale
+                                                                    className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                                />
+                                                            </div>
+
+                                                        </div>
+                                                    }
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        {userTitle === 'Admin' && (
+                                            <div className="mt-1 w-full border border-[#b8ddf8] rounded-xl p-2">
+
+                                                {/* TOTALS AND BALANCE IN ONE ROW */}
+                                                <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
+
+                                                    <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
+                                                        <span className="font-semibold text-[var(--endeavour)] responsiveText whitespace-nowrap">
+                                                            Total (Left)
+                                                        </span>
+                                                        <NumericFormat
+                                                            value={totalLeft}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative
+                                                            prefix="$"
+                                                            decimalScale={2}
+                                                            fixedDecimalScale
+                                                            className="font-bold text-[var(--endeavour)] responsiveText whitespace-nowrap"
+                                                        />
+                                                    </div>
+
+                                                    <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-full px-3 py-0.5">
+                                                        <span className="font-semibold responsiveText whitespace-nowrap">
+                                                            Balance
+                                                        </span>
+                                                        <NumericFormat
+                                                            value={totalLeft - totalRight}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative
+                                                            prefix="$"
+                                                            decimalScale={2}
+                                                            fixedDecimalScale
+                                                            className="font-bold responsiveText whitespace-nowrap"
+                                                        />
+                                                    </div>
+
+                                                    <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
+                                                        <span className="font-semibold text-[var(--endeavour)] responsiveText whitespace-nowrap">
+                                                            Total (Right)
+                                                        </span>
+                                                        <NumericFormat
+                                                            value={totalRight}
+                                                            displayType="text"
+                                                            thousandSeparator
+                                                            allowNegative
+                                                            prefix="$"
+                                                            decimalScale={2}
+                                                            fixedDecimalScale
+                                                            className="font-bold text-[var(--endeavour)] responsiveText whitespace-nowrap"
+                                                        />
+                                                    </div>
+
+                                                </div>
+
+                                                {/* YEAR TOTAL INPUTS */}
+                                                <div className="pt-1 pl-2">
+                                                    {yr.map(z => {
+                                                        const key = `total${z}`;
+                                                        return (
+                                                            <div className="flex gap-2 my-1" key={z}>
+                                                                <span className="responsiveText items-center flex w-28 text-[var(--endeavour)] whitespace-nowrap font-medium">Total for {z}</span>
+                                                                <input
+                                                                    className='input w-44 h-6 responsiveText font-medium text-[var(--endeavour)] text-right px-3 bg-[#f8fbff] border-[#d8e8f5] rounded-full'
+                                                                    value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
+                                                                    onChange={e => handleChange(e, z)}
+                                                                />
+                                                            </div>
+                                                        )
+                                                    })}
+                                                </div>
+
+                                            </div>
+                                        )}
+
+                                    </div>
+                                </>
+                            )}
+
                         </div>
-                    </div>
 
-                    {/* Tabs */}
-                    <div className="inline-flex gap-1 mb-2 bg-[#e3f3ff] border border-[#b8ddf8] rounded-full p-0">
-                        <button
-                            onClick={() => setActiveTab('general')}
-                            className={`px-4 py-1 text-[0.72rem] xl:text-[0.75rem] rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
-                        >
-                            General Cashflow
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('unsold')}
-                            className={`px-4 py-1 text-[0.72rem] xl:text-[0.75rem] rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
-                        >
-                            Unsold Stocks
-                        </button>
-                    </div>
+                        {/* Contract modal overlay */}
+                        {valueCon && (
+                            <ContractModal
+                                isOpen={isOpenCon}
+                                setIsOpen={setIsOpenCon}
+                                title={!valueCon.id ? getTtl('New Contract', ln) : `${getTtl('Contract No', ln)}: ${valueCon.order}`}
+                            />
+                        )}
 
+                        {/* Expense modal overlay */}
+                        {valueExp && (
+                            <ExpenseModal
+                                isOpen={isOpen}
+                                setIsOpen={setIsOpen}
+                                title={getTtl('Existing Expense', ln)}
+                            />
+                        )}
 
-{activeTab === 'unsold' ? (
-    <div className="w-full max-w-2xl border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
-        <div className="flex items-center justify-between mb-2">
-            <div className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Unsold Stocks</div>
-            <div className="flex items-center gap-2">
-            {stocksSortName2 ?
-                <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName2()} />
-                :
-                <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName2()} />}
-            {stocksSort2 ?
-                <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks2()} />
-                :
-                <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks2()} />}
+                        {/* Invoice preview popup */}
+                        <InvPopup inv={invPreview} onClose={() => setInvPreview(null)} />
+
+                    </>
+                }
             </div>
         </div>
-        {stockDataNoSold.length === 0 ? (
-            <div className="text-[var(--regent-gray)] responsiveText py-4 text-center">No unsold stocks</div>
-        ) : (
-            <>
-                {stockDataNoSold.map((x, i) => (
-                    <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
-                        <MyAccordion title={
-                            <div className="flex w-full justify-between">
-                                <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
-                                    {x.supplierName}
-                                </div>
-                                <div className="leading-4 2xl:leading-6">
-                                    <NumericFormat
-                                        value={x.total || 0}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        prefix={x.cur === 'us' ? '$' : '€'}
-                                        decimalScale='2'
-                                        fixedDecimalScale
-                                        className='responsiveText font-medium text-[var(--port-gore)]'
-                                    />
-                                </div>
-                            </div>
-                        }>
-                            {stocksUnSold(x.supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
-                                setValueCon, setIsOpenCon, blankInvoice, router)}
-                        </MyAccordion>
-                    </div>
-                ))}
-
-                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">Total</div>
-                    <NumericFormat
-                        value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
-                        displayType="text"
-                        thousandSeparator
-                        allowNegative={true}
-                        prefix={'$'}
-                        decimalScale='2'
-                        fixedDecimalScale
-                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
-                    />
-                </div>
-            </>
-        )}
-    </div>
-) : (
-<>
-  {userTitle === 'Admin' &&
-                        <div className="w-full p-2 mb-2">
-                            <div className="flex gap-2">
-                                <span className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold items-center flex w-44 text-[var(--endeavour)]">Future</span>
-                                <label className="pl-1">{
-                                    <NumericFormat
-                                        value={incoming}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        prefix={'$'}
-                                        decimalScale='2'
-                                        fixedDecimalScale
-                                        className='responsiveTextTotal font-normal'
-                                    />
-                                }</label>
-                            </div>
-                            {
-                                initialData?.map((z, i) => {
-                                    return (
-                                        <div className="flex gap-2 my-1 items-center" key={i}>
-                                            <input className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold items-center flex outline-none w-44 truncate text-[var(--endeavour)]" value={z.title}
-                                                onChange={e => handleChangeInitial(e, i, 'title')} />
-                                            <input className='input w-44 h-6 responsiveTextTotal rounded-full'
-                                                value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
-                                            <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-md hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
-                                            {i === initialData.length - 1 && <>
-                                                <Tltip direction='bottom' tltpText='Save added data'>
-                                                    <button type="button" className="bg-[var(--endeavour)] border border-[#d8e8f5] text-white px-5 h-7 text-[0.72rem] font-medium rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
-                                                </Tltip>
-                                                <Tltip direction='bottom' tltpText='Add new item above'>
-                                                    <button type="button" className="border border-[#d8e8f5] text-[var(--endeavour)] px-5 h-7 text-[0.72rem] font-medium rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all" onClick={addItem}>Add</button>
-                                                </Tltip>
-                                            </>}
-                                        </div>
-                                    )
-                                })}
-                        </div>
-
-                    }
-<div className="w-full border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white">
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
-                            <div className="w-full">
-                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Stocks - Paid</span>
-                                    <div className="flex items-center gap-2">
-                                        {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} />}
-                                        {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} />}
-                                    </div>
-                                </div>
-                                {stockData1.map((x, i) => {
-                                    return (
-                                        <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
-                                            <MyAccordion title={
-                                                <div className="flex w-full justify-between">
-                                                        <div className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0"
-                                                    >
-                                                        {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
-                                                    </div>
-
-                                                    <div className="leading-4 2xl:leading-6">
-                                                        <NumericFormat
-                                                            value={x.total}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix={x.cur === 'us' ? '$' : '€'}
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='responsiveText font-medium text-[var(--port-gore)] '
-                                                        />
-                                                    </div>
-                                                </div>
-                                            }>
-
-                                                {stoclToolTip(x.stock, stockDataAll, settings, uidCollection,
-                                                    setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router,)}
-                                            </MyAccordion>
-
-
-                                        </div>
-
-                                    )
-                                })}  
-                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
-                                        Total
-                                    </div>
-                                    <NumericFormat
-                                        value={stockData1.reduce((total, obj) => {
-                                            return total + (parseFloat(obj.total) || 0);
-                                        }, 0)}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        prefix='$'
-                                        decimalScale='2'
-                                        fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
-                                    />
-                                </div>
-
-                            </div>
-
-
-
-                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Stocks - UnPaid</span>
-                                    <div className="flex items-center gap-2">
-                                        {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} />}
-                                        {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} />}
-                                    </div>
-                                </div>
-
-                                {stockData2.map((x, i) => {
-                                    return (
-                                        <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
-                                            <MyAccordion title={
-                                                <div className="flex w-full justify-between">
-                                                    <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
-                                                    >
-                                                        {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
-                                                    </div>
-
-                                                    <div className="leading-4 2xl:leading-6">
-                                                        <NumericFormat
-                                                            value={x.total}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix={x.cur === 'us' ? '$' : '€'}
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='responsiveText font-medium text-[var(--port-gore)]'
-                                                        />
-                                                    </div>
-                                                </div>
-                                            }>
-
-                                                {stoclToolTip(x.stock, stockDataNoPayment, settings, uidCollection,
-                                                    setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router,)}
-                                            </MyAccordion>
-                                        </div>
-
-                                    )
-                                })}
-                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
-                                        Total
-                                    </div>
-                                    <NumericFormat
-                                        value={stockData2.reduce((total, obj) => {
-                                            return total + (parseFloat(obj.total) || 0);
-                                        }, 0)}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        prefix='$'
-                                        decimalScale='2'
-                                        fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
-                                    />
-                                </div>
-                            </div>
-
-
-                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Clients - Payment</span>
-                                    <div className="flex items-center gap-2">
-                                        {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} />}
-                                        {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} />}
-                                    </div>
-                                </div>
-
-                                {clientInvoices2.map((x, i) => {
-                                    return (
-                                        <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
-                                            <MyAccordion title={
-                                                <div className="flex w-full justify-between">
-                                                    <div className="responsiveText text-[var(--port-gore)] font-normal items-center flex outline-none whitespace-normal break-words min-w-0"
-                                                    >
-                                                        {settings.Client.Client.find(z => z.id === x.client)?.nname}
-                                                    </div>
-                                                    <div className='leading-4 2xl:leading-6 '>
-                                                        <NumericFormat
-                                                            value={x.debtBlnc}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix={x.cur === 'us' ? '$' : '€'}
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='responsiveText font-medium text-[var(--port-gore)]'
-                                                        />
-
-                                                    </div>
-                                                </div>}>
-                                                {clientDetails(x.client, clientsData, 'InDebt', uidCollection, setDateSelect,
-                                                    setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient, toggleCheckClientAll,
-                                                    toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal)}
-                                            </MyAccordion>
-                                        </div>
-                                    )
-                                })}
-                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
-                                        Total
-                                    </div>
-                                    <NumericFormat
-                                        value={clientInvoices2.reduce((total, obj) => {
-                                            return total + (parseFloat(obj.debtBlnc) || 0);
-                                        }, 0)}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        prefix='$'
-                                        decimalScale='2'
-                                        fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
-                                    />
-                                </div>
-                            </div>
-
-
-                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Clients - Balances</span>
-                                    <div className="flex items-center gap-2">
-                                        {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} />}
-                                        {clientSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} />}
-                                    </div>
-                                </div>
-
-                                {clientInvoices1.map((x, i) => {
-                                    return (
-                                        <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
-                                            <MyAccordion title={
-                                                <div className="flex w-full justify-between">
-                                                    <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
-                                                    >
-                                                        {settings.Client.Client.find(z => z.id === x.client)?.nname}
-                                                    </div>
-                                                    <div className='leading-4 2xl:leading-6'>
-                                                        <NumericFormat
-                                                            value={x.debtBlnc}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix={x.cur === 'us' ? '$' : '€'}
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='responsiveText font-medium text-[var(--port-gore)]'
-                                                        />
-
-                                                    </div>
-                                                </div>}>
-                                                {clientDetails(x.client, clientsData, 'PartPaid', uidCollection, setDateSelect,
-                                                    setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient,
-                                                    toggleCheckClientAll, toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal)}
-                                            </MyAccordion>
-                                            </div>
-                                        )
-                                    })}
-
-                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
-                                        Total
-                                    </div>
-                                    <NumericFormat
-                                        value={clientInvoices1.reduce((total, obj) => {
-                                            return total + (parseFloat(obj.debtBlnc) || 0);
-                                        }, 0)}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        prefix='$'
-                                        decimalScale='2'
-                                        fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
-                                    />
-                                </div>
-                            </div>
-
-
-                            <div>
-                                {
-                                    userTitle === 'Admin' &&
-                                    <div className='mt-1 p-1'>
-                                        <div className='flex justify-between p-2'>
-                                            <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Financing</span>
-                                            <button
-                                                type="button"
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
-                                                onClick={() => setFinancedLeft([...financedLeft, { title: '', num: '' }])}
-                                            >
-                                                Add
-                                            </button>
-                                        </div>
-                                        <div className="py-0 px-3 mb-1 ">
-                                            {
-                                                financedLeft?.map((z, i) => {
-                                                    return (
-                                                        <div className="flex gap-2 rounded-xl px-1 responsiveTextInput hover:bg-[#dbeeff] transition-colors" key={i}>
-                                                            <button onClick={() => setFinancedLeft(financedLeft.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
-                                                            <input className={cn('items-center flex-1 min-w-0 outline-none h-6 bg-transparent text-[var(--chathams-blue)]',
-                                                                z.title === '' ? 'input' : '')} value={z.title}
-                                                                onChange={e => handleChangeFinance(e, i, 'left', 'title')} />
-                                                            <input className={cn('h-6 bg-transparent w-24 flex-shrink-0 text-[var(--chathams-blue)]',
-                                                                z.num === '' ? 'input text-left' : 'text-right outline-none')}
-                                                                value={addComma(z.num)} onChange={e => handleChangeFinance(e, i, 'left', 'num')}
-                                                            />
-
-                                                        </div>
-                                                    )
-                                                })}
-                                        </div>
-
-                                        <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                            <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
-                                                Total
-                                            </div>
-                                            <NumericFormat
-                                                value={Array.isArray(financedLeft) ? financedLeft.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative={true}
-                                                prefix='$'
-                                                decimalScale='2'
-                                                fixedDecimalScale
-                                                className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
-                                            />
-                                        </div>
-                                    </div>
-                                }
-
-                            </div>
-                        </div>
-
-
-<div className="w-full border-l border-[#b8ddf8] pt-0">
-
-                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Supplier - Payment</span>
-                                    <div className="flex items-center gap-2">
-                                        {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
-                                        {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} />}
-                                    </div>
-                                </div>
-
-
-
-                                {supPayments2.map((x, i) => {
-                                    return (
-                                        <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
-                                            <MyAccordion title={
-                                                <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                    <span className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words w-full min-w-0"
-                                                    >
-                                                        {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
-                                                    </span>
-                                                    <div className="w-full text-right">
-                                                        <NumericFormat
-                                                            value={x.blnc}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix={'$'}
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='responsiveText font-medium text-[var(--port-gore)]'
-                                                        />
-                                                    </div>
-                                                </div>
-                                            }>
-                                                {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 === 0),
-                                                    uidCollection, setDateSelect,
-                                                    setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-                                                    toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal)}
-                                            </MyAccordion>
-                                        </div>
-
-                                    )
-                                })}
-                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
-                                        Total
-                                    </div>
-                                    <NumericFormat
-                                        value={supPayments2?.reduce((total, obj) => {
-                                            return total + (parseFloat(obj.blnc) || 0);
-                                        }, 0)}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        prefix='$'
-                                        decimalScale='2'
-                                        fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
-                                    />
-                                </div>
-                            </div>
-
-
-                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Supplier - Balances</span>
-                                    <div className="flex items-center gap-2">
-                                        {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
-                                        {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} />}
-                                    </div>
-                                </div>
-
-
-
-                                {supPayments1.map((x, i) => {
-                                    return (
-                                        <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
-                                            <MyAccordion title={
-                                                <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                    <span className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words w-full min-w-0"
-                                                    >
-                                                        {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
-                                                    </span>
-                                                    <div className="w-full text-right">
-                                                        <NumericFormat
-                                                            value={x.blnc}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix={'$'}
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='responsiveText font-medium text-[var(--port-gore)]'
-                                                        />
-                                                    </div>
-                                                </div>
-                                            }>
-                                                {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 > 0),
-                                                    uidCollection, setDateSelect,
-                                                    setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-                                                    toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal)}
-                                            </MyAccordion>
-                                        </div>
-                                    )
-                                })}
-
-                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
-                                        Total
-                                    </div>
-                                    <NumericFormat
-                                        value={supPayments1?.reduce((total, obj) => {
-                                            return total + (parseFloat(obj.blnc) || 0);
-                                        }, 0)}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        prefix='$'
-                                        decimalScale='2'
-                                        fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Expenses</span>
-                                    <div className="flex items-center gap-2">
-                                        {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} />}
-                                        {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} />}
-                                    </div>
-                                </div>
-
-                                {expenses.map((x, i) => {
-                                    return (
-                                        <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
-                                            <MyAccordion title={
-                                                <div className="flex justify-between leading-4 2xl:leading-6 w-full">
-                                                    <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"              >
-                                                        {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
-                                                    </div>
-
-                                                    <div className="items-center flex">
-                                                        <NumericFormat
-                                                            value={x.amount}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix={'$'}
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='responsiveText font-medium text-[var(--port-gore)]'
-                                                        />
-                                                    </div>
-                                                </div>
-                                            }>
-                                                {expensesToolTip(x.supplier, expensesAll, settings, uidCollection, setDateSelect,
-                                                    setValueExp, setIsOpen, blankInvoice, router, toggleCheckExp, toggleCheckExpAll,
-                                                    toggleExp, savePmntExp)}
-                                            </MyAccordion>
-                                        </div>
-
-                                    )
-                                })}
-                                <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                    <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
-                                        Total
-                                    </div>
-                                    <NumericFormat
-                                        value={expenses?.reduce((total, obj) => {
-                                            return total + (parseFloat(obj.amount) || 0);
-                                        }, 0)}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        prefix='$'
-                                        decimalScale='2'
-                                        fixedDecimalScale
-                                        className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="p-2 bg-white mb-3 flex flex-col cf-card">
-                                {
-                                    userTitle === 'Admin' &&
-                                    <div className='mt-1 p-1'>
-                                        <div className='flex justify-between'>
-                                            <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Financing</span>
-                                            <button
-                                                type="button"
-                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
-                                                onClick={() => setFinancedRight([...financedRight, { title: '', num: '' }])}
-                                            >
-                                                Add
-                                            </button>
-                                        </div>
-                                        <div className="flex gap-1 mt-1 pt-2 flex-col" >
-                                            {
-                                                financedRight?.map((z, i) => {
-                                                    return (
-                                                        <div className="flex gap-2 rounded-xl px-0.5 responsiveTextInput hover:bg-[#dbeeff] transition-colors" key={i}>
-                                                            <button onClick={() => setFinancedRight(financedRight.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
-                                                            <input className={cn('items-center flex-1 min-w-0 outline-none h-6 text-[var(--chathams-blue)] bg-transparent',
-                                                                z.title === '' ? 'input' : '')}
-                                                                value={z.title} onChange={e => handleChangeFinance(e, i, 'right', 'title')} />
-                                                            <input className={cn('w-24 flex-shrink-0 h-6 text-[var(--chathams-blue)] outline-none bg-transparent',
-                                                                z.num === '' ? 'input text-left' : 'text-right')}
-                                                                value={addComma(z.num)} onChange={e => handleChangeFinance(e, i, 'right', 'num')} />
-                                                        </div>
-                                                    )
-                                                })}
-                                        </div>
-
-                                        <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
-                                            <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
-                                                Total
-                                            </div>
-                                            <NumericFormat
-                                                value={Array.isArray(financedRight) ? financedRight.reduce((total, obj) => total + (parseFloat(obj.num) || 0), 0) : 0}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative={true}
-                                                prefix='$'
-                                                decimalScale='2'
-                                                fixedDecimalScale
-                                                className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
-                                            />
-                                        </div>
-
-                                    </div>
-                                }
-
-                            </div>
-
-                        </div>
-                    </div>
-
-                    {userTitle === 'Admin' && (
-                <div className="mt-1 w-full border border-[#b8ddf8] rounded-xl p-2">
-
-                    {/* TOTALS AND BALANCE IN ONE ROW */}
-                    <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
-                        
-                        <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
-                            <span className="font-semibold text-[var(--endeavour)] responsiveText whitespace-nowrap">
-                                Total (Left)
-                            </span>
-                            <NumericFormat
-                                value={totalLeft}
-                                displayType="text"
-                                thousandSeparator
-                                allowNegative
-                                prefix="$"
-                                decimalScale={2}
-                                fixedDecimalScale
-                                className="font-bold text-[var(--endeavour)] responsiveText whitespace-nowrap"
-                            />
-                        </div>
-
-                        <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-full px-3 py-0.5">
-                            <span className="font-semibold responsiveText whitespace-nowrap">
-                                Balance
-                            </span>
-                            <NumericFormat
-                                value={totalLeft - totalRight}
-                                displayType="text"
-                                thousandSeparator
-                                allowNegative
-                                prefix="$"
-                                decimalScale={2}
-                                fixedDecimalScale
-                                className="font-bold responsiveText whitespace-nowrap"
-                            />
-                        </div>
-
-                        <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
-                            <span className="font-semibold text-[var(--endeavour)] responsiveText whitespace-nowrap">
-                                Total (Right)
-                            </span>
-                            <NumericFormat
-                                value={totalRight}
-                                displayType="text"
-                                thousandSeparator
-                                allowNegative
-                                prefix="$"
-                                decimalScale={2}
-                                fixedDecimalScale
-                                className="font-bold text-[var(--endeavour)] responsiveText whitespace-nowrap"
-                            />
-                        </div>
-
-                    </div>
-
-                    {/* YEAR TOTAL INPUTS */}
-                    <div className="pt-1 pl-2">
-                        {yr.map(z => {
-                            const key = `total${z}`;
-                            return (
-                                <div className="flex gap-2 my-1" key={z}>
-                                    <span className="responsiveText items-center flex w-28 text-[var(--endeavour)] whitespace-nowrap font-medium">Total for {z}</span>
-                                    <input
-                                        className='input w-44 h-6 responsiveText font-medium text-[var(--endeavour)] text-right px-3 bg-[#f8fbff] border-[#d8e8f5] rounded-full'
-                                        value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
-                                        onChange={e => handleChange(e, z)}
-                                    />
-                                </div>
-                            )
-                        })}
-                    </div>
-
-                </div>
-            )}
-
-        </div>
-</>
-)}
-
-        </div>
-
-        {/* Contract modal overlay */}
-        {valueCon && (
-            <ContractModal
-                isOpen={isOpenCon}
-                setIsOpen={setIsOpenCon}
-                title={!valueCon.id ? getTtl('New Contract', ln) : `${getTtl('Contract No', ln)}: ${valueCon.order}`}
-            />
-        )}
-
-        {/* Expense modal overlay */}
-        {valueExp && (
-            <ExpenseModal
-                isOpen={isOpen}
-                setIsOpen={setIsOpen}
-                title={getTtl('Existing Expense', ln)}
-            />
-        )}
-
-        {/* Invoice preview popup */}
-        <InvPopup inv={invPreview} onClose={() => setInvPreview(null)} />
-
-        </>
-        }
-        </div>
-    </div>
     )
 }
 export default Cashflow;

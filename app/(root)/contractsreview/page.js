@@ -144,10 +144,11 @@ const Shipments = () => {
 
         }
 
+        if (!uidCollection) return;
         Object.keys(settings).length !== 0 && Load();
 
 
-    }, [dateSelect, settings])
+    }, [dateSelect, settings, uidCollection])
 
     useEffect(() => {
 

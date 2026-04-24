@@ -99,8 +99,10 @@ const Users = () => {
       setLoading(false)
     }
 
-    getUsersData()
-  }, [])
+    if (!uidCollection) return;
+    getUsersData();
+
+  }, [uidCollection])
 
   const addNewUser = () => {
     setUser(newUser)

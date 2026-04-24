@@ -116,8 +116,10 @@ const Invoices = () => {
 			setLoading(false)
 		}
 
+		if (!uidCollection) return;
 		Load();
-	}, [dateSelect])
+		
+	}, [dateSelect, uidCollection])
 
 	useEffect(() => {
 		if (!invoicesData || !invoicesData.length || Object.keys(settings).length === 0) {
@@ -209,8 +211,8 @@ const Invoices = () => {
 			size: 100
 		},
 		{
-			accessorKey: 'date', 
-			header: getTtl('Date', ln), 
+			accessorKey: 'date',
+			header: getTtl('Date', ln),
 			cell: (props) => <span className="whitespace-nowrap">{dateFormat(props.row.original.final ? props.getValue() : props.getValue(), 'dd.mm.yy')}</span>,
 			meta: {
 				filterVariant: 'dates',
@@ -219,8 +221,8 @@ const Invoices = () => {
 			size: 120
 		},
 		{
-			accessorKey: 'invoiceStatus', 
-			header: getTtl('Status', ln), 
+			accessorKey: 'invoiceStatus',
+			header: getTtl('Status', ln),
 			cell: (props) => <span
 				className={`${setInvStatus(props) === 'Draft' ? 'text-[var(--endeavour)]' : setInvStatus(props) === 'Final' ? 'text-green-600' : 'text-red-600'} 
 			p-1.5 rounded-xl bg-[var(--selago)] px-3 justify-center flex font-medium whitespace-nowrap`}>{setInvStatus(props)}</span>,
@@ -296,46 +298,46 @@ const Invoices = () => {
 			meta: { options: settings.Packing?.Packing?.map(p => ({ value: p.id, label: p.packing })) ?? [] },
 			size: 120
 		},
-		{ 
-    accessorKey: 'cur', 
-    header: '$/€',
-    cell: (props) => {
-        const val = props.getValue();
-        const isUSD = val === 'USD' || val === '$';
-        const isEUR = val === 'EUR' || val === '€';
-        const symbol = isUSD ? '$' : isEUR ? '€' : val;
-        const bg = isUSD ? '#c2e2bb' : isEUR ? '#d4eafc' : '#e5e7eb';
-        const color = 'var(--chathams-blue)';
-        return (
-            <span
-                style={{
-                    backgroundColor: bg,
-                    color: color,
-                    borderRadius: '999px',
-                    padding: '3px 14px',
-                    fontWeight: 500,
-                    fontSize: '0.8rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minWidth: '36px',
-                    whiteSpace: 'nowrap',
-                }}
-            >
-                {symbol}
-            </span>
-        );
-    },
-    size: 100
-},
-		{ 
-			accessorKey: 'invType', 
+		{
+			accessorKey: 'cur',
+			header: '$/€',
+			cell: (props) => {
+				const val = props.getValue();
+				const isUSD = val === 'USD' || val === '$';
+				const isEUR = val === 'EUR' || val === '€';
+				const symbol = isUSD ? '$' : isEUR ? '€' : val;
+				const bg = isUSD ? '#c2e2bb' : isEUR ? '#d4eafc' : '#e5e7eb';
+				const color = 'var(--chathams-blue)';
+				return (
+					<span
+						style={{
+							backgroundColor: bg,
+							color: color,
+							borderRadius: '999px',
+							padding: '3px 14px',
+							fontWeight: 500,
+							fontSize: '0.8rem',
+							display: 'inline-flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							minWidth: '36px',
+							whiteSpace: 'nowrap',
+						}}
+					>
+						{symbol}
+					</span>
+				);
+			},
+			size: 100
+		},
+		{
+			accessorKey: 'invType',
 			header: getTtl('Invoice Type', ln),
 			size: 130
 		},
 		{
-			accessorKey: 'totalAmount', 
-			header: getTtl('Total Amount', ln), 
+			accessorKey: 'totalAmount',
+			header: getTtl('Total Amount', ln),
 			cell: (props) => <span className="whitespace-nowrap">{showAmount(props)}</span>,
 			meta: {
 				filterVariant: 'range',
@@ -350,8 +352,8 @@ const Invoices = () => {
 			size: 120
 		},
 		{
-			accessorKey: 'totalPrepayment', 
-			header: getTtl('Prepaid Amount', ln), 
+			accessorKey: 'totalPrepayment',
+			header: getTtl('Prepaid Amount', ln),
 			cell: (props) => <span className="whitespace-nowrap">{showAmount(props)}</span>,
 			meta: {
 				filterVariant: 'range',
@@ -359,8 +361,8 @@ const Invoices = () => {
 			size: 140
 		},
 		{
-			accessorKey: 'balanceDue', 
-			header: getTtl('Balance', ln), 
+			accessorKey: 'balanceDue',
+			header: getTtl('Balance', ln),
 			cell: (props) => <span className="whitespace-nowrap">{showAmount(props)}</span>,
 			meta: {
 				filterVariant: 'range',
@@ -389,7 +391,7 @@ const Invoices = () => {
 			size: 110
 		},
 		{
-			accessorKey: 'completed', 
+			accessorKey: 'completed',
 			header: 'Completed',
 			cell: (props) => <span className="flex justify-center">{props.getValue() ? <Image
 				src="/check.png"
@@ -401,7 +403,7 @@ const Invoices = () => {
 				width={18}
 				height={18}
 				alt="False"
-			/>}</span>, 
+			/>}</span>,
 			enableColumnFilter: false,
 			size: 100
 		},
@@ -512,7 +514,7 @@ const Invoices = () => {
 						<Toast />
 						{/* Main Card */}
 						<div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
-							
+
 							{/* Header Section */}
 							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
 								<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
@@ -527,9 +529,9 @@ const Invoices = () => {
 							</div>
 
 							{/* Table Component */}
-							<Customtable 
-								data={sortArr(getFormatted(invoicesData), 'invoice')} 
-								columns={propDefaults} 
+							<Customtable
+								data={sortArr(getFormatted(invoicesData), 'invoice')}
+								columns={propDefaults}
 								SelectRow={SelectRow}
 								invisible={invisible}
 								onCellUpdate={onCellUpdate}
@@ -554,18 +556,18 @@ const Invoices = () => {
 
 						{/* Modals */}
 						{valueInv && (
-							<MyDetailsModal 
-								isOpen={isOpen} 
+							<MyDetailsModal
+								isOpen={isOpen}
 								setIsOpen={setIsOpen}
-								title={`${getTtl('Contract No', ln)}: ${valueInv.poSupplier.order}`} 
+								title={`${getTtl('Contract No', ln)}: ${valueInv.poSupplier.order}`}
 							/>
 						)}
 
 						{alertArr.length > 0 && (
-							<Modal 
-								isOpen={openAlert} 
-								setIsOpen={setOpenAlert} 
-								title='Notification for delayed response' 
+							<Modal
+								isOpen={openAlert}
+								setIsOpen={setOpenAlert}
+								title='Notification for delayed response'
 								w='max-w-2xl'
 							>
 								<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />

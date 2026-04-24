@@ -29,7 +29,7 @@ const TotalClients = (data, name, mult, settings) => {
         if (obj && !isNaN(obj[name])) {
 
             const currentCur = !obj.final ? obj.cur : settings.Currency.Currency.find(x => x.cur === obj.cur.cur)['id']
-            clnt = !obj.final ? settings.Client.Client.find(x => x.id === obj.client)['nname'] : obj.client.nname
+            clnt = !obj.final ? settings.Client.Client.find(x => x.id === obj.client)?.['nname'] : obj.client.nname
             let mltTmp = currentCur === 'us' ? 1 : mult
             let num = obj.canceled ? 0 : obj[name] * 1 * mltTmp
 
@@ -187,7 +187,7 @@ export const calContracts = (data, settings) => {
 
 
     let arrTmp = Object.keys(accumulatedTop5Sup).reduce((acc, key) => {
-        const newKey = settings.Supplier.Supplier.find(x => x.id === key)['nname']
+        const newKey = settings.Supplier.Supplier.find(x => x.id === key)?.['nname']
         acc[newKey] = accumulatedTop5Sup[key];
         return acc;
     }, {});

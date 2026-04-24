@@ -41,7 +41,7 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                     <tr key={i}>
                                         <td className="py-2 pl-4">
                                             <div className="flex items-center h-5 responsiveTextTable font-normal" style={{ color: 'var(--port-gore)' }}>
-                                                {settings.Client.Client.find(z => z.id === obj.client).nname}
+                                                {settings.Client.Client.find(z => z.id === obj.client)?.nname}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">

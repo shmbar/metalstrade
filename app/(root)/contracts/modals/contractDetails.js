@@ -9,7 +9,7 @@ import Remarks from './remarksSelection.js'
 import PriceRemarks from './priceRemarks.js'
 import { usePathname } from 'next/navigation';
 import ModalToDelete from '@components/modalToProceed';
-import { validate, ErrDiv, reOrderTableCon, getD } from '@utils/utils'
+import { validate, ErrDiv, reOrderTableCon, getD, sortArr } from '@utils/utils'
 import { UserAuth } from "@contexts/useAuthContext";
 import FilesModal from './filesModal.js'
 import PoInvModal from './poInvModal.js'

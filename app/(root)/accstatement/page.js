@@ -128,9 +128,10 @@ const AccountStatement = () => {
       }
     }
 
-
+    if (!uidCollection) return;
     loadData()
-  }, [valueDate, selectedClient])
+
+  }, [valueDate, selectedClient, uidCollection])
 
   /*
     useEffect(() => {

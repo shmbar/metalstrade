@@ -21,12 +21,12 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
     }
 
     return (
-        <Select className='border-slate-400' value={value[name]} onValueChange={onChange}
+        <Select className='border-slate-400 z-50' value={value[name]} onValueChange={onChange}
             defaultValue="df">
             <SelectTrigger className={`group relative border-[#b8ddf8] hover:border-[var(--rock-blue)] rounded-full h-8 text-[0.75rem] gap-0.5 px-2
                     text-[var(--chathams-blue)] outline-none focus:ring-0
                     focus:outline-none focus:ring-offset-0 shadow-sm pointer-events-auto
-                    w-full max-w-full overflow-hidden [&>span]:truncate [&>span]:pr-4
+                    w-full max-w-full overflow-hidden [&>span]:truncate [&>span]:pr-4 z-50
                     ${classes || ''}`}
                 disabled={disabled}>
                 <SelectValue placeholder="Select" />
@@ -47,9 +47,9 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
 
 
             </SelectTrigger>
-            <SelectContent className="rounded-xl border border-[#dbeeff] shadow-md text-[0.75rem] text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)]">
+            <SelectContent className="z-[9999] rounded-xl border border-[#dbeeff] shadow-md text-[0.75rem] text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
                 <SelectGroup>
-                    {sortArr(arr.filter(x => !x.deleted), name).map(k => {
+                    {sortArr(arr.filter(x => !x.deleted), secondaryName || name).map(k => {
                         return (
                             <SelectItem key={k.id} value={k.id}
                                 className={cn('text-[0.75rem] rounded-xl', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks') ?

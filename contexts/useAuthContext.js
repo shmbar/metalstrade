@@ -18,8 +18,8 @@ const AuthContextProvider = ({ children }) => {
   const [err, setErr] = useState(null)
   const router = useRouter()
   const [loadingPage, setLoadingPage] = useState(true);
-  const { setCompData, updateSettings } = useContext(SettingsContext);
-  const [uidCollection, setUidCollection] = useState(null)
+  const { setCompData, updateSettings, uidCollection, setUidCollection } = useContext(SettingsContext);
+
   const [userTitle, setUserTitle] = useState(null)
   const pathName = usePathname()
 
@@ -130,6 +130,7 @@ const AuthContextProvider = ({ children }) => {
         }
         const idTokenResult = await auth.currentUser.getIdTokenResult();
         const uidCollection = idTokenResult.claims.uidCollection;
+    
         setUidCollection(uidCollection);
         const userTitl1 = idTokenResult?.claims?.title;
         setUserTitle(userTitl1);

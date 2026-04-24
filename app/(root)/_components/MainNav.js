@@ -11,10 +11,11 @@ import { IoClose } from 'react-icons/io5';
 import Image from 'next/image';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext'
 import Tltip from '../../../components/tlTip'
+import { Selector } from '@components/selectors/selectShad';
 
 export const MainNav = () => {
   const { SignOut, user } = UserAuth()
-  const { compData } = useContext(SettingsContext)
+  const { compData, accounts, uidCollection, setUidCollection } = useContext(SettingsContext)
   const ln = compData?.lng || 'English'
   const router = useRouter()
   const { query, setQuery, items } = useGlobalSearch()
@@ -26,6 +27,8 @@ export const MainNav = () => {
   const dropdownRef = useRef(null)
 
   const [now, setNow] = useState(null)
+
+
   useEffect(() => {
     setNow(new Date())
     const timer = setInterval(() => setNow(new Date()), 1000)
@@ -56,8 +59,8 @@ export const MainNav = () => {
     normalizedQuery.length < 2
       ? []
       : items
-          .filter((x) => (x.searchText || '').toLowerCase().includes(normalizedQuery))
-          .slice(0, 10)
+        .filter((x) => (x.searchText || '').toLowerCase().includes(normalizedQuery))
+        .slice(0, 10)
 
   const onPickResult = (item) => {
     setOpenSearch(false)
@@ -67,7 +70,7 @@ export const MainNav = () => {
 
   return (
     <div
-      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[#e3f3ff] z-[10000] rounded-lg'
+      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[#e3f3ff] z-[100] rounded-lg'
       style={{
         height: 'clamp(56px, 7vh, 80px)',
         borderRadius: '12px',
@@ -97,15 +100,27 @@ export const MainNav = () => {
       <div className='flex items-center gap-2 ml-auto'>
         {/* Global Search */}
         <div className='relative flex items-center' ref={searchRef}>
+
+
+          {/* <Tltip tltpText={getTtl('Ask question', ln) || 'Ask question'} direction='bottom'> */}
+          <div className='flex-1 min-w-0 z-50'>
+            <Selector arr={accounts} value={accounts.find(x => x.id === uidCollection)}
+              onChange={(e) =>  setUidCollection(e)}
+              name='uidCollection'
+              secondaryName='name'
+            />
+          </div>
+          {/* </Tltip> */}
+
           {!openSearch ? (
             <Tltip tltpText={getTtl('Search', ln) || 'Search'} direction='bottom'>
-            <button
-              className='flex items-center justify-center w-10 h-10'
-              onClick={() => setOpenSearch(true)}
-              aria-label='Search'
-            >
-              <img src='/logo/search.svg' alt='Search' className='w-5 h-5' />
-            </button>
+              <button
+                className='flex items-center justify-center w-10 h-10'
+                onClick={() => setOpenSearch(true)}
+                aria-label='Search'
+              >
+                <img src='/logo/search.svg' alt='Search' className='w-5 h-5' />
+              </button>
             </Tltip>
           ) : (
             <div className="relative flex items-center responsiveText">
@@ -130,6 +145,7 @@ export const MainNav = () => {
               </button>
             </div>
           )}
+
           {/* Results dropdown, only if openSearch and query */}
           {openSearch && query && (
             <div className='absolute left-0 top-full mt-2 w-72 bg-white rounded-xl shadow-lg border border-[var(--selago)] z-[9999] max-h-96 overflow-y-auto p-3'>
@@ -154,34 +170,34 @@ export const MainNav = () => {
         </div>
 
         <Tltip tltpText={getTtl('Ask question', ln) || 'Ask question'} direction='bottom'>
-        <button
-          className='flex items-center justify-center w-10 h-10'
-          onClick={() => {
-            if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('ims:openChat'))
-          }}
-          aria-label='Ask question'
-        >
-          <img src='/logo/Ai bot.svg' alt='Chatbot' className='w-5 h-5' />
-        </button>
+          <button
+            className='flex items-center justify-center w-10 h-10'
+            onClick={() => {
+              if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('ims:openChat'))
+            }}
+            aria-label='Ask question'
+          >
+            <img src='/logo/Ai bot.svg' alt='Chatbot' className='w-5 h-5' />
+          </button>
         </Tltip>
         {/* Notification Icon (placeholder, can be made functional) */}
         <Tltip tltpText={getTtl('Notifications', ln) || 'Notifications'} direction='bottom'>
-        <button
-          className='flex items-center justify-center w-10 h-10'
-          aria-label='Notifications'
-        >
-          <img src='/logo/notofication.svg' alt='Notifications' className='w-5 h-5' />
-        </button>
+          <button
+            className='flex items-center justify-center w-10 h-10'
+            aria-label='Notifications'
+          >
+            <img src='/logo/notofication.svg' alt='Notifications' className='w-5 h-5' />
+          </button>
         </Tltip>
         {/* Logout Icon */}
         <Tltip tltpText={getTtl('Logout', ln) || 'Logout'} direction='bottom'>
-        <button
-          className='flex items-center justify-center w-10 h-10'
-          onClick={LogOut}
-          aria-label='Logout'
-        >
-          <img src='/logo/logout.svg' alt='Logout' className='w-5 h-5' />
-        </button>
+          <button
+            className='flex items-center justify-center w-10 h-10'
+            onClick={LogOut}
+            aria-label='Logout'
+          >
+            <img src='/logo/logout.svg' alt='Logout' className='w-5 h-5' />
+          </button>
         </Tltip>
         {/* User Role Button and Profile Icon: no gap between */}
         <div className="flex items-center ml-2">
@@ -197,7 +213,7 @@ export const MainNav = () => {
           >
             {user?.displayName || user?.email?.split('@')[0] || 'User'}
           </span>
-          <div className='relative' ref={dropdownRef} style={{marginLeft: 0}}>
+          <div className='relative' ref={dropdownRef} style={{ marginLeft: 0 }}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
               className='flex items-center bg-white gap-2 p-1 rounded-md hover:bg-[var(--selago)] transition-all'

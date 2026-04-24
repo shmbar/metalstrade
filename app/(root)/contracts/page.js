@@ -41,23 +41,23 @@ const Contracts = () => {
 	const { blankExpense } = useContext(ExpensesContext);
 	const { uidCollection } = UserAuth();
 	const router = useRouter();
-		const searchParams = useSearchParams();
+	const searchParams = useSearchParams();
 	const [alertArr, setAlertArr] = useState([]);
 	const [openAlert, setOpenAlert] = useState(true)
-		const [filteredData, setFilteredData] = useState([])
+	const [filteredData, setFilteredData] = useState([])
 	const [highlightId, setHighlightId] = useState(null)
 	const { upsertSourceItems } = useGlobalSearch();
 
 	// Inline editing hook
-	const { updateField } = useInlineEdit('contracts', setContractsData);
+	//	const { updateField } = useInlineEdit('contracts', setContractsData);
 
 	// Handle inline cell save
-	const handleCellSave = useCallback(async (rowData, field, value) => {
-		const originalItem = contractsData.find(c => c.id === rowData.id);
-		if (originalItem) {
-			await updateField(originalItem, field, value);
-		}
-	}, [contractsData, updateField]);
+	// const handleCellSave = useCallback(async (rowData, field, value) => {
+	// 	const originalItem = contractsData.find(c => c.id === rowData.id);
+	// 	if (originalItem) {
+	// 		await updateField(originalItem, field, value);
+	// 	}
+	// }, [contractsData, updateField]);
 
 	// Handle openId from URL (from shipment page or global search) - highlight row and open modal
 	useEffect(() => {
@@ -78,6 +78,7 @@ const Contracts = () => {
 		const Load = async () => {
 			setLoading(true)
 			let dt = await loadData(uidCollection, 'contracts', dateSelect);
+
 			setContractsData(dt)
 			setFilteredData(dt)
 
@@ -106,8 +107,10 @@ const Contracts = () => {
 			setLoading(false)
 		}
 
+		if (!uidCollection) return;
 		Load();
-	}, [dateSelect])
+		
+	}, [dateSelect, uidCollection])
 
 	useEffect(() => {
 		if (!contractsData || !contractsData.length || Object.keys(settings).length === 0) {
@@ -150,7 +153,7 @@ const Contracts = () => {
 		{ accessorKey: 'order', header: getTtl('PO', ln) + '#', meta: { excludeFromQuickSum: true } },
 		{
 			accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
-			meta: { filterVariant: 'dates' }, 
+			meta: { filterVariant: 'dates' },
 			filterFn: 'dateBetweenFilterFn'
 		},
 		{
@@ -184,7 +187,7 @@ const Contracts = () => {
 				options: settings.Shipment?.Shipment?.map(s => ({
 					value: s.id,
 					label: s.shpType
-			})) ?? []
+				})) ?? []
 			}
 		},
 		{
@@ -314,106 +317,107 @@ const Contracts = () => {
 	};
 
 	return (
-	<div className="w-full " style={{ background: "#f8fbff" }}>
-		<div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
-			{Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
-				<>
-					<Toast />
-					<ModalCopyInvoice />
+		<div className="w-full " style={{ background: "#f8fbff" }}>
+			<div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
+				{Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
+					<>
+						<Toast />
+						<ModalCopyInvoice />
 
-					{/* Main Card */}
-					<div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
-						
-						{/* Header Section */}
-						<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-							<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-								{getTtl('Contracts', ln)}
-							</h1>
-							
-							{/* <div className='flex items-center gap-2 group'>
+						{/* Main Card */}
+						<div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
+
+							{/* Header Section */}
+							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
+								<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
+									{getTtl('Contracts', ln)}
+								</h1>
+
+								{/* <div className='flex items-center gap-2 group'>
 								<div className="relative">
 									<DateRangePicker />
 								</div>
 								<Tooltip txt='Select Dates Range' />
 							</div> */}
+							</div>
+
+							{/* Table Component */}
+
+							<Customtable
+								data={contractsData.sort((a, b) => b.date.localeCompare(a.date))}
+								columns={propDefaults}
+								SelectRow={SelectRow}
+								invisible={invisible}
+								excellReport={EXD(contractsData.filter(x => filteredData.map(z => z.id).includes(x.id)),
+									settings, getTtl('Contracts', ln), ln)}
+								setFilteredData={setFilteredData}
+								highlightId={highlightId}
+								onCellUpdate={onCellUpdate}
+								extraActions={
+									<>
+										<Tltip direction='bottom' tltpText='Create new Contract'>
+											<button
+												type="button"
+												onClick={addNewContract}
+												className="flex items-center gap-1 h-7 px-2 rounded-2xl responsiveTextTable font-medium transition-all border bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[var(--selago)] whitespace-nowrap"
+												style={{ fontSize: '0.68rem' }}
+											>
+												<TbLayoutGridAdd className="w-3.5 h-3.5 flex-shrink-0" />
+												<span>{getTtl('New Contract', ln)}</span>
+											</button>
+										</Tltip>
+										<Tltip direction='bottom' tltpText='Quantities analysis report'>
+											<button
+												type="button"
+												onClick={() => router.push('/analysis')}
+												className="flex items-center gap-1 h-7 px-2 rounded-2xl responsiveTextTable font-medium transition-all border bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[var(--selago)] whitespace-nowrap"
+												style={{ fontSize: '0.68rem' }}
+											>
+												<IoAnalyticsOutline className="w-3.5 h-3.5 flex-shrink-0" />
+												<span>{getTtl('Weight Analysis', ln)}</span>
+											</button>
+										</Tltip>
+									</>
+								}
+							/>
 						</div>
 
-						{/* Table Component */}
-						<Customtable
-							data={sortArr(contractsData, 'order')}
-							columns={propDefaults}
-							SelectRow={SelectRow}
-							invisible={invisible}
-							excellReport={EXD(contractsData.filter(x => filteredData.map(z => z.id).includes(x.id)),
-								settings, getTtl('Contracts', ln), ln)}
-							setFilteredData={setFilteredData}
-							highlightId={highlightId}
-							onCellUpdate={onCellUpdate}
-							extraActions={
-								<>
-									<Tltip direction='bottom' tltpText='Create new Contract'>
-										<button
-											type="button"
-											onClick={addNewContract}
-											className="flex items-center gap-1 h-7 px-2 rounded-2xl responsiveTextTable font-medium transition-all border bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[var(--selago)] whitespace-nowrap"
-											style={{ fontSize: '0.68rem' }}
-										>
-											<TbLayoutGridAdd className="w-3.5 h-3.5 flex-shrink-0" />
-											<span>{getTtl('New Contract', ln)}</span>
-										</button>
-									</Tltip>
-									<Tltip direction='bottom' tltpText='Quantities analysis report'>
-										<button
-											type="button"
-											onClick={() => router.push('/analysis')}
-											className="flex items-center gap-1 h-7 px-2 rounded-2xl responsiveTextTable font-medium transition-all border bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[var(--selago)] whitespace-nowrap"
-											style={{ fontSize: '0.68rem' }}
-										>
-											<IoAnalyticsOutline className="w-3.5 h-3.5 flex-shrink-0" />
-											<span>{getTtl('Weight Analysis', ln)}</span>
-										</button>
-									</Tltip>
-								</>
-							}
-						/>
-					</div>
-
-					{/* Alert Section */}
-					{alertArr.length > 0 && (
-						<div className='mt-4 px-2 sm:px-3'>
-							<div className="responsiveText font-medium border border-[#b8ddf8] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
-								<div style={{ color: 'var(--chathams-blue)' }}>
-									<span className='responsiveText border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
-									<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
+						{/* Alert Section */}
+						{alertArr.length > 0 && (
+							<div className='mt-4 px-2 sm:px-3'>
+								<div className="responsiveText font-medium border border-[#b8ddf8] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
+									<div style={{ color: 'var(--chathams-blue)' }}>
+										<span className='responsiveText border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
+										<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
+									</div>
 								</div>
 							</div>
-						</div>
-					)}
+						)}
 
-					{/* Modals */}
-					{valueCon && (
-						<MyDetailsModal 
-							isOpen={isOpenCon} 
-							setIsOpen={setIsOpenCon}
-							title={!valueCon.id ? getTtl('New Contract', ln) : `${getTtl('Contract No', ln)}: ${valueCon.order}`} 
-						/>
-					)}
+						{/* Modals */}
+						{valueCon && (
+							<MyDetailsModal
+								isOpen={isOpenCon}
+								setIsOpen={setIsOpenCon}
+								title={!valueCon.id ? getTtl('New Contract', ln) : `${getTtl('Contract No', ln)}: ${valueCon.order}`}
+							/>
+						)}
 
-					{alertArr.length > 0 && (
-						<Modal 
-							isOpen={openAlert} 
-							setIsOpen={setOpenAlert} 
-							title='Notification for delayed response' 
-							w='max-w-2xl'
-						>
-							<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
-						</Modal>
-					)}
-				</>
-			}
+						{alertArr.length > 0 && (
+							<Modal
+								isOpen={openAlert}
+								setIsOpen={setOpenAlert}
+								title='Notification for delayed response'
+								w='max-w-2xl'
+							>
+								<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
+							</Modal>
+						)}
+					</>
+				}
+			</div>
 		</div>
-	</div>
-);
+	);
 };
 
 export default Contracts;

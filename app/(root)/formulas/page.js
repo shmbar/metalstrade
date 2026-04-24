@@ -62,7 +62,10 @@ const Page = () => {
 				setLoading(false);
 			}
 		}
+
+		if (!uidCollection) return;
 		loadData()
+		
 	}, [uidCollection])
 
 	// Auto-fill Ni LME from live metals price

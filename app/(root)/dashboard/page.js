@@ -194,8 +194,8 @@ function DebtSnapshotCard({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPer
     {
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="7" width="20" height="14" rx="2" stroke="#16a34a" strokeWidth="2" fill="#dcfce7"/>
-          <path d="M8 11h8M8 14h5" stroke="#16a34a" strokeWidth="2" strokeLinecap="round"/>
+          <rect x="2" y="7" width="20" height="14" rx="2" stroke="#16a34a" strokeWidth="2" fill="#dcfce7" />
+          <path d="M8 11h8M8 14h5" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" />
         </svg>
       ),
       value: `${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`,
@@ -206,8 +206,8 @@ function DebtSnapshotCard({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPer
     {
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="#ea580c" strokeWidth="2" fill="#ffedd5"/>
-          <path d="M12 8v4l3 3" stroke="#ea580c" strokeWidth="2" strokeLinecap="round"/>
+          <circle cx="12" cy="12" r="10" stroke="#ea580c" strokeWidth="2" fill="#ffedd5" />
+          <path d="M12 8v4l3 3" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" />
         </svg>
       ),
       value: fmtAutoKM(avgCostPerMT),
@@ -218,9 +218,9 @@ function DebtSnapshotCard({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPer
     {
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="7" width="20" height="14" rx="2" stroke="#2563eb" strokeWidth="2" fill="#dbeafe"/>
-          <path d="M16 7V5a2 2 0 0 0-4 0v2" stroke="#2563eb" strokeWidth="2"/>
-          <circle cx="12" cy="14" r="2" fill="#2563eb"/>
+          <rect x="2" y="7" width="20" height="14" rx="2" stroke="#2563eb" strokeWidth="2" fill="#dbeafe" />
+          <path d="M16 7V5a2 2 0 0 0-4 0v2" stroke="#2563eb" strokeWidth="2" />
+          <circle cx="12" cy="14" r="2" fill="#2563eb" />
         </svg>
       ),
       value: fmtAutoKM(avgExpensePerMT),
@@ -231,8 +231,8 @@ function DebtSnapshotCard({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPer
     {
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke={profitColor} strokeWidth="2" fill={avgProfitPerMT >= 0 ? '#dcfce7' : '#fee2e2'}/>
-          <path d={avgProfitPerMT >= 0 ? 'M8 12l3 3 5-5' : 'M8 12l3-3 5 5'} stroke={profitColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <circle cx="12" cy="12" r="10" stroke={profitColor} strokeWidth="2" fill={avgProfitPerMT >= 0 ? '#dcfce7' : '#fee2e2'} />
+          <path d={avgProfitPerMT >= 0 ? 'M8 12l3 3 5-5' : 'M8 12l3-3 5 5'} stroke={profitColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
       value: fmtAutoKM(avgProfitPerMT),
@@ -344,6 +344,7 @@ const Dash = () => {
       setLoading(false);
     };
 
+    if (!uidCollection) return;
     Object.keys(settings).length !== 0 && Load();
 
   }, [dateSelect, settings, uidCollection, setLoading]);
@@ -441,394 +442,394 @@ const Dash = () => {
   return (
     <div className="w-full ">
       <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px] min-h-screen ">
-      <Toast />
-      <VideoLoader loading={loading} fullScreen={true} />
+        <Toast />
+        <VideoLoader loading={loading} fullScreen={true} />
 
-      <motion.div className="mb-4" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
-        <MarketsTicker />
-      </motion.div>
-
-      {/* HEADER */}
-      <motion.div className="mb-5 flex items-center justify-between" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
-        <div>
-          <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-            {getTtl('Dashboard', ln)}
-          </h1>
-          <p className="responsiveText text-[var(--regent-gray)] pl-3 mt-0.5">
-            Financial overview and analytics
-          </p>
-        </div>
-        <DateRangePicker />
-        <TooltipComp txt="Select Dates Range" />
-      </motion.div>
-
-      {/* MAIN GRID */}
-      <motion.div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-5"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-
-        {/* LEFT COLUMN */}
-        <motion.div className="flex flex-col gap-4"
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
-        >
-
-          {/* TOTAL REVENUE */}
-          <CardShell className="h-[300px]">
-            <div className="p-4 h-full flex flex-col">
-
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">
-                  Total Revenue
-                </h3>
-
-              </div>
-
-              <div className="flex-1 min-h-0">
-             <Bar
-  data={{
-    labels: Object.keys(dataInvoices),
-    datasets: [
-      {
-        label: 'Sales Revenue',
-        data: Object.values(dataInvoices),
-        backgroundColor: '#4F99FF',
-        borderRadius: { topLeft: 999, topRight: 999, bottomLeft: 0, bottomRight: 0 },
-        borderSkipped: 'bottom',
-        barThickness: 'flex',
-        maxBarThickness: 18,
-      },
-      {
-        label: 'Purchase Costs',
-        data: Object.values(dataContracts),
-        backgroundColor: '#1D3A8A',
-        borderRadius: { topLeft: 999, topRight: 999, bottomLeft: 0, bottomRight: 0 },
-        borderSkipped: 'bottom',
-        barThickness: 'flex',
-        maxBarThickness: 18,
-      }
-    ]
-  }}
-  options={{
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { 
-      legend: { 
-        display: true,
-        position: 'bottom',
-        labels: {
-          usePointStyle: true,
-          pointStyle: 'circle',
-          padding: 15,
-          font: { size: 11 }
-        }
-      }
-    },
-    scales: {
-      x: { 
-        grid: { display: false },
-        ticks: { font: { size: 10 } }
-      },
-      y: {
-        grid: { color: '#f3f4f6' },
-        ticks: {
-          callback: (v) => fmtK(v),
-          font: { size: 10 }
-        }
-      }
-    }
-  }}
-/>
-
-              </div>
-
-            </div>
-          </CardShell>
-
-          {/* SUPPLIERS */}
-          <CardShell>
-            <div className="p-4">
-              <div className="flex justify-between mb-1">
-                <div>
-                  <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">Contracts - $</h3>
-                  <p className="responsiveTextTable text-[var(--regent-gray)]">Contribution breakdown by contract values</p>
-                </div>
-                <div className="text-right">
-                  <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
-                  <span className="font-semibold text-[var(--chathams-blue)]">{fmtAutoKM(totalContracts)}</span>
-                </div>
-              </div>
-
-              {/* Column Headers */}
-              <div className="flex items-center gap-3 mb-2 mt-2">
-                <div className="w-[116px] font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0 whitespace-nowrap" style={{ fontSize: '0.62rem' }}>Client Name</div>
-                <div className="flex-1 font-medium text-[var(--regent-gray)] uppercase tracking-wide text-center" style={{ fontSize: '0.62rem' }}>Contribution Share (0 – 1.0)</div>
-                <div className="w-16 text-right font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0" style={{ fontSize: '0.62rem' }}>Value</div>
-              </div>
-
-              <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
-                {(hbSupps.obj.labels || []).map((lbl, idx) => {
-                  const rowCount = (hbSupps.obj.labels || []).length;
-                  const barHeight = Math.max(14, Math.min(28, Math.round(28 - rowCount * 1.5)));
-                  const colorPalette = [
-                    '#38BDF8', '#22B0F0', '#7DD3F8', '#4F46E5',
-                    '#7C6FE0', '#1477C0', '#2D3FB8', '#6366F1',
-                    '#0A5EA8', '#8B7FE8'
-                  ];
-                  const color = colorPalette[idx % colorPalette.length];
-                  const value = hbSuppsData?.datasets?.[0]?.data?.[idx] || 0;
-                  const allValues = hbSuppsData?.datasets?.[0]?.data || [1];
-                  const max = Math.max(...allValues);
-                  const pct = max > 0 ? (value / max) * 100 : 0;
-
-                  return (
-                    <motion.div
-                      key={idx}
-                      className="flex items-center gap-2 mb-0.5"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.4, delay: idx * 0.07 }}
-                    >
-                      {/* Avatar */}
-                      <motion.div
-                        className="flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0"
-                        style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                      >
-                        {getInitials(lbl)}
-                      </motion.div>
-
-                      {/* Name */}
-                      <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">
-                        {lbl}
-                      </div>
-
-                      {/* Bar */}
-                      <motion.div className="flex-1 min-w-0">
-                        <div className="w-full bg-gray-100 rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
-                          <motion.div
-                            className="rounded-r-full h-full flex items-center pl-2"
-                            style={{
-                              width: `${pct}%`,
-                              background: color,
-                              minWidth: '42px',
-                              borderRadius: '0 9999px 9999px 0'
-                            }}
-                            initial={{ scaleX: 0 }}
-                            animate={{ scaleX: 1 }}
-                            transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
-                            whileHover={{ scaleY: 1.1 }}
-                          >
-                            <span className="font-semibold text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
-                              {(max > 0 ? value / max : 0).toFixed(2)}
-                            </span>
-                          </motion.div>
-                        </div>
-                      </motion.div>
-
-                      {/* Value */}
-                      <motion.div className="w-16 text-right responsiveText text-[var(--port-gore)] font-normal flex-shrink-0"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.4, delay: idx * 0.09 }}
-                      >
-                        {fmtAutoKM(value)}
-                      </motion.div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          </CardShell>
-
-       {/* CLIENTS */}
-          <CardShell>
-            <div className="p-4">
-              <div className="flex justify-between mb-1">
-                <div>
-                  <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">Consignees - $</h3>
-                  <p className="responsiveTextTable text-[var(--regent-gray)]">Contribution breakdown by client volume</p>
-                </div>
-                <div className="text-right">
-                  <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
-                  <span className="font-semibold text-[var(--chathams-blue)]">{fmtAutoKM(totalInvoices)}</span>
-                </div>
-              </div>
-
-              {/* Column Headers */}
-              <div className="flex items-center gap-3 mb-2 mt-2">
-                <div className="w-[116px] font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0 whitespace-nowrap" style={{ fontSize: '0.62rem' }}>Client Name</div>
-                <div className="flex-1 font-medium text-[var(--regent-gray)] uppercase tracking-wide text-center" style={{ fontSize: '0.62rem' }}>Contribution Share (0 – 1.0)</div>
-                <div className="w-16 text-right font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0" style={{ fontSize: '0.62rem' }}>Value</div>
-              </div>
-
-              <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
-                {(hbClnts.obj.labels || []).map((lbl, idx) => {
-                  const rowCount = (hbClnts.obj.labels || []).length;
-                  const barHeight = Math.max(14, Math.min(28, Math.round(28 - rowCount * 1.5)));
-                  const colorPalette = [
-                    '#38BDF8', '#22B0F0', '#7DD3F8', '#4F46E5',
-                    '#7C6FE0', '#1477C0', '#2D3FB8', '#6366F1',
-                    '#0A5EA8', '#8B7FE8'
-                  ];
-                  const color = colorPalette[idx % colorPalette.length];
-                  const value = hbClntsData?.datasets?.[0]?.data?.[idx] || 0;
-                  const allValues = hbClntsData?.datasets?.[0]?.data || [1];
-                  const max = Math.max(...allValues);
-                  const pct = max > 0 ? (value / max) * 100 : 0;
-                  
-                  return (
-                    <motion.div
-                      key={idx}
-                      className="flex items-center gap-2 mb-0.5"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.4, delay: idx * 0.07 }}
-                    >
-                      {/* Avatar */}
-                      <motion.div
-                        className="flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0"
-                        style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                      >
-                        {getInitials(lbl)}
-                      </motion.div>
-                      {/* Name */}
-                      <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">
-                        {lbl}
-                      </div>
-                      {/* Bar */}
-                      <motion.div className="flex-1 min-w-0">
-                        <div className="w-full bg-gray-100 rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
-                          <motion.div
-                            className="rounded-r-full h-full flex items-center pl-2"
-                            style={{
-                              width: `${pct}%`,
-                              background: color,
-                              minWidth: '42px',
-                              borderRadius: '0 9999px 9999px 0'
-                            }} 
-                            initial={{ scaleX: 0 }}
-                            animate={{ scaleX: 1 }}
-                            transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
-                            whileHover={{ scaleY: 1.1 }}
-                          >
-                            <span className="font-semibold text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
-                              {(max > 0 ? value / max : 0).toFixed(2)}
-                            </span>
-                          </motion.div>
-                        </div>
-                      </motion.div>
-                      {/* Value */}
-                      <motion.div className="w-16 text-right responsiveText text-[var(--port-gore)] font-normal flex-shrink-0"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.4, delay: idx * 0.09 }}
-                      >
-                        {fmtAutoKM(value)}
-                      </motion.div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          </CardShell>
-
+        <motion.div className="mb-4" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
+          <MarketsTicker />
         </motion.div>
 
-        {/* RIGHT COLUMN */}
-        <motion.div className="flex flex-col gap-4 lg:sticky lg:top-[76px] lg:self-start"
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+        {/* HEADER */}
+        <motion.div className="mb-5 flex items-center justify-between" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
+          <div>
+            <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
+              {getTtl('Dashboard', ln)}
+            </h1>
+            <p className="responsiveText text-[var(--regent-gray)] pl-3 mt-0.5">
+              Financial overview and analytics
+            </p>
+          </div>
+          <DateRangePicker />
+          <TooltipComp txt="Select Dates Range" />
+        </motion.div>
+
+        {/* MAIN GRID */}
+        <motion.div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-5"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
-          {/* ─────────────────────────────────────────
+
+          {/* LEFT COLUMN */}
+          <motion.div className="flex flex-col gap-4"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+          >
+
+            {/* TOTAL REVENUE */}
+            <CardShell className="h-[300px]">
+              <div className="p-4 h-full flex flex-col">
+
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">
+                    Total Revenue
+                  </h3>
+
+                </div>
+
+                <div className="flex-1 min-h-0">
+                  <Bar
+                    data={{
+                      labels: Object.keys(dataInvoices),
+                      datasets: [
+                        {
+                          label: 'Sales Revenue',
+                          data: Object.values(dataInvoices),
+                          backgroundColor: '#4F99FF',
+                          borderRadius: { topLeft: 999, topRight: 999, bottomLeft: 0, bottomRight: 0 },
+                          borderSkipped: 'bottom',
+                          barThickness: 'flex',
+                          maxBarThickness: 18,
+                        },
+                        {
+                          label: 'Purchase Costs',
+                          data: Object.values(dataContracts),
+                          backgroundColor: '#1D3A8A',
+                          borderRadius: { topLeft: 999, topRight: 999, bottomLeft: 0, bottomRight: 0 },
+                          borderSkipped: 'bottom',
+                          barThickness: 'flex',
+                          maxBarThickness: 18,
+                        }
+                      ]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: 'bottom',
+                          labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 15,
+                            font: { size: 11 }
+                          }
+                        }
+                      },
+                      scales: {
+                        x: {
+                          grid: { display: false },
+                          ticks: { font: { size: 10 } }
+                        },
+                        y: {
+                          grid: { color: '#f3f4f6' },
+                          ticks: {
+                            callback: (v) => fmtK(v),
+                            font: { size: 10 }
+                          }
+                        }
+                      }
+                    }}
+                  />
+
+                </div>
+
+              </div>
+            </CardShell>
+
+            {/* SUPPLIERS */}
+            <CardShell>
+              <div className="p-4">
+                <div className="flex justify-between mb-1">
+                  <div>
+                    <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">Contracts - $</h3>
+                    <p className="responsiveTextTable text-[var(--regent-gray)]">Contribution breakdown by contract values</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
+                    <span className="font-semibold text-[var(--chathams-blue)]">{fmtAutoKM(totalContracts)}</span>
+                  </div>
+                </div>
+
+                {/* Column Headers */}
+                <div className="flex items-center gap-3 mb-2 mt-2">
+                  <div className="w-[116px] font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0 whitespace-nowrap" style={{ fontSize: '0.62rem' }}>Client Name</div>
+                  <div className="flex-1 font-medium text-[var(--regent-gray)] uppercase tracking-wide text-center" style={{ fontSize: '0.62rem' }}>Contribution Share (0 – 1.0)</div>
+                  <div className="w-16 text-right font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0" style={{ fontSize: '0.62rem' }}>Value</div>
+                </div>
+
+                <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
+                  {(hbSupps.obj.labels || []).map((lbl, idx) => {
+                    const rowCount = (hbSupps.obj.labels || []).length;
+                    const barHeight = Math.max(14, Math.min(28, Math.round(28 - rowCount * 1.5)));
+                    const colorPalette = [
+                      '#38BDF8', '#22B0F0', '#7DD3F8', '#4F46E5',
+                      '#7C6FE0', '#1477C0', '#2D3FB8', '#6366F1',
+                      '#0A5EA8', '#8B7FE8'
+                    ];
+                    const color = colorPalette[idx % colorPalette.length];
+                    const value = hbSuppsData?.datasets?.[0]?.data?.[idx] || 0;
+                    const allValues = hbSuppsData?.datasets?.[0]?.data || [1];
+                    const max = Math.max(...allValues);
+                    const pct = max > 0 ? (value / max) * 100 : 0;
+
+                    return (
+                      <motion.div
+                        key={idx}
+                        className="flex items-center gap-2 mb-0.5"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4, delay: idx * 0.07 }}
+                      >
+                        {/* Avatar */}
+                        <motion.div
+                          className="flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0"
+                          style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ type: 'spring', stiffness: 300 }}
+                        >
+                          {getInitials(lbl)}
+                        </motion.div>
+
+                        {/* Name */}
+                        <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">
+                          {lbl}
+                        </div>
+
+                        {/* Bar */}
+                        <motion.div className="flex-1 min-w-0">
+                          <div className="w-full bg-gray-100 rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
+                            <motion.div
+                              className="rounded-r-full h-full flex items-center pl-2"
+                              style={{
+                                width: `${pct}%`,
+                                background: color,
+                                minWidth: '42px',
+                                borderRadius: '0 9999px 9999px 0'
+                              }}
+                              initial={{ scaleX: 0 }}
+                              animate={{ scaleX: 1 }}
+                              transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
+                              whileHover={{ scaleY: 1.1 }}
+                            >
+                              <span className="font-semibold text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
+                                {(max > 0 ? value / max : 0).toFixed(2)}
+                              </span>
+                            </motion.div>
+                          </div>
+                        </motion.div>
+
+                        {/* Value */}
+                        <motion.div className="w-16 text-right responsiveText text-[var(--port-gore)] font-normal flex-shrink-0"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.4, delay: idx * 0.09 }}
+                        >
+                          {fmtAutoKM(value)}
+                        </motion.div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            </CardShell>
+
+            {/* CLIENTS */}
+            <CardShell>
+              <div className="p-4">
+                <div className="flex justify-between mb-1">
+                  <div>
+                    <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">Consignees - $</h3>
+                    <p className="responsiveTextTable text-[var(--regent-gray)]">Contribution breakdown by client volume</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
+                    <span className="font-semibold text-[var(--chathams-blue)]">{fmtAutoKM(totalInvoices)}</span>
+                  </div>
+                </div>
+
+                {/* Column Headers */}
+                <div className="flex items-center gap-3 mb-2 mt-2">
+                  <div className="w-[116px] font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0 whitespace-nowrap" style={{ fontSize: '0.62rem' }}>Client Name</div>
+                  <div className="flex-1 font-medium text-[var(--regent-gray)] uppercase tracking-wide text-center" style={{ fontSize: '0.62rem' }}>Contribution Share (0 – 1.0)</div>
+                  <div className="w-16 text-right font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0" style={{ fontSize: '0.62rem' }}>Value</div>
+                </div>
+
+                <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
+                  {(hbClnts.obj.labels || []).map((lbl, idx) => {
+                    const rowCount = (hbClnts.obj.labels || []).length;
+                    const barHeight = Math.max(14, Math.min(28, Math.round(28 - rowCount * 1.5)));
+                    const colorPalette = [
+                      '#38BDF8', '#22B0F0', '#7DD3F8', '#4F46E5',
+                      '#7C6FE0', '#1477C0', '#2D3FB8', '#6366F1',
+                      '#0A5EA8', '#8B7FE8'
+                    ];
+                    const color = colorPalette[idx % colorPalette.length];
+                    const value = hbClntsData?.datasets?.[0]?.data?.[idx] || 0;
+                    const allValues = hbClntsData?.datasets?.[0]?.data || [1];
+                    const max = Math.max(...allValues);
+                    const pct = max > 0 ? (value / max) * 100 : 0;
+
+                    return (
+                      <motion.div
+                        key={idx}
+                        className="flex items-center gap-2 mb-0.5"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4, delay: idx * 0.07 }}
+                      >
+                        {/* Avatar */}
+                        <motion.div
+                          className="flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0"
+                          style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ type: 'spring', stiffness: 300 }}
+                        >
+                          {getInitials(lbl)}
+                        </motion.div>
+                        {/* Name */}
+                        <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">
+                          {lbl}
+                        </div>
+                        {/* Bar */}
+                        <motion.div className="flex-1 min-w-0">
+                          <div className="w-full bg-gray-100 rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
+                            <motion.div
+                              className="rounded-r-full h-full flex items-center pl-2"
+                              style={{
+                                width: `${pct}%`,
+                                background: color,
+                                minWidth: '42px',
+                                borderRadius: '0 9999px 9999px 0'
+                              }}
+                              initial={{ scaleX: 0 }}
+                              animate={{ scaleX: 1 }}
+                              transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
+                              whileHover={{ scaleY: 1.1 }}
+                            >
+                              <span className="font-semibold text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
+                                {(max > 0 ? value / max : 0).toFixed(2)}
+                              </span>
+                            </motion.div>
+                          </div>
+                        </motion.div>
+                        {/* Value */}
+                        <motion.div className="w-16 text-right responsiveText text-[var(--port-gore)] font-normal flex-shrink-0"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.4, delay: idx * 0.09 }}
+                        >
+                          {fmtAutoKM(value)}
+                        </motion.div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            </CardShell>
+
+          </motion.div>
+
+          {/* RIGHT COLUMN */}
+          <motion.div className="flex flex-col gap-4 lg:sticky lg:top-[76px] lg:self-start"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            {/* ─────────────────────────────────────────
               FIX #2 — REMOVED: Sales Overview line chart
               FIX #3 — ADDED: Debt Snapshot card (top-right)
               The Debt Snapshot now sits top-right, exactly
               mirroring Total Revenue on the left.
           ───────────────────────────────────────── */}
-          <DebtSnapshotCard
-            totalMT={totalMT}
-            avgCostPerMT={avgCostPerMT}
-            avgExpensePerMT={avgExpensePerMT}
-            avgProfitPerMT={avgProfitPerMT}
-          />
-
-          {/* KPI GRID */}
-          <div className="grid grid-cols-2 gap-3 auto-rows-fr flex-1">
-
-            <StatKpiCard
-              title="P&L"
-              badgeText="Profit"
-              value={fmtAutoKM(totalPL)}
-              chartData={dataPL}
-              grad="from-[#6B44C8] to-[#3E2090]"
-              chartColor="rgba(255,255,255,0.95)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-              iconBg="rgba(255,255,255,0.2)"
-            />
-            <StatKpiCard
-              title="Sales Revenue"
-              badgeText="Sales"
-              value={fmtAutoKM(totalInvoices)}
-              chartData={dataInvoices}
-              grad="from-[#0E7058] to-[#09523E]"
-              chartColor="rgba(255,255,255,0.95)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#fff" strokeWidth="2"/><path d="M8 10h8M8 14h8" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-              iconBg="rgba(255,255,255,0.2)"
-            />
-            <StatKpiCard
-              title="Total Costs"
-              badgeText="Costs"
-              value={fmtAutoKM(totalContracts + totalExpenses)}
-              chartData={dataContracts}
-              grad="from-[#C42840] to-[#902030]"
-              chartColor="rgba(255,255,255,0.95)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-              iconBg="rgba(255,255,255,0.2)"
-            />
-            <StatKpiCard
-              title="MT Purchased"
-              badgeText="Volume"
-              value={`${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`}
-              chartData={dataContracts}
-              grad="from-[#2255C8] to-[#1A3A98]"
-              chartColor="rgba(255,255,255,0.95)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#fff" strokeWidth="2"/><path d="M7 10h10M7 14h6" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-              iconBg="rgba(255,255,255,0.2)"
-            />
-            <StatKpiCard
-              title="Other Expenses"
-              badgeText="Costs"
-              value={fmtAutoKM(totalExpenses)}
-              chartData={dataExpenses}
-              grad="from-[#C42860] to-[#901040]"
-              chartColor="rgba(255,255,255,0.95)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2"/><path d="M12 8v4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><path d="M12 12l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-              iconBg="rgba(255,255,255,0.2)"
-            />
-            <StatKpiCard
-              title="Avg Profit / MT"
-              badgeText="Per MT"
-              value={fmtAutoKM(avgProfitPerMT)}
-              chartData={dataPL}
-              grad="from-[#BF6A18] to-[#8A3E0A]"
-              chartColor="rgba(255,255,255,0.95)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 17l4-4 4 4 4-8 4 4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-              iconBg="rgba(255,255,255,0.2)"
+            <DebtSnapshotCard
+              totalMT={totalMT}
+              avgCostPerMT={avgCostPerMT}
+              avgExpensePerMT={avgExpensePerMT}
+              avgProfitPerMT={avgProfitPerMT}
             />
 
-          </div>
+            {/* KPI GRID */}
+            <div className="grid grid-cols-2 gap-3 auto-rows-fr flex-1">
+
+              <StatKpiCard
+                title="P&L"
+                badgeText="Profit"
+                value={fmtAutoKM(totalPL)}
+                chartData={dataPL}
+                grad="from-[#6B44C8] to-[#3E2090]"
+                chartColor="rgba(255,255,255,0.95)"
+                icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2" /><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>}
+                iconBg="rgba(255,255,255,0.2)"
+              />
+              <StatKpiCard
+                title="Sales Revenue"
+                badgeText="Sales"
+                value={fmtAutoKM(totalInvoices)}
+                chartData={dataInvoices}
+                grad="from-[#0E7058] to-[#09523E]"
+                chartColor="rgba(255,255,255,0.95)"
+                icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#fff" strokeWidth="2" /><path d="M8 10h8M8 14h8" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>}
+                iconBg="rgba(255,255,255,0.2)"
+              />
+              <StatKpiCard
+                title="Total Costs"
+                badgeText="Costs"
+                value={fmtAutoKM(totalContracts + totalExpenses)}
+                chartData={dataContracts}
+                grad="from-[#C42840] to-[#902030]"
+                chartColor="rgba(255,255,255,0.95)"
+                icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2" /><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>}
+                iconBg="rgba(255,255,255,0.2)"
+              />
+              <StatKpiCard
+                title="MT Purchased"
+                badgeText="Volume"
+                value={`${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`}
+                chartData={dataContracts}
+                grad="from-[#2255C8] to-[#1A3A98]"
+                chartColor="rgba(255,255,255,0.95)"
+                icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#fff" strokeWidth="2" /><path d="M7 10h10M7 14h6" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>}
+                iconBg="rgba(255,255,255,0.2)"
+              />
+              <StatKpiCard
+                title="Other Expenses"
+                badgeText="Costs"
+                value={fmtAutoKM(totalExpenses)}
+                chartData={dataExpenses}
+                grad="from-[#C42860] to-[#901040]"
+                chartColor="rgba(255,255,255,0.95)"
+                icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2" /><path d="M12 8v4" stroke="#fff" strokeWidth="2" strokeLinecap="round" /><path d="M12 12l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>}
+                iconBg="rgba(255,255,255,0.2)"
+              />
+              <StatKpiCard
+                title="Avg Profit / MT"
+                badgeText="Per MT"
+                value={fmtAutoKM(avgProfitPerMT)}
+                chartData={dataPL}
+                grad="from-[#BF6A18] to-[#8A3E0A]"
+                chartColor="rgba(255,255,255,0.95)"
+                icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 17l4-4 4 4 4-8 4 4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                iconBg="rgba(255,255,255,0.2)"
+              />
+
+            </div>
+
+          </motion.div>
 
         </motion.div>
-
-      </motion.div>
 
       </div>
     </div>

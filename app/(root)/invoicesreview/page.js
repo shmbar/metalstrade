@@ -162,9 +162,10 @@ const Shipments = () => {
       setLoading(false)
     }
 
+    if (!uidCollection) return;
     Object.keys(settings).length !== 0 && Load();
 
-  }, [dateSelect, settings])
+  }, [dateSelect, settings, uidCollection])
 
 
   useEffect(() => {

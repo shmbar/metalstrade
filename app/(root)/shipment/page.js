@@ -309,7 +309,10 @@ const ShipmentPage = () => {
                 setLoading(false);
             }
         };
+
+        if (!uidCollection) return;
         load();
+        
     }, [uidCollection, dateSelect]);
 
     const getSupplierName = (contract) => {

@@ -43,7 +43,7 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                     <tr key={i}>
                                         <td className="py-2 pl-4">
                                             <div className="flex items-center h-5 text-xs" style={{ color: 'var(--port-gore)' }}>
-                                                {settings.Supplier.Supplier.find(z => z.id === obj.supplier).nname}
+                                                {settings.Supplier.Supplier.find(z => z.id === obj.supplier)?.nname}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">

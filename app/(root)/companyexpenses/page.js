@@ -45,9 +45,10 @@ const Expenses = () => {
             setLoading(false)
         }
 
+        if (!uidCollection) return;
         Load();
 
-    }, [dateSelect])
+    }, [dateSelect, uidCollection])
 
     useEffect(() => {
 
@@ -239,17 +240,17 @@ const Expenses = () => {
                             />
 
                             {/* Action Button */}
-                           <div className="text-left pt-6 flex gap-4">
-                            <Tltip direction='bottom' tltpText='Create new Company Expense'>
-                                <button
-                                type="button"
-                                onClick={addNewExpense}
-                                className="flex items-center gap-2 bg-[var(--endeavour)] border border-[var(--chathams-blue)] text-white px-4 h-[26px] text-[0.8rem] font-medium responsiveText rounded-full hover:bg-[var(--selago)]/30 transition-all"
-                                >
-                                <TbLayoutGridAdd className="w-4 h-4" />
-                                <span>New Expense</span>
-                                </button>
-                            </Tltip>
+                            <div className="text-left pt-6 flex gap-4">
+                                <Tltip direction='bottom' tltpText='Create new Company Expense'>
+                                    <button
+                                        type="button"
+                                        onClick={addNewExpense}
+                                        className="flex items-center gap-2 bg-[var(--endeavour)] border border-[var(--chathams-blue)] text-white px-4 h-[26px] text-[0.8rem] font-medium responsiveText rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                    >
+                                        <TbLayoutGridAdd className="w-4 h-4" />
+                                        <span>New Expense</span>
+                                    </button>
+                                </Tltip>
                             </div>
 
                             {/* Totals Section */}

@@ -233,9 +233,10 @@ const Stocks = () => {
       setIsLoadingStock(false)
     }
 
+    if (!uidCollection) return;
     Object.keys(settings).length !== 0 && loadtStocks()
 
-  }, [selectedStock, settings])
+  }, [selectedStock, settings, uidCollection])
 
   useEffect(() => {
 
