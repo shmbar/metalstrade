@@ -4,7 +4,7 @@ import Expense from './expenses'
 const DataModal = ({ isOpen, setIsOpen, title, }) => {
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={title} w='max-w-3xl'>
-            <Expense />
+            <Expense/>
         </Modal>
     )
 }

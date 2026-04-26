@@ -355,7 +355,7 @@ export const getInvoices = async (uidCollection, path, arrTmp) => {
 
   for (let i = 0; i < arrTmp.length; i++) {
     let obj = arrTmp[i]
-
+  
     if (obj.arrInv.length) {
       const q = query(
         collection(db, uidCollection, 'data', path + '_' + obj.yr),

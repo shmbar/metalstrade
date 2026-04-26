@@ -7,9 +7,10 @@ import { UserAuth } from "@contexts/useAuthContext";
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad.js';
-import {Save, Eraser, Trash, Copy } from "lucide-react"
+import { Save, Eraser, Trash, Copy, Truck } from "lucide-react"
+import FindInvoiceModal from './findInvoiceModal';
 
-const Expenses = () => {
+const Expenses = ({setIsOpen}) => {
 
     const { valueExp, setValueExp, blankExpense, saveData_CompanyExpenses,
         errorsExp, setErrorsExp, deleteCompExp, copyTomisc } = useContext(ExpensesContext);
@@ -17,7 +18,7 @@ const Expenses = () => {
     const { uidCollection } = UserAuth();
     const [isPending, startTransition] = useTransition();
     const sups = settings.Supplier.Supplier;
-
+    const [opendialogShipment, setDialogShipment] = useState(false)
 
     const saveExpense = () => {
         startTransition(() => {
@@ -61,14 +62,14 @@ const Expenses = () => {
                 <div className='grid grid-cols-1 md:grid-cols-12 gap-3 w-full p-2'>
                     <div className='md:col-span-4 px-2'>
                         <div>
-                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Invoice', ln)}</p>
+                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Expense Invoice', ln)}</p>
                             <div className='w-full '>
                                 <input className="input h-8 text-xs !rounded-full border-[#b8ddf8] bg-white" name='expense' value={valueExp.expense} onChange={handleValue} />
                                 <ErrDiv field='expense' errors={errorsExp} ln={ln} />
                             </div>
                         </div>
                         <div className='pt-1'>
-                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Date', ln)}:</p>
+                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Date', ln)}:</p>
                             <Datepicker useRange={false}
                                 asSingle={true}
                                 value={valueExp.dateRange}
@@ -80,7 +81,7 @@ const Expenses = () => {
                             <ErrDiv field='date' errors={errorsExp} ln={ln} />
                         </div>
                         <div className='pt-1'>
-                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Amount', ln)}:</p>
+                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Amount', ln)}:</p>
                             <div className='w-full '>
                                 <input type='number' className="input h-8 text-xs !rounded-full border-[#b8ddf8] bg-white" name='amount' value={valueExp.amount} onChange={handleValue} />
                                 <ErrDiv field='amount' errors={errorsExp} ln={ln} />
@@ -89,7 +90,7 @@ const Expenses = () => {
                     </div>
                     <div className='md:col-span-4 px-2'>
                         <div>
-                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Vendor', ln)}:</p>
+                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Vendor', ln)}:</p>
                             <div className='w-full '>
                                 <Selector arr={sups} value={valueExp}
                                     onChange={(e) => handleChange(e, 'supplier')}
@@ -99,7 +100,7 @@ const Expenses = () => {
                             </div>
                         </div>
                         <div className='pt-1'>
-                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Type', ln)}:</p>
+                            <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Expense Type', ln)}:</p>
                             <div className='w-full '>
                                 <Selector arr={settings.Expenses.Expenses} value={valueExp}
                                     onChange={(e) => handleChange(e, 'expType')}
@@ -110,7 +111,7 @@ const Expenses = () => {
                         </div>
                         <div className='pt-1 gap-3 flex'>
                             <div className='flex-1'>
-                                <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Currency', ln)}:</p>
+                                <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Currency', ln)}:</p>
                                 <div className='w-full'>
                                     <Selector arr={settings.Currency.Currency} value={valueExp}
                                         onChange={(e) => handleChange(e, 'cur')}
@@ -120,7 +121,7 @@ const Expenses = () => {
                                 </div>
                             </div>
                             <div className='flex-1'>
-                                <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Payment', ln)}:</p>
+                                <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Payment', ln)}:</p>
                                 <div className='w-full'>
                                     <Selector arr={settings.ExpPmnt.ExpPmnt} value={valueExp}
                                         onChange={(e) => handleChange(e, 'paid')}
@@ -131,7 +132,7 @@ const Expenses = () => {
                         </div>
                     </div>
                     <div className='md:col-span-4 px-2'>
-                        <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
+                        <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Comments', ln)}:</p>
                         <div>
                             <textarea rows="5" name="comments"
                                 className="input h-32 p-1 rounded-xl border-[#b8ddf8] bg-white w-full"
@@ -177,11 +178,35 @@ const Expenses = () => {
                             className="whiteButton py-1"
                             onClick={() => copyTomisc(uidCollection)}
                         >
-                            <Copy className='size-4'/>
+                            <Copy className='size-4' />
                             Copy to misc invoices
                         </button>
                     </Tltip>
                 }
+
+                <Tltip direction='top' tltpText='Move expense to shipment invoice'>
+                    <button
+                        className="whiteButton py-1"
+                        onClick={() => setDialogShipment(true)}
+                    >
+                        <Truck className='size-4' />
+                        Move to shipment
+                    </button>
+                </Tltip>
+
+
+
+                {
+                    opendialogShipment &&
+                    <FindInvoiceModal
+                        open={opendialogShipment}
+                        setOpen={setDialogShipment}
+                        uidCollection={uidCollection}
+                        value={valueExp}
+                        setValue={setValueExp}
+                    />
+                }
+
 
             </div>
         </div >
