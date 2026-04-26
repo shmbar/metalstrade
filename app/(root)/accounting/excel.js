@@ -118,7 +118,7 @@ export const EXD = (dataTable, settings, name, ln) => {
 
                 dateInv: item.dateInv == null ? '' : dateFormat(item.dateInv, 'dd.mm.yy'),
                 saleInvoice: item.saleInvoice == null ? '' : isNumber(item.saleInvoice) ? item.saleInvoice * 1 : item.saleInvoice,
-                clientInv: item.clientInv == null ? '' : item.clientInv,
+                clientInv: item.clientInvName ?? '',
                 amountInv: item.amountInv == null ? '' : item.amountInv,
                 invType: item.invType == null ? '' : item.invType,
             })

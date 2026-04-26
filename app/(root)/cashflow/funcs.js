@@ -333,7 +333,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                     {filteredArr.map((z, i) => {
                         return (
                             <tr key={i}>
-                                <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
@@ -436,7 +436,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                     {filteredArr.map((z, i) => {
                         return (
                             <tr key={i}>
-                                <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
                                     <Tltip direction='top' tltpText={[z.order, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate">{z.order}</span></Tltip></td>
@@ -684,7 +684,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                             {filteredArr.map((z, i) => {
                                 return (
                                     <tr key={i}>
-                                        <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-14 2xl:max-w-24 truncate"
+                                        <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-14 2xl:max-w-24 truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
@@ -806,7 +806,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                             {filteredArr1.map((z, i) => {
                                 return (
                                     <tr key={i}>
-                                        <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-14 2xl:max-w-24 truncate"
+                                        <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-14 2xl:max-w-24 truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
@@ -977,7 +977,18 @@ export const runSupPayments = async (uidCollection, settings, yr, contractsData 
                 originSupplier: contract.originSupplier,
                 order: contract.order, cur: contract.cur, invoice: inv.inv, euroToUSD: contract.euroToUSD,
                 orderData: { date: contract.date, id: contract.id },
-                id: inv.id
+                id: inv.id,
+                contractData: {
+                    productsData: contract.productsData || [],
+                    shpType: contract.shpType, origin: contract.origin,
+                    delTerm: contract.delTerm, pol: contract.pol, pod: contract.pod,
+                    packing: contract.packing, ttlGross: contract.ttlGross,
+                    ttlPackages: contract.ttlPackages, qTypeTable: contract.qTypeTable,
+                    contType: contract.contType, size: contract.size,
+                    deltime: contract.deltime, isDeltimeText: contract.isDeltimeText,
+                    termPmnt: contract.termPmnt, remarks: contract.remarks || [],
+                    date: contract.date,
+                }
             }
             arr.push(obj)
         })
@@ -1058,7 +1069,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                     {filteredArr.map((z, i) => {
                         return (
                             <tr key={i}>
-                                <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'supplier', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}
                                 ><Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
@@ -1229,7 +1240,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                     {filteredArr.map((z, i) => {
                         return (
                             <tr key={i}>
-                                <td className="text-left cursor-pointer text-[var(--endeavour)] max-w-20 truncate"
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, z.poSupplier ? 'expense' : 'compexpense', uidCollection, setDateSelect,
                                         setValueExp, setIsOpen, blankInvoice, router)}>
                                     <Tltip direction='top' tltpText={z.poSupplier?.order ?? 'Comp. Exp.'}><span className="block truncate">{z.poSupplier?.order ?? 'Comp. Exp.'}</span></Tltip></td>

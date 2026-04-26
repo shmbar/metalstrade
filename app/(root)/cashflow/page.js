@@ -47,7 +47,7 @@ function countDecimalDigits(inputString) {
 
 const Cashflow = () => {
 
-    const { settings, ln, setLoading, loading, setToast, setDateSelect } = useContext(SettingsContext);
+    const { settings, compData, ln, setLoading, loading, setToast, setDateSelect } = useContext(SettingsContext);
     const { valueCon, setValueCon, isOpenCon, setIsOpenCon } = useContext(ContractsContext);
     const { valueExp, setValueExp, isOpen, setIsOpen } = useContext(ExpensesContext);
     const { blankInvoice } = useContext(InvoiceContext);
@@ -69,7 +69,7 @@ const Cashflow = () => {
     const currentYear = new Date().getFullYear();
     const [yr, setYr] = useState([currentYear - 1])
     const [incoming, setIncoming] = useState();
-    const { uidCollection, userTitle } = UserAuth();
+    const { uidCollection, userTitle, gisAccount } = UserAuth();
     const [initialData, setInitialData] = useState([]);
     const [stockData1, setStockData1] = useState([])
     const [stockData2, setStockData2] = useState([])
@@ -1583,7 +1583,7 @@ const Cashflow = () => {
                         )}
 
                         {/* Invoice preview popup */}
-                        <InvPopup inv={invPreview} onClose={() => setInvPreview(null)} />
+                        <InvPopup inv={invPreview} onClose={() => setInvPreview(null)} settings={settings} compData={compData} gisAccount={gisAccount} />
 
                     </>
                 }
