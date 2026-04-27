@@ -26,7 +26,7 @@ const getShipTitle = (shpType) => {
 };
 
 // ── Supplier full document preview ─────────────────────────────────────────────
-function SupplierDocPreview({ inv, onClose, settings, compData, gisAccount }) {
+function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
     const supps = settings?.Supplier?.Supplier || [];
     const supplier = supps.find(s => s.id === inv.supplier);
     const c = inv.contractData || {};
@@ -72,12 +72,7 @@ function SupplierDocPreview({ inv, onClose, settings, compData, gisAccount }) {
     const paid = inv.pmnt * 1 || 0;
     const balance = inv.blnc != null ? (inv.blnc * 1) : (total - paid);
 
-    const logo = gisAccount ? '/logo/gisLogo.jpg' : '/logo/logoIms.jpg';
     const watermark = gisAccount ? '/logo/gisBlur.jpg' : '/logo/imsblur1.jpeg';
-
-    // Supplier invoices have no bankNname — fall back to the first configured bank
-    const banks = settings?.['Bank Account']?.['Bank Account'] || [];
-    const bank = banks[0];
 
     const status = balance === 0 ? 'PAID' : paid > 0 ? 'PARTIALLY PAID' : 'UNPAID';
     const statusBg = balance === 0 ? '#dcfce7' : paid > 0 ? '#fef3c7' : '#fee2e2';
@@ -96,13 +91,14 @@ function SupplierDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                 borderRadius: '16px',
                 border: '1px solid #d8e8f5',
                 boxShadow: '0 24px 80px rgba(3,102,174,0.18)',
-                fontFamily: "'Calibri', 'Arial', sans-serif",
+                fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
             }}>
                 {/* Status ribbon — sits OUTSIDE the document */}
                 <div style={{
                     background: '#f8fbff',
                     borderBottom: '1px solid #d8e8f5',
-                    padding: '8px 16px',
+                    padding: '8px 16px 8px 16px',
+                    paddingRight: '44px',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     fontSize: '11px',
                     fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
@@ -143,17 +139,6 @@ function SupplierDocPreview({ inv, onClose, settings, compData, gisAccount }) {
 
                         <div style={{ position: 'relative', zIndex: 1 }}>
 
-                        {/* Header */}
-                        <div className="flex justify-between items-start mb-6">
-                            <img src={logo} alt="logo" style={{ height: '52px', objectFit: 'contain' }} />
-                            <div className="text-right">
-                                <p style={{ fontSize: '11px', fontWeight: '700', color: '#203764' }}>{compData?.name || ''}</p>
-                                <p style={{ fontSize: '10px', color: '#203764' }}>{compData?.street || ''}</p>
-                                <p style={{ fontSize: '10px', color: '#203764' }}>{compData?.city}{compData?.zip ? ' ' + compData.zip : ''}</p>
-                                <p style={{ fontSize: '10px', color: '#203764' }}>{compData?.country || ''}</p>
-                            </div>
-                        </div>
-
                         {/* Supplier (From) + Invoice details */}
                         <div className="flex justify-between items-start mb-4">
                             <div style={{ minWidth: '200px' }}>
@@ -179,7 +164,7 @@ function SupplierDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                         </tr>
                                         <tr>
                                             <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>Date:</td>
-                                            <td style={{ paddingBottom: '3px' }}>{invDate ? dateFormat(invDate, 'dd-mmm-yy') : ''}</td>
+                                            <td style={{ paddingBottom: '3px' }}>{invDate ? dateFormat(invDate, 'dd.mm.yy') : ''}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -191,15 +176,15 @@ function SupplierDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                             <div style={{ border: '1px solid #c8dff0', borderRadius: '4px', marginBottom: '12px' }}>
                                 <table style={{ width: '100%', fontSize: '10px', borderCollapse: 'collapse' }}>
                                     <tbody>
-                                        <tr style={{ borderBottom: '1px solid #dbeeff' }}>
+                                        <tr style={{}}>
                                             <td style={{ padding: '4px 10px', fontWeight: '700', width: '14%' }}>Shipment:</td>
                                             <td style={{ padding: '4px 10px', width: '19%' }}>{shipDisplay}</td>
                                             <td style={{ padding: '4px 10px', fontWeight: '700', width: '8%' }}>POL:</td>
                                             <td style={{ padding: '4px 10px', width: '19%' }}>{polDisplay}</td>
                                             <td style={{ padding: '4px 10px', fontWeight: '700', width: '22%' }}>Net WT Kgs:</td>
-                                            <td style={{ padding: '4px 10px', textAlign: 'right', width: '18%' }}>{NetWTKgs}</td>
+                                            <td style={{ padding: '4px 10px', textAlign: 'right', width: '18%' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td>
                                         </tr>
-                                        <tr style={{ borderBottom: '1px solid #dbeeff' }}>
+                                        <tr style={{}}>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>Origin:</td>
                                             <td style={{ padding: '4px 10px' }}>{originDisplay}</td>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>POD:</td>
@@ -236,7 +221,7 @@ function SupplierDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                     {products.map((item, i) => {
                                         const lineTotal = (item.qnty * 1 || 0) * (item.unitPrc * 1 || 0);
                                         return (
-                                            <tr key={i} style={{ borderBottom: '1px solid #dbeeff' }}>
+                                            <tr key={i}>
                                                 <td className={TD}>{i + 1}</td>
                                                 <td className={TD}>{getDescription(item)}</td>
                                                 <td className={TD_R}>{fmtQty(item.qnty)}</td>
@@ -259,49 +244,6 @@ function SupplierDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 </tr>
                             </tbody>
                         </table>
-
-                        {/* Legal text — matches PDF */}
-                        <div className="text-center mt-10 mb-3" style={{ fontSize: '8px', color: '#888' }}>
-                            <p>This document was issued electronically and is therefore valid without signature</p>
-                            <p>These goods remain property of the seller until payment in full has been received by us</p>
-                        </div>
-
-                        {/* Footer — 3 columns matching PDF */}
-                        <div style={{
-                            background: gisAccount ? undefined : '#096eb6',
-                            borderRadius: '4px',
-                            padding: '10px 14px',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            gap: '12px',
-                            color: '#fff',
-                            fontSize: '9px',
-                        }}>
-                            <div>
-                                <p style={{ fontWeight: '700', marginBottom: '2px' }}>{compData?.name || ''}</p>
-                                <p>{compData?.street || ''}</p>
-                                <p>{compData?.city}{compData?.zip ? ' ' + compData.zip : ''}</p>
-                                <p>{compData?.country || ''}</p>
-                                {compData?.phone && <p>T: {compData.phone}</p>}
-                            </div>
-                            <div>
-                                {compData?.vat && <p>Vat No: {compData.vat}</p>}
-                                {compData?.reg && <p>Reg No: {compData.reg}</p>}
-                                {compData?.eori && <p>EORI No: {compData.eori}</p>}
-                                {compData?.email && <p>{compData.email}</p>}
-                                {compData?.website && <p>{compData.website}</p>}
-                            </div>
-                            {bank && (
-                                <div>
-                                    <p style={{ fontWeight: '700', marginBottom: '2px' }}>{bank.bankName}</p>
-                                    {bank.swiftCode && <p>SWIFT: {bank.swiftCode}</p>}
-                                    {bank.iban && <p>Acc: {bank.iban}</p>}
-                                    {bank.corrBank && <p>{bank.corrBank}</p>}
-                                    {bank.corrBankSwift && <p>{bank.corrBankSwift}</p>}
-                                    {bank.other && <p>{bank.other}</p>}
-                                </div>
-                            )}
-                        </div>
 
                         </div>
                     </div>
@@ -359,10 +301,6 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
     const isInvoice = inv.invType === '1111' || inv.invType === 'Invoice';
     const isCN = inv.invType === '2222' || inv.invType === 'Credit Note';
 
-    const bank = settings?.['Bank Account']?.['Bank Account']?.find(z => z.id === inv.bankNname)
-        || settings?.['Bank Account']?.['Bank Account']?.[0];
-
-    const logo = gisAccount ? '/logo/gisLogo.jpg' : '/logo/logoIms.jpg';
     const watermark = gisAccount ? '/logo/gisBlur.jpg' : '/logo/imsblur1.jpeg';
 
     // Status calc for ribbon
@@ -410,13 +348,14 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                 borderRadius: '16px',
                 border: '1px solid #d8e8f5',
                 boxShadow: '0 24px 80px rgba(3,102,174,0.18)',
-                fontFamily: "'Calibri', 'Arial', sans-serif",
+                fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
             }}>
                 {/* Status ribbon — sits OUTSIDE the document */}
                 <div style={{
                     background: '#f8fbff',
                     borderBottom: '1px solid #d8e8f5',
-                    padding: '8px 16px',
+                    padding: '8px 16px 8px 16px',
+                    paddingRight: '44px',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     fontSize: '11px',
                     fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
@@ -435,14 +374,14 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                             onClick={handleDownload}
                             title="Download PDF"
                             style={{
-                                display: 'inline-flex', alignItems: 'center', gap: '4px',
-                                padding: '4px 10px', borderRadius: '6px',
+                                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                                padding: '4px 12px', borderRadius: '20px',
                                 background: 'var(--endeavour)', color: '#fff',
                                 fontSize: '10px', fontWeight: '600', cursor: 'pointer',
-                                border: 'none',
+                                border: 'none', letterSpacing: '0.3px',
                             }}
                         >
-                            <FaFilePdf /> PDF
+                            <FaFilePdf size={11} /> Download PDF
                         </button>
                         <span style={{
                             padding: '3px 10px', borderRadius: '12px',
@@ -474,17 +413,6 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
 
                         <div style={{ position: 'relative', zIndex: 1 }}>
 
-                        {/* ── Header ── */}
-                        <div className="flex justify-between items-start mb-6">
-                            <img src={logo} alt="logo" style={{ height: '52px', objectFit: 'contain' }} />
-                            <div className="text-right">
-                                <p style={{ fontSize: '11px', fontWeight: '700', color: '#203764' }}>{compData?.name || ''}</p>
-                                <p style={{ fontSize: '10px', color: '#203764' }}>{compData?.street || ''}</p>
-                                <p style={{ fontSize: '10px', color: '#203764' }}>{compData?.city}{compData?.zip ? ' ' + compData.zip : ''}</p>
-                                <p style={{ fontSize: '10px', color: '#203764' }}>{compData?.country || ''}</p>
-                            </div>
-                        </div>
-
                         {/* ── Consignee + Invoice details ── */}
                         <div className="flex justify-between items-start mb-4">
                             <div style={{ minWidth: '200px' }}>
@@ -506,7 +434,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                         </tr>
                                         <tr>
                                             <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>Date:</td>
-                                            <td style={{ paddingBottom: '3px' }}>{invDate ? dateFormat(invDate, 'dd-mmm-yy') : ''}</td>
+                                            <td style={{ paddingBottom: '3px' }}>{invDate ? dateFormat(invDate, 'dd.mm.yy') : ''}</td>
                                         </tr>
                                         {poList.length > 0 && (
                                             <tr>
@@ -522,55 +450,26 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         </div>
 
                         {/* ── Shipment details ── */}
-                        <div style={{ border: '1px solid #c8dff0', borderRadius: '4px', marginBottom: '12px' }}>
-                            <table style={{ width: '100%', fontSize: '10px', borderCollapse: 'collapse' }}>
-                                <tbody>
-                                    <tr style={{ borderBottom: '1px solid #dbeeff' }}>
-                                        <td style={{ padding: '4px 10px', fontWeight: '700', width: '14%' }}>Shipment:</td>
-                                        <td style={{ padding: '4px 10px', width: '19%' }}>{shipDisplay}</td>
-                                        <td style={{ padding: '4px 10px', fontWeight: '700', width: '8%' }}>POL:</td>
-                                        <td style={{ padding: '4px 10px', width: '19%' }}>{polDisplay}</td>
-                                        <td style={{ padding: '4px 10px', fontWeight: '700', width: '22%' }}>Total Net WT Kgs:</td>
-                                        <td style={{ padding: '4px 10px', textAlign: 'right', width: '18%' }}>{NetWTKgs}</td>
-                                    </tr>
-                                    <tr style={{ borderBottom: '1px solid #dbeeff' }}>
-                                        <td style={{ padding: '4px 10px', fontWeight: '700' }}>Origin:</td>
-                                        <td style={{ padding: '4px 10px' }}>{originDisplay}</td>
-                                        <td style={{ padding: '4px 10px', fontWeight: '700' }}>POD:</td>
-                                        <td style={{ padding: '4px 10px' }}>{podDisplay}</td>
-                                        <td style={{ padding: '4px 10px', fontWeight: '700', color: (secondRule || fifthRule) ? '#aaa' : undefined }}>
-                                            {!secondRule && !fifthRule && isInvoice ? 'Total Tarre WT Kgs:' : ''}
-                                        </td>
-                                        <td style={{ padding: '4px 10px', textAlign: 'right' }}>
-                                            {!secondRule && !fifthRule && isInvoice ? TotalTarre : ''}
-                                        </td>
-                                    </tr>
-                                    <tr style={{ borderBottom: '1px solid #dbeeff' }}>
-                                        <td style={{ padding: '4px 10px', fontWeight: '700' }}>Delivery Terms:</td>
-                                        <td style={{ padding: '4px 10px' }}>{delTermDisplay}</td>
-                                        {isInvoice && <td style={{ padding: '4px 10px', fontWeight: '700' }}>Packing:</td>}
-                                        {isInvoice && <td style={{ padding: '4px 10px' }}>{packingDisplay}</td>}
-                                        {!isInvoice && <td colSpan={2} />}
-                                        <td style={{ padding: '4px 10px', fontWeight: '700', color: (fourthRule || fifthRule) ? '#aaa' : undefined }}>
-                                            {!fourthRule && !fifthRule ? (thirdRule ? 'QTY Ingots:' : 'Total Gross WT Kgs:') : ''}
-                                        </td>
-                                        <td style={{ padding: '4px 10px', textAlign: 'right' }}>
-                                            {!fourthRule && !fifthRule ? TotalGross : ''}
-                                        </td>
-                                    </tr>
-                                    {isInvoice && (
-                                        <tr>
-                                            <td colSpan={4} style={{ padding: '4px 10px' }} />
-                                            <td style={{ padding: '4px 10px', fontWeight: '700', color: secondRule ? '#aaa' : undefined }}>
-                                                {!secondRule ? 'Total Packages:' : ''}
-                                            </td>
-                                            <td style={{ padding: '4px 10px', textAlign: 'right' }}>
-                                                {!secondRule ? (inv.ttlPackages || '') : ''}
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                        <div style={{ marginBottom: '16px', fontSize: '10px', display: 'flex', gap: '8px', color: '#203764' }}>
+                            {/* Left: Shipment / Origin / Delivery Terms */}
+                            <div style={{ flex: '0 0 27%' }}>
+                                {shipDisplay && <div style={{ display: 'flex', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Shipment:</span><span>{shipDisplay}</span></div>}
+                                {originDisplay && <div style={{ display: 'flex', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Origin:</span><span>{originDisplay}</span></div>}
+                                {delTermDisplay && <div style={{ display: 'flex', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Delivery Terms:</span><span>{delTermDisplay}</span></div>}
+                            </div>
+                            {/* Middle: POL / POD / Packing */}
+                            <div style={{ flex: '0 0 27%' }}>
+                                {polDisplay && <div style={{ display: 'flex', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>POL:</span><span>{polDisplay}</span></div>}
+                                {podDisplay && <div style={{ display: 'flex', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>POD:</span><span>{podDisplay}</span></div>}
+                                {isInvoice && packingDisplay && <div style={{ display: 'flex', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Packing:</span><span>{packingDisplay}</span></div>}
+                            </div>
+                            {/* Right: WT values stacked */}
+                            <div style={{ flex: '1' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Total Net WT Kgs:</span><span>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</span></div>
+                                {!secondRule && !fifthRule && isInvoice && <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Total Tarre WT Kgs:</span><span>{TotalTarre}</span></div>}
+                                {!fourthRule && !fifthRule && inv.ttlGross && <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>{thirdRule ? 'QTY Ingots:' : 'Total Gross WT Kgs:'}</span><span>{TotalGross}</span></div>}
+                                {isInvoice && !secondRule && inv.ttlPackages && <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Total Packages:</span><span style={{ textAlign: 'right' }}>{inv.ttlPackages}</span></div>}
+                            </div>
                         </div>
 
                         {/* ── Products table ── */}
@@ -588,7 +487,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                             </thead>
                             <tbody>
                                 {products.map((item, i) => (
-                                    <tr key={i} style={{ borderBottom: '1px solid #dbeeff' }}>
+                                    <tr key={i}>
                                         <td className={TD}>{i + 1}</td>
                                         <td className={TD}>{item.po || ''}</td>
                                         <td className={TD}>{getDescription(item)}</td>
@@ -601,7 +500,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 {/* Total rows */}
                                 <tr>
                                     <td colSpan={5} />
-                                    <td className={TD_R} style={{ fontWeight: '700', paddingTop: '6px', borderTop: '1px solid #203764' }}>Total Amount:</td>
+                                    <td className={TD_R} style={{ fontWeight: '700', paddingTop: '6px', borderTop: '1px solid #203764', whiteSpace: 'nowrap' }}>Total Amount:</td>
                                     <td className={TD_R} style={{ fontWeight: '700', paddingTop: '6px', borderTop: '1px solid #203764' }}>{fmtAmt(inv.totalAmount)}</td>
                                 </tr>
                                 {isInvoice && inv.percentage && (
@@ -630,52 +529,6 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                             </tbody>
                         </table>
 
-                        {/* ── Legal text ── */}
-                        <div className="text-center mt-8 mb-4" style={{ fontSize: '8px', color: '#888' }}>
-                            <p>This document was issued electronically and is therefore valid without signature</p>
-                            <p>These goods remain property of the seller until payment in full has been received by us</p>
-                        </div>
-
-                        {/* ── Footer ── */}
-                        <div style={{
-                            background: gisAccount ? undefined : '#096eb6',
-                            borderRadius: '4px',
-                            padding: '10px 14px',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            gap: '12px',
-                            color: '#fff',
-                            fontSize: '9px',
-                        }}>
-                            {/* Company info */}
-                            <div>
-                                <p style={{ fontWeight: '700', marginBottom: '2px' }}>{compData?.name || ''}</p>
-                                <p>{compData?.street || ''}</p>
-                                <p>{compData?.city}{compData?.zip ? ' ' + compData.zip : ''}</p>
-                                <p>{compData?.country || ''}</p>
-                                {compData?.phone && <p>T: {compData.phone}</p>}
-                            </div>
-                            {/* Reg details */}
-                            <div>
-                                {compData?.vat && <p>Vat No: {compData.vat}</p>}
-                                {compData?.reg && <p>Reg No: {compData.reg}</p>}
-                                {compData?.eori && <p>EORI No: {compData.eori}</p>}
-                                {compData?.email && <p>{compData.email}</p>}
-                                {compData?.website && <p>{compData.website}</p>}
-                            </div>
-                            {/* Bank details */}
-                            {bank && (
-                                <div>
-                                    <p style={{ fontWeight: '700', marginBottom: '2px' }}>{bank.bankName}</p>
-                                    {bank.swiftCode && <p>SWIFT: {bank.swiftCode}</p>}
-                                    {bank.iban && <p>Acc: {bank.iban}</p>}
-                                    {bank.corrBank && <p>{bank.corrBank}</p>}
-                                    {bank.corrBankSwift && <p>{bank.corrBankSwift}</p>}
-                                    {bank.other && <p>{bank.other}</p>}
-                                </div>
-                            )}
-                        </div>
-
                         </div>
                     </div>
                 </div>
@@ -692,5 +545,5 @@ export default function InvPopup({ inv, onClose, settings, compData, gisAccount 
         return <ClientDocPreview inv={inv} onClose={onClose} settings={settings} compData={compData} gisAccount={gisAccount} />;
     }
 
-    return <SupplierDocPreview inv={inv} onClose={onClose} settings={settings} compData={compData} gisAccount={gisAccount} />;
+    return <SupplierDocPreview inv={inv} onClose={onClose} settings={settings} gisAccount={gisAccount} />;
 }

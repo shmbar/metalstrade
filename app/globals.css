@@ -276,6 +276,10 @@ input::-webkit-inner-spin-button {
   border-bottom: 1px solid #e8f0f8;
 }
 
+.cashflow-detail-table tbody td.text-\[var\(--endeavour\)\] {
+  color: var(--endeavour);
+}
+
 .cashflow-detail-table tbody tr:hover td {
   background-color: #f0f7ff;
 }
