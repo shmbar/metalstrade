@@ -881,7 +881,7 @@ const Cashflow = () => {
                                                 </div>
                                             ))}
 
-                                            <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                            <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
                                                 <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">Total</div>
                                                 <NumericFormat
                                                     value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
@@ -984,7 +984,7 @@ const Cashflow = () => {
 
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1047,7 +1047,7 @@ const Cashflow = () => {
 
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1106,7 +1106,7 @@ const Cashflow = () => {
                                                             </div>
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1166,7 +1166,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
 
-                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1219,7 +1219,7 @@ const Cashflow = () => {
                                                                     })}
                                                             </div>
 
-                                                            <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                            <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
                                                                 <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                                     Total
                                                                 </div>
@@ -1286,7 +1286,7 @@ const Cashflow = () => {
 
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1349,7 +1349,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
 
-                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1408,7 +1408,7 @@ const Cashflow = () => {
 
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1458,7 +1458,7 @@ const Cashflow = () => {
                                                                     })}
                                                             </div>
 
-                                                            <div className="rounded-lg py-1 px-3 mt-1 flex items-center justify-between">
+                                                            <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
                                                                 <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                                     Total
                                                                 </div>
