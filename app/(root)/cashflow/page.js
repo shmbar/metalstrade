@@ -1081,7 +1081,7 @@ const Cashflow = () => {
                                                             <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
-                                                                        <div className="responsiveText text-[var(--port-gore)] font-normal items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                                        <div className="responsiveText text-[var(--port-gore)] font-medium items-center flex outline-none whitespace-normal break-words min-w-0"
                                                                         >
                                                                             {settings.Client.Client.find(z => z.id === x.client)?.nname}
                                                                         </div>
