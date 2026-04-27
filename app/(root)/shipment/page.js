@@ -193,11 +193,11 @@ function StatusSelect({ value, onChange }) {
     };
 
     return (
-        <div className="flex justify-center">
+        <div className="flex justify-center px-2">
             <button
                 ref={btnRef}
                 onClick={handleToggle}
-                className="flex items-center gap-1.5 rounded-xl px-3 py-1 font-medium responsiveTextTable cursor-pointer focus:outline-none w-full justify-between min-w-[110px]"
+                className="flex items-center gap-1 rounded-xl px-2 py-1 font-medium responsiveTextTable cursor-pointer focus:outline-none w-full justify-between min-w-[110px]"
                 style={STATUS_STYLES[value]}
             >
                 <span>{value || '— Select —'}</span>
@@ -747,8 +747,8 @@ const ShipmentPage = () => {
                                         { label: 'POL',           width: '8%',  col: 'pol'      },
                                         { label: 'POD',           width: '8%',  col: 'pod'      },
                                         { label: 'Ship Type',     width: '8%',  col: 'shpType'  },
-                                        { label: 'Status',        width: '9%',  col: 'status'   },
-                                        { label: 'Notes',         width: '16%', col: null       },
+                                        { label: 'Status',        width: '10%', col: 'status'   },
+                                        { label: 'Notes',         width: '15%', col: null       },
                                     ].map(({ label, width, col }) => (
                                         <th key={label} className="font-poppins responsiveTextTable font-medium py-2"
                                             onClick={col ? () => handleSort(col) : undefined}
