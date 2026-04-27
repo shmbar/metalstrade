@@ -102,15 +102,15 @@ export const MainNav = () => {
         <div className='relative flex items-center' ref={searchRef}>
 
 
-          <Tltip tltpText='Selected Account' direction='bottom'>
-            <div className='flex-1 min-w-0 z-50'>
-              <Selector arr={accounts} value={accounts.find(x => x.id === uidCollection)}
-                onChange={(e) => setUidCollection(e)}
-                name='uidCollection'
-                secondaryName='name'
-              />
-            </div>
-          </Tltip>
+
+          <div className='flex-1 min-w-0 z-50'>
+            <Selector arr={accounts} value={accounts.find(x => x.id === uidCollection)}
+              onChange={(e) => setUidCollection(e)}
+              name='uidCollection'
+              secondaryName='name'
+            />
+          </div>
+
 
           {!openSearch ? (
             <Tltip tltpText={getTtl('Search', ln) || 'Search'} direction='bottom'>
