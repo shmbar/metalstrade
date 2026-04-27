@@ -6,6 +6,7 @@ import {
     SelectValue,
     SelectGroup
 } from "../../../../components/ui/select"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../../../components/ui/tooltip"
 import { sortArr } from "../../../../utils/utils";
 import React, { memo } from "react";
 
@@ -14,8 +15,14 @@ const getCellValue = (props) =>
 
 const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder }) => {
     const cellValue = getCellValue(props);
+    const selectedItem = data?.find(z => z.id === cellValue);
+    const fullName = selectedItem?.nname || '';
     return (
         <div className="relative w-full">
+          <TooltipProvider delayDuration={400}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="w-full">
            <Select
   value={cellValue}
   onValueChange={(e) => handleChangeSelect(e, props.row.index, month, name)}
@@ -59,6 +66,19 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
     </SelectGroup>
   </SelectContent>
 </Select>
+                </div>
+              </TooltipTrigger>
+              {fullName && (
+                <TooltipContent
+                  side="top"
+                  className="bg-[var(--chathams-blue)] text-white text-[0.72rem] rounded-lg px-2.5 py-1 border-0 shadow-md"
+                  style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
+                >
+                  {fullName}
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         </div>
     );
 }, (prevProps, nextProps) => {
