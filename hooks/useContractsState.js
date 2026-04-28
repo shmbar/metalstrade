@@ -15,12 +15,15 @@ import { getTtl } from '@utils/languages';
 
 const buildAutoOrder = (contractsData, supplierName) => {
     const now = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    const todayIso = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-    const todayCount = contractsData.filter(c => c.dateRange?.startDate === todayIso).length;
     const datePart = dateFormat(now, 'ddmmyy');
+    const usedNumbers = contractsData
+        .map(c => c.order ?? '')
+        .filter(o => o.startsWith(datePart + '-'))
+        .map(o => parseInt(o.split('-')[1]))
+        .filter(n => !isNaN(n));
+    const nextN = usedNumbers.length > 0 ? Math.max(...usedNumbers) + 1 : 1;
     const supCode = supplierName ? supplierName.substring(0, 3).toUpperCase() : '';
-    return `${datePart}-${todayCount + 1}-${supCode}`;
+    return `${datePart}-${nextN}-${supCode}`;
 };
 
 const newContract = {
