@@ -47,10 +47,10 @@ export const PdfAnnexVII = async (valueInv, compData, settings) => {
         s34: 67,      // Sections 3 & 4
         s5: 77,       // Sections 5a/b/c
         cmplx: 114,   // Complex section start (6, 7, 8, 9, 10)
-        s8r: 114,     // Section 8 (right col)
-        s9r: 127,     // Section 9 (right col)
-        s7r: 137,     // Section 7 (right col)
-        s10r: 159,    // Section 10 (right col)
+        s8r: 114,     // Section 8 (right col) — 11mm
+        s9r: 125,     // Section 9 (right col) — 9mm
+        s7r: 134,     // Section 7 (right col) — 24mm
+        s10r: 158,    // Section 10 (right col) — 23mm
         ecmplx: 181,  // End of complex section
         s11: 181,     // Section 11 countries
         s12a: 198,    // Section 12 declaration
@@ -122,17 +122,20 @@ export const PdfAnnexVII = async (valueInv, compData, settings) => {
     r(T2, Y.s5, cW, H5);
 
     const drawCarrier = (label, cx, name, addr, contact, tel, fax, email, transport, trDate) => {
+        const lh = 3;
         ty = Y.s5 + 4;
         B(7); t(label, cx + 1, ty);
-        N(); ty += 4;
-        t('Name: ' + (name || ''), cx + 1, ty); ty += 3.5;
-        wrapN('Adress: ' + (addr || ''), cx + 1, ty, cW - 3); ty += 7;
-        t('Contact person: ' + (contact || ''), cx + 1, ty); ty += 3.5;
-        t('Tel.: ' + (tel || ''), cx + 1, ty); ty += 3.5;
-        t('Fax: ' + (fax || ''), cx + 1, ty); ty += 3.5;
-        t('E-Mail: ' + (email || ''), cx + 1, ty); ty += 3.5;
-        t('Means of transport: ' + (transport || ''), cx + 1, ty); ty += 3.5;
-        t('Date of transfer: ' + (trDate || ''), cx + 1, ty); ty += 3.5;
+        N(6.5); ty += 3.5;
+        t('Name: ' + (name || ''), cx + 1, ty); ty += lh;
+        // Address: single line only (columns are narrow — ~63 mm)
+        const addrLine = doc.splitTextToSize('Adress: ' + (addr || ''), cW - 4)[0] || '';
+        t(addrLine, cx + 1, ty); ty += lh;
+        t('Contact person: ' + (contact || ''), cx + 1, ty); ty += lh;
+        t('Tel.: ' + (tel || ''), cx + 1, ty); ty += lh;
+        t('Fax: ' + (fax || ''), cx + 1, ty); ty += lh;
+        t('E-Mail: ' + (email || ''), cx + 1, ty); ty += lh;
+        t('Means of transport: ' + (transport || ''), cx + 1, ty); ty += lh;
+        t('Date of transfer: ' + (trDate || ''), cx + 1, ty); ty += lh;
         t('Signature:', cx + 1, ty);
     };
 
@@ -172,10 +175,10 @@ export const PdfAnnexVII = async (valueInv, compData, settings) => {
     t('E- Mail: ' + (compData.email || ''), L + 1, ty);
 
     // Section 8: Recovery operation (right col top)
-    ty = Y.s8r + 3.5;
+    ty = Y.s8r + 3;
     B(6.5); t('8. Recovery operation (or if appropriate disposal operation in', MID + 1, ty);
-    ty += 3.5; t('case of waste referred to in Article 3(4)):', MID + 1, ty);
-    N(); ty += 4;
+    ty += 3.3; t('case of waste referred to in Article 3(4)):', MID + 1, ty);
+    N(); ty += 3.3;
     t('R-code / D-code : ' + (ax.rDCode || ''), MID + 1, ty);
 
     // Section 9: Waste description (right col)
@@ -184,40 +187,46 @@ export const PdfAnnexVII = async (valueInv, compData, settings) => {
     N(); ty += 4;
     t(ax.wasteDescription || '', MID + 1, ty);
 
-    // Section 7: Recovery facility (right col)
-    ty = Y.s7r + 3.5;
+    // Section 7: Recovery facility (right col) — 24 mm, use 3 mm lh to fit
+    ty = Y.s7r + 3;
     B(7); t('7. Recovery facility □    Laboratory □', MID + 1, ty);
-    N(); ty += 4;
-    t('Name: ' + (client?.nname || ''), MID + 1, ty); ty += 3.5;
-    wrapN('Adress: ' + clientCity, MID + 1, ty, rW - 3); ty += 7;
-    t('Contact person: ' + (client?.poc || ''), MID + 1, ty); ty += 3.5;
-    t('Tel.: ' + (client?.phone || '') + '    Fax: ' + (client?.fax || ''), MID + 1, ty); ty += 3.5;
+    N(6.5); ty += 3.5;
+    t('Name: ' + (client?.nname || ''), MID + 1, ty); ty += 3;
+    // Address: max 2 lines
+    const s7AddrLines = doc.splitTextToSize('Adress: ' + clientCity, rW - 4).slice(0, 2);
+    s7AddrLines.forEach((l, i) => t(l, MID + 1, ty + i * 3));
+    ty += s7AddrLines.length * 3;
+    t('Contact person: ' + (client?.poc || ''), MID + 1, ty); ty += 3;
+    t('Tel.: ' + (client?.phone || '') + '    Fax: ' + (client?.fax || ''), MID + 1, ty); ty += 3;
     t('E-Mail: ' + (client?.email || ''), MID + 1, ty);
 
-    // Section 10: Waste identification codes (right col bottom)
-    ty = Y.s10r + 3.5;
-    B(7); t('10. Waste identification (fill in relevant codes):', MID + 1, ty);
-    N(); ty += 4;
-    t('i) Basel Annex IX :    ' + (ax.baselCode || ''), MID + 1, ty); ty += 3.5;
-    t('ii) OECD (if different from (i)): ' + (ax.oecdCode || ''), MID + 1, ty); ty += 3.5;
-    t('iii) Annex IIIA (⁴): ' + (ax.annexIIIACode || ''), MID + 1, ty); ty += 3.5;
-    t('iv) Annex IIIB (⁵): ' + (ax.annexIIIBCode || ''), MID + 1, ty); ty += 3.5;
-    t('v) EU list of wastes: ' + (ax.euCode || ''), MID + 1, ty); ty += 3.5;
-    t('vi) National code: ' + (ax.nationalCode || ''), MID + 1, ty); ty += 3.5;
-    t('vii) Other (please specify): ' + (ax.otherCode || ''), MID + 1, ty);
+    // Section 10: Waste identification codes (right col bottom) — 23 mm, use 6 pt + 2.5 mm lh
+    ty = Y.s10r + 3;
+    B(6.5); t('10. Waste identification (fill in relevant codes):', MID + 1, ty);
+    N(6); ty += 3.5;
+    const codes = [
+        'i) Basel Annex IX :    ' + (ax.baselCode || ''),
+        'ii) OECD (if different from (i)): ' + (ax.oecdCode || ''),
+        'iii) Annex IIIA (⁴): ' + (ax.annexIIIACode || ''),
+        'iv) Annex IIIB (⁵): ' + (ax.annexIIIBCode || ''),
+        'v) EU list of wastes: ' + (ax.euCode || ''),
+        'vi) National code: ' + (ax.nationalCode || ''),
+        'vii) Other (please specify): ' + (ax.otherCode || ''),
+    ];
+    codes.forEach((c, i) => t(c, MID + 1, ty + i * 2.5));
 
     // ── SECTION 11: Countries ─────────────────────────────────────────────────
     const H11 = Y.s12a - Y.s11; // 17
     r(L, Y.s11, W, H11);
     // Sub-dividers: three columns for Export / Transit / Import
-    const cntW = W / 3;
     ln(T1, Y.s11 + 7, T1, Y.s11 + H11);
     ln(T2, Y.s11 + 7, T2, Y.s11 + H11);
     ln(L, Y.s11 + 7, R, Y.s11 + 7);
 
     ty = Y.s11 + 4;
     B(7); t('11. Countries / State(s) concerned:', L + 1, ty);
-    N(); ty += 4;
+    // Column headers drawn 3 mm below the horizontal divider (s11+7) to avoid the border line cutting through text
+    N(); ty = Y.s11 + 11;
     t('Export / Dispatch', L + 1, ty);
     t('Transit', T1 + 1, ty);
     t('Import / Destination', T2 + 1, ty);
@@ -289,7 +298,7 @@ export const PdfAnnexVII = async (valueInv, compData, settings) => {
         '(⁴) The relevant code(s) as indicated in Annex IIIA to Regulation (EC) No 1013/2006 are to be used, as appropriate in sequence.',
         '(⁵) The BEU codes listed in Annex IIIB to Regulation (EC) No 1013/2006 are to be used.',
     ];
-    notes.forEach((note, i) => t(note, L, Y.fn + i * 3.5));
+    notes.forEach((note, i) => t(note, L, Y.fn + 2 + i * 3.5));
 
     doc.save('Annex_VII.pdf');
 };

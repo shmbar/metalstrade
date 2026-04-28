@@ -66,9 +66,9 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 <button
                     onClick={generatePdf}
                     className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.72rem] font-medium
-                        border border-[#b8ddf8] text-[var(--chathams-blue)] hover:bg-[var(--selago)] transition-all"
+                        bg-emerald-600 text-white hover:opacity-90 transition-all"
                 >
-                    <FileText size={13} /> Generate PDF
+                    <FileText size={13} /> ISF PDF
                 </button>
             </div>
 
