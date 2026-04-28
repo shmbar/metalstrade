@@ -162,10 +162,10 @@ const Contracts = () => {
 			cell: EditableSelectCell,
 			meta: {
 				filterVariant: 'selectSupplier',
-				options: settings.Supplier?.Supplier?.map(s => ({
-					value: s.id,
-					label: s.nname
-				})) ?? []
+				options: (settings.Supplier?.Supplier ?? [])
+					.filter(s => !s.deleted)
+					.sort((a, b) => (a.nname || '').localeCompare(b.nname || ''))
+					.map(s => ({ value: s.id, label: s.nname }))
 			}
 		},
 		{
@@ -173,10 +173,10 @@ const Contracts = () => {
 			header: 'Original supplier',
 			cell: EditableSelectCell,
 			meta: {
-				options: settings.Supplier?.Supplier?.map(s => ({
-					value: s.id,
-					label: s.nname
-				})) ?? []
+				options: (settings.Supplier?.Supplier ?? [])
+					.filter(s => !s.deleted)
+					.sort((a, b) => (a.nname || '').localeCompare(b.nname || ''))
+					.map(s => ({ value: s.id, label: s.nname }))
 			}
 		},
 		{

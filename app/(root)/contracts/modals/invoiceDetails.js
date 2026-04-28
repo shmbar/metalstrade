@@ -20,11 +20,13 @@ import Payments from './payments.js'
 import { UserAuth } from "@contexts/useAuthContext";
 import Spinner from '@components/spinner.js';
 import Remarks from './remarks.js';
+import AnnexVII from './annexVII.js';
+import ISF from './isf.js';
 import { usePathname } from 'next/navigation';
 import { getTtl } from '@utils/languages.js';
 import Tltip from '@components/tlTip.js';
 import { Selector } from '@components/selectors/selectShad.js';
-import { X, Save, LoaderCircle, Eraser, FileText, Trash, PanelTopOpen, Banknote, Copy, ClipboardCheck } from "lucide-react";
+import { X, Save, LoaderCircle, Eraser, FileText, Trash, PanelTopOpen, Banknote, Copy, ClipboardCheck, ChevronDown, ChevronUp, ScrollText } from "lucide-react";
 
 
 const ContractModal = () => {
@@ -48,6 +50,7 @@ const ContractModal = () => {
 	const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 	const pathName = usePathname();
 	const [certOpen, setCertOpen] = useState(false)
+	const [docsOpen, setDocsOpen] = useState(false)
 
 	const selectInvType = (e) => {
 		!fnl && setValueInv({
@@ -249,6 +252,26 @@ const ContractModal = () => {
 		<div className="overflow-x-auto">
 			<div className="px-1 min-w-[900px]">
 				{loading && <Spinner />}
+
+				{/* Annex VII / ISF Documents — collapsible */}
+				<div className="mb-2">
+					<button
+						onClick={() => setDocsOpen(v => !v)}
+						className="flex items-center gap-2 w-full px-3 py-1.5 rounded-xl border border-[#b8ddf8]
+							bg-[#f8fbff] text-[0.72rem] font-medium text-[var(--chathams-blue)] hover:bg-[var(--selago)] transition-all"
+					>
+						<ScrollText size={13} />
+						<span>Annex VII / ISF Documents</span>
+						<span className="ml-auto">{docsOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}</span>
+					</button>
+					{docsOpen && (
+						<div className="mt-2 flex flex-col gap-2">
+							<AnnexVII valueInv={valueInv} setValueInv={setValueInv} compData={compData} settings={settings} />
+							<ISF valueInv={valueInv} setValueInv={setValueInv} compData={compData} settings={settings} valueCon={valueCon} />
+						</div>
+					)}
+				</div>
+
 				<div className='grid grid-cols-12 gap-3 pt-1'>
 					<div className='col-span-1  border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 						<p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Invoices', ln)}:</p>
