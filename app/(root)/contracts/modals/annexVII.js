@@ -90,6 +90,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
                             value={ax}
                             onChange={selectTemplate}
                             name="templateId"
+                            secondaryName="name"
                             clear={clearTemplate}
                         />
                     </div>

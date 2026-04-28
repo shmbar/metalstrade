@@ -82,6 +82,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                             value={isf}
                             onChange={selectTemplate}
                             name="templateId"
+                            secondaryName="name"
                             clear={clearTemplate}
                         />
                     </div>
