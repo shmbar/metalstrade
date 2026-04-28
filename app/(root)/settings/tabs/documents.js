@@ -18,6 +18,13 @@ const ANNEX_FIELDS = [
     { key: 'exportCountry', label: 'Export / Dispatch Country (field 11)', placeholder: 'e.g. US' },
     { key: 'transitCountry', label: 'Transit Country (field 11)', placeholder: '' },
     { key: 'importCountry', label: 'Import / Destination Country (field 11)', placeholder: 'e.g. NL' },
+    { key: 'carrier1Name', label: 'Box 5 — Carrier Name', placeholder: '' },
+    { key: 'carrier1Address', label: 'Box 5 — Carrier Address', placeholder: '' },
+    { key: 'carrier1Contact', label: 'Box 5 — Contact Person', placeholder: '' },
+    { key: 'carrier1Tel', label: 'Box 5 — Tel.', placeholder: '' },
+    { key: 'carrier1Fax', label: 'Box 5 — Fax', placeholder: '' },
+    { key: 'carrier1Email', label: 'Box 5 — E-Mail', placeholder: '' },
+    { key: 'carrier1Transport', label: 'Box 5 — Means of Transport', placeholder: '' },
 ];
 
 const ISF_FIELDS = [

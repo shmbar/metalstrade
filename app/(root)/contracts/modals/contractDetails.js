@@ -76,9 +76,18 @@ const ContractModal = () => {
 		setValueCon({ ...valueCon, 'isDeltimeText': false, 'deltime': '' })
 	}
 
+	const autoOrderPattern = /^\d{6}-\d+-\w*$/;
+
 	const handleChange = (e, name) => {
 		setValueCon(prev => {
 			const updated = { ...prev, [name]: e }
+
+			if (name === 'supplier' && autoOrderPattern.test(prev.order)) {
+				const sup = sups.find(z => z.id === e);
+				const prefix = prev.order.replace(/-[^-]*$/, '');
+				const supCode = sup ? sup.supplier.substring(0, 3).toUpperCase() : '';
+				updated.order = `${prefix}-${supCode}`;
+			}
 
 			if (name === "shpType" && e === "434") {
 				updated.contType = ""

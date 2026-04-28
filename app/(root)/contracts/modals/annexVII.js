@@ -52,6 +52,13 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
                 exportCountry: tmpl.exportCountry || '',
                 transitCountry: tmpl.transitCountry || '',
                 importCountry: tmpl.importCountry || '',
+                carrier1Name: tmpl.carrier1Name || '',
+                carrier1Address: tmpl.carrier1Address || '',
+                carrier1Contact: tmpl.carrier1Contact || '',
+                carrier1Tel: tmpl.carrier1Tel || '',
+                carrier1Fax: tmpl.carrier1Fax || '',
+                carrier1Email: tmpl.carrier1Email || '',
+                carrier1Transport: tmpl.carrier1Transport || '',
             }
         }));
     };
