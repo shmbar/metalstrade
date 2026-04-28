@@ -462,21 +462,19 @@ const Customtable = ({
                                     );
                                   })()
                                 ) : hasValue ? (
-                                  <Tltip direction="top" tltpText={typeof value === 'string' || typeof value === 'number' ? String(value) : undefined}>
-                                    <div
-                                      className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]"
-                                      style={{
-                                        backgroundColor: '#f8fbff',
-                                        border: '1px solid #d8e8f5',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
-                                        maxWidth: '160px',
-                                      }}
-                                    >
-                                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </div>
-                                  </Tltip>
+                                  <div
+                                    className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]"
+                                    style={{
+                                      backgroundColor: '#f8fbff',
+                                      border: '1px solid #d8e8f5',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      whiteSpace: 'nowrap',
+                                      maxWidth: '160px',
+                                    }}
+                                  >
+                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                  </div>
                                 ) : (
                                   <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal w-full" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
                                 )}
