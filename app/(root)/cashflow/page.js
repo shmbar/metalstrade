@@ -1006,7 +1006,7 @@ const Cashflow = () => {
 
 
 
-                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                {stockData2.length > 0 && <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
                                                         <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Stocks - UnPaid</span>
                                                         <div className="flex items-center gap-2">
@@ -1064,7 +1064,7 @@ const Cashflow = () => {
                                                             className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
-                                                </div>
+                                                </div>}
 
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
