@@ -60,9 +60,11 @@ const ContractModal = () => {
 	}
 
 	const btnClck = async () => {
+
+
 		if (!isButtonDisabled) {
 			setIsButtonDisabled(true);
-			let result = await saveData(uidCollection)
+			let result = await saveData(uidCollection, gisAccount)
 			if (!result) setIsButtonDisabled(false); //false
 
 			setTimeout(() => {

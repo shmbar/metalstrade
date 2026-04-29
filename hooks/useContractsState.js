@@ -77,7 +77,7 @@ const useContractsState = (props) => {
             success && setToast({ show: true, text: getTtl('Contract successfully deleted!', ln), clr: 'success' })
 
         },
-        saveData: async (uidCollection) => {
+        saveData: async (uidCollection, gisAccount) => {
             setLoading(true)
             let errs = validate(valueCon, ['supplier', 'cur', 'order', 'shpType', 'date'])
             setErrors(errs)
@@ -118,6 +118,8 @@ const useContractsState = (props) => {
 
                 }
 
+                //Check if supplier is IMS or GIS
+                console.log(valueCon)
             } else { //new object
                 tmpValue = {
                     ...valueCon, id: uuidv4(),
@@ -125,6 +127,13 @@ const useContractsState = (props) => {
                 }
                 //     revalidatePath('/contracts')
                 setContractsData([...contractsData, tmpValue])
+
+                 //Check if supplier is IMS or GIS
+                 if(tmpValue.supplier==='f891ad09-aa67-4ba4-83f0-abe7040e0dd2' && !gisAccount){
+                    let gisCon = {...tmpValue, id: uuidv4(), poInvoices: []} //Who is supplier here?
+                  
+                 }
+              
             }
 
             setValueCon(tmpValue)
@@ -221,7 +230,6 @@ const useContractsState = (props) => {
             let success = await saveData(uidCollection, 'contracts', tmp)
 
 
-            
              ///////////////Special Invoices//////////////
             let newData = tmpdata.filter(q => q.spInv).map(z => {
                 let aa = z.poInvoices.find(a => a.id === z.poInvoice);
