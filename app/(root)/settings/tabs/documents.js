@@ -18,13 +18,6 @@ const ANNEX_FIELDS = [
     { key: 'exportCountry', label: 'Export / Dispatch Country (field 11)', placeholder: 'e.g. US' },
     { key: 'transitCountry', label: 'Transit Country (field 11)', placeholder: '' },
     { key: 'importCountry', label: 'Import / Destination Country (field 11)', placeholder: 'e.g. NL' },
-    { key: 'carrier1Name', label: 'Box 5 — Carrier Name', placeholder: '' },
-    { key: 'carrier1Address', label: 'Box 5 — Carrier Address', placeholder: '' },
-    { key: 'carrier1Contact', label: 'Box 5 — Contact Person', placeholder: '' },
-    { key: 'carrier1Tel', label: 'Box 5 — Tel.', placeholder: '' },
-    { key: 'carrier1Fax', label: 'Box 5 — Fax', placeholder: '' },
-    { key: 'carrier1Email', label: 'Box 5 — E-Mail', placeholder: '' },
-    { key: 'carrier1Transport', label: 'Box 5 — Means of Transport', placeholder: '' },
 ];
 
 const ISF_FIELDS = [
@@ -36,8 +29,21 @@ const ISF_FIELDS = [
     { key: 'consolidator', label: 'Consolidator', placeholder: '' },
 ];
 
+const CARRIER_FIELDS = [
+    { key: 'name', label: 'Carrier Name', required: true },
+    { key: 'address', label: 'Address', placeholder: '' },
+    { key: 'contact', label: 'Contact Person', placeholder: '' },
+    { key: 'tel', label: 'Tel.', placeholder: '' },
+    { key: 'fax', label: 'Fax', placeholder: '' },
+    { key: 'email', label: 'E-Mail', placeholder: '' },
+];
+
 const blankAnnex = () => ANNEX_FIELDS.reduce((acc, f) => ({ ...acc, [f.key]: '' }), { id: '' });
 const blankIsf = () => ISF_FIELDS.reduce((acc, f) => ({ ...acc, [f.key]: '' }), { id: '' });
+const blankCarrier = () => CARRIER_FIELDS.reduce((acc, f) => ({ ...acc, [f.key]: '' }), { id: '' });
+
+const getBlank = (doc) => doc === 'Annex VII' ? blankAnnex() : doc === 'ISF' ? blankIsf() : blankCarrier();
+const getFields = (doc) => doc === 'Annex VII' ? ANNEX_FIELDS : doc === 'ISF' ? ISF_FIELDS : CARRIER_FIELDS;
 
 const Documents = () => {
     const { settings, updateSettings } = useContext(SettingsContext);
@@ -48,12 +54,12 @@ const Documents = () => {
     const [showForm, setShowForm] = useState(false);
     const [error, setError] = useState('');
 
-    const fields = activeDoc === 'Annex VII' ? ANNEX_FIELDS : ISF_FIELDS;
+    const fields = getFields(activeDoc);
     const templates = settings[activeDoc]?.[activeDoc] ?? [];
 
     const switchDoc = (doc) => {
         setActiveDoc(doc);
-        setForm(doc === 'Annex VII' ? blankAnnex() : blankIsf());
+        setForm(getBlank(doc));
         setEditId(null);
         setShowForm(false);
         setError('');
@@ -62,7 +68,7 @@ const Documents = () => {
     const handleField = (key, val) => setForm(prev => ({ ...prev, [key]: val }));
 
     const save = () => {
-        if (!form.name?.trim()) { setError('Template name is required.'); return; }
+        if (!form.name?.trim()) { setError(`${activeDoc === 'Carrier' ? 'Carrier name' : 'Template name'} is required.`); return; }
         setError('');
         let newList;
         if (editId) {
@@ -72,7 +78,7 @@ const Documents = () => {
         }
         const newObj = { [activeDoc]: newList };
         updateSettings(uidCollection, newObj, activeDoc, true);
-        setForm(activeDoc === 'Annex VII' ? blankAnnex() : blankIsf());
+        setForm(getBlank(activeDoc));
         setEditId(null);
         setShowForm(false);
     };
@@ -89,28 +95,30 @@ const Documents = () => {
         const newObj = { [activeDoc]: newList };
         updateSettings(uidCollection, newObj, activeDoc, true);
         if (editId === id) {
-            setForm(activeDoc === 'Annex VII' ? blankAnnex() : blankIsf());
+            setForm(getBlank(activeDoc));
             setEditId(null);
             setShowForm(false);
         }
     };
 
     const cancel = () => {
-        setForm(activeDoc === 'Annex VII' ? blankAnnex() : blankIsf());
+        setForm(getBlank(activeDoc));
         setEditId(null);
         setShowForm(false);
         setError('');
     };
 
+    const listLabel = activeDoc === 'Carrier' ? 'Carrier' : 'Template';
+
     return (
         <div className="p-2 flex w-full">
             <div className="flex w-full flex-col md:flex-row gap-4">
 
-                {/* LEFT — template list */}
+                {/* LEFT — list */}
                 <div className="md:w-[35%] flex-shrink-0">
                     {/* Doc type toggle */}
-                    <div className="flex gap-2 mb-3">
-                        {['Annex VII', 'ISF'].map(doc => (
+                    <div className="flex gap-2 mb-3 flex-wrap">
+                        {['Annex VII', 'ISF', 'Carrier'].map(doc => (
                             <button key={doc} onClick={() => switchDoc(doc)}
                                 className={`px-4 py-1.5 rounded-full text-[0.75rem] font-medium transition-all border
                                     ${activeDoc === doc
@@ -121,10 +129,12 @@ const Documents = () => {
                         ))}
                     </div>
 
-                    {/* Template list */}
+                    {/* List */}
                     <ul className="flex flex-col ring-1 ring-black/5 rounded-2xl bg-[#e3f3ff] py-2 min-h-[60px]">
                         {templates.length === 0 && (
-                            <li className="px-4 py-2 text-[0.75rem] text-[var(--regent-gray)] italic">No templates yet</li>
+                            <li className="px-4 py-2 text-[0.75rem] text-[var(--regent-gray)] italic">
+                                No {activeDoc === 'Carrier' ? 'carriers' : 'templates'} yet
+                            </li>
                         )}
                         {templates.map(t => (
                             <li key={t.id}
@@ -140,17 +150,17 @@ const Documents = () => {
                         ))}
                     </ul>
 
-                    <button onClick={() => { setForm(activeDoc === 'Annex VII' ? blankAnnex() : blankIsf()); setEditId(null); setShowForm(true); setError(''); }}
+                    <button onClick={() => { setForm(getBlank(activeDoc)); setEditId(null); setShowForm(true); setError(''); }}
                         className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.75rem] font-medium
                             border border-[#b8ddf8] text-[var(--chathams-blue)] hover:bg-[var(--selago)] transition-all">
-                        <CirclePlus size={14} /> New Template
+                        <CirclePlus size={14} /> Add {listLabel}
                     </button>
                 </div>
 
-                {/* RIGHT — form (only shown when New Template clicked or editing) */}
+                {/* RIGHT — form */}
                 {showForm && <div className="flex-1 border border-[#b8ddf8] rounded-2xl p-4">
                     <p className="text-[0.75rem] font-semibold text-[var(--chathams-blue)] mb-3 border-l-4 border-[var(--chathams-blue)] pl-2">
-                        {editId ? `Edit ${activeDoc} Template` : `New ${activeDoc} Template`}
+                        {editId ? `Edit ${listLabel}` : `New ${listLabel}`}
                     </p>
                     {error && <p className="text-xs text-red-500 mb-2">{error}</p>}
 
@@ -176,7 +186,7 @@ const Documents = () => {
                         <button onClick={save}
                             className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[0.75rem] font-medium
                                 bg-[var(--endeavour)] text-white hover:opacity-90 transition-all">
-                            <Save size={13} /> {editId ? 'Update' : 'Save Template'}
+                            <Save size={13} /> {editId ? 'Update' : `Save ${listLabel}`}
                         </button>
                         <button onClick={cancel}
                             className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[0.75rem] font-medium

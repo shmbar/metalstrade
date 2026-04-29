@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from 'react';
 import { Selector } from '@components/selectors/selectShad';
 import { PdfAnnexVII } from './pdf/pdfAnnexVII';
 import { FileText } from 'lucide-react';
@@ -24,6 +25,11 @@ const SectionLabel = ({ text }) => (
 const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
     const ax = valueInv.annexVII ?? {};
     const templates = settings['Annex VII']?.['Annex VII'] ?? [];
+    const carriers = settings['Carrier']?.['Carrier'] ?? [];
+    const hsArr = useMemo(
+        () => (settings['Hs']?.['Hs'] ?? []).map(h => ({ id: h.hs, hs: h.hs })),
+        [settings]
+    );
 
     const update = (key, val) => setValueInv(prev => ({
         ...prev,
@@ -31,6 +37,24 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
     }));
 
     const handleInput = (e) => update(e.target.name, e.target.value);
+
+    // Auto-fill weight and container on mount if fields are empty
+    useEffect(() => {
+        const rows = valueInv.productsDataInvoice?.filter(r => r.qnty !== 's') ?? [];
+        const sum = rows.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+        const netWt = sum > 0 ? String(Math.round(sum * 1000) / 1000) : '';
+        const firstCtn = rows.find(r => r.container)?.container || '';
+
+        setValueInv(prev => {
+            const ax = prev.annexVII ?? {};
+            const updates = {};
+            if (netWt && !ax.quantityTonnes) updates.quantityTonnes = netWt;
+            if (firstCtn && !ax.carrier1Transport) updates.carrier1Transport = firstCtn;
+            if (!Object.keys(updates).length) return prev;
+            return { ...prev, annexVII: { ...ax, ...updates } };
+        });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const selectTemplate = (id) => {
         const tmpl = templates.find(t => t.id === id);
@@ -52,20 +76,50 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
                 exportCountry: tmpl.exportCountry || '',
                 transitCountry: tmpl.transitCountry || '',
                 importCountry: tmpl.importCountry || '',
-                carrier1Name: tmpl.carrier1Name || '',
-                carrier1Address: tmpl.carrier1Address || '',
-                carrier1Contact: tmpl.carrier1Contact || '',
-                carrier1Tel: tmpl.carrier1Tel || '',
-                carrier1Fax: tmpl.carrier1Fax || '',
-                carrier1Email: tmpl.carrier1Email || '',
-                carrier1Transport: tmpl.carrier1Transport || '',
+            }
+        }));
+    };
+
+    const selectCarrier = (num, carrierId) => {
+        const c = carriers.find(x => x.id === carrierId);
+        if (!c) return;
+        const p = `carrier${num}`;
+        setValueInv(prev => ({
+            ...prev,
+            annexVII: {
+                ...prev.annexVII,
+                [`${p}Id`]: carrierId,
+                [`${p}Name`]: c.name || '',
+                [`${p}Address`]: c.address || '',
+                [`${p}Contact`]: c.contact || '',
+                [`${p}Tel`]: c.tel || '',
+                [`${p}Fax`]: c.fax || '',
+                [`${p}Email`]: c.email || '',
+            }
+        }));
+    };
+
+    const clearCarrier = (num) => {
+        const p = `carrier${num}`;
+        setValueInv(prev => ({
+            ...prev,
+            annexVII: {
+                ...prev.annexVII,
+                [`${p}Id`]: '',
+                [`${p}Name`]: '',
+                [`${p}Address`]: '',
+                [`${p}Contact`]: '',
+                [`${p}Tel`]: '',
+                [`${p}Fax`]: '',
+                [`${p}Email`]: '',
             }
         }));
     };
 
     const clearTemplate = () => update('templateId', '');
-
     const generatePdf = () => PdfAnnexVII(valueInv, compData, settings);
+
+    const carrierSortedArr = [...carriers].filter(c => !c.deleted).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
     return (
         <div className="border-2 border-[#b8ddf8] rounded-2xl p-3">
@@ -102,10 +156,25 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
                 {/* Section 3: Quantity */}
                 <SectionLabel text="Section 3 — Actual Quantity" />
                 <Field label="Tonnes (Mg)" name="quantityTonnes" value={ax.quantityTonnes} onChange={handleInput} placeholder="e.g. 15.154" />
-                <Field label="m³" name="quantityM3" value={ax.quantityM3} onChange={handleInput} placeholder="" />
+                <Field label="m³" name="quantityM3" value={ax.quantityM3} onChange={handleInput} />
 
                 {/* Section 5a: First Carrier */}
                 <SectionLabel text="Section 5(a) — First Carrier" />
+                {carriers.length > 0 && (
+                    <div className="md:col-span-2">
+                        <label className="block text-[0.68rem] font-medium text-[var(--chathams-blue)] mb-0.5">Pick Carrier</label>
+                        <div className="w-64">
+                            <Selector
+                                arr={carrierSortedArr}
+                                value={{ carrier1Id: ax.carrier1Id || '' }}
+                                onChange={v => selectCarrier(1, v)}
+                                name="carrier1Id"
+                                secondaryName="name"
+                                clear={() => clearCarrier(1)}
+                            />
+                        </div>
+                    </div>
+                )}
                 <Field label="Carrier Name" name="carrier1Name" value={ax.carrier1Name} onChange={handleInput} />
                 <Field label="Carrier Address" name="carrier1Address" value={ax.carrier1Address} onChange={handleInput} />
                 <Field label="Contact Person" name="carrier1Contact" value={ax.carrier1Contact} onChange={handleInput} />
@@ -117,6 +186,21 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
 
                 {/* Section 5b: Second Carrier */}
                 <SectionLabel text="Section 5(b) — Second Carrier (optional)" />
+                {carriers.length > 0 && (
+                    <div className="md:col-span-2">
+                        <label className="block text-[0.68rem] font-medium text-[var(--chathams-blue)] mb-0.5">Pick Carrier</label>
+                        <div className="w-64">
+                            <Selector
+                                arr={carrierSortedArr}
+                                value={{ carrier2Id: ax.carrier2Id || '' }}
+                                onChange={v => selectCarrier(2, v)}
+                                name="carrier2Id"
+                                secondaryName="name"
+                                clear={() => clearCarrier(2)}
+                            />
+                        </div>
+                    </div>
+                )}
                 <Field label="Carrier Name" name="carrier2Name" value={ax.carrier2Name} onChange={handleInput} />
                 <Field label="Carrier Address" name="carrier2Address" value={ax.carrier2Address} onChange={handleInput} />
                 <Field label="Contact Person" name="carrier2Contact" value={ax.carrier2Contact} onChange={handleInput} />
@@ -138,7 +222,32 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
                 <Field label="iii) Annex IIIA" name="annexIIIACode" value={ax.annexIIIACode} onChange={handleInput} />
                 <Field label="iv) Annex IIIB" name="annexIIIBCode" value={ax.annexIIIBCode} onChange={handleInput} />
                 <Field label="v) EU List of Wastes" name="euCode" value={ax.euCode} onChange={handleInput} placeholder="e.g. 19.12.02" />
-                <Field label="vi) National Code" name="nationalCode" value={ax.nationalCode} onChange={handleInput} placeholder="e.g. 7503" />
+
+                {/* vi) National Code — HS picker or free-text */}
+                <div>
+                    <label className="block text-[0.68rem] font-medium text-[var(--chathams-blue)] mb-0.5">vi) National Code (HS)</label>
+                    {hsArr.length > 0 ? (
+                        <Selector
+                            arr={hsArr}
+                            value={{ nationalCode: ax.nationalCode || '' }}
+                            onChange={v => update('nationalCode', v)}
+                            name="nationalCode"
+                            secondaryName="hs"
+                            clear={() => update('nationalCode', '')}
+                        />
+                    ) : (
+                        <input
+                            name="nationalCode"
+                            value={ax.nationalCode || ''}
+                            onChange={handleInput}
+                            placeholder="e.g. 7503"
+                            className="border border-[#b8ddf8] rounded-full px-3 h-7 text-[0.75rem] w-full
+                                focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
+                            style={{ fontFamily: 'inherit' }}
+                        />
+                    )}
+                </div>
+
                 <Field label="vii) Other" name="otherCode" value={ax.otherCode} onChange={handleInput} />
 
                 {/* Section 11: Countries */}

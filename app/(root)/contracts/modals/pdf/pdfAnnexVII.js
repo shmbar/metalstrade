@@ -87,7 +87,7 @@ export const PdfAnnexVII = async (valueInv, compData, settings) => {
     t('Name: ' + (compData.name || ''), L + 1, ty); ty += 3.8;
     t('Adress: ' + (compData.street || ''), L + 1, ty); ty += 3.8;
     t('Contact person: ' + (compData.contact || ''), L + 1, ty); ty += 3.8;
-    t('Tel.: ' + (compData.tel || '') + '    Fax: ' + (compData.fax || ''), L + 1, ty); ty += 3.8;
+    t('Tel.: ' + (compData.phone || '') + '    Fax: ' + (compData.fax || ''), L + 1, ty); ty += 3.8;
     t('E-Mail: ' + (compData.email || ''), L + 1, ty);
 
     // Section 2
@@ -171,7 +171,7 @@ export const PdfAnnexVII = async (valueInv, compData, settings) => {
     t('Adress: ' + (compData.street || ''), L + 1, ty); ty += 3.5;
     t('Fax: ' + (compData.fax || ''), L + 1, ty); ty += 3.5;
     t('Contact person: ' + (compData.contact || ''), L + 1, ty); ty += 3.5;
-    t('Tel.: ' + (compData.tel || ''), L + 1, ty); ty += 3.5;
+    t('Tel.: ' + (compData.phone || ''), L + 1, ty); ty += 3.5;
     t('E- Mail: ' + (compData.email || ''), L + 1, ty);
 
     // Section 8: Recovery operation (right col top)
