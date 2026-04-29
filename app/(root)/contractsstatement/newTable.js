@@ -423,12 +423,11 @@ const Customtable = ({
                                 borderBottom: '1px solid #b8ddf8',
                               }}>
                                 <span className="responsiveTextTable font-medium" style={{ color: 'var(--chathams-blue)' }}>
-                                  {[row.original.order && `PO# ${row.original.order}`, row.original.supplier].filter(Boolean).join(' · ')}
-                                </span>
-                                <span className="responsiveTextTable font-medium" style={{ color: 'var(--chathams-blue)' }}>
-                                  {row.original.poWeight != null
-                                    ? `${new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(row.original.poWeight)} MT`
-                                    : ''}
+                                  {[
+                                    row.original.poWeight != null && `${new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(row.original.poWeight)} MT`,
+                                    row.original.order && `PO# ${row.original.order}`,
+                                    row.original.supplier
+                                  ].filter(Boolean).join(' · ')}
                                 </span>
                               </div>
 
