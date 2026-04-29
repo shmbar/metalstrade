@@ -404,14 +404,34 @@ const Customtable = ({
                         <tr>
                           <td
                             colSpan={columnsWithSelection.length}
-                            style={{ padding: '0 8px 10px 24px', background: '#f0f6ff' }}
+                            style={{ padding: '2px 12px 10px 12px', background: '#f0f6ff' }}
                           >
                             <div style={{
                               border: '1px solid #b8ddf8',
-                              borderRadius: '10px',
+                              borderRadius: '12px',
                               overflow: 'hidden',
-                              boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
+                              boxShadow: '0 2px 8px rgba(3,102,174,0.07)',
+                              background: '#fff',
                             }}>
+                              {/* Card header — mirrors cashflow accordion trigger */}
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '6px 14px',
+                                background: '#dbeeff',
+                                borderBottom: '1px solid #b8ddf8',
+                              }}>
+                                <span className="responsiveTextTable font-medium" style={{ color: 'var(--chathams-blue)' }}>
+                                  {[row.original.order && `PO# ${row.original.order}`, row.original.supplier].filter(Boolean).join(' · ')}
+                                </span>
+                                <span className="responsiveTextTable font-medium" style={{ color: 'var(--chathams-blue)' }}>
+                                  {row.original.poWeight != null
+                                    ? `${new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(row.original.poWeight)} MT`
+                                    : ''}
+                                </span>
+                              </div>
+
                               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                   <tr>
@@ -420,7 +440,7 @@ const Customtable = ({
                                       .map(c => (
                                         <th key={c.column.id}
                                           className="responsiveTextTable font-medium"
-                                          style={{ padding: '6px 6px', background: '#dbeeff', color: 'var(--chathams-blue)', textAlign: 'center', whiteSpace: 'nowrap', borderBottom: '1px solid #b8ddf8', ...(c.column.id === 'description' ? { maxWidth: '120px', whiteSpace: 'normal' } : {}) }}
+                                          style={{ padding: '6px 8px', background: '#f8fbff', color: 'var(--chathams-blue)', textAlign: 'center', whiteSpace: 'nowrap', borderBottom: '1px solid #d8e8f5', ...(c.column.id === 'description' ? { maxWidth: '120px', whiteSpace: 'normal' } : {}) }}
                                         >
                                           {c.column.columnDef.header}
                                         </th>
@@ -436,7 +456,7 @@ const Customtable = ({
                                         .map(c => (
                                           <td key={c.id}
                                             className="responsiveTextTable"
-                                            style={{ padding: '5px 6px', textAlign: 'center', color: 'var(--chathams-blue)', whiteSpace: 'nowrap', borderBottom: si < row.subRows.length - 1 ? '1px solid #e8f0f8' : 'none', ...(c.column.id === 'description' ? { maxWidth: '120px', whiteSpace: 'normal', wordBreak: 'break-word', textAlign: 'center' } : {}) }}
+                                            style={{ padding: '5px 8px', textAlign: 'center', color: 'var(--port-gore)', whiteSpace: 'nowrap', borderBottom: si < row.subRows.length - 1 ? '1px solid #e8f0f8' : 'none', ...(c.column.id === 'description' ? { maxWidth: '120px', whiteSpace: 'normal', wordBreak: 'break-word', textAlign: 'center' } : {}) }}
                                           >
                                             {c.column.id === 'description' ? (
                                               <div className="flex justify-center [&>p]:w-auto [&>p]:text-center">

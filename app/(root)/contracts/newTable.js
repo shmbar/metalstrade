@@ -72,7 +72,17 @@ const Customtable = ({
   useEffect(() => {
     try { localStorage.setItem(storageKey, JSON.stringify(columnVisibility)) } catch {}
   }, [columnVisibility, storageKey])
-  const { ln } = useContext(SettingsContext);
+  const { ln, settings } = useContext(SettingsContext);
+
+  const globalFilterFn = useMemo(() => (row, columnId, filterValue) => {
+    const search = String(filterValue ?? '').toLowerCase();
+    const val = row.getValue(columnId);
+    if (columnId === 'supplier' || columnId === 'originSupplier') {
+      const name = (settings?.Supplier?.Supplier ?? []).find(s => s.id === val)?.nname || '';
+      return name.toLowerCase().includes(search);
+    }
+    return String(val ?? '').toLowerCase().includes(search);
+  }, [settings]);
 
   const [quickSumEnabled, setQuickSumEnabled] = useState(false);
   const [quickSumColumns, setQuickSumColumns] = useState([]);
@@ -142,6 +152,7 @@ const Customtable = ({
     enableRowSelection: quickSumEnabled,
     getCoreRowModel: getCoreRowModel(),
     filterFns: { dateBetweenFilterFn },
+    globalFilterFn,
     state: {
       globalFilter,
       columnVisibility,
