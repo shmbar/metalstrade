@@ -10,7 +10,7 @@ const Setup = () => {
   const [keyName, setKeyName] = useState("Container Type");
 
   const excludedKeys = useMemo(
-    () => new Set(["Supplier", "Client", "Bank Account", "InvTypes", "ExpPmnt", "Currency", "Stocks"]),
+    () => new Set(["Supplier", "Client", "Bank Account", "InvTypes", "ExpPmnt", "Currency", "Stocks", "Annex VII", "ISF", "Carrier"]),
     []
   );
 

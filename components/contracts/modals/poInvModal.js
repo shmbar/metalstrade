@@ -73,6 +73,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
 
         const symbol = valueCon.cur !== '' ? settings.Currency.Currency.find(x => x.id === valueCon.cur).symbol : ''
         x2 = x2.length > 3 ? x2.substring(0, 3) : x2
+        if (x2.length === 2) x2 = x2 + '0'
         return addSymbol ? (symbol + x1 + x2) : (x1 + x2);
     }
 

@@ -907,3 +907,21 @@ export const updateOpenMonth = async (uidCollection, month, year, open) => {
   );
 
 }
+
+
+export const saveDatatoServer = async (uidCollection, path, obj) => {
+
+  let m;
+  let y;
+  if (!obj.final) {
+    m = obj.dateRange.startDate.substring(5, 7)
+    y = obj.dateRange.startDate.substring(0, 4)
+  } else {
+    m = obj.m
+    y = obj.dateRange.slice(-4);
+  }
+
+  return await setDoc(doc(db, uidCollection, "data", path + '_' + y, obj.id), { ...obj, m: m }).then(() => {
+    return true;
+  });
+}

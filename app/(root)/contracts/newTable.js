@@ -72,7 +72,17 @@ const Customtable = ({
   useEffect(() => {
     try { localStorage.setItem(storageKey, JSON.stringify(columnVisibility)) } catch {}
   }, [columnVisibility, storageKey])
-  const { ln } = useContext(SettingsContext);
+  const { ln, settings } = useContext(SettingsContext);
+
+  const globalFilterFn = useMemo(() => (row, columnId, filterValue) => {
+    const search = String(filterValue ?? '').toLowerCase();
+    const val = row.getValue(columnId);
+    if (columnId === 'supplier' || columnId === 'originSupplier') {
+      const name = (settings?.Supplier?.Supplier ?? []).find(s => s.id === val)?.nname || '';
+      return name.toLowerCase().includes(search);
+    }
+    return String(val ?? '').toLowerCase().includes(search);
+  }, [settings]);
 
   const [quickSumEnabled, setQuickSumEnabled] = useState(false);
   const [quickSumColumns, setQuickSumColumns] = useState([]);
@@ -142,6 +152,7 @@ const Customtable = ({
     enableRowSelection: quickSumEnabled,
     getCoreRowModel: getCoreRowModel(),
     filterFns: { dateBetweenFilterFn },
+    globalFilterFn,
     state: {
       globalFilter,
       columnVisibility,
@@ -462,21 +473,19 @@ const Customtable = ({
                                     );
                                   })()
                                 ) : hasValue ? (
-                                  <Tltip direction="top" tltpText={typeof value === 'string' || typeof value === 'number' ? String(value) : undefined}>
-                                    <div
-                                      className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]"
-                                      style={{
-                                        backgroundColor: '#f8fbff',
-                                        border: '1px solid #d8e8f5',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
-                                        maxWidth: '160px',
-                                      }}
-                                    >
-                                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </div>
-                                  </Tltip>
+                                  <div
+                                    className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]"
+                                    style={{
+                                      backgroundColor: '#f8fbff',
+                                      border: '1px solid #d8e8f5',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      whiteSpace: 'nowrap',
+                                      maxWidth: '160px',
+                                    }}
+                                  >
+                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                  </div>
                                 ) : (
                                   <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal w-full" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
                                 )}

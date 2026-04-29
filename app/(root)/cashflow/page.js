@@ -855,7 +855,7 @@ const Cashflow = () => {
                                     ) : (
                                         <>
                                             {stockDataNoSold.map((x, i) => (
-                                                <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                     <MyAccordion title={
                                                         <div className="flex w-full justify-between">
                                                             <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
@@ -881,7 +881,7 @@ const Cashflow = () => {
                                                 </div>
                                             ))}
 
-                                            <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
+                                            <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
                                                 <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">Total</div>
                                                 <NumericFormat
                                                     value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
@@ -952,7 +952,7 @@ const Cashflow = () => {
                                                     </div>
                                                     {stockData1.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0"
@@ -984,7 +984,7 @@ const Cashflow = () => {
 
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1006,7 +1006,7 @@ const Cashflow = () => {
 
 
 
-                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                {stockData2.length > 0 && <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
                                                         <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-bold">Stocks - UnPaid</span>
                                                         <div className="flex items-center gap-2">
@@ -1017,7 +1017,7 @@ const Cashflow = () => {
 
                                                     {stockData2.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1047,7 +1047,7 @@ const Cashflow = () => {
 
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1064,7 +1064,7 @@ const Cashflow = () => {
                                                             className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
-                                                </div>
+                                                </div>}
 
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
@@ -1078,7 +1078,7 @@ const Cashflow = () => {
 
                                                     {clientInvoices2.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="responsiveText text-[var(--port-gore)] font-medium items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1106,7 +1106,7 @@ const Cashflow = () => {
                                                             </div>
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1137,7 +1137,7 @@ const Cashflow = () => {
 
                                                     {clientInvoices1.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1166,7 +1166,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
 
-                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1219,7 +1219,7 @@ const Cashflow = () => {
                                                                     })}
                                                             </div>
 
-                                                            <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
+                                                            <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
                                                                 <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                                     Total
                                                                 </div>
@@ -1256,7 +1256,7 @@ const Cashflow = () => {
 
                                                     {supPayments2.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                                         <span className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words w-full min-w-0"
@@ -1286,7 +1286,7 @@ const Cashflow = () => {
 
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1319,7 +1319,7 @@ const Cashflow = () => {
 
                                                     {supPayments1.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                                         <span className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words w-full min-w-0"
@@ -1349,7 +1349,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
 
-                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1379,7 +1379,7 @@ const Cashflow = () => {
 
                                                     {expenses.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-1 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex justify-between leading-4 2xl:leading-6 w-full">
                                                                         <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"              >
@@ -1408,7 +1408,7 @@ const Cashflow = () => {
 
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
+                                                    <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
                                                         <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
@@ -1458,7 +1458,7 @@ const Cashflow = () => {
                                                                     })}
                                                             </div>
 
-                                                            <div className="rounded-lg py-1 px-1 mt-1 flex items-center justify-between">
+                                                            <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
                                                                 <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
                                                                     Total
                                                                 </div>

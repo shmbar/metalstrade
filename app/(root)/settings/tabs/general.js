@@ -309,22 +309,7 @@ const General = () => {
                                     {getTtl('cmpPhone', ln)}:</p>
                                 <input
                                     type='input'
-                                    className="
-  flex-1
-  h-[26px]
-  px-4
-  rounded-full
-  border
-  border-[#E5E7EB]
-  bg-white
-  text-[var(--chathams-blue)]
-  outline-none
-  transition
-  focus:border-[#0A5DB8]
-  focus:ring-2
-  focus:ring-[#0A5DB8]/20
-  text-[0.75rem]
-"
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
                                     value={compData?.phone || ''}
                                     onChange={e => setCompData({ ...(compData || {}), phone: e.target.value })}
                                 />
@@ -334,21 +319,27 @@ const General = () => {
                                     {getTtl('cmpMobile', ln)}:</p>
                                 <input
                                     type='input'
-                                    className="  flex-1 h-[26px] px-4
-  rounded-full
-  border
-  border-[#E5E7EB]
-  bg-white
-  text-[var(--chathams-blue)]
-  outline-none
-  transition
-  focus:border-[#0A5DB8]
-  focus:ring-2
-  focus:ring-[#0A5DB8]/20
-  text-[0.75rem]
-"
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
                                     value={compData?.mobile || ''}
                                     onChange={e => setCompData({ ...(compData || {}), mobile: e.target.value })}
+                                />
+                            </div>
+                            <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
+                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Fax:</p>
+                                <input
+                                    type='input'
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    value={compData?.fax || ''}
+                                    onChange={e => setCompData({ ...(compData || {}), fax: e.target.value })}
+                                />
+                            </div>
+                            <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
+                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Contact Person:</p>
+                                <input
+                                    type='input'
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    value={compData?.contact || ''}
+                                    onChange={e => setCompData({ ...(compData || {}), contact: e.target.value })}
                                 />
                             </div>
                         </div>

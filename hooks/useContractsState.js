@@ -13,6 +13,19 @@ import { getCur } from '@components/exchangeApi'
 import { getTtl } from '@utils/languages';
 //import { revalidatePath } from 'next/cache';
 
+const buildAutoOrder = (contractsData, supplierName) => {
+    const now = new Date();
+    const datePart = dateFormat(now, 'ddmmyy');
+    const usedNumbers = contractsData
+        .map(c => c.order ?? '')
+        .filter(o => o.startsWith(datePart + '-'))
+        .map(o => parseInt(o.split('-')[1]))
+        .filter(n => !isNaN(n));
+    const nextN = usedNumbers.length > 0 ? Math.max(...usedNumbers) + 1 : 1;
+    const supCode = supplierName ? supplierName.substring(0, 3).toUpperCase() : '';
+    return `${datePart}-${nextN}-${supCode}`;
+};
+
 const newContract = {
     id: '', opDate: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"), lstSaved: '', order: '',
     dateRange: { startDate: null, endDate: null }, date: '', supplier: '',
@@ -28,7 +41,7 @@ const useContractsState = (props) => {
     const [contractsData, setContractsData] = useState([]);
     const [isOpenCon, setIsOpenCon] = useState(false);
     const [errors, setErrors] = useState({})
-    const { setToast, setLastAction, dateYr, setLoading, ln } = useContext(SettingsContext);
+    const { setToast, setLastAction, dateYr, setLoading, ln, settings } = useContext(SettingsContext);
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
     return {
@@ -38,7 +51,7 @@ const useContractsState = (props) => {
         errors, setErrors,
         isButtonDisabled, setIsButtonDisabled,
         addContract: async () => {
-            setValueCon(newContract);
+            setValueCon({ ...newContract, order: buildAutoOrder(contractsData, null) });
             setIsOpenCon(true)
         },
         delContract: async (uidCollection) => {
@@ -118,8 +131,6 @@ const useContractsState = (props) => {
 
                 }
 
-                //Check if supplier is IMS or GIS
-                console.log(valueCon)
             } else { //new object
                 tmpValue = {
                     ...valueCon, id: uuidv4(),
@@ -128,11 +139,11 @@ const useContractsState = (props) => {
                 //     revalidatePath('/contracts')
                 setContractsData([...contractsData, tmpValue])
 
-                 //Check if supplier is IMS or GIS
-                 if(tmpValue.supplier==='f891ad09-aa67-4ba4-83f0-abe7040e0dd2' && !gisAccount){
-                    let gisCon = {...tmpValue, id: uuidv4(), poInvoices: []} //Who is supplier here?
+                //  //Check if supplier is IMS or GIS
+                //  if(tmpValue.supplier==='f891ad09-aa67-4ba4-83f0-abe7040e0dd2' && !gisAccount){
+                //     let gisCon = {...tmpValue, id: uuidv4(), poInvoices: []} //Who is supplier here?
                   
-                 }
+                //  }
               
             }
 
@@ -145,10 +156,12 @@ const useContractsState = (props) => {
             if (success) return true;
         },
         duplicate: async (uidCollection) => {
-
+            const sups = settings?.Supplier?.Supplier ?? [];
+            const supplierObj = valueCon.supplier && sups.find(z => z.id === valueCon.supplier);
             let newObj = {
                 ...valueCon, invoices: [], id: '',
-                lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"), order: '',
+                lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"),
+                order: buildAutoOrder(contractsData, supplierObj?.supplier ?? null),
                 poInvoices: [], stock: [], expenses: [],
                 productsData: valueCon.productsData.map(x => ({ ...x, id: uuidv4() }))
             }

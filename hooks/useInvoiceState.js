@@ -19,7 +19,23 @@ const newInvoice = {
     final: false, canceled: false, balanceDue: '', expenses: [], poSupplier: { id: '', order: '', date: '' }, remarks: [],
     hs1: '', hs2: '', payments: [], shipData: {
         rcvd: '', outrnamnt: '', fnlzing: '2587', status: '', etd: '', eta: '',
-    }, comments: ''
+    }, comments: '',
+    annexVII: {
+        enabled: false, templateId: '',
+        wasteDescription: '', baselCode: '', oecdCode: '', annexIIIACode: '', annexIIIBCode: '',
+        euCode: '', nationalCode: '', otherCode: '', rDCode: '',
+        exportCountry: '', transitCountry: '', importCountry: '',
+        quantityTonnes: '', quantityM3: '',
+        carrier1Name: '', carrier1Address: '', carrier1Contact: '', carrier1Tel: '',
+        carrier1Fax: '', carrier1Email: '', carrier1Transport: '', carrier1Date: '',
+        carrier2Name: '', carrier2Address: '', carrier2Contact: '', carrier2Tel: '',
+        carrier2Fax: '', carrier2Email: '', carrier2Transport: '', carrier2Date: '',
+    },
+    isf: {
+        enabled: false, templateId: '',
+        importerRecordNum: '', consigneeNum: '', htsCommodityCode: '',
+        containerStuffingLocation: '', consolidator: '',
+    }
 }
 
 const useInvoiceState = () => {

@@ -9,7 +9,7 @@ import Remarks from './remarksSelection.js'
 import PriceRemarks from './priceRemarks.js'
 import { usePathname } from 'next/navigation';
 import ModalToDelete from '@components/modalToProceed';
-import { validate, ErrDiv, reOrderTableCon, getD, sortArr } from '@utils/utils'
+import { validate, ErrDiv, reOrderTableCon, getD, sortArr, saveDatatoServer } from '@utils/utils'
 import { UserAuth } from "@contexts/useAuthContext";
 import FilesModal from './filesModal.js'
 import PoInvModal from './poInvModal.js'
@@ -19,7 +19,9 @@ import FinalSettlmentModal from './finalSettlmentModal.js';
 import CheckBox from '@components/checkbox.js';
 import Tltip from '@components/tlTip.js';
 import { Selector } from '@components/selectors/selectShad';
-import { X, Save, LoaderCircle, FileText, Trash, Copy, SendToBack, Database } from "lucide-react"
+import { X, Save, LoaderCircle, FileText, Trash, Copy, SendToBack, Database, Files } from "lucide-react"
+import Toast from '../../../../components/toast.js'
+
 
 const ContractModal = () => {
 
@@ -64,7 +66,7 @@ const ContractModal = () => {
 
 		if (!isButtonDisabled) {
 			setIsButtonDisabled(true);
-			let result = await saveData(uidCollection, gisAccount)
+			let result = await saveData(uidCollection)
 			if (!result) setIsButtonDisabled(false); //false
 
 			setTimeout(() => {
@@ -78,9 +80,18 @@ const ContractModal = () => {
 		setValueCon({ ...valueCon, 'isDeltimeText': false, 'deltime': '' })
 	}
 
+	const autoOrderPattern = /^\d{6}-\d+-\w*$/;
+
 	const handleChange = (e, name) => {
 		setValueCon(prev => {
 			const updated = { ...prev, [name]: e }
+
+			if (name === 'supplier' && autoOrderPattern.test(prev.order)) {
+				const sup = sups.find(z => z.id === e);
+				const prefix = prev.order.replace(/-[^-]*$/, '');
+				const supCode = sup ? sup.supplier.substring(0, 3).toUpperCase() : '';
+				updated.order = `${prefix}-${supCode}`;
+			}
 
 			if (name === "shpType" && e === "434") {
 				updated.contType = ""
@@ -108,9 +119,36 @@ const ContractModal = () => {
 		}))
 	}
 
+	const CopyIMSGIS = async () => {
+
+		const now = new Date();
+		const formatted = now.toLocaleString('en-GB', {
+			day: '2-digit',
+			month: 'short',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false
+		}).replace(',', '');
+
+		const newCon = {
+			...valueCon, 'supplier': gisAccount ? "f891ad09-aa67-4ba4-83f0-abe7040e0dd2" : '0dfe23d3-3199-4556-a178-07ad52529e37',
+			'poInvoices': [], 'expenses': [], lstSaved: formatted, invoices: [],
+			stock: []
+		}
+
+
+		const uid = gisAccount ? 'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2' : 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS'
+
+		let success = await saveDatatoServer(uid, 'contracts', newCon)
+	
+		success && setToast({ show: true, text: 'Data successfully copied!', clr: 'success' })
+	}
+
+
 	return (
 		<div className="px-1">
-
+			<Toast />
 			<div className='grid grid-cols-1 md:grid-cols-6 gap-3 pt-1'>
 				<div className='md:col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex flex-col md:flex-row gap-3 items-start md:items-center'>
@@ -437,6 +475,15 @@ const ContractModal = () => {
 					>
 						<SendToBack className='size-4' />
 						{getTtl('FinalSettlmnt', ln)}
+					</button>
+				</Tltip>
+				<Tltip direction='top' tltpText={`Copy contract to ${!gisAccount ? "GIS" : "IMS"}`}>
+					<button
+						className="whiteButton py-1 flex"
+						onClick={() => CopyIMSGIS()}
+					>
+						<Files className='size-4' />
+						{!gisAccount ? "Copy to GIS" : "Copy to IMS"}
 					</button>
 				</Tltip>
 			</div>
