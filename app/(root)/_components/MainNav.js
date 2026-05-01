@@ -14,7 +14,7 @@ import Tltip from '../../../components/tlTip'
 import { Selector } from '@components/selectors/selectShad';
 
 export const MainNav = () => {
-  const { SignOut, user } = UserAuth()
+  const { SignOut, user, gisAccount } = UserAuth();
   const { compData, accounts, uidCollection, setUidCollection } = useContext(SettingsContext)
   const ln = compData?.lng || 'English'
   const router = useRouter()
@@ -86,11 +86,13 @@ export const MainNav = () => {
         }}
       >
         <img
-          src='/logo/ims_main.svg'
+          src={!gisAccount ? '/logo/ims_main.svg' : '/logo/gisLogo.svg'}
           alt='IMS Logo'
           style={{
-            width: 'clamp(120px, 18vw, 200px)',
+            width: !gisAccount ? 'clamp(120px, 18vw, 200px)' : 'clamp(120px, 18vw, 120px)',
             height: 'auto',
+            bottom: gisAccount ? '4px' : '0px',
+            position: 'relative'
           }}
         />
       </div>
@@ -102,13 +104,13 @@ export const MainNav = () => {
         <div className='relative flex items-center' ref={searchRef}>
 
 
-            <div className='flex-1 min-w-0 z-50'>
-              <Selector arr={accounts} value={accounts.find(x => x.id === uidCollection)}
-                onChange={(e) => setUidCollection(e)}
-                name='uidCollection'
-                secondaryName='name'
-              />
-            </div>
+          <div className='flex-1 min-w-0 z-50'>
+            <Selector arr={accounts} value={accounts.find(x => x.id === uidCollection)}
+              onChange={(e) => setUidCollection(e)}
+              name='uidCollection'
+              secondaryName='name'
+            />
+          </div>
 
           {!openSearch ? (
             <Tltip tltpText={getTtl('Search', ln) || 'Search'} direction='bottom'>
