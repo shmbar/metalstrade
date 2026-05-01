@@ -136,7 +136,7 @@ const Documents = () => {
                                 No {activeDoc === 'Carrier' ? 'carriers' : 'templates'} yet
                             </li>
                         )}
-                        {templates.map(t => (
+                        {[...templates].sort((a, b) => (a.name || '').localeCompare(b.name || '')).map(t => (
                             <li key={t.id}
                                 className={`flex items-center justify-between px-4 py-2 rounded-full mx-2 cursor-pointer
                                     text-[0.75rem] text-[var(--chathams-blue)] hover:bg-[var(--selago)]
