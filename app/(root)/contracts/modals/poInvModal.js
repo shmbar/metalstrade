@@ -55,7 +55,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
 
 
 
-    const addComma = (nStr, addSymbol) => {
+    const addComma = (nStr, addSymbol, item) => {
         nStr += '';
         var x = nStr.split('.');
         var x1 = x[0];
@@ -68,7 +68,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
 
         const symbol = valueCon.cur !== '' ? settings.Currency.Currency.find(x => x.id === valueCon.cur).symbol : ''
         x2 = x2.length > 3 ? x2.substring(0, 3) : x2
-        if (x2.length === 2) x2 = x2 + '0'
+        if (x2.length === 2 && item === 'total') x2 = x2 + '0'
         return addSymbol ? (symbol + x1 + x2) : (x1 + x2);
     }
 
@@ -309,13 +309,13 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                 Total Payment:
                                             </p>
                                             <input type='text' className="number-separator input border-slate-300 h-7 responsiveTextTable" name='pmnt'
-                                                value={addComma(x.pmnt, true)} disabled />
+                                                value={addComma(x.pmnt, true, 'total')} disabled />
                                         </div>
                                         <div className=''>
                                             <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Balance', ln)}:</p>
                                             <div className='flex pr-3'>
                                                 <input type='text' disabled className="number-separator input border-slate-300 h-7 responsiveTextTable" name='blnc'
-                                                    value={addComma(x.blnc, true)} />
+                                                    value={addComma(x.blnc, true, 'total')} />
                                                 <div className='group relative'>
                                                     <ArrowBigRight className='text-[var(--regent-gray)] ml-3 cursor-pointer' onClick={switchToStocks} />
                                                     <span className="absolute hidden group-hover:flex top-[30px] w-fit p-1
