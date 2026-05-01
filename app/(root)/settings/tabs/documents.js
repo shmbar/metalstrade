@@ -22,11 +22,12 @@ const ANNEX_FIELDS = [
 
 const ISF_FIELDS = [
     { key: 'name', label: 'Template Name', required: true },
-    { key: 'importerRecordNum', label: 'Importer of Record Number', placeholder: '' },
+    { key: 'importerRecordNum', label: 'Importer Reference #', placeholder: '' },
     { key: 'consigneeNum', label: 'Consignee Number', placeholder: '' },
     { key: 'htsCommodityCode', label: 'HTS-6 Commodity Code', placeholder: 'e.g. 7503.00' },
-    { key: 'containerStuffingLocation', label: 'Container Stuffing Location', placeholder: '' },
-    { key: 'consolidator', label: 'Consolidator', placeholder: '' },
+    { key: 'itemDescription', label: 'Item Description', placeholder: 'e.g. Ni Cr Stainless Steel Turnings' },
+    { key: 'email1', label: 'Notification Email 1', placeholder: 'e.g. compliance@company.com' },
+    { key: 'email2', label: 'Notification Email 2', placeholder: '' },
 ];
 
 const CARRIER_FIELDS = [
