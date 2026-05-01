@@ -1,13 +1,9 @@
 import React from 'react'
 import { saveAs } from 'file-saver';
 import { Workbook } from 'exceljs';
-// import removed: SiMicrosoft not available
-import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import Tltip from '../../../components/tlTip';
 import { FileSpreadsheet } from 'lucide-react';
-
-
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
 const wb = new Workbook();
@@ -19,21 +15,30 @@ sheet.views = [
     { rightToLeft: false }
 ];
 
-
 function getNumFmtForCurrency(currency) {
-
     switch (currency) {
-        case 'us':
-            return '$';
-        case 'eu':
-            return '€';
-        // Add more cases for other currencies as needed
-        default:
-            return ''; // Default to empty string
+        case 'us': return '$';
+        case 'eu': return '€';
+        default: return '';
     }
 }
 
-export const EXD = (dataTable, settings, name, ln, sumData) => {
+// Per-column Excel metadata
+const COL_META = {
+    order:          { width: 15, isQty: false, isCurrency: false, getValue: (item) => item.order || '' },
+    date:           { width: 15, isQty: false, isCurrency: false, getValue: (item) => item.date || '' },
+    supplier:       { width: 20, isQty: false, isCurrency: false, getValue: (item, settings) => settings.Supplier.Supplier.find(q => q.id === item.supplier)?.nname || '' },
+    originSupplier: { width: 20, isQty: false, isCurrency: false, getValue: (item) => item.originSupplier || '' },
+    stock:          { width: 20, isQty: false, isCurrency: false, getValue: (item, settings) => settings.Stocks.Stocks.find(q => q.id === item.stock)?.nname || '' },
+    descriptionName:{ width: 40, isQty: false, isCurrency: false, getValue: (item) => item.descriptionName || '' },
+    qnty:           { width: 14, isQty: true,  isCurrency: false, getValue: (item) => item.qnty * 1 },
+    qTypeTable:     { width: 14, isQty: false, isCurrency: false, getValue: (item, settings) => settings.Quantity.Quantity.find(q => q.id === item.qTypeTable)?.qTypeTable || '' },
+    unitPrc:        { width: 14, isQty: false, isCurrency: true,  getValue: (item) => isNaN(item.unitPrc) ? '' : item.unitPrc * 1 },
+    total:          { width: 15, isQty: false, isCurrency: true,  getValue: (item) => isNaN(item.total) ? '' : (item?.total || '') },
+    sType:          { width: 20, isQty: false, isCurrency: false, getValue: (item) => item.sType || '' },
+};
+
+export const EXD = (dataTable, settings, name, ln, sumData, columnVisibility = {}, allColumns = []) => {
 
     const exportExcel = async () => {
 
@@ -41,47 +46,44 @@ export const EXD = (dataTable, settings, name, ln, sumData) => {
             sheet.spliceRows(2, 1);
         }
 
-        sheet.columns = [
-            { key: 'order', header: 'PO#', width: 15, style: styles },
-            { key: 'supplier', header: 'Supplier', width: 15, style: styles },
-            { key: 'descriptionName', header: 'Description', width: 40, style: styles },
-            { key: 'qTypeTable', header: 'Weight Type', width: 14, style: styles },
-            { key: 'qnty', header: 'Quantity', width: 14, style: styles },
-            { key: 'unitPrc', header: 'Price', width: 14, style: styles },
-            { key: 'total', header: 'Final Value', width: 15, style: styles },
-            { key: 'stock', header: 'Stock', width: 20, style: styles },
-            { key: 'sType', header: 'Stock type', width: 20, style: styles },
-        ];
+        // Build visible column list from propDefaults order, filtered by columnVisibility
+        const visibleCols = (allColumns.length > 0 ? allColumns : Object.keys(COL_META).map(k => ({ accessorKey: k, header: k })))
+            .filter(col => col.accessorKey && COL_META[col.accessorKey])
+            .filter(col => columnVisibility[col.accessorKey] !== false)
+            .map(col => ({
+                accessorKey: col.accessorKey,
+                header: typeof col.header === 'string' ? col.header : col.accessorKey,
+                ...COL_META[col.accessorKey],
+            }));
 
-        sheet.getRow(1).eachCell((cell, colNumber) => {
+        sheet.columns = visibleCols.map(col => ({
+            key: col.accessorKey,
+            header: col.header,
+            width: col.width,
+            style: styles,
+        }));
+
+        sheet.getRow(1).eachCell((cell) => {
             if (cell.value) cell.fill = {
                 type: 'pattern',
                 pattern: 'solid',
                 fgColor: { argb: '800080' }
-            }
-            cell.font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };  // Font color to white
+            };
+            cell.font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
         });
 
-
         for (let i = 0; i < dataTable.length; i++) {
-            let item = dataTable[i]
-            sheet.addRow({
-                order: item.order === '' ? '' : item.order,
-                supplier:  settings.Supplier.Supplier.find(q => q.id === item.supplier)?.nname,
-                descriptionName: item.descriptionName === '' ? '' : item.descriptionName,
-                qTypeTable: settings.Quantity.Quantity.find(q => q.id === item.qTypeTable)?.qTypeTable || '',
-                qnty: item.qnty * 1,
-                unitPrc: isNaN(item.unitPrc) ? '' : item.unitPrc * 1,
-                total: isNaN(item.total) ? '' : (item?.total || ''),
-                stock: settings.Stocks.Stocks.find(q => q.id === item.stock)?.nname,
-                sType: item.sType
-            })
+            let item = dataTable[i];
+            let row = {};
+            visibleCols.forEach(col => {
+                row[col.accessorKey] = col.getValue(item, settings);
+            });
+            sheet.addRow(row);
         }
 
         sheet.eachRow((row, rowNumber) => {
             row.eachCell((cell, colNumber) => {
-                if (cell.value || cell.value === '' || cell.value == undefined || cell.value === 0
-                    || cell.value === '-') {
+                if (cell.value || cell.value === '' || cell.value == undefined || cell.value === 0 || cell.value === '-') {
                     row.getCell(colNumber).border = {
                         top: { style: 'thin' },
                         left: { style: 'thin' },
@@ -89,43 +91,38 @@ export const EXD = (dataTable, settings, name, ln, sumData) => {
                         right: { style: 'thin' }
                     };
                 }
-
-                if ((colNumber === 6 || colNumber === 7) && rowNumber > 1) {
-                    let item = dataTable[rowNumber - 2]
-                    let sym = getNumFmtForCurrency(item.cur)
-                    row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]$#,##0.00`
-                }
-                if (colNumber === 5 && rowNumber > 1) {
-                    row.getCell(colNumber).numFmt = `#,##0.000;[Red]#,##0.000`
+                const col = visibleCols[colNumber - 1];
+                if (col && rowNumber > 1) {
+                    if (col.isCurrency) {
+                        let item = dataTable[rowNumber - 2];
+                        let sym = getNumFmtForCurrency(item?.cur);
+                        row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]$#,##0.00`;
+                    }
+                    if (col.isQty) {
+                        row.getCell(colNumber).numFmt = `#,##0.000;[Red]#,##0.000`;
+                    }
                 }
             });
         });
 
-        //in Case I want to merge
-        //     sheet.mergeCells('A5:A6');
-        //     sheet.getCell('A5').style.alignment = { horizontal: 'center', vertical: 'middle' }
-
-
-        let startSummary = dataTable.length + 3
+        let startSummary = dataTable.length + 3;
         sheet.getCell('A' + startSummary).value = 'Summary';
-        sheet.getCell('A' + startSummary).font = {
-            size: 13,
-            bold: true
-        };
+        sheet.getCell('A' + startSummary).font = { size: 13, bold: true };
 
         const arrLength = sumData.length;
-
         for (let i = 0; i < arrLength; i++) {
-
-            let item = sumData[i]
-
+            let item = sumData[i];
             sheet.addRow({
                 stock: item && item.stock !== '' ? settings.Stocks.Stocks.find(q => q.id === item.stock)?.stock : '',
-                qTypeTable: item && item.qTypeTable !== '' ? settings.Quantity.Quantity.find(q => q.id === item.qTypeTable).qTypeTable : '',
+                qTypeTable: item && item.qTypeTable !== '' ? settings.Quantity.Quantity.find(q => q.id === item.qTypeTable)?.qTypeTable : '',
                 qnty: item && item.qnty * 1,
                 total: item && item.total * 1,
-            })
+            });
         }
+
+        // Find column indices for summary formatting
+        const qntyIdx = visibleCols.findIndex(c => c.accessorKey === 'qnty') + 1;
+        const totalIdx = visibleCols.findIndex(c => c.accessorKey === 'total') + 1;
 
         sheet.eachRow((row, rowNumber) => {
             row.eachCell((cell, colNumber) => {
@@ -139,23 +136,20 @@ export const EXD = (dataTable, settings, name, ln, sumData) => {
                         };
                     }
                 }
-                if (colNumber === 5 && rowNumber > startSummary) {
-                    row.getCell(colNumber).numFmt = `#,##0.000;[Red]#,##0.000`
+                if (qntyIdx > 0 && colNumber === qntyIdx && rowNumber > startSummary) {
+                    row.getCell(colNumber).numFmt = `#,##0.000;[Red]#,##0.000`;
                 }
-                if ((colNumber === 7) && rowNumber > startSummary) {
-                    let item = sumData[rowNumber - startSummary - 1]
-                    let sym = getNumFmtForCurrency(item.cur)
-                    row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]$#,##0.00`
+                if (totalIdx > 0 && colNumber === totalIdx && rowNumber > startSummary) {
+                    let item = sumData[rowNumber - startSummary - 1];
+                    let sym = getNumFmtForCurrency(item?.cur);
+                    row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]$#,##0.00`;
                 }
-            })
-        })
-
+            });
+        });
 
         const buf = await wb.xlsx.writeBuffer();
-        saveAs(new Blob([buf]), `${name}.xlsx`)
-    }
-
-
+        saveAs(new Blob([buf]), `${name}.xlsx`);
+    };
 
     return (
         <div>
@@ -169,4 +163,4 @@ export const EXD = (dataTable, settings, name, ln, sumData) => {
             </Tltip>
         </div>
     );
-}
+};

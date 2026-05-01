@@ -344,12 +344,14 @@ const Stocks = () => {
                   cb={stockSelector}
                   type='stock'
                   invisible={invisible}
-                  excellReport={EXD(
+                  excellReport={(columnVisibility) => EXD(
                     data.filter(x => filteredArray1.map(z => z.id).includes(x.id)),
                     settings,
                     getTtl('Stocks', ln),
                     ln,
-                    sumData
+                    sumData,
+                    columnVisibility,
+                    propDefaults
                   )}
                   ln={ln}
                   setFilteredArray1={setFilteredArray1}

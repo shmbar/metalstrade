@@ -215,7 +215,7 @@ const Customtable = ({
               globalFilter={globalFilter}
               setGlobalFilter={setGlobalFilter}
               table={table}
-              excellReport={excellReport}
+              excellReport={typeof excellReport === 'function' ? excellReport(columnVisibility) : excellReport}
               cb={cb}
               type={type}
               filterIcon={FiltersIcon(ln, filterOn, setFilterOn)}
