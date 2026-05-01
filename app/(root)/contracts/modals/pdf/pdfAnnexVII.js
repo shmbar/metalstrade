@@ -54,10 +54,10 @@ export const PdfAnnexVII = async (valueInv, compData, settings) => {
         ecmplx: 181,  // End of complex section
         s11: 181,     // Section 11 countries
         s12a: 198,    // Section 12 declaration
-        s13: 216,     // Section 13 signature upon receipt
-        tobe: 226,    // TO BE COMPLETED header
-        s14: 231,     // Section 14
-        fn: 242,      // Footnotes
+        s13: 226,     // Section 13 signature upon receipt (+10 to give box 12 stamp room)
+        tobe: 236,    // TO BE COMPLETED header
+        s14: 241,     // Section 14
+        fn: 252,      // Footnotes
     };
 
     const shipDate = valueInv.dateRange?.startDate
@@ -246,10 +246,18 @@ export const PdfAnnexVII = async (valueInv, compData, settings) => {
     const decl2 = 'knowledge. I also certify that legally-binding written contractual obligations have been entered into with the consignee (not required';
     t(decl2, L + 1, ty); ty += 3.5;
     t('in case of waste referred to in Article 3(4)):', L + 1, ty);
-    N(); ty += 5;
+    N(); ty += 15.5;
     t('Name: ' + (compData.contact || ''), L + 1, ty);
     t('Date: ' + shipDate, L + 65, ty);
     t('Signature:', L + 130, ty);
+
+    // Stamp: starts at y=210 (below declaration text baseline ~208.5), height=12 → bottom=222, 2mm above Name/Date/Sig at y=224
+    const gisAccount = compData.logolink?.includes('gis');
+    try {
+        gisAccount
+            ? doc.addImage('logo/gisSignature.jpg', 'JPEG', L + 128, Y.s12a + 12, 62, 12)
+            : doc.addImage('logo/imsSignatureNew.jpg', 'JPEG', L + 128, Y.s12a + 12, 62, 12);
+    } catch (_) {}
 
     // ── SECTION 13: Signature upon receipt ───────────────────────────────────
     const H13 = Y.tobe - Y.s13; // 10

@@ -27,7 +27,9 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
     const templates = settings['Annex VII']?.['Annex VII'] ?? [];
     const carriers = settings['Carrier']?.['Carrier'] ?? [];
     const hsArr = useMemo(
-        () => (settings['Hs']?.['Hs'] ?? []).map(h => ({ id: h.hs, hs: h.hs })),
+        () => (settings['Hs']?.['Hs'] ?? [])
+            .map(h => { const v = String(h.hs ?? '').toUpperCase(); return { id: v, hs: v }; })
+            .sort((a, b) => parseFloat(a.hs) - parseFloat(b.hs)),
         [settings]
     );
 
@@ -38,18 +40,28 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
 
     const handleInput = (e) => update(e.target.name, e.target.value);
 
-    // Auto-fill weight and container on mount if fields are empty
+    // Auto-fill weight, container and date on mount if fields are empty
     useEffect(() => {
         const rows = valueInv.productsDataInvoice?.filter(r => r.qnty !== 's') ?? [];
         const sum = rows.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
-        const netWt = sum > 0 ? String(Math.round(sum * 1000) / 1000) : '';
+        const netWt = sum > 0 ? sum.toFixed(3) : '';
         const firstCtn = rows.find(r => r.container)?.container || '';
+
+        let dateStr = '';
+        if (valueInv.dateRange?.startDate) {
+            const d = new Date(valueInv.dateRange.startDate);
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            dateStr = `${dd}.${mm}.${d.getFullYear()}`;
+        }
 
         setValueInv(prev => {
             const ax = prev.annexVII ?? {};
             const updates = {};
             if (netWt && !ax.quantityTonnes) updates.quantityTonnes = netWt;
             if (firstCtn && !ax.carrier1Transport) updates.carrier1Transport = firstCtn;
+            if (dateStr && !ax.carrier1Date) updates.carrier1Date = dateStr;
+            if (dateStr && !ax.carrier2Date) updates.carrier2Date = dateStr;
             if (!Object.keys(updates).length) return prev;
             return { ...prev, annexVII: { ...ax, ...updates } };
         });
