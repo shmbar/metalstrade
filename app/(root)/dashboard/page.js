@@ -290,6 +290,9 @@ const Dash = () => {
 
   const { settings, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
   const { uidCollection } = UserAuth();
+  const settingsLoaded = Object.keys(settings).length > 0;
+  const clientCount = settings.Client?.Client?.length || 0;
+  const supplierCount = settings.Supplier?.Supplier?.length || 0;
 
   const [dataInvoices, setDataInvoices] = useState([]);
   const [dataContracts, setDataContracts] = useState([]);
@@ -344,10 +347,10 @@ const Dash = () => {
       setLoading(false);
     };
 
-    if (!uidCollection) return;
-    Object.keys(settings).length !== 0 && Load();
+    if (!uidCollection || !settingsLoaded) return;
+    Load();
 
-  }, [dateSelect, settings, uidCollection, setLoading]);
+  }, [dateSelect, settingsLoaded, clientCount, supplierCount, uidCollection]);
 
   const currentYear = dateSelect?.start?.substring(0, 4) || new Date().getFullYear();
 

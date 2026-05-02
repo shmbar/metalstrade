@@ -134,6 +134,10 @@ const Accounting = () => {
   const { settings, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
   const { uidCollection } = UserAuth();
   const { upsertSourceItems } = useGlobalSearch();
+  const settingsLoaded = Object.keys(settings).length > 0;
+  const clientCount = settings.Client?.Client?.length || 0;
+  const supplierCount = settings.Supplier?.Supplier?.length || 0;
+  const currencyCount = settings.Currency?.Currency?.length || 0;
 
 
   const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
@@ -250,10 +254,10 @@ const Accounting = () => {
       setLoading(false)
     }
 
-    if (!uidCollection) return;
-    Object.keys(settings).length !== 0 && Load();
+    if (!uidCollection || !settingsLoaded) return;
+    Load();
 
-  }, [dateSelect, settings, uidCollection])
+  }, [dateSelect, settingsLoaded, clientCount, supplierCount, currencyCount, uidCollection])
 
 
   useEffect(() => {

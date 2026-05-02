@@ -97,9 +97,8 @@ const Margins = () => {
             setLoading(false)
         }
 
-        //   Object.keys(settings).length !== 0 &&
         Load();
-    }, [yr, settings, uidCollection])
+    }, [yr, uidCollection])
 
     useEffect(() => {
         const total = data.reduce((accumulator, item) => {
@@ -132,35 +131,22 @@ const Margins = () => {
 
     }, [data])
 
-    const handleChangeDate = (e, i, month) => {
-        let dd = dateFormat(e, 'yyyy-mm-dd')
-        let monthData = data.map(z => z.month === month ?
-            {
-                ...z, items: z.items.map((x, k) => k === i ?
-                    {
-                        ...x, date:
-                        {
-                            endDate: dd, startDate: dd,
-                        }
-                    } : x)
-            } : z)
+    const handleChangeDate = useCallback((e, i, month) => {
+        const dd = dateFormat(e, 'yyyy-mm-dd')
+        setData(prev => prev.map(z => z.month === month ? {
+            ...z, items: z.items.map((x, k) => k === i ? {
+                ...x, date: { endDate: dd, startDate: dd }
+            } : x)
+        } : z))
+    }, [])
 
-        setData(monthData)
-    }
-
-    const handleCancelDate = (e, i, month) => {
-
-        let monthData = data.map(z => z.month === month ?
-            {
-                ...z, items: z.items.map((x, k) => k === i ?
-                    {
-                        ...x, date:
-                            { endDate: null, startDate: null }
-                    } : x)
-            } : z)
-
-        setData(monthData)
-    }
+    const handleCancelDate = useCallback((e, i, month) => {
+        setData(prev => prev.map(z => z.month === month ? {
+            ...z, items: z.items.map((x, k) => k === i ? {
+                ...x, date: { endDate: null, startDate: null }
+            } : x)
+        } : z))
+    }, [])
 
     // reorder rows after drag & drop
     function handleDragEnd(event) {
@@ -209,16 +195,13 @@ const Margins = () => {
         setData(newArr)
     }
 
-    const deleteRow = (e, i, month) => {
-
-        let monthData = data.map(z => z.month === month ?
-            {
-                ...z, items: z.items.filter((_, k) => k !== i), ids: z.ids.filter((_, k) => k !== i)
-            } : z)
-
-        setData(monthData)
-
-    }
+    const deleteRow = useCallback((e, i, month) => {
+        setData(prev => prev.map(z => z.month === month ? {
+            ...z,
+            items: z.items.filter((_, k) => k !== i),
+            ids: z.ids.filter((_, k) => k !== i)
+        } : z))
+    }, [])
 
     const addMonth = () => {
 
@@ -233,46 +216,33 @@ const Margins = () => {
         setData(newData)
     }
 
-    const handleChange = (e, i, month) => {
-
+    const handleChange = useCallback((e, i, month) => {
         if (countDecimalDigits(e.target.value) > 3) return;
+        const name = e.target.name;
+        const value = name === 'description' ? e.target.value : removeNonNumeric(e.target.value);
 
-        let monthData = data.map(z => z.month === month ?
-            {
-                ...z, items: z.items.map((x, k) => k === i ?
-                    {
-                        ...x, [e.target.name]: e.target.name === 'description' ? e.target.value : removeNonNumeric(e.target.value),
-                    } : x)
+        setData(prev => {
+            let monthData = prev.map(z => z.month === month ? {
+                ...z, items: z.items.map((x, k) => k === i ? { ...x, [name]: value } : x)
             } : z)
 
-        monthData = monthData.map(z => z.month === month ?
-            {
-                ...z, items: z.items.map((x, k) => k === i ?
-                    {
-                        ...x, totalMargin: x.purchase * x.margin, openShip: x.purchase - x.shipped,
-                        remaining: (x.purchase - x.shipped) * x.margin
-                    } : x)
+            monthData = monthData.map(z => z.month === month ? {
+                ...z, items: z.items.map((x, k) => k === i ? {
+                    ...x, totalMargin: x.purchase * x.margin,
+                    openShip: x.purchase - x.shipped,
+                    remaining: (x.purchase - x.shipped) * x.margin
+                } : x)
             } : z)
 
-        monthData = monthData.map(z => z.month === month ? {
-            ...z, remaining:
-                z.items.reduce((accumulator, current) => {
-                    return accumulator + (current.gis ? (current.remaining / 2 || 0) : (current.remaining || 0))
-                }, 0),
-            totalMargin: z.items.reduce((accumulator, current) => {
-                return accumulator + (current.gis ? (current.totalMargin / 2 || 0) : (current.totalMargin || 0))
-            }, 0),
-            purchase: z.items.reduce((accumulator, current) => {
-                return accumulator + (current.purchase * 1 || 0)
-            }, 0),
-            openShip: z.items.reduce((accumulator, current) => {
-                return accumulator + (current.openShip * 1 || 0)
-            }, 0),
-        } : z)
-
-        setData(monthData)
-
-    }
+            return monthData.map(z => z.month === month ? {
+                ...z,
+                remaining: z.items.reduce((acc, cur) => acc + (cur.gis ? (cur.remaining / 2 || 0) : (cur.remaining || 0)), 0),
+                totalMargin: z.items.reduce((acc, cur) => acc + (cur.gis ? (cur.totalMargin / 2 || 0) : (cur.totalMargin || 0)), 0),
+                purchase: z.items.reduce((acc, cur) => acc + (cur.purchase * 1 || 0), 0),
+                openShip: z.items.reduce((acc, cur) => acc + (cur.openShip * 1 || 0), 0),
+            } : z)
+        })
+    }, [])
 
     useEffect(() => {
         let dt = data.map(z => ({
@@ -330,38 +300,20 @@ const Margins = () => {
         );
     }, [setData]); // Add `setData` as a dependency
 
-    const handleCheckBox = (value, i, month, name) => {
-
-        let newArr = data.map((z) =>
-            z.month === month
-                ? {
-                    ...z,
-                    items: z.items.map((x, k) =>
-                        k === i ? { ...x, gis: value } : x
-                    )
-                }
-                : z
-        )
-
-        newArr = newArr.map(z => z.month === month ? {
-            ...z,
-            remaining: z.items.reduce((accumulator, current) => {
-                return accumulator + (current.gis ? (current.remaining / 2 || 0) : (current.remaining || 0))
-            }, 0),
-            totalMargin: z.items.reduce((accumulator, current) => {
-                console.log(current)
-                return accumulator + (current.gis ? (current.totalMargin / 2 || 0) : (current.totalMargin || 0))
-            }, 0),
-            purchase: z.items.reduce((accumulator, current) => {
-                return accumulator + (current.purchase * 1 || 0)
-            }, 0),
-            openShip: z.items.reduce((accumulator, current) => {
-                return accumulator + (current.openShip * 1 || 0)
-            }, 0),
-        } : z)
-        console.log(newArr)
-        setData(newArr)
-    };
+    const handleCheckBox = useCallback((value, i, month) => {
+        setData(prev => {
+            let newArr = prev.map(z => z.month === month ? {
+                ...z, items: z.items.map((x, k) => k === i ? { ...x, gis: value } : x)
+            } : z)
+            return newArr.map(z => z.month === month ? {
+                ...z,
+                remaining: z.items.reduce((acc, cur) => acc + (cur.gis ? (cur.remaining / 2 || 0) : (cur.remaining || 0)), 0),
+                totalMargin: z.items.reduce((acc, cur) => acc + (cur.gis ? (cur.totalMargin / 2 || 0) : (cur.totalMargin || 0)), 0),
+                purchase: z.items.reduce((acc, cur) => acc + (cur.purchase * 1 || 0), 0),
+                openShip: z.items.reduce((acc, cur) => acc + (cur.openShip * 1 || 0), 0),
+            } : z)
+        })
+    }, []);
 
     const saveData = async () => {
         let result = await saveMargins(uidCollection, data, yr)

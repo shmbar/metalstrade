@@ -189,58 +189,46 @@ export const saveData = async (uidCollection, path, obj) => {
 }
 
 export const loadData = async (uidCollection, path, dateSelect) => {
+  const startYr = parseInt(dateSelect.start?.substring(0, 4));
+  const endYr = parseInt(dateSelect.end?.substring(0, 4));
+  if (!startYr || !endYr) return [];
 
-  let arr = []
+  const years = [];
+  for (let i = startYr; i <= endYr; i++) years.push(i);
 
-  let startYr = dateSelect.start?.substring(0, 4)
-  let endYr = dateSelect.end?.substring(0, 4)
-
-  for (let i = startYr; i <= endYr; i++) {
-
-    const q = query(
-      collection(db, uidCollection, 'data', path + '_' + i),
+  const snapshots = await Promise.all(years.map(yr =>
+    getDocs(query(
+      collection(db, uidCollection, 'data', path + '_' + yr),
       where('date', '>=', dateSelect.start),
       where('date', '<=', dateSelect.end)
-    );
+    ))
+  ));
 
-    const querySnapshot = await getDocs(q);
-
-    let tmp = querySnapshot.docs.map((doc) => {
-      doc.empty && console.log('No matching documents');
-      return !doc.empty && doc.data();
-    });
-    arr = [...arr, ...tmp]
-  }
-
-  return arr;
+  return snapshots.flatMap(snap =>
+    snap.docs.filter(doc => !doc.empty).map(doc => doc.data())
+  );
 }
 
 export const loadDataWeightAnalysis = async (uidCollection, path, dateSelect, entity, name) => {
+  const startYr = parseInt(dateSelect.start?.substring(0, 4));
+  const endYr = parseInt(dateSelect.end?.substring(0, 4));
+  if (!startYr || !endYr) return [];
 
-  let arr = []
+  const years = [];
+  for (let i = startYr; i <= endYr; i++) years.push(i);
 
-  let startYr = dateSelect.start?.substring(0, 4)
-  let endYr = dateSelect.end?.substring(0, 4)
-
-  for (let i = startYr; i <= endYr; i++) {
-
-    const q = query(
-      collection(db, uidCollection, 'data', path + '_' + i),
+  const snapshots = await Promise.all(years.map(yr =>
+    getDocs(query(
+      collection(db, uidCollection, 'data', path + '_' + yr),
       where('date', '>=', dateSelect.start),
       where('date', '<=', dateSelect.end),
       where(entity, '==', name)
-    );
+    ))
+  ));
 
-    const querySnapshot = await getDocs(q);
-
-    let tmp = querySnapshot.docs.map((doc) => {
-      doc.empty && console.log('No matching documents');
-      return !doc.empty && doc.data();
-    });
-    arr = [...arr, ...tmp]
-  }
-
-  return arr;
+  return snapshots.flatMap(snap =>
+    snap.docs.filter(doc => !doc.empty).map(doc => doc.data())
+  );
 }
 
 export const delDoc = async (uidCollection, path, obj) => {

@@ -66,7 +66,11 @@ const Cashflow = () => {
             clientName: clientName || z.clientName || null,
         });
     };
-    const currentYear = new Date().getFullYear();
+    const currentYear = new Date().getFullYear()
+    const settingsLoaded = Object.keys(settings).length > 0;
+    const clientCount = settings.Client?.Client?.length || 0;
+    const supplierCount = settings.Supplier?.Supplier?.length || 0;
+    const stockCount = settings.Stocks?.Stocks?.length || 0;
     const [yr, setYr] = useState([currentYear - 1])
     const [incoming, setIncoming] = useState();
     const { uidCollection, userTitle, gisAccount } = UserAuth();
@@ -158,18 +162,11 @@ const Cashflow = () => {
         const Load = async () => {
             setLoading(true)
 
-            let tmp = 0;
-
-            for (let year of yr) {
-                const dt = await loadMargins(uidCollection, year);
-
-                const yearTotal = dt
-                    .filter(item => !isNaN(item.remaining))
-                    .reduce((acc, item) => acc + (parseFloat(item.remaining) || 0), 0);
-
-                tmp += yearTotal;
-            }
-
+            const marginsPerYear = await Promise.all(yr.map(year => loadMargins(uidCollection, year)));
+            const tmp = marginsPerYear.reduce((total, dt) =>
+                total + dt.filter(item => !isNaN(item.remaining))
+                    .reduce((acc, item) => acc + (parseFloat(item.remaining) || 0), 0)
+            , 0);
             setIncoming(tmp);
 
             let contractsData = (
@@ -222,10 +219,10 @@ const Cashflow = () => {
             setLoading(false)
         }
 
-        if (!uidCollection) return;
-        Object.keys(settings).length !== 0 && Load();
+        if (!uidCollection || !settingsLoaded) return;
+        Load();
 
-    }, [yr, settings, uidCollection])
+    }, [yr, settingsLoaded, clientCount, supplierCount, stockCount, uidCollection])
 
     useEffect(() => {
         if (!isNaN(incoming)) {
