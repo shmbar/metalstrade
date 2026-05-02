@@ -23,12 +23,17 @@ This IMS manages: Contracts (purchase orders), Invoices (sales), Expenses, Stock
 - get_unpaid_expenses — expenses not yet marked as paid
 - get_profit_info — profit and margin data (answers "what is my profit?")
 - get_stock_summary — current inventory levels
+- get_client_invoices — all invoices for a specific client by name (answers "show invoices for [client]", "what does [client] owe?")
+- get_record_by_number — look up a specific invoice by number or contract by PO number (answers "show invoice #12", "find PO-2025-001")
+- get_shipment_status — ETD/ETA/status for active shipments (answers "where are my shipments?", "what is the ETA?")
+- get_monthly_sales — sales broken down by month for a given year (answers "show monthly sales", "compare this month to last month")
+- get_supplier_summary — contracts grouped by supplier with counts and values (answers "top suppliers", "which supplier do we buy from most?")
 
 ## DATA MODEL FACTS (important for accurate answers)
 - Invoice status = Draft / Final / Canceled (from finalization flags, NOT payment)
 - Invoice payment status = Paid / Partially Paid / Unpaid (from payments array vs totalAmount)
 - "Outstanding balance" on an invoice = totalAmount minus all recorded payments
-- Contract status values: Shipped, Not Shipped, Partly Shipped, Finished, Closed, Unsold
+- Contract status values: Shipped, Not Shipped, Partly Shipped, Finished, Closed, Unsold, Open (Open = no status set yet via PnL tab)
 - Expense paid status comes from settings labels — check the "paid" field label, not a hardcoded value
 
 ## WORKFLOW GUIDANCE
@@ -138,6 +143,64 @@ const TOOLS = [
             name: 'get_stock_summary',
             description: 'Get a summary of current stock and inventory levels',
             parameters: { type: 'object', properties: {} }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_client_invoices',
+            description: 'Get all invoices for a specific client by name — answers "show invoices for ABC Corp", "what does XYZ owe?"',
+            parameters: {
+                type: 'object',
+                properties: {
+                    client_name: { type: 'string', description: 'Client name to search for (partial match)' }
+                },
+                required: ['client_name']
+            }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_shipment_status',
+            description: 'Get shipment tracking info — ETD, ETA, status for active shipments. Answers "where are my shipments?", "what is the ETA?", "which shipments are in transit?"',
+            parameters: { type: 'object', properties: {} }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_monthly_sales',
+            description: 'Get sales broken down by month — answers "show monthly sales", "compare this month to last month", "sales by month this year"',
+            parameters: {
+                type: 'object',
+                properties: {
+                    year: { type: 'number', description: 'Year to show monthly breakdown for (default: current year)' }
+                }
+            }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_supplier_summary',
+            description: 'Get contracts grouped by supplier with counts and total values — answers "which supplier do we buy from most?", "show supplier breakdown", "top suppliers"',
+            parameters: { type: 'object', properties: {} }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_record_by_number',
+            description: 'Look up a specific invoice by number or contract by PO number — answers "show invoice #12", "find PO-2025-001"',
+            parameters: {
+                type: 'object',
+                properties: {
+                    type: { type: 'string', enum: ['invoice', 'contract'], description: 'Whether to search invoices or contracts' },
+                    number: { type: 'string', description: 'Invoice number or PO/contract order number to find' }
+                },
+                required: ['type', 'number']
+            }
         }
     },
 ];
@@ -300,6 +363,119 @@ function executeTool(name, args, data) {
                 .map(([desc, d]) => `• ${desc}: ${d.qty.toFixed(2)} ${d.unit}`)
                 .join('\n');
             return `Stock summary (${stocks.length} records):\n${lines}`;
+        }
+
+        case 'get_shipment_status': {
+            // Try invoices with ETD/ETA first (most detailed)
+            const withEtd = invoices.filter(inv => inv.etd || inv.eta);
+            if (withEtd.length > 0) {
+                const sorted = [...withEtd].sort((a, b) => {
+                    const da = a.etd ? new Date(a.etd) : new Date(9999, 0);
+                    const db = b.etd ? new Date(b.etd) : new Date(9999, 0);
+                    return da - db;
+                });
+                return `${sorted.length} shipment(s) tracked:\n${sorted.slice(0, 15).map(inv =>
+                    `• Invoice #${inv.invoice} — ${inv.client} — ETD: ${inv.etd || 'N/A'} — ETA: ${inv.eta || 'N/A'} — ${inv.currency} ${inv.totalAmount.toFixed(2)} — ${inv.paymentStatus}`
+                ).join('\n')}`;
+            }
+            // Fall back to contract-level shipment fields
+            const conShipments = contracts.filter(c => c.shipmentEtd || c.shipmentEta || c.shipmentStatus);
+            if (!conShipments.length) return 'No shipment data found. Add ETD/ETA from the Shipment page or invoice details.';
+            return `${conShipments.length} contract(s) with shipment info:\n${conShipments.slice(0, 15).map(c =>
+                `• PO ${c.order} — ${c.supplier} — ETD: ${c.shipmentEtd || 'N/A'} — ETA: ${c.shipmentEta || 'N/A'} — ${c.shipmentStatus || 'No status'}`
+            ).join('\n')}`;
+        }
+
+        case 'get_monthly_sales': {
+            const targetYear = args?.year ? Number(args.year) : today.getFullYear();
+            const yearInvoices = invoices.filter(inv =>
+                inv.isFinal && !inv.canceled && inv.date &&
+                new Date(inv.date).getFullYear() === targetYear
+            );
+            if (!yearInvoices.length) return `No final invoices found for ${targetYear}. If ${targetYear} is outside the loaded date range, change the date filter in the app header.`;
+            const months = {};
+            yearInvoices.forEach(inv => {
+                const month = String(inv.date).substring(0, 7); // YYYY-MM
+                const cur = inv.currency || 'USD';
+                if (!months[month]) months[month] = {};
+                months[month][cur] = (months[month][cur] || 0) + inv.totalAmount;
+            });
+            const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const lines = Object.entries(months)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([ym, byCur]) => {
+                    const [, mm] = ym.split('-');
+                    const label = monthNames[parseInt(mm, 10) - 1] || ym;
+                    const amts = Object.entries(byCur).map(([cur, amt]) => `${cur} ${amt.toFixed(2)}`).join(', ');
+                    return `• ${label}: ${amts}`;
+                }).join('\n');
+            return `Monthly sales for ${targetYear} (${yearInvoices.length} invoices):\n${lines}`;
+        }
+
+        case 'get_supplier_summary': {
+            if (!contracts.length) return 'No contracts found.';
+            const bySupplier = {};
+            contracts.forEach(c => {
+                const sup = c.supplier || 'Unknown';
+                if (!bySupplier[sup]) bySupplier[sup] = { count: 0, byCur: {} };
+                bySupplier[sup].count++;
+                if (c.totalValue > 0) {
+                    const cur = c.currency || 'USD';
+                    bySupplier[sup].byCur[cur] = (bySupplier[sup].byCur[cur] || 0) + c.totalValue;
+                }
+            });
+            const sorted = Object.entries(bySupplier).sort((a, b) => b[1].count - a[1].count);
+            return `Suppliers by contract count (${contracts.length} total):\n${sorted.slice(0, 10).map(([sup, d]) => {
+                const valStr = Object.keys(d.byCur).length
+                    ? ' — ' + Object.entries(d.byCur).map(([cur, amt]) => `${cur} ${amt.toFixed(2)}`).join(' + ')
+                    : '';
+                return `• ${sup}: ${d.count} contract(s)${valStr}`;
+            }).join('\n')}`;
+        }
+
+        case 'get_client_invoices': {
+            const search = (args?.client_name || '').toLowerCase().trim();
+            if (!search) return 'Please provide a client name to search for.';
+            const matched = invoices.filter(inv =>
+                inv.isFinal && !inv.canceled &&
+                (inv.client || '').toLowerCase().includes(search)
+            );
+            if (!matched.length) return `No final invoices found for client matching "${args.client_name}".`;
+            const totalByCur = {};
+            const outstandingByCur = {};
+            matched.forEach(inv => {
+                const cur = inv.currency || 'USD';
+                totalByCur[cur] = (totalByCur[cur] || 0) + inv.totalAmount;
+                outstandingByCur[cur] = (outstandingByCur[cur] || 0) + inv.balanceDue;
+            });
+            const summaryStr = Object.entries(totalByCur)
+                .map(([cur, t]) => `${cur} ${t.toFixed(2)} invoiced, ${(outstandingByCur[cur] || 0).toFixed(2)} outstanding`).join(' | ');
+            const lines = matched.slice(0, 15).map(inv =>
+                `• Invoice #${inv.invoice} — ${inv.currency} ${inv.totalAmount.toFixed(2)} — ${inv.paymentStatus}${inv.dueDate ? ' — Due: ' + inv.dueDate : ''}`
+            ).join('\n');
+            return `${matched.length} invoice(s) for "${matched[0]?.client}":\nSummary: ${summaryStr}\n${lines}`;
+        }
+
+        case 'get_record_by_number': {
+            const num = String(args?.number || '').trim().toLowerCase();
+            if (!num) return 'Please provide a number to search for.';
+            if (args?.type === 'contract') {
+                const found = contracts.filter(c =>
+                    String(c.order || '').toLowerCase().includes(num)
+                );
+                if (!found.length) return `No contract found with PO number containing "${args.number}".`;
+                return `${found.length} contract(s) matching "${args.number}":\n${found.slice(0, 5).map(c =>
+                    `• PO ${c.order} — ${c.supplier} — ${c.date} — Status: ${c.status} — ${c.currency}`
+                ).join('\n')}`;
+            } else {
+                const found = invoices.filter(inv =>
+                    String(inv.invoice || '').toLowerCase().includes(num)
+                );
+                if (!found.length) return `No invoice found with number containing "${args.number}".`;
+                return `${found.length} invoice(s) matching "${args.number}":\n${found.slice(0, 5).map(inv =>
+                    `• Invoice #${inv.invoice} — ${inv.client} — ${inv.currency} ${inv.totalAmount.toFixed(2)} — ${inv.paymentStatus}${inv.dueDate ? ' — Due: ' + inv.dueDate : ''} — ${inv.invoiceStatus}`
+                ).join('\n')}`;
+            }
         }
 
         default:

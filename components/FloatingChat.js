@@ -24,7 +24,7 @@ const FOLLOW_UPS = {
     contract: ['Contract status breakdown', 'List recent contracts'],
     expense: ['Show unpaid expenses', 'Expense total summary'],
     profit: ['Show revenue summary', 'Which client owes the most?'],
-    stock: ['Contract status breakdown', 'Show pending invoices'],
+    stock: ['Show revenue summary', 'Show pending invoices'],
     default: ['Show overdue invoices', 'Which client owes the most?'],
 };
 
@@ -305,6 +305,13 @@ const FloatingChat = () => {
                 currency: resolveCurrency(con.cur),
                 status: con.conStatus || (con.completed ? 'Completed' : 'Open'),
                 products: con.productsData?.length || 0,
+                totalValue: (con.productsData || []).reduce((sum, p) => {
+                    const price = parseFloat(p.unitPrc) || 0;
+                    return sum + price * (parseFloat(p.qnty) || 0);
+                }, 0),
+                shipmentEtd: con.shipmentEtd || null,
+                shipmentEta: con.shipmentEta || null,
+                shipmentStatus: con.shipmentStatus || null,
             })),
             invoices: invoicesData.map(inv => {
                 // invoiceStatus is never stored — compute from flags
@@ -333,9 +340,11 @@ const FloatingChat = () => {
                     amountPaid: totalPaid,
                     balanceDue: balanceDue > 0 ? balanceDue : 0,
                     currency: resolveCurrency(inv.cur),
-                    dueDate: inv.delDate?.endDate,
+                    dueDate: inv.delDate?.startDate || inv.delDate?.endDate || null,
                     canceled: !!inv.canceled,
                     isFinal: !!inv.final,
+                    etd: inv.shipData?.etd?.startDate || null,
+                    eta: inv.shipData?.eta?.startDate || null,
                 };
             }),
             expenses: expensesData.map(exp => {
@@ -452,6 +461,23 @@ const FloatingChat = () => {
                         }
                     } catch (e) {
                         if (e.message !== 'Unexpected end of JSON input') throw e;
+                    }
+                }
+            }
+
+            // Flush any remaining buffered SSE chunk
+            if (buffer.trim()) {
+                const line = buffer.trim();
+                if (line.startsWith('data: ')) {
+                    const payload = line.slice(6).trim();
+                    if (payload !== '[DONE]') {
+                        try {
+                            const { text: chunk, error } = JSON.parse(payload);
+                            if (error) throw new Error(error);
+                            if (chunk) setMessages(prev => prev.map(m =>
+                                m.id === msgId ? { ...m, content: m.content + chunk } : m
+                            ));
+                        } catch (e) { /* ignore malformed trailing chunk */ }
                     }
                 }
             }
