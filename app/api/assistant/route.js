@@ -1,5 +1,4 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 let openai;
@@ -8,280 +7,414 @@ function getOpenAI() {
     return openai;
 }
 
-// System prompt that gives the AI context about the IMS system
-const SYSTEM_PROMPT = `You are an intelligent assistant for IMS (Inventory Management System) - a metals trading and inventory management platform. You help users navigate the system, answer questions, look up data, and guide them through workflows.
+const SYSTEM_PROMPT = `You are an intelligent assistant for IMS (Inventory Management System) - a metals trading and inventory management platform.
 
 ## SYSTEM OVERVIEW
-This IMS system manages:
-- **Contracts**: Purchase orders from suppliers with products, pricing, shipment details
-- **Invoices**: Sales invoices to clients with products, payments, delivery info
-- **Expenses**: Company and contract-related expenses
-- **Stocks/Inventory**: Material tracking across warehouses
-- **Settings**: Suppliers, clients, shipment types, origins, delivery terms, ports
+This IMS manages: Contracts (purchase orders), Invoices (sales), Expenses, Stocks/Inventory, and Margins/Profit tracking.
 
-## KEY FEATURES YOU CAN HELP WITH:
+## DATA TOOLS — ALWAYS use these for data questions. NEVER guess numbers.
+- get_overdue_invoices — final invoices past due date with outstanding balance
+- get_pending_invoices — final invoices not yet fully paid (Unpaid or Partially Paid)
+- get_client_debt_ranking — clients ranked by total outstanding balance due (answers "who owes the most?")
+- get_revenue_summary — total sales from all final invoices by currency (invoiced total, collected, outstanding); accepts optional year filter
+- get_contract_status_breakdown — count of contracts by status (Shipped / Not Shipped / Partly Shipped / Finished / Closed / Unsold)
+- get_recent_contracts — list of recent contracts
+- get_expense_summary — total expenses by currency
+- get_unpaid_expenses — expenses not yet marked as paid
+- get_profit_info — profit and margin data (answers "what is my profit?")
+- get_stock_summary — current inventory levels
 
-### 1. DATA LOOKUPS
-When users ask about data, use the provided context to answer:
-- Overdue invoices (where payment is pending past due date)
-- Contract status and details
-- Invoice amounts and payment status
-- Expense summaries
-- Stock availability
+## DATA MODEL FACTS (important for accurate answers)
+- Invoice status = Draft / Final / Canceled (from finalization flags, NOT payment)
+- Invoice payment status = Paid / Partially Paid / Unpaid (from payments array vs totalAmount)
+- "Outstanding balance" on an invoice = totalAmount minus all recorded payments
+- Contract status values: Shipped, Not Shipped, Partly Shipped, Finished, Closed, Unsold
+- Expense paid status comes from settings labels — check the "paid" field label, not a hardcoded value
 
-### 2. WORKFLOW GUIDANCE
-Guide users step-by-step for:
-- Creating a new contract: Go to Contracts → Click "Add Contract" → Fill supplier, date, products, pricing
-- Creating an invoice: Go to Invoices → Click "Add Invoice" → Select client, add products, set payment terms
-- Adding expenses: Go to Expenses → Click "Add Expense" → Enter details, link to contract if applicable
-- Managing settings: Go to Settings → Add/edit suppliers, clients, shipment types, etc.
+## WORKFLOW GUIDANCE
+- Create contract: Contracts → "Add Contract" → fill supplier, date, products, pricing
+- Create invoice: Invoices → "Add Invoice" → select client, add products, set payment terms
+- Add expense: Expenses → "Add Expense" → enter details, optionally link to contract
+- Manage settings: Settings → add/edit suppliers, clients, shipment types
 
-### 3. NAVIGATION HELP
-- Contracts page: /contracts - Manage purchase contracts
-- Invoices page: /invoices - Manage sales invoices
-- Expenses page: /expenses - Track expenses
-- Dashboard: /dashboard - View analytics and charts
-- Stocks: /stocks - Inventory management
-- Settings: /settings - Configure system options
-- Analysis: /analysis - Weight and quantity analysis
-- Cash Flow: /cashflow - Financial flow tracking
-- Account Statements: /accstatement - Generate statements
+## NAVIGATION
+/contracts, /invoices, /expenses, /stocks, /margins, /dashboard, /cashflow, /settings, /analysis
 
-### 4. FAQ RESPONSES
-Common questions:
-- "How do I add a new customer?" → Go to Settings, find the Client/Consignee section, click Add, enter details
-- "How do I link an invoice to a contract?" → When creating invoice, use the PO Supplier dropdown to select the contract
-- "How do I export data?" → Use the Excel export button available on each data table
-- "How do I filter by date?" → Use the date range picker at the top of each page
+## RESPONSE RULES
+1. Keep responses short — this is a chat widget
+2. NEVER use markdown tables
+3. Use bullet points with "•" for lists, numbered steps for workflows
+4. Use **bold** sparingly
+5. Under 300 words when possible
+6. Always use tools for data questions — never invent numbers`;
 
-## RESPONSE GUIDELINES:
-1. Be concise but helpful - keep responses short for chat widget
-2. NEVER use markdown tables - they don't render well in chat
-3. For data lists, use simple bullet points with "•" symbol
-4. Format each item on its own line for readability
-5. For workflow guidance, use numbered steps (1. 2. 3.)
-6. Use **bold** sparingly for emphasis
-7. Keep responses under 300 words when possible
-8. If you don't have enough data context, explain what info you need
-9. Always be professional and supportive
-
-## DATA FORMATTING RULES:
-When showing contracts, invoices, or expenses:
-- Use bullet points, NOT tables
-- Format: • PO# 123456 - Supplier Name - Date
-- One item per line
-- Add a summary line at the end (e.g., "Total: 5 contracts")
-
-## INVOICE CREATION WORKFLOW (When user wants to create an invoice):
-1. Ask for: Client name, Invoice date, Products (name, quantity, price), Currency
-2. Confirm the details
-3. Provide a summary and explain how to finalize in the system
-
-## DATA CONTEXT:
-You will receive current data context with each message including contracts, invoices, and expenses. Use this to answer data-related queries accurately.
-`;
-
-// Function to process data queries
-function processDataQuery(query, data) {
-    const lowerQuery = query.toLowerCase();
-    const { contracts, invoices, expenses } = data;
-
-    // Overdue invoices check
-    if (lowerQuery.includes('overdue') && lowerQuery.includes('invoice')) {
-        const today = new Date();
-        const overdueInvoices = invoices?.filter(inv => {
-            if (inv.invoiceStatus === 'Paid' || inv.canceled) return false;
-            const dueDate = inv.delDate?.endDate ? new Date(inv.delDate.endDate) : null;
-            return dueDate && dueDate < today;
-        }) || [];
-
-        if (overdueInvoices.length > 0) {
-            return {
-                type: 'overdue_invoices',
-                data: overdueInvoices.map(inv => ({
-                    invoice: inv.invoice,
-                    client: inv.client,
-                    amount: inv.totalAmount,
-                    currency: inv.cur,
-                    dueDate: inv.delDate?.endDate,
-                    status: inv.invoiceStatus
-                }))
-            };
+// OpenAI tool definitions
+const TOOLS = [
+    {
+        type: 'function',
+        function: {
+            name: 'get_overdue_invoices',
+            description: 'Get all invoices that are past their due date and not yet paid',
+            parameters: { type: 'object', properties: {} }
         }
-        return { type: 'overdue_invoices', data: [] };
-    }
-
-    // Pending invoices
-    if (lowerQuery.includes('pending') && lowerQuery.includes('invoice')) {
-        const pendingInvoices = invoices?.filter(inv =>
-            inv.invoiceStatus !== 'Paid' && !inv.canceled
-        ) || [];
-
-        return {
-            type: 'pending_invoices',
-            data: pendingInvoices.map(inv => ({
-                invoice: inv.invoice,
-                client: inv.client,
-                amount: inv.totalAmount,
-                currency: inv.cur,
-                status: inv.invoiceStatus
-            }))
-        };
-    }
-
-    // Contract lookup
-    if (lowerQuery.includes('contract') && (lowerQuery.includes('show') || lowerQuery.includes('list') || lowerQuery.includes('find'))) {
-        return {
-            type: 'contracts_list',
-            data: contracts?.slice(0, 10).map(con => ({
-                order: con.order,
-                supplier: con.supplier,
-                date: con.date,
-                status: con.conStatus,
-                currency: con.cur
-            })) || []
-        };
-    }
-
-    // Expense summary
-    if (lowerQuery.includes('expense') && (lowerQuery.includes('total') || lowerQuery.includes('summary'))) {
-        const totalExpenses = expenses?.reduce((sum, exp) => {
-            return sum + (parseFloat(exp.amount) || 0);
-        }, 0) || 0;
-
-        return {
-            type: 'expense_summary',
-            data: {
-                total: totalExpenses,
-                count: expenses?.length || 0
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_pending_invoices',
+            description: 'Get all unpaid invoices that are not canceled',
+            parameters: { type: 'object', properties: {} }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_client_debt_ranking',
+            description: 'Rank clients by their total outstanding unpaid invoice balance — answers "which client owes the most?"',
+            parameters: { type: 'object', properties: {} }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_revenue_summary',
+            description: 'Get total sales from all final invoices — use for "what are my sales", "last year revenue", "total invoiced". Pass year (e.g. 2025) to filter by that year only.',
+            parameters: {
+                type: 'object',
+                properties: {
+                    year: { type: 'number', description: 'Filter by invoice year, e.g. 2025 for last year, 2026 for this year' }
+                }
             }
-        };
-    }
-
-    // Invoice for specific client
-    const clientMatch = lowerQuery.match(/invoice.*for\s+(.+)|(.+)\s+invoice/);
-    if (clientMatch && lowerQuery.includes('create')) {
-        const clientName = clientMatch[1] || clientMatch[2];
-        return {
-            type: 'create_invoice_intent',
-            data: { clientName: clientName?.trim() }
-        };
-    }
-
-    return null;
-}
-
-// Format data response for the AI
-function formatDataForAI(queryResult) {
-    if (!queryResult) return '';
-
-    switch (queryResult.type) {
-        case 'overdue_invoices':
-            if (queryResult.data.length === 0) {
-                return '\n[DATA RESULT]: No overdue invoices found. All invoices are current.';
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_contract_status_breakdown',
+            description: 'Get a count of contracts grouped by their status',
+            parameters: { type: 'object', properties: {} }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_recent_contracts',
+            description: 'Get a list of the most recent contracts',
+            parameters: {
+                type: 'object',
+                properties: {
+                    limit: { type: 'number', description: 'How many to return (default 10)' }
+                }
             }
-            return `\n[DATA RESULT - OVERDUE INVOICES]:
-${queryResult.data.map(inv =>
-    `• Invoice #${inv.invoice} - Client: ${inv.client} - Amount: ${inv.currency} ${inv.amount} - Due: ${inv.dueDate} - Status: ${inv.status}`
-).join('\n')}
-Total overdue: ${queryResult.data.length} invoice(s)`;
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_expense_summary',
+            description: 'Get total expenses grouped by currency',
+            parameters: { type: 'object', properties: {} }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_unpaid_expenses',
+            description: 'Get all expenses that have not been paid yet',
+            parameters: { type: 'object', properties: {} }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_profit_info',
+            description: 'Get profit and margin data — answers "what is my profit this month?" or "show my margins"',
+            parameters: { type: 'object', properties: {} }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_stock_summary',
+            description: 'Get a summary of current stock and inventory levels',
+            parameters: { type: 'object', properties: {} }
+        }
+    },
+];
 
-        case 'pending_invoices':
-            if (queryResult.data.length === 0) {
-                return '\n[DATA RESULT]: No pending invoices found.';
+function executeTool(name, args, data) {
+    const { contracts = [], invoices = [], expenses = [], stocks = [], margins = [] } = data;
+    const today = new Date();
+
+    switch (name) {
+        case 'get_overdue_invoices': {
+            // Only final (issued) invoices, not canceled, not fully paid, past due date
+            const overdue = invoices.filter(inv => {
+                if (!inv.isFinal || inv.canceled) return false;
+                if (inv.paymentStatus === 'Paid') return false;
+                const due = inv.dueDate ? new Date(inv.dueDate) : null;
+                return due && due < today;
+            });
+            if (!overdue.length) return 'No overdue invoices found. All issued invoices are either paid or not yet due.';
+            return `${overdue.length} overdue invoice(s):\n${overdue.map(inv =>
+                `• Invoice #${inv.invoice} — ${inv.client} — ${inv.currency} ${inv.balanceDue.toFixed(2)} outstanding — Due: ${inv.dueDate} — ${inv.paymentStatus}`
+            ).join('\n')}`;
+        }
+
+        case 'get_pending_invoices': {
+            // Final invoices that are not fully paid and not canceled
+            const pending = invoices.filter(inv => inv.isFinal && !inv.canceled && inv.paymentStatus !== 'Paid');
+            if (!pending.length) return 'No pending invoices. All issued invoices are fully paid.';
+            return `${pending.length} pending invoice(s):\n${pending.map(inv =>
+                `• Invoice #${inv.invoice} — ${inv.client} — ${inv.currency} ${inv.balanceDue.toFixed(2)} remaining — ${inv.paymentStatus}`
+            ).join('\n')}`;
+        }
+
+        case 'get_client_debt_ranking': {
+            // Rank clients by their total outstanding balance (balanceDue) on final unpaid invoices
+            const outstanding = invoices.filter(inv => inv.isFinal && !inv.canceled && inv.paymentStatus !== 'Paid' && inv.balanceDue > 0);
+            if (!outstanding.length) return 'No outstanding balances. All clients are fully paid.';
+            const debtMap = {};
+            outstanding.forEach(inv => {
+                const name = inv.client || 'Unknown';
+                if (!debtMap[name]) debtMap[name] = {};
+                const cur = inv.currency || 'USD';
+                debtMap[name][cur] = (debtMap[name][cur] || 0) + inv.balanceDue;
+            });
+            const sorted = Object.entries(debtMap)
+                .map(([client, amounts]) => ({ client, amounts }))
+                .sort((a, b) => {
+                    const aT = Object.values(a.amounts).reduce((s, v) => s + v, 0);
+                    const bT = Object.values(b.amounts).reduce((s, v) => s + v, 0);
+                    return bT - aT;
+                });
+            return `Clients by outstanding balance (highest first):\n${sorted.slice(0, 10).map((c, i) => {
+                const amtStr = Object.entries(c.amounts)
+                    .map(([cur, amt]) => `${cur} ${amt.toFixed(2)}`).join(' + ');
+                return `${i + 1}. ${c.client}: ${amtStr}`;
+            }).join('\n')}`;
+        }
+
+        case 'get_revenue_summary': {
+            // Sales = total invoiced on all final non-canceled invoices (metals trading rarely reaches full "Paid")
+            const year = args?.year ? Number(args.year) : null;
+            let salesInvoices = invoices.filter(inv => inv.isFinal && !inv.canceled);
+            if (year) {
+                salesInvoices = salesInvoices.filter(inv => {
+                    if (!inv.date) return false;
+                    return new Date(inv.date).getFullYear() === year;
+                });
             }
-            return `\n[DATA RESULT - PENDING INVOICES]:
-${queryResult.data.map(inv =>
-    `• Invoice #${inv.invoice} - Client: ${inv.client} - Amount: ${inv.currency} ${inv.amount} - Status: ${inv.status}`
-).join('\n')}
-Total pending: ${queryResult.data.length} invoice(s)`;
-
-        case 'contracts_list':
-            if (queryResult.data.length === 0) {
-                return '\n[DATA RESULT]: No contracts found.';
+            if (!salesInvoices.length) {
+                const yearNote = year ? ` for ${year}` : '';
+                return `No final invoices found${yearNote}. ${year ? `If ${year} is outside the current date range, please change the date filter in the app header.` : ''}`;
             }
-            return `\n[DATA RESULT - CONTRACTS]:
-${queryResult.data.map(con =>
-    `• Order: ${con.order} - Supplier: ${con.supplier} - Date: ${con.date} - Status: ${con.status}`
-).join('\n')}`;
+            const salesMap = {};
+            const collectedMap = {};
+            salesInvoices.forEach(inv => {
+                const cur = inv.currency || 'USD';
+                salesMap[cur] = (salesMap[cur] || 0) + inv.totalAmount;
+                collectedMap[cur] = (collectedMap[cur] || 0) + (inv.amountPaid || 0);
+            });
+            const yearLabel = year ? ` (${year})` : '';
+            const lines = Object.entries(salesMap).map(([cur, total]) => {
+                const collected = collectedMap[cur] || 0;
+                const outstanding = total - collected;
+                return `• ${cur}: ${total.toFixed(2)} invoiced — ${collected.toFixed(2)} collected — ${outstanding.toFixed(2)} outstanding`;
+            }).join('\n');
+            return `Sales summary${yearLabel} — ${salesInvoices.length} final invoice(s):\n${lines}`;
+        }
 
-        case 'expense_summary':
-            return `\n[DATA RESULT - EXPENSE SUMMARY]:
-• Total Expenses: ${queryResult.data.total.toFixed(2)}
-• Number of Expense Records: ${queryResult.data.count}`;
+        case 'get_contract_status_breakdown': {
+            if (!contracts.length) return 'No contracts found.';
+            const groups = {};
+            contracts.forEach(con => {
+                const s = con.status || 'Open';
+                groups[s] = (groups[s] || 0) + 1;
+            });
+            const lines = Object.entries(groups)
+                .sort((a, b) => b[1] - a[1])
+                .map(([s, c]) => `• ${s}: ${c}`).join('\n');
+            const openCount = groups['Open'] || 0;
+            const note = openCount > 0
+                ? `\nTip: ${openCount} contract(s) have no shipping status set. You can set Shipped / Not Shipped / Partly Shipped / Finished / Closed / Unsold from each contract's PnL tab.`
+                : '';
+            return `Contract status breakdown:\n${lines}\nTotal: ${contracts.length} contracts${note}`;
+        }
 
-        case 'create_invoice_intent':
-            return `\n[USER INTENT]: User wants to create an invoice for "${queryResult.data.clientName}". Guide them through the process.`;
+        case 'get_recent_contracts': {
+            const limit = args?.limit || 10;
+            const list = contracts.slice(0, limit);
+            if (!list.length) return 'No contracts found.';
+            return `Recent ${list.length} contract(s):\n${list.map(con =>
+                `• PO ${con.order} — ${con.supplier} — ${con.date} — ${con.status}`
+            ).join('\n')}`;
+        }
+
+        case 'get_expense_summary': {
+            if (!expenses.length) return 'No expenses found.';
+            const byCur = {};
+            expenses.forEach(exp => {
+                const cur = exp.currency || 'USD';
+                byCur[cur] = (byCur[cur] || 0) + (parseFloat(exp.amount) || 0);
+            });
+            const lines = Object.entries(byCur).map(([cur, amt]) => `• ${cur}: ${amt.toFixed(2)}`).join('\n');
+            return `Expense totals (${expenses.length} records):\n${lines}`;
+        }
+
+        case 'get_unpaid_expenses': {
+            // paid label comes resolved from settings.ExpPmnt — treat anything not 'Paid' as unpaid
+            const unpaid = expenses.filter(exp => exp.paid?.toLowerCase() !== 'paid');
+            if (!unpaid.length) return 'No unpaid expenses found. All expenses are paid.';
+            const total = {};
+            unpaid.forEach(exp => {
+                const cur = exp.currency || 'USD';
+                total[cur] = (total[cur] || 0) + (exp.amount || 0);
+            });
+            const totalStr = Object.entries(total).map(([cur, amt]) => `${cur} ${amt.toFixed(2)}`).join(' + ');
+            return `${unpaid.length} unpaid expense(s) — Total: ${totalStr}\n${unpaid.map(exp =>
+                `• ${exp.vendor} — ${exp.currency} ${exp.amount?.toFixed(2)} — ${exp.type} — ${exp.paid} — ${exp.date}`
+            ).join('\n')}`;
+        }
+
+        case 'get_profit_info': {
+            if (margins.length > 0) {
+                const totalMargin = margins.reduce((sum, m) => sum + (parseFloat(m.totalMargin) || 0), 0);
+                const monthsWithData = margins.filter(m => parseFloat(m.totalMargin) > 0).length;
+                return `Profit/Margin summary (current year):\n• Total margin: ${totalMargin.toFixed(2)}\n• Months with data: ${monthsWithData} of ${margins.length}\nFor full details visit the Margins page (/margins).`;
+            }
+            return 'No margin data found for this year. Visit the Margins page (/margins) to record and view profit analysis.';
+        }
+
+        case 'get_stock_summary': {
+            if (!stocks.length) return 'No stock data available.';
+            const stockGroups = {};
+            stocks.forEach(s => {
+                const desc = s.description || 'Unknown';
+                if (!stockGroups[desc]) stockGroups[desc] = { qty: 0, unit: s.unit || '' };
+                stockGroups[desc].qty += parseFloat(s.qnty) || 0;
+            });
+            const lines = Object.entries(stockGroups)
+                .sort((a, b) => b[1].qty - a[1].qty)
+                .slice(0, 10)
+                .map(([desc, d]) => `• ${desc}: ${d.qty.toFixed(2)} ${d.unit}`)
+                .join('\n');
+            return `Stock summary (${stocks.length} records):\n${lines}`;
+        }
 
         default:
-            return '';
+            return 'Tool not found.';
     }
+}
+
+const SSE_HEADERS = {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+};
+
+function sseText(text) {
+    return `data: ${JSON.stringify({ text })}\n\n`;
+}
+
+function sseDone() {
+    return 'data: [DONE]\n\n';
 }
 
 export async function POST(request) {
+    const encoder = new TextEncoder();
+
     try {
-        const { messages, uidCollection, currentData } = await request.json();
+        const { messages, currentData, currentPage, dateRange } = await request.json();
 
         if (!messages || !Array.isArray(messages)) {
-            return NextResponse.json(
-                { error: 'Messages array is required' },
-                { status: 400 }
-            );
+            return new Response(JSON.stringify({ error: 'Messages array is required' }), { status: 400 });
         }
 
-        // Get the last user message for data query processing
-        const lastUserMessage = messages.filter(m => m.role === 'user').pop();
-        let dataContext = '';
+        const today = new Date().toISOString().split('T')[0];
+        const pageNote = currentPage ? `\nUser is currently viewing: ${currentPage}` : '';
+        const dateRangeNote = dateRange?.startDate && dateRange?.endDate
+            ? `\nLoaded data covers: ${dateRange.startDate} to ${dateRange.endDate}. If the user asks about a time period outside this range (e.g. "last year" when only this year is loaded), tell them the data isn't in the current view and ask them to change the date range filter in the app header.`
+            : '';
 
-        if (lastUserMessage && currentData) {
-            const queryResult = processDataQuery(lastUserMessage.content, currentData);
-            dataContext = formatDataForAI(queryResult);
-        }
+        const systemContext = SYSTEM_PROMPT + `\n\n## SESSION CONTEXT\nToday: ${today}${pageNote}${dateRangeNote}\nData loaded: ${currentData?.contracts?.length || 0} contracts, ${currentData?.invoices?.length || 0} invoices, ${currentData?.expenses?.length || 0} expenses, ${currentData?.stocks?.length || 0} stock records, ${currentData?.margins?.length || 0} margin months`;
 
-        // Build context about current data
-        let systemContext = SYSTEM_PROMPT;
-        if (currentData) {
-            systemContext += `\n\n## CURRENT DATA SUMMARY:
-- Total Contracts: ${currentData.contracts?.length || 0}
-- Total Invoices: ${currentData.invoices?.length || 0}
-- Total Expenses: ${currentData.expenses?.length || 0}
-${dataContext}`;
-        }
+        const apiMessages = [
+            { role: 'system', content: systemContext },
+            ...messages.map(m => ({ role: m.role, content: m.content }))
+        ];
 
-        // Call OpenAI API
-        const completion = await getOpenAI().chat.completions.create({
+        // Phase 1: tool detection (non-streaming, fast)
+        const toolResponse = await getOpenAI().chat.completions.create({
             model: 'gpt-4o-mini',
-            messages: [
-                { role: 'system', content: systemContext },
-                ...messages.map(m => ({
-                    role: m.role,
-                    content: m.content
-                }))
-            ],
-            temperature: 0.7,
-            max_tokens: 1000,
+            messages: apiMessages,
+            tools: TOOLS,
+            tool_choice: 'auto',
+            temperature: 0.2,
         });
 
-        const assistantMessage = completion.choices[0]?.message?.content || 'I apologize, but I could not generate a response. Please try again.';
+        const toolMessage = toolResponse.choices[0].message;
 
-        return NextResponse.json({
-            message: assistantMessage,
-            usage: completion.usage
+        // Phase 2a: tool was called — execute and stream final answer
+        if (toolMessage.tool_calls?.length > 0) {
+            const toolResults = toolMessage.tool_calls.map(tc => ({
+                tool_call_id: tc.id,
+                role: 'tool',
+                content: executeTool(
+                    tc.function.name,
+                    JSON.parse(tc.function.arguments || '{}'),
+                    currentData || {}
+                )
+            }));
+
+            const finalStream = await getOpenAI().chat.completions.create({
+                model: 'gpt-4o-mini',
+                messages: [...apiMessages, toolMessage, ...toolResults],
+                temperature: 0.4,
+                max_tokens: 800,
+                stream: true,
+            });
+
+            const readable = new ReadableStream({
+                async start(controller) {
+                    for await (const chunk of finalStream) {
+                        const text = chunk.choices[0]?.delta?.content || '';
+                        if (text) controller.enqueue(encoder.encode(sseText(text)));
+                    }
+                    controller.enqueue(encoder.encode(sseDone()));
+                    controller.close();
+                }
+            });
+
+            return new Response(readable, { headers: SSE_HEADERS });
+        }
+
+        // Phase 2b: no tool needed — answer already in toolMessage.content, send as single SSE chunk
+        const directText = toolMessage.content || 'I could not generate a response. Please try again.';
+        const readable = new ReadableStream({
+            start(controller) {
+                controller.enqueue(encoder.encode(sseText(directText)));
+                controller.enqueue(encoder.encode(sseDone()));
+                controller.close();
+            }
         });
+
+        return new Response(readable, { headers: SSE_HEADERS });
 
     } catch (error) {
         console.error('Assistant API Error:', error);
+        const errMsg = error.code === 'invalid_api_key'
+            ? 'Invalid OpenAI API key. Please check your configuration.'
+            : 'Failed to process your request. Please try again.';
 
-        if (error.code === 'invalid_api_key') {
-            return NextResponse.json(
-                { error: 'Invalid OpenAI API key. Please check your configuration.' },
-                { status: 401 }
-            );
-        }
-
-        return NextResponse.json(
-            { error: 'Failed to process your request. Please try again.' },
-            { status: 500 }
-        );
+        const encoder2 = new TextEncoder();
+        const errStream = new ReadableStream({
+            start(controller) {
+                controller.enqueue(encoder2.encode(`data: ${JSON.stringify({ error: errMsg })}\n\n`));
+                controller.enqueue(encoder2.encode('data: [DONE]\n\n'));
+                controller.close();
+            }
+        });
+        return new Response(errStream, { headers: SSE_HEADERS });
     }
 }

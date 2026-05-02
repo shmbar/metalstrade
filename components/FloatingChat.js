@@ -2,10 +2,48 @@
 import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { SettingsContext } from "../contexts/useSettingsContext";
 import { UserAuth } from "../contexts/useAuthContext";
-import { loadData } from '../utils/utils';
-import { X, Send, Loader2, Trash2 } from 'lucide-react';
+import { loadData, loadMargins, loadAllStockData } from '../utils/utils';
+import { X, Send, Loader2, Trash2, RefreshCw, ExternalLink } from 'lucide-react';
 import { BsRobot, BsPerson } from "react-icons/bs";
 import dateFormat from "dateformat";
+
+const STORAGE_KEY = 'ims-chat-messages';
+
+const NAV_PAGES = [
+    { route: '/margins', keywords: ['margin', 'profit'] },
+    { route: '/invoices', keywords: ['invoice'] },
+    { route: '/contracts', keywords: ['contract'] },
+    { route: '/expenses', keywords: ['expense'] },
+    { route: '/stocks', keywords: ['stock', 'inventory'] },
+    { route: '/dashboard', keywords: ['dashboard'] },
+    { route: '/cashflow', keywords: ['cash flow', 'cashflow'] },
+];
+
+const FOLLOW_UPS = {
+    invoice: ['Show overdue invoices', 'Which client owes the most?'],
+    contract: ['Contract status breakdown', 'List recent contracts'],
+    expense: ['Show unpaid expenses', 'Expense total summary'],
+    profit: ['Show revenue summary', 'Which client owes the most?'],
+    stock: ['Contract status breakdown', 'Show pending invoices'],
+    default: ['Show overdue invoices', 'Which client owes the most?'],
+};
+
+function getFollowUps(content) {
+    const lower = (content || '').toLowerCase();
+    if (lower.includes('invoice')) return FOLLOW_UPS.invoice;
+    if (lower.includes('contract')) return FOLLOW_UPS.contract;
+    if (lower.includes('expense')) return FOLLOW_UPS.expense;
+    if (lower.includes('margin') || lower.includes('profit')) return FOLLOW_UPS.profit;
+    if (lower.includes('stock') || lower.includes('inventory')) return FOLLOW_UPS.stock;
+    return FOLLOW_UPS.default;
+}
+
+function getNavButtons(content) {
+    const lower = (content || '').toLowerCase();
+    return NAV_PAGES.filter(p =>
+        lower.includes(p.route) || p.keywords.some(k => lower.includes(k))
+    ).slice(0, 2);
+}
 
 const FloatingChat = () => {
     const { settings, dateSelect } = useContext(SettingsContext);
@@ -19,93 +57,98 @@ const FloatingChat = () => {
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
-    // Store loaded data
     const [contractsData, setContractsData] = useState([]);
     const [invoicesData, setInvoicesData] = useState([]);
     const [expensesData, setExpensesData] = useState([]);
+    const [stocksData, setStocksData] = useState([]);
+    const [marginsData, setMarginsData] = useState([]);
 
-    // Load data when chat opens
+    // Restore chat history from localStorage on mount
     useEffect(() => {
-        const loadAllData = async () => {
-            if (!uidCollection || !dateSelect || !chatOpen) return;
-            if (contractsData.length > 0) return; // Already loaded
-
-            setDataLoading(true);
-            try {
-                const [contracts, invoices, expenses] = await Promise.all([
-                    loadData(uidCollection, 'contracts', dateSelect),
-                    loadData(uidCollection, 'invoices', dateSelect),
-                    loadData(uidCollection, 'expenses', dateSelect)
-                ]);
-
-                setContractsData(contracts || []);
-                setInvoicesData(invoices || []);
-                setExpensesData(expenses || []);
-            } catch (err) {
-                console.error('Error loading data:', err);
-            } finally {
-                setDataLoading(false);
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) setMessages(parsed);
             }
-        };
+        } catch (e) { /* ignore */ }
+    }, []);
 
-        if (chatOpen) {
-            loadAllData();
+    // Persist chat history to localStorage whenever messages change
+    useEffect(() => {
+        if (messages.length > 1) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-50)));
+            } catch (e) { /* ignore */ }
         }
-    }, [uidCollection, dateSelect, chatOpen]);
+    }, [messages]);
 
-    // Initialize welcome message when chat opens
+    const loadAllData = useCallback(async (force = false) => {
+        if (!uidCollection || !dateSelect) return;
+        if (!force && contractsData.length > 0) return;
+
+        setDataLoading(true);
+        try {
+            const currentYear = new Date().getFullYear();
+            const [contracts, invoices, expenses, stocks, margins] = await Promise.all([
+                loadData(uidCollection, 'contracts', dateSelect),
+                loadData(uidCollection, 'invoices', dateSelect),
+                loadData(uidCollection, 'expenses', dateSelect),
+                loadAllStockData(uidCollection).catch(() => []),
+                loadMargins(uidCollection, currentYear).catch(() => []),
+            ]);
+
+            setContractsData(contracts || []);
+            setInvoicesData(invoices || []);
+            setExpensesData(expenses || []);
+            setStocksData(stocks || []);
+            setMarginsData(margins || []);
+        } catch (err) {
+            console.error('Error loading chat data:', err);
+        } finally {
+            setDataLoading(false);
+        }
+    }, [uidCollection, dateSelect, contractsData.length]);
+
+    useEffect(() => {
+        if (chatOpen) loadAllData();
+    }, [chatOpen]);
+
+    // Welcome message only if no saved history
     useEffect(() => {
         if (chatOpen && messages.length === 0) {
             setMessages([{
                 id: 'welcome',
                 role: 'assistant',
-                content: `Hi! I'm your IMS Assistant. How can I help you today?`,
+                content: `Hi! I'm your IMS Assistant. I have access to your contracts, invoices, expenses, stocks, and margins. How can I help?`,
                 time: dateFormat(new Date(), 'h:MM TT')
             }]);
         }
-    }, [chatOpen]);
+    }, [chatOpen, messages.length]);
 
-    // Scroll to bottom
     const scrollToBottom = useCallback(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, []);
 
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages, scrollToBottom]);
+    useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
 
-    // Focus input when chat opens
     useEffect(() => {
-        if (chatOpen && inputRef.current) {
-            setTimeout(() => inputRef.current?.focus(), 100);
-        }
+        if (chatOpen && inputRef.current) setTimeout(() => inputRef.current?.focus(), 100);
     }, [chatOpen]);
 
-    // Close chat when sidebar/menu opens on mobile
+    // Close chat when sidebar opens on mobile
     useEffect(() => {
         const handler = (e) => {
             try {
                 const isOpen = e?.detail?.isOpen;
-                if (isOpen && typeof window !== 'undefined' && window.innerWidth < 768) {
-                    setChatOpen(false);
-                }
-            } catch (err) {
-                // ignore
-            }
+                if (isOpen && typeof window !== 'undefined' && window.innerWidth < 768) setChatOpen(false);
+            } catch (err) { /* ignore */ }
         };
-
-        if (typeof window !== 'undefined') {
-            window.addEventListener('ims:menuToggle', handler);
-        }
-
-        return () => {
-            if (typeof window !== 'undefined') {
-                window.removeEventListener('ims:menuToggle', handler);
-            }
-        };
+        if (typeof window !== 'undefined') window.addEventListener('ims:menuToggle', handler);
+        return () => { if (typeof window !== 'undefined') window.removeEventListener('ims:menuToggle', handler); };
     }, []);
 
-    // Listen for global open-chat event so other UI can trigger the chat
+    // Listen for global open-chat event
     useEffect(() => {
         if (typeof window === 'undefined') return;
         const handler = () => setChatOpen(true);
@@ -113,23 +156,16 @@ const FloatingChat = () => {
         return () => window.removeEventListener('ims:openChat', handler);
     }, []);
 
-    // Toggle a body class so other components (like datepicker) can hide when chat is open
+    // Toggle body class for datepicker hiding
     useEffect(() => {
         if (typeof window === 'undefined') return;
         const cls = 'ims-chat-open';
-        if (chatOpen) {
-            document.body.classList.add(cls);
-        } else {
-            document.body.classList.remove(cls);
-        }
-
-        return () => {
-            document.body.classList.remove(cls);
-        };
+        if (chatOpen) document.body.classList.add(cls);
+        else document.body.classList.remove(cls);
+        return () => document.body.classList.remove(cls);
     }, [chatOpen]);
 
-    // Additionally, forcibly hide any datepicker popovers appended to body when chat opens,
-    // and restore them when chat closes.
+    // Hide datepicker popovers while chat is open
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
@@ -150,8 +186,6 @@ const FloatingChat = () => {
             });
         };
 
-        // Aggressive hide: hide any node that contains a date-range pattern.
-        // Instead of removing immediately, mark and hide so we can restore later.
         const removeDatepickerLikeNodes = () => {
             try {
                 const dateRegex = /\d{1,2}-[A-Za-z]{3}-\d{2}\s*~\s*\d{1,2}-[A-Za-z]{3}-\d{2}/;
@@ -159,9 +193,7 @@ const FloatingChat = () => {
                 all.forEach(el => {
                     if (!el || !el.textContent) return;
                     if (dateRegex.test(el.textContent)) {
-                        // Prefer to hide an ancestor popover container if found
                         let target = el.closest('[role="dialog"], [data-testid="dropdown"], .react-tailwindcss-datepicker__dropdown, .react-tailwindcss-datepicker-dropdown');
-                        // fallback: find nearest positioned ancestor (absolute/fixed)
                         if (!target) {
                             let ancestor = el;
                             for (let i = 0; i < 6 && ancestor; i++) {
@@ -173,10 +205,7 @@ const FloatingChat = () => {
                                 ancestor = ancestor.parentElement;
                             }
                         }
-
-                        // If still not found, use the element itself
                         if (!target) target = el;
-
                         try {
                             if (target.dataset && target.dataset.imsOrigDisplay === undefined) {
                                 target.dataset.imsOrigDisplay = target.style.display || '';
@@ -188,18 +217,14 @@ const FloatingChat = () => {
                             target.style.visibility = 'hidden';
                             target.style.pointerEvents = 'none';
                         } catch (err) {
-                            // if hide fails, as a last resort remove the element
                             try { target.remove(); } catch (e) { }
                         }
                     }
                 });
-            } catch (err) {
-                // ignore
-            }
+            } catch (err) { /* ignore */ }
         };
 
         const restorePopovers = () => {
-            // restore elements we previously hid (either by selector or by date content)
             const hidden = Array.from(document.querySelectorAll('[data-ims-hidden-by-chat], [data-ims-hidden-by-chat="1"]'));
             hidden.forEach(el => {
                 if (el.dataset.imsOrigDisplay !== undefined) {
@@ -216,8 +241,6 @@ const FloatingChat = () => {
                 }
                 delete el.dataset.imsHiddenByChat;
             });
-
-            // also restore known selectors (kept for backward compatibility)
             const els = Array.from(document.querySelectorAll(selectors));
             els.forEach(el => {
                 if (el.dataset.imsOrigDisplay !== undefined) {
@@ -239,16 +262,13 @@ const FloatingChat = () => {
             hidePopovers();
             removeDatepickerLikeNodes();
         } else {
-            // slight delay to allow picker to open/close naturally
             setTimeout(() => restorePopovers(), 50);
         }
 
-        // Also observe DOM mutations to hide newly created popovers while chat is open
         let observer;
         if (chatOpen) {
             observer = new MutationObserver(() => hidePopovers());
             observer.observe(document.body, { childList: true, subtree: true });
-            // Also remove nodes that may be inserted without expected selectors
             const obs2 = new MutationObserver(() => removeDatepickerLikeNodes());
             obs2.observe(document.body, { childList: true, subtree: true });
         }
@@ -260,68 +280,120 @@ const FloatingChat = () => {
         };
     }, [chatOpen]);
 
-    // Prepare data context for API
     const getCurrentDataContext = useCallback(() => {
-        const formatContract = (con) => ({
-            id: con.id,
-            order: con.order,
-            supplier: con.supplier,
-            date: con.date,
-            origin: con.origin,
-            currency: con.cur,
-            status: con.conStatus,
-            products: con.productsData?.length || 0,
-            dateRange: con.dateRange
-        });
+        const clientList = settings?.Client?.Client || [];
+        const supplierList = settings?.Supplier?.Supplier || [];
+        const currencyList = settings?.Currency?.Currency || [];
+        const expPmntList = settings?.ExpPmnt?.ExpPmnt || [];
+        const expTypeList = settings?.Expenses?.Expenses || [];
+        const resolveExpType = (id) => expTypeList.find(e => e.id === id)?.expType || id || 'Unknown';
 
-        const formatInvoice = (inv) => ({
-            id: inv.id,
-            invoice: inv.invoice,
-            client: inv.client,
-            date: inv.date,
-            status: inv.invoiceStatus,
-            totalAmount: inv.totalAmount,
-            currency: inv.cur,
-            dueDate: inv.delDate?.endDate,
-            canceled: inv.canceled
-        });
-
-        const formatExpense = (exp) => ({
-            id: exp.id,
-            vendor: exp.vendor,
-            date: exp.date,
-            amount: exp.amount,
-            currency: exp.cur,
-            type: exp.expType,
-            status: exp.paidUnpaid
-        });
+        // Finalized invoices store client/cur as objects; drafts store IDs
+        const resolveClient = (f) =>
+            f?.nname ? f.nname : clientList.find(c => c.id === f)?.nname || f || 'Unknown';
+        const resolveSupplier = (f) =>
+            f?.nname ? f.nname : supplierList.find(s => s.id === f)?.nname || f || 'Unknown';
+        const resolveCurrency = (f) =>
+            f?.cur ? f.cur : currencyList.find(c => c.id === f)?.cur || f || '';
 
         return {
-            contracts: contractsData.map(formatContract),
-            invoices: invoicesData.map(formatInvoice),
-            expenses: expensesData.map(formatExpense),
-            summary: {
-                totalContracts: contractsData.length,
-                totalInvoices: invoicesData.length,
-                totalExpenses: expensesData.length,
-                pendingInvoices: invoicesData.filter(inv => inv.invoiceStatus !== 'Paid' && !inv.canceled).length
-            }
-        };
-    }, [contractsData, invoicesData, expensesData]);
+            contracts: contractsData.map(con => ({
+                id: con.id,
+                order: con.order,
+                supplier: resolveSupplier(con.supplier),
+                date: con.date,
+                currency: resolveCurrency(con.cur),
+                status: con.conStatus || (con.completed ? 'Completed' : 'Open'),
+                products: con.productsData?.length || 0,
+            })),
+            invoices: invoicesData.map(inv => {
+                // invoiceStatus is never stored — compute from flags
+                const invoiceStatus = inv.final && inv.canceled ? 'Canceled'
+                    : inv.final ? 'Final'
+                    : 'Draft';
 
-    const handleSendMessage = async () => {
-        if (!newMessage.trim() || isLoading) return;
+                // Payment status from payments array + debtBlnc
+                const totalAmt = parseFloat(inv.totalAmount) || 0;
+                const totalPaid = (inv.payments || []).reduce((s, p) => s + (parseFloat(p.pmnt) || 0), 0);
+                const balanceDue = inv.debtBlnc != null
+                    ? parseFloat(inv.debtBlnc)
+                    : totalAmt - totalPaid;
+                const paymentStatus = balanceDue <= 0 ? 'Paid'
+                    : totalPaid > 0 ? 'Partially Paid'
+                    : 'Unpaid';
+
+                return {
+                    id: inv.id,
+                    invoice: inv.invoice,
+                    client: resolveClient(inv.client),
+                    date: inv.date,
+                    invoiceStatus,       // 'Draft' | 'Final' | 'Canceled'
+                    paymentStatus,       // 'Paid' | 'Partially Paid' | 'Unpaid'
+                    totalAmount: totalAmt,
+                    amountPaid: totalPaid,
+                    balanceDue: balanceDue > 0 ? balanceDue : 0,
+                    currency: resolveCurrency(inv.cur),
+                    dueDate: inv.delDate?.endDate,
+                    canceled: !!inv.canceled,
+                    isFinal: !!inv.final,
+                };
+            }),
+            expenses: expensesData.map(exp => {
+                // paid is stored as an ID from settings.ExpPmnt.ExpPmnt
+                const paidLabel = expPmntList.find(p => p.id === exp.paid)?.paid
+                    || (exp.paid === '111' ? 'Paid' : exp.paid === '222' ? 'Unpaid' : exp.paid || 'Unknown');
+                return {
+                    id: exp.id,
+                    vendor: resolveSupplier(exp.supplier) || exp.vendor || 'Unknown',
+                    date: exp.date,
+                    amount: parseFloat(exp.amount) || 0,
+                    currency: resolveCurrency(exp.cur),
+                    type: resolveExpType(exp.expType),
+                    paid: paidLabel,
+                };
+            }),
+            stocks: stocksData.map(s => {
+                const resolvedDesc =
+                    s.type === 'in' && s.description
+                        ? s.productsData?.find(y => y.id === s.description)?.description
+                        : s.mtrlStatus === 'select' || s.isSelection
+                            ? s.productsData?.find(y => y.id === s.descriptionId)?.description
+                            : s.type === 'out' && s.moveType === 'out'
+                                ? s.descriptionName
+                                : s.descriptionText;
+                return {
+                    description: resolvedDesc || s.descriptionName || s.description || 'Unknown',
+                    qnty: parseFloat(s.qnty) || 0,
+                    unit: s.qTypeTable || '',
+                    warehouse: s.stock || '',
+                    date: s.date || '',
+                };
+            }),
+            margins: marginsData.map(m => ({
+                month: m.month,
+                totalMargin: parseFloat(m.totalMargin) || 0,
+                incoming: parseFloat(m.incoming) || 0,
+                itemCount: m.items?.length || 0,
+            })),
+        };
+    }, [contractsData, invoicesData, expensesData, stocksData, marginsData, settings]);
+
+    const handleSendMessage = async (overrideText) => {
+        const text = overrideText || newMessage;
+        if (!text.trim() || isLoading) return;
 
         const userMsg = {
             id: `user-${Date.now()}`,
             role: 'user',
-            content: newMessage,
-            time: dateFormat(new Date(), 'h:MM TT')
+            content: text,
+            time: dateFormat(new Date(), 'h:MM TT'),
         };
 
         setMessages(prev => [...prev, userMsg]);
-        setNewMessage('');
+        if (!overrideText) setNewMessage('');
         setIsLoading(true);
+
+        const msgId = `assistant-${Date.now()}`;
 
         try {
             const apiMessages = [...messages, userMsg]
@@ -333,31 +405,73 @@ const FloatingChat = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     messages: apiMessages,
-                    currentData: getCurrentDataContext()
+                    currentData: getCurrentDataContext(),
+                    currentPage: typeof window !== 'undefined' ? window.location.pathname : '/',
+                    dateRange: dateSelect,
                 }),
             });
 
-            const data = await response.json();
-
             if (!response.ok) {
+                const data = await response.json();
                 throw new Error(data.error || 'Failed to get response');
             }
 
+            // Add empty assistant message to stream tokens into
             setMessages(prev => [...prev, {
-                id: `assistant-${Date.now()}`,
+                id: msgId,
                 role: 'assistant',
-                content: data.message,
-                time: dateFormat(new Date(), 'h:MM TT')
+                content: '',
+                time: dateFormat(new Date(), 'h:MM TT'),
+                isStreaming: true,
             }]);
+
+            // Read SSE stream
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    if (!line.startsWith('data: ')) continue;
+                    const payload = line.slice(6).trim();
+                    if (payload === '[DONE]') break;
+                    try {
+                        const { text: chunk, error } = JSON.parse(payload);
+                        if (error) throw new Error(error);
+                        if (chunk) {
+                            setMessages(prev => prev.map(m =>
+                                m.id === msgId ? { ...m, content: m.content + chunk } : m
+                            ));
+                        }
+                    } catch (e) {
+                        if (e.message !== 'Unexpected end of JSON input') throw e;
+                    }
+                }
+            }
+
+            setMessages(prev => prev.map(m =>
+                m.id === msgId ? { ...m, isStreaming: false } : m
+            ));
+
         } catch (err) {
             console.error('Chat error:', err);
-            setMessages(prev => [...prev, {
-                id: `error-${Date.now()}`,
-                role: 'assistant',
-                content: `Sorry, I encountered an error. Please try again.`,
-                time: dateFormat(new Date(), 'h:MM TT'),
-                isError: true
-            }]);
+            setMessages(prev => {
+                const filtered = prev.filter(m => m.id !== msgId);
+                return [...filtered, {
+                    id: `error-${Date.now()}`,
+                    role: 'assistant',
+                    content: `I encountered an error: ${err.message}. Please try again.`,
+                    time: dateFormat(new Date(), 'h:MM TT'),
+                    isError: true,
+                }];
+            });
         } finally {
             setIsLoading(false);
             inputRef.current?.focus();
@@ -372,67 +486,71 @@ const FloatingChat = () => {
     };
 
     const handleClearChat = () => {
-        setMessages([{
+        const welcome = {
             id: 'welcome',
             role: 'assistant',
-            content: `Hi! I'm your IMS Assistant. How can I help you today?`,
-            time: dateFormat(new Date(), 'h:MM TT')
-        }]);
+            content: `Hi! I'm your IMS Assistant. I have access to your contracts, invoices, expenses, stocks, and margins. How can I help?`,
+            time: dateFormat(new Date(), 'h:MM TT'),
+        };
+        setMessages([welcome]);
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
     };
 
-    // Format message content for better display
+    const handleRefreshData = () => {
+        setContractsData([]);
+        loadAllData(true);
+    };
+
     const formatMessageContent = (content) => {
         if (!content) return '';
-        let formatted = content;
-        // Convert **bold** to styled spans
-        formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        // Convert bullet points to styled bullets
-        formatted = formatted.replace(/^[•\-]\s*/gm, '<span class="text-blue-600 mr-1">•</span>');
-        // Convert numbered lists
-        formatted = formatted.replace(/^(\d+)\.\s+/gm, '<span class="text-blue-600 font-medium mr-1">$1.</span>');
-        // Convert line breaks
-        formatted = formatted.replace(/\n/g, '<br/>');
-        return formatted;
+        let f = content;
+        f = f.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        f = f.replace(/^[•\-]\s*/gm, '<span class="text-blue-600 mr-1">•</span>');
+        f = f.replace(/^(\d+)\.\s+/gm, '<span class="text-blue-600 font-medium mr-1">$1.</span>');
+        f = f.replace(/\n/g, '<br/>');
+        return f;
     };
 
-    // Don't render if settings not loaded
+    // Last completed assistant message (for follow-ups and nav buttons)
+    const lastAssistantMsg = [...messages].reverse().find(m => m.role === 'assistant' && !m.isStreaming && m.id !== 'welcome' && !m.isError);
+
     if (Object.keys(settings || {}).length === 0) return null;
 
     return (
         <>
-            {/* Chat Window */}
             {chatOpen && (
-                <div style={{ zIndex: 99999 }} className="fixed bottom-4 right-4 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-[#b8ddf8] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+                <div style={{ zIndex: 99999 }} className="fixed bottom-4 right-4 w-96 h-[540px] bg-white rounded-2xl shadow-2xl border border-[#b8ddf8] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+
                     {/* Header */}
                     <div className="px-3 py-2.5 border-b border-[#b8ddf8] flex items-center justify-between bg-[#dbeeff]">
                         <div className="flex items-center gap-2">
                             <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
                             <span className="responsiveText font-semibold text-[var(--port-gore)]">Assistant</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                            {!dataLoading && (
-                                <div className="flex items-center gap-1.5">
-                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.62rem', backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}>
-                                        {contractsData.length} Contracts
+                        <div className="flex items-center gap-1.5">
+                            {dataLoading ? (
+                                <Loader2 className="w-3 h-3 text-[var(--endeavour)] animate-spin" />
+                            ) : (
+                                <div className="flex items-center gap-1">
+                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.6rem', backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}>
+                                        {contractsData.length} Con
                                     </span>
-                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.62rem', backgroundColor: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
-                                        {invoicesData.length} Invoices
+                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.6rem', backgroundColor: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
+                                        {invoicesData.length} Inv
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.6rem', backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}>
+                                        {stocksData.length} Stk
                                     </span>
                                 </div>
                             )}
-                            <button
-                                onClick={handleClearChat}
-                                className="p-1 hover:text-[var(--endeavour)] text-[var(--regent-gray)] transition-colors"
-                                title="Reset chat"
-                            >
-                                <Trash2 className="w-3.5 h-3.5" />
+                            <button onClick={handleRefreshData} disabled={dataLoading} className="p-1 hover:text-[var(--endeavour)] text-[var(--regent-gray)] transition-colors disabled:opacity-40" title="Refresh data">
+                                <RefreshCw className="w-3 h-3" />
                             </button>
-                            <button
-                                onClick={() => setChatOpen(false)}
-                                className="p-1 hover:text-[var(--endeavour)] text-[var(--regent-gray)] transition-colors"
-                                title="Close chat"
-                            >
-                                <X className="w-3.5 h-3.5" />
+                            <button onClick={handleClearChat} className="p-1 hover:text-[var(--endeavour)] text-[var(--regent-gray)] transition-colors" title="Clear chat">
+                                <Trash2 className="w-3 h-3" />
+                            </button>
+                            <button onClick={() => setChatOpen(false)} className="p-1 hover:text-[var(--endeavour)] text-[var(--regent-gray)] transition-colors" title="Close">
+                                <X className="w-3 h-3" />
                             </button>
                         </div>
                     </div>
@@ -440,10 +558,7 @@ const FloatingChat = () => {
                     {/* Messages */}
                     <div className="flex-1 overflow-y-auto p-3 space-y-3" style={{ backgroundColor: '#ffffff' }}>
                         {messages.map((msg) => (
-                            <div
-                                key={msg.id}
-                                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                            >
+                            <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 {msg.role === 'assistant' && (
                                     <div className="w-7 h-7 rounded-full bg-[var(--endeavour)]/10 flex items-center justify-center mr-2 flex-shrink-0 mt-1">
                                         <BsRobot className="w-3.5 h-3.5 text-[var(--endeavour)]" />
@@ -463,7 +578,10 @@ const FloatingChat = () => {
                                         className="break-words leading-relaxed"
                                         dangerouslySetInnerHTML={{ __html: formatMessageContent(msg.content) }}
                                     />
-                                    <span className="mt-1 block text-right text-[var(--regent-gray)]" style={{ fontSize: '0.62rem' }}>
+                                    {msg.isStreaming && (
+                                        <span className="inline-block w-1.5 h-3.5 bg-[var(--endeavour)] ml-0.5 animate-pulse rounded-sm" />
+                                    )}
+                                    <span className="mt-1 block text-right text-[var(--regent-gray)]" style={{ fontSize: '0.6rem' }}>
                                         {msg.time}
                                     </span>
                                 </div>
@@ -475,28 +593,48 @@ const FloatingChat = () => {
                             </div>
                         ))}
 
-                        {/* Loading */}
-                        {isLoading && (
+                        {/* Typing dots — only while waiting for first streaming token */}
+                        {isLoading && !messages.find(m => m.isStreaming) && (
                             <div className="flex justify-start">
-                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--endeavour)] to-[var(--chathams-blue)] flex items-center justify-center mr-2">
-                                    <BsRobot className="w-3.5 h-3.5 text-white" />
+                                <div className="w-7 h-7 rounded-full bg-[var(--endeavour)]/10 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <BsRobot className="w-3.5 h-3.5 text-[var(--endeavour)]" />
                                 </div>
-                                <div className="bg-white text-[var(--port-gore)] shadow-sm border border-gray-100 rounded-2xl rounded-bl-md px-3 py-2">
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="flex gap-1">
-                                            <span className="w-1.5 h-1.5 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                            <span className="w-1.5 h-1.5 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                            <span className="w-1.5 h-1.5 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                                        </div>
+                                <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-3 py-2.5">
+                                    <div className="flex gap-1">
+                                        <span className="w-1.5 h-1.5 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                        <span className="w-1.5 h-1.5 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                        <span className="w-1.5 h-1.5 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                                     </div>
                                 </div>
                             </div>
                         )}
+
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Input + Quick Actions */}
+                    {/* Input + actions */}
                     <div className="p-3 border-t border-[#b8ddf8]" style={{ backgroundColor: '#ffffff' }}>
+
+                        {/* Nav buttons — shown after a data response mentions a page */}
+                        {lastAssistantMsg && !isLoading && (() => {
+                            const navBtns = getNavButtons(lastAssistantMsg.content);
+                            return navBtns.length > 0 ? (
+                                <div className="flex gap-1.5 mb-2">
+                                    {navBtns.map(p => (
+                                        <a
+                                            key={p.route}
+                                            href={p.route}
+                                            className="flex items-center gap-1 px-2.5 py-1 bg-[var(--endeavour)] text-white rounded-full hover:bg-[var(--chathams-blue)] transition-colors"
+                                            style={{ fontSize: '0.62rem' }}
+                                        >
+                                            <ExternalLink className="w-2.5 h-2.5" />
+                                            Go to {p.route.replace('/', '')}
+                                        </a>
+                                    ))}
+                                </div>
+                            ) : null;
+                        })()}
+
                         {/* Input bar */}
                         <div className="flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-3 py-2 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: '#e8f5ff' }}>
                             <input
@@ -511,29 +649,39 @@ const FloatingChat = () => {
                                 style={{ fontSize: '0.68rem', backgroundColor: 'transparent' }}
                             />
                             <button
-                                onClick={handleSendMessage}
+                                onClick={() => handleSendMessage()}
                                 disabled={!newMessage.trim() || isLoading || dataLoading}
                                 className="p-1.5 bg-[var(--endeavour)] text-white rounded-lg hover:bg-[var(--chathams-blue)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
                             >
-                                {isLoading ? (
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                ) : (
-                                    <Send className="w-3.5 h-3.5" />
-                                )}
+                                {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                             </button>
                         </div>
-                        {/* Quick action chips */}
+
+                        {/* Quick actions on first open */}
                         {messages.length <= 1 && !isLoading && (
                             <div className="flex flex-wrap gap-1.5 mt-2">
-                                {['Show overdue invoices', 'List contracts', 'How to create invoice?'].map((action) => (
+                                {['Show overdue invoices', 'Which client owes the most?', 'Contract status breakdown', 'Show unpaid expenses'].map(action => (
                                     <button
                                         key={action}
-                                        onClick={() => {
-                                            setNewMessage(action);
-                                            setTimeout(() => handleSendMessage(), 100);
-                                        }}
+                                        onClick={() => handleSendMessage(action)}
                                         className="px-2.5 py-1 bg-white border border-[#b8ddf8] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
-                                        style={{ fontSize: '0.68rem' }}
+                                        style={{ fontSize: '0.65rem' }}
+                                    >
+                                        {action}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Follow-up suggestions after each AI reply */}
+                        {lastAssistantMsg && messages.length > 1 && !isLoading && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                                {getFollowUps(lastAssistantMsg.content).map(action => (
+                                    <button
+                                        key={action}
+                                        onClick={() => handleSendMessage(action)}
+                                        className="px-2.5 py-1 bg-white border border-[#b8ddf8] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
+                                        style={{ fontSize: '0.65rem' }}
                                     >
                                         {action}
                                     </button>
