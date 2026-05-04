@@ -233,6 +233,38 @@ const useSettingsState = (props) => {
             setValueExp(newExpense); //new Empty valueInv
             success && setToast({ show: true, text: getTtl('Expense successfully saved!', ln), clr: 'success' })
         },
+        deleteExpenseFromExpPage: async (uidCollection) => {
+            if (!valueExp?.id) return;
+
+            const success = await delDoc(uidCollection, 'expenses', valueExp);
+            if (!success) return;
+
+            setExpensesData(prev => prev.filter(k => k.id !== valueExp.id));
+
+            if (valueExp.invData?.id && valueExp.invData?.date) {
+                try {
+                    const inv = await loadInvoice(uidCollection, 'invoices', valueExp.invData);
+                    if (inv?.id) {
+                        const updatedExps = (inv.expenses || []).filter(e => e.id !== valueExp.id);
+                        await saveData(uidCollection, 'invoices', { ...inv, expenses: updatedExps });
+                    }
+                } catch (e) {}
+            }
+
+            if (valueExp.poSupplier?.id && valueExp.poSupplier?.date) {
+                try {
+                    const contract = await loadInvoice(uidCollection, 'contracts', valueExp.poSupplier);
+                    if (contract?.id) {
+                        const updatedExps = (contract.expenses || []).filter(e => e.id !== valueExp.id);
+                        await updateDocument(uidCollection, 'contracts', 'expenses', valueExp.poSupplier, updatedExps);
+                    }
+                } catch (e) {}
+            }
+
+            setValueExp(newExpense);
+            setIsOpen(false);
+            setToast({ show: true, text: getTtl('Expense successfully deleted!', ln), clr: 'success' });
+        },
         saveData_CompanyExpenses: async (uidCollection) => {
 
             //validation

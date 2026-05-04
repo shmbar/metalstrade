@@ -6,6 +6,7 @@ import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { InvoiceContext } from "../../../../contexts/useInvoiceContext";
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { AiOutlineClear } from 'react-icons/ai';
+import { MdDeleteOutline } from 'react-icons/md';
 import { validate, ErrDiv } from '../../../../utils/utils'
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
@@ -14,7 +15,7 @@ import Tltip from '../../../../components/tlTip';
 const Expenses = () => {
 
     const { valueExp, setValueExp, blankExpense, saveData_ExpenseExpenses,
-        errorsExp, setErrorsExp } = useContext(ExpensesContext);
+        deleteExpenseFromExpPage, errorsExp, setErrorsExp } = useContext(ExpensesContext);
     const { valueInv, setValueInv, } = useContext(InvoiceContext);
     const { settings, ln } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
@@ -112,7 +113,7 @@ const Expenses = () => {
                         <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
                         <div>
                             <textarea rows="5" name="comments"
-                                className="input h-32 p-1 rounded-full border-[#b8ddf8] bg-white w-full"
+                                className="input h-32 p-1 rounded-xl border-[#b8ddf8] bg-white w-full"
                                 style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
                                 value={valueExp.comments} onChange={handleValue} />
                         </div>
@@ -139,6 +140,18 @@ const Expenses = () => {
                     {getTtl('Clear', ln)}
                 </button>
                 </Tltip>
+                {valueExp?.id && (
+                <Tltip direction='top' tltpText='Delete expense'>
+                <button
+                    className="whiteButton py-1"
+                    style={{ color: '#c0392b', borderColor: '#c0392b' }}
+                    onClick={() => deleteExpenseFromExpPage(uidCollection)}
+                >
+                    <MdDeleteOutline className='scale-110' />
+                    {getTtl('Delete', ln)}
+                </button>
+                </Tltip>
+                )}
             </div>
 
         </div >
