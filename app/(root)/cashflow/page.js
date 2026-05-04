@@ -922,17 +922,17 @@ const Cashflow = () => {
                                                             <input className='input w-44 h-6 responsiveTextTotal rounded-full'
                                                                 value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
                                                             <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-md hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
-                                                            {i === initialData.length - 1 && <>
-                                                                <Tltip direction='bottom' tltpText='Save added data'>
-                                                                    <button type="button" className="bg-[var(--endeavour)] border border-[#d8e8f5] text-white px-5 h-7 text-[0.72rem] font-medium rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
-                                                                </Tltip>
-                                                                <Tltip direction='bottom' tltpText='Add new item above'>
-                                                                    <button type="button" className="border border-[#d8e8f5] text-[var(--endeavour)] px-5 h-7 text-[0.72rem] font-medium rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all" onClick={addItem}>Add</button>
-                                                                </Tltip>
-                                                            </>}
                                                         </div>
                                                     )
                                                 })}
+                                            <div className="flex gap-2 my-1">
+                                                <Tltip direction='bottom' tltpText='Save added data'>
+                                                    <button type="button" className="bg-[var(--endeavour)] border border-[#d8e8f5] text-white px-5 h-7 text-[0.72rem] font-medium rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
+                                                </Tltip>
+                                                <Tltip direction='bottom' tltpText='Add new item'>
+                                                    <button type="button" className="border border-[#d8e8f5] text-[var(--endeavour)] px-5 h-7 text-[0.72rem] font-medium rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all" onClick={addItem}>Add</button>
+                                                </Tltip>
+                                            </div>
                                         </div>
 
                                     }
