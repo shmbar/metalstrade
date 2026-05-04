@@ -39,6 +39,7 @@ const Expenses = () => {
             setLoading(true)
             let dt = await loadCompanyExpenses(uidCollection, 'companyExpenses', dateSelect);
             dt = dt.map(z => ({ ...z, amount: z.amount * 1 }))
+            dt = dt.sort((a, b) => new Date(b.date) - new Date(a.date))
 
             setExpensesData(dt)
             setFilteredId(dt.map(x => x.id))
