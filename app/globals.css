@@ -54,6 +54,10 @@ thead th {
   color: var(--chathams-blue) !important;
 }
 
+.inv-preview-table thead th {
+  color: white !important;
+}
+
 @layer components {
   .table_cell {
     @apply px-6 py-3 whitespace-nowrap text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem] text-[var(--port-gore)] leading-4;

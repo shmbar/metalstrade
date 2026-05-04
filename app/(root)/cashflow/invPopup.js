@@ -308,8 +308,8 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
     const cStatusBg = dbBalance === 0 ? '#dcfce7' : totalPaid > 0 ? '#fef3c7' : '#fee2e2';
     const cStatusFg = dbBalance === 0 ? '#16a34a' : totalPaid > 0 ? '#d97706' : '#dc2626';
 
-    const TH = 'text-left text-[10px] font-semibold py-2 px-2';
-    const TH_R = 'text-right text-[10px] font-semibold py-2 px-2';
+    const TH = 'text-left text-[10px] font-semibold py-2 px-2 text-white';
+    const TH_R = 'text-right text-[10px] font-semibold py-2 px-2 text-white';
     const TD = 'text-left text-[10px] py-1 px-2 align-top';
     const TD_R = 'text-right text-[10px] py-1 px-2 align-top';
     const TD_C = 'text-center text-[10px] py-1 px-2 align-top';
@@ -449,7 +449,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         {/* ── Shipment details ── */}
                         <div style={{ marginBottom: '48px', fontSize: '10px', display: 'flex', color: '#203764' }}>
                             {/* Left: Shipment / Origin / Delivery Terms */}
-                            <div style={{ flex: '0 0 30%' }}>
+                            <div style={{ flex: '0 0 34%' }}>
                                 <table style={{ borderCollapse: 'collapse', width: '100%' }}>
                                     <tbody>
                                         {shipDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Shipment:</td><td style={{ paddingBottom: '3px' }}>{shipDisplay}</td></tr>}
@@ -459,7 +459,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 </table>
                             </div>
                             {/* Middle: POL / POD / Packing */}
-                            <div style={{ flex: '0 0 30%' }}>
+                            <div style={{ flex: '0 0 35%' }}>
                                 <table style={{ borderCollapse: 'collapse', width: '100%' }}>
                                     <tbody>
                                         {polDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POL:</td><td style={{ paddingBottom: '3px' }}>{polDisplay}</td></tr>}
@@ -469,7 +469,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 </table>
                             </div>
                             {/* Right: WT values */}
-                            <div style={{ flex: '1' }}>
+                            <div style={{ flex: '0 0 31%' }}>
                                 <table style={{ borderCollapse: 'collapse' }}>
                                     <tbody>
                                         <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Net WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td></tr>
@@ -482,7 +482,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         </div>
 
                         {/* ── Products table ── */}
-                        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4px', fontSize: '10px' }}>
+                        <table className="inv-preview-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4px', fontSize: '10px' }}>
                             <thead>
                                 <tr style={{ background: '#096eb6', color: '#fff' }}>
                                     <th className={TH} style={{ width: '4%' }}>#</th>
@@ -511,14 +511,14 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                     <td colSpan={4} style={{ border: 'none' }} />
                                     <td className="text-left text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px', whiteSpace: 'nowrap' }}>Total Amount:</td>
                                     <td style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px' }} />
-                                    <td className="text-right text-[10px] px-2" style={{ fontWeight: '700', borderTop: '1px solid #203764', padding: '6px 8px 4px' }}>{fmtAmt(inv.totalAmount)}</td>
+                                    <td className="text-right text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px' }}>{fmtAmt(inv.totalAmount)}</td>
                                 </tr>
                                 {isInvoice && inv.percentage && (
                                     <tr>
                                         <td colSpan={4} style={{ border: 'none' }} />
                                         <td className="text-left text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>Prepayment:</td>
                                         <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{inv.percentage}%</td>
-                                        <td className="text-right text-[10px] px-2" style={{ fontWeight: '700', paddingTop: '4px', paddingBottom: '8px' }}>{fmtAmt(inv.totalPrepayment)}</td>
+                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{fmtAmt(inv.totalPrepayment)}</td>
                                     </tr>
                                 )}
                                 {(isCN || (!isInvoice && !isCN)) && inv.totalPrepayment && (
