@@ -160,8 +160,8 @@ const Customtable = ({
           border: 1px solid #e8f0f8;
           text-align: center;
 
-          font-family: var(--font-poppins), 'Poppins', sans-serif;r
-          font-size: 0.68rem !important;
+          font-family: var(--font-poppins), 'Poppins', sans-serif;
+          font-size: 0.78rem !important;
         }
         .custom-table td {
           border: 1px solid #e8f0f8;

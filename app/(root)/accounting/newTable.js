@@ -187,7 +187,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
           vertical-align: middle;
           padding: 8px 6px;
           border-bottom: 1px solid #b8ddf8;
-          border-right: 1px solid #b8ddf8;r
+          border-right: 1px solid #b8ddf8;
           font-size: 0.68rem !important;
         }
 
