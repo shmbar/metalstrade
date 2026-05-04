@@ -207,6 +207,29 @@ const DraggableRow = ({ row, props, cName }) => {
                   <MdDeleteOutline className="w-4 h-4" />
                 </button>
               </div>
+            ) : cell.column.id === "totalMargin" && row.original.gis ? (
+              <Tltip
+                direction="top"
+                tltpText={
+                  (cName === "ims" ? "IMS: " : "GIS: ") +
+                  addComma(cell.getValue() / 2)
+                }
+              >
+                <div className="flex items-center justify-center w-full">
+                  <NumericFormat
+                    value={cell.getValue() / 2}
+                    displayType="input"
+                    readOnly
+                    thousandSeparator
+                    allowNegative
+                    prefix="$"
+                    decimalScale={2}
+                    fixedDecimalScale
+                    className="w-full bg-transparent border-none outline-none px-1 text-[var(--port-gore)] text-center text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]"
+                    style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
+                  />
+                </div>
+              </Tltip>
             ) : (
               <NumericFormat
                 value={cell.getValue()}
