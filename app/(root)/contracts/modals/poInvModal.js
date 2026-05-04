@@ -195,7 +195,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
     const addInvoice = () => {
 
         let newPmnt = {
-            id: uuidv4(), pmnt: '', inv: '', invValue: '', invRef: [], blnc: '',
+            id: uuidv4(), pmnt: '0', inv: '', invValue: '', invRef: [], blnc: '',
             payments: [{ pmntId: uuidv4(), pmntDate: null, pmntPerc: '', pmnt: '' }]
         }
 
@@ -346,7 +346,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                         <Datepicker useRange={false}
                                                             asSingle={true}
                                                             value={y.pmntDate}
-                                                            popoverDirection='up'
+                                                            popoverDirection='down'
                                                             onChange={e => handleDateChange(e, x, y)}
                                                             displayFormat={"DD-MMM-YYYY"}
                                                             inputClassName='input w-full shadow-lg h-7 responsiveTextTable'
