@@ -317,7 +317,8 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
     filteredArr = filteredArr.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return (
-        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
+            <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
@@ -408,6 +409,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                     </tr>
                 </tfoot>
             </table>
+            </div>
         </div>
     )//stock;
 }
@@ -421,7 +423,8 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
     const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd')
 
     return (
-        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
+            <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
@@ -505,6 +508,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                     </tr>
                 </tfoot>
             </table>
+            </div>
         </div>
     )
 }
@@ -654,7 +658,8 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
     let filteredArr1 = tmp.filter(x => x.payments.length === 0)
 
     return (
-        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
+            <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             {type === 'PartPaid' &&
                 <div className="pt-1 w-full">
                     <table className="cashflow-detail-table w-full table-auto">
@@ -873,6 +878,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                     </table>
                 </div>
             }
+            </div>
         </div>
     )
 }
@@ -1043,7 +1049,8 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
     let type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt'
 
     return (
-        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
+            <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
@@ -1152,8 +1159,9 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                     </tr>
                 </tfoot>
             </table>
+            </div>
         </div>
-    )//stock; 
+    )//stock;
 }
 
 
@@ -1214,7 +1222,8 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
     let filteredArr = expensesAll.filter(z => z.supplier === supplier)
 
     return (
-        <div className="w-full max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto bg-white border border-[#b8ddf8] rounded-xl overflow-hidden">
+        <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
+            <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
@@ -1312,6 +1321,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                     </tr>
                 </tfoot>
             </table>
+            </div>
         </div>
-    )//stock; 
+    )//stock;
 }

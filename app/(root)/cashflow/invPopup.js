@@ -99,7 +99,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                     borderBottom: '1px solid #d8e8f5',
                     padding: '8px 16px 8px 16px',
                     paddingRight: '44px',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    display: 'flex', justifyContent: 'flex-start', gap: '6px', alignItems: 'center',
                     fontSize: '11px',
                     fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                     flexShrink: 0,
@@ -173,7 +173,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
 
                         {/* Shipment (from contract) */}
                         {(shipDisplay || originDisplay || delTermDisplay || polDisplay || podDisplay || packingDisplay || c.ttlGross) && (
-                            <div style={{ border: '1px solid #c8dff0', borderRadius: '4px', marginBottom: '12px' }}>
+                            <div style={{ borderRadius: '4px', marginBottom: '12px' }}>
                                 <table style={{ width: '100%', fontSize: '10px', borderCollapse: 'collapse' }}>
                                     <tbody>
                                         <tr style={{}}>
@@ -182,7 +182,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                             <td style={{ padding: '4px 10px', fontWeight: '700', width: '8%' }}>POL:</td>
                                             <td style={{ padding: '4px 10px', width: '19%' }}>{polDisplay}</td>
                                             <td style={{ padding: '4px 10px', fontWeight: '700', width: '22%' }}>Net WT Kgs:</td>
-                                            <td style={{ padding: '4px 10px', textAlign: 'right', width: '18%' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td>
+                                            <td style={{ padding: '4px 10px', textAlign: 'left', width: '18%' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td>
                                         </tr>
                                         <tr style={{}}>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>Origin:</td>
@@ -190,7 +190,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>POD:</td>
                                             <td style={{ padding: '4px 10px' }}>{podDisplay}</td>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>Tare WT Kgs:</td>
-                                            <td style={{ padding: '4px 10px', textAlign: 'right' }}>{c.ttlGross ? TotalTarre : ''}</td>
+                                            <td style={{ padding: '4px 10px', textAlign: 'left' }}>{c.ttlGross ? TotalTarre : ''}</td>
                                         </tr>
                                         <tr>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>Delivery Terms:</td>
@@ -198,7 +198,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>Packing:</td>
                                             <td style={{ padding: '4px 10px' }}>{packingDisplay}</td>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>Gross WT Kgs:</td>
-                                            <td style={{ padding: '4px 10px', textAlign: 'right' }}>{c.ttlGross ? TotalGross : ''}</td>
+                                            <td style={{ padding: '4px 10px', textAlign: 'left' }}>{c.ttlGross ? TotalGross : ''}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -356,7 +356,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                     borderBottom: '1px solid #d8e8f5',
                     padding: '8px 16px 8px 16px',
                     paddingRight: '44px',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    display: 'flex', justifyContent: 'flex-start', gap: '6px', alignItems: 'center',
                     fontSize: '11px',
                     fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                     flexShrink: 0,
@@ -465,10 +465,10 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                             </div>
                             {/* Right: WT values stacked */}
                             <div style={{ flex: '1' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Total Net WT Kgs:</span><span>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</span></div>
-                                {!secondRule && !fifthRule && isInvoice && <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Total Tarre WT Kgs:</span><span>{TotalTarre}</span></div>}
-                                {!fourthRule && !fifthRule && inv.ttlGross && <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>{thirdRule ? 'QTY Ingots:' : 'Total Gross WT Kgs:'}</span><span>{TotalGross}</span></div>}
-                                {isInvoice && !secondRule && inv.ttlPackages && <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Total Packages:</span><span style={{ textAlign: 'right' }}>{inv.ttlPackages}</span></div>}
+                                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Total Net WT Kgs:</span><span>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</span></div>
+                                {!secondRule && !fifthRule && isInvoice && <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Total Tarre WT Kgs:</span><span>{TotalTarre}</span></div>}
+                                {!fourthRule && !fifthRule && inv.ttlGross && <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>{thirdRule ? 'QTY Ingots:' : 'Total Gross WT Kgs:'}</span><span>{TotalGross}</span></div>}
+                                {isInvoice && !secondRule && inv.ttlPackages && <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Total Packages:</span><span style={{ textAlign: 'left' }}>{inv.ttlPackages}</span></div>}
                             </div>
                         </div>
 

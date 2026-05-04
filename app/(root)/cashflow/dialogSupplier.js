@@ -94,11 +94,13 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                  data-[state=closed]:animate-fade-zoom-out
 ">
                 <div className="grid gap-2">
-                    <div className="responsiveText justify-end flex">
-                        <MdClose
-                            className="scale-[1.5] cursor-pointer"
+                    <div className="flex justify-end">
+                        <button
                             onClick={() => setOpen(false)}
-                        />
+                            className="w-6 h-6 flex items-center justify-center rounded-full bg-[#f0f7ff] hover:bg-[#dbeeff] text-[var(--endeavour)] transition-colors"
+                        >
+                            <MdClose className="w-3.5 h-3.5" />
+                        </button>
                     </div>
 
                     <h4 className="leading-none font-medium">
