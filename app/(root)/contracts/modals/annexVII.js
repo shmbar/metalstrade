@@ -131,7 +131,10 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
     const clearTemplate = () => update('templateId', '');
     const generatePdf = () => PdfAnnexVII(valueInv, compData, settings);
 
-    const carrierSortedArr = [...carriers].filter(c => !c.deleted).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    const carrierSortedArr = [...carriers]
+        .filter(c => !c.deleted)
+        .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+        .map(c => ({ ...c, displayName: c.nickname || c.name }));
 
     return (
         <div className="border border-[#b8ddf8] rounded-2xl p-3">
@@ -181,7 +184,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
                                 value={{ carrier1Id: ax.carrier1Id || '' }}
                                 onChange={v => selectCarrier(1, v)}
                                 name="carrier1Id"
-                                secondaryName="name"
+                                secondaryName="displayName"
                                 clear={() => clearCarrier(1)}
                             />
                         </div>
@@ -207,7 +210,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
                                 value={{ carrier2Id: ax.carrier2Id || '' }}
                                 onChange={v => selectCarrier(2, v)}
                                 name="carrier2Id"
-                                secondaryName="name"
+                                secondaryName="displayName"
                                 clear={() => clearCarrier(2)}
                             />
                         </div>

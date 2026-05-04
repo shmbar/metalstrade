@@ -32,6 +32,7 @@ const ISF_FIELDS = [
 
 const CARRIER_FIELDS = [
     { key: 'name', label: 'Carrier Name', required: true },
+    { key: 'nickname', label: 'Nickname', placeholder: 'e.g. CMA Estonia' },
     { key: 'address', label: 'Address', placeholder: '' },
     { key: 'contact', label: 'Contact Person', placeholder: '' },
     { key: 'tel', label: 'Tel.', placeholder: '' },
@@ -142,7 +143,7 @@ const Documents = () => {
                                 className={`flex items-center justify-between px-4 py-2 rounded-full mx-2 cursor-pointer
                                     text-[0.75rem] text-[var(--chathams-blue)] hover:bg-[var(--selago)]
                                     ${editId === t.id ? 'bg-white font-semibold' : ''}`}>
-                                <span onClick={() => edit(t)} className="flex-1 truncate">{t.name || '(unnamed)'}</span>
+                                <span onClick={() => edit(t)} className="flex-1 truncate">{t.nickname || t.name || '(unnamed)'}</span>
                                 <div className="flex gap-2 ml-2">
                                     <PenLine size={14} className="opacity-50 hover:opacity-100 cursor-pointer" onClick={() => edit(t)} />
                                     <Trash size={14} className="opacity-50 hover:opacity-100 cursor-pointer text-red-500" onClick={() => del(t.id)} />
