@@ -13,6 +13,10 @@ const poppins = Poppins({
 export const metadata = {
 	title: 'IMS-Metals',
 	description: 'Invoices & Contracts',
+	icons: {
+		icon: '/logo/logoNew.svg',
+		apple: '/logo/logoNew.svg',
+	},
 };
 
 export default function RootLayout({ children }) {

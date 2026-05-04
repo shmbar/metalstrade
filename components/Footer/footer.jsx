@@ -8,8 +8,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 mb-4">
           {/* Brand Column */}
           <div className="md:col-span-2">
-            <div className="inline-flex items-center justify-center rounded w-12 h-12 mb-3 bg-[var(--endeavour)]">
-              <span className="text-white font-bold text-lg">IMS</span>
+            <div className="mb-3 overflow-hidden h-11">
+              <img src="/logo/logoNew.svg" alt="IMS Logo" className="h-24 w-auto -mt-[26px]" />
             </div>
             <p className="text-[var(--chathams-blue)] text-sm leading-relaxed max-w-xs opacity-80">
               IMS provides innovative solutions for businesses worldwide, helping them grow with technology and expertise.
