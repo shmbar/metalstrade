@@ -176,16 +176,16 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                     {/* Mobile Total Row */}
                     <div className="rounded-2xl border-t border-[var(--rock-blue)] px-3 py-2 flex flex-col gap-1" style={{ background: '#dbeeff' }}>
                         <div className="flex justify-between items-center">
-                            <span className="responsiveTextTable font-semibold text-[var(--chathams-blue)]">Total Quantity</span>
-                            <span className="responsiveTextTable font-semibold text-[var(--chathams-blue)]">{showAmount(data.reduce((sum, item) => sum + item.poWeight * 1, 0))}</span>
+                            <span className="responsiveTextTable font-medium text-[var(--chathams-blue)]">Total Quantity</span>
+                            <span className="responsiveTextTable font-medium text-[var(--chathams-blue)]">{showAmount(data.reduce((sum, item) => sum + item.poWeight * 1, 0))}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                            <span className="responsiveTextTable font-semibold text-[var(--chathams-blue)]">Total Shipped</span>
-                            <span className="responsiveTextTable font-semibold text-[var(--chathams-blue)]">{showAmount(data.reduce((sum, item) => sum + item.shiipedWeight * 1, 0))}</span>
+                            <span className="responsiveTextTable font-medium text-[var(--chathams-blue)]">Total Shipped</span>
+                            <span className="responsiveTextTable font-medium text-[var(--chathams-blue)]">{showAmount(data.reduce((sum, item) => sum + item.shiipedWeight * 1, 0))}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                            <span className="responsiveTextTable font-semibold text-[var(--chathams-blue)]">Total Remaining</span>
-                            <span className="responsiveTextTable font-semibold text-[var(--chathams-blue)]">{showAmount(data.reduce((sum, item) => sum + item.remaining * 1, 0))}</span>
+                            <span className="responsiveTextTable font-medium text-[var(--chathams-blue)]">Total Remaining</span>
+                            <span className="responsiveTextTable font-medium text-[var(--chathams-blue)]">{showAmount(data.reduce((sum, item) => sum + item.remaining * 1, 0))}</span>
                         </div>
                     </div>
                 </div>

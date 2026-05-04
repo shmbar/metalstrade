@@ -81,10 +81,10 @@ const Expenses = ({ showExpenses }) => {
 
 
     return valueExp && (
-        <div className={`z-10 relative mt-2 border-2 border-[#b8ddf8] rounded-2xl
+        <div className={`z-10 relative mt-2 border border-[#b8ddf8] rounded-2xl
         ${showExpenses ? 'flex animated-div' : 'hidden'}`} style={{background:'#f4f9ff'}}>
             <div className='grid grid-cols-1 md:grid-cols-4 gap-3 p-2 w-full'>
-                <div className='md:col-span-1 border-2 border-[#b8ddf8] rounded-2xl p-2 h-fit'>
+                <div className='md:col-span-1 border border-[#b8ddf8] rounded-2xl p-2 h-fit'>
                     <p className='responsiveText font-medium' style={{color:'var(--chathams-blue)'}}>{getTtl('Expenses', ln)}:</p>
                     {valueInv.expenses.length > 0 &&
                         <ul className="flex flex-col mt-1 overflow-auto rounded-2xl divide-y" style={{border:'1px solid #b8ddf8'}}>
@@ -182,7 +182,7 @@ const Expenses = ({ showExpenses }) => {
                             <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
                             <div>
                                 <textarea rows="5" name="comments"
-                                    className="input shadow-lg h-24 p-1 !rounded-xl w-full"
+                                    className="input shadow-lg h-24 p-1 !rounded-full w-full"
                                     style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
                                     value={valueExp.comments} onChange={handleValue} />
                             </div>

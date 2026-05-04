@@ -43,7 +43,7 @@ const Users = () => {
     { accessorKey: 'displayName', header: 'Name', size: 130, cell: (props) => <p>{props.getValue()}</p> },
     { accessorKey: 'phoneNumber', header: 'Phone Number', size: 130, cell: (props) => <p>{props.getValue()}</p> },
     { accessorKey: 'email', header: 'Email', size: 200, cell: (props) => <p>{props.getValue()}</p> },
-    { accessorKey: 'title', header: 'Title', size: 100, cell: (props) => <p className='font-semibold'>{props.getValue()}</p> },
+    { accessorKey: 'title', header: 'Title', size: 100, cell: (props) => <p className='font-medium'>{props.getValue()}</p> },
     {
       accessorKey: 'userCreated', header: 'User Created ', size: 100, cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
       enableColumnFilter: false

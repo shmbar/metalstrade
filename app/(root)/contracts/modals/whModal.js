@@ -251,7 +251,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 {data.map((x, i) => {
 
                     return (
-                        <div className='flex flex-wrap p-1 gap-2 border-2 border-[#b8ddf8] rounded-2xl bg-[#f4f9ff]' key={x.id}>
+                        <div className='flex flex-wrap p-1 gap-2 border border-[#b8ddf8] rounded-2xl bg-[#f4f9ff]' key={x.id}>
                             <div className='flex'>
                                 <div className='items-center flex pt-3 pr-2'>
                                     <ChkBox checked={checkedItems.includes(x.id)} size='h-5 w-5' onChange={() => checkItem(x.id)} />

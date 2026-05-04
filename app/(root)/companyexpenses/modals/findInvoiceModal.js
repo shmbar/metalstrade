@@ -78,7 +78,7 @@ const FindInvoiceModal = ({ open, setOpen, uidCollection, value, setValue }) => 
                 <div className="flex flex-col gap-1">
                     <p className="text-xs font-medium text-[var(--chathams-blue)]">Invoice Number:</p>
                     <input
-                        className="input h-7 text-xs rounded-xl border-[#b8ddf8] bg-white w-40"
+                        className="input h-7 text-xs rounded-full border-[#b8ddf8] bg-white w-40"
                         value={invoice}
                         onChange={(e) => setInvoice(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && findInvoice()}
@@ -87,7 +87,7 @@ const FindInvoiceModal = ({ open, setOpen, uidCollection, value, setValue }) => 
                 <div className="flex flex-col gap-1">
                     <p className="text-xs font-medium text-[var(--chathams-blue)]">Year:</p>
                     <input
-                        className="input h-7 text-xs rounded-xl border-[#b8ddf8] bg-white w-20"
+                        className="input h-7 text-xs rounded-full border-[#b8ddf8] bg-white w-20"
                         value={year}
                         onChange={(e) => setYear(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && findInvoice()}

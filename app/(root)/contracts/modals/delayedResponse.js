@@ -26,14 +26,14 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                     <table id='my-table' className=" table-fixed min-w-full divide-y divide-[#dbeeff]">
                         <thead style={{ background: '#dbeeff' }}>
                             <tr>
-                                <th scope="col" className="w-0/12 py-2 px-4 text-left text-xs font-semibold" style={{ color: 'var(--port-gore)' }}>Supplier</th>
-                                <th scope="col" className="w-0/12 pr-1 py-2 text-left text-xs font-semibold" style={{ color: 'var(--port-gore)' }}>
+                                <th scope="col" className="w-0/12 py-2 px-4 text-left text-[0.72rem] font-semibold text-[var(--chathams-blue)]">Supplier</th>
+                                <th scope="col" className="w-0/12 pr-1 py-2 text-left text-[0.72rem] font-semibold text-[var(--chathams-blue)]">
                                     Contract</th>
-                                <th scope="col" className="w-0/12 pr-1 py-2 text-left text-xs font-semibold" style={{ color: 'var(--port-gore)' }}>
+                                <th scope="col" className="w-0/12 pr-1 py-2 text-left text-[0.72rem] font-semibold text-[var(--chathams-blue)]">
                                     Date</th>
-                                <th scope="col" className="w-20 pr-1 py-2 text-left text-xs font-semibold flex" style={{ color: 'var(--port-gore)' }}>
+                                <th scope="col" className="w-20 pr-1 py-2 text-left text-[0.72rem] font-semibold flex text-[var(--chathams-blue)]">
                                     Days from Date</th>
-                                <th scope="col" className="w-20 pr-1 py-2 text-left text-xs font-semibold" style={{ color: 'var(--port-gore)' }}>
+                                <th scope="col" className="w-20 pr-1 py-2 text-left text-[0.72rem] font-semibold text-[var(--chathams-blue)]">
                                     Keep Alerting</th>
                             </tr>
                         </thead>
@@ -42,22 +42,22 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                 return (
                                     <tr key={i}>
                                         <td className="py-2 pl-4">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--port-gore)' }}>
+                                            <div className="flex items-center h-5 text-[0.72rem] text-[var(--chathams-blue)]">
                                                 {settings.Supplier.Supplier.find(z => z.id === obj.supplier)?.nname}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--port-gore)' }}>
+                                            <div className="flex items-center h-5 text-[0.72rem] text-[var(--chathams-blue)]">
                                                 {obj.order}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--port-gore)' }}>
+                                            <div className="flex items-center h-5 text-[0.72rem] text-[var(--chathams-blue)]">
                                                 {dateFormat(obj.dateRange?.endDate, 'dd.mm.yy')}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs" style={{ color: 'var(--port-gore)' }}>
+                                            <div className="flex items-center h-5 text-[0.72rem] text-[var(--chathams-blue)]">
                                                 {(() => {
                                                     const date2 = new Date(obj.dateRange?.endDate);
                                                     const today = new Date();
@@ -69,7 +69,7 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-xs">
+                                            <div className="flex items-center h-5 text-[0.72rem]">
                                                 <CheckBox checked={obj.alert} size='h-4 w-4' onChange={() => { setAlert(obj) }} />
                                             </div>
                                         </td>

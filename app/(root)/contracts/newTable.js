@@ -112,7 +112,7 @@ const Customtable = ({
             }}
             onChange={table.getToggleAllPageRowsSelectedHandler()}
             className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: '#BCE1FE' }}
+            style={{ accentColor: '#dbeeff' }}
           />
         </div>
       ),
@@ -124,7 +124,7 @@ const Customtable = ({
             disabled={!row.getCanSelect()}
             onChange={row.getToggleSelectedHandler()}
             className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: '#BCE1FE' }}
+            style={{ accentColor: '#dbeeff' }}
           />
         </div>
       ),
@@ -209,28 +209,12 @@ const Customtable = ({
   return (
     <div className="w-full">
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+        .dashboard-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+        .dashboard-scroll::-webkit-scrollbar-track { background: #f1f5fb; }
+        .dashboard-scroll::-webkit-scrollbar-thumb { background: #b8d4ee; border-radius: 4px; }
+        .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: #7aaed6; }
 
-        .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-        .dashboard-scroll::-webkit-scrollbar-track { 
-          background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
-          border-radius: 6px; 
-        }
-        .dashboard-scroll::-webkit-scrollbar-thumb { 
-          background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
-          border-radius: 6px; 
-        }
-        .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-          background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
-        }
-
-        .glass-table {
-          background: linear-gradient(135deg, 
-            rgba(255, 255, 255, 0.85) 0%, 
-            rgba(250, 250, 250, 0.90) 50%,
-            rgba(255, 255, 255, 0.85) 100%
-          );
-        }
+        .glass-table { background: #ffffff; }
 
         .custom-table, .custom-table *, .glass-table, .glass-table * {
           font-family: var(--font-poppins), 'Poppins', sans-serif;
@@ -241,33 +225,24 @@ const Customtable = ({
 
         .custom-table th {
           border: 1px solid #d8e8f5;
-          background-color: #f8fbff;
+          background-color: #dbeeff;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
           font-size: 0.78rem !important;
-          font-weight: 500 !important;
-          color: #103a7a !important;
+          font-weight: 600 !important;
+          color: var(--chathams-blue) !important;
         }
 
         .custom-table td {
           border: 1px solid #d8e8f5;
-          background-color: #f8fbff;
+          background-color: #ffffff;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
           font-size: 0.68rem !important;
-        }
-
-        .custom-table th {
-          background-color: #dbeeff;
-        }
-
-        .custom-table td {
-          background-color: #fff;
-          border: 1px solid #e0e0e0;
         }
 
         tr.selected-row td {
@@ -528,23 +503,19 @@ const Customtable = ({
                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid #E5E7EB',
-                    boxShadow: highlightId === row.original.id ? '0 12px 28px rgba(249, 115, 22, 0.2)' : '0 4px 12px rgba(0, 0, 0, 0.06)'
+                    border: highlightId === row.original.id ? '2px solid var(--endeavour)' : '1px solid #d8e8f5',
+                    boxShadow: highlightId === row.original.id ? '0 4px 16px rgba(3,102,174,0.15)' : '0 2px 8px rgba(3,102,174,0.06)'
                   }}
                 >
                   <div 
-                    className="px-3 py-2 flex items-center justify-between bg-[#9ad4ff]"
+                    className="px-3 py-2 flex items-center justify-between bg-[#dbeeff]"
                     // style={{ 
                     //   background: 'linear-gradient(135deg, #6366F1, #9333EA, #0D9488)',
                     // }}
                   >
                     <span
-                      className="font-normal"
-                      style={{
-                        color: 'var(--endeavour)',
-                        fontSize: '0.62rem',
-                        textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
-                      }}
+                      className="responsiveTextTable font-medium"
+                      style={{ color: 'var(--chathams-blue)' }}
                     >
                       {getTtl('Row', ln)} {rowIndex + 1}
                     </span>
@@ -565,11 +536,11 @@ const Customtable = ({
                       if (cell.column.id === 'select') return null;
                       return (
                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0" style={{ borderBottom: '1px solid #E5E7EB' }}>
-                          <div className="uppercase tracking-wider font-normal" style={{ color: 'var(--regent-gray)', fontSize: '0.58rem' }}>
+                          <div className="uppercase tracking-wider font-medium responsiveTextTable" style={{ color: 'var(--regent-gray)' }}>
                             {cell.column.columnDef.header}
                           </div>
-                          <div className="responsiveTextTable font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
-                            style={{ color: 'var(--port-gore)', background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)', border: '1px solid #E5E7EB' }}>
+                          <div className="responsiveTextTable font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center"
+                            style={{ color: 'var(--port-gore)', backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         </div>

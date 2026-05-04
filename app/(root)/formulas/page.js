@@ -155,7 +155,7 @@ const Page = () => {
 										<div className='bg-white rounded-xl p-3 mb-2 w-fit border border-[#b8ddf8]'>
 											<div className='flex flex-wrap items-end gap-2.5'>
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-semibold flex items-center justify-center gap-1'>
+													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-medium flex items-center justify-center gap-1'>
 														Ni LME
 														<button onClick={refreshMetal} title="Refresh live price" className="hover:text-[var(--chathams-blue)] transition-colors">
 															<RefreshCw className={`w-3 h-3 ${metalLoading ? 'animate-spin' : ''}`} />
@@ -173,7 +173,7 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-semibold'>Mo Oxide - Lb</span>
+													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-medium'>Mo Oxide - Lb</span>
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
@@ -186,7 +186,7 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-semibold'>Charge Cr - Lb</span>
+													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-medium'>Charge Cr - Lb</span>
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
@@ -199,7 +199,7 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-semibold'>1 MT</span>
+													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-medium'>1 MT</span>
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
@@ -210,7 +210,7 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-semibold'>Euro / USD</span>
+													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-medium'>Euro / USD</span>
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
@@ -221,7 +221,7 @@ const Page = () => {
 												</div>
 
 												<div
-													className='flex items-center justify-center rounded-xl border border-[var(--endeavour)] overflow-hidden min-w-[80px] px-5 py-2 cursor-pointer bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] hover:border-[var(--chathams-blue)] transition-all self-stretch shadow-md'
+													className='flex items-center justify-center rounded-full border border-[var(--endeavour)] overflow-hidden min-w-[80px] px-5 py-2 cursor-pointer bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] hover:border-[var(--chathams-blue)] transition-all self-stretch shadow-md'
 													onClick={saveData}
 												>
 													<span className='text-[0.75rem] font-semibold text-white'>Save</span>

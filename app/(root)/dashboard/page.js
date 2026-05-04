@@ -146,7 +146,7 @@ function StatKpiCard({
 
         {/* Middle Section - Left Aligned Value */}
         <div className="flex-1 flex items-center justify-start">
-          <div className="responsiveTextTitle font-semibold text-white">
+          <div className="responsiveTextTitle font-medium text-white">
             {value}
           </div>
         </div>
@@ -273,7 +273,7 @@ function DebtSnapshotCard({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPer
               <div className="flex items-center gap-2">
                 {m.icon}
               </div>
-              <div className="responsiveTextTitle font-semibold mt-0.5" style={{ color: m.valueColor }}>
+              <div className="responsiveTextTitle font-medium mt-0.5" style={{ color: m.valueColor }}>
                 {m.value}
               </div>
               <div className="responsiveTextTable text-[var(--regent-gray)] leading-tight">{m.label}</div>
@@ -562,7 +562,7 @@ const Dash = () => {
                   </div>
                   <div className="text-right">
                     <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
-                    <span className="font-semibold text-[var(--chathams-blue)]">{fmtAutoKM(totalContracts)}</span>
+                    <span className="font-medium text-[var(--chathams-blue)]">{fmtAutoKM(totalContracts)}</span>
                   </div>
                 </div>
 
@@ -598,7 +598,7 @@ const Dash = () => {
                       >
                         {/* Avatar */}
                         <motion.div
-                          className="flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0"
+                          className="flex items-center justify-center rounded-full font-medium text-white flex-shrink-0"
                           style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
                           whileHover={{ scale: 1.1 }}
                           transition={{ type: 'spring', stiffness: 300 }}
@@ -627,7 +627,7 @@ const Dash = () => {
                               transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
                               whileHover={{ scaleY: 1.1 }}
                             >
-                              <span className="font-semibold text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
+                              <span className="font-medium text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
                                 {(max > 0 ? value / max : 0).toFixed(2)}
                               </span>
                             </motion.div>
@@ -659,7 +659,7 @@ const Dash = () => {
                   </div>
                   <div className="text-right">
                     <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
-                    <span className="font-semibold text-[var(--chathams-blue)]">{fmtAutoKM(totalInvoices)}</span>
+                    <span className="font-medium text-[var(--chathams-blue)]">{fmtAutoKM(totalInvoices)}</span>
                   </div>
                 </div>
 
@@ -695,7 +695,7 @@ const Dash = () => {
                       >
                         {/* Avatar */}
                         <motion.div
-                          className="flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0"
+                          className="flex items-center justify-center rounded-full font-medium text-white flex-shrink-0"
                           style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
                           whileHover={{ scale: 1.1 }}
                           transition={{ type: 'spring', stiffness: 300 }}
@@ -722,7 +722,7 @@ const Dash = () => {
                               transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
                               whileHover={{ scaleY: 1.1 }}
                             >
-                              <span className="font-semibold text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
+                              <span className="font-medium text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
                                 {(max > 0 ? value / max : 0).toFixed(2)}
                               </span>
                             </motion.div>

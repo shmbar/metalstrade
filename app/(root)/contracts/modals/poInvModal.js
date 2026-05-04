@@ -282,7 +282,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                 {valueCon.poInvoices.map((x, i) => {
 
                     return (
-                        <div className='flex gap-4 p-1 border-2 border-[#b8ddf8] rounded-2xl flex-col bg-[#f4f9ff]' key={x.id}>
+                        <div className='flex gap-4 p-1 border border-[#b8ddf8] rounded-2xl flex-col bg-[#f4f9ff]' key={x.id}>
                             <div className=''>
                                 <div className='flex items-center'>
                                     <div className='items-center flex pt-3 pr-2'>

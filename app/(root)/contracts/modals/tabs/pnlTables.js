@@ -138,10 +138,10 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
     return runData && (
         <div>
             {data.map((x, i) => {
-                return <div className='mt-4 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-wrap gap-2' key={i}>
+                return <div className='mt-4 border border-[#b8ddf8] p-2 rounded-2xl flex flex-wrap gap-2' key={i}>
                     <Customtable data={data[i]} propDefaults={propDefaults} val={val} mult={mult} />
 
-                    <div className='bg-[#f0f8ff] mt-2 lg:mt-0 flex flex-wrap items-center border-2 border-[#b8ddf8] rounded-lg max-w-6xl'>
+                    <div className='bg-[#f0f8ff] mt-2 lg:mt-0 flex flex-wrap items-center border border-[#b8ddf8] rounded-lg max-w-6xl'>
                         <div className='p-1 gap-2 h-fit flex justify-normal w-full'>
                             <div className='responsiveTextTable text-[var(--chathams-blue)] items-center flex'>Outturn:</div>
                             <Selector

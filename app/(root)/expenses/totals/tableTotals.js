@@ -126,7 +126,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
               borderRight: '1px solid var(--selago)',
               borderBottom: '1px solid var(--selago)'
             }}>
-            <div className="responsiveTextTable flex justify-between font-semibold"
+            <div className="responsiveTextTable flex justify-between font-medium"
               style={{ color: 'var(--chathams-blue)' }}>
               <span>Total $:</span>
               <span>
@@ -136,7 +136,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                 )}
               </span>
             </div>
-            <div className="responsiveTextTable flex justify-between font-semibold mt-2"
+            <div className="responsiveTextTable flex justify-between font-medium mt-2"
               style={{ color: 'var(--chathams-blue)' }}>
               <span>Total €:</span>
               <span>

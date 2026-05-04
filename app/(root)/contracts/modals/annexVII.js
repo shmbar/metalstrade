@@ -19,7 +19,7 @@ const Field = ({ label, name, value, onChange, placeholder = '', wide = false })
 );
 
 const SectionLabel = ({ text }) => (
-    <p className="md:col-span-2 text-[0.7rem] font-semibold text-[var(--endeavour)] mt-2 border-b border-[#dbeeff] pb-0.5">{text}</p>
+    <p className="md:col-span-2 text-[0.7rem] font-medium text-[var(--endeavour)] mt-2 border-b border-[#dbeeff] pb-0.5">{text}</p>
 );
 
 const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
@@ -134,9 +134,9 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
     const carrierSortedArr = [...carriers].filter(c => !c.deleted).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
     return (
-        <div className="border-2 border-[#b8ddf8] rounded-2xl p-3">
+        <div className="border border-[#b8ddf8] rounded-2xl p-3">
             <div className="flex items-center justify-between mb-2">
-                <p className="text-[0.75rem] font-semibold text-[var(--chathams-blue)]">Annex VII — EU Waste Shipment Document</p>
+                <p className="responsiveText font-medium text-[var(--chathams-blue)]">Annex VII — EU Waste Shipment Document</p>
                 <button
                     onClick={generatePdf}
                     className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.72rem] font-medium

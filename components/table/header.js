@@ -66,10 +66,9 @@ const Header = ({
           {/* LEFT: Search + Add Tables + Save + Delete */}
           <div className="flex items-center gap-2 flex-wrap">
             {/* Search */}
-            <div className="flex items-center relative w-[160px] h-7 border border-[#b8ddf8] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
+            <div className="flex items-center relative w-[160px] h-7 border border-[#b8ddf8] rounded-full bg-white focus-within:ring-1 focus-within:ring-[#b8ddf8] shadow-sm transition-all duration-200">
               <input
-                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTable rounded-2xl"
-                style={{ fontSize: '0.68rem' }}
+                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] font-medium rounded-full"
                 placeholder={getTtl('Search', ln)}
                 value={globalFilter ?? ''}
                 onChange={e => setGlobalFilter(e.target.value)}
@@ -160,10 +159,9 @@ const Header = ({
 
           {/* Search Box */}
           {pathname !== '/accounting' && (
-            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[#b8ddf8] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 focus-within:border-blue-400 hover:border-gray-400 shadow-sm transition-all duration-200">
+            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[#b8ddf8] rounded-full bg-white focus-within:ring-1 focus-within:ring-[#b8ddf8] shadow-sm transition-all duration-200">
               <input
-                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTable rounded-2xl"
-                style={{ fontSize: '0.68rem' }}
+                className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] font-medium rounded-full"
                 placeholder={getTtl('Search', ln)}
                 value={globalFilter ?? ''}
                 onChange={e => setGlobalFilter(e.target.value)}

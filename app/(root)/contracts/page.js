@@ -329,7 +329,7 @@ const Contracts = () => {
 
 							{/* Header Section */}
 							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-								<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
+								<h1 className="text-[var(--chathams-blue)] responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
 									{getTtl('Contracts', ln)}
 								</h1>
 
@@ -359,8 +359,8 @@ const Contracts = () => {
 											<button
 												type="button"
 												onClick={addNewContract}
-												className="flex items-center gap-1 h-7 px-2 rounded-2xl responsiveTextTable font-medium transition-all border bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[var(--selago)] whitespace-nowrap"
-												style={{ fontSize: '0.68rem' }}
+												className="whiteButton whitespace-nowrap"
+
 											>
 												<TbLayoutGridAdd className="w-3.5 h-3.5 flex-shrink-0" />
 												<span>{getTtl('New Contract', ln)}</span>
@@ -370,8 +370,8 @@ const Contracts = () => {
 											<button
 												type="button"
 												onClick={() => router.push('/analysis')}
-												className="flex items-center gap-1 h-7 px-2 rounded-2xl responsiveTextTable font-medium transition-all border bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[var(--selago)] whitespace-nowrap"
-												style={{ fontSize: '0.68rem' }}
+												className="whiteButton whitespace-nowrap"
+
 											>
 												<IoAnalyticsOutline className="w-3.5 h-3.5 flex-shrink-0" />
 												<span>{getTtl('Weight Analysis', ln)}</span>

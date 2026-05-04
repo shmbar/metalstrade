@@ -197,7 +197,7 @@ function StatusSelect({ value, onChange }) {
             <button
                 ref={btnRef}
                 onClick={handleToggle}
-                className="flex items-center gap-1 rounded-xl px-2 py-1 font-medium responsiveTextTable cursor-pointer focus:outline-none w-full justify-between min-w-[110px]"
+                className="flex items-center gap-1 rounded-full px-2 py-1 font-medium responsiveTextTable cursor-pointer focus:outline-none w-full justify-between min-w-[110px]"
                 style={STATUS_STYLES[value]}
             >
                 <span>{value || '— Select —'}</span>

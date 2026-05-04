@@ -200,7 +200,7 @@ const InvoiceModal = () => {
 			<div className="mb-2">
 				<button
 					onClick={() => setDocsOpen(v => !v)}
-					className="flex items-center gap-2 w-full px-3 py-1.5 rounded-xl border border-[#b8ddf8]
+					className="flex items-center gap-2 w-full px-3 py-1.5 rounded-full border border-[#b8ddf8]
 						bg-[#f8fbff] text-[0.72rem] font-medium text-[var(--chathams-blue)] hover:bg-[var(--selago)] transition-all"
 				>
 					<ScrollText size={13} />
@@ -216,7 +216,7 @@ const InvoiceModal = () => {
 			</div>
 
 			<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-1.5 pt-1'>
-				<div className='sm:col-span-2 lg:col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='sm:col-span-2 lg:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>
 					<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Consignee', ln)}:</p>
 					<div>
 						{!fnl ?
@@ -246,7 +246,7 @@ const InvoiceModal = () => {
 						</>
 					)}
 				</div>
-				<div className='lg:col-span-2 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-col'>
+				<div className='lg:col-span-2 border border-[#b8ddf8] p-2 rounded-2xl flex flex-col'>
 					<p className='responsiveText text-[var(--port-gore)] font-medium indent-1'>{getTtl('Invoice Type', ln)}:</p>
 					{!fnl ?
 						<InvoiceType setSelected={selectInvType} plans={settings.InvTypes.InvTypes} value={valueInv} ln={ln} />
@@ -254,7 +254,7 @@ const InvoiceModal = () => {
 						<p className='pt-2 pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.invType}</p>
 					}
 				</div>
-				<div className='lg:col-span-3 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-col'>
+				<div className='lg:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl flex flex-col'>
 					<p className='responsiveText text-[var(--port-gore)] font-medium indent-1'>{getTtl('PO', ln)}#:</p>
 					{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col mt-1 ring-1 ring-[#b8ddf8] rounded-xl divide-y divide-[#b8ddf8]" >
 						{poArr.map((x, i) => {
@@ -269,7 +269,7 @@ const InvoiceModal = () => {
 					</ul>}
 
 				</div>
-				<div className='sm:col-span-2 lg:col-span-4 border-2 border-[#b8ddf8] p-2 rounded-2xl flex flex-col gap-1.5'>
+				<div className='sm:col-span-2 lg:col-span-4 border border-[#b8ddf8] p-2 rounded-2xl flex flex-col gap-1.5'>
 					<div className='flex items-center gap-2'>
 						<p className='responsiveText font-medium whitespace-nowrap text-[var(--port-gore)]'>{getTtl('Date', ln)}:</p>
 						<div className='flex-1'>
@@ -303,7 +303,7 @@ const InvoiceModal = () => {
 						</div>
 						<div className='flex items-center gap-1.5'>
 							<p className='responsiveText font-medium whitespace-nowrap text-[var(--port-gore)]'>{getTtl('Status', ln)}:</p>
-							<p className='responsiveText font-semibold'>
+							<p className='responsiveText font-medium'>
 								{!fnl ? 'Draft' : fnl && !valueInv.canceled ? 'Finalized' : (fnl && valueInv.canceled) && 'Canceled'}
 							</p>
 						</div>
@@ -313,7 +313,7 @@ const InvoiceModal = () => {
 
 
 			<div className='grid grid-cols-1 md:grid-cols-3 gap-1.5 pt-1'>
-				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-0.5 justify-between items-center'>
 						<p className='responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Shipment', ln)}:</p>
 						{!fnl ?
@@ -374,7 +374,7 @@ const InvoiceModal = () => {
 					</div>
 				</div>
 
-				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex gap-0.5 justify-between items-center pt-1'>
 						<p className='responsiveText text-[var(--port-gore)] font-medium'>{getTtl('POL', ln)}:</p>
 						<div className='flex-1 min-w-0 max-w-[15rem]'>
@@ -418,7 +418,7 @@ const InvoiceModal = () => {
 						</div>}
 				</div>
 
-				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className={`flex gap-2 justify-between ${fnl ? 'py-0' : 'py-0.5'}`}>
 						<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium'>{getTtl('totalNet', ln)}:</p>
 						<p className='responsiveText pr-2 text-[var(--port-gore)]'>
@@ -461,7 +461,7 @@ const InvoiceModal = () => {
 			</div>
 
 			<div className='grid grid-cols-1 md:grid-cols-2 gap-1.5 mt-1'>
-				<div className='flex border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='flex border border-[#b8ddf8] p-2 rounded-2xl'>
 					<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>{getTtl('Bank Account', ln)}:</p>
 					<div className='w-full pl-4'>
 						{!fnl ?
@@ -475,7 +475,7 @@ const InvoiceModal = () => {
 					</div>
 				</div>
 
-				<div className='hidden md:flex border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='hidden md:flex border border-[#b8ddf8] p-2 rounded-2xl'>
 					<p className='flex items-center responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>HS Code:</p>
 					<div className='w-full pl-4'>
 						{!fnl ?
@@ -509,7 +509,7 @@ const InvoiceModal = () => {
 
 			<div className='grid grid-cols-1 lg:grid-cols-8 gap-1.5 pt-1'>
 				<div className='lg:col-span-7'>
-					<div className='w-full border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+					<div className='w-full border border-[#b8ddf8] p-2 rounded-2xl'>
 						<ProductsTable value={valueInv} setValue={setValueInv}
 							currency={settings.Currency.Currency} uidCollection={uidCollection}
 							settings={settings} setDeleteProducts={setDeleteProducts}
@@ -517,7 +517,7 @@ const InvoiceModal = () => {
 						/>
 					</div>
 				</div>
-				<div className='border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='gap-1.5'>
 						<p className='flex responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Currency', ln)}:</p>
 						<div className='w-full '>
@@ -539,13 +539,13 @@ const InvoiceModal = () => {
 			</div>
 
 			<div className='grid grid-cols-1 md:grid-cols-8 gap-1.5 mt-1'>
-				<div className='md:col-span-5 w-full border-2 border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='md:col-span-5 w-full border border-[#b8ddf8] p-2 rounded-2xl'>
 					<Remarks value={valueInv} setValue={setValueInv} ln={ln} />
 				</div>
-				<div className='md:col-span-3 h-fit border-2 border-[#b8ddf8] p-2 py-1 pb-0 rounded-2xl'>
+				<div className='md:col-span-3 h-fit border border-[#b8ddf8] p-2 py-1 pb-0 rounded-2xl'>
 					<p className='flex responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="1" name="comments"
-						className="input w-full h-8 p-1 !rounded-xl"
+						className="input w-full h-8 p-1 !rounded-full"
 						style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
 						value={valueInv.comments}
 						onChange={handleValue}

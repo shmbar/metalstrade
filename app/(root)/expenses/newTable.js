@@ -612,7 +612,7 @@
 //                                   style={{ backgroundColor: '#eb3636', color: '#FFFFFF' }}>Pending</div>
 //                               )
 //                             ) : cell.column.id === 'paid' && cell.getValue() ? (
-//                               <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-semibold flex items-center gap-2 justify-center shadow-sm"
+//                               <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
 //                                 style={{
 //                                   backgroundColor:
 //                                     cell.getValue() === 'Paid'   ? '#ceb8ff' :
@@ -1365,7 +1365,7 @@ const Customtable = ({
                                   style={{ backgroundColor: '#fee2e2', color: '#dc2626' }}>Pending</div>
                               )
                             ) : cell.column.id === 'paid' && cell.getValue() ? (
-                              <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-semibold flex items-center gap-2 justify-center shadow-sm"
+                              <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
                                 style={{
                                   backgroundColor:
                                     isUnpaidValue ? '#fce7f3' :
@@ -1376,7 +1376,7 @@ const Customtable = ({
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                               </div>
                             ) : cell.column.id === 'cur' && cell.getValue() ? (
-                              <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-semibold flex items-center gap-2 justify-center shadow-sm"
+                              <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
                                 style={{
                                   backgroundColor:
                                     isUSDValue ? '#b6dfb7' :

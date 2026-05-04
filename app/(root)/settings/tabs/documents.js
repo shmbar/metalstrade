@@ -160,7 +160,7 @@ const Documents = () => {
 
                 {/* RIGHT — form */}
                 {showForm && <div className="flex-1 border border-[#b8ddf8] rounded-2xl p-4">
-                    <p className="text-[0.75rem] font-semibold text-[var(--chathams-blue)] mb-3 border-l-4 border-[var(--chathams-blue)] pl-2">
+                    <p className="text-[0.75rem] font-medium text-[var(--chathams-blue)] mb-3 border-l-4 border-[var(--chathams-blue)] pl-2">
                         {editId ? `Edit ${listLabel}` : `New ${listLabel}`}
                     </p>
                     {error && <p className="text-xs text-red-500 mb-2">{error}</p>}

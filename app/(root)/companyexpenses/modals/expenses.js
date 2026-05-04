@@ -135,7 +135,7 @@ const Expenses = ({setIsOpen}) => {
                         <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Comments', ln)}:</p>
                         <div>
                             <textarea rows="5" name="comments"
-                                className="input h-32 p-1 rounded-xl border-[#b8ddf8] bg-white w-full"
+                                className="input h-32 p-1 rounded-full border-[#b8ddf8] bg-white w-full"
                                 style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
                                 value={valueExp.comments} onChange={handleValue} />
                         </div>

@@ -18,7 +18,7 @@ const Field = ({ label, name, value, onChange, placeholder = '', wide = false })
 );
 
 const SectionLabel = ({ text }) => (
-    <p className="md:col-span-2 text-[0.7rem] font-semibold text-[var(--endeavour)] mt-2 border-b border-[#dbeeff] pb-0.5">{text}</p>
+    <p className="md:col-span-2 text-[0.7rem] font-medium text-[var(--endeavour)] mt-2 border-b border-[#dbeeff] pb-0.5">{text}</p>
 );
 
 const SHIPMENT_TYPES = ['FCL', 'LCL', 'BULK', 'CONSOL'];
@@ -63,9 +63,9 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
     const originLabel = settings.Origin?.Origin?.find(o => o.id === valueInv.origin)?.origin || '';
 
     return (
-        <div className="border-2 border-[#b8ddf8] rounded-2xl p-3">
+        <div className="border border-[#b8ddf8] rounded-2xl p-3">
             <div className="flex items-center justify-between mb-2">
-                <p className="text-[0.75rem] font-semibold text-[var(--chathams-blue)]">ISF — Importer Security Filing (10+2)</p>
+                <p className="responsiveText font-medium text-[var(--chathams-blue)]">ISF — Importer Security Filing (10+2)</p>
                 <button
                     onClick={generatePdf}
                     className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.72rem] font-medium
@@ -94,7 +94,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
 
             {/* Auto-populated info */}
             <div className="md:col-span-2 bg-[#f8fbff] border border-[#dbeeff] rounded-xl p-2 mb-3">
-                <p className="text-[0.68rem] font-semibold text-[var(--endeavour)] mb-1.5">Auto-populated from Contract / Invoice</p>
+                <p className="text-[0.68rem] font-medium text-[var(--endeavour)] mb-1.5">Auto-populated from Contract / Invoice</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-[0.68rem] text-[var(--port-gore)]">
                     <div><span className="font-medium">Seller (our company):</span> {compData.name || '—'}</div>
                     <div><span className="font-medium">Ship To / Buyer:</span> {shipToName || '—'}</div>

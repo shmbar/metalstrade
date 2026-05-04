@@ -113,7 +113,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
         <div className="w-full justify-center flex">
             <div className="flex flex-col w-full">
                 <div className="relative overflow-x-auto">
-                    <div className="border-2 border-[#b8ddf8] rounded-lg  relative">
+                    <div className="border border-[#b8ddf8] rounded-lg  relative">
                         <table className=" table-fixed min-w-[640px] w-full divide-y divide-[#b8ddf8]">
                             <thead style={{ background: '#dbeeff' }}>
                                 <tr>

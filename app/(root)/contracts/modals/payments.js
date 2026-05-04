@@ -129,12 +129,12 @@ const Payments = ({ showPayments }) => {
 
     return (
 
-        <div className={`z-10 relative mt-2 border-2 border-[#b8ddf8] rounded-2xl bg-[#f4f9ff]
+        <div className={`z-10 relative mt-2 border border-[#b8ddf8] rounded-2xl bg-[#f4f9ff]
         ${showPayments ? 'flex animated-div' : 'hidden'}`}>
             <div className=' flex gap-3 p-2 w-full'>
 
                 <div className=' p-2 h-fit'>
-                    <p className='responsiveText font-medium text-[0.75rem] text-[var(--chathams-blue)]'>{getTtl('Payments', ln)}:</p>
+                    <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Payments', ln)}:</p>
 
                     {valueInv.payments.map((x, i) => {
                         return (
@@ -143,18 +143,18 @@ const Payments = ({ showPayments }) => {
                                     <ChkBox checked={checkedItems.includes(x.id)} size='h-5 w-5' onChange={() => checkItem(x.id)} />
                                 </div>
                                 <div>
-                                    <p className='flex responsiveText font-medium whitespace-nowrap text-[0.75rem] text-[var(--chathams-blue)]'>{getTtl('Date', ln)}:</p>
+                                    <p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Date', ln)}:</p>
                                     <Datepicker useRange={false}
                                         asSingle={true}
                                         value={x.date}
                                         popoverDirection='up'
                                         onChange={e => handleValueDate(e, i)}
                                         displayFormat={"DD-MMM-YYYY"}
-                                        inputClassName='input w-full shadow-lg h-7 z-20 text-[0.75rem]'
+                                        inputClassName='input w-full shadow-lg h-7 text-[0.75rem] z-20'
                                     />
                                 </div>
                                 <div >
-                                    <p className='flex responsiveText font-medium whitespace-nowrap text-[0.75rem] text-[var(--chathams-blue)]'>{getTtl('Actual Payment', ln)}:</p>
+                                    <p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Actual Payment', ln)}:</p>
                                     <div className='flex'>
                                         <input type='text' className="number-separator input shadow-lg h-[1.84rem] -mt-[0.03rem] text-[0.75rem]" style={{ fontFamily: 'inherit' }} name='pmnt'
                                             value={addComma(x.pmnt)} onChange={e => handleValue(e, i)} />

@@ -130,7 +130,7 @@ const Customtable = ({ data, item }) => {
 								<span >{obj[x]}</span>
 								<span className="absolute hidden group-hover:flex -top-2 w-fit p-1
     bg-slate-400 rounded-md text-center text-white responsiveText z-10 whitespace-nowrap -left-36 ">
-									<span>{`Moved from:`}&nbsp;</span> <span className='font-semibold'>{`${settings.Stocks.Stocks.find(x => x.id === obj.oldStock)['stock']}`}</span></span>
+									<span>{`Moved from:`}&nbsp;</span> <span className='font-medium'>{`${settings.Stocks.Stocks.find(x => x.id === obj.oldStock)['stock']}`}</span></span>
 							</div> :
 							(x === 'type' && obj.moveType === 'out') ?
 								<div className='flex items-center gap-1 group relative cursor-default'>
@@ -138,7 +138,7 @@ const Customtable = ({ data, item }) => {
 									<span >{obj[x]}</span>
 									<span className="absolute hidden group-hover:flex -top-2 w-fit p-1
     bg-slate-400 rounded-md text-center text-white responsiveText z-10 whitespace-nowrap -left-36 ">
-										<span>{`Moved to:`}&nbsp;</span> <span className='font-semibold'>{`${settings.Stocks.Stocks.find(x => x.id === obj.newStock)['stock']}`}</span></span>
+										<span>{`Moved to:`}&nbsp;</span> <span className='font-medium'>{`${settings.Stocks.Stocks.find(x => x.id === obj.newStock)['stock']}`}</span></span>
 								</div> :
 								x === 'qnty' ?
 									<div className={`${obj.type === 'Purchase' || obj.moveType === 'in' || parseFloat(obj.qnty) < 0 ? 'text-green-600' : 'text-red-600'}`}>{showWeight(obj[x])}</div> :

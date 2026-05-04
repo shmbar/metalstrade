@@ -176,7 +176,7 @@ const SideBarMini = () => {
     {sideBar(userTitle, gisAccount).map((x, i) => (
       <div key={i} className="py-2">
         {x.ttl && (
-          <div className='responsiveTextTable font-semibold tracking-widest uppercase text-[var(--chathams-blue)]/80 px-4 pb-2 pt-3' style={{letterSpacing: '0.12em'}}>
+          <div className='responsiveTextTable font-medium tracking-widest uppercase text-[var(--chathams-blue)]/80 px-4 pb-2 pt-3' style={{letterSpacing: '0.12em'}}>
             {getTtl(x.ttl, ln)}
           </div>
         )}

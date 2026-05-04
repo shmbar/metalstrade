@@ -49,7 +49,7 @@ const DateRangePicker = ({ displayLabel }) => {
 
     // Inject custom styles
     useEffect(() => {
-        const styleId = "datepicker-rounded-style";
+        const styleId = "datepicker-rounded-style-v2";
         if (document.getElementById(styleId)) return;
 
         const style = document.createElement("style");
@@ -81,8 +81,6 @@ const DateRangePicker = ({ displayLabel }) => {
             /* ── Input: remove shadow on focus ── */
             .react-tailwindcss-datepicker-container input {
                 box-shadow: none !important;
-                color: var(--chathams-blue) !important;
-                font-size: 0.75rem !important;
             }
 
             /* ── Month/Year header pill ── */
@@ -176,29 +174,28 @@ const DateRangePicker = ({ displayLabel }) => {
     if (menuOpen) return null;
 
     return (
-        <div className="relative flex items-center w-full max-w-[200px] rounded-2xl">
+        <div className="relative flex items-center w-full max-w-[200px] rounded-full">
             {displayLabel && (
                 <span className="text-[10px] font-medium text-[var(--port-gore)] bg-gray-100 px-2 py-0.5 rounded-2xl shadow-sm whitespace-nowrap mr-2">
                     {displayLabel}
                 </span>
             )}
 
-            <div className="relative w-full">
+            <div className="relative w-full header-datepicker">
                 <Datepicker
                     toggleIcon={() => (
                         <FaRegCalendarAlt className="text-xs" style={{ color: 'var(--chathams-blue)' }} />
                     )}
                     inputClassName="
-                        text-[11px] h-7 py-0 pl-7 pr-4
+                        responsiveText font-medium h-7 py-0 pl-7 pr-4
                         w-full
                         bg-white
-                        rounded-2xl
+                        rounded-full
                         border border-[#b8ddf8]
                         shadow-sm
                         cursor-pointer
-                        hover:border-[#b8ddf8]
                         focus:outline-none
-                        focus:ring-1 focus:ring-blue-200
+                        focus:ring-1 focus:ring-[#b8ddf8]
                         tracking-normal
                         leading-tight
                     "

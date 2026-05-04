@@ -108,11 +108,9 @@ export function QuickSumButton({
       <button
         type="button"
         onClick={toggleEnabled}
-        className={`h-7 px-2 rounded-2xl responsiveTextTable font-medium transition-all border
-          ${enabled
-            ? 'bg-[var(--chathams-blue)] border-[#b8ddf8]'
-            : 'bg-white text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[var(--selago)]'}`}
-        style={enabled ? { color: '#ffffff', fontSize: '0.68rem' } : { fontSize: '0.68rem' }}
+        className={enabled
+            ? 'whiteButton whitespace-nowrap !bg-[var(--chathams-blue)] !text-white !border-[#b8ddf8]'
+            : 'whiteButton whitespace-nowrap'}
         title="Quick Sum"
       >
         Quick Sum

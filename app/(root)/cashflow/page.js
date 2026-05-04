@@ -879,7 +879,7 @@ const Cashflow = () => {
                                             ))}
 
                                             <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">Total</div>
+                                                <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">Total</div>
                                                 <NumericFormat
                                                     value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
                                                     displayType="text"
@@ -888,7 +888,7 @@ const Cashflow = () => {
                                                     prefix={'$'}
                                                     decimalScale='2'
                                                     fixedDecimalScale
-                                                    className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                    className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                 />
                                             </div>
                                         </>
@@ -982,7 +982,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -995,7 +995,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
 
@@ -1045,7 +1045,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1058,7 +1058,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>}
@@ -1104,7 +1104,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1117,7 +1117,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
@@ -1164,7 +1164,7 @@ const Cashflow = () => {
                                                     })}
 
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1177,7 +1177,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
@@ -1217,7 +1217,7 @@ const Cashflow = () => {
                                                             </div>
 
                                                             <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                                <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                                <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
                                                                     Total
                                                                 </div>
                                                                 <NumericFormat
@@ -1228,7 +1228,7 @@ const Cashflow = () => {
                                                                     prefix='$'
                                                                     decimalScale='2'
                                                                     fixedDecimalScale
-                                                                    className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                                    className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                                 />
                                                             </div>
                                                         </div>
@@ -1284,7 +1284,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1297,7 +1297,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
@@ -1347,7 +1347,7 @@ const Cashflow = () => {
                                                     })}
 
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1360,7 +1360,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
@@ -1406,7 +1406,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1419,7 +1419,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
@@ -1456,7 +1456,7 @@ const Cashflow = () => {
                                                             </div>
 
                                                             <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                                <div className="responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5">
+                                                                <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
                                                                     Total
                                                                 </div>
                                                                 <NumericFormat
@@ -1467,7 +1467,7 @@ const Cashflow = () => {
                                                                     prefix='$'
                                                                     decimalScale='2'
                                                                     fixedDecimalScale
-                                                                    className='responsiveTextTotal text-[var(--chathams-blue)] font-semibold border-t border-[var(--chathams-blue)] pt-0.5'
+                                                                    className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                                 />
                                                             </div>
 
@@ -1486,7 +1486,7 @@ const Cashflow = () => {
                                                 <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
 
                                                     <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
-                                                        <span className="font-semibold text-[var(--endeavour)] responsiveText whitespace-nowrap">
+                                                        <span className="font-medium text-[var(--endeavour)] responsiveText whitespace-nowrap">
                                                             Total (Left)
                                                         </span>
                                                         <NumericFormat
@@ -1502,7 +1502,7 @@ const Cashflow = () => {
                                                     </div>
 
                                                     <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-full px-3 py-0.5">
-                                                        <span className="font-semibold responsiveText whitespace-nowrap">
+                                                        <span className="font-medium responsiveText whitespace-nowrap">
                                                             Balance
                                                         </span>
                                                         <NumericFormat
@@ -1518,7 +1518,7 @@ const Cashflow = () => {
                                                     </div>
 
                                                     <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
-                                                        <span className="font-semibold text-[var(--endeavour)] responsiveText whitespace-nowrap">
+                                                        <span className="font-medium text-[var(--endeavour)] responsiveText whitespace-nowrap">
                                                             Total (Right)
                                                         </span>
                                                         <NumericFormat

@@ -325,7 +325,7 @@ const AssistantChat = () => {
                             <div className="px-4 py-2.5 border-b border-[#b8ddf8] flex items-center justify-between bg-[#dbeeff]">
                                 <div className="flex items-center gap-2">
                                     <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
-                                    <span className="responsiveTextTitle font-semibold text-[var(--port-gore)]">Assistant</span>
+                                    <span className="responsiveTextTitle font-medium text-[var(--port-gore)]">Assistant</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {dataLoading ? (

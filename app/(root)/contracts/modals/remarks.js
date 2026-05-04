@@ -56,7 +56,7 @@ const Remraks = ({ value, setValue, ln }) => {
     return (
         <div className={`${value.remarks.length > 0 ? 'max-w-5xl' : 'max-w-xs'}`}>
             <div className='flex items-center justify-between'>
-                <p className='flex items-center text-sm font-medium pl-2'>{getTtl('Remarks', ln)}:</p>
+                <p className='flex items-center responsiveText font-medium pl-2 text-[var(--chathams-blue)]'>{getTtl('Remarks', ln)}:</p>
 
                 {!value.final && <div className='group relative '>
                     <Button className="h-7 px-2"
@@ -74,11 +74,11 @@ const Remraks = ({ value, setValue, ln }) => {
 
                 {value.remarks.map((x, i) => {
                     return (
-                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-2 px-4 text-sm  bg-white border text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg ">
+                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-2 px-4 responsiveText bg-white border border-[#d8e8f5] text-[var(--port-gore)] -mt-px first:rounded-t-xl first:mt-0 last:rounded-b-xl ">
                             {edit.status && edit.id === x.id ?
                                 <input
-                                    className="w-full border rounded-md border-slate-400 h-7 
-focus:outline-0 focus:border-slate-600 indent-1.5 text-sm text-[var(--regent-gray)]"
+                                    className="w-full border rounded-full border-[#d8e8f5] h-7
+focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-[0.72rem] text-[var(--port-gore)]"
                                     onKeyDown={handleKeyPress}
                                     value={value1}
                                     maxLength={140}

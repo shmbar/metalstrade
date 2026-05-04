@@ -184,7 +184,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                             <div key={row.id} className="bg-white border border-[var(--selago)] rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
                                 {row.getVisibleCells().map(cell => (
                                     <div key={cell.id} className="flex justify-between items-start py-2 border-b border-[var(--selago)] last:border-b-0">
-                                        <span className="responsiveTextTable font-semibold uppercase w-2/5 flex-shrink-0" style={{color:'var(--chathams-blue)'}}>
+                                        <span className="responsiveTextTable font-medium uppercase w-2/5 flex-shrink-0" style={{color:'var(--chathams-blue)'}}>
                                             {cell.column.columnDef.header}
                                         </span>
                                         <Tltip direction='left' tltpText={expensesToolTip(row, expensesData, settings, filt)}>
