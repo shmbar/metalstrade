@@ -43,7 +43,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
     const fmtNum = (v) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(v || 0);
 
     const products = (c.productsData || []).filter(x => !x.import);
-    const hasLinePrices = products.some(p => (p.unitPrc * 1 || 0) > 0);
+    const hasLinePrices = true;
 
     const getDescription = (item) => {
         if (item.mtrlStatus === 'select' || item.isSelection) {
@@ -181,24 +181,21 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                             <td style={{ padding: '4px 10px', width: '19%' }}>{shipDisplay}</td>
                                             <td style={{ padding: '4px 10px', fontWeight: '700', width: '8%' }}>POL:</td>
                                             <td style={{ padding: '4px 10px', width: '19%' }}>{polDisplay}</td>
-                                            <td style={{ padding: '4px 10px', fontWeight: '700', width: '22%' }}>Net WT Kgs:</td>
-                                            <td style={{ padding: '4px 10px', textAlign: 'left', width: '18%' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td>
+                                            <td colSpan={2} style={{ padding: '4px 10px', width: '40%' }}><span style={{ fontWeight: '700' }}>Net WT Kgs: </span>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td>
                                         </tr>
                                         <tr style={{}}>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>Origin:</td>
                                             <td style={{ padding: '4px 10px' }}>{originDisplay}</td>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>POD:</td>
                                             <td style={{ padding: '4px 10px' }}>{podDisplay}</td>
-                                            <td style={{ padding: '4px 10px', fontWeight: '700' }}>Tare WT Kgs:</td>
-                                            <td style={{ padding: '4px 10px', textAlign: 'left' }}>{c.ttlGross ? TotalTarre : ''}</td>
+                                            <td colSpan={2} style={{ padding: '4px 10px' }}><span style={{ fontWeight: '700' }}>Tare WT Kgs: </span>{c.ttlGross ? TotalTarre : ''}</td>
                                         </tr>
                                         <tr>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>Delivery Terms:</td>
                                             <td style={{ padding: '4px 10px' }}>{delTermDisplay}</td>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>Packing:</td>
                                             <td style={{ padding: '4px 10px' }}>{packingDisplay}</td>
-                                            <td style={{ padding: '4px 10px', fontWeight: '700' }}>Gross WT Kgs:</td>
-                                            <td style={{ padding: '4px 10px', textAlign: 'left' }}>{c.ttlGross ? TotalGross : ''}</td>
+                                            <td colSpan={2} style={{ padding: '4px 10px' }}><span style={{ fontWeight: '700' }}>Gross WT Kgs: </span>{c.ttlGross ? TotalGross : ''}</td>
                                         </tr>
                                     </tbody>
                                 </table>
