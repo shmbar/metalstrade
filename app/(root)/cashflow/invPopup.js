@@ -181,21 +181,21 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                             <td style={{ padding: '4px 10px', width: '19%' }}>{shipDisplay}</td>
                                             <td style={{ padding: '4px 10px', fontWeight: '700', width: '8%' }}>POL:</td>
                                             <td style={{ padding: '4px 10px', width: '19%' }}>{polDisplay}</td>
-                                            <td colSpan={2} style={{ padding: '4px 10px', width: '40%' }}><span style={{ fontWeight: '700' }}>Net WT Kgs: </span>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td>
+                                            <td colSpan={2} style={{ padding: '4px 10px', width: '40%' }}><span style={{ fontWeight: '700', paddingRight: '12px' }}>Net WT Kgs:</span>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td>
                                         </tr>
                                         <tr style={{}}>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>Origin:</td>
                                             <td style={{ padding: '4px 10px' }}>{originDisplay}</td>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>POD:</td>
                                             <td style={{ padding: '4px 10px' }}>{podDisplay}</td>
-                                            <td colSpan={2} style={{ padding: '4px 10px' }}><span style={{ fontWeight: '700' }}>Tare WT Kgs: </span>{c.ttlGross ? TotalTarre : ''}</td>
+                                            <td colSpan={2} style={{ padding: '4px 10px' }}><span style={{ fontWeight: '700', paddingRight: '12px' }}>Tare WT Kgs:</span>{c.ttlGross ? TotalTarre : ''}</td>
                                         </tr>
                                         <tr>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>Delivery Terms:</td>
                                             <td style={{ padding: '4px 10px' }}>{delTermDisplay}</td>
                                             <td style={{ padding: '4px 10px', fontWeight: '700' }}>Packing:</td>
                                             <td style={{ padding: '4px 10px' }}>{packingDisplay}</td>
-                                            <td colSpan={2} style={{ padding: '4px 10px' }}><span style={{ fontWeight: '700' }}>Gross WT Kgs: </span>{c.ttlGross ? TotalGross : ''}</td>
+                                            <td colSpan={2} style={{ padding: '4px 10px' }}><span style={{ fontWeight: '700', paddingRight: '12px' }}>Gross WT Kgs:</span>{c.ttlGross ? TotalGross : ''}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -308,8 +308,8 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
     const cStatusBg = dbBalance === 0 ? '#dcfce7' : totalPaid > 0 ? '#fef3c7' : '#fee2e2';
     const cStatusFg = dbBalance === 0 ? '#16a34a' : totalPaid > 0 ? '#d97706' : '#dc2626';
 
-    const TH = 'text-left text-[10px] font-semibold py-1 px-2';
-    const TH_R = 'text-right text-[10px] font-semibold py-1 px-2';
+    const TH = 'text-left text-[10px] font-semibold py-2 px-2';
+    const TH_R = 'text-right text-[10px] font-semibold py-2 px-2';
     const TD = 'text-left text-[10px] py-1 px-2 align-top';
     const TD_R = 'text-right text-[10px] py-1 px-2 align-top';
     const TD_C = 'text-center text-[10px] py-1 px-2 align-top';
@@ -447,25 +447,37 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         </div>
 
                         {/* ── Shipment details ── */}
-                        <div style={{ marginBottom: '16px', fontSize: '10px', display: 'flex', gap: '8px', color: '#203764' }}>
+                        <div style={{ marginBottom: '48px', fontSize: '10px', display: 'flex', color: '#203764' }}>
                             {/* Left: Shipment / Origin / Delivery Terms */}
-                            <div style={{ flex: '0 0 27%' }}>
-                                {shipDisplay && <div style={{ display: 'flex', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Shipment:</span><span>{shipDisplay}</span></div>}
-                                {originDisplay && <div style={{ display: 'flex', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Origin:</span><span>{originDisplay}</span></div>}
-                                {delTermDisplay && <div style={{ display: 'flex', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Delivery Terms:</span><span>{delTermDisplay}</span></div>}
+                            <div style={{ flex: '0 0 30%' }}>
+                                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                                    <tbody>
+                                        {shipDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Shipment:</td><td style={{ paddingBottom: '3px' }}>{shipDisplay}</td></tr>}
+                                        {originDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Origin:</td><td style={{ paddingBottom: '3px' }}>{originDisplay}</td></tr>}
+                                        {delTermDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Delivery Terms:</td><td style={{ paddingBottom: '3px' }}>{delTermDisplay}</td></tr>}
+                                    </tbody>
+                                </table>
                             </div>
                             {/* Middle: POL / POD / Packing */}
-                            <div style={{ flex: '0 0 27%' }}>
-                                {polDisplay && <div style={{ display: 'flex', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>POL:</span><span>{polDisplay}</span></div>}
-                                {podDisplay && <div style={{ display: 'flex', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>POD:</span><span>{podDisplay}</span></div>}
-                                {isInvoice && packingDisplay && <div style={{ display: 'flex', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Packing:</span><span>{packingDisplay}</span></div>}
+                            <div style={{ flex: '0 0 30%' }}>
+                                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                                    <tbody>
+                                        {polDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POL:</td><td style={{ paddingBottom: '3px' }}>{polDisplay}</td></tr>}
+                                        {podDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POD:</td><td style={{ paddingBottom: '3px' }}>{podDisplay}</td></tr>}
+                                        {isInvoice && packingDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Packing:</td><td style={{ paddingBottom: '3px' }}>{packingDisplay}</td></tr>}
+                                    </tbody>
+                                </table>
                             </div>
-                            {/* Right: WT values stacked */}
+                            {/* Right: WT values */}
                             <div style={{ flex: '1' }}>
-                                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Total Net WT Kgs:</span><span>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</span></div>
-                                {!secondRule && !fifthRule && isInvoice && <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Total Tarre WT Kgs:</span><span>{TotalTarre}</span></div>}
-                                {!fourthRule && !fifthRule && inv.ttlGross && <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>{thirdRule ? 'QTY Ingots:' : 'Total Gross WT Kgs:'}</span><span>{TotalGross}</span></div>}
-                                {isInvoice && !secondRule && inv.ttlPackages && <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '6px', paddingBottom: '4px' }}><span style={{ fontWeight: '700', whiteSpace: 'nowrap' }}>Total Packages:</span><span style={{ textAlign: 'left' }}>{inv.ttlPackages}</span></div>}
+                                <table style={{ borderCollapse: 'collapse' }}>
+                                    <tbody>
+                                        <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Net WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td></tr>
+                                        {!secondRule && !fifthRule && isInvoice && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Tarre WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{TotalTarre}</td></tr>}
+                                        {!fourthRule && !fifthRule && inv.ttlGross && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>{thirdRule ? 'QTY Ingots:' : 'Total Gross WT Kgs:'}</td><td style={{ paddingBottom: '3px' }}>{TotalGross}</td></tr>}
+                                        {isInvoice && !secondRule && inv.ttlPackages && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Packages:</td><td style={{ paddingBottom: '3px' }}>{inv.ttlPackages}</td></tr>}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
@@ -496,17 +508,17 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 ))}
                                 {/* Total rows */}
                                 <tr>
-                                    <td colSpan={5} />
-                                    <td className={TD_R} style={{ fontWeight: '700', paddingTop: '6px', borderTop: '1px solid #203764', whiteSpace: 'nowrap' }}>Total Amount:</td>
-                                    <td className={TD_R} style={{ fontWeight: '700', paddingTop: '6px', borderTop: '1px solid #203764' }}>{fmtAmt(inv.totalAmount)}</td>
+                                    <td colSpan={4} style={{ border: 'none' }} />
+                                    <td className="text-left text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px', whiteSpace: 'nowrap' }}>Total Amount:</td>
+                                    <td style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px' }} />
+                                    <td className="text-right text-[10px] px-2" style={{ fontWeight: '700', borderTop: '1px solid #203764', padding: '6px 8px 4px' }}>{fmtAmt(inv.totalAmount)}</td>
                                 </tr>
                                 {isInvoice && inv.percentage && (
                                     <tr>
-                                        <td colSpan={5} />
-                                        <td className={TD_R} style={{ fontWeight: '700' }}>Prepayment:</td>
-                                        <td className={TD_R} style={{ fontWeight: '700' }}>
-                                            {inv.percentage}%&nbsp;&nbsp;{fmtAmt(inv.totalPrepayment)}
-                                        </td>
+                                        <td colSpan={4} style={{ border: 'none' }} />
+                                        <td className="text-left text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>Prepayment:</td>
+                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{inv.percentage}%</td>
+                                        <td className="text-right text-[10px] px-2" style={{ fontWeight: '700', paddingTop: '4px', paddingBottom: '8px' }}>{fmtAmt(inv.totalPrepayment)}</td>
                                     </tr>
                                 )}
                                 {(isCN || (!isInvoice && !isCN)) && inv.totalPrepayment && (
