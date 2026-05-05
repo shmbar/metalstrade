@@ -105,46 +105,48 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
 
             const banks = settings['Bank Account']['Bank Account'];
             const bank = banks.find(z => z.id === value.bankNname);
+            if (!bank) throw new Error('Bank account not found. Please select a bank account for this invoice.');
 
             doc.setFontSize(8);
             doc.setFont('PoppinsB', 'bold');
-            doc.text(bank.bankName, 155, 281);
-            doc.text(bank.swiftCode, 155, 284);
-            doc.text(bank.iban, 155, 287);
+            doc.text(bank.bankName || '', 155, 281);
+            doc.text(bank.swiftCode || '', 155, 284);
+            doc.text(bank.iban || '', 155, 287);
             doc.setFont('Poppins', 'normal');
-            doc.text(bank.corrBank, 155, 290);
-            doc.text(bank.corrBankSwift, 155, 293);
-            doc.text(bank.other, 155, 296);
+            doc.text(bank.corrBank || '', 155, 290);
+            doc.text(bank.corrBankSwift || '', 155, 293);
+            doc.text(bank.other || '', 155, 296);
             doc.setTextColor(32, 55, 100)
         } else {
             doc.setTextColor(255, 255, 255)
-            doc.text(compData.name, 10, 276)
+            doc.text(compData.name || '', 10, 276)
             doc.setFontSize(8);
             doc.setFont('Poppins', 'normal');
-            doc.text(compData.street, 10, 279)
+            doc.text(compData.street || '', 10, 279)
             doc.text(compData.city + ' ' + compData.zip, 10, 282)
-            doc.text(compData.country, 10, 285)
+            doc.text(compData.country || '', 10, 285)
             doc.text('T: ' + compData.phone, 10, 288)
 
             doc.setFontSize(8);
             doc.text('Vat No: ' + compData.vat, 90, 276);
             doc.text('Reg No: ' + compData.reg, 90, 279);
             doc.text('EORI No: ' + compData.eori, 90, 282);
-            doc.text(compData.email, 90, 285);
-            doc.text(compData.website, 90, 288);
+            doc.text(compData.email || '', 90, 285);
+            doc.text(compData.website || '', 90, 288);
 
             const banks = settings['Bank Account']['Bank Account'];
             const bank = banks.find(z => z.id === value.bankNname);
+            if (!bank) throw new Error('Bank account not found. Please select a bank account for this invoice.');
 
             doc.setFontSize(8);
             doc.setFont('PoppinsB', 'bold');
-            doc.text(bank.bankName, 155, 276);
-            doc.text(bank.swiftCode, 155, 279);
-            doc.text(bank.iban, 155, 282);
+            doc.text(bank.bankName || '', 155, 276);
+            doc.text(bank.swiftCode || '', 155, 279);
+            doc.text(bank.iban || '', 155, 282);
             doc.setFont('Poppins', 'normal');
-            doc.text(bank.corrBank, 155, 285);
-            doc.text(bank.corrBankSwift, 155, 288);
-            doc.text(bank.other, 155, 291);
+            doc.text(bank.corrBank || '', 155, 285);
+            doc.text(bank.corrBankSwift || '', 155, 288);
+            doc.text(bank.other || '', 155, 291);
             doc.setTextColor(32, 55, 100)
         }
     }

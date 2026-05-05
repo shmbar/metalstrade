@@ -583,40 +583,9 @@ const InvoiceModal = () => {
 					<button
 						type="button"
 						className="whiteButton py-1"
-						onClick={() => !fnl ? Pdf(valueInv,
-							reOrderTableInv(valueInv.productsDataInvoice).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
-								.map((values, index) => {
-									const number = values[3];
-									const number1 = values[4];
-									const number2 = values[5];
-									let tmpObj = valueInv.productsDataInvoice[index]
-									let description = tmpObj.mtrlStatus === 'select' ? valueInv.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
-										tmpObj.descriptionText
-
-									const formattedNumber = number === 's' ? 'Service' : new Intl.NumberFormat('en-US', {
-										minimumFractionDigits: 3
-									}).format(number);
-
-									const formattedNumber1 = new Intl.NumberFormat('en-US', {
-										style: 'currency',
-										currency: valueInv.cur !== '' ? getD(settings.Currency.Currency, valueInv, 'cur') :
-											'USD',
-										minimumFractionDigits: 2
-									}).format(number1);
-
-									const formattedNumber2 = new Intl.NumberFormat('en-US', {
-										style: 'currency',
-										currency: valueInv.cur !== '' ? getD(settings.Currency.Currency, valueInv, 'cur') :
-											'USD',
-										minimumFractionDigits: 2
-									}).format(number2);
-
-									return [index + 1, values[0], description, values[2], formattedNumber,
-										formattedNumber1, formattedNumber2];
-								})
-							, settings, compData, gisAccount)
-							:
-							PdfFnlCncl(valueInv,
+						onClick={() => {
+						try {
+							(!fnl ? Pdf(valueInv,
 								reOrderTableInv(valueInv.productsDataInvoice).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
 									.map((values, index) => {
 										const number = values[3];
@@ -626,27 +595,63 @@ const InvoiceModal = () => {
 										let description = tmpObj.mtrlStatus === 'select' ? valueInv.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
 											tmpObj.descriptionText
 
-										const formattedNumber = new Intl.NumberFormat('en-US', {
+										const formattedNumber = number === 's' ? 'Service' : new Intl.NumberFormat('en-US', {
 											minimumFractionDigits: 3
 										}).format(number);
 
+										const cur = (valueInv.cur !== '' ? getD(settings.Currency.Currency, valueInv, 'cur') : '') || 'USD';
 										const formattedNumber1 = new Intl.NumberFormat('en-US', {
 											style: 'currency',
-											currency: valueInv.cur.cur,
+											currency: cur,
 											minimumFractionDigits: 2
 										}).format(number1);
 
 										const formattedNumber2 = new Intl.NumberFormat('en-US', {
 											style: 'currency',
-											currency: valueInv.cur.cur,
+											currency: cur,
 											minimumFractionDigits: 2
 										}).format(number2);
 
 										return [index + 1, values[0], description, values[2], formattedNumber,
 											formattedNumber1, formattedNumber2];
 									})
-								, settings, compData)
+								, settings, compData, gisAccount)
+								:
+								PdfFnlCncl(valueInv,
+									reOrderTableInv(valueInv.productsDataInvoice).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
+										.map((values, index) => {
+											const number = values[3];
+											const number1 = values[4];
+											const number2 = values[5];
+											let tmpObj = valueInv.productsDataInvoice[index]
+											let description = tmpObj.mtrlStatus === 'select' ? valueInv.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
+												tmpObj.descriptionText
+
+											const formattedNumber = new Intl.NumberFormat('en-US', {
+												minimumFractionDigits: 3
+											}).format(number);
+
+											const formattedNumber1 = new Intl.NumberFormat('en-US', {
+												style: 'currency',
+												currency: valueInv.cur.cur,
+												minimumFractionDigits: 2
+											}).format(number1);
+
+											const formattedNumber2 = new Intl.NumberFormat('en-US', {
+												style: 'currency',
+												currency: valueInv.cur.cur,
+												minimumFractionDigits: 2
+											}).format(number2);
+
+											return [index + 1, values[0], description, values[2], formattedNumber,
+												formattedNumber1, formattedNumber2];
+										})
+									, settings, compData)
+							).catch(err => setToast({ show: true, text: err.message || 'Failed to generate PDF', clr: 'fail' }));
+						} catch (err) {
+							setToast({ show: true, text: err.message || 'Failed to generate PDF', clr: 'fail' });
 						}
+					}}
 					>
 						<FaFilePdf className='size-4' />
 						PDF
