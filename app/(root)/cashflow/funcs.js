@@ -380,7 +380,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#e3f3ff]">
+                    <tr className="bg-[#dbeeff]">
                         <th className="text-left">
                             Total
                         </th>
@@ -484,7 +484,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#e3f3ff]">
+                    <tr className="bg-[#dbeeff]">
                         <th className="text-left">
                             Total
                         </th>
@@ -754,7 +754,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
 
                         </tbody>
                         <tfoot>
-                            <tr className="bg-[#e3f3ff]">
+                            <tr className="bg-[#dbeeff]">
                                 <th className="text-left">TOTAL</th>
                                 <th></th>
                                 <th className="text-right">
@@ -854,7 +854,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
 
                         </tbody>
                         <tfoot>
-                            <tr className="bg-[#e3f3ff]">
+                            <tr className="bg-[#dbeeff]">
                                 <th className="text-left">TOTAL</th>
                                 <th></th>
                                 <th className="text-right">
@@ -1134,7 +1134,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                     })}
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#e3f3ff]">
+                    <tr className="bg-[#dbeeff]">
                         <th className="text-left">TOTAL</th>
                         <th></th>
                         <th className="text-right">
@@ -1286,7 +1286,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#e3f3ff]">
+                    <tr className="bg-[#dbeeff]">
                         <th className="text-left">
                             <div>Total $</div>
                             <div className="pt-0.5">Total €</div>

@@ -271,9 +271,13 @@ input::-webkit-inner-spin-button {
   font-size: 0.72rem;
 }
 
+.cashflow-detail-table thead tr {
+  background: #dbeeff;
+}
+
 .cashflow-detail-table thead th {
   font-weight: 500;
-  color: var(--endeavour);
+  color: var(--chathams-blue);
   border-bottom: 1.5px solid #b8ddf8;
   padding: 6px 8px;
   white-space: nowrap;
@@ -293,9 +297,9 @@ input::-webkit-inner-spin-button {
 }
 
 .cashflow-detail-table tfoot th {
-  font-weight: 600;
-  color: var(--endeavour);
-  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--chathams-blue);
+  font-size: 0.72rem;
   border-top: 1.5px solid #b8ddf8;
 }
 

@@ -213,7 +213,7 @@ function StatusSelect({ value, onChange }) {
                         <div
                             key={s}
                             onClick={() => { onChange(s); setOpen(false); }}
-                            className="px-3 py-1.5 responsiveTextTable font-medium cursor-pointer mx-1.5 my-1 rounded-lg transition-all"
+                            className="px-3 py-1 responsiveTextTable font-normal cursor-pointer mx-1.5 my-1 rounded-xl transition-all"
                             style={{ ...STATUS_STYLES[s], opacity: value === s ? 1 : 0.85 }}
                         >
                             {s || '— Select —'}

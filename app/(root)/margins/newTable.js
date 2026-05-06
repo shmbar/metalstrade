@@ -415,7 +415,7 @@ const Customtable = (props) => {
                             {data.length > 0 && (
                                 <TableFooter>
                                     {table.getFooterGroups().map((footerGroup) => (
-                                        <TableRow key={footerGroup.id} className='bg-[var(--selago)]/50'>
+                                        <TableRow key={footerGroup.id} className='bg-[#dbeeff]'>
                                             {footerGroup.headers.map((footer) => {
                                                 const accessorKey = footer.column.columnDef.accessorKey;
                                                 const columnConfig = COLUMN_CONFIGS[accessorKey] || {};
@@ -439,8 +439,8 @@ const Customtable = (props) => {
                                                             columnConfig.align === 'right' && 'text-right',
                                                             columnConfig.align === 'center' && 'text-center',
                                                             ["totalMargin", "remaining", "purchase", "openShip"].includes(accessorKey) ?
-                                                                'border-t border-t-[var(--endeavour)]' : '',
-                                                            ''
+                                                                'border-t border-t-[var(--chathams-blue)]' : '',
+                                                            'responsiveTextTable'
                                                         )}
                                                     >
                                                         {["totalMargin", "remaining", "purchase", "openShip"].includes(accessorKey) && (
@@ -454,9 +454,8 @@ const Customtable = (props) => {
                                                                     decimalScale={currs.includes(accessorKey) ? 2 : 3}
                                                                     fixedDecimalScale
                                                                     style={{
-                                                                        fontSize: 'inherit',
                                                                         color: 'var(--chathams-blue)',
-                                                                        fontWeight: '600',
+                                                                        fontWeight: '500',
                                                                         lineHeight: '1.2'
                                                                     }}
                                                                 />
