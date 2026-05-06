@@ -835,7 +835,7 @@ const Cashflow = () => {
                             {activeTab === 'unsold' ? (
                                 <div className="w-full max-w-2xl border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
                                     <div className="flex items-center justify-between mb-2">
-                                        <div className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Unsold Stocks</div>
+                                        <div className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Unsold Stocks</div>
                                         <div className="flex items-center gap-2">
                                             {stocksSortName2 ?
                                                 <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName2()} />
@@ -899,7 +899,7 @@ const Cashflow = () => {
                                     {userTitle === 'Admin' &&
                                         <div className="w-full p-2 mb-2">
                                             <div className="flex gap-2">
-                                                <span className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold items-center flex w-44 text-[var(--endeavour)]">Future</span>
+                                                <span className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold items-center flex w-44 text-[var(--chathams-blue)]">Future</span>
                                                 <label className="pl-1">{
                                                     <NumericFormat
                                                         value={incoming}
@@ -917,7 +917,7 @@ const Cashflow = () => {
                                                 initialData?.map((z, i) => {
                                                     return (
                                                         <div className="flex gap-2 my-1 items-center" key={i}>
-                                                            <input className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold items-center flex outline-none w-44 truncate text-[var(--endeavour)]" value={z.title}
+                                                            <input className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold items-center flex outline-none w-44 truncate text-[var(--chathams-blue)]" value={z.title}
                                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
                                                             <input className='input w-44 h-6 responsiveTextTotal rounded-full'
                                                                 value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
@@ -941,7 +941,7 @@ const Cashflow = () => {
                                             <div className="w-full">
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Stocks - Paid</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Stocks - Paid</span>
                                                         <div className="flex items-center gap-2">
                                                             {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} />}
                                                             {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} />}
@@ -1005,7 +1005,7 @@ const Cashflow = () => {
 
                                                 {stockData2.length > 0 && <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Stocks - UnPaid</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Stocks - UnPaid</span>
                                                         <div className="flex items-center gap-2">
                                                             {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} />}
                                                             {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} />}
@@ -1066,7 +1066,7 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Clients - Payment</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Clients - Payment</span>
                                                         <div className="flex items-center gap-2">
                                                             {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} />}
                                                             {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} />}
@@ -1125,7 +1125,7 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Clients - Balances</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Clients - Balances</span>
                                                         <div className="flex items-center gap-2">
                                                             {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} />}
                                                             {clientSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} />}
@@ -1188,7 +1188,7 @@ const Cashflow = () => {
                                                         userTitle === 'Admin' &&
                                                         <div className='mt-1 p-1'>
                                                             <div className='flex justify-between p-2'>
-                                                                <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Financing</span>
+                                                                <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Financing</span>
                                                                 <button
                                                                     type="button"
                                                                     className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
@@ -1242,7 +1242,7 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Supplier - Payment</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Supplier - Payment</span>
                                                         <div className="flex items-center gap-2">
                                                             {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
                                                             {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} />}
@@ -1305,7 +1305,7 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Supplier - Balances</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Supplier - Balances</span>
                                                         <div className="flex items-center gap-2">
                                                             {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
                                                             {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} />}
@@ -1367,7 +1367,7 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Expenses</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Expenses</span>
                                                         <div className="flex items-center gap-2">
                                                             {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} />}
                                                             {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} />}
@@ -1429,7 +1429,7 @@ const Cashflow = () => {
                                                         userTitle === 'Admin' &&
                                                         <div className='mt-1 p-1'>
                                                             <div className='flex justify-between'>
-                                                                <span className="text-[var(--endeavour)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Financing</span>
+                                                                <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Financing</span>
                                                                 <button
                                                                     type="button"
                                                                     className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
@@ -1486,7 +1486,7 @@ const Cashflow = () => {
                                                 <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
 
                                                     <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
-                                                        <span className="font-medium text-[var(--endeavour)] responsiveText whitespace-nowrap">
+                                                        <span className="font-medium text-[var(--chathams-blue)] responsiveText whitespace-nowrap">
                                                             Total (Left)
                                                         </span>
                                                         <NumericFormat
@@ -1497,7 +1497,7 @@ const Cashflow = () => {
                                                             prefix="$"
                                                             decimalScale={2}
                                                             fixedDecimalScale
-                                                            className="font-semibold text-[var(--endeavour)] responsiveText whitespace-nowrap"
+                                                            className="font-semibold text-[var(--chathams-blue)] responsiveText whitespace-nowrap"
                                                         />
                                                     </div>
 
@@ -1518,7 +1518,7 @@ const Cashflow = () => {
                                                     </div>
 
                                                     <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
-                                                        <span className="font-medium text-[var(--endeavour)] responsiveText whitespace-nowrap">
+                                                        <span className="font-medium text-[var(--chathams-blue)] responsiveText whitespace-nowrap">
                                                             Total (Right)
                                                         </span>
                                                         <NumericFormat
@@ -1529,7 +1529,7 @@ const Cashflow = () => {
                                                             prefix="$"
                                                             decimalScale={2}
                                                             fixedDecimalScale
-                                                            className="font-semibold text-[var(--endeavour)] responsiveText whitespace-nowrap"
+                                                            className="font-semibold text-[var(--chathams-blue)] responsiveText whitespace-nowrap"
                                                         />
                                                     </div>
 
@@ -1541,9 +1541,9 @@ const Cashflow = () => {
                                                         const key = `total${z}`;
                                                         return (
                                                             <div className="flex gap-2 my-1" key={z}>
-                                                                <span className="responsiveText items-center flex w-28 text-[var(--endeavour)] whitespace-nowrap font-medium">Total for {z}</span>
+                                                                <span className="responsiveText items-center flex w-28 text-[var(--chathams-blue)] whitespace-nowrap font-medium">Total for {z}</span>
                                                                 <input
-                                                                    className='input w-44 h-6 responsiveText font-medium text-[var(--endeavour)] text-right px-3 bg-[#f8fbff] border-[#d8e8f5] rounded-full'
+                                                                    className='input w-44 h-6 responsiveText font-medium text-[var(--chathams-blue)] text-right px-3 bg-[#f8fbff] border-[#d8e8f5] rounded-full'
                                                                     value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
                                                                     onChange={e => handleChange(e, z)}
                                                                 />

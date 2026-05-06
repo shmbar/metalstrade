@@ -176,21 +176,21 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                             <div style={{ marginBottom: '48px', fontSize: '10px', display: 'flex', color: '#203764' }}>
                                 {/* Left: Shipment / Origin / Delivery Terms */}
                                 <div style={{ flex: '0 0 34%' }}>
-                                    <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                                    <table style={{ borderCollapse: 'collapse' }}>
                                         <tbody>
-                                            {shipDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Shipment:</td><td style={{ paddingBottom: '3px' }}>{shipDisplay}</td></tr>}
-                                            {originDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Origin:</td><td style={{ paddingBottom: '3px' }}>{originDisplay}</td></tr>}
-                                            {delTermDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Delivery Terms:</td><td style={{ paddingBottom: '3px' }}>{delTermDisplay}</td></tr>}
+                                            {shipDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Shipment:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{shipDisplay}</td></tr>}
+                                            {originDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Origin:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{originDisplay}</td></tr>}
+                                            {delTermDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Delivery Terms:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{delTermDisplay}</td></tr>}
                                         </tbody>
                                     </table>
                                 </div>
                                 {/* Middle: POL / POD / Packing */}
                                 <div style={{ flex: '0 0 35%' }}>
-                                    <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                                    <table style={{ borderCollapse: 'collapse' }}>
                                         <tbody>
-                                            {polDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POL:</td><td style={{ paddingBottom: '3px' }}>{polDisplay}</td></tr>}
-                                            {podDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POD:</td><td style={{ paddingBottom: '3px' }}>{podDisplay}</td></tr>}
-                                            {packingDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Packing:</td><td style={{ paddingBottom: '3px' }}>{packingDisplay}</td></tr>}
+                                            {polDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POL:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{polDisplay}</td></tr>}
+                                            {podDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POD:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{podDisplay}</td></tr>}
+                                            {packingDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Packing:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{packingDisplay}</td></tr>}
                                         </tbody>
                                     </table>
                                 </div>
@@ -455,21 +455,21 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         <div style={{ marginBottom: '48px', fontSize: '10px', display: 'flex', color: '#203764' }}>
                             {/* Left: Shipment / Origin / Delivery Terms */}
                             <div style={{ flex: '0 0 34%' }}>
-                                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                                <table style={{ borderCollapse: 'collapse' }}>
                                     <tbody>
-                                        {shipDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Shipment:</td><td style={{ paddingBottom: '3px' }}>{shipDisplay}</td></tr>}
-                                        {originDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Origin:</td><td style={{ paddingBottom: '3px' }}>{originDisplay}</td></tr>}
-                                        {delTermDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Delivery Terms:</td><td style={{ paddingBottom: '3px' }}>{delTermDisplay}</td></tr>}
+                                        {shipDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Shipment:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{shipDisplay}</td></tr>}
+                                        {originDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Origin:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{originDisplay}</td></tr>}
+                                        {delTermDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Delivery Terms:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{delTermDisplay}</td></tr>}
                                     </tbody>
                                 </table>
                             </div>
                             {/* Middle: POL / POD / Packing */}
                             <div style={{ flex: '0 0 35%' }}>
-                                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                                <table style={{ borderCollapse: 'collapse' }}>
                                     <tbody>
-                                        {polDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POL:</td><td style={{ paddingBottom: '3px' }}>{polDisplay}</td></tr>}
-                                        {podDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POD:</td><td style={{ paddingBottom: '3px' }}>{podDisplay}</td></tr>}
-                                        {isInvoice && packingDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Packing:</td><td style={{ paddingBottom: '3px' }}>{packingDisplay}</td></tr>}
+                                        {polDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POL:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{polDisplay}</td></tr>}
+                                        {podDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POD:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{podDisplay}</td></tr>}
+                                        {isInvoice && packingDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Packing:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{packingDisplay}</td></tr>}
                                     </tbody>
                                 </table>
                             </div>
@@ -528,16 +528,18 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 )}
                                 {(isCN || (!isInvoice && !isCN)) && inv.totalPrepayment && (
                                     <tr>
-                                        <td colSpan={5} />
-                                        <td className={TD_R} style={{ fontWeight: '700' }}>Prepaid Amount:</td>
-                                        <td className={TD_R} style={{ fontWeight: '700' }}>{fmtAmt(inv.totalPrepayment)}</td>
+                                        <td colSpan={4} style={{ border: 'none' }} />
+                                        <td className="text-left text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '4px', whiteSpace: 'nowrap' }}>Prepaid Amount:</td>
+                                        <td style={{ paddingTop: '4px', paddingBottom: '4px' }} />
+                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '4px' }}>{fmtAmt(inv.totalPrepayment)}</td>
                                     </tr>
                                 )}
                                 {(isCN || (!isInvoice && !isCN)) && inv.balanceDue != null && (
                                     <tr>
-                                        <td colSpan={5} />
-                                        <td className={TD_R} style={{ fontWeight: '700' }}>Balance Due:</td>
-                                        <td className={TD_R} style={{ fontWeight: '700' }}>{fmtAmt(inv.balanceDue)}</td>
+                                        <td colSpan={4} style={{ border: 'none' }} />
+                                        <td className="text-left text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px', whiteSpace: 'nowrap' }}>Balance Due:</td>
+                                        <td style={{ paddingTop: '4px', paddingBottom: '8px' }} />
+                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{fmtAmt(inv.balanceDue)}</td>
                                     </tr>
                                 )}
                             </tbody>
