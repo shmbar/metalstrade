@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { IoAddCircleOutline } from "react-icons/io5";
 import { FiMinusCircle, FiTrash2 } from "react-icons/fi";
@@ -6,14 +6,13 @@ import Customtable from './newTable';
 import { NumericFormat } from "react-number-format";
 import { updateOpenMonth } from '../../../utils/utils';
 
-const MarginTable = (props) => {
+const MarginTable = memo(function MarginTable(props) {
     let { month, year, addItem, deleteMonth, openMonth, uidCollection } = props
     let data = props.items
 
     const saveOpenClose = (status) => {
         updateOpenMonth(uidCollection, month, year, status)
-        let newData = props.data.map(x => x.month === month ? { ...x, openMonth: status } : x)
-        props.setData(newData)
+        props.setData(prev => prev.map(x => x.month === month ? { ...x, openMonth: status } : x))
     }
 
     // Calculate summary values
@@ -24,18 +23,6 @@ const MarginTable = (props) => {
 
     return (
         <div className="w-full">
-            {/* Import Poppins font and apply consistent styling exactly like newTable */}
-            <style jsx global>{`
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-                
-                .margin-card, .margin-card * {
-                    font-family: var(--font-poppins), 'Poppins', sans-serif;
-                    transition-property: color, background-color, border-color, box-shadow !important;
-                    transition-duration: 150ms !important;
-                    transition-timing-function: ease-in-out !important;
-                }
-            `}</style>
-
             <Disclosure
                 key={`${month}-${openMonth}`}
                 as="div"
@@ -272,6 +259,10 @@ const MarginTable = (props) => {
             </Disclosure>
         </div>
     );
-};
+}, (prev, next) =>
+    prev.items === next.items &&
+    prev.openMonth === next.openMonth &&
+    prev.settings === next.settings
+);
 
 export default MarginTable;

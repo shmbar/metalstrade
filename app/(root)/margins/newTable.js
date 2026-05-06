@@ -1,6 +1,6 @@
 import Header from "../../../components/table/header";
 import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
-import { useMemo, useState } from "react"
+import { useMemo, useState, memo } from "react"
 import '../contracts/style.css';
 import { useContext } from 'react';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -61,7 +61,7 @@ const COLUMN_CONFIGS = {
 };
 
 
-const DraggableRow = ({ row, props, cName }) => {
+const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
   let {
     handleChangeDate,
     handleCancelDate,
@@ -249,7 +249,10 @@ const DraggableRow = ({ row, props, cName }) => {
       })}
     </TableRow>
   );
-};
+}, (prev, next) =>
+  prev.row.original === next.row.original &&
+  prev.cName === next.cName
+);
 
 
 const Customtable = (props) => {
@@ -337,9 +340,6 @@ const Customtable = (props) => {
         onPaginationChange: setPagination,
         manualPagination: true,
         getRowId: (row) => row.id,
-        debugTable: true,
-        debugHeaders: true,
-        debugColumns: true,
     });
 
     const currs = ['margin', 'totalMargin', 'remaining'];

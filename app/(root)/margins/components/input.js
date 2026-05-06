@@ -1,7 +1,8 @@
 import { addComma } from '../../../../app/(root)/cashflow/funcs';
 import { cn } from '../../../../lib/utils';
+import { memo } from 'react';
 
-let showAmount = (nStr) => {
+const showAmount = (nStr) => {
   nStr += '';
   var x = nStr.split('.');
   var x1 = x[0];
@@ -14,40 +15,47 @@ let showAmount = (nStr) => {
   return x1 + x2;
 };
 
-export const Input = ({ props, handleChange, month, name, styles, addCur }) => {
+const INPUT_CLASS = `
+  w-full
+  bg-[#f8fbff]
+  rounded-lg
+  px-2
+  text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
+  !text-[var(--port-gore)]
+  border border-[#d8e8f5]
+  outline-none
+  focus:ring-1
+  focus:ring-[var(--endeavour)]
+  focus:border-[var(--endeavour)]
+  shadow-none
+  transition
+`;
+
+const INPUT_STYLE = { minHeight: '26px', fontFamily: "var(--font-poppins), 'Poppins', sans-serif" };
+
+export const Input = memo(function Input({ props, handleChange, month, name, styles, addCur }) {
+  const value = props.column.id === 'description'
+    ? props.getValue()
+    : addCur
+    ? addComma(props.getValue())
+    : showAmount(props.getValue());
+
   return (
     <input
       type="text"
-      value={
-        props.column.id === 'description'
-          ? props.getValue()
-          : addCur
-          ? addComma(props.getValue())
-          : showAmount(props.getValue())
-      }
+      value={value}
       name={name}
       onChange={(e) => handleChange(e, props.row.index, month)}
-      className={cn(
-        styles,
-        `
-        w-full
-        bg-[#f8fbff]
-        rounded-lg
-        px-2
-        text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
-        !text-[var(--port-gore)]
-        border border-[#d8e8f5]
-        outline-none
-        focus:ring-1
-        focus:ring-[var(--endeavour)]
-        focus:border-[var(--endeavour)]
-        shadow-none
-        transition
-        `
-      )}
-      style={{ minHeight: '26px', fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
+      className={cn(styles, INPUT_CLASS)}
+      style={INPUT_STYLE}
     />
   );
-};
+}, (prev, next) =>
+  prev.props.getValue() === next.props.getValue() &&
+  prev.props.row.index === next.props.row.index &&
+  prev.month === next.month &&
+  prev.name === next.name &&
+  prev.addCur === next.addCur
+);
 
 export default Input;

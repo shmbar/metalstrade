@@ -50,6 +50,13 @@ tr td {
   transition: background-color 0.15s ease;
 }
 
+/* Margin card transitions (moved from inline component style) */
+.margin-card, .margin-card * {
+  transition-property: color, background-color, border-color, box-shadow !important;
+  transition-duration: 150ms !important;
+  transition-timing-function: ease-in-out !important;
+}
+
 thead th {
   color: var(--chathams-blue) !important;
 }

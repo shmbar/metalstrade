@@ -25,6 +25,10 @@ import {
     useSensors,
 } from '@dnd-kit/core';
 
+const MOUSE_SENSOR_OPTIONS = {};
+const TOUCH_SENSOR_OPTIONS = {};
+const KEYBOARD_SENSOR_OPTIONS = {};
+
 import {
     arrayMove,
 } from '@dnd-kit/sortable';
@@ -101,34 +105,41 @@ const Margins = () => {
     }, [yr, uidCollection])
 
     useEffect(() => {
-        const total = data.reduce((accumulator, item) => {
-            return accumulator + (parseFloat(item.remaining) || 0);
-        }, 0);
-        setIncoming(total)
+        // Main totals
+        let _purchase = 0, _openShip = 0, _totalMargin = 0, _remaining = 0;
+        // GIS totals
+        let _purchaseGIS = 0, _openShipGIS = 0, _totalMarginGIS = 0, _remainingGIS = 0;
+        const gisData = data.map(z => {
+            _purchase    += parseFloat(z.purchase)    || 0;
+            _openShip    += parseFloat(z.openShip)    || 0;
+            _totalMargin += parseFloat(z.totalMargin) || 0;
+            _remaining   += parseFloat(z.remaining)   || 0;
 
-        const total1 = data.reduce((accumulator, item) => {
-            return accumulator + (parseFloat(item.openShip) || 0);
-        }, 0);
-        setOutStandingShip(total1)
+            const gPurchase    = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.purchase    || 0) : 0), 0);
+            const gOpenShip    = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.openShip * 1 || 0) : 0), 0);
+            const gTotalMargin = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.totalMargin || 0) : 0), 0);
+            const gRemaining   = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.remaining   || 0) : 0), 0);
 
-        const total2 = data.reduce((accumulator, item) => {
-            return accumulator + (parseFloat(item.purchase) || 0);
-        }, 0);
-        setPurchase(total2)
+            _purchaseGIS    += gPurchase;
+            _openShipGIS    += gOpenShip;
+            _totalMarginGIS += gTotalMargin;
+            _remainingGIS   += gRemaining;
 
-        const total3 = data.reduce((accumulator, item) => {
-            return accumulator + (parseFloat(item.totalMargin) || 0);
-        }, 0);
-        setTotalMargin(total3)
+            return { ...z, purchase: gPurchase, openShip: gOpenShip, totalMargin: gTotalMargin, remaining: gRemaining };
+        });
 
-        const tota4 = total2 - total1
-        setShipped(tota4)
+        setIncoming(_remaining);
+        setOutStandingShip(_openShip);
+        setPurchase(_purchase);
+        setTotalMargin(_totalMargin);
+        setShipped(_purchase - _openShip);
+        setRemaining(_remaining);
 
-        const total5 = data.reduce((accumulator, item) => {
-            return accumulator + (parseFloat(item.remaining) || 0);
-        }, 0);
-        setRemaining(total5)
-
+        setDataGIS(gisData);
+        setPurchaseGIS(_purchaseGIS);
+        setTotalMarginGIS(_totalMarginGIS);
+        setOutStandingShipGIS(_openShipGIS);
+        setRemainingGIS(_remainingGIS);
     }, [data])
 
     const handleChangeDate = useCallback((e, i, month) => {
@@ -148,52 +159,39 @@ const Margins = () => {
         } : z))
     }, [])
 
-    // reorder rows after drag & drop
-    function handleDragEnd(event) {
-
-        //find month
-        const index = data.findIndex(monthData =>
-            monthData.items.some(item => item.id === event.collisions[0].id)
-        );
-
+    const handleDragEnd = useCallback((event) => {
         const { active, over } = event;
-
-        let ids = dataIds(data[index].items);
-
-        if (active && over && active.id !== over.id) {
-            setData(() => {
-                const oldIndex = ids.indexOf(active.id);
-                const newIndex = ids.indexOf(over.id);
-
-                return data.map((x, i) => i === index ?
-                    {
-                        ...x, ids:
-                            arrayMove(data[index]?.items, oldIndex, newIndex).map(z => z.id),
-                        items: arrayMove(data[index]?.items, oldIndex, newIndex)
-                    } : x)
-            });
-        }
-    }
+        if (!active || !over || active.id === over.id) return;
+        setData(prev => {
+            const index = prev.findIndex(monthData =>
+                monthData.items.some(item => item.id === event.collisions[0].id)
+            );
+            if (index === -1) return prev;
+            const ids = dataIds(prev[index].items);
+            const oldIndex = ids.indexOf(active.id);
+            const newIndex = ids.indexOf(over.id);
+            const reordered = arrayMove(prev[index].items, oldIndex, newIndex);
+            return prev.map((x, i) => i === index
+                ? { ...x, ids: reordered.map(z => z.id), items: reordered }
+                : x
+            );
+        });
+    }, []);
 
     const sensors = useSensors(
-        useSensor(MouseSensor, {}),
-        useSensor(TouchSensor, {}),
-        useSensor(KeyboardSensor, {})
+        useSensor(MouseSensor, MOUSE_SENSOR_OPTIONS),
+        useSensor(TouchSensor, TOUCH_SENSOR_OPTIONS),
+        useSensor(KeyboardSensor, KEYBOARD_SENSOR_OPTIONS)
     );
 
-    const addItem = (month) => {
-
-        let newId = uuidv4();
-        const newItem1 = {
-            ...newItm, id: newId // Generates a unique ID
-        };
-
-        let newArr = data.map(z => z.month === month
+    const addItem = useCallback((month) => {
+        const newId = uuidv4();
+        const newItem1 = { ...newItm, id: newId };
+        setData(prev => prev.map(z => z.month === month
             ? { ...z, items: [...z.items, newItem1], ids: [...z.ids, newId] }
             : z
-        )
-        setData(newArr)
-    }
+        ));
+    }, []);
 
     const deleteRow = useCallback((e, i, month) => {
         setData(prev => prev.map(z => z.month === month ? {
@@ -244,47 +242,6 @@ const Margins = () => {
         })
     }, [])
 
-    useEffect(() => {
-        let dt = data.map(z => ({
-            ...z,
-            remaining: z.items.reduce((accumulator, current) => {
-                return accumulator + parseFloat(current.gis ? (current.remaining || 0) : 0)
-            }, 0),
-            totalMargin: z.items.reduce((accumulator, current) => {
-                return accumulator + parseFloat(current.gis ? (current.totalMargin || 0) : 0)
-            }, 0),
-            purchase: z.items.reduce((accumulator, current) => {
-                return accumulator + parseFloat(current.gis ? (current.purchase || 0) : 0)
-            }, 0),
-            openShip: z.items.reduce((accumulator, current) => {
-                return accumulator + parseFloat(current.gis ? (current.openShip * 1 || 0) : 0)
-            }, 0),
-        }))
-
-        setDataGIS(dt)
-
-        const total2 = dt.reduce((accumulator, item) => {
-            return accumulator + (parseFloat(item.purchase) || 0);
-        }, 0);
-        setPurchaseGIS(total2)
-
-        const total3 = dt.reduce((accumulator, item) => {
-            return accumulator + (parseFloat(item.totalMargin) || 0);
-        }, 0);
-        setTotalMarginGIS(total3)
-
-        const total4 = dt.reduce((accumulator, item) => {
-            return accumulator + (parseFloat(item.openShip) || 0);
-        }, 0);
-        setOutStandingShipGIS(total4)
-
-        const total5 = dt.reduce((accumulator, item) => {
-            return accumulator + (parseFloat(item.remaining) || 0);
-        }, 0);
-        setRemainingGIS(total5)
-
-    }, [data])
-
     const handleChangeSelect = useCallback((e, i, month, name) => {
         setData((prevData) =>
             prevData.map((z) =>
@@ -320,9 +277,9 @@ const Margins = () => {
         result && setToast({ show: true, text: 'Data successfully saved!', clr: 'success' })
     }
 
-    const deleteMonth = (month) => {
+    const deleteMonth = useCallback((month) => {
         setData(prev => prev.filter(z => z.month !== month));
-    }
+    }, []);
 
     return (
         <div className="w-full" style={{ background: "#f8fbff" }}>
@@ -387,7 +344,6 @@ const Margins = () => {
                                                         year={yr}
                                                         items={items}
                                                         openMonth={openMonth}
-                                                        data={data}
                                                         setData={setData}
                                                         uidCollection={uidCollection}
                                                         addItem={addItem}
