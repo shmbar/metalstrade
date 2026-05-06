@@ -429,12 +429,12 @@ const Customtable = ({
                   style={{
                     backgroundColor:
                       value === 'Paid'
-                        ? '#ede9fe'
+                        ? '#dcfce7'
                         : value === 'Unpaid'
-                        ? '#fce7f3'
+                        ? '#fef9c3'
                         : '#f8fbff',
-                    border: value ? '1px solid #d8e8f5' : 'none',
-                    color: 'var(--port-gore)'
+                    border: value ? `1px solid ${value === 'Paid' ? '#bbf7d0' : value === 'Unpaid' ? '#fde68a' : '#d8e8f5'}` : 'none',
+                    color: value === 'Paid' ? '#166534' : value === 'Unpaid' ? '#92400e' : 'var(--port-gore)'
                   }}
                 >
                   {value || '\u00A0'}
@@ -448,11 +448,12 @@ const Customtable = ({
                     style={{
                       backgroundColor:
                         value === 'Paid'
-                          ? '#ede9fe'
+                          ? '#dcfce7'
                           : value === 'Not Paid'
-                          ? '#fce7f3'
+                          ? '#fef9c3'
                           : '#f8fbff',
-                      border: '1px solid #d8e8f5',
+                      border: `1px solid ${value === 'Paid' ? '#bbf7d0' : value === 'Not Paid' ? '#fde68a' : '#d8e8f5'}`,
+                      color: value === 'Paid' ? '#166534' : value === 'Not Paid' ? '#92400e' : 'var(--port-gore)',
                       whiteSpace: 'nowrap',
                     }}
                   >

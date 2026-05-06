@@ -392,9 +392,9 @@ const Customtable = ({
                                 <div
                                   className="px-3 py-1 rounded-xl responsiveTextTable font-normal"
                                   style={{
-                                    backgroundColor: value ? '#dcfce7' : '#fee2e2',
-                                    color: value ? '#16a34a' : '#dc2626',
-                                    border: `1px solid ${value ? '#bbf7d0' : '#fecaca'}`
+                                    backgroundColor: value ? '#dcfce7' : '#fce7f3',
+                                    color: value ? '#166534' : '#be185d',
+                                    border: `1px solid ${value ? '#bbf7d0' : '#fbcfe8'}`
                                   }}
                                 >
                                   {value ? 'Completed' : 'Incompleted'}
@@ -407,12 +407,12 @@ const Customtable = ({
                                   style={{
                                     backgroundColor:
                                       value === 'Paid'
-                                        ? '#ede9fe'
+                                        ? '#dcfce7'
                                         : value === 'Unpaid'
-                                        ? '#fce7f3'
+                                        ? '#fef9c3'
                                         : '#f8fbff',
-                                    border: value ? `1px solid ${value === 'Paid' ? '#ddd6fe' : value === 'Unpaid' ? '#fbcfe8' : '#cecece'}` : 'none',
-                                    color: value === 'Paid' ? '#7c3aed' : value === 'Unpaid' ? '#be185d' : 'var(--port-gore)'
+                                    border: value ? `1px solid ${value === 'Paid' ? '#bbf7d0' : value === 'Unpaid' ? '#fde68a' : '#cecece'}` : 'none',
+                                    color: value === 'Paid' ? '#166534' : value === 'Unpaid' ? '#92400e' : 'var(--port-gore)'
                                   }}
                                 >
                                   {value || '\u00A0'}
@@ -426,14 +426,17 @@ const Customtable = ({
                                     const isUSD = val === 'USD' || val === '$' || val.toLowerCase() === 'us';
                                     const isEUR = val === 'EUR' || val === '€' || val.toLowerCase() === 'eu';
                                     const symbol = isUSD ? '$' : isEUR ? '€' : val;
-                                    const bg = isUSD ? '#c2e2bb' : isEUR ? '#d4eafc' : '#e5e7eb';
+                                    const bg = isUSD ? '#dcfce7' : isEUR ? '#dbeeff' : '#e5e7eb';
+                                    const border = isUSD ? '1px solid #bbf7d0' : isEUR ? '1px solid #b8ddf8' : '1px solid #d1d5db';
+                                    const color = isUSD ? '#166534' : 'var(--chathams-blue)';
 
                                     return (
                                       <span
                                         className="rounded-full responsiveTextTable font-medium"
                                         style={{
                                           backgroundColor: bg,
-                                          color: 'var(--chathams-blue)',
+                                          color: color,
+                                          border: border,
                                           borderRadius: '999px',
                                           padding: '2px 12px',
                                           minWidth: '30px',

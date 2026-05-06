@@ -372,9 +372,9 @@ const Customtable = ({
                                   <div
                                     className="px-3 py-1 rounded-xl responsiveTextTable font-normal flex items-center justify-center"
                                     style={{
-                                      backgroundColor: val === 'Paid' ? '#ede9fe' : val === 'Unpaid' ? '#fce7f3' : '#f8fbff',
-                                      border: val ? `1px solid ${val === 'Paid' ? '#ddd6fe' : val === 'Unpaid' ? '#fbcfe8' : '#cecece'}` : 'none',
-                                      color: val === 'Paid' ? '#7c3aed' : val === 'Unpaid' ? '#be185d' : 'var(--port-gore)'
+                                      backgroundColor: val === 'Paid' ? '#dcfce7' : val === 'Unpaid' ? '#fef9c3' : '#f8fbff',
+                                      border: val ? `1px solid ${val === 'Paid' ? '#bbf7d0' : val === 'Unpaid' ? '#fde68a' : '#cecece'}` : 'none',
+                                      color: val === 'Paid' ? '#166534' : val === 'Unpaid' ? '#92400e' : 'var(--port-gore)'
                                     }}
                                   >
                                     {val || '\u00A0'}

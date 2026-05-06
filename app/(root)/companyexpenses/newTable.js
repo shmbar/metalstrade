@@ -418,12 +418,12 @@ const Customtable = ({
                     className="px-3 py-1.5 rounded-xl responsiveTextTable font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
                     style={{
                       backgroundColor:
-                        value === 'Paid' ? '#ede9fe' :
-                        value === 'Unpaid' ? '#fce7f3' : '#f8fbff',
+                        value === 'Paid' ? '#dcfce7' :
+                        value === 'Unpaid' ? '#fef9c3' : '#f8fbff',
                       color:
-                        value === 'Paid' ? '#7c3aed' :
-                        value === 'Unpaid' ? '#be185d' : 'var(--port-gore)',
-                      border: `1px solid ${value === 'Paid' ? '#ddd6fe' : value === 'Unpaid' ? '#fbcfe8' : '#d8e8f5'}`,
+                        value === 'Paid' ? '#166534' :
+                        value === 'Unpaid' ? '#92400e' : 'var(--port-gore)',
+                      border: `1px solid ${value === 'Paid' ? '#bbf7d0' : value === 'Unpaid' ? '#fde68a' : '#d8e8f5'}`,
                       fontWeight: value === 'Paid' || value === 'Unpaid' ? '600' : '400',
                       ...(isEditMode && { boxShadow: 'inset 0 0 0 1px #d1d1d1' })
                     }}

@@ -302,17 +302,20 @@ const Invoices = () => {
 			accessorKey: 'cur',
 			header: '$/€',
 			cell: (props) => {
-				const val = props.getValue();
-				const isUSD = val === 'USD' || val === '$';
-				const isEUR = val === 'EUR' || val === '€';
-				const symbol = isUSD ? '$' : isEUR ? '€' : val;
-				const bg = isUSD ? '#c2e2bb' : isEUR ? '#d4eafc' : '#e5e7eb';
-				const color = 'var(--chathams-blue)';
+				const id = props.getValue();
+				const cur = settings?.Currency?.Currency?.find(c => c.id === id)?.cur || id || '';
+				const isUSD = cur === 'USD' || cur === '$' || cur.toLowerCase() === 'us';
+				const isEUR = cur === 'EUR' || cur === '€' || cur.toLowerCase() === 'eu';
+				const symbol = isUSD ? '$' : isEUR ? '€' : cur;
+				const bg = isUSD ? '#dcfce7' : isEUR ? '#dbeeff' : '#e5e7eb';
+				const border = isUSD ? '1px solid #bbf7d0' : isEUR ? '1px solid #b8ddf8' : '1px solid #d1d5db';
+				const color = isUSD ? '#166534' : 'var(--chathams-blue)';
 				return (
 					<span
 						style={{
 							backgroundColor: bg,
 							color: color,
+							border: border,
 							borderRadius: '999px',
 							padding: '3px 14px',
 							fontWeight: 500,
@@ -393,17 +396,23 @@ const Invoices = () => {
 		{
 			accessorKey: 'completed',
 			header: 'Completed',
-			cell: (props) => <span className="flex justify-center">{props.getValue() ? <Image
-				src="/check.png"
-				width={18}
-				height={18}
-				alt="True"
-			/> : <Image
-				src="/close.png"
-				width={18}
-				height={18}
-				alt="False"
-			/>}</span>,
+			cell: (props) => {
+				const value = props.getValue();
+				return (
+					<div className="flex justify-center">
+						<div
+							className="px-3 py-1 rounded-xl responsiveTextTable font-normal"
+							style={{
+								backgroundColor: value ? '#dcfce7' : '#fce7f3',
+								color: value ? '#166534' : '#be185d',
+								border: `1px solid ${value ? '#bbf7d0' : '#fbcfe8'}`
+							}}
+						>
+							{value ? 'Completed' : 'Incompleted'}
+						</div>
+					</div>
+				);
+			},
 			enableColumnFilter: false,
 			size: 100
 		},

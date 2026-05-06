@@ -5,71 +5,71 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
     const cards = [
         {
             label: "Incoming:",
-            value: <NumericFormat 
-                value={incoming} 
-                displayType="text" 
-                thousandSeparator 
-                allowNegative 
-                prefix={'$'} 
-                decimalScale={2} 
-                fixedDecimalScale 
+            value: <NumericFormat
+                value={incoming}
+                displayType="text"
+                thousandSeparator
+                allowNegative
+                prefix={'$'}
+                decimalScale={2}
+                fixedDecimalScale
                 style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--chathams-blue)' }}
             />,
-            bgGradient: 'linear-gradient(135deg, #0ea5e9, #0284c7)'
+            bg: '#dbeeff', border: '#b8ddf8', color: 'var(--chathams-blue)'
         },
         {
             label: "Outstanding shipment:",
-            value: <NumericFormat 
-                value={outStandingShip} 
-                displayType="text" 
-                thousandSeparator 
-                allowNegative 
-                prefix={'$'} 
-                decimalScale={0} 
-                fixedDecimalScale={false} 
-                style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--chathams-blue)' }}
+            value: <NumericFormat
+                value={outStandingShip}
+                displayType="text"
+                thousandSeparator
+                allowNegative
+                prefix={'$'}
+                decimalScale={0}
+                fixedDecimalScale={false}
+                style={{ fontSize: '0.75rem', fontWeight: '700', color: '#92400e' }}
             />,
-            bgGradient: 'linear-gradient(135deg, #3abef8, #0ea5e9)'
+            bg: '#fef9c3', border: '#fde68a', color: '#92400e'
         },
         {
             label: "Quantity (MT):",
-            value: <NumericFormat 
-                value={purchase} 
-                displayType="text" 
-                thousandSeparator 
-                allowNegative 
-                decimalScale={0} 
-                fixedDecimalScale={false} 
-                style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--chathams-blue)' }}
+            value: <NumericFormat
+                value={purchase}
+                displayType="text"
+                thousandSeparator
+                allowNegative
+                decimalScale={0}
+                fixedDecimalScale={false}
+                style={{ fontSize: '0.75rem', fontWeight: '700', color: '#7c3aed' }}
             />,
-            bgGradient: 'linear-gradient(135deg, #77d1fc, #3abef8)'
+            bg: '#ede9fe', border: '#ddd6fe', color: '#7c3aed'
         },
         {
             label: "Profits:",
-            value: <NumericFormat 
-                value={totalMargin} 
-                displayType="text" 
-                thousandSeparator 
-                allowNegative 
-                prefix={'$'} 
-                decimalScale={0} 
-                fixedDecimalScale={false} 
-                style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--chathams-blue)' }}
+            value: <NumericFormat
+                value={totalMargin}
+                displayType="text"
+                thousandSeparator
+                allowNegative
+                prefix={'$'}
+                decimalScale={0}
+                fixedDecimalScale={false}
+                style={{ fontSize: '0.75rem', fontWeight: '700', color: '#166534' }}
             />,
-            bgGradient: 'linear-gradient(135deg, #6366f1, #4f46e5)'
+            bg: '#dcfce7', border: '#bbf7d0', color: '#166534'
         },
         {
             label: "Shipped:",
-            value: <NumericFormat 
-                value={shipped} 
-                displayType="text" 
-                thousandSeparator 
-                allowNegative 
-                decimalScale={0} 
-                fixedDecimalScale={false} 
-                style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--chathams-blue)' }}
+            value: <NumericFormat
+                value={shipped}
+                displayType="text"
+                thousandSeparator
+                allowNegative
+                decimalScale={0}
+                fixedDecimalScale={false}
+                style={{ fontSize: '0.75rem', fontWeight: '700', color: '#be185d' }}
             />,
-            bgGradient: 'linear-gradient(135deg, #828df8, #6366f1)'
+            bg: '#fce7f3', border: '#fbcfe8', color: '#be185d'
         },
     ];
 
@@ -99,15 +99,17 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                         {cards.map((card, idx) => (
                             <div
                                 key={idx}
-                                className="stats-card min-w-0 flex flex-col items-center justify-center rounded-full shadow-lg border border-[#b8ddf8] backdrop-blur-sm bg-white py-1 px-2"
+                                className="stats-card min-w-0 flex flex-col items-center justify-center rounded-full shadow-lg backdrop-blur-sm py-1 px-2"
                                 style={{
+                                    backgroundColor: card.bg,
+                                    border: `1px solid ${card.border}`,
                                     boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1), 0 0 1px rgba(255, 255, 255, 0.2) inset',
                                 }}
                             >
-                                <span className="responsiveTextTable font-medium text-[var(--endeavour)] text-center px-1">
+                                <span className="responsiveTextTable font-medium text-center px-1" style={{ color: card.color }}>
                                     {card.label}
                                 </span>
-                                <div className="responsiveTextTable font-medium text-[var(--endeavour)] text-center">
+                                <div className="responsiveTextTable font-medium text-center" style={{ color: card.color }}>
                                     {card.value}
                                 </div>
 
@@ -121,13 +123,13 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                             {cards.map((card, idx) => (
                                 <div
                                     key={idx}
-                                    className="stats-card flex flex-col items-center justify-center rounded-full bg-white py-1 px-1 shadow-lg border border-[#b8ddf8]"
-                                    style={{ boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)' }}
+                                    className="stats-card flex flex-col items-center justify-center rounded-full py-1 px-1 shadow-lg"
+                                    style={{ backgroundColor: card.bg, border: `1px solid ${card.border}`, boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)' }}
                                 >
-                                    <span className="responsiveTextTable font-medium text-[var(--endeavour)] text-center px-1">
+                                    <span className="responsiveTextTable font-medium text-center px-1" style={{ color: card.color }}>
                                         {card.label}
                                     </span>
-                                    <div className="responsiveTextTable font-medium text-[var(--endeavour)] text-center">
+                                    <div className="responsiveTextTable font-medium text-center" style={{ color: card.color }}>
                                         {card.value}
                                     </div>
                                 </div>

@@ -325,9 +325,9 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                     else if (cell.getValue() === 'Incompleted')
                                                         badgeConfig = { bg: '#fee2e2', color: '#dc2626', label: 'Incompleted' };
                                                     else if (cell.getValue() === 'Paid')
-                                                        badgeConfig = { bg: '#ede9fe', color: '#7c3aed', label: 'Paid' };
+                                                        badgeConfig = { bg: '#dcfce7', color: '#166534', border: '#bbf7d0', label: 'Paid' };
                                                     else if (cell.getValue() === 'Unpaid')
-                                                        badgeConfig = { bg: '#fce7f3', color: '#be185d', label: 'Unpaid' };
+                                                        badgeConfig = { bg: '#fef9c3', color: '#92400e', border: '#fde68a', label: 'Unpaid' };
                                                 }
 
                                                 return (
@@ -347,7 +347,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                                     style={{
                                                                         backgroundColor: badgeConfig.bg,
                                                                         color: badgeConfig.color,
-                                                                        border: '1px solid #d8e8f5'
+                                                                        border: `1px solid ${badgeConfig.border || '#d8e8f5'}`
                                                                     }}
                                                                 >
                                                                     {badgeConfig.label}

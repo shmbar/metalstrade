@@ -1216,9 +1216,9 @@ const Customtable = ({
                               <div className="flex justify-center">
                                 <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px] text-center"
                                   style={{
-                                    backgroundColor: isUnpaidValue ? '#fce7f3' : isPaidValue ? '#ede9fe' : '#f8fbff',
-                                    color: isPaidValue ? '#7c3aed' : isUnpaidValue ? '#be185d' : 'var(--port-gore)',
-                                    border: `1px solid ${isPaidValue ? '#ddd6fe' : isUnpaidValue ? '#fbcfe8' : '#cecece'}`,
+                                    backgroundColor: isUnpaidValue ? '#fef9c3' : isPaidValue ? '#dcfce7' : '#f8fbff',
+                                    color: isPaidValue ? '#166534' : isUnpaidValue ? '#92400e' : 'var(--port-gore)',
+                                    border: `1px solid ${isPaidValue ? '#bbf7d0' : isUnpaidValue ? '#fde68a' : '#cecece'}`,
                                     fontWeight: isPaidValue || isUnpaidValue ? '600' : '400'
                                   }}>
                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -1228,12 +1228,15 @@ const Customtable = ({
                               <div className="flex justify-center">
                                 {isCurrency && hasValue ? (
                                   (() => {
-                                    const bg = isUSDValue ? '#c2e2bb' : isEURValue ? '#d4eafc' : '#e5e7eb'
+                                    const bg = isUSDValue ? '#dcfce7' : isEURValue ? '#dbeeff' : '#e5e7eb'
+                                    const border = isUSDValue ? '1px solid #bbf7d0' : isEURValue ? '1px solid #b8ddf8' : '1px solid #d1d5db'
+                                    const color = isUSDValue ? '#166534' : 'var(--chathams-blue)'
                                     return (
                                       <span className="rounded-full responsiveTextTable font-medium"
                                         style={{
                                           backgroundColor: bg,
-                                          color: 'var(--chathams-blue)',
+                                          color: color,
+                                          border: border,
                                           borderRadius: '999px',
                                           padding: '2px 12px',
                                           minWidth: '30px',
@@ -1368,10 +1371,10 @@ const Customtable = ({
                               <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
                                 style={{
                                   backgroundColor:
-                                    isUnpaidValue ? '#fce7f3' :
-                                    isPaidValue ? '#ede9fe' : '#f8fbff',
-                                  color: isPaidValue ? '#7c3aed' : isUnpaidValue ? '#be185d' : 'var(--chathams-blue)',
-                                  border: '1px solid #d8e8f5'
+                                    isUnpaidValue ? '#fef9c3' :
+                                    isPaidValue ? '#dcfce7' : '#f8fbff',
+                                  color: isPaidValue ? '#166534' : isUnpaidValue ? '#92400e' : 'var(--chathams-blue)',
+                                  border: isPaidValue ? '1px solid #bbf7d0' : isUnpaidValue ? '1px solid #fde68a' : '1px solid #d8e8f5'
                                 }}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                               </div>
@@ -1379,10 +1382,10 @@ const Customtable = ({
                               <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
                                 style={{
                                   backgroundColor:
-                                    isUSDValue ? '#b6dfb7' :
-                                    isEURValue ? '#bce1fe' : '#e5e7eb',
-                                  color: 'var(--chathams-blue)',
-                                  border: '1px solid #d8e8f5'
+                                    isUSDValue ? '#dcfce7' :
+                                    isEURValue ? '#dbeeff' : '#e5e7eb',
+                                  color: isUSDValue ? '#166534' : 'var(--chathams-blue)',
+                                  border: isUSDValue ? '1px solid #bbf7d0' : isEURValue ? '1px solid #b8ddf8' : '1px solid #d1d5db'
                                 }}>
                                 {isUSDValue ? '$' :
                                  isEURValue ? '€' :

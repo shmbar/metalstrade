@@ -634,19 +634,19 @@ const Accounting = () => {
                     alignItems: 'center',
                     flexWrap: 'nowrap',
                     gap: '8px',
-                    background: '#ffffff',
+                    background: '#ede9fe',
                     borderRadius: '999px',
                     padding: '7px 14px',
-                    border: '1.5px solid #bfdbfe',
+                    border: '1.5px solid #ddd6fe',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <FaWallet className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--endeavour)' }} />
-                  <span className="responsiveText" style={{ color: 'var(--endeavour)', fontWeight: 500 }}>
+                  <FaWallet className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#7c3aed' }} />
+                  <span className="responsiveText" style={{ color: '#7c3aed', fontWeight: 500 }}>
                     {formatCurrency(totals.balance)}
                   </span>
-                  <span className="responsiveTextTable" style={{ color: 'var(--endeavour)', fontWeight: 400 }}>
+                  <span className="responsiveTextTable" style={{ color: '#7c3aed', fontWeight: 400 }}>
                     My Balance
                   </span>
                 </div>
@@ -658,19 +658,19 @@ const Accounting = () => {
                     alignItems: 'center',
                     flexWrap: 'nowrap',
                     gap: '8px',
-                    background: '#ffffff',
+                    background: '#fef9c3',
                     borderRadius: '999px',
                     padding: '7px 14px',
-                    border: '1.5px solid #c7d2fe',
+                    border: '1.5px solid #fde68a',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <FaArrowTrendUp className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--endeavour)' }} />
-                  <span className="responsiveText" style={{ color: 'var(--endeavour)', fontWeight: 500 }}>
+                  <FaArrowTrendUp className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#92400e' }} />
+                  <span className="responsiveText" style={{ color: '#92400e', fontWeight: 500 }}>
                     {formatCurrency(totals.totalIncome)}
                   </span>
-                  <span className="responsiveTextTable" style={{ color: 'var(--endeavour)', fontWeight: 400 }}>
+                  <span className="responsiveTextTable" style={{ color: '#92400e', fontWeight: 400 }}>
                     Income
                   </span>
                 </div>
@@ -682,19 +682,19 @@ const Accounting = () => {
                     alignItems: 'center',
                     flexWrap: 'nowrap',
                     gap: '8px',
-                    background: '#ffffff',
+                    background: '#fce7f3',
                     borderRadius: '999px',
                     padding: '7px 14px',
-                    border: '1.5px solid #fecaca',
+                    border: '1.5px solid #fbcfe8',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <FaArrowTrendDown className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#EF4444' }} />
-                  <span className="responsiveText" style={{ color: '#EF4444', fontWeight: 500 }}>
+                  <FaArrowTrendDown className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#be185d' }} />
+                  <span className="responsiveText" style={{ color: '#be185d', fontWeight: 500 }}>
                     {formatCurrency(totals.totalExpense)}
                   </span>
-                  <span className="responsiveTextTable" style={{ color: '#EF4444', fontWeight: 400 }}>
+                  <span className="responsiveTextTable" style={{ color: '#be185d', fontWeight: 400 }}>
                     Expense
                   </span>
                 </div>
@@ -706,19 +706,19 @@ const Accounting = () => {
                     alignItems: 'center',
                     flexWrap: 'nowrap',
                     gap: '8px',
-                    background: '#ffffff',
+                    background: '#dcfce7',
                     borderRadius: '999px',
                     padding: '7px 14px',
-                    border: '1.5px solid #a7f3d0',
+                    border: '1.5px solid #bbf7d0',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <FaPiggyBank className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#10B981' }} />
-                  <span className="responsiveText" style={{ color: '#10B981', fontWeight: 500 }}>
+                  <FaPiggyBank className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#166534' }} />
+                  <span className="responsiveText" style={{ color: '#166534', fontWeight: 500 }}>
                     {formatCurrency(totals.savings)}
                   </span>
-                  <span className="responsiveTextTable" style={{ color: '#10B981', fontWeight: 400 }}>
+                  <span className="responsiveTextTable" style={{ color: '#166534', fontWeight: 400 }}>
                     Savings
                   </span>
                 </div>
