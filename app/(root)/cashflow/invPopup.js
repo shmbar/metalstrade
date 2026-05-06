@@ -78,8 +78,8 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
     const statusBg = balance === 0 ? '#dcfce7' : paid > 0 ? '#fef3c7' : '#fee2e2';
     const statusFg = balance === 0 ? '#16a34a' : paid > 0 ? '#d97706' : '#dc2626';
 
-    const TH = 'text-left text-[10px] font-semibold py-1 px-2';
-    const TH_R = 'text-right text-[10px] font-semibold py-1 px-2';
+    const TH = 'text-left text-[10px] font-semibold py-2 px-2 text-white';
+    const TH_R = 'text-right text-[10px] font-semibold py-2 px-2 text-white';
     const TD = 'text-left text-[10px] py-1 px-2 align-top';
     const TD_R = 'text-right text-[10px] py-1 px-2 align-top';
 
@@ -173,38 +173,43 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
 
                         {/* Shipment (from contract) */}
                         {(shipDisplay || originDisplay || delTermDisplay || polDisplay || podDisplay || packingDisplay || c.ttlGross) && (
-                            <div style={{ borderRadius: '4px', marginBottom: '12px' }}>
-                                <table style={{ width: '100%', fontSize: '10px', borderCollapse: 'collapse' }}>
-                                    <tbody>
-                                        <tr style={{}}>
-                                            <td style={{ padding: '4px 10px', fontWeight: '700', width: '14%' }}>Shipment:</td>
-                                            <td style={{ padding: '4px 10px', width: '19%' }}>{shipDisplay}</td>
-                                            <td style={{ padding: '4px 10px', fontWeight: '700', width: '8%' }}>POL:</td>
-                                            <td style={{ padding: '4px 10px', width: '19%' }}>{polDisplay}</td>
-                                            <td colSpan={2} style={{ padding: '4px 10px', width: '40%' }}><span style={{ fontWeight: '700', paddingRight: '12px' }}>Net WT Kgs:</span>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td>
-                                        </tr>
-                                        <tr style={{}}>
-                                            <td style={{ padding: '4px 10px', fontWeight: '700' }}>Origin:</td>
-                                            <td style={{ padding: '4px 10px' }}>{originDisplay}</td>
-                                            <td style={{ padding: '4px 10px', fontWeight: '700' }}>POD:</td>
-                                            <td style={{ padding: '4px 10px' }}>{podDisplay}</td>
-                                            <td colSpan={2} style={{ padding: '4px 10px' }}><span style={{ fontWeight: '700', paddingRight: '12px' }}>Tare WT Kgs:</span>{c.ttlGross ? TotalTarre : ''}</td>
-                                        </tr>
-                                        <tr>
-                                            <td style={{ padding: '4px 10px', fontWeight: '700' }}>Delivery Terms:</td>
-                                            <td style={{ padding: '4px 10px' }}>{delTermDisplay}</td>
-                                            <td style={{ padding: '4px 10px', fontWeight: '700' }}>Packing:</td>
-                                            <td style={{ padding: '4px 10px' }}>{packingDisplay}</td>
-                                            <td colSpan={2} style={{ padding: '4px 10px' }}><span style={{ fontWeight: '700', paddingRight: '12px' }}>Gross WT Kgs:</span>{c.ttlGross ? TotalGross : ''}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div style={{ marginBottom: '48px', fontSize: '10px', display: 'flex', color: '#203764' }}>
+                                {/* Left: Shipment / Origin / Delivery Terms */}
+                                <div style={{ flex: '0 0 34%' }}>
+                                    <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                                        <tbody>
+                                            {shipDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Shipment:</td><td style={{ paddingBottom: '3px' }}>{shipDisplay}</td></tr>}
+                                            {originDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Origin:</td><td style={{ paddingBottom: '3px' }}>{originDisplay}</td></tr>}
+                                            {delTermDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Delivery Terms:</td><td style={{ paddingBottom: '3px' }}>{delTermDisplay}</td></tr>}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {/* Middle: POL / POD / Packing */}
+                                <div style={{ flex: '0 0 35%' }}>
+                                    <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                                        <tbody>
+                                            {polDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POL:</td><td style={{ paddingBottom: '3px' }}>{polDisplay}</td></tr>}
+                                            {podDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POD:</td><td style={{ paddingBottom: '3px' }}>{podDisplay}</td></tr>}
+                                            {packingDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Packing:</td><td style={{ paddingBottom: '3px' }}>{packingDisplay}</td></tr>}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {/* Right: WT values */}
+                                <div style={{ flex: '0 0 31%' }}>
+                                    <table style={{ borderCollapse: 'collapse' }}>
+                                        <tbody>
+                                            <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Net WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td></tr>
+                                            {c.ttlGross && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Tare WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{TotalTarre}</td></tr>}
+                                            {c.ttlGross && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Gross WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{TotalGross}</td></tr>}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         )}
 
                         {/* Products from contract */}
                         {products.length > 0 && (
-                            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4px', fontSize: '10px' }}>
+                            <table className="inv-preview-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4px', fontSize: '10px' }}>
                                 <thead>
                                     <tr style={{ background: '#096eb6', color: '#fff' }}>
                                         <th className={TH} style={{ width: '5%' }}>#</th>
@@ -236,8 +241,8 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                             <tbody>
                                 <tr>
                                     <td colSpan={3} />
-                                    <td className={TD_R} style={{ fontWeight: '700', paddingTop: '6px', borderTop: '1px solid #203764', width: '15%' }}>Total Amount:</td>
-                                    <td className={TD_R} style={{ fontWeight: '700', paddingTop: '6px', borderTop: '1px solid #203764', width: '15%' }}>{fmtAmt(total)}</td>
+                                    <td className="text-left text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px', whiteSpace: 'nowrap', width: '15%' }}>Total Amount:</td>
+                                    <td className="text-right text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px', width: '15%' }}>{fmtAmt(total)}</td>
                                 </tr>
                             </tbody>
                         </table>
