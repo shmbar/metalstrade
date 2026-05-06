@@ -919,8 +919,9 @@ const Cashflow = () => {
                                                         <div className="flex gap-2 my-1 items-center" key={i}>
                                                             <input className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold items-center flex outline-none w-44 truncate text-[var(--chathams-blue)]" value={z.title}
                                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
-                                                            <input className='input w-44 h-6 responsiveTextTotal rounded-full'
-                                                                value={addComma(z.num)} onChange={e => handleChangeInitial(e, i, 'num')} />
+                                                            <NumericFormat className='input w-44 h-6 responsiveTextTotal rounded-full'
+                                                                value={z.num} thousandSeparator allowNegative={false} decimalScale={2}
+                                                                onValueChange={values => handleChangeInitial({ target: { value: values.value } }, i, 'num')} />
                                                             <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-md hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
                                                         </div>
                                                     )
@@ -1206,9 +1207,10 @@ const Cashflow = () => {
                                                                                 <input className={cn('items-center flex-1 min-w-0 outline-none h-6 bg-transparent text-[var(--chathams-blue)]',
                                                                                     z.title === '' ? 'input' : '')} value={z.title}
                                                                                     onChange={e => handleChangeFinance(e, i, 'left', 'title')} />
-                                                                                <input className={cn('h-6 bg-transparent w-24 flex-shrink-0 text-[var(--chathams-blue)]',
+                                                                                <NumericFormat className={cn('h-6 bg-transparent w-24 flex-shrink-0 text-[var(--chathams-blue)]',
                                                                                     z.num === '' ? 'input text-left' : 'text-right outline-none')}
-                                                                                    value={addComma(z.num)} onChange={e => handleChangeFinance(e, i, 'left', 'num')}
+                                                                                    value={z.num} thousandSeparator allowNegative={false} decimalScale={2}
+                                                                                    onValueChange={values => handleChangeFinance({ target: { value: values.value } }, i, 'left', 'num')}
                                                                                 />
 
                                                                             </div>
@@ -1447,9 +1449,10 @@ const Cashflow = () => {
                                                                                 <input className={cn('items-center flex-1 min-w-0 outline-none h-6 text-[var(--chathams-blue)] bg-transparent',
                                                                                     z.title === '' ? 'input' : '')}
                                                                                     value={z.title} onChange={e => handleChangeFinance(e, i, 'right', 'title')} />
-                                                                                <input className={cn('w-24 flex-shrink-0 h-6 text-[var(--chathams-blue)] outline-none bg-transparent',
+                                                                                <NumericFormat className={cn('w-24 flex-shrink-0 h-6 text-[var(--chathams-blue)] outline-none bg-transparent',
                                                                                     z.num === '' ? 'input text-left' : 'text-right')}
-                                                                                    value={addComma(z.num)} onChange={e => handleChangeFinance(e, i, 'right', 'num')} />
+                                                                                    value={z.num} thousandSeparator allowNegative={false} decimalScale={2}
+                                                                                    onValueChange={values => handleChangeFinance({ target: { value: values.value } }, i, 'right', 'num')} />
                                                                             </div>
                                                                         )
                                                                     })}
@@ -1542,10 +1545,11 @@ const Cashflow = () => {
                                                         return (
                                                             <div className="flex gap-2 my-1" key={z}>
                                                                 <span className="responsiveText items-center flex w-28 text-[var(--chathams-blue)] whitespace-nowrap font-medium">Total for {z}</span>
-                                                                <input
+                                                                <NumericFormat
                                                                     className='input w-44 h-6 responsiveText font-medium text-[var(--chathams-blue)] text-right px-3 bg-[#f8fbff] border-[#d8e8f5] rounded-full'
-                                                                    value={addComma(totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || '')}
-                                                                    onChange={e => handleChange(e, z)}
+                                                                    value={totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || ''}
+                                                                    thousandSeparator allowNegative={false} decimalScale={2}
+                                                                    onValueChange={values => handleChange({ target: { value: values.value } }, z)}
                                                                 />
                                                             </div>
                                                         )
