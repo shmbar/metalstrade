@@ -1,6 +1,7 @@
 'use client'
 import { useRef, useEffect, useCallback } from 'react';
 import Datepicker from "react-tailwindcss-datepicker";
+import Tltip from "../../../../components/tlTip";
 
 const getDateValue = (props) =>
     typeof props.getValue === 'function' ? props.getValue() : props.value;
@@ -19,9 +20,14 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
     const handleChange = (newValue) => {
         if (newValue?.startDate) {
             handleChangeDate(new Date(newValue.startDate), props.row.index, month);
-        } else {
-            handleCancelDate(null, props.row.index, month);
         }
+        // Intentionally ignore null events — the library fires null when clicking
+        // an already-selected date (toggle behaviour). We use a separate clear
+        // button so the user can always re-pick the same date without it clearing.
+    };
+
+    const handleClear = () => {
+        handleCancelDate(null, props.row.index, month);
     };
 
     const repositionPopup = useCallback(() => {
@@ -88,8 +94,8 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
     }, [repositionPopup]);
 
     return (
-        <div className="flex items-center gap-1" ref={containerRef}>
-            <div className="w-fit">
+        <div className="relative flex items-center justify-center">
+            <div ref={containerRef}>
                 <Datepicker
                     asSingle={true}
                     useRange={false}
@@ -106,6 +112,17 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
                     popoverDirection="down"
                 />
             </div>
+            {dateVal?.startDate && (
+                <Tltip direction="top" tltpText="Clear date">
+                    <button
+                        onClick={handleClear}
+                        className="absolute top-0 right-0 text-[var(--endeavour)] hover:text-red-500 transition-colors z-10 font-medium leading-none"
+                        style={{ fontSize: '0.75rem', padding: '1px 2px' }}
+                    >
+                        ×
+                    </button>
+                </Tltip>
+            )}
         </div>
     );
 };

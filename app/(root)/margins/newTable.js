@@ -45,8 +45,8 @@ import Tltip from "../../../components/tlTip";
 
 // Percentage-based widths so table fills available space responsively
 const COLUMN_CONFIGS = {
-    'drag-handle': { pct: '3%',  align: 'center' },
-    'date':        { pct: '5%',  align: 'center' },
+    'drag-handle': { pct: '2%',  align: 'center' },
+    'date':        { pct: '6%',  align: 'center' },
     'purchase':    { pct: '6%',  align: 'right'  },
     'description': { pct: '16%', align: 'left'   },
     'supplier':    { pct: '12%', align: 'left'   },
