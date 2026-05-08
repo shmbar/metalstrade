@@ -145,7 +145,7 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
             totalObj['ind'] = parseFloat(key) //row number
             totalObj['qnty'] = totalObj.qnty === 0 ? totalObj.qnty : parseFloat(totalObj.qnty).toFixed(3)
 
-            if (totalObj.qnty * 1 !== 0) newArr.push(totalObj);
+            if (totalObj.qnty * 1 > 0) newArr.push(totalObj);
 
         }
 

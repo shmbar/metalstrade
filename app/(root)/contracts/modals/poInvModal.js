@@ -98,7 +98,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                 let amnt = e.target.name === 'inv' ? item.invValue : removeNonNumeric(e.target.value)
 
                 return {
-                    ...newObj, pmnt: tmp, blnc: amnt - tmp
+                    ...newObj, pmnt: tmp, blnc: Math.round((amnt - tmp) * 100) / 100
                 };
             })
 
@@ -143,7 +143,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                     ...item,
                     payments,
                     pmnt: tmp,
-                    blnc: parseFloat(item.invValue) - tmp
+                    blnc: Math.round((parseFloat(item.invValue) - tmp) * 100) / 100
                 };
             })
         }));
@@ -174,7 +174,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                     ...item,
                     payments,
                     pmnt: tmp,
-                    blnc: parseFloat(item.invValue) - tmp
+                    blnc: Math.round((parseFloat(item.invValue) - tmp) * 100) / 100
                 };
             })
         }));
@@ -268,7 +268,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                 let newPmntArr = item.payments.filter(z => z.pmntId !== y.pmntId);
 
                 let tmp = newPmntArr.reduce((t, obj) => t + (parseFloat(obj.pmnt) || 0), 0)
-                return { ...item, payments: newPmntArr, pmnt: tmp, blnc: parseFloat(item.invValue) - tmp };
+                return { ...item, payments: newPmntArr, pmnt: tmp, blnc: Math.round((parseFloat(item.invValue) - tmp) * 100) / 100 };
             }
             return item;
         });
