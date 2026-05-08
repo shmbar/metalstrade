@@ -294,6 +294,7 @@ input::-webkit-inner-spin-button {
   border-bottom: 1.5px solid #b8ddf8;
   padding: 6px 8px;
   white-space: nowrap;
+  text-align: left;
 }
 
 .cashflow-detail-table tbody td {
@@ -314,12 +315,13 @@ input::-webkit-inner-spin-button {
   color: var(--chathams-blue);
   font-size: 0.72rem;
   border-top: 1.5px solid #b8ddf8;
+  text-align: left;
 }
 
 .cashflow-detail-table tbody td > div {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   vertical-align: middle;
 }
 
