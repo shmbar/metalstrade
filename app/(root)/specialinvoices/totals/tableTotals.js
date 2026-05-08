@@ -36,7 +36,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     vertical-align: middle !important;
                     padding: 8px 6px !important;
                     border: none;
-                    border-bottom: 1px solid #E5E7EB;
+                    border-bottom: 1px solid #d8e8f5;
                     background: #fff;
                 }
                 .glass-table th > *, .glass-table td > * {
@@ -58,6 +58,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     font-weight: 400;
                     text-align: center !important;
                     vertical-align: middle !important;
+                    border-bottom: 1px solid #b8ddf8;
                 }
                 .glass-table tbody tr:hover td {
                     background: var(--selago) !important;
@@ -66,11 +67,11 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                 }
                     .glass-table th,
 .glass-table td {
-    border-bottom: 1px solid #E5E7EB;
+    border-bottom: 1px solid #d8e8f5;
 }
 
 .glass-table th {
-    border-top: 1px solid #E5E7EB;
+    border-top: 1px solid #d8e8f5;
 }
 
 .glass-table tr:last-child td {
@@ -105,7 +106,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         >
 
                         <div
-                        className="responsiveTextTableTitle px-6 py-4 text-center font-normal font-poppins"
+                        className="responsiveTextTableTitle px-6 py-4 text-center font-medium font-poppins"
                         style={{
                             background: '#dbeeff',
                             color: 'var(--chathams-blue)'
@@ -180,6 +181,12 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
 
                     {/* Mobile Card View */}
                     <div className="block sm:hidden space-y-3 glass-table">
+                        <div
+                            className="responsiveTextTableTitle px-6 py-4 text-center font-medium font-poppins rounded-t-2xl"
+                            style={{ background: '#dbeeff', color: 'var(--chathams-blue)' }}
+                        >
+                            {title}
+                        </div>
                         {table1.getRowModel().rows.map(row => (
                             <div key={row.id} className="bg-white border border-[var(--selago)] rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
                                 {row.getVisibleCells().map(cell => (
