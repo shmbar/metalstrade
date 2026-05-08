@@ -38,7 +38,7 @@ export default function MyLayout({
 	return (
 		<main className="md:flex ">
 			<Idle />
-			<div className='hidden md:flex  drop-shadow-xl z-10 mx-auto'>
+			<div className='hidden md:flex shadow-xl z-10 mx-auto'>
 				<Sidebar />
 			</div>
 			<div className='md:hidden flex drop-shadow-xl z-30 fixed top-0 left-0 right-0 h-14'>

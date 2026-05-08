@@ -66,18 +66,19 @@ const MarginTable = memo(function MarginTable(props) {
   </DisclosureButton>
 
   <span
-    className="text-[var(--chathams-blue)] text-[13px]"
+    className="text-[var(--chathams-blue)] responsiveText font-medium"
   >
     {`${month}-${year}`}
   </span>
 
 </div>
 
+                            {!open && (
                             <div className="flex-1 min-w-[280px]">
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                     <div className="text-center">
                                         <div 
-                                            className="font-medium mb-0.5 responsiveTextTable font-poppins"
+                                            className="font-medium mb-0.5 responsiveText font-poppins"
                                             style={{
                                                 color: 'var(--endeavour)',
                                                                                                 lineHeight: '1.1'
@@ -86,7 +87,7 @@ const MarginTable = memo(function MarginTable(props) {
                                             Qty (MT)
                                         </div>
                                         <div
-                                            className="responsiveTextTable font-medium"
+                                            className="responsiveText font-medium"
                                         >
                                             <NumericFormat
                                                 value={purchase}
@@ -105,7 +106,7 @@ const MarginTable = memo(function MarginTable(props) {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-medium mb-0.5 responsiveTextTable font-poppins"
+                                            className="font-medium mb-0.5 responsiveText font-poppins"
                                             style={{
                                                 color: 'var(--endeavour)',
                                                                                                 lineHeight: '1.1'
@@ -114,7 +115,7 @@ const MarginTable = memo(function MarginTable(props) {
                                             Total Margin
                                         </div>
                                         <div
-                                            className="responsiveTextTable font-medium"
+                                            className="responsiveText font-medium"
                                         >
                                             <NumericFormat
                                                 value={totalMargin}
@@ -134,7 +135,7 @@ const MarginTable = memo(function MarginTable(props) {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-medium mb-0.5 responsiveTextTable font-poppins"
+                                            className="font-medium mb-0.5 responsiveText font-poppins"
                                             style={{
                                                 color: 'var(--endeavour)',
                                                                                                 lineHeight: '1.1'
@@ -143,7 +144,7 @@ const MarginTable = memo(function MarginTable(props) {
                                             Open Ship
                                         </div>
                                         <div
-                                            className="responsiveTextTable font-medium"
+                                            className="responsiveText font-medium"
                                         >
                                             <NumericFormat
                                                 value={totalOpenShip}
@@ -162,7 +163,7 @@ const MarginTable = memo(function MarginTable(props) {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-medium mb-0.5 responsiveTextTable font-poppins"
+                                            className="font-medium mb-0.5 responsiveText font-poppins"
                                             style={{
                                                 color: 'var(--endeavour)',
                                                                                                 lineHeight: '1.1'
@@ -171,7 +172,7 @@ const MarginTable = memo(function MarginTable(props) {
                                             Remaining
                                         </div>
                                         <div
-                                            className="responsiveTextTable font-medium"
+                                            className="responsiveText font-medium"
                                         >
                                             <NumericFormat
                                                 value={remaining}
@@ -190,6 +191,7 @@ const MarginTable = memo(function MarginTable(props) {
                                     </div>
                                 </div>
                             </div>
+                            )}
 
                             <div className="flex items-center gap-1.5">
                                 <button
