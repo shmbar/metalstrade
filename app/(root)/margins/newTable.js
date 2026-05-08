@@ -352,10 +352,13 @@ const Customtable = (props) => {
             sensors={sensors}
         >
             <div className="flex flex-col relative w-full">
+                <style jsx global>{`
+                    .margins-data-table td { font-size: 10px !important; }
+                `}</style>
                 <div className="rounded-lg border border-[var(--selago)] overflow-x-auto relative shadow-sm">
                     {/* Desktop Table - Compact Heights */}
                     <div className="hidden sm:block w-full min-w-[900px]">
-                        <Table className="w-full" style={{ borderSpacing: '0 1px', tableLayout: 'fixed' }}>
+                        <Table className="w-full margins-data-table" style={{ borderSpacing: '0 1px', tableLayout: 'fixed' }}>
                             <TableHeader>
                                 <TableRow>
                                     {table.getHeaderGroups().map((headerGroup) =>
@@ -482,8 +485,8 @@ const Customtable = (props) => {
                                     {/* Compact Card Header */}
                                     <div className="bg-[#dbeeff] px-3 py-2 border-b border-[#dbeeff] flex justify-between items-center min-h-[32px]">
                                         <span
-                                            className="font-bold text-[var(--chathams-blue)]"
-                                            style={{ fontSize: '0.65rem', lineHeight: '1.2' }}
+                                            className="responsiveTextTable font-normal text-[var(--chathams-blue)]"
+                                            style={{ lineHeight: '1.2' }}
                                         >
                                             Entry #{rowIdx + 1}
                                         </span>
@@ -506,8 +509,8 @@ const Customtable = (props) => {
                                                     className="flex justify-between items-center gap-2 py-1.5 border-b border-gray-100 last:border-b-0 min-h-[28px]"
                                                 >
                                                     <span
-                                                        className="font-bold text-[var(--chathams-blue)] min-w-[80px] flex-shrink-0"
-                                                        style={{ fontSize: '0.65rem', lineHeight: '1.2' }}
+                                                        className="responsiveTextTable font-normal text-[var(--chathams-blue)] min-w-[80px] flex-shrink-0"
+                                                        style={{ lineHeight: '1.2' }}
                                                     >
                                                         {typeof col.header === 'string' ? col.header : ''}
                                                     </span>
@@ -592,10 +595,10 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                                         prefix={currs.includes(col.accessorKey) ? '$' : ''} 
                                                                         decimalScale={currs.includes(col.accessorKey) ? 2 : 3} 
                                                                         fixedDecimalScale 
+                                                                        className="responsiveTextTable"
                                                                         style={{
-                                                                            fontSize: '0.65rem',
                                                                             color: 'var(--chathams-blue)',
-                                                                            fontWeight: '700',
+                                                                            fontWeight: '400',
                                                                             lineHeight: '1.2'
                                                                         }}
                                                                     />
@@ -603,9 +606,8 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                             }
                                                             return (
                                                                 <span
-                                                                    className='text-[var(--port-gore)]'
+                                                                    className='responsiveTextTable text-[var(--port-gore)]'
                                                                     style={{
-                                                                        fontSize: '0.68rem',
                                                                         lineHeight: '1.2'
                                                                     }}
                                                                 >

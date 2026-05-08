@@ -161,7 +161,6 @@ const Customtable = ({
           text-align: center;
 
           font-family: var(--font-poppins), 'Poppins', sans-serif;
-          font-size: 0.78rem !important;
         }
         .custom-table td {
           border: 1px solid #e8f0f8;
@@ -178,7 +177,7 @@ const Customtable = ({
         .summary-green {
           background-color: #b7d1b5;
           color: #1a3a1a;
-          font-weight: 600;
+          font-weight: 400;
         }
         .summary-green th {
           color: #1a3a1a !important;
@@ -188,7 +187,7 @@ const Customtable = ({
         .summary-blue {
           background-color: #8db6d8;
           color: var(--chathams-blue);
-          font-weight: 600;
+          font-weight: 400;
         }
         .summary-blue th {
           color: var(--chathams-blue) !important;
@@ -264,7 +263,7 @@ const Customtable = ({
                 <Fragment key={hdGroup.id + '-totals'}>
                   <tr className="summary-green">
                     {hdGroup.headers.map(header => (
-                      <th key={header.id} className="py-1.5 responsiveTextTable font-normal text-left px-2">
+                      <th key={header.id} className="py-1.5 responsiveTextTable font-normal text-center px-2">
                         {header.id === 'supplier' ? 'Total $:' :
                           header.id === 'cur' ? 'USD' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(
@@ -277,7 +276,7 @@ const Customtable = ({
                   </tr>
                   <tr className="summary-blue">
                     {hdGroup.headers.map(header => (
-                      <th key={header.id} className="py-1.5 responsiveTextTable font-normal text-left px-2">
+                      <th key={header.id} className="py-1.5 responsiveTextTable font-normal text-center px-2">
                         {header.id === 'supplier' ? 'Total —:' :
                           header.id === 'cur' ? 'EUR' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(
@@ -298,7 +297,7 @@ const Customtable = ({
                     {hdGroup.headers.map(header => (
                       <th
                         key={header.id}
-                        className="header-blue py-1.5 font-medium font-poppins"
+                        className="header-blue py-1.5 font-medium font-poppins responsiveTextTable"
                         style={{
                           cursor: header.column.getCanSort() ? 'pointer' : 'default',
                           userSelect: 'none',

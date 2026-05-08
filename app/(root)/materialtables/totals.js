@@ -49,7 +49,7 @@ const Customtable = ({ data, columns }) => {
                                             backgroundColor: isDel ? 'transparent' : '#dbeeff',
                                             color: 'var(--chathams-blue)',
                                             padding: isDel ? '0' : '5px 6px',
-                                                                                        fontWeight: '600',
+                                                                                        fontWeight: '500',
                                             textAlign: colId === 'material' ? 'left' : 'center',
                                             border: 'none',
                                             whiteSpace: 'nowrap',
@@ -84,7 +84,7 @@ const Customtable = ({ data, columns }) => {
                                                 backgroundColor: isDel ? 'transparent' : '#ede9fe',
                                                 color: 'var(--chathams-blue)',
                                                 padding: isDel ? '0' : '5px 6px',
-                                                                                                fontWeight: '600',
+                                                                                                fontWeight: '500',
                                                 textAlign: colId === 'material' ? 'left' : 'center',
                                                 border: 'none',
                                                 whiteSpace: 'nowrap',
@@ -125,7 +125,7 @@ const Customtable = ({ data, columns }) => {
                                         <span style={{ color: 'var(--regent-gray)', fontSize: '0.58rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                             {cell.column.columnDef.header}
                                         </span>
-                                        <span style={{ color: 'var(--chathams-blue)', fontSize: 'inherit', fontWeight: '600' }}>
+                                        <span style={{ color: 'var(--chathams-blue)', fontSize: 'inherit', fontWeight: '500' }}>
                                             {cell.column.id !== 'material'
                                                 ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(cell.getContext().getValue())
                                                 : 'Total'}

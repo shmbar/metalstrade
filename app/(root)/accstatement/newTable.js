@@ -167,16 +167,13 @@ const Customtable = ({
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
         }
-        .custom-table th, {
+        .custom-table th {
           border: 1px solid #d8e8f5;
           background-color: #f8fbff;
           text-align: center;
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
-          font-size: 0.78rem !important;
-          font-weight: 500 !important;
-          color: #103a7a !important;
         }
         .custom-table td {
           border: 1px solid #d8e8f5;
@@ -185,7 +182,7 @@ const Customtable = ({
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
-          font-size: 0.68rem !important;
+          font-size: 10px !important;
         }
         .custom-table th {
           background-color: #d4eafc;

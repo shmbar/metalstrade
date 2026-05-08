@@ -206,9 +206,6 @@ const Customtable = ({
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
-                    font-size: 0.78rem !important;
-                    font-weight: 500 !important;
-                    color: #103a7a !important;
                 }
                 .custom-table td {
                     border: 0.5px solid rgba(0,0,0,0.04);
@@ -216,14 +213,14 @@ const Customtable = ({
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
-                    font-size: 0.68rem !important;
+                    font-size: 10px !important;
                     white-space: nowrap;
                 }
 
                 .summary-green-si {
                     background-color: #b7d1b5;
                     color: #1a3a1a;
-                    font-weight: 600;
+                    font-weight: 400;
                 }
                 .summary-green-si th {
                     background-color: #b7d1b5 !important;
@@ -234,7 +231,7 @@ const Customtable = ({
                 .summary-blue-si {
                     background-color: #8db6d8;
                     color: var(--chathams-blue);
-                    font-weight: 600;
+                    font-weight: 400;
                 }
                 .summary-blue-si th {
                     background-color: #8db6d8 !important;
@@ -293,7 +290,7 @@ const Customtable = ({
                                                 return (
                                                     <tr className="summary-green-si">
                                                         {group.headers.map(header => (
-                                                            <th key={header.id} style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 600, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
+                                                            <th key={header.id} className="responsiveTextTable" style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 400, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
                                                                 {header.id === 'compName' ? 'Total $:' :
                                                                     header.id === 'qnty' ? (usdWeight % 1 === 0 ? usdWeight : usdWeight.toFixed(2)) :
                                                                         header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(usdTotal) : ''}
@@ -310,7 +307,7 @@ const Customtable = ({
                                                 return (
                                                     <tr className="summary-blue-si">
                                                         {group.headers.map(header => (
-                                                            <th key={header.id} style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 600, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
+                                                            <th key={header.id} className="responsiveTextTable" style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 400, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
                                                                 {header.id === 'compName' ? 'Total EUR:' :
                                                                     header.id === 'qnty' ? (eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)) :
                                                                         header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal) : ''}
@@ -324,7 +321,7 @@ const Customtable = ({
                                                 {group.headers.map(header => (
                                                     <th
                                                         key={header.id}
-                                                        className="font-poppins responsiveTextTable font-medium"
+                                                        className="font-poppins responsiveTextTable font-normal"
                                                         style={{
                                                             color: 'var(--chathams-blue)',
                                                             backgroundColor: '#dbeeff',

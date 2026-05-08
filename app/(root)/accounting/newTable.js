@@ -188,7 +188,6 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
           padding: 8px 6px;
           border-bottom: 1px solid #b8ddf8;
           border-right: 1px solid #b8ddf8;
-          font-size: 0.68rem !important;
         }
 
         .custom-table th:last-child {
@@ -202,6 +201,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
           padding: 6px;
           border-bottom: 1px solid #e8f0f8;
           border-right: 1px solid #e8f0f8;
+          font-size: 10px !important;
         }
 
         .custom-table td:last-child {

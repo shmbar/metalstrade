@@ -230,9 +230,6 @@ const Customtable = ({
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
-          font-size: 0.78rem !important;
-          font-weight: 600 !important;
-          color: var(--chathams-blue) !important;
         }
 
         .custom-table td {
@@ -242,7 +239,7 @@ const Customtable = ({
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
-          font-size: 0.68rem !important;
+          font-size: 10px !important;
         }
 
         tr.selected-row td {

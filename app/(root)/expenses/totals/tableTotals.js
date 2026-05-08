@@ -63,7 +63,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
             borderBottom: '1px solid var(--rock-blue)'
           }}
         >
-          <h3 className="responsiveTextTable text-[var(--chathams-blue)] font-medium text-center"
+          <h3 className="responsiveTextTableTitle text-[var(--chathams-blue)] font-normal text-center"
             style={{
               letterSpacing: '0.02em'
             }}>
@@ -100,12 +100,12 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                       key={cell.id}
                       className={
                         cell.column.id === 'amount'
-                          ? 'responsiveTextTable font-medium text-right'
+                          ? 'responsiveTextTable font-normal text-right'
                           : 'responsiveTextTable truncate'
                       }
                       style={{
                         color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : 'var(--port-gore)',
-                        fontWeight: cell.column.id === 'amount' ? 500 : 400,
+                        fontWeight: cell.column.id === 'amount' ? 400 : 400,
                         borderRight: idx === 0 ? '1px solid var(--selago)' : undefined // right border for first col
                       }}
                     >

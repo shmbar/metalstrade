@@ -49,13 +49,13 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                 }
                 .glass-table th {
                     color: var(--chathams-blue) !important;
-                    font-weight: 500;
+                    font-weight: 400;
                     letter-spacing: 0.05em;
                 }
                 .glass-table tfoot th, .glass-table tfoot td {
                     background: #dbeeff;
                     color: var(--chathams-blue) !important;
-                    font-weight: 500;
+                    font-weight: 400;
                     text-align: center !important;
                     vertical-align: middle !important;
                 }
@@ -105,7 +105,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         >
 
                         <div
-                        className="responsiveTextTable px-6 py-4 text-center font-medium font-poppins"
+                        className="responsiveTextTableTitle px-6 py-4 text-center font-normal font-poppins"
                         style={{
                             background: '#dbeeff',
                             color: 'var(--chathams-blue)'
@@ -156,8 +156,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                             )}
                             <tfoot>
                                 <tr>
-                                    <th className="responsiveTextTable font-medium">Total $</th>
-                                    <th className="responsiveTextTable font-medium">
+                                    <th className="responsiveTextTable font-normal">Total $</th>
+                                    <th className="responsiveTextTable font-normal">
                                         {showAmount(
                                             data.filter(item => item.cur === "us").reduce((sum, item) => sum * 1 + item.total * 1, 0),
                                             'usd'
@@ -165,8 +165,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                     </th>
                                 </tr>
                                 <tr>
-                                    <th className="responsiveTextTable font-medium">Total €</th>
-                                    <th className="responsiveTextTable font-medium">
+                                    <th className="responsiveTextTable font-normal">Total €</th>
+                                    <th className="responsiveTextTable font-normal">
                                         {showAmount(
                                             data.filter(item => item.cur === "eu").reduce((sum, item) => sum + item.total, 0),
                                             'eur'
@@ -184,7 +184,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                             <div key={row.id} className="bg-white border border-[var(--selago)] rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
                                 {row.getVisibleCells().map(cell => (
                                     <div key={cell.id} className="flex justify-between items-start py-2 border-b border-[var(--selago)] last:border-b-0">
-                                        <span className="responsiveTextTable font-medium uppercase w-2/5 flex-shrink-0" style={{color:'var(--chathams-blue)'}}>
+                                        <span className="responsiveTextTable font-normal uppercase w-2/5 flex-shrink-0" style={{color:'var(--chathams-blue)'}}>
                                             {cell.column.columnDef.header}
                                         </span>
                                         <Tltip direction='left' tltpText={expensesToolTip(row, expensesData, settings, filt)}>
@@ -200,8 +200,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         {/* Mobile Totals */}
                         <div className="rounded-lg p-4 mt-4 space-y-3 glass-table" style={{background:'var(--selago)', border: '1px solid var(--selago)'}}>
                             <div className="flex justify-between items-center">
-                                <span className="responsiveTextTable font-medium uppercase" style={{color:'var(--chathams-blue)'}}>Total $</span>
-                                <span className="responsiveTextTable font-medium" style={{color:'var(--chathams-blue)'}}>
+                                <span className="responsiveTextTable font-normal uppercase" style={{color:'var(--chathams-blue)'}}>Total $</span>
+                                <span className="responsiveTextTable font-normal" style={{color:'var(--chathams-blue)'}}>
                                     {showAmount(
                                         data.filter(item => item.cur === "us").reduce((sum, item) => sum * 1 + item.total * 1, 0),
                                         'usd'
@@ -209,8 +209,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                 </span>
                             </div>
                             <div className="flex justify-between items-center border-t border-[var(--selago)] pt-3">
-                                <span className="responsiveTextTable font-medium uppercase" style={{color:'var(--chathams-blue)'}}>Total €</span>
-                                <span className="responsiveTextTable font-medium" style={{color:'var(--chathams-blue)'}}>
+                                <span className="responsiveTextTable font-normal uppercase" style={{color:'var(--chathams-blue)'}}>Total €</span>
+                                <span className="responsiveTextTable font-normal" style={{color:'var(--chathams-blue)'}}>
                                     {showAmount(
                                         data.filter(item => item.cur === "eu").reduce((sum, item) => sum + item.total, 0),
                                         'eur'

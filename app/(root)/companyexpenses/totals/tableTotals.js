@@ -65,7 +65,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           }}
         >
           <p
-            className="responsiveTextTable text-[var(--chathams-blue)] font-medium text-center"
+            className="responsiveTextTableTitle text-[var(--chathams-blue)] font-normal text-center"
             style={{
               letterSpacing: '0.05em'
             }}
@@ -86,7 +86,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           <div
             className="responsiveTextTable"
             style={{
-              fontWeight: 500,
+              fontWeight: 400,
               color: 'var(--endeavour)'
             }}
           >
@@ -96,7 +96,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           <div
             className="responsiveTextTable"
             style={{
-              fontWeight: 500,
+              fontWeight: 400,
               color: 'var(--endeavour)'
             }}
           >
@@ -123,12 +123,12 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                     key={cell.id}
                     className={
                       cell.column.id === 'amount'
-                        ? 'responsiveTextTable font-medium text-right'
+                        ? 'responsiveTextTable font-normal text-right'
                         : 'responsiveTextTable truncate'
                     }
                     style={{
                       color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : 'var(--port-gore)',
-                      fontWeight: cell.column.id === 'amount' ? 500 : 400
+                      fontWeight: 400
                     }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
