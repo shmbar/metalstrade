@@ -1,4 +1,6 @@
 
+import { useState } from 'react';
+import { TbSortAscending, TbSortDescending } from 'react-icons/tb';
 import CheckBox from "../../../components/checkbox";
 import Tltip from "../../../components/tlTip";
 import { Button } from "../../../components/ui/button";
@@ -10,6 +12,37 @@ import DoalogModal from "./dialogSupplier";
 import DoalogModalClient from "./dialogClient";
 
 
+
+const sortRows = (arr, key, dir) => {
+    if (!key) return arr;
+    return [...arr].sort((a, b) => {
+        const av = a[key], bv = b[key];
+        if (!isNaN(parseFloat(av)) && !isNaN(parseFloat(bv)))
+            return dir === 'asc' ? parseFloat(av) - parseFloat(bv) : parseFloat(bv) - parseFloat(av);
+        const as = String(av ?? ''), bs = String(bv ?? '');
+        return dir === 'asc' ? as.localeCompare(bs) : bs.localeCompare(as);
+    });
+};
+
+const SortTh = ({ colKey, label, sortKey, sortDir, onSort, className = '' }) => (
+    <th className={`cursor-pointer select-none ${className}`} onClick={() => onSort(colKey)}>
+        <span className="inline-flex items-center gap-1">
+            {label}
+            {sortKey === colKey && sortDir === 'asc' && <TbSortAscending className="shrink-0" style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+            {sortKey === colKey && sortDir === 'desc' && <TbSortDescending className="shrink-0" style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+        </span>
+    </th>
+);
+
+const useSortState = () => {
+    const [sortKey, setSortKey] = useState(null);
+    const [sortDir, setSortDir] = useState('asc');
+    const handleSort = (key) => {
+        if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+        else { setSortKey(key); setSortDir('asc'); }
+    };
+    return { sortKey, sortDir, handleSort };
+};
 
 let propDefaults = [
     { accessorKey: 'order', },
@@ -310,11 +343,15 @@ const moveToContracts = async (z, ent, uidCollection, setDateSelect,
 
 }
 
-export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDateSelect,
-    setValueCon, setIsOpenCon, blankInvoice, router) => {
+export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, setDateSelect,
+    setValueCon, setIsOpenCon, blankInvoice, router }) => {
+    const { sortKey, sortDir, handleSort } = useSortState();
 
-    let filteredArr = stockDataAll.filter(z => z.stock === stock)
-    filteredArr = filteredArr.sort((a, b) => new Date(a.date) - new Date(b.date));
+    const base = stockDataAll
+        .filter(z => z.stock === stock)
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .map(z => ({ ...z, _supplierName: settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || '' }));
+    const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
 
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
@@ -322,12 +359,12 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
-                        <th className="text-left w-12">PO#</th>
-                        <th className="text-left w-16">Supplier</th>
-                        <th className="text-left w-28 max-w-28">Description</th>
-                        <th className="text-left w-14">Quantity</th>
-                        <th className="text-left w-20">Unit Price</th>
-                        <th className="text-right w-20">Total</th>
+                        <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
+                        <SortTh colKey="_supplierName" label="Supplier" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
+                        <SortTh colKey="descriptionName" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
+                        <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
+                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
+                        <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                     </tr>
                 </thead>
                 <tbody>
@@ -414,13 +451,13 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
     )//stock;
 }
 
-export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
-    setValueCon, setIsOpenCon, blankInvoice, router
-) => {
+export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
+    setValueCon, setIsOpenCon, blankInvoice, router }) => {
+    const { sortKey, sortDir, handleSort } = useSortState();
 
-    let filteredArr = stockDataAllArray.filter(z => z.supplier === supplier)
-
-    const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd')
+    const base = stockDataAllArray.filter(z => z.supplier === supplier);
+    const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
+    const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd');
 
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
@@ -428,11 +465,11 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
-                        <th className="text-left w-12">PO#</th>
-                        <th className="text-left w-28 max-w-28">Description</th>
-                        <th className="text-left w-14">Quantity</th>
-                        <th className="text-left w-20">Unit Price</th>
-                        <th className="text-right w-20">Total</th>
+                        <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
+                        <SortTh colKey="description" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
+                        <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
+                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
+                        <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                     </tr>
                 </thead>
                 <tbody>
@@ -648,14 +685,18 @@ const getprefixInv = (q) => {
         (q.invType === '2222' || q.invType === 'Credit Note') ? 'CN' : 'FN'
 }
 
-export const clientDetails = (client, data, type, uidCollection, setDateSelect,
+export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient, toggleCheckClientAll,
-    toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal) => {
+    toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal }) => {
+    const { sortKey, sortDir, handleSort } = useSortState();
 
-    let tmp = data.filter(z => z.client === client)
-    let filteredArr = tmp.filter(x => x.payments.length > 0)
-
-    let filteredArr1 = tmp.filter(x => x.payments.length === 0)
+    const tmp = data.filter(z => z.client === client);
+    const rawPartPaid = tmp.filter(x => x.payments.length > 0)
+        .map(z => ({ ...z, _order: z.poSupplier?.order || '', _pmntTotal: (z.payments || []).reduce((t, p) => t + p.pmnt * 1, 0) }));
+    const rawInDebt = tmp.filter(x => x.payments.length === 0)
+        .map(z => ({ ...z, _order: z.poSupplier?.order || '' }));
+    const filteredArr = sortKey ? sortRows(rawPartPaid, sortKey, sortDir) : rawPartPaid;
+    const filteredArr1 = sortKey ? sortRows(rawInDebt, sortKey, sortDir) : rawInDebt;
 
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
@@ -665,11 +706,11 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                     <table className="cashflow-detail-table w-full table-auto">
                         <thead>
                             <tr>
-                                <th className="text-left max-w-20 2xl:max-w-24">PO#</th>
-                                <th className="text-left w-12">Invoice</th>
-                                <th className="text-left">Amount</th>
-                                <th className="text-left">Payment</th>
-                                <th className="text-left">Balance</th>
+                                <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left max-w-20 2xl:max-w-24" />
+                                <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
+                                <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                                <SortTh colKey="_pmntTotal" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                                <SortTh colKey="debtBlnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <th className="text-left">ETD</th>
                                 <th className="text-left">ETA</th>
                                 <th className="text-left">Pmn</th>
@@ -791,10 +832,10 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                     <table className="cashflow-detail-table w-full table-auto">
                         <thead>
                             <tr>
-                                <th className="text-left w-28">PO#</th>
-                                <th className="text-left w-12">Invoice</th>
-                                <th className="text-left">Amount</th>
-                                <th className="text-left">Prepayment</th>
+                                <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28" />
+                                <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
+                                <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                                <SortTh colKey="percentage" label="Prepayment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <th className="text-left">Pmn</th>
                                 <th className="text-left p-1 2xl:p-1 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
@@ -1040,13 +1081,14 @@ export const getTotalsSupPayments = (arr) => {
 }
 
 
-export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
+export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-    toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal,
-) => {
+    toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal }) => {
+    const { sortKey, sortDir, handleSort } = useSortState();
 
-    let filteredArr = data.filter(z => z.supplier === supplier)
-    let type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt'
+    const base = data.filter(z => z.supplier === supplier);
+    const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
+    const type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt';
 
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
@@ -1054,11 +1096,11 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
-                        <th className="text-left">PO#</th>
-                        <th className="text-left w-12">Invoice</th>
-                        <th className="text-left">Value</th>
-                        <th className="text-left">Payment</th>
-                        <th className="text-left">Balance</th>
+                        <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
+                        <SortTh colKey="invValue" label="Value" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="pmnt" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="blnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                         <th className="text-left">Pmn</th>
                         <th className="text-left py-0">
                             <Tltip direction='right' tltpText='Select all'>
@@ -1215,11 +1257,14 @@ export const runExpenses = async (uidCollection, settings, yr) => {
 
 }
 
-export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, setDateSelect,
+export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection, setDateSelect,
     setValueExp, setIsOpen, blankInvoice, router, toggleCheckExp, toggleCheckExpAll,
-    toggleExp, savePmntExp) => {
+    toggleExp, savePmntExp }) => {
+    const { sortKey, sortDir, handleSort } = useSortState();
 
-    let filteredArr = expensesAll.filter(z => z.supplier === supplier)
+    const base = expensesAll.filter(z => z.supplier === supplier)
+        .map(z => ({ ...z, _order: z.poSupplier?.order ?? 'Comp. Exp.' }));
+    const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
 
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
@@ -1227,11 +1272,11 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
-                        <th className="text-left w-24">PO#</th>
-                        <th className="text-left">Exp. Invoice</th>
-                        <th className="text-left">Exp. Type</th>
-                        <th className="text-left">Amount</th>
-                        <th className="text-left">Date</th>
+                        <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-24" />
+                        <SortTh colKey="expense" label="Exp. Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="expType" label="Exp. Type" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="amount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="date" label="Date" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                         <th className="text-left">Payment</th>
                         <th className="text-left">
                             <Tltip direction='right' tltpText='Select all'>

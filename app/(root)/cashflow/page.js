@@ -12,7 +12,7 @@ import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
 import { MdDeleteOutline } from "react-icons/md";
 import { MdOutlineClose } from "react-icons/md";
-import { addComma, clientDetails, clientToolTip, expensesToolTip, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, stocksUnSold, stoclToolTip, supplierDetails, supplierToolTip } from "./funcs";
+import { addComma, ClientDetails, clientToolTip, ExpensesToolTip, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
 import Tltip from "../../../components/tlTip";
 import { FaSortAmountDown } from "react-icons/fa";
 import { FaSortAmountUpAlt } from "react-icons/fa";
@@ -872,8 +872,7 @@ const Cashflow = () => {
                                                             </div>
                                                         </div>
                                                     }>
-                                                        {stocksUnSold(x.supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
-                                                            setValueCon, setIsOpenCon, blankInvoice, router)}
+                                                        <StocksUnSold supplier={x.supplier} stockDataAllArray={stockDataAllArray} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} />
                                                     </MyAccordion>
                                                 </div>
                                             ))}
@@ -973,8 +972,7 @@ const Cashflow = () => {
                                                                     </div>
                                                                 }>
 
-                                                                    {stoclToolTip(x.stock, stockDataAll, settings, uidCollection,
-                                                                        setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router,)}
+                                                                    <StoclToolTip stock={x.stock} stockDataAll={stockDataAll} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} />
                                                                 </MyAccordion>
 
 
@@ -1038,8 +1036,7 @@ const Cashflow = () => {
                                                                     </div>
                                                                 }>
 
-                                                                    {stoclToolTip(x.stock, stockDataNoPayment, settings, uidCollection,
-                                                                        setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router,)}
+                                                                    <StoclToolTip stock={x.stock} stockDataAll={stockDataNoPayment} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} />
                                                                 </MyAccordion>
                                                             </div>
 
@@ -1097,9 +1094,7 @@ const Cashflow = () => {
 
                                                                         </div>
                                                                     </div>}>
-                                                                    {clientDetails(x.client, clientsData, 'InDebt', uidCollection, setDateSelect,
-                                                                        setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient, toggleCheckClientAll,
-                                                                        toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal)}
+                                                                    <ClientDetails client={x.client} data={clientsData} type="InDebt" uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckClient={toggleCheckClient} toggleCheckClientAll={toggleCheckClientAll} toggleClientPartial={toggleClientPartial} toggleClientFull={toggleClientFull} savePmntClient={savePmntClient} clientPartialPayment={clientPartialPayment} openInvModal={openInvModal} />
                                                                 </MyAccordion>
                                                             </div>
                                                         )
@@ -1156,9 +1151,7 @@ const Cashflow = () => {
 
                                                                         </div>
                                                                     </div>}>
-                                                                    {clientDetails(x.client, clientsData, 'PartPaid', uidCollection, setDateSelect,
-                                                                        setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient,
-                                                                        toggleCheckClientAll, toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal)}
+                                                                    <ClientDetails client={x.client} data={clientsData} type="PartPaid" uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckClient={toggleCheckClient} toggleCheckClientAll={toggleCheckClientAll} toggleClientPartial={toggleClientPartial} toggleClientFull={toggleClientFull} savePmntClient={savePmntClient} clientPartialPayment={clientPartialPayment} openInvModal={openInvModal} />
                                                                 </MyAccordion>
                                                             </div>
                                                         )
@@ -1277,10 +1270,7 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 === 0),
-                                                                        uidCollection, setDateSelect,
-                                                                        setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-                                                                        toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal)}
+                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 === 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} openInvModal={openInvModal} />
                                                                 </MyAccordion>
                                                             </div>
 
@@ -1340,10 +1330,7 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    {supplierDetails(x.supplier, supPaymentsData.filter(z => z.pmnt * 1 > 0),
-                                                                        uidCollection, setDateSelect,
-                                                                        setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-                                                                        toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal)}
+                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 > 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} openInvModal={openInvModal} />
                                                                 </MyAccordion>
                                                             </div>
                                                         )
@@ -1400,9 +1387,7 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    {expensesToolTip(x.supplier, expensesAll, settings, uidCollection, setDateSelect,
-                                                                        setValueExp, setIsOpen, blankInvoice, router, toggleCheckExp, toggleCheckExpAll,
-                                                                        toggleExp, savePmntExp)}
+                                                                    <ExpensesToolTip supplier={x.supplier} expensesAll={expensesAll} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueExp={setValueExp} setIsOpen={setIsOpen} blankInvoice={blankInvoice} router={router} toggleCheckExp={toggleCheckExp} toggleCheckExpAll={toggleCheckExpAll} toggleExp={toggleExp} savePmntExp={savePmntExp} />
                                                                 </MyAccordion>
                                                             </div>
 
