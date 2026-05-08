@@ -119,7 +119,7 @@ thead th {
 @layer app {
   /* Standard body / cell text */
   .responsiveText {
-    @apply text-[0.65625rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]
+    @apply text-[0.59375rem] xl:text-[0.6875rem] 2xl:text-[0.7375rem] 3xl:text-[0.8125rem]
            break-words min-w-0 whitespace-normal;
   }
 
@@ -143,7 +143,7 @@ thead th {
 
   /* Totals row — same size as body but bold */
   .responsiveTextTotal {
-    @apply text-[0.65625rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]
+    @apply text-[0.59375rem] xl:text-[0.6875rem] 2xl:text-[0.7375rem] 3xl:text-[0.8125rem]
            font-medium break-words min-w-0 whitespace-normal;
   }
 
@@ -294,7 +294,6 @@ input::-webkit-inner-spin-button {
   border-bottom: 1.5px solid #b8ddf8;
   padding: 6px 8px;
   white-space: nowrap;
-  text-align: left;
 }
 
 .cashflow-detail-table tbody td {
@@ -315,7 +314,6 @@ input::-webkit-inner-spin-button {
   color: var(--chathams-blue);
   font-size: 0.72rem;
   border-top: 1.5px solid #b8ddf8;
-  text-align: left;
 }
 
 .cashflow-detail-table tbody td > div {

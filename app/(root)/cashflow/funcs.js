@@ -325,8 +325,8 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                         <th className="text-left w-12">PO#</th>
                         <th className="text-left w-16">Supplier</th>
                         <th className="text-left w-28 max-w-28">Description</th>
-                        <th className="text-right w-14">Quantity</th>
-                        <th className="text-right w-20">Unit Price</th>
+                        <th className="text-left w-14">Quantity</th>
+                        <th className="text-left w-20">Unit Price</th>
                         <th className="text-right w-20">Total</th>
                     </tr>
                 </thead>
@@ -363,7 +363,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-left">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.total}
                                         displayType="text"
@@ -403,7 +403,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                         <th className="text-left">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.unitPrc * 1, 0), 'usd')}
                         </th>
-                        <th className="text-left">
+                        <th className="text-right">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0), 'usd')}
                         </th>
                     </tr>
@@ -430,8 +430,8 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                     <tr>
                         <th className="text-left w-12">PO#</th>
                         <th className="text-left w-28 max-w-28">Description</th>
-                        <th className="text-right w-14">Quantity</th>
-                        <th className="text-right w-20">Unit Price</th>
+                        <th className="text-left w-14">Quantity</th>
+                        <th className="text-left w-20">Unit Price</th>
                         <th className="text-right w-20">Total</th>
                     </tr>
                 </thead>
@@ -467,7 +467,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-left">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.total}
                                         displayType="text"
@@ -502,7 +502,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                             }
                         </th>
                         <th></th>
-                        <th className="text-left">
+                        <th className="text-right">
                             {ttl}
                         </th>
                     </tr>

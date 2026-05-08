@@ -835,7 +835,7 @@ const Cashflow = () => {
                             {activeTab === 'unsold' ? (
                                 <div className="w-full max-w-2xl border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
                                     <div className="flex items-center justify-between mb-2">
-                                        <div className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Unsold Stocks</div>
+                                        <div className="text-[var(--chathams-blue)] text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold">Unsold Stocks</div>
                                         <div className="flex items-center gap-2">
                                             {stocksSortName2 ?
                                                 <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName2()} />
@@ -899,7 +899,7 @@ const Cashflow = () => {
                                     {userTitle === 'Admin' &&
                                         <div className="w-full p-2 mb-2">
                                             <div className="flex gap-2">
-                                                <span className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold items-center flex w-44 text-[var(--chathams-blue)]">Future</span>
+                                                <span className="text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold items-center flex w-44 text-[var(--chathams-blue)]">Future</span>
                                                 <label className="pl-1">{
                                                     <NumericFormat
                                                         value={incoming}
@@ -917,7 +917,7 @@ const Cashflow = () => {
                                                 initialData?.map((z, i) => {
                                                     return (
                                                         <div className="flex gap-2 my-1 items-center" key={i}>
-                                                            <input className="text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold items-center flex outline-none w-44 truncate text-[var(--chathams-blue)]" value={z.title}
+                                                            <input className="text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold items-center flex outline-none w-44 truncate text-[var(--chathams-blue)]" value={z.title}
                                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
                                                             <NumericFormat className='input w-44 h-6 responsiveTextTotal rounded-full'
                                                                 value={z.num} thousandSeparator allowNegative={false} decimalScale={2}
@@ -942,7 +942,7 @@ const Cashflow = () => {
                                             <div className="w-full">
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Stocks - Paid</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold">Stocks - Paid</span>
                                                         <div className="flex items-center gap-2">
                                                             {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} />}
                                                             {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} />}
@@ -1006,7 +1006,7 @@ const Cashflow = () => {
 
                                                 {stockData2.length > 0 && <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Stocks - UnPaid</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold">Stocks - UnPaid</span>
                                                         <div className="flex items-center gap-2">
                                                             {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} />}
                                                             {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} />}
@@ -1067,7 +1067,7 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Clients - Payment</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold">Clients - Payment</span>
                                                         <div className="flex items-center gap-2">
                                                             {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} />}
                                                             {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} />}
@@ -1126,7 +1126,7 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Clients - Balances</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold">Clients - Balances</span>
                                                         <div className="flex items-center gap-2">
                                                             {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} />}
                                                             {clientSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} />}
@@ -1189,7 +1189,7 @@ const Cashflow = () => {
                                                         userTitle === 'Admin' &&
                                                         <div className='mt-1 p-1'>
                                                             <div className='flex justify-between p-2'>
-                                                                <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Financing</span>
+                                                                <span className="text-[var(--chathams-blue)] text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold">Financing</span>
                                                                 <button
                                                                     type="button"
                                                                     className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
@@ -1198,21 +1198,22 @@ const Cashflow = () => {
                                                                     Add
                                                                 </button>
                                                             </div>
-                                                            <div className="py-0 px-3 mb-1 ">
+                                                            <div className="py-0 px-0 mb-1 ">
                                                                 {
                                                                     financedLeft?.map((z, i) => {
                                                                         return (
-                                                                            <div className="flex gap-2 rounded-xl px-1 responsiveTextInput hover:bg-[#dbeeff] transition-colors" key={i}>
-                                                                                <button onClick={() => setFinancedLeft(financedLeft.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
-                                                                                <input className={cn('items-center flex-1 min-w-0 outline-none h-6 bg-transparent text-[var(--chathams-blue)]',
-                                                                                    z.title === '' ? 'input' : '')} value={z.title}
-                                                                                    onChange={e => handleChangeFinance(e, i, 'left', 'title')} />
-                                                                                <NumericFormat className={cn('h-6 bg-transparent w-24 flex-shrink-0 text-[var(--chathams-blue)]',
-                                                                                    z.num === '' ? 'input text-left' : 'text-right outline-none')}
+                                                                            <div className="flex items-center justify-between rounded-xl px-0 responsiveTextInput hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                                <div className="flex items-center gap-1 min-w-0 flex-1">
+                                                                                    <button onClick={() => setFinancedLeft(financedLeft.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
+                                                                                    <input className={cn('flex-1 min-w-0 outline-none h-6 bg-transparent text-[var(--chathams-blue)]',
+                                                                                        z.title === '' ? 'input' : '')} value={z.title}
+                                                                                        onChange={e => handleChangeFinance(e, i, 'left', 'title')} />
+                                                                                </div>
+                                                                                <NumericFormat className={cn('h-6 bg-transparent flex-shrink-0 text-[var(--chathams-blue)] text-right',
+                                                                                    z.num === '' ? 'input w-24' : 'outline-none')}
                                                                                     value={z.num} thousandSeparator allowNegative={false} decimalScale={2}
                                                                                     onValueChange={values => handleChangeFinance({ target: { value: values.value } }, i, 'left', 'num')}
                                                                                 />
-
                                                                             </div>
                                                                         )
                                                                     })}
@@ -1244,7 +1245,7 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Supplier - Payment</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold">Supplier - Payment</span>
                                                         <div className="flex items-center gap-2">
                                                             {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
                                                             {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} />}
@@ -1307,7 +1308,7 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Supplier - Balances</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold">Supplier - Balances</span>
                                                         <div className="flex items-center gap-2">
                                                             {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
                                                             {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} />}
@@ -1369,7 +1370,7 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Expenses</span>
+                                                        <span className="text-[var(--chathams-blue)] text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold">Expenses</span>
                                                         <div className="flex items-center gap-2">
                                                             {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} />}
                                                             {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} />}
@@ -1431,7 +1432,7 @@ const Cashflow = () => {
                                                         userTitle === 'Admin' &&
                                                         <div className='mt-1 p-1'>
                                                             <div className='flex justify-between'>
-                                                                <span className="text-[var(--chathams-blue)] text-[0.74rem] xl:text-[0.78rem] 2xl:text-[0.82rem] 3xl:text-[0.895rem] font-semibold">Financing</span>
+                                                                <span className="text-[var(--chathams-blue)] text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold">Financing</span>
                                                                 <button
                                                                     type="button"
                                                                     className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
@@ -1444,13 +1445,15 @@ const Cashflow = () => {
                                                                 {
                                                                     financedRight?.map((z, i) => {
                                                                         return (
-                                                                            <div className="flex gap-2 rounded-xl px-0.5 responsiveTextInput hover:bg-[#dbeeff] transition-colors" key={i}>
-                                                                                <button onClick={() => setFinancedRight(financedRight.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
-                                                                                <input className={cn('items-center flex-1 min-w-0 outline-none h-6 text-[var(--chathams-blue)] bg-transparent',
-                                                                                    z.title === '' ? 'input' : '')}
-                                                                                    value={z.title} onChange={e => handleChangeFinance(e, i, 'right', 'title')} />
-                                                                                <NumericFormat className={cn('w-24 flex-shrink-0 h-6 text-[var(--chathams-blue)] outline-none bg-transparent',
-                                                                                    z.num === '' ? 'input text-left' : 'text-right')}
+                                                                            <div className="flex items-center justify-between rounded-xl px-0 responsiveTextInput hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                                <div className="flex items-center gap-1 min-w-0 flex-1">
+                                                                                    <button onClick={() => setFinancedRight(financedRight.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
+                                                                                    <input className={cn('flex-1 min-w-0 outline-none h-6 text-[var(--chathams-blue)] bg-transparent',
+                                                                                        z.title === '' ? 'input' : '')}
+                                                                                        value={z.title} onChange={e => handleChangeFinance(e, i, 'right', 'title')} />
+                                                                                </div>
+                                                                                <NumericFormat className={cn('flex-shrink-0 h-6 text-[var(--chathams-blue)] bg-transparent text-right',
+                                                                                    z.num === '' ? 'input w-24' : 'outline-none')}
                                                                                     value={z.num} thousandSeparator allowNegative={false} decimalScale={2}
                                                                                     onValueChange={values => handleChangeFinance({ target: { value: values.value } }, i, 'right', 'num')} />
                                                                             </div>
