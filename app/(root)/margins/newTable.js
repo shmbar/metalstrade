@@ -353,7 +353,7 @@ const Customtable = (props) => {
         >
             <div className="flex flex-col relative w-full">
                 <style jsx global>{`
-                    .margins-data-table td { font-size: 10px !important; }
+                    .margins-data-table tbody td { font-size: 9px !important; }
                 `}</style>
                 <div className="rounded-lg border border-[var(--selago)] overflow-x-auto relative shadow-sm">
                     {/* Desktop Table - Compact Heights */}

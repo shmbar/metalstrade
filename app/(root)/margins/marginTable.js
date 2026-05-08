@@ -86,7 +86,7 @@ const MarginTable = memo(function MarginTable(props) {
                                             Qty (MT)
                                         </div>
                                         <div
-                                            className="font-normal"
+                                            className="responsiveTextTable font-medium"
                                         >
                                             <NumericFormat
                                                 value={purchase}
@@ -97,8 +97,6 @@ const MarginTable = memo(function MarginTable(props) {
                                                 fixedDecimalScale
                                                 style={{
                                                     color: 'var(--chathams-blue)',
-                                                    fontWeight: '600',
-                                                    fontSize: '0.85rem',
                                                     lineHeight: '1.2'
                                                 }}
                                             />
@@ -116,7 +114,7 @@ const MarginTable = memo(function MarginTable(props) {
                                             Total Margin
                                         </div>
                                         <div
-                                            className="font-normal"
+                                            className="responsiveTextTable font-medium"
                                         >
                                             <NumericFormat
                                                 value={totalMargin}
@@ -128,8 +126,6 @@ const MarginTable = memo(function MarginTable(props) {
                                                 fixedDecimalScale
                                                 style={{
                                                     color: 'var(--chathams-blue)',
-                                                    fontWeight: '600',
-                                                    fontSize: '0.85rem',
                                                     lineHeight: '1.2'
                                                 }}
                                             />
@@ -147,7 +143,7 @@ const MarginTable = memo(function MarginTable(props) {
                                             Open Ship
                                         </div>
                                         <div
-                                            className="font-normal"
+                                            className="responsiveTextTable font-medium"
                                         >
                                             <NumericFormat
                                                 value={totalOpenShip}
@@ -158,8 +154,6 @@ const MarginTable = memo(function MarginTable(props) {
                                                 fixedDecimalScale
                                                 style={{
                                                     color: 'var(--chathams-blue)',
-                                                    fontWeight: '600',
-                                                    fontSize: '0.85rem',
                                                     lineHeight: '1.2'
                                                 }}
                                             />
@@ -177,7 +171,7 @@ const MarginTable = memo(function MarginTable(props) {
                                             Remaining
                                         </div>
                                         <div
-                                            className="font-normal"
+                                            className="responsiveTextTable font-medium"
                                         >
                                             <NumericFormat
                                                 value={remaining}
@@ -189,8 +183,6 @@ const MarginTable = memo(function MarginTable(props) {
                                                 fixedDecimalScale
                                                 style={{
                                                     color: 'var(--chathams-blue)',
-                                                    fontWeight: '600',
-                                                    fontSize: '0.85rem',
                                                     lineHeight: '1.2'
                                                 }}
                                             />

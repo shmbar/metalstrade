@@ -53,7 +53,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                 .custom-table td {
                   background-color: #fff;
                   border: 1px solid var(--selago);
-                  font-size: 10px !important;
+                  font-size: 9px !important;
                 }
                 .dashboard-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
                 .dashboard-scroll::-webkit-scrollbar-track { background: #ebf2fc; border-radius: 6px; }

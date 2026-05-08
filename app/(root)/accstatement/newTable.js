@@ -182,7 +182,7 @@ const Customtable = ({
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
-          font-size: 10px !important;
+          font-size: 9px !important;
         }
         .custom-table th {
           background-color: #d4eafc;

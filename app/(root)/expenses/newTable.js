@@ -259,7 +259,7 @@
 //         .custom-table td {
 //           border: 1px solid #d7d7d7;
 //           text-align: center;
-//           font-size: 10px !important;
+//           font-size: 9px !important;
 //           font-family: var(--font-poppins), 'Poppins', sans-serif;
 //           padding: 8px 6px !important;
 //           vertical-align: middle;
@@ -959,7 +959,7 @@ const Customtable = ({
         .custom-table td {
           border: 1px solid #d7d7d7;
           text-align: center;
-          font-size: 10px !important;
+          font-size: 9px !important;
           font-family: var(--font-poppins), 'Poppins', sans-serif;
           padding: 3px 6px !important;
           vertical-align: middle;

@@ -165,7 +165,7 @@ const Customtable = ({
         .custom-table td {
           border: 1px solid #e8f0f8;
           text-align: center;
-          font-size: 10px !important;
+          font-size: 9px !important;
           font-family: var(--font-poppins), 'Poppins', sans-serif;
 
         }
@@ -263,7 +263,7 @@ const Customtable = ({
                 <Fragment key={hdGroup.id + '-totals'}>
                   <tr className="summary-green">
                     {hdGroup.headers.map(header => (
-                      <th key={header.id} className="py-1.5 responsiveTextTable font-normal text-center px-2">
+                      <th key={header.id} className="py-1.5 responsiveTextTable font-medium text-center px-2" style={{ fontWeight: 500 }}>
                         {header.id === 'supplier' ? 'Total $:' :
                           header.id === 'cur' ? 'USD' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(
@@ -276,7 +276,7 @@ const Customtable = ({
                   </tr>
                   <tr className="summary-blue">
                     {hdGroup.headers.map(header => (
-                      <th key={header.id} className="py-1.5 responsiveTextTable font-normal text-center px-2">
+                      <th key={header.id} className="py-1.5 responsiveTextTable font-medium text-center px-2" style={{ fontWeight: 500 }}>
                         {header.id === 'supplier' ? 'Total —:' :
                           header.id === 'cur' ? 'EUR' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(

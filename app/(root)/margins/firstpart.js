@@ -13,7 +13,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'}
                 decimalScale={2}
                 fixedDecimalScale
-                style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--chathams-blue)' }}
+                style={{ fontWeight: '500', color: 'var(--chathams-blue)' }}
             />,
             bg: '#dbeeff', border: '#b8ddf8', color: 'var(--chathams-blue)'
         },
@@ -27,7 +27,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'}
                 decimalScale={0}
                 fixedDecimalScale={false}
-                style={{ fontSize: '0.75rem', fontWeight: '700', color: '#92400e' }}
+                style={{ fontWeight: '500', color: '#92400e' }}
             />,
             bg: '#fef9c3', border: '#fde68a', color: '#92400e'
         },
@@ -40,7 +40,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative
                 decimalScale={0}
                 fixedDecimalScale={false}
-                style={{ fontSize: '0.75rem', fontWeight: '700', color: '#7c3aed' }}
+                style={{ fontWeight: '500', color: '#7c3aed' }}
             />,
             bg: '#ede9fe', border: '#ddd6fe', color: '#7c3aed'
         },
@@ -54,7 +54,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'}
                 decimalScale={0}
                 fixedDecimalScale={false}
-                style={{ fontSize: '0.75rem', fontWeight: '700', color: '#166534' }}
+                style={{ fontWeight: '500', color: '#166534' }}
             />,
             bg: '#dcfce7', border: '#bbf7d0', color: '#166534'
         },
@@ -67,7 +67,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative
                 decimalScale={0}
                 fixedDecimalScale={false}
-                style={{ fontSize: '0.75rem', fontWeight: '700', color: '#be185d' }}
+                style={{ fontWeight: '500', color: '#be185d' }}
             />,
             bg: '#fce7f3', border: '#fbcfe8', color: '#be185d'
         },

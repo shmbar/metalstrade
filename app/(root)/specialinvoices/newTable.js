@@ -213,7 +213,7 @@ const Customtable = ({
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
-                    font-size: 10px !important;
+                    font-size: 9px !important;
                     white-space: nowrap;
                 }
 
