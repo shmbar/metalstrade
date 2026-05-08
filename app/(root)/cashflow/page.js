@@ -658,7 +658,10 @@ const Cashflow = () => {
                 {
                     ...x, pmnt: x.invValue, blnc: 0,
                     payments: [...tmp, {
-                        pmntId: uuidv4(), pmntDate: obj.date, pmntPerc: obj.perc, pmnt: obj.pmnt
+                        pmntId: uuidv4(),
+                        pmntDate: { endDate: dt, startDate: dt },
+                        pmntPerc: parseFloat((parseFloat(x.blnc) * 100 / parseFloat(x.invValue)).toFixed(1)),
+                        pmnt: x.blnc
                     }]
                 } :
                 x)

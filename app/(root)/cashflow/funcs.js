@@ -1086,7 +1086,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
 
-    const base = data.filter(z => z.supplier === supplier);
+    const base = data.filter(z => z.supplier === supplier && z.blnc * 1 !== 0);
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
     const type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt';
 
