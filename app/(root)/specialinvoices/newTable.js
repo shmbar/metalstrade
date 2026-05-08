@@ -290,7 +290,7 @@ const Customtable = ({
                                                 return (
                                                     <tr className="summary-green-si">
                                                         {group.headers.map(header => (
-                                                            <th key={header.id} className="responsiveTextTable" style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 400, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
+                                                            <th key={header.id} className="responsiveTextTable" style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 500, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
                                                                 {header.id === 'compName' ? 'Total $:' :
                                                                     header.id === 'qnty' ? (usdWeight % 1 === 0 ? usdWeight : usdWeight.toFixed(2)) :
                                                                         header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(usdTotal) : ''}
@@ -307,7 +307,7 @@ const Customtable = ({
                                                 return (
                                                     <tr className="summary-blue-si">
                                                         {group.headers.map(header => (
-                                                            <th key={header.id} className="responsiveTextTable" style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 400, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
+                                                            <th key={header.id} className="responsiveTextTable" style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 500, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
                                                                 {header.id === 'compName' ? 'Total EUR:' :
                                                                     header.id === 'qnty' ? (eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)) :
                                                                         header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal) : ''}
@@ -321,10 +321,11 @@ const Customtable = ({
                                                 {group.headers.map(header => (
                                                     <th
                                                         key={header.id}
-                                                        className="font-poppins responsiveTextTable font-normal"
+                                                        className="font-poppins responsiveTextTable font-medium"
                                                         style={{
                                                             color: 'var(--chathams-blue)',
                                                             backgroundColor: '#dbeeff',
+                                                            fontWeight: 500,
                                                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                                                             maxWidth: header.column.id === 'select' ? '50px' : 'none',
                                                             letterSpacing: '0.05em',
