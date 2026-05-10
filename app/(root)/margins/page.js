@@ -117,8 +117,8 @@ const Margins = () => {
 
             const gPurchase    = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.purchase    || 0) : 0), 0);
             const gOpenShip    = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.openShip * 1 || 0) : 0), 0);
-            const gTotalMargin = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.totalMargin / 2 || 0) : 0), 0);
-            const gRemaining   = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.remaining / 2   || 0) : 0), 0);
+            const gTotalMargin = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.totalMargin || 0) : 0), 0);
+            const gRemaining   = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.remaining   || 0) : 0), 0);
 
             _purchaseGIS    += gPurchase;
             _openShipGIS    += gOpenShip;

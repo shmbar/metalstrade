@@ -207,7 +207,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                   <MdDeleteOutline className="w-4 h-4" />
                 </button>
               </div>
-            ) : cell.column.id === "totalMargin" && row.original.gis ? (
+            ) : (cell.column.id === "totalMargin" || cell.column.id === "remaining") && row.original.gis ? (
               <Tltip
                 direction="top"
                 tltpText={
@@ -217,30 +217,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
               >
                 <div className="flex items-center justify-center w-full">
                   <NumericFormat
-                    value={cell.getValue() / 2}
-                    displayType="input"
-                    readOnly
-                    thousandSeparator
-                    allowNegative
-                    prefix="$"
-                    decimalScale={2}
-                    fixedDecimalScale
-                    className="w-full bg-transparent border-none outline-none px-1 text-[var(--port-gore)] text-center text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]"
-                    style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
-                  />
-                </div>
-              </Tltip>
-            ) : cell.column.id === "remaining" && row.original.gis ? (
-              <Tltip
-                direction="top"
-                tltpText={
-                  (cName === "ims" ? "IMS: " : "GIS: ") +
-                  addComma(cell.getValue() / 2)
-                }
-              >
-                <div className="flex items-center justify-center w-full">
-                  <NumericFormat
-                    value={cell.getValue() / 2}
+                    value={cell.getValue()}
                     displayType="input"
                     readOnly
                     thousandSeparator
@@ -401,7 +378,7 @@ const Customtable = (props) => {
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
 >
-  <div className="w-full flex items-center justify-center responsiveTextTable font-medium font-poppins">
+  <div className="w-full flex items-center justify-center font-medium font-poppins text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
     {header.isPlaceholder
       ? null
       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -479,6 +456,7 @@ const Customtable = (props) => {
                                                                     prefix={currs.includes(accessorKey) ? '$' : ''}
                                                                     decimalScale={currs.includes(accessorKey) ? 2 : 3}
                                                                     fixedDecimalScale
+                                                                    className="text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]"
                                                                     style={{
                                                                         color: 'var(--chathams-blue)',
                                                                         fontWeight: '500',
@@ -609,12 +587,9 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                                 );
                                                             }
                                                             if (['totalMargin', 'remaining', 'openShip'].includes(col.accessorKey)) {
-                                                                const displayVal = (['totalMargin', 'remaining'].includes(col.accessorKey) && row.gis)
-                                                                    ? row[col.accessorKey] / 2
-                                                                    : row[col.accessorKey];
                                                                 return (
                                                                     <NumericFormat
-                                                                        value={displayVal}
+                                                                        value={row[col.accessorKey]}
                                                                         displayType="text"
                                                                         thousandSeparator
                                                                         allowNegative={true}

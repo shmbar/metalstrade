@@ -106,10 +106,10 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                     boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1), 0 0 1px rgba(255, 255, 255, 0.2) inset',
                                 }}
                             >
-                                <span className="responsiveTextTable font-medium text-center px-1" style={{ color: card.color }}>
+                                <span className="font-medium text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem] px-1" style={{ color: card.color }}>
                                     {card.label}
                                 </span>
-                                <div className="responsiveTextTable font-medium text-center" style={{ color: card.color }}>
+                                <div className="font-medium text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]" style={{ color: card.color }}>
                                     {card.value}
                                 </div>
 
@@ -126,10 +126,10 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                     className="stats-card flex flex-col items-center justify-center rounded-full py-1 px-1 shadow-lg"
                                     style={{ backgroundColor: card.bg, border: `1px solid ${card.border}`, boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)' }}
                                 >
-                                    <span className="responsiveTextTable font-medium text-center px-1" style={{ color: card.color }}>
+                                    <span className="font-medium text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem] px-1" style={{ color: card.color }}>
                                         {card.label}
                                     </span>
-                                    <div className="responsiveTextTable font-medium text-center" style={{ color: card.color }}>
+                                    <div className="font-medium text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]" style={{ color: card.color }}>
                                         {card.value}
                                     </div>
                                 </div>
