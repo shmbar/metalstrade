@@ -922,7 +922,7 @@ const Cashflow = () => {
                                                             <input className="text-[0.6775rem] xl:text-[0.7175rem] 2xl:text-[0.7575rem] 3xl:text-[0.8325rem] font-semibold items-center flex outline-none w-44 truncate text-[var(--chathams-blue)]" value={z.title}
                                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
                                                             <NumericFormat className='input w-44 h-6 responsiveTextTotal rounded-full'
-                                                                value={z.num} thousandSeparator allowNegative={false} decimalScale={2} prefix='$'
+                                                                value={z.num} thousandSeparator allowNegative={false} decimalScale={2} fixedDecimalScale prefix='$'
                                                                 onValueChange={values => handleChangeInitial({ target: { value: values.value } }, i, 'num')} />
                                                             <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-md hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
                                                         </div>
@@ -1207,7 +1207,7 @@ const Cashflow = () => {
                                                                                 </div>
                                                                                 <NumericFormat className={cn('h-6 bg-transparent flex-shrink-0 text-[var(--chathams-blue)] text-right',
                                                                                     z.num === '' ? 'input w-24' : 'outline-none')}
-                                                                                    value={z.num} thousandSeparator allowNegative={false} decimalScale={2} prefix='$'
+                                                                                    value={z.num} thousandSeparator allowNegative={false} decimalScale={2} fixedDecimalScale prefix='$'
                                                                                     onValueChange={values => handleChangeFinance({ target: { value: values.value } }, i, 'left', 'num')}
                                                                                 />
                                                                             </div>
@@ -1442,7 +1442,7 @@ const Cashflow = () => {
                                                                                 </div>
                                                                                 <NumericFormat className={cn('flex-shrink-0 h-6 text-[var(--chathams-blue)] bg-transparent text-right',
                                                                                     z.num === '' ? 'input w-24' : 'outline-none')}
-                                                                                    value={z.num} thousandSeparator allowNegative={false} decimalScale={2} prefix='$'
+                                                                                    value={z.num} thousandSeparator allowNegative={false} decimalScale={2} fixedDecimalScale prefix='$'
                                                                                     onValueChange={values => handleChangeFinance({ target: { value: values.value } }, i, 'right', 'num')} />
                                                                             </div>
                                                                         )
