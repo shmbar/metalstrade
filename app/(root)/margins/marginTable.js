@@ -31,7 +31,7 @@ const MarginTable = memo(function MarginTable(props) {
                 style={{
                     background: '#ffffff',
                     borderRadius: '12px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid #b8ddf8',
                     marginBottom: '0px',
                     padding: '4px 8px'
                 }}
@@ -241,7 +241,7 @@ const MarginTable = memo(function MarginTable(props) {
                             <div 
                                 className="mt-1 w-full"
                                 style={{
-                                    borderTop: '1px solid #E5E7EB',
+                                    borderTop: '1px solid #b8ddf8',
                                     paddingTop: '8px'
                                 }}
                             >

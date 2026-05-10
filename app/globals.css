@@ -88,7 +88,7 @@ thead th {
   }
 
   .dashStatCard {
-    @apply rounded-2xl p-5 flex flex-col justify-between min-h-[120px] shadow-lg;
+    @apply rounded-2xl p-5 flex flex-col justify-between min-h-[120px] shadow-lg border border-[var(--selago)];
   }
 
   .blackButton {

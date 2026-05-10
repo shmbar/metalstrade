@@ -335,7 +335,7 @@ const Margins = () => {
 
                                 {/* Margins Tables */}
                                 <div className="w-full p-2 mt-2">
-                                    <div className="w-full max-w-8xl divide-y rounded-xl">
+                                    <div className="w-full max-w-8xl divide-y divide-[#dbeeff] rounded-xl">
                                         {data.map(({ month, items, openMonth }) => {
                                             return (
                                                 <div key={month}>

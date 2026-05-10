@@ -92,7 +92,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
     <TableRow
       ref={setNodeRef}
       style={style}
-      className="hover:bg-gray-50/50"
+      className="hover:bg-[#dbeeff]/40"
     >
       {row.getVisibleCells().map((cell) => {
         const columnConfig = COLUMN_CONFIGS[cell.column.id] || {};
@@ -355,7 +355,7 @@ const Customtable = (props) => {
                 <style jsx global>{`
                     .margins-data-table tbody td { font-size: 9px !important; }
                 `}</style>
-                <div className="rounded-lg border border-[var(--selago)] overflow-x-auto relative shadow-sm">
+                <div className="rounded-lg border border-[#b8ddf8] overflow-x-auto relative shadow-sm">
                     {/* Desktop Table - Compact Heights */}
                     <div className="hidden sm:block w-full min-w-[900px]">
                         <Table className="w-full margins-data-table" style={{ borderSpacing: '0 1px', tableLayout: 'fixed' }}>
@@ -373,7 +373,7 @@ const Customtable = (props) => {
     width: (COLUMN_CONFIGS[header.column.id] || {}).pct || 'auto',
   }}
   className={cn(
-    'bg-[#dbeeff] text-[var(--chathams-blue)] border-b border-[var(--chathams-blue)]',
+    'bg-[#dbeeff] text-[var(--chathams-blue)] border-b border-b-[#b8ddf8]',
     idx === 0 ? 'rounded-tl-lg' : '',
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
@@ -441,8 +441,7 @@ const Customtable = (props) => {
                                                         className={cn(
                                                             columnConfig.align === 'right' && 'text-right',
                                                             columnConfig.align === 'center' && 'text-center',
-                                                            ["totalMargin", "remaining", "purchase", "openShip"].includes(accessorKey) ?
-                                                                'border-t border-t-[var(--chathams-blue)]' : '',
+                                                            'border-t border-t-[#b8ddf8]',
                                                             'responsiveTextTable'
                                                         )}
                                                     >
@@ -484,7 +483,7 @@ const Customtable = (props) => {
                                     className="rounded-lg border border-[var(--selago)] bg-white shadow-sm overflow-hidden"
                                 >
                                     {/* Compact Card Header */}
-                                    <div className="bg-[#dbeeff] px-3 py-2 border-b border-[#dbeeff] flex justify-between items-center min-h-[32px]">
+                                    <div className="bg-[#dbeeff] px-3 py-2 border-b border-[#b8ddf8] flex justify-between items-center min-h-[32px]">
                                         <span
                                             className="responsiveTextTable font-normal text-[var(--chathams-blue)]"
                                             style={{ lineHeight: '1.2' }}

@@ -57,10 +57,10 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                 }}
             >
                 {/* Header section matching newTable */}
-                <div 
+                <div
                     className="flex-shrink-0"
-                    style={{ 
-                        borderBottom: '2px solid #E5E7EB',
+                    style={{
+                        borderBottom: '2px solid #b8ddf8',
                         background: 'var(--selago)',
                         borderTopLeftRadius: '24px',
                         borderTopRightRadius: '24px'
@@ -75,7 +75,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                             <table className="w-full rounded-xl" style={{ tableLayout: 'auto', borderSpacing: '6px' }}>
                                 {/* THEAD - matching newTable header exactly */}
                                 <thead className="sticky top-0 z-10">
-                                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                                    <tr>
                                         <th
                                             className="px-2 py-2 text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]"
                                             style={{
@@ -396,10 +396,10 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                     }}
                                 >
                                     {/* Card Header */}
-                                    <div 
+                                    <div
                                         className="px-3 py-2 flex items-center justify-between"
-                                        style={{ 
-                                            background: '#bce1ff',
+                                        style={{
+                                            background: '#dbeeff',
                                         }}
                                     >
                                         <span 
@@ -428,13 +428,13 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             >
                                                 Month
                                             </div>
-                                            <div 
+                                            <div
                                                 className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
                                                 style={{
                                                     color: 'var(--endeavour)',
                                                     background: '#dbeeff',
                                                     fontSize: '0.62rem',
-                                                    border: '1px solid transparent'
+                                                    border: '1px solid #b8ddf8'
                                                 }}
                                             >
                                                 {z.month + "-" + yr}
