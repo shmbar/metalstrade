@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 
 import { flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
@@ -145,7 +145,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                             className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                             style={{
                                 backgroundColor: '#FFFFFF',
-                                border: '1px solid #E5E7EB',
+                                border: '1px solid #b8ddf8',
                                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
                             }}
                         >
@@ -158,11 +158,11 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                             {/* Card Content */}
                             <div className="p-4 space-y-2.5">
                                 {row.getVisibleCells().map(cell => (
-                                    <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0" style={{ borderBottom: '1px solid #E5E7EB' }}>
+                                    <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0" style={{ borderBottom: '1px solid #b8ddf8' }}>
                                         <div className="uppercase tracking-wider font-normal" style={{ color: 'var(--regent-gray)', fontSize: '0.58rem' }}>
                                             {cell.column.columnDef.header}
                                         </div>
-                                        <div className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" style={{ color: 'var(--port-gore)', background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)', fontSize: '0.62rem', border: '1px solid #E5E7EB' }}>
+                                        <div className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" style={{ color: 'var(--port-gore)', background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)', fontSize: '0.62rem', border: '1px solid #b8ddf8' }}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </div>
                                     </div>

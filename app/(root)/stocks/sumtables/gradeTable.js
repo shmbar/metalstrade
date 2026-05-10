@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { NumericFormat } from 'react-number-format'
 
@@ -40,7 +40,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
   const tdStyle = {
     color: 'var(--chathams-blue)',
     padding: '6px 10px',
-    borderBottom: '1px solid #E5E7EB',
+    borderBottom: '1px solid #b8ddf8',
     whiteSpace: 'nowrap',
     textAlign: 'center',
   }

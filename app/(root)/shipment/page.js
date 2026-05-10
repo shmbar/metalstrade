@@ -884,7 +884,7 @@ const ShipmentPage = () => {
                                 <div
                                     key={contract.id}
                                     className="rounded-2xl overflow-hidden"
-                                    style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
+                                    style={{ backgroundColor: '#FFFFFF', border: '1px solid #b8ddf8', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
                                 >
                                     {/* Card header */}
                                     <div className="px-3 py-2 flex items-center justify-between bg-[#9ad4ff]">
@@ -977,7 +977,7 @@ const ShipmentPage = () => {
                                                 style={{
                                                     backgroundColor: safePageIndex === pi ? 'var(--endeavour)' : '#FFFFFF',
                                                     color: safePageIndex === pi ? '#FFFFFF' : 'var(--endeavour)',
-                                                    borderColor: safePageIndex === pi ? 'var(--endeavour)' : '#E5E7EB',
+                                                    borderColor: safePageIndex === pi ? 'var(--endeavour)' : '#b8ddf8',
                                                 }}
                                             >
                                                 {pi + 1}

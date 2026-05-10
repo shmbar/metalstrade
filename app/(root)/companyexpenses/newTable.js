@@ -322,7 +322,7 @@ const Customtable = ({
                           className="px-2 py-1.5"
                           style={{
                             backgroundColor: '#FFFFFF',
-                            borderBottom: '2px solid #E5E7EB',
+                            borderBottom: '2px solid #b8ddf8',
                             minWidth: header.column.id === 'select' ? '40px' : '90px',
                             maxWidth: header.column.id === 'select' ? '40px' : 'none',
                           }}
@@ -476,7 +476,7 @@ const Customtable = ({
                     backgroundColor: '#FFFFFF',
                     border: highlightId === row.original.id 
                       ? '2px solid #F97316' 
-                      : '1px solid #E5E7EB',
+                      : '1px solid #b8ddf8',
                     boxShadow: highlightId === row.original.id 
                       ? '0 12px 28px rgba(249, 115, 22, 0.2)'
                       : '0 4px 12px rgba(0, 0, 0, 0.06)'
@@ -516,7 +516,7 @@ const Customtable = ({
                         <div 
                           key={cell.id} 
                           className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-                          style={{ borderBottom: '1px solid #E5E7EB' }}
+                          style={{ borderBottom: '1px solid #b8ddf8' }}
                         >
                           <div
                             className="uppercase tracking-wider font-normal"
@@ -532,7 +532,7 @@ const Customtable = ({
                             style={{
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
-                              border: '1px solid #E5E7EB'
+                              border: '1px solid #b8ddf8'
                             }}
                           >
                             {cell.column.id === 'completed' ? (

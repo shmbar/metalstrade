@@ -299,7 +299,7 @@
 //           {/* ── TOOLBAR ── */}
 //           <div className="flex-shrink-0"
 //             style={{
-//               borderBottom: '2px solid #E5E7EB',
+//               borderBottom: '2px solid #b8ddf8',
 //               background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
 //             }}>
 //             <Header
@@ -565,7 +565,7 @@
 //                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
 //                   style={{
 //                     backgroundColor: '#FFFFFF',
-//                     border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid #E5E7EB',
+//                     border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid #b8ddf8',
 //                     boxShadow: highlightId === row.original.id
 //                       ? '0 12px 28px rgba(249,115,22,0.2)'
 //                       : '0 4px 12px rgba(0,0,0,0.06)'
@@ -591,7 +591,7 @@
 //                       if (cell.column.id === 'select') return null
 //                       return (
 //                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-//                           style={{ borderBottom: '1px solid #E5E7EB' }}>
+//                           style={{ borderBottom: '1px solid #b8ddf8' }}>
 //                           <div className="uppercase tracking-wider font-normal"
 //                             style={{ color: '#6B7280', fontSize: 'clamp(6px, 0.6vw, 7px)' }}>
 //                             {cell.column.columnDef.header}
@@ -601,7 +601,7 @@
 //                               color: '#1F2937',
 //                               background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
 //                               fontSize: 'clamp(8px, 0.7vw, 10px)',
-//                               border: '1px solid #E5E7EB'
+//                               border: '1px solid #b8ddf8'
 //                             }}>
 //                             {cell.column.id === 'completed' ? (
 //                               cell.getValue() ? (
@@ -656,7 +656,7 @@
 //           {/* ── PAGINATION FOOTER ── */}
 //           <div className="flex-shrink-0"
 //             style={{
-//               borderTop: '2px solid #E5E7EB',
+//               borderTop: '2px solid #b8ddf8',
 //               background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
 //             }}>
 //             <div className="px-4 py-3">
@@ -1150,7 +1150,7 @@ const Customtable = ({
                     {filterOn && (
                       <tr style={{ backgroundColor: '#FFFFFF' }}>
                         {hdGroup.headers.map(header => (
-                          <th key={header.id} className="px-2 py-1.5" style={{ backgroundColor: '#FFFFFF', borderBottom: '2px solid #E5E7EB' }}>
+                          <th key={header.id} className="px-2 py-1.5" style={{ backgroundColor: '#FFFFFF', borderBottom: '2px solid #b8ddf8' }}>
                             {header.column.getCanFilter() && (
                               <Filter column={header.column} table={table} filterOn={filterOn} />
                             )}
@@ -1308,7 +1308,7 @@ const Customtable = ({
                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid #E5E7EB',
+                    border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid #b8ddf8',
                     boxShadow: highlightId === row.original.id
                       ? '0 12px 28px rgba(249,115,22,0.2)'
                       : '0 4px 12px rgba(0,0,0,0.06)'
@@ -1342,7 +1342,7 @@ const Customtable = ({
                       const isEURValue = ['eu', 'eur', '€'].includes(normalizedValue)
                       return (
                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-                          style={{ borderBottom: '1px solid #E5E7EB' }}>
+                          style={{ borderBottom: '1px solid #b8ddf8' }}>
                           <div className="uppercase tracking-wider font-normal"
                             style={{ color: 'var(--regent-gray)', fontSize: '0.58rem' }}>
                             {cell.column.columnDef.header}
@@ -1351,7 +1351,7 @@ const Customtable = ({
                             style={{
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg,#FAFAFA,#F5F5F5)',
-                              border: '1px solid #E5E7EB'
+                              border: '1px solid #b8ddf8'
                             }}>
                             {cell.column.id === 'completed' ? (
                               cell.getValue() ? (

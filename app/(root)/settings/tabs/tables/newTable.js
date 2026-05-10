@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Header from "../../../../../components/table/header";
 import {
@@ -186,7 +186,7 @@ const Customtable = ({
             </tbody>
           </table>
         </div>
-        <div className="flex items-center justify-between p-3 border-[#E5E7EB] bg-white rounded-b-lg">
+        <div className="flex items-center justify-between p-3 border-[#b8ddf8] bg-white rounded-b-lg">
           {/* LEFT — Showing text */}
           <div className="hidden lg:flex text-[var(--endeavour)] text-[0.72rem]">
             {`${getTtl("Showing", ln)} ${table.getState().pagination.pageIndex *

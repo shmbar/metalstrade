@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react';
+﻿import { useState, useContext, useEffect } from 'react';
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { v4 as uuidv4 } from 'uuid';
 import { sortArr, validate, ErrDiv } from '../../../../utils/utils'
@@ -72,7 +72,7 @@ const Clients = () => {
 
     const fieldRow = 'flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0';
     const labelCls = 'sm:w-[80px] shrink-0 responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]';
-    const inputCls = 'w-full sm:flex-1 h-[26px] px-5 responsiveText rounded-full border border-[#E5E7EB] bg-white text-[0.75rem]';
+    const inputCls = 'w-full sm:flex-1 h-[26px] px-5 responsiveText rounded-full border border-[#b8ddf8] bg-white text-[0.75rem]';
 
     return (
         <div className='p-2 rounded-2xl flex flex-col md:flex-row w-full gap-4'>
@@ -113,7 +113,7 @@ const Clients = () => {
                     </Tltip>
                 </div>
 
-                <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-1 shadow-md w-full bg-white'>
+                <div className='border border-[#b8ddf8] p-4 rounded-2xl mt-1 shadow-md w-full bg-white'>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 w-full">
                         <div className="space-y-4">
                             <div className="flex flex-col">
@@ -161,7 +161,7 @@ const Clients = () => {
                     </div>
                 </div>
 
-                <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-3 shadow-md w-full bg-white'>
+                <div className='border border-[#b8ddf8] p-4 rounded-2xl mt-3 shadow-md w-full bg-white'>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 w-full">
                         <div className="space-y-4">
                             <div className={fieldRow}>

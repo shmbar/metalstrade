@@ -1,4 +1,4 @@
-
+﻿
 import { NumericFormat } from "react-number-format";
 
 const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr, title }) => {
@@ -391,7 +391,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                     className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                                     style={{
                                         backgroundColor: '#FFFFFF',
-                                        border: '1px solid #E5E7EB',
+                                        border: '1px solid #b8ddf8',
                                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
                                     }}
                                 >
@@ -417,7 +417,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                     <div className="p-4 space-y-2.5">
                                         <div 
                                             className="flex flex-col space-y-1.5 pb-2.5"
-                                            style={{ borderBottom: '1px solid #E5E7EB' }}
+                                            style={{ borderBottom: '1px solid #b8ddf8' }}
                                         >
                                             <div 
                                                 className="font-medium" 
@@ -443,7 +443,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
 
                                         <div 
                                             className="flex flex-col space-y-1.5 pb-2.5"
-                                            style={{ borderBottom: '1px solid #E5E7EB' }}
+                                            style={{ borderBottom: '1px solid #b8ddf8' }}
                                         >
                                             <div 
                                                 className="font-medium" 
@@ -460,7 +460,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     color: 'var(--chathams-blue)',
                                                     background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                     fontSize: '0.62rem',
-                                                    border: '1px solid #E5E7EB'
+                                                    border: '1px solid #b8ddf8'
                                                 }}
                                             >
                                                 <NumericFormat
@@ -476,7 +476,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
 
                                         <div 
                                             className="flex flex-col space-y-1.5 pb-2.5"
-                                            style={{ borderBottom: '1px solid #E5E7EB' }}
+                                            style={{ borderBottom: '1px solid #b8ddf8' }}
                                         >
                                             <div 
                                                 className="font-medium" 
@@ -493,7 +493,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     color: 'var(--chathams-blue)',
                                                     background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                     fontSize: '0.62rem',
-                                                    border: '1px solid #E5E7EB'
+                                                    border: '1px solid #b8ddf8'
                                                 }}
                                             >
                                                 <NumericFormat
@@ -542,7 +542,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                 <div className="p-4 space-y-2.5">
                                     <div 
                                         className="flex flex-col space-y-1.5 pb-2.5"
-                                        style={{ borderBottom: '1px solid #E5E7EB' }}
+                                        style={{ borderBottom: '1px solid #b8ddf8' }}
                                     >
                                         <div 
                                             className="font-medium" 
@@ -559,7 +559,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                 fontSize: '0.62rem',
-                                                border: '1px solid #E5E7EB'
+                                                border: '1px solid #b8ddf8'
                                             }}
                                         >
                                             <NumericFormat
@@ -575,7 +575,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
 
                                     <div 
                                         className="flex flex-col space-y-1.5 pb-2.5"
-                                        style={{ borderBottom: '1px solid #E5E7EB' }}
+                                        style={{ borderBottom: '1px solid #b8ddf8' }}
                                     >
                                         <div 
                                             className="font-medium" 
@@ -592,7 +592,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                 fontSize: '0.62rem',
-                                                border: '1px solid #E5E7EB'
+                                                border: '1px solid #b8ddf8'
                                             }}
                                         >
                                             <NumericFormat
@@ -609,7 +609,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
 
                                     <div 
                                         className="flex flex-col space-y-1.5 pb-2.5"
-                                        style={{ borderBottom: '1px solid #E5E7EB' }}
+                                        style={{ borderBottom: '1px solid #b8ddf8' }}
                                     >
                                         <div 
                                             className="font-medium" 
@@ -626,7 +626,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                 fontSize: '0.62rem',
-                                                border: '1px solid #E5E7EB'
+                                                border: '1px solid #b8ddf8'
                                             }}
                                         >
                                             <NumericFormat
@@ -658,7 +658,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                 fontSize: '0.62rem',
-                                                border: '1px solid #E5E7EB'
+                                                border: '1px solid #b8ddf8'
                                             }}
                                         >
                                             <NumericFormat

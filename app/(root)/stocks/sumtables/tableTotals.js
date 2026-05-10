@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
 import { TbSortDescending, TbSortAscending } from "react-icons/tb"
@@ -143,7 +143,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         style={{
                           color: 'var(--chathams-blue)',
                           padding: '6px 10px',
-                          borderBottom: '1px solid #E5E7EB',
+                          borderBottom: '1px solid #b8ddf8',
                           whiteSpace: 'nowrap',
                         }}
                       >

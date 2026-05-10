@@ -1,4 +1,4 @@
-
+﻿
 'use client'
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
@@ -324,7 +324,7 @@ const Customtable = ({
                           className="px-2 py-1.5"
                           style={{
                             backgroundColor: '#FFFFFF',
-                            borderBottom: '2px solid #E5E7EB',
+                            borderBottom: '2px solid #b8ddf8',
                             minWidth: header.column.id === 'select' ? '50px' : '90px',
                             maxWidth: header.column.id === 'select' ? '50px' : 'none',
                           }}
@@ -535,7 +535,7 @@ const Customtable = ({
                     {row.getVisibleCells().map((cell) => {
                       if (cell.column.id === 'select') return null;
                       return (
-                        <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0" style={{ borderBottom: '1px solid #E5E7EB' }}>
+                        <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0" style={{ borderBottom: '1px solid #b8ddf8' }}>
                           <div className="uppercase tracking-wider font-medium responsiveTextTable" style={{ color: 'var(--regent-gray)' }}>
                             {cell.column.columnDef.header}
                           </div>

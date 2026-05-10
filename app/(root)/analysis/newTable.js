@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Header from "../../../components/table/header";
 import {
@@ -162,7 +162,7 @@ const Customtable = ({
       <div className="custom-table">
         <div className="flex flex-col" style={{ boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset' }}>
           {/* HEADER */}
-          <div className="flex-shrink-0" style={{ borderBottom: '2px solid #E5E7EB', background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))' }}>
+          <div className="flex-shrink-0" style={{ borderBottom: '2px solid #b8ddf8', background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))' }}>
             <Header
               globalFilter={globalFilter}
               setGlobalFilter={setGlobalFilter}
@@ -315,7 +315,7 @@ const Customtable = ({
 
           {/* FOOTER */}
           <div className="flex-shrink-0">
-            <div className="flex items-center justify-between p-4" style={{ borderTop: '2px solid #E5E7EB', background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))' }}>
+            <div className="flex items-center justify-between p-4" style={{ borderTop: '2px solid #b8ddf8', background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))' }}>
               <RowsIndicator
                 table={table}
                 quickSumEnabled={quickSumEnabled}

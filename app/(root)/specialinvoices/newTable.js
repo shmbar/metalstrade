@@ -1,4 +1,4 @@
-// 'use client'
+﻿// 'use client'
 
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
@@ -353,7 +353,7 @@ const Customtable = ({
                                                             className="px-2 py-1.5 font-medium text-xs font-poppins"
                                                             style={{
                                                                 backgroundColor: '#FFFFFF',
-                                                                borderBottom: '2px solid #E5E7EB',
+                                                                borderBottom: '2px solid #b8ddf8',
                                                                 minWidth: header.column.id === 'select' ? '50px' : '90px',
                                                                 maxWidth: header.column.id === 'select' ? '50px' : 'none',
                                                             }}
@@ -508,7 +508,7 @@ const Customtable = ({
                                     className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                                     style={{
                                         backgroundColor: '#FFFFFF',
-                                        border: '1px solid #E5E7EB',
+                                        border: '1px solid #b8ddf8',
                                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
                                     }}
                                 >
@@ -551,7 +551,7 @@ const Customtable = ({
                                                 <div
                                                     key={cell.id}
                                                     className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-                                                    style={{ borderBottom: '1px solid #E5E7EB' }}
+                                                    style={{ borderBottom: '1px solid #b8ddf8' }}
                                                 >
                                                     <div
                                                         className="uppercase tracking-wider font-normal"
@@ -568,7 +568,7 @@ const Customtable = ({
                                                             color: 'var(--port-gore)',
                                                             background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
                                                             fontSize: '0.62rem',
-                                                            border: '1px solid #E5E7EB'
+                                                            border: '1px solid #b8ddf8'
                                                         }}
                                                     >
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}
