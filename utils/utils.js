@@ -11,6 +11,50 @@ const storage = getStorage();
 
 //const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 
+const MONTH_MAP = {
+  jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
+  jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12',
+};
+
+// Converts "14-May-2026" / "14-may-2026" to ISO "2026-05-14".
+// Passes through strings that already look like YYYY-MM-DD. Returns null on failure.
+const toIsoDate = (s) => {
+  if (!s || typeof s !== 'string') return null;
+  const trimmed = s.trim();
+  if (!trimmed) return null;
+  if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return trimmed.slice(0, 10);
+  const m = trimmed.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+  if (m) {
+    const month = MONTH_MAP[m[2].toLowerCase()];
+    if (month) return `${m[3]}-${month}-${m[1].padStart(2, '0')}`;
+  }
+  // Last-resort: let Date try, then re-emit ISO
+  const d = new Date(trimmed);
+  return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+};
+
+/**
+ * Resolves an invoice's payment due date regardless of whether it's still a draft
+ * (delDate = { startDate, endDate } object) or finalized (delDate = "dd-mmm-yyyy" string).
+ * Always returns ISO "YYYY-MM-DD" or null — safe to pass to new Date() everywhere.
+ */
+export const resolveDueDate = (inv) => {
+  if (!inv?.delDate) return null;
+  if (typeof inv.delDate === 'string') return toIsoDate(inv.delDate);
+  return toIsoDate(inv.delDate.startDate || inv.delDate.endDate);
+};
+
+/**
+ * Resolves an invoice's primary date — handles both draft shape (dateRange.startDate
+ * or top-level date) and finalized shape (date is a 'dd-mmm-yyyy' string).
+ * Always returns ISO "YYYY-MM-DD" or null.
+ */
+export const resolveInvoiceDate = (inv) => {
+  if (!inv) return null;
+  if (typeof inv.date === 'string' && inv.date) return toIsoDate(inv.date);
+  return toIsoDate(inv.dateRange?.startDate || inv.dateRange?.endDate);
+};
+
 export const getD = (array, value, item) => {
   const tmp = array.filter((x) => x.id === value[item]).length ?
     array.find((x) => x.id === value[item])[item] : ''

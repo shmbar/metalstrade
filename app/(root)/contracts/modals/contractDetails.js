@@ -21,6 +21,7 @@ import Tltip from '@components/tlTip.js';
 import { Selector } from '@components/selectors/selectShad';
 import { X, Save, LoaderCircle, FileText, Trash, Copy, SendToBack, Database, Files } from "lucide-react"
 import Toast from '../../../../components/toast.js'
+import DocumentImportOverlay from '@components/DocumentImportOverlay';
 
 
 const ContractModal = () => {
@@ -37,6 +38,7 @@ const ContractModal = () => {
 	const [showPoInvModal, setShowPoInvModal] = useState(false)
 	const [showStockModal, setShowStockModal] = useState(false)
 	const [showFinalSettlmntModal, setShowFinalSettlmntModal] = useState(false);
+	const [showDocImport, setShowDocImport] = useState(false);
 
 	const pathName = usePathname();
 
@@ -494,7 +496,26 @@ const ContractModal = () => {
 						{!gisAccount ? "Copy to GIS" : "Copy to IMS"}
 					</button>
 				</Tltip>
+				<Tltip direction='top' tltpText='Import data from a supplier PDF document'>
+					<button
+						className="whiteButton py-1 flex"
+						onClick={() => setShowDocImport(true)}
+					>
+						<FileText className='size-4' />
+						Import PDF
+					</button>
+				</Tltip>
 			</div>
+			{showDocImport && (
+				<DocumentImportOverlay
+					documentType='contract'
+					suppliers={settings.Supplier?.Supplier || []}
+					clients={[]}
+					currencies={settings.Currency?.Currency || []}
+					onApply={(fields) => setValueCon(prev => ({ ...prev, ...fields }))}
+					onClose={() => setShowDocImport(false)}
+				/>
+			)}
 			<ModalToDelete isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}
 				ttl={getTtl('delConfirmation', ln)} txt={getTtl('delConfirmationTxtContract', ln)}
 				doAction={() => delContract(uidCollection)} />

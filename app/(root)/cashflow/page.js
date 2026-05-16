@@ -27,6 +27,7 @@ import dateFormat from "dateformat";
 import ContractModal from "../contracts/modals/dataModal";
 import ExpenseModal from "../expenses/modals/dataModal";
 import InvPopup from "./invPopup";
+import ForecastPanel from "./ForecastPanel";
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -817,6 +818,9 @@ const Cashflow = () => {
                                     <YearSelect yr={yr} setYr={setYr} />
                                 </div>
                             </div>
+
+                            {/* AI Cash Forecast Panel */}
+                            <ForecastPanel />
 
                             {/* Tabs */}
                             <div className="inline-flex gap-1 mb-2 bg-[#e3f3ff] border border-[#b8ddf8] rounded-full p-0">

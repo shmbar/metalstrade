@@ -2,7 +2,8 @@
 import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { SettingsContext } from "../contexts/useSettingsContext";
 import { UserAuth } from "../contexts/useAuthContext";
-import { loadData, loadMargins, loadAllStockData } from '../utils/utils';
+import { loadData, loadMargins, loadAllStockData, resolveDueDate, resolveInvoiceDate } from '../utils/utils';
+import { authedFetch } from '../utils/aiClient';
 import { X, Send, Loader2, Trash2, RefreshCw, ExternalLink } from 'lucide-react';
 import { BsRobot, BsPerson } from "react-icons/bs";
 import dateFormat from "dateformat";
@@ -314,10 +315,13 @@ const FloatingChat = () => {
                 shipmentStatus: con.shipmentStatus || null,
             })),
             invoices: invoicesData.map(inv => {
-                // invoiceStatus is never stored — compute from flags
-                const invoiceStatus = inv.final && inv.canceled ? 'Canceled'
-                    : inv.final ? 'Final'
-                    : 'Draft';
+                // Project model: `draft` is a manual "not real yet" checkbox; the formal
+                // `final` flag is rarely set. An "issued" invoice = NOT draft, NOT canceled —
+                // same rule the Cashflow page uses for outstanding client debt.
+                const isDraft = inv.draft === true;
+                const isCanceled = !!inv.canceled;
+                const isIssued = !isDraft && !isCanceled;
+                const invoiceStatus = isCanceled ? 'Canceled' : isDraft ? 'Draft' : 'Issued';
 
                 // Payment status from payments array + debtBlnc
                 const totalAmt = parseFloat(inv.totalAmount) || 0;
@@ -333,18 +337,19 @@ const FloatingChat = () => {
                     id: inv.id,
                     invoice: inv.invoice,
                     client: resolveClient(inv.client),
-                    date: inv.date,
-                    invoiceStatus,       // 'Draft' | 'Final' | 'Canceled'
+                    date: resolveInvoiceDate(inv),
+                    invoiceStatus,       // 'Issued' | 'Draft' | 'Canceled'
                     paymentStatus,       // 'Paid' | 'Partially Paid' | 'Unpaid'
                     totalAmount: totalAmt,
                     amountPaid: totalPaid,
                     balanceDue: balanceDue > 0 ? balanceDue : 0,
                     currency: resolveCurrency(inv.cur),
-                    dueDate: inv.delDate?.startDate || inv.delDate?.endDate || null,
-                    canceled: !!inv.canceled,
-                    isFinal: !!inv.final,
+                    dueDate: resolveDueDate(inv),
+                    canceled: isCanceled,
+                    isFinal: isIssued,
                     etd: inv.shipData?.etd?.startDate || null,
                     eta: inv.shipData?.eta?.startDate || null,
+                    reminders: inv.reminders || [],
                 };
             }),
             expenses: expensesData.map(exp => {
@@ -383,7 +388,19 @@ const FloatingChat = () => {
                 totalMargin: parseFloat(m.totalMargin) || 0,
                 incoming: parseFloat(m.incoming) || 0,
                 itemCount: m.items?.length || 0,
+                items: (m.items || []).map(item => ({
+                    description: item.description || '',
+                    supplier: item.supplier || '',
+                    client: item.client || '',
+                    purchase: parseFloat(item.purchase) || 0,
+                    totalMargin: parseFloat(item.totalMargin) || 0,
+                    shipped: parseFloat(item.shipped) || 0,
+                    openShip: parseFloat(item.openShip) || 0,
+                })),
             })),
+            marginAlertThreshold: settings?.MarginAlert?.threshold != null
+                ? parseFloat(settings.MarginAlert.threshold)
+                : 5,
         };
     }, [contractsData, invoicesData, expensesData, stocksData, marginsData, settings]);
 
@@ -409,9 +426,8 @@ const FloatingChat = () => {
                 .filter(m => m.id !== 'welcome')
                 .map(m => ({ role: m.role, content: m.content }));
 
-            const response = await fetch('/api/assistant', {
+            const response = await authedFetch('/api/assistant', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     messages: apiMessages,
                     currentData: getCurrentDataContext(),

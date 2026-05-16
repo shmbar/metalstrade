@@ -28,6 +28,7 @@ import { getTtl } from '@utils/languages';
 import DateRangePicker from '@components/dateRangePicker';
 import TooltipComp from '@components/tooltip';
 import MarketsTicker from '@components/Dashboard/MarketsTicker';
+import AIAlertsBar from '@components/Dashboard/AIAlertsBar';
 
 import { BarChartContracts, HorizontalBar } from './charts';
 
@@ -450,6 +451,10 @@ const Dash = () => {
 
         <motion.div className="mb-4" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
           <MarketsTicker />
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
+          <AIAlertsBar />
         </motion.div>
 
         {/* HEADER */}

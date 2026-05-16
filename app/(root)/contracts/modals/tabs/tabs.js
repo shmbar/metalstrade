@@ -5,6 +5,7 @@ import Invoice from '../invoiceDetails'
 import Contract from '../contractDetails';
 import Profit from './pnl';
 import Inventory from './inventory'
+import CertChecker from '@components/contracts/modals/CertChecker';
 import { ContractsContext } from "@contexts/useContractsContext";
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { getTtl } from '@utils/languages';
@@ -16,19 +17,14 @@ function classNames(...classes) {
 const Page = () => {
     const { valueCon, isButtonDisabled } = useContext(ContractsContext);
     const { ln } = useContext(SettingsContext);
-    let tabs = ['Contract', 'Invoices', 'Shipments Tracking', 'Inventory']
+    let tabs = ['Contract', 'Invoices', 'Shipments Tracking', 'Inventory', 'Certificate']
 
     const SetDiv = (x) => {
-
-        if (x === 0) {
-            return <Contract />
-        } else if (x === 1) {
-            return <Invoice />
-        } else if (x === 2) {
-            return <Profit />
-        } else if (x === 3) {
-            return <Inventory />
-        }
+        if (x === 0) return <Contract />
+        if (x === 1) return <Invoice />
+        if (x === 2) return <Profit />
+        if (x === 3) return <Inventory />
+        if (x === 4) return <CertChecker />
     }
 
 
@@ -40,7 +36,7 @@ const Page = () => {
                         <Tab.List className="flex space-x-1 p-1">
                             {tabs.map((z, i) => (
                                 <Tab
-                                    disabled={((i === 1 || i == 2 || i == 3) && valueCon.id === '') || isButtonDisabled}
+                                    disabled={((i === 1 || i === 2 || i === 3 || i === 4) && valueCon.id === '') || isButtonDisabled}
                                     key={z}
                                     className={({ selected }) =>
                                         classNames(
