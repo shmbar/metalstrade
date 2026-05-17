@@ -153,7 +153,6 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
     return (
         <div className="w-full">
             <style jsx global>{`
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
                 .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
                 .dashboard-scroll::-webkit-scrollbar-track { 
                     background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 

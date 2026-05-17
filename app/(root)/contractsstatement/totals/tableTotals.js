@@ -30,7 +30,6 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
     return (
         <div className="w-full max-w-[540px]">
             <style jsx global>{`
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
                 .glass-table {
                   background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(250,250,250,0.90) 50%, rgba(255,255,255,0.85) 100%);
                 }

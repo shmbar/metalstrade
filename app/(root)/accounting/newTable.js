@@ -150,7 +150,6 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
     <div className="w-full">
       <style jsx global>{`
         /* Import Poppins and set table font */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
         /* Professional gradient scrollbar matching cards */
         .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
