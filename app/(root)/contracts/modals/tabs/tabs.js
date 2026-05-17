@@ -48,7 +48,7 @@ const Page = () => {
                                         )
                                     }
                                 >
-                                    {getTtl(z, ln)}
+                                    {getTtl(z, ln) || z}
                                 </Tab>
                             ))}
                         </Tab.List>
