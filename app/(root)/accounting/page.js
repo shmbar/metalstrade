@@ -1,5 +1,6 @@
 'use client';
 import { useContext, useEffect, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Customtable from './newTable';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import MonthSelect from '../../../components/monthSelect';
@@ -18,8 +19,7 @@ import { EXD } from './excel'
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+// chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
 import { FaWallet, FaArrowTrendUp, FaArrowTrendDown, FaPiggyBank } from 'react-icons/fa6';
 import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
@@ -29,7 +29,7 @@ import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 
 
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+const Bar = dynamic(() => import('./LazyCharts').then((mod) => mod.Bar), { ssr: false });
 
 
 const getprefixInv = (x) => {
