@@ -554,7 +554,7 @@ const ShipmentPage = () => {
                 vertical-align: middle;
                 padding: 6px;
                 border-radius: 4px;
-                font-size: 10px !important;
+                font-size: 9px !important;
                 overflow: visible;
             }
             .td-truncate {
@@ -621,8 +621,7 @@ const ShipmentPage = () => {
                             {/* Search */}
                             <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[#b8ddf8] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
                                 <input
-                                    className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full rounded-2xl"
-                                    style={{ fontSize: '0.68rem' }}
+                                    className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium rounded-2xl"
                                     placeholder="Search"
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
@@ -885,7 +884,7 @@ const ShipmentPage = () => {
                                 <div
                                     key={contract.id}
                                     className="rounded-2xl overflow-hidden"
-                                    style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
+                                    style={{ backgroundColor: '#FFFFFF', border: '1px solid #b8ddf8', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
                                 >
                                     {/* Card header */}
                                     <div className="px-3 py-2 flex items-center justify-between bg-[#9ad4ff]">
@@ -978,7 +977,7 @@ const ShipmentPage = () => {
                                                 style={{
                                                     backgroundColor: safePageIndex === pi ? 'var(--endeavour)' : '#FFFFFF',
                                                     color: safePageIndex === pi ? '#FFFFFF' : 'var(--endeavour)',
-                                                    borderColor: safePageIndex === pi ? 'var(--endeavour)' : '#E5E7EB',
+                                                    borderColor: safePageIndex === pi ? 'var(--endeavour)' : '#b8ddf8',
                                                 }}
                                             >
                                                 {pi + 1}

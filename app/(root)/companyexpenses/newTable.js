@@ -161,12 +161,11 @@ const Customtable = ({
           text-align: center;
 
           font-family: var(--font-poppins), 'Poppins', sans-serif;
-          font-size: 0.78rem !important;
         }
         .custom-table td {
           border: 1px solid #e8f0f8;
           text-align: center;
-          font-size: 10px !important;
+          font-size: 9px !important;
           font-family: var(--font-poppins), 'Poppins', sans-serif;
 
         }
@@ -178,7 +177,7 @@ const Customtable = ({
         .summary-green {
           background-color: #b7d1b5;
           color: #1a3a1a;
-          font-weight: 600;
+          font-weight: 400;
         }
         .summary-green th {
           color: #1a3a1a !important;
@@ -188,7 +187,7 @@ const Customtable = ({
         .summary-blue {
           background-color: #8db6d8;
           color: var(--chathams-blue);
-          font-weight: 600;
+          font-weight: 400;
         }
         .summary-blue th {
           color: var(--chathams-blue) !important;
@@ -264,7 +263,7 @@ const Customtable = ({
                 <Fragment key={hdGroup.id + '-totals'}>
                   <tr className="summary-green">
                     {hdGroup.headers.map(header => (
-                      <th key={header.id} className="py-1.5 responsiveTextTable font-normal text-left px-2">
+                      <th key={header.id} className="py-1.5 responsiveTextTable font-medium text-center px-2" style={{ fontWeight: 500 }}>
                         {header.id === 'supplier' ? 'Total $:' :
                           header.id === 'cur' ? 'USD' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(
@@ -277,7 +276,7 @@ const Customtable = ({
                   </tr>
                   <tr className="summary-blue">
                     {hdGroup.headers.map(header => (
-                      <th key={header.id} className="py-1.5 responsiveTextTable font-normal text-left px-2">
+                      <th key={header.id} className="py-1.5 responsiveTextTable font-medium text-center px-2" style={{ fontWeight: 500 }}>
                         {header.id === 'supplier' ? 'Total —:' :
                           header.id === 'cur' ? 'EUR' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(
@@ -298,7 +297,7 @@ const Customtable = ({
                     {hdGroup.headers.map(header => (
                       <th
                         key={header.id}
-                        className="header-blue py-1.5 font-medium font-poppins"
+                        className="header-blue py-1.5 font-medium font-poppins responsiveTextTable"
                         style={{
                           cursor: header.column.getCanSort() ? 'pointer' : 'default',
                           userSelect: 'none',
@@ -323,7 +322,7 @@ const Customtable = ({
                           className="px-2 py-1.5"
                           style={{
                             backgroundColor: '#FFFFFF',
-                            borderBottom: '2px solid #E5E7EB',
+                            borderBottom: '2px solid #b8ddf8',
                             minWidth: header.column.id === 'select' ? '40px' : '90px',
                             maxWidth: header.column.id === 'select' ? '40px' : 'none',
                           }}
@@ -477,7 +476,7 @@ const Customtable = ({
                     backgroundColor: '#FFFFFF',
                     border: highlightId === row.original.id 
                       ? '2px solid #F97316' 
-                      : '1px solid #E5E7EB',
+                      : '1px solid #b8ddf8',
                     boxShadow: highlightId === row.original.id 
                       ? '0 12px 28px rgba(249, 115, 22, 0.2)'
                       : '0 4px 12px rgba(0, 0, 0, 0.06)'
@@ -517,7 +516,7 @@ const Customtable = ({
                         <div 
                           key={cell.id} 
                           className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-                          style={{ borderBottom: '1px solid #E5E7EB' }}
+                          style={{ borderBottom: '1px solid #b8ddf8' }}
                         >
                           <div
                             className="uppercase tracking-wider font-normal"
@@ -533,7 +532,7 @@ const Customtable = ({
                             style={{
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
-                              border: '1px solid #E5E7EB'
+                              border: '1px solid #b8ddf8'
                             }}
                           >
                             {cell.column.id === 'completed' ? (

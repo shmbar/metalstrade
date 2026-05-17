@@ -1,4 +1,6 @@
 
+import { useState } from 'react';
+import { TbSortAscending, TbSortDescending } from 'react-icons/tb';
 import CheckBox from "../../../components/checkbox";
 import Tltip from "../../../components/tlTip";
 import { Button } from "../../../components/ui/button";
@@ -10,6 +12,37 @@ import DoalogModal from "./dialogSupplier";
 import DoalogModalClient from "./dialogClient";
 
 
+
+const sortRows = (arr, key, dir) => {
+    if (!key) return arr;
+    return [...arr].sort((a, b) => {
+        const av = a[key], bv = b[key];
+        if (!isNaN(parseFloat(av)) && !isNaN(parseFloat(bv)))
+            return dir === 'asc' ? parseFloat(av) - parseFloat(bv) : parseFloat(bv) - parseFloat(av);
+        const as = String(av ?? ''), bs = String(bv ?? '');
+        return dir === 'asc' ? as.localeCompare(bs) : bs.localeCompare(as);
+    });
+};
+
+const SortTh = ({ colKey, label, sortKey, sortDir, onSort, className = '' }) => (
+    <th className={`cursor-pointer select-none ${className}`} onClick={() => onSort(colKey)}>
+        <span className="inline-flex items-center gap-1">
+            {label}
+            {sortKey === colKey && sortDir === 'asc' && <TbSortAscending className="shrink-0" style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+            {sortKey === colKey && sortDir === 'desc' && <TbSortDescending className="shrink-0" style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+        </span>
+    </th>
+);
+
+const useSortState = () => {
+    const [sortKey, setSortKey] = useState(null);
+    const [sortDir, setSortDir] = useState('asc');
+    const handleSort = (key) => {
+        if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+        else { setSortKey(key); setSortDir('asc'); }
+    };
+    return { sortKey, sortDir, handleSort };
+};
 
 let propDefaults = [
     { accessorKey: 'order', },
@@ -145,7 +178,7 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
             totalObj['ind'] = parseFloat(key) //row number
             totalObj['qnty'] = totalObj.qnty === 0 ? totalObj.qnty : parseFloat(totalObj.qnty).toFixed(3)
 
-            if (totalObj.qnty * 1 !== 0) newArr.push(totalObj);
+            if (totalObj.qnty * 1 > 0) newArr.push(totalObj);
 
         }
 
@@ -310,11 +343,15 @@ const moveToContracts = async (z, ent, uidCollection, setDateSelect,
 
 }
 
-export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDateSelect,
-    setValueCon, setIsOpenCon, blankInvoice, router) => {
+export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, setDateSelect,
+    setValueCon, setIsOpenCon, blankInvoice, router }) => {
+    const { sortKey, sortDir, handleSort } = useSortState();
 
-    let filteredArr = stockDataAll.filter(z => z.stock === stock)
-    filteredArr = filteredArr.sort((a, b) => new Date(a.date) - new Date(b.date));
+    const base = stockDataAll
+        .filter(z => z.stock === stock)
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .map(z => ({ ...z, _supplierName: settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || '' }));
+    const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
 
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
@@ -322,12 +359,12 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
-                        <th className="text-left w-12">PO#</th>
-                        <th className="text-left w-16">Supplier</th>
-                        <th className="text-left w-28 max-w-28">Description</th>
-                        <th className="text-right w-14">Quantity</th>
-                        <th className="text-right w-20">Unit Price</th>
-                        <th className="text-right w-20">Total</th>
+                        <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
+                        <SortTh colKey="_supplierName" label="Supplier" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
+                        <SortTh colKey="descriptionName" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
+                        <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
+                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
+                        <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                     </tr>
                 </thead>
                 <tbody>
@@ -342,7 +379,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                                 <td className="text-left w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.descriptionName || ''}><span className="block truncate cursor-default">{z.descriptionName}</span></Tltip>
                                 </td>
-                                <td className="text-right">{
+                                <td className="text-left">{
                                     <NumericFormat
                                         value={z.qnty}
                                         displayType="text"
@@ -352,7 +389,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-right">{
+                                <td className="text-left">{
                                     <NumericFormat
                                         value={z.unitPrc}
                                         displayType="text"
@@ -388,7 +425,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                         </th>
                         <th>
                         </th>
-                        <th className="text-right">
+                        <th className="text-left">
                             {
                                 <NumericFormat
                                     value={filteredArr.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0)}
@@ -400,7 +437,7 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
                                 />
                             }
                         </th>
-                        <th className="text-right">
+                        <th className="text-left">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.unitPrc * 1, 0), 'usd')}
                         </th>
                         <th className="text-right">
@@ -414,13 +451,13 @@ export const stoclToolTip = (stock, stockDataAll, settings, uidCollection, setDa
     )//stock;
 }
 
-export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
-    setValueCon, setIsOpenCon, blankInvoice, router
-) => {
+export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
+    setValueCon, setIsOpenCon, blankInvoice, router }) => {
+    const { sortKey, sortDir, handleSort } = useSortState();
 
-    let filteredArr = stockDataAllArray.filter(z => z.supplier === supplier)
-
-    const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd')
+    const base = stockDataAllArray.filter(z => z.supplier === supplier);
+    const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
+    const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd');
 
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
@@ -428,11 +465,11 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
-                        <th className="text-left w-12">PO#</th>
-                        <th className="text-left w-28 max-w-28">Description</th>
-                        <th className="text-right w-14">Quantity</th>
-                        <th className="text-right w-20">Unit Price</th>
-                        <th className="text-right w-20">Total</th>
+                        <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
+                        <SortTh colKey="description" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
+                        <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
+                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
+                        <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                     </tr>
                 </thead>
                 <tbody>
@@ -446,7 +483,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                                 <td className="text-left w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.description || ''}><span className="block truncate cursor-default">{z.description}</span></Tltip>
                                 </td>
-                                <td className="text-right">{
+                                <td className="text-left">{
                                     <NumericFormat
                                         value={z.qnty}
                                         displayType="text"
@@ -456,7 +493,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-right">{
+                                <td className="text-left">{
                                     <NumericFormat
                                         value={z.unitPrc}
                                         displayType="text"
@@ -489,7 +526,7 @@ export const stocksUnSold = (supplier, stockDataAllArray, settings, uidCollectio
                             Total
                         </th>
                         <th></th>
-                        <th className="text-right">
+                        <th className="text-left">
                             {
                                 <NumericFormat
                                     value={filteredArr.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0)}
@@ -648,14 +685,18 @@ const getprefixInv = (q) => {
         (q.invType === '2222' || q.invType === 'Credit Note') ? 'CN' : 'FN'
 }
 
-export const clientDetails = (client, data, type, uidCollection, setDateSelect,
+export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient, toggleCheckClientAll,
-    toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal) => {
+    toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal }) => {
+    const { sortKey, sortDir, handleSort } = useSortState();
 
-    let tmp = data.filter(z => z.client === client)
-    let filteredArr = tmp.filter(x => x.payments.length > 0)
-
-    let filteredArr1 = tmp.filter(x => x.payments.length === 0)
+    const tmp = data.filter(z => z.client === client);
+    const rawPartPaid = tmp.filter(x => x.payments.length > 0)
+        .map(z => ({ ...z, _order: z.poSupplier?.order || '', _pmntTotal: (z.payments || []).reduce((t, p) => t + p.pmnt * 1, 0) }));
+    const rawInDebt = tmp.filter(x => x.payments.length === 0)
+        .map(z => ({ ...z, _order: z.poSupplier?.order || '' }));
+    const filteredArr = sortKey ? sortRows(rawPartPaid, sortKey, sortDir) : rawPartPaid;
+    const filteredArr1 = sortKey ? sortRows(rawInDebt, sortKey, sortDir) : rawInDebt;
 
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
@@ -665,17 +706,17 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                     <table className="cashflow-detail-table w-full table-auto">
                         <thead>
                             <tr>
-                                <th className="text-left max-w-20 2xl:max-w-24">PO#</th>
-                                <th className="text-left w-12">Invoice</th>
-                                <th className="text-right">Amount</th>
-                                <th className="text-right">Payment</th>
-                                <th className="text-right">Balance</th>
+                                <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left max-w-20 2xl:max-w-24" />
+                                <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
+                                <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                                <SortTh colKey="_pmntTotal" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                                <SortTh colKey="debtBlnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <th className="text-left">ETD</th>
                                 <th className="text-left">ETA</th>
-                                <th className="text-center">Pmn</th>
-                                <th className="text-center px-2 py-0">
+                                <th className="text-left">Pmn</th>
+                                <th className="text-left px-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
-                                        <div className='flex items-center justify-center'>
+                                        <div className='flex items-center justify-start'>
                                             {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleClientPartial[filteredArr[0]?.client]}
                                                 onChange={() => toggleCheckClientAll('PartPaid', filteredArr)}
                                             />
@@ -694,7 +735,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
                                         <td className="text-left w-10 cursor-pointer text-[var(--endeavour)] hover:underline" onClick={() => openInvModal && openInvModal(z, 'client')}><Tltip direction='top' tltpText='Click to preview invoice'><span className="block truncate">{z.invoice}</span></Tltip></td>
-                                        <td className="text-right">{
+                                        <td className="text-left">{
                                             <NumericFormat
                                                 value={z.totalAmount}
                                                 displayType="text"
@@ -705,7 +746,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 fixedDecimalScale
                                             />
                                         }</td>
-                                        <td className="text-right">{
+                                        <td className="text-left">{
                                             <NumericFormat
                                                 value={z.payments.reduce((total, obj) => {
                                                     return total + obj.pmnt * 1;
@@ -718,7 +759,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 fixedDecimalScale
                                             />
                                         }</td>
-                                        <td className="text-right">{
+                                        <td className="text-left">{
                                             <NumericFormat
                                                 value={z.debtBlnc}
                                                 displayType="text"
@@ -731,18 +772,18 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                         }</td>
                                         <td className="text-left">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
                                         <td className="text-left">{dateFormat(z.shipData?.eta?.startDate, 'dd.mm.yy')}</td>
-                                        <td className="text-center !py-1">
+                                        <td className="text-left !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>
-                                                <div className='flex items-center justify-center'>
+                                                <div className='flex items-center justify-start'>
                                                     <DoalogModalClient obj={z}
                                                         clientPartialPayment={clientPartialPayment}
                                                     />
                                                 </div>
                                             </Tltip>
                                         </td>
-                                        <td className="text-center !py-1">
+                                        <td className="text-left !py-1">
                                             <Tltip direction='right' tltpText='Set full payment'>
-                                                <div className='flex items-center justify-center'>
+                                                <div className='flex items-center justify-start'>
                                                     <CheckBox size='size-3' checked={z.checked}
                                                         onChange={() => toggleCheckClient(z, 'PartPaid')} />
                                                 </div>
@@ -757,22 +798,22 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                             <tr className="bg-[#dbeeff]">
                                 <th className="text-left">TOTAL</th>
                                 <th></th>
-                                <th className="text-right">
+                                <th className="text-left">
                                     {showAmount(filteredArr.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
                                 </th>
-                                <th className="text-right">
+                                <th className="text-left">
                                     {showAmount(filteredArr
                                         .flatMap(item => item.payments || [])
                                         .reduce((sum, payment) => sum + (parseFloat(payment.pmnt) || 0), 0), 'usd')}
                                 </th>
-                                <th className="text-right">
+                                <th className="text-left">
                                     {showAmount(filteredArr.reduce((sum, item) => sum + item.debtBlnc, 0), 'usd')}
                                 </th>
                                 <th></th>
                                 <th></th>
                                 <th></th>
-                                <th className="text-center">
-                                    <div className='flex items-center justify-center'>
+                                <th className="text-left">
+                                    <div className='flex items-center justify-start'>
                                         <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                             onClick={() => savePmntClient(filteredArr[0]?.client)}
                                             disabled={filteredArr.length === 0}>
@@ -791,14 +832,14 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                     <table className="cashflow-detail-table w-full table-auto">
                         <thead>
                             <tr>
-                                <th className="text-left w-28">PO#</th>
-                                <th className="text-left w-12">Invoice</th>
-                                <th className="text-right">Amount</th>
-                                <th className="text-right">Prepayment</th>
-                                <th className="text-center">Pmn</th>
-                                <th className="text-center p-1 2xl:p-1 py-0">
+                                <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28" />
+                                <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
+                                <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                                <SortTh colKey="percentage" label="Prepayment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                                <th className="text-left">Pmn</th>
+                                <th className="text-left p-1 2xl:p-1 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
-                                        <div className='flex items-center justify-center'>
+                                        <div className='flex items-center justify-start'>
                                             {filteredArr1.length > 0 && <CheckBox size='size-3' checked={!!toggleClientFull[filteredArr1[0]?.client]}
                                                 onChange={() => toggleCheckClientAll('InDebt', filteredArr1)} />
                                             }
@@ -816,7 +857,7 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
                                         <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline" onClick={() => openInvModal && openInvModal(z, 'client')}><Tltip direction='top' tltpText='Click to preview invoice'><span className="block truncate">{z.invoice}</span></Tltip></td>
-                                        <td className="text-right">{
+                                        <td className="text-left">{
                                             <NumericFormat
                                                 value={z.totalAmount}
                                                 displayType="text"
@@ -827,12 +868,12 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                                 fixedDecimalScale
                                             />
                                         }</td>
-                                        <td className="text-right">{
+                                        <td className="text-left">{
                                             z.percentage + '%'
                                         }</td>
-                                        <td className="text-center !py-1">
+                                        <td className="text-left !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>
-                                                <div className='flex items-center justify-center'>
+                                                <div className='flex items-center justify-start'>
                                                     <DoalogModalClient obj={z}
                                                         clientPartialPayment={clientPartialPayment}
                                                     />
@@ -840,9 +881,9 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                                             </Tltip>
                                         </td>
 
-                                        <td className="text-center !py-1">
+                                        <td className="text-left !py-1">
                                             <Tltip direction='right' tltpText='Set full payment'>
-                                                <div className='flex items-center justify-center'>
+                                                <div className='flex items-center justify-start'>
                                                     <CheckBox size='size-3' checked={z.checked}
                                                         onChange={() => toggleCheckClient(z, 'InDebt')} />
                                                 </div>
@@ -857,15 +898,15 @@ export const clientDetails = (client, data, type, uidCollection, setDateSelect,
                             <tr className="bg-[#dbeeff]">
                                 <th className="text-left">TOTAL</th>
                                 <th></th>
-                                <th className="text-right">
+                                <th className="text-left">
                                     {showAmount(filteredArr1.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
                                 </th>
-                                <th className="text-right">
+                                <th className="text-left">
                                     {showAmount(filteredArr1.reduce((sum, item) => sum + item.totalAmount * (item.percentage / 100), 0), 'usd')}
                                 </th>
                                 <th></th>
-                                <th className="text-center">
-                                    <div className='flex items-center justify-center'>
+                                <th className="text-left">
+                                    <div className='flex items-center justify-start'>
                                         <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                             onClick={() => savePmntClient(filteredArr1[0]?.client)}
                                             disabled={filteredArr1.length === 0}>
@@ -1040,13 +1081,14 @@ export const getTotalsSupPayments = (arr) => {
 }
 
 
-export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
+export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-    toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal,
-) => {
+    toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal }) => {
+    const { sortKey, sortDir, handleSort } = useSortState();
 
-    let filteredArr = data.filter(z => z.supplier === supplier)
-    let type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt'
+    const base = data.filter(z => z.supplier === supplier && z.blnc * 1 !== 0);
+    const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
+    const type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt';
 
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
@@ -1054,15 +1096,15 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
-                        <th className="text-left">PO#</th>
-                        <th className="text-left w-12">Invoice</th>
-                        <th className="text-right">Value</th>
-                        <th className="text-right">Payment</th>
-                        <th className="text-right">Balance</th>
-                        <th className="text-center">Pmn</th>
-                        <th className="text-center py-0">
+                        <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
+                        <SortTh colKey="invValue" label="Value" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="pmnt" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="blnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <th className="text-left">Pmn</th>
+                        <th className="text-left py-0">
                             <Tltip direction='right' tltpText='Select all'>
-                                <div className='flex items-center justify-center'>
+                                <div className='flex items-center justify-start'>
                                     {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleSupplier[filteredArr[0]?.supplier + '-' + type]}
                                         onChange={() => toggleCheckSupplierAll(filteredArr)}
                                     />
@@ -1081,7 +1123,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}
                                 ><Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
                                 <td className="text-left 2xl:max-w-24 truncate cursor-pointer text-[var(--endeavour)] hover:underline" onClick={() => openInvModal && openInvModal(z, 'supplier')}><Tltip direction='top' tltpText='Click to preview invoice'><span className="block truncate">{z.invoice}</span></Tltip></td>
-                                <td className="text-right">{
+                                <td className="text-left">{
                                     <NumericFormat
                                         value={z.invValue}
                                         displayType="text"
@@ -1092,7 +1134,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-right">{
+                                <td className="text-left">{
                                     <NumericFormat
                                         value={z.pmnt}
                                         displayType="text"
@@ -1103,7 +1145,7 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-right">{
+                                <td className="text-left">{
                                     <NumericFormat
                                         value={z.blnc}
                                         displayType="text"
@@ -1114,16 +1156,16 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-center !py-1">
+                                <td className="text-left !py-1">
                                     <Tltip direction='right' tltpText='Partial Payment'>
-                                        <div className='flex items-center justify-center'>
+                                        <div className='flex items-center justify-start'>
                                             <DoalogModal obj={z} supplierPartialPayment={supplierPartialPayment} />
                                         </div>
                                     </Tltip>
                                 </td>
-                                <td className="text-center !py-1">
+                                <td className="text-left !py-1">
                                     <Tltip direction='right' tltpText='Set full payment'>
-                                        <div className='flex items-center justify-center'>
+                                        <div className='flex items-center justify-start'>
                                             <CheckBox size='size-3' checked={z.checked}
                                                 onChange={() => toggleCheckSupplier(z, filteredArr)} />
                                         </div>
@@ -1137,18 +1179,18 @@ export const supplierDetails = (supplier, data, uidCollection, setDateSelect,
                     <tr className="bg-[#dbeeff]">
                         <th className="text-left">TOTAL</th>
                         <th></th>
-                        <th className="text-right">
+                        <th className="text-left">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.invValue * 1, 0), 'usd')}
                         </th>
-                        <th className="text-right">
+                        <th className="text-left">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.pmnt * 1, 0), 'usd')}
                         </th>
-                        <th className="text-right">
+                        <th className="text-left">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.blnc * 1, 0), 'usd')}
                         </th>
                         <th></th>
-                        <th className="text-center">
-                            <div className='flex items-center justify-center'>
+                        <th className="text-left">
+                            <div className='flex items-center justify-start'>
                                 <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                     onClick={() => savePmntSupplier(filteredArr)}
                                     disabled={filteredArr.length === 0}>
@@ -1215,11 +1257,14 @@ export const runExpenses = async (uidCollection, settings, yr) => {
 
 }
 
-export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, setDateSelect,
+export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection, setDateSelect,
     setValueExp, setIsOpen, blankInvoice, router, toggleCheckExp, toggleCheckExpAll,
-    toggleExp, savePmntExp) => {
+    toggleExp, savePmntExp }) => {
+    const { sortKey, sortDir, handleSort } = useSortState();
 
-    let filteredArr = expensesAll.filter(z => z.supplier === supplier)
+    const base = expensesAll.filter(z => z.supplier === supplier)
+        .map(z => ({ ...z, _order: z.poSupplier?.order ?? 'Comp. Exp.' }));
+    const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
 
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
@@ -1227,15 +1272,15 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
-                        <th className="text-left w-24">PO#</th>
-                        <th className="text-left">Exp. Invoice</th>
-                        <th className="text-left">Exp. Type</th>
-                        <th className="text-right">Amount</th>
-                        <th className="text-left">Date</th>
-                        <th className="text-center">Payment</th>
-                        <th className="text-center">
+                        <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-24" />
+                        <SortTh colKey="expense" label="Exp. Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="expType" label="Exp. Type" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="amount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="date" label="Date" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <th className="text-left">Payment</th>
+                        <th className="text-left">
                             <Tltip direction='right' tltpText='Select all'>
-                                <div className='flex items-center justify-center'>
+                                <div className='flex items-center justify-start'>
                                     {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleExp[filteredArr[0]?.supplier]}
                                         onChange={() => toggleCheckExpAll(filteredArr)}
                                     />
@@ -1255,7 +1300,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                                     <Tltip direction='top' tltpText={z.poSupplier?.order ?? 'Comp. Exp.'}><span className="block truncate">{z.poSupplier?.order ?? 'Comp. Exp.'}</span></Tltip></td>
                                 <td className="text-left"><Tltip direction='top' tltpText={z.expense || ''}><span className="block truncate max-w-20">{z.expense}</span></Tltip></td>
                                 <td className="text-left"><Tltip direction='top' tltpText={settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType || ''}><span className="block truncate max-w-20">{settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType}</span></Tltip></td>
-                                <td className="text-right">{
+                                <td className="text-left">{
                                     <NumericFormat
                                         value={z.amount}
                                         displayType="text"
@@ -1269,12 +1314,12 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                                 <td className="text-left">
                                     {dateFormat(z.date, 'dd.mm.yy')}
                                 </td>
-                                <td className="text-center">
+                                <td className="text-left">
                                     <span className={z.paid === '111' ? 'text-green-600' : 'text-orange-500'}>{z.paid === '111' ? 'Paid' : 'Unpaid'}</span>
                                 </td>
-                                <td className="text-center !py-1">
+                                <td className="text-left !py-1">
                                     <Tltip direction='right' tltpText='Set full payment'>
-                                        <div className='flex items-center justify-center'>
+                                        <div className='flex items-center justify-start'>
                                             <CheckBox size='size-3' checked={z.checked}
                                                 onChange={() => toggleCheckExp(z)} />
                                         </div>
@@ -1293,7 +1338,7 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                         </th>
                         <th></th>
                         <th></th>
-                        <th className="text-right">
+                        <th className="text-left">
                             <div>{
                                 showAmount(filteredArr.reduce((sum, item) => {
                                     const amt = parseFloat(item.amount) || 0;
@@ -1309,8 +1354,8 @@ export const expensesToolTip = (supplier, expensesAll, settings, uidCollection, 
                         </th>
                         <th></th>
                         <th></th>
-                        <th className="text-center">
-                            <div className='flex items-center justify-center'>
+                        <th className="text-left">
+                            <div className='flex items-center justify-start'>
                                 <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                     onClick={() => savePmntExp(filteredArr)}
                                     disabled={filteredArr.length === 0}>

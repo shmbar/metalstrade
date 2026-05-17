@@ -31,6 +31,7 @@ import dateFormat from 'dateformat';
 import Tltip from '../../../../components/tlTip.js';
 import { Selector } from '../../../../components/selectors/selectShad.js';
 import { ChevronDown, ChevronUp, ScrollText } from 'lucide-react';
+import DocumentImportOverlay from '../../../../components/DocumentImportOverlay';
 
 const InvoiceModal = () => {
 
@@ -47,6 +48,7 @@ const InvoiceModal = () => {
 	const { uidCollection, gisAccount } = UserAuth();
 	const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 	const [docsOpen, setDocsOpen] = useState(false);
+	const [showDocImport, setShowDocImport] = useState(false);
 	const router = useRouter();
 	const { setValueCon, setIsOpenCon, valueCon } = useContext(ContractsContext);
 
@@ -687,8 +689,26 @@ const InvoiceModal = () => {
 						{getTtl('Contract', ln)}
 					</button>
 				</Tltip>
+				{!fnl && (
+					<Tltip direction='top' tltpText='Import data from a client PDF document'>
+						<button type="button" className="whiteButton py-1" onClick={() => setShowDocImport(true)}>
+							<ScrollText className='size-4' />
+							Import PDF
+						</button>
+					</Tltip>
+				)}
 			</div>
 
+			{showDocImport && (
+				<DocumentImportOverlay
+					documentType='invoice'
+					suppliers={[]}
+					clients={settings.Client?.Client || []}
+					currencies={settings.Currency?.Currency || []}
+					onApply={(fields) => setValueInv(prev => ({ ...prev, ...fields }))}
+					onClose={() => setShowDocImport(false)}
+				/>
+			)}
 			<ModalToAction isDeleteOpen={isFinilizeOpen} setIsDeleteOpen={setIsFinilizeOpen}
 				ttl='Invoice finalization' txt='To finalize this invoice please confirm to proceed.'
 				doAction={() => finilizeInvoice(uidCollection, settings)} />

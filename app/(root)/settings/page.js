@@ -12,6 +12,7 @@ import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { getTtl } from "../../../utils/languages";
 import Users from './tabs/users'
 import Documents from './tabs/documents'
+import EmailSetup from './tabs/emailSetup'
 import { UserAuth } from '../../../contexts/useAuthContext'
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
@@ -28,7 +29,7 @@ const Page = () => {
   const ln = compData?.lng || 'English';
   const { userTitle } = UserAuth();
 
-  let tabs = ['Company Details', 'Setup', 'Suppliers', 'Clients', 'Bank Account', 'Stocks', 'Documents']
+  let tabs = ['Company Details', 'Setup', 'Suppliers', 'Clients', 'Bank Account', 'Stocks', 'Documents', 'Email Setup']
   if (userTitle === 'Admin') tabs.push('Users');
 
   const SetDiv = (x) => {
@@ -47,6 +48,8 @@ const Page = () => {
     } else if (x === 6) {
       return <Documents />
     } else if (x === 7) {
+      return <EmailSetup />
+    } else if (x === 8) {
       return <Users />
     }
   }

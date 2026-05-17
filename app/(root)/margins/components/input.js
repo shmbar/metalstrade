@@ -1,6 +1,6 @@
 import { addComma } from '../../../../app/(root)/cashflow/funcs';
 import { cn } from '../../../../lib/utils';
-import { memo } from 'react';
+import { useRef, useLayoutEffect } from 'react';
 
 const showAmount = (nStr) => {
   nStr += '';
@@ -33,7 +33,20 @@ const INPUT_CLASS = `
 
 const INPUT_STYLE = { minHeight: '26px', fontFamily: "var(--font-poppins), 'Poppins', sans-serif" };
 
-export const Input = memo(function Input({ props, handleChange, month, name, styles, addCur }) {
+export const Input = function Input({ props, handleChange, month, name, styles, addCur }) {
+  const inputRef = useRef(null);
+  const savedCursor = useRef(null);
+
+  // Restore cursor position after React re-renders the controlled input
+  // Only needed for text fields (description) where cursor can jump to end
+  useLayoutEffect(() => {
+    const input = inputRef.current;
+    if (input && savedCursor.current !== null) {
+      input.setSelectionRange(savedCursor.current, savedCursor.current);
+      savedCursor.current = null;
+    }
+  });
+
   const value = props.column.id === 'description'
     ? props.getValue()
     : addCur
@@ -42,20 +55,20 @@ export const Input = memo(function Input({ props, handleChange, month, name, sty
 
   return (
     <input
+      ref={inputRef}
       type="text"
       value={value}
       name={name}
-      onChange={(e) => handleChange(e, props.row.index, month)}
+      onChange={(e) => {
+        if (name === 'description') {
+          savedCursor.current = e.target.selectionStart;
+        }
+        handleChange(e, props.row.index, month);
+      }}
       className={cn(styles, INPUT_CLASS)}
       style={INPUT_STYLE}
     />
   );
-}, (prev, next) =>
-  prev.props.getValue() === next.props.getValue() &&
-  prev.props.row.index === next.props.row.index &&
-  prev.month === next.month &&
-  prev.name === next.name &&
-  prev.addCur === next.addCur
-);
+};
 
 export default Input;

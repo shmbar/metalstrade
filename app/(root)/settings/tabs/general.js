@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+﻿import { useContext, useState } from 'react'
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import Spinner from '../../../../components/spinner';
@@ -35,7 +35,7 @@ const General = () => {
             {compData && Object.keys(compData).length === 0 ?
                 <Spinner />
                 : <>
-                    <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-1'>
+                    <div className='border border-[#b8ddf8] p-4 rounded-2xl mt-1'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='gap-4 flex items-center' >
                                 <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
@@ -48,7 +48,7 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#E5E7EB]
+  border-[#b8ddf8]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
@@ -83,7 +83,7 @@ const General = () => {
                         </div>
                     </div>
 
-                    <div className='border border-[#E5E7EB] p-4 rounded-2xl mt-5'>
+                    <div className='border border-[#b8ddf8] p-4 rounded-2xl mt-5'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2'>
@@ -92,7 +92,7 @@ const General = () => {
                                             {getTtl('street', ln)}:</p>
                                         <input
                                             type='input'
-                                            className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                            className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
                                             value={compData?.street || ''}
                                             onChange={e => setCompData({ ...(compData || {}), street: e.target.value })}
                                         />
@@ -102,7 +102,7 @@ const General = () => {
                                             {getTtl('city', ln)}: </p>
                                         <input
                                             type='input'
-                                            className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                            className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
                                             value={compData?.city || ''}
                                             onChange={e => setCompData({ ...(compData || {}), city: e.target.value })}
                                         />
@@ -118,7 +118,7 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#E5E7EB]
+  border-[#b8ddf8]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
@@ -144,7 +144,7 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#E5E7EB]
+  border-[#b8ddf8]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
@@ -173,7 +173,7 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#E5E7EB]
+  border-[#b8ddf8]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
@@ -198,7 +198,7 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#E5E7EB]
+  border-[#b8ddf8]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
@@ -223,7 +223,7 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#E5E7EB]
+  border-[#b8ddf8]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
@@ -246,7 +246,7 @@ const General = () => {
 
 
 
-                    <div className='border border-[#E5E7EB] p-4 rounded-2xl  mt-5 w-full'>
+                    <div className='border border-[#b8ddf8] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
                                 <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
@@ -259,7 +259,7 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#E5E7EB]
+  border-[#b8ddf8]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
@@ -284,7 +284,7 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#E5E7EB]
+  border-[#b8ddf8]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
@@ -302,14 +302,14 @@ const General = () => {
                     </div>
 
 
-                    <div className=' border border-[#E5E7EB] p-4 rounded-2xl  mt-5 w-full'>
+                    <div className=' border border-[#b8ddf8] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
                                 <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpPhone', ln)}:</p>
                                 <input
                                     type='input'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
                                     value={compData?.phone || ''}
                                     onChange={e => setCompData({ ...(compData || {}), phone: e.target.value })}
                                 />
@@ -319,7 +319,7 @@ const General = () => {
                                     {getTtl('cmpMobile', ln)}:</p>
                                 <input
                                     type='input'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
                                     value={compData?.mobile || ''}
                                     onChange={e => setCompData({ ...(compData || {}), mobile: e.target.value })}
                                 />
@@ -328,7 +328,7 @@ const General = () => {
                                 <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Fax:</p>
                                 <input
                                     type='input'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
                                     value={compData?.fax || ''}
                                     onChange={e => setCompData({ ...(compData || {}), fax: e.target.value })}
                                 />
@@ -337,7 +337,7 @@ const General = () => {
                                 <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Contact Person:</p>
                                 <input
                                     type='input'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#E5E7EB] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
                                     value={compData?.contact || ''}
                                     onChange={e => setCompData({ ...(compData || {}), contact: e.target.value })}
                                 />

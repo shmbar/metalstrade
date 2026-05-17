@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { ExpensesContext } from "../../../../contexts/useExpensesContext";
 import Datepicker from "react-tailwindcss-datepicker";
 import { Selector } from '../../../../components/selectors/selectShad.js'
@@ -11,6 +11,8 @@ import { validate, ErrDiv } from '../../../../utils/utils'
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
 import Tltip from '../../../../components/tlTip';
+import { Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
+import { authedFetch } from '../../../../utils/aiClient';
 
 const Expenses = () => {
 
@@ -19,6 +21,39 @@ const Expenses = () => {
     const { valueInv, setValueInv, } = useContext(InvoiceContext);
     const { settings, ln } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
+
+    const [categorizing, setCategorizing] = useState(false);
+    const [catResult, setCatResult] = useState(null); // null | 'high' | 'medium' | 'low' | 'error'
+
+    const handleAutoCategory = async () => {
+        // Combine title + comments for stronger signal — title often has the key keyword
+        const title = (valueExp.expense || '').trim();
+        const comments = (valueExp.comments || '').trim();
+        const description = [title, comments].filter(Boolean).join(' — ');
+        if (!description) return;
+
+        const categories = (settings.Expenses?.Expenses || []).map(e => ({ id: e.id, label: e.expType }));
+        if (!categories.length) return;
+
+        setCategorizing(true);
+        setCatResult(null);
+        try {
+            const res = await authedFetch('/api/ai/categorize-expense', {
+                method: 'POST',
+                body: JSON.stringify({ description, categories }),
+            });
+            const data = await res.json();
+            if (!res.ok || data.error) throw new Error(data.error || 'Failed');
+            handleChange(data.categoryId, 'expType');
+            setCatResult(data.confidence);
+            setTimeout(() => setCatResult(null), 3000);
+        } catch {
+            setCatResult('error');
+            setTimeout(() => setCatResult(null), 3000);
+        } finally {
+            setCategorizing(false);
+        }
+    };
 
     const sups = settings.Supplier.Supplier;
 
@@ -87,10 +122,39 @@ const Expenses = () => {
                             </div>
                         </div>
                         <div className='pt-1'>
-                            <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Type', ln)}:</p>
-                            <div className='w-full '>
+                            <div className='flex items-center justify-between mb-0.5'>
+                                <p className='text-sm font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Type', ln)}:</p>
+                                <Tltip direction='top' tltpText={(valueExp.expense?.trim() || valueExp.comments?.trim()) ? 'Auto-categorize from expense name + comments' : 'Add an expense name or comments first'}>
+                                    <button
+                                        type='button'
+                                        onClick={handleAutoCategory}
+                                        disabled={categorizing || !(valueExp.expense?.trim() || valueExp.comments?.trim())}
+                                        aria-label={categorizing ? 'AI is detecting expense category' : 'Auto-detect expense category using AI'}
+                                        aria-busy={categorizing}
+                                        className='flex items-center gap-1 px-2 py-0.5 rounded-full text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
+                                        style={{
+                                            fontSize: '0.6rem',
+                                            backgroundColor: catResult === 'error' ? '#ef4444' : catResult ? '#16a34a' : 'var(--endeavour)'
+                                        }}
+                                    >
+                                        {categorizing
+                                            ? <Loader2 className='w-2.5 h-2.5 animate-spin' />
+                                            : catResult && catResult !== 'error'
+                                                ? <CheckCircle2 className='w-2.5 h-2.5' />
+                                                : <Sparkles className='w-2.5 h-2.5' />
+                                        }
+                                        {categorizing ? 'Detecting…' : catResult === 'error' ? 'Failed' : catResult ? 'Done' : 'AI Detect'}
+                                    </button>
+                                </Tltip>
+                            </div>
+                            <div className='w-full'>
                                 <Selector arr={settings.Expenses.Expenses} value={valueExp} onChange={(e) => handleChange(e, 'expType')} name='expType' clear={clear} />
                                 <ErrDiv field='expType' errors={errorsExp} />
+                                {catResult === 'low' && (
+                                    <p className='text-xs mt-0.5 px-2 py-0.5 rounded-full inline-block' style={{ backgroundColor: '#fff3cd', color: '#92400e', fontSize: '0.6rem' }}>
+                                        Low confidence — please verify
+                                    </p>
+                                )}
                             </div>
                         </div>
                         <div className='pt-1 gap-3 flex'>

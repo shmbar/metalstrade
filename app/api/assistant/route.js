@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 import OpenAI from 'openai';
+import { guardAiRequest, sseErrorResponse } from '../../../utils/aiGuard';
 
 let openai;
 function getOpenAI() {
@@ -13,7 +14,7 @@ const SYSTEM_PROMPT = `You are an intelligent assistant for IMS (Inventory Manag
 This IMS manages: Contracts (purchase orders), Invoices (sales), Expenses, Stocks/Inventory, and Margins/Profit tracking.
 
 ## DATA TOOLS — ALWAYS use these for data questions. NEVER guess numbers.
-- get_overdue_invoices — final invoices past due date with outstanding balance
+- get_overdue_invoices — unpaid issued invoices; flags strictly overdue (past due date) and still lists unpaid ones if none are strictly overdue
 - get_pending_invoices — final invoices not yet fully paid (Unpaid or Partially Paid)
 - get_client_debt_ranking — clients ranked by total outstanding balance due (answers "who owes the most?")
 - get_revenue_summary — total sales from all final invoices by currency (invoiced total, collected, outstanding); accepts optional year filter
@@ -28,6 +29,9 @@ This IMS manages: Contracts (purchase orders), Invoices (sales), Expenses, Stock
 - get_shipment_status — ETD/ETA/status for active shipments (answers "where are my shipments?", "what is the ETA?")
 - get_monthly_sales — sales broken down by month for a given year (answers "show monthly sales", "compare this month to last month")
 - get_supplier_summary — contracts grouped by supplier with counts and values (answers "top suppliers", "which supplier do we buy from most?")
+- get_cash_forecast — projected cash inflow/outflow for next 30/60/90 days (answers "what's my cash forecast?", "any cash crunch coming?")
+- get_margin_alerts — items whose total margin (profit) is at/below the saved threshold (answers "any margin alerts?", "which items are losing money?")
+- get_recent_reminders — payment reminders sent recently (answers "who got a reminder this week?", "show recent reminders")
 
 ## DATA MODEL FACTS (important for accurate answers)
 - Invoice status = Draft / Final / Canceled (from finalization flags, NOT payment)
@@ -59,7 +63,7 @@ const TOOLS = [
         type: 'function',
         function: {
             name: 'get_overdue_invoices',
-            description: 'Get all invoices that are past their due date and not yet paid',
+            description: 'Unpaid issued invoices. Reports those strictly overdue (delivery/due date in the past) and, if none are strictly overdue, still lists what is unpaid. Answers "show overdue invoices", "what is unpaid?", "who hasn\'t paid?"',
             parameters: { type: 'object', properties: {} }
         }
     },
@@ -203,25 +207,85 @@ const TOOLS = [
             }
         }
     },
+    {
+        type: 'function',
+        function: {
+            name: 'get_cash_forecast',
+            description: 'Project cash inflow and outflow for the next 30/60/90 days — answers "what is my cash forecast?", "expected inflow next month", "will I have enough cash in 60 days?"',
+            parameters: {
+                type: 'object',
+                properties: {
+                    horizon: { type: 'number', enum: [30, 60, 90], description: 'Forecast window in days (default 30)' }
+                }
+            }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_margin_alerts',
+            description: 'List contract items whose total margin (profit) is at or below the configured threshold — answers "any margin alerts?", "which items are losing money?", "low/zero margin contracts"',
+            parameters: {
+                type: 'object',
+                properties: {
+                    threshold: { type: 'number', description: 'Override the saved total-margin threshold amount. If omitted, uses the saved Settings value (default 0).' }
+                }
+            }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_recent_reminders',
+            description: 'List payment reminders sent recently to clients — answers "which clients did I email?", "show recent reminders", "who got a reminder this week?"',
+            parameters: {
+                type: 'object',
+                properties: {
+                    days: { type: 'number', description: 'Look back this many days (default 7)' }
+                }
+            }
+        }
+    },
 ];
 
 function executeTool(name, args, data) {
-    const { contracts = [], invoices = [], expenses = [], stocks = [], margins = [] } = data;
+    const { contracts = [], invoices = [], expenses = [], stocks = [], margins = [], marginAlertThreshold } = data;
     const today = new Date();
 
     switch (name) {
         case 'get_overdue_invoices': {
-            // Only final (issued) invoices, not canceled, not fully paid, past due date
-            const overdue = invoices.filter(inv => {
-                if (!inv.isFinal || inv.canceled) return false;
-                if (inv.paymentStatus === 'Paid') return false;
+            // Issued (not draft) + not canceled + still owing money.
+            const unpaidIssued = invoices.filter(inv =>
+                inv.isFinal && !inv.canceled && inv.paymentStatus !== 'Paid' && (inv.balanceDue || 0) > 0.01
+            );
+            if (!unpaidIssued.length) {
+                return 'No unpaid invoices — every issued invoice is fully paid.';
+            }
+
+            // Of those, the ones with a delivery/due date already in the past = strictly overdue.
+            const overdue = unpaidIssued.filter(inv => {
                 const due = inv.dueDate ? new Date(inv.dueDate) : null;
                 return due && due < today;
             });
-            if (!overdue.length) return 'No overdue invoices found. All issued invoices are either paid or not yet due.';
-            return `${overdue.length} overdue invoice(s):\n${overdue.map(inv =>
-                `• Invoice #${inv.invoice} — ${inv.client} — ${inv.currency} ${inv.balanceDue.toFixed(2)} outstanding — Due: ${inv.dueDate} — ${inv.paymentStatus}`
-            ).join('\n')}`;
+            const noDueDate = unpaidIssued.filter(inv => !inv.dueDate);
+
+            if (overdue.length) {
+                const overdueLines = overdue
+                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                    .map(inv => `• Invoice #${inv.invoice} — ${inv.client} — ${inv.currency} ${inv.balanceDue.toFixed(2)} outstanding — Due: ${inv.dueDate} — ${inv.paymentStatus}`)
+                    .join('\n');
+                const tail = noDueDate.length
+                    ? `\n\nAlso ${noDueDate.length} unpaid invoice(s) have no delivery/due date set, so they can't be classed as overdue — review them on the Invoices or Cashflow page.`
+                    : '';
+                return `${overdue.length} overdue invoice(s) (past due date):\n${overdueLines}${tail}`;
+            }
+
+            // Nothing strictly overdue, but money is still owed — answer honestly.
+            const sample = unpaidIssued
+                .slice(0, 15)
+                .map(inv => `• Invoice #${inv.invoice} — ${inv.client} — ${inv.currency} ${inv.balanceDue.toFixed(2)} outstanding — ${inv.dueDate ? `Due: ${inv.dueDate}` : 'no due date set'} — ${inv.paymentStatus}`)
+                .join('\n');
+            return `No invoices are strictly *overdue* (none have a delivery/due date in the past), but ${unpaidIssued.length} invoice(s) are still unpaid${noDueDate.length ? ` — ${noDueDate.length} of them have no due date set` : ''}:\n${sample}${unpaidIssued.length > 15 ? `\n…and ${unpaidIssued.length - 15} more.` : ''}`;
         }
 
         case 'get_pending_invoices': {
@@ -478,6 +542,129 @@ function executeTool(name, args, data) {
             }
         }
 
+        case 'get_cash_forecast': {
+            const horizon = [30, 60, 90].includes(args?.horizon) ? args.horizon : 30;
+            const cutoff = new Date();
+            cutoff.setDate(cutoff.getDate() + horizon);
+            cutoff.setHours(23, 59, 59, 999);
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            const inflow = {};
+            const outflow = {};
+            let inflowCount = 0, outflowCount = 0;
+
+            invoices.forEach(inv => {
+                if (!inv.isFinal || inv.canceled || inv.paymentStatus === 'Paid') return;
+                if (!inv.dueDate) return;
+                const due = new Date(inv.dueDate);
+                if (due < now || due > cutoff) return;
+                const cur = inv.currency || 'USD';
+                inflow[cur] = (inflow[cur] || 0) + (inv.balanceDue || 0);
+                inflowCount++;
+            });
+            expenses.forEach(exp => {
+                if (!exp.amount || /paid/i.test(exp.paid || '')) return;
+                if (!exp.date) return;
+                const d = new Date(exp.date);
+                if (d < now || d > cutoff) return;
+                const cur = exp.currency || 'USD';
+                outflow[cur] = (outflow[cur] || 0) + (parseFloat(exp.amount) || 0);
+                outflowCount++;
+            });
+
+            const allCurs = new Set([...Object.keys(inflow), ...Object.keys(outflow)]);
+            if (!allCurs.size) return `Cash forecast for the next ${horizon} days: no invoices or expenses are due in this window.`;
+
+            const lines = [...allCurs].map(cur => {
+                const i = inflow[cur] || 0;
+                const o = outflow[cur] || 0;
+                const net = i - o;
+                const netLabel = net >= 0 ? `+${net.toFixed(2)}` : net.toFixed(2);
+                return `• ${cur}: Inflow ${i.toFixed(2)} — Outflow ${o.toFixed(2)} — Net ${netLabel}`;
+            }).join('\n');
+            return `${horizon}-day cash forecast (${inflowCount} invoice(s) inflow, ${outflowCount} expense(s) outflow):\n${lines}\nFor detailed assumptions and AI risk analysis, open the Cashflow page and click "AI Cash Forecast".`;
+        }
+
+        case 'get_margin_alerts': {
+            // `purchase` = Qty (MT), `margin` = per-unit profit, `totalMargin` = total profit.
+            // No cost basis exists so there's no % — flag items whose total margin (profit)
+            // is at or below the threshold amount (default 0 = zero/negative profit).
+            const threshold = typeof args?.threshold === 'number' ? args.threshold
+                : (typeof marginAlertThreshold === 'number' ? marginAlertThreshold : 0);
+
+            const alerted = [];
+            let incomplete = 0;
+            margins.forEach(monthRow => {
+                (monthRow.items || []).forEach(item => {
+                    const qty = parseFloat(item.purchase) || 0;
+                    const perUnitMargin = parseFloat(item.margin) || 0;
+                    const totalMargin = parseFloat(item.totalMargin) || 0;
+                    const hasContent = (item.description && String(item.description).trim())
+                        || qty > 0 || perUnitMargin !== 0 || totalMargin !== 0;
+                    if (!hasContent) return;
+                    const marginEntered = perUnitMargin !== 0 || totalMargin !== 0;
+                    if (!marginEntered) { incomplete++; return; } // data gap, not a risk
+                    if (totalMargin <= threshold) {
+                        alerted.push({
+                            description: item.description || 'Unnamed item',
+                            supplier: item.supplier || '',
+                            client: item.client || '',
+                            qty,
+                            perUnitMargin,
+                            totalMargin,
+                            month: monthRow.month,
+                        });
+                    }
+                });
+            });
+
+            const incompleteNote = incomplete > 0
+                ? `\n\n(${incomplete} item(s) have no margin entered yet — data gaps, not counted as alerts.)`
+                : '';
+
+            if (!alerted.length) return `No margin alerts — every contract with a margin entered is above ${threshold} total profit.${incompleteNote}`;
+            alerted.sort((a, b) => a.totalMargin - b.totalMargin);
+            const lines = alerted.slice(0, 15).map(a =>
+                `• ${a.description} — total margin ${a.totalMargin.toFixed(2)} (qty ${a.qty} MT, per-unit ${a.perUnitMargin.toFixed(2)})${a.totalMargin < 0 ? ' ⚠ LOSS' : ''}${a.supplier ? ` — supplier: ${a.supplier}` : ''}${a.client ? ` — client: ${a.client}` : ''} — month ${a.month}`
+            ).join('\n');
+            const more = alerted.length > 15 ? `\n…and ${alerted.length - 15} more.` : '';
+            return `${alerted.length} item(s) with total margin ≤ ${threshold} (losses / thin deals):\n${lines}${more}${incompleteNote}\nFor AI explanations, open the Margins page and click "Explain with AI".`;
+        }
+
+        case 'get_recent_reminders': {
+            const days = typeof args?.days === 'number' ? args.days : 7;
+            const since = Date.now() - days * 86400000;
+
+            const reminders = [];
+            invoices.forEach(inv => {
+                (inv.reminders || []).forEach(r => {
+                    if (!r.sentAt) return;
+                    const ts = new Date(r.sentAt).getTime();
+                    if (ts >= since) {
+                        reminders.push({
+                            invoice: inv.invoice,
+                            client: inv.client,
+                            balanceDue: inv.balanceDue,
+                            currency: inv.currency,
+                            to: r.to,
+                            sentAt: r.sentAt,
+                            preview: r.preview || '',
+                        });
+                    }
+                });
+            });
+
+            if (!reminders.length) return `No payment reminders sent in the last ${days} day(s).`;
+            reminders.sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
+            const lines = reminders.slice(0, 15).map(r => {
+                const when = new Date(r.sentAt).toLocaleString();
+                return `• Invoice #${r.invoice} — ${r.client} — ${r.currency} ${(r.balanceDue || 0).toFixed(2)} outstanding — sent to ${r.to} at ${when}`;
+            }).join('\n');
+            const more = reminders.length > 15 ? `\n…and ${reminders.length - 15} more.` : '';
+            return `${reminders.length} payment reminder(s) sent in the last ${days} day(s):\n${lines}${more}`;
+        }
+
         default:
             return 'Tool not found.';
     }
@@ -498,6 +685,9 @@ function sseDone() {
 }
 
 export async function POST(request) {
+    const guard = await guardAiRequest(request);
+    if (guard.error) return sseErrorResponse(guard.error, guard.status);
+
     const encoder = new TextEncoder();
 
     try {
@@ -529,6 +719,7 @@ export async function POST(request) {
             temperature: 0.2,
         });
 
+        guard.recordUsage(toolResponse.usage?.total_tokens);
         const toolMessage = toolResponse.choices[0].message;
 
         // Phase 2a: tool was called — execute and stream final answer
@@ -549,6 +740,7 @@ export async function POST(request) {
                 temperature: 0.4,
                 max_tokens: 800,
                 stream: true,
+                stream_options: { include_usage: true },
             });
 
             const readable = new ReadableStream({
@@ -556,6 +748,7 @@ export async function POST(request) {
                     for await (const chunk of finalStream) {
                         const text = chunk.choices[0]?.delta?.content || '';
                         if (text) controller.enqueue(encoder.encode(sseText(text)));
+                        if (chunk.usage?.total_tokens) guard.recordUsage(chunk.usage.total_tokens);
                     }
                     controller.enqueue(encoder.encode(sseDone()));
                     controller.close();

@@ -88,21 +88,21 @@ thead th {
   }
 
   .dashStatCard {
-    @apply rounded-2xl p-5 flex flex-col justify-between min-h-[120px] shadow-lg;
+    @apply rounded-2xl p-5 flex flex-col justify-between min-h-[120px] shadow-lg border border-[var(--selago)];
   }
 
   .blackButton {
-    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1.5 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] font-medium focus:outline-none shadow-lg transition-all
+    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1.5 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-lg transition-all
   }
 
   .whiteButton {
-    @apply bg-white border-[#b8ddf8] hover:bg-[var(--selago)] text-[var(--chathams-blue)] flex items-center gap-2 justify-center rounded-full border px-3 h-7 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] font-medium focus:outline-none shadow-sm transition-colors
+    @apply bg-white border-[#b8ddf8] hover:bg-[var(--selago)] text-[var(--chathams-blue)] flex items-center gap-2 justify-center rounded-full border px-3 h-7 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-sm transition-colors
   }
     .supplierButton {
-    @apply bg-[#dbeeff] hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] focus:outline-none shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+    @apply bg-[#dbeeff] hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] focus:outline-none shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
   }
    .supplierAddButton {
-    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1 text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] focus:outline-none shadow-md transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] focus:outline-none shadow-md transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
   }
 }
 
@@ -119,25 +119,31 @@ thead th {
 @layer app {
   /* Standard body / cell text */
   .responsiveText {
-    @apply text-[0.65625rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]
+    @apply text-[0.59375rem] xl:text-[0.6875rem] 2xl:text-[0.7375rem] 3xl:text-[0.8125rem]
            break-words min-w-0 whitespace-normal;
   }
 
   /* Dense table cell text */
   .responsiveTextTable {
-    @apply text-[0.625rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
+    @apply text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem]
+           break-words min-w-0 whitespace-normal;
+  }
+
+  /* Summary table card title — 1px smaller than responsiveTextTable */
+  .responsiveTextTableTitle {
+    @apply text-[0.5rem] xl:text-[0.594rem] 2xl:text-[0.625rem] 3xl:text-[0.6875rem]
            break-words min-w-0 whitespace-normal;
   }
 
   /* Same as responsiveTextTable — kept separate for targeted overrides */
   .responsiveTextTable1 {
-    @apply text-[0.625rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
+    @apply text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem]
            break-words min-w-0 whitespace-normal;
   }
 
   /* Totals row — same size as body but bold */
   .responsiveTextTotal {
-    @apply text-[0.65625rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]
+    @apply text-[0.59375rem] xl:text-[0.6875rem] 2xl:text-[0.7375rem] 3xl:text-[0.8125rem]
            font-medium break-words min-w-0 whitespace-normal;
   }
 
@@ -313,7 +319,7 @@ input::-webkit-inner-spin-button {
 .cashflow-detail-table tbody td > div {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   vertical-align: middle;
 }
 

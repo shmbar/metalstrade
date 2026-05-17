@@ -45,8 +45,8 @@ import Tltip from "../../../components/tlTip";
 
 // Percentage-based widths so table fills available space responsively
 const COLUMN_CONFIGS = {
-    'drag-handle': { pct: '3%',  align: 'center' },
-    'date':        { pct: '5%',  align: 'center' },
+    'drag-handle': { pct: '2%',  align: 'center' },
+    'date':        { pct: '6%',  align: 'center' },
     'purchase':    { pct: '6%',  align: 'right'  },
     'description': { pct: '16%', align: 'left'   },
     'supplier':    { pct: '12%', align: 'left'   },
@@ -92,7 +92,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
     <TableRow
       ref={setNodeRef}
       style={style}
-      className="hover:bg-gray-50/50"
+      className="hover:bg-[#dbeeff]/40"
     >
       {row.getVisibleCells().map((cell) => {
         const columnConfig = COLUMN_CONFIGS[cell.column.id] || {};
@@ -207,7 +207,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                   <MdDeleteOutline className="w-4 h-4" />
                 </button>
               </div>
-            ) : cell.column.id === "totalMargin" && row.original.gis ? (
+            ) : (cell.column.id === "totalMargin" || cell.column.id === "remaining") && row.original.gis ? (
               <Tltip
                 direction="top"
                 tltpText={
@@ -217,7 +217,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
               >
                 <div className="flex items-center justify-center w-full">
                   <NumericFormat
-                    value={cell.getValue() / 2}
+                    value={cell.getValue()}
                     displayType="input"
                     readOnly
                     thousandSeparator
@@ -352,10 +352,13 @@ const Customtable = (props) => {
             sensors={sensors}
         >
             <div className="flex flex-col relative w-full">
-                <div className="rounded-lg border border-[var(--selago)] overflow-x-auto relative shadow-sm">
+                <style jsx global>{`
+                    .margins-data-table tbody td { font-size: 9px !important; }
+                `}</style>
+                <div className="rounded-lg border border-[#b8ddf8] overflow-x-auto relative shadow-sm">
                     {/* Desktop Table - Compact Heights */}
                     <div className="hidden sm:block w-full min-w-[900px]">
-                        <Table className="w-full" style={{ borderSpacing: '0 1px', tableLayout: 'fixed' }}>
+                        <Table className="w-full margins-data-table" style={{ borderSpacing: '0 1px', tableLayout: 'fixed' }}>
                             <TableHeader>
                                 <TableRow>
                                     {table.getHeaderGroups().map((headerGroup) =>
@@ -370,12 +373,12 @@ const Customtable = (props) => {
     width: (COLUMN_CONFIGS[header.column.id] || {}).pct || 'auto',
   }}
   className={cn(
-    'bg-[#dbeeff] text-[var(--chathams-blue)] border-b border-[var(--chathams-blue)]',
+    'bg-[#dbeeff] text-[var(--chathams-blue)] border-b border-b-[#b8ddf8]',
     idx === 0 ? 'rounded-tl-lg' : '',
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
 >
-  <div className="w-full flex items-center justify-center responsiveTextTable font-medium font-poppins">
+  <div className="w-full flex items-center justify-center font-medium font-poppins text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
     {header.isPlaceholder
       ? null
       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -438,8 +441,7 @@ const Customtable = (props) => {
                                                         className={cn(
                                                             columnConfig.align === 'right' && 'text-right',
                                                             columnConfig.align === 'center' && 'text-center',
-                                                            ["totalMargin", "remaining", "purchase", "openShip"].includes(accessorKey) ?
-                                                                'border-t border-t-[var(--chathams-blue)]' : '',
+                                                            'border-t border-t-[#b8ddf8]',
                                                             'responsiveTextTable'
                                                         )}
                                                     >
@@ -453,6 +455,7 @@ const Customtable = (props) => {
                                                                     prefix={currs.includes(accessorKey) ? '$' : ''}
                                                                     decimalScale={currs.includes(accessorKey) ? 2 : 3}
                                                                     fixedDecimalScale
+                                                                    className="text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]"
                                                                     style={{
                                                                         color: 'var(--chathams-blue)',
                                                                         fontWeight: '500',
@@ -480,10 +483,10 @@ const Customtable = (props) => {
                                     className="rounded-lg border border-[var(--selago)] bg-white shadow-sm overflow-hidden"
                                 >
                                     {/* Compact Card Header */}
-                                    <div className="bg-[#dbeeff] px-3 py-2 border-b border-[#dbeeff] flex justify-between items-center min-h-[32px]">
+                                    <div className="bg-[#dbeeff] px-3 py-2 border-b border-[#b8ddf8] flex justify-between items-center min-h-[32px]">
                                         <span
-                                            className="font-bold text-[var(--chathams-blue)]"
-                                            style={{ fontSize: '0.65rem', lineHeight: '1.2' }}
+                                            className="responsiveTextTable font-normal text-[var(--chathams-blue)]"
+                                            style={{ lineHeight: '1.2' }}
                                         >
                                             Entry #{rowIdx + 1}
                                         </span>
@@ -506,8 +509,8 @@ const Customtable = (props) => {
                                                     className="flex justify-between items-center gap-2 py-1.5 border-b border-gray-100 last:border-b-0 min-h-[28px]"
                                                 >
                                                     <span
-                                                        className="font-bold text-[var(--chathams-blue)] min-w-[80px] flex-shrink-0"
-                                                        style={{ fontSize: '0.65rem', lineHeight: '1.2' }}
+                                                        className="responsiveTextTable font-normal text-[var(--chathams-blue)] min-w-[80px] flex-shrink-0"
+                                                        style={{ lineHeight: '1.2' }}
                                                     >
                                                         {typeof col.header === 'string' ? col.header : ''}
                                                     </span>
@@ -584,18 +587,18 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                             }
                                                             if (['totalMargin', 'remaining', 'openShip'].includes(col.accessorKey)) {
                                                                 return (
-                                                                    <NumericFormat 
-                                                                        value={row[col.accessorKey]} 
-                                                                        displayType="text" 
-                                                                        thousandSeparator 
-                                                                        allowNegative={true} 
-                                                                        prefix={currs.includes(col.accessorKey) ? '$' : ''} 
-                                                                        decimalScale={currs.includes(col.accessorKey) ? 2 : 3} 
-                                                                        fixedDecimalScale 
+                                                                    <NumericFormat
+                                                                        value={row[col.accessorKey]}
+                                                                        displayType="text"
+                                                                        thousandSeparator
+                                                                        allowNegative={true}
+                                                                        prefix={currs.includes(col.accessorKey) ? '$' : ''}
+                                                                        decimalScale={currs.includes(col.accessorKey) ? 2 : 3}
+                                                                        fixedDecimalScale
+                                                                        className="responsiveTextTable"
                                                                         style={{
-                                                                            fontSize: '0.65rem',
                                                                             color: 'var(--chathams-blue)',
-                                                                            fontWeight: '700',
+                                                                            fontWeight: '400',
                                                                             lineHeight: '1.2'
                                                                         }}
                                                                     />
@@ -603,9 +606,8 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                             }
                                                             return (
                                                                 <span
-                                                                    className='text-[var(--port-gore)]'
+                                                                    className='responsiveTextTable text-[var(--port-gore)]'
                                                                     style={{
-                                                                        fontSize: '0.68rem',
                                                                         lineHeight: '1.2'
                                                                     }}
                                                                 >

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { NumericFormat } from 'react-number-format'
 
@@ -40,7 +40,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
   const tdStyle = {
     color: 'var(--chathams-blue)',
     padding: '6px 10px',
-    borderBottom: '1px solid #E5E7EB',
+    borderBottom: '1px solid #b8ddf8',
     whiteSpace: 'nowrap',
     textAlign: 'center',
   }
@@ -75,7 +75,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Description</th>
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Total Weight (MT)</th>
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Avg Cost /MT</th>
-                <th className="responsiveTextTable font-medium text-center" style={thStyle}>Cur</th>
+                <th className="responsiveTextTable font-medium text-center" style={thStyle}>$/€</th>
               </tr>
             </thead>
             <tbody>
@@ -108,7 +108,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                       />
                     </td>
                     <td className="responsiveTextTable" style={tdStyle}>
-                      {curCode?.toUpperCase()}
+                      {isoCode === 'EUR' ? '€' : '$'}
                     </td>
                   </tr>
                 )

@@ -11,7 +11,7 @@ import { ExpensesContext } from "../../../contexts/useExpensesContext";
 import Spinner from '../../../components/spinner';
 import VideoLoader from '../../../components/videoLoader';
 import { UserAuth } from "../../../contexts/useAuthContext"
-import { loadData, loadInvoice, loadStockDataPerDescription, filteredArray, sortArr, getD } from '../../../utils/utils'
+import { loadData, loadInvoice, loadStockDataPerDescription, filteredArray, sortArr, getD, resolveDueDate } from '../../../utils/utils'
 import Spin from '../../../components/spinTable';
 import { EXD } from './excel'
 import dateFormat from "dateformat";
@@ -27,12 +27,14 @@ import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
 import { updateInvoiceField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
+import ReminderModal from '../../../components/invoices/ReminderModal';
+import { Bell } from 'lucide-react';
 
 
 const Invoices = () => {
 
 	const { invoicesData, setValueInv, valueInv, isOpen, setIsOpen, setInvoicesData } = useContext(InvoiceContext);
-	const { settings, dateSelect, setDateYr, setLoading, loading, ln } = useContext(SettingsContext);
+	const { settings, dateSelect, setDateYr, setLoading, loading, ln, compData } = useContext(SettingsContext);
 	const { blankExpense } = useContext(ExpensesContext);
 	const { uidCollection } = UserAuth();
 	const { setValueCon } = useContext(ContractsContext);
@@ -44,6 +46,7 @@ const Invoices = () => {
 	const [highlightId, setHighlightId] = useState(null)
 	const { upsertSourceItems } = useGlobalSearch();
 	const [isEditMode, setIsEditMode] = useState(false);
+	const [reminderInvoice, setReminderInvoice] = useState(null);
 
 	const gQ = (z, y, x) => settings?.[y]?.[y]?.find(q => q.id === z)?.[x] || '';
 
@@ -416,6 +419,91 @@ const Invoices = () => {
 			enableColumnFilter: false,
 			size: 100
 		},
+		{
+			id: 'reminder',
+			header: '',
+			enableColumnFilter: false,
+			enableSorting: false,
+			size: 44,
+			cell: (props) => {
+				const row = props.row.original;
+				// Issued = not a draft and not canceled (matches Cashflow debt logic)
+				const isCanceled = !!row.canceled;
+				const isIssued = row.draft !== true && !isCanceled;
+				const totalAmt = parseFloat(row.totalAmount) || 0;
+				const totalPaid = (row.payments || []).reduce((s, p) => s + (parseFloat(p.pmnt) || 0), 0);
+				const balanceDue = row.debtBlnc != null ? parseFloat(row.debtBlnc) : totalAmt - totalPaid;
+				const isUnpaid = balanceDue > 0;
+				const isOverdue = (() => {
+					const dueDate = resolveDueDate(row);
+					return dueDate && new Date(dueDate) < new Date();
+				})();
+				if (!isIssued || !isUnpaid) return null;
+
+				// 24h cooldown — prevent users from accidentally spamming clients
+				const lastReminder = row.reminders?.length ? row.reminders[row.reminders.length - 1] : null;
+				const hoursSinceLastReminder = lastReminder?.sentAt
+					? (Date.now() - new Date(lastReminder.sentAt).getTime()) / 36e5
+					: Infinity;
+				const onCooldown = hoursSinceLastReminder < 24;
+				const cooldownHoursLeft = onCooldown ? Math.ceil(24 - hoursSinceLastReminder) : 0;
+
+				// Cadence — flag invoices that haven't been nudged in N days (user-configured)
+				const cadenceDays = parseFloat(settings?.ReminderCadence?.days);
+				const cadence = Number.isFinite(cadenceDays) && cadenceDays > 0 ? cadenceDays : 7;
+				const daysSinceLastReminder = hoursSinceLastReminder / 24;
+				// "Due for follow-up" only after first reminder was sent — never before
+				const dueForFollowup = lastReminder && !onCooldown && daysSinceLastReminder >= cadence;
+				// "Never reminded but overdue" — also gets a dot to nudge the user
+				const neverReminded = !lastReminder && isOverdue;
+				const showFollowupDot = dueForFollowup || neverReminded;
+
+				const clientList = settings?.Client?.Client || [];
+				const clientObj = clientList.find(c => c.id === row.client);
+				const currencyList = settings?.Currency?.Currency || [];
+				const currency = currencyList.find(c => c.id === row.cur)?.cur || row.cur || 'USD';
+
+				const titleText = onCooldown
+					? `Reminder sent recently — wait ${cooldownHoursLeft}h before sending again`
+					: dueForFollowup
+						? `Due for follow-up — last reminder sent ${Math.round(daysSinceLastReminder)} days ago (cadence ${cadence}d)`
+						: neverReminded
+							? 'Overdue and never reminded — send a payment reminder'
+							: isOverdue ? 'Overdue — send payment reminder' : 'Send payment reminder';
+
+				return (
+					<button
+						onClick={e => {
+							e.stopPropagation();
+							if (onCooldown) return;
+							setReminderInvoice({ ...row, number: row.invoice, balanceDue: balanceDue > 0 ? balanceDue : 0, currency, paymentStatus: balanceDue <= 0 ? 'Paid' : totalPaid > 0 ? 'Partially Paid' : 'Unpaid', client: clientObj?.nname || row.client || 'Client', uidCollection });
+						}}
+						disabled={onCooldown}
+						title={titleText}
+						aria-label={titleText}
+						className='relative p-1 rounded-full transition-colors hover:opacity-80 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
+						style={{
+							color: onCooldown ? '#9ca3af' : isOverdue ? '#ef4444' : '#f59e0b',
+							opacity: onCooldown ? 0.4 : 1,
+						}}
+					>
+						<Bell className='w-3.5 h-3.5' />
+						{showFollowupDot && !onCooldown && (
+							<span
+								className='absolute -top-0.5 -right-0.5 rounded-full'
+								aria-hidden='true'
+								style={{
+									width: '6px',
+									height: '6px',
+									background: '#ef4444',
+									boxShadow: '0 0 0 1.5px white',
+								}}
+							/>
+						)}
+					</button>
+				);
+			},
+		},
 	];
 
 	let invisible = ['lstSaved', 'shpType', 'invType',
@@ -581,6 +669,16 @@ const Invoices = () => {
 							>
 								<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
 							</Modal>
+						)}
+
+						{reminderInvoice && (
+							<ReminderModal
+								invoice={reminderInvoice}
+								clientEmail={reminderInvoice.clientEmail || ''}
+								companyName={compData?.name || ''}
+								language={ln}
+								onClose={() => setReminderInvoice(null)}
+							/>
 						)}
 					</>
 				}

@@ -22,8 +22,8 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
     return (
         <div className='p-4'>
             <div className=" overflow-x-auto">
-                <div className="border rounded-2xl overflow-hidden">
-                    <table id='my-table' className=" table-fixed min-w-full divide-y divide-gray-200">
+                <div className="border border-[#b8ddf8] rounded-2xl overflow-hidden">
+                    <table id='my-table' className="table-fixed min-w-full divide-y divide-[#b8ddf8]">
                         <thead style={{ background: '#dbeeff' }}>
                             <tr>
                                 <th scope="col" className="w-0/12 py-2 px-4 text-left text-xs font-semibold" style={{ color: 'var(--chathams-blue)' }}>Supplier</th>
@@ -37,10 +37,10 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                     Keep Alerting</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
+                        <tbody className="divide-y divide-[#b8ddf8]">
                             {alertArr.map((obj, i) => {
                                 return (
-                                    <tr key={i}>
+                                    <tr key={i} className="hover:bg-[#dbeeff]/40 transition-colors duration-150">
                                         <td className="py-2 pl-4">
                                             <div className="flex items-center h-5 text-sm" style={{ color: 'var(--port-gore)' }}>
                                                 {settings.Supplier.Supplier.find(z => z.id === obj.supplier).nname}

@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+﻿import { Fragment, useState } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 import { AiOutlineCheck } from 'react-icons/ai';
 import { HiChevronDown, HiChevronUp } from 'react-icons/hi2';
@@ -18,7 +18,7 @@ export default function Example({ languages, compData, setCompData, lang }) {
     <div className="w-36">
       <Listbox value={selected} onChange={(e) => setSelection(e)}>
         <div className="relative">
-          <Listbox.Button className="cursor-pointer w-full h-8 rounded-full border border-[#E5E7EB] bg-white
+          <Listbox.Button className="cursor-pointer w-full h-8 rounded-full border border-[#b8ddf8] bg-white
                      focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20 responsiveText
                      pl-4 pr-10 text-[var(--port-gore)] transition-all hover:border-[var(--rock-blue)] text-[0.75rem]">
             {({ open }) => (

@@ -259,7 +259,7 @@
 //         .custom-table td {
 //           border: 1px solid #d7d7d7;
 //           text-align: center;
-//           font-size: 10px !important;
+//           font-size: 9px !important;
 //           font-family: var(--font-poppins), 'Poppins', sans-serif;
 //           padding: 8px 6px !important;
 //           vertical-align: middle;
@@ -299,7 +299,7 @@
 //           {/* ── TOOLBAR ── */}
 //           <div className="flex-shrink-0"
 //             style={{
-//               borderBottom: '2px solid #E5E7EB',
+//               borderBottom: '2px solid #b8ddf8',
 //               background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
 //             }}>
 //             <Header
@@ -545,13 +545,13 @@
 //             <div className="mb-2">
 //               <div className="flex items-center justify-between px-4 py-2"
 //                 style={{ backgroundColor: '#b7d1b5' }}>
-//                 <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total $:</span>
+//                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total $:</span>
 //                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryUSD.currency}</span>
 //                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
 //               </div>
 //               <div className="flex items-center justify-between px-4 py-2"
 //                 style={{ backgroundColor: '#8db6d8' }}>
-//                 <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total €:</span>
+//                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total €:</span>
 //                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.currency}</span>
 //                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
 //               </div>
@@ -565,7 +565,7 @@
 //                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
 //                   style={{
 //                     backgroundColor: '#FFFFFF',
-//                     border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid #E5E7EB',
+//                     border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid #b8ddf8',
 //                     boxShadow: highlightId === row.original.id
 //                       ? '0 12px 28px rgba(249,115,22,0.2)'
 //                       : '0 4px 12px rgba(0,0,0,0.06)'
@@ -591,7 +591,7 @@
 //                       if (cell.column.id === 'select') return null
 //                       return (
 //                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-//                           style={{ borderBottom: '1px solid #E5E7EB' }}>
+//                           style={{ borderBottom: '1px solid #b8ddf8' }}>
 //                           <div className="uppercase tracking-wider font-normal"
 //                             style={{ color: '#6B7280', fontSize: 'clamp(6px, 0.6vw, 7px)' }}>
 //                             {cell.column.columnDef.header}
@@ -601,7 +601,7 @@
 //                               color: '#1F2937',
 //                               background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
 //                               fontSize: 'clamp(8px, 0.7vw, 10px)',
-//                               border: '1px solid #E5E7EB'
+//                               border: '1px solid #b8ddf8'
 //                             }}>
 //                             {cell.column.id === 'completed' ? (
 //                               cell.getValue() ? (
@@ -656,7 +656,7 @@
 //           {/* ── PAGINATION FOOTER ── */}
 //           <div className="flex-shrink-0"
 //             style={{
-//               borderTop: '2px solid #E5E7EB',
+//               borderTop: '2px solid #b8ddf8',
 //               background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
 //             }}>
 //             <div className="px-4 py-3">
@@ -912,13 +912,12 @@ const Customtable = ({
         }}
       >
         {/* Left label */}
-        <span style={{
+        <span className="responsiveTextTable" style={{
           position: 'absolute',
           left: '14px',
           top: '50%',
           transform: 'translateY(-50%)',
-          fontSize: '0.75rem',
-          fontWeight: '600',
+          fontWeight: '400',
           color: 'var(--chathams-blue)',
           whiteSpace: 'nowrap',
         }}>
@@ -927,13 +926,12 @@ const Customtable = ({
 
         {/* Amount — centred exactly over the Amount column */}
         {amountColCenter !== null && (
-          <span style={{
+          <span className="responsiveTextTable" style={{
             position: 'absolute',
             left: `${amountColCenter}px`,
             top: '50%',
             transform: 'translate(-50%, -50%)',
-            fontSize: '0.75rem',
-            fontWeight: '700',
+            fontWeight: '400',
             color: 'var(--chathams-blue)',
             whiteSpace: 'nowrap',
           }}>
@@ -955,16 +953,13 @@ const Customtable = ({
           padding: 6px 8px !important;
           vertical-align: middle;
           white-space: nowrap;
-          font-size: 0.78rem !important;
-          font-weight: 500 !important;
-          color: #103a7a !important;
         }
 
         /* ── Data cells ── */
         .custom-table td {
           border: 1px solid #d7d7d7;
           text-align: center;
-          font-size: 0.68rem !important;
+          font-size: 9px !important;
           font-family: var(--font-poppins), 'Poppins', sans-serif;
           padding: 3px 6px !important;
           vertical-align: middle;
@@ -1050,31 +1045,31 @@ const Customtable = ({
                         overflow: 'visible',
                       }}
                     >
-                      <span style={{
+                      <span className="responsiveTextTable" style={{
                         position: 'absolute', left: '14px', top: '50%',
                         transform: 'translateY(-50%)',
-                        fontSize: '0.72rem', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                        fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                       }}>
                         Total $:
                       </span>
                       {currencyColCenter !== null && (
-                        <span style={{
+                        <span className="responsiveTextTable" style={{
                           position: 'absolute',
                           left: `${currencyColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '0.72rem', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           USD
                         </span>
                       )}
                       {amountColCenter !== null && (
-                        <span style={{
+                        <span className="responsiveTextTable" style={{
                           position: 'absolute',
                           left: `${amountColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           {summaryUSD.amount}
                         </span>
@@ -1095,31 +1090,31 @@ const Customtable = ({
                         overflow: 'visible',
                       }}
                     >
-                      <span style={{
+                      <span className="responsiveTextTable" style={{
                         position: 'absolute', left: '14px', top: '50%',
                         transform: 'translateY(-50%)',
-                        fontSize: '0.72rem', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                        fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                       }}>
                         Total €:
                       </span>
                       {currencyColCenter !== null && (
-                        <span style={{
+                        <span className="responsiveTextTable" style={{
                           position: 'absolute',
                           left: `${currencyColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '0.72rem', fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           EUR
                         </span>
                       )}
                       {amountColCenter !== null && (
-                        <span style={{
+                        <span className="responsiveTextTable" style={{
                           position: 'absolute',
                           left: `${amountColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
                           {summaryEUR.amount}
                         </span>
@@ -1155,7 +1150,7 @@ const Customtable = ({
                     {filterOn && (
                       <tr style={{ backgroundColor: '#FFFFFF' }}>
                         {hdGroup.headers.map(header => (
-                          <th key={header.id} className="px-2 py-1.5" style={{ backgroundColor: '#FFFFFF', borderBottom: '2px solid #E5E7EB' }}>
+                          <th key={header.id} className="px-2 py-1.5" style={{ backgroundColor: '#FFFFFF', borderBottom: '2px solid #b8ddf8' }}>
                             {header.column.getCanFilter() && (
                               <Filter column={header.column} table={table} filterOn={filterOn} />
                             )}
@@ -1219,7 +1214,6 @@ const Customtable = ({
                                     backgroundColor: isUnpaidValue ? '#fef9c3' : isPaidValue ? '#dcfce7' : '#f8fbff',
                                     color: isPaidValue ? '#166534' : isUnpaidValue ? '#92400e' : 'var(--port-gore)',
                                     border: `1px solid ${isPaidValue ? '#bbf7d0' : isUnpaidValue ? '#fde68a' : '#cecece'}`,
-                                    fontWeight: isPaidValue || isUnpaidValue ? '600' : '400'
                                   }}>
                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </div>
@@ -1294,15 +1288,15 @@ const Customtable = ({
             <div className="mb-2">
               <div className="flex items-center justify-between px-4 py-2"
                 style={{ backgroundColor: '#b7d1b5' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total $:</span>
-                <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>USD</span>
-                <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
+                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total $:</span>
+                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>USD</span>
+                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
               </div>
               <div className="flex items-center justify-between px-4 py-2"
                 style={{ backgroundColor: '#8db6d8' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>Total €:</span>
-                <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>EUR</span>
-                <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
+                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total €:</span>
+                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>EUR</span>
+                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
               </div>
             </div>
 
@@ -1314,7 +1308,7 @@ const Customtable = ({
                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid #E5E7EB',
+                    border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid #b8ddf8',
                     boxShadow: highlightId === row.original.id
                       ? '0 12px 28px rgba(249,115,22,0.2)'
                       : '0 4px 12px rgba(0,0,0,0.06)'
@@ -1348,7 +1342,7 @@ const Customtable = ({
                       const isEURValue = ['eu', 'eur', '€'].includes(normalizedValue)
                       return (
                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-                          style={{ borderBottom: '1px solid #E5E7EB' }}>
+                          style={{ borderBottom: '1px solid #b8ddf8' }}>
                           <div className="uppercase tracking-wider font-normal"
                             style={{ color: 'var(--regent-gray)', fontSize: '0.58rem' }}>
                             {cell.column.columnDef.header}
@@ -1357,7 +1351,7 @@ const Customtable = ({
                             style={{
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg,#FAFAFA,#F5F5F5)',
-                              border: '1px solid #E5E7EB'
+                              border: '1px solid #b8ddf8'
                             }}>
                             {cell.column.id === 'completed' ? (
                               cell.getValue() ? (

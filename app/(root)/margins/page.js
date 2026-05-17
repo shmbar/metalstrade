@@ -4,7 +4,7 @@ import Spinner from "../../../components/spinner";
 import Toast from "../../../components/toast";
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { getTtl } from "../../../utils/languages";
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import MarginTable from "./marginTable";
 import YearSelect from "../../../components/yearSelect";
 import { loadMargins, saveMargins } from "../../../utils/utils";
@@ -15,6 +15,8 @@ import Tooltip from "../../../components/tooltip";
 import FirstPart from "./firstpart";
 import ThirdPart from "./thirdpart";
 import dateFormat from "dateformat";
+import { AlertTriangle, Loader2, X, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { authedFetch } from '../../../utils/aiClient';
 
 // needed for table body level scope DnD setup
 import {
@@ -59,7 +61,7 @@ let newItm = {
 // Table Component
 const Margins = () => {
 
-    const { settings, ln, setLoading, loading, setToast, compData } = useContext(SettingsContext);
+    const { settings, ln, setLoading, loading, setToast, compData, updateSettings } = useContext(SettingsContext);
     const [yr, setYr] = useState()
     const { uidCollection } = UserAuth();
     const [data, setData] = useState([]);
@@ -78,6 +80,94 @@ const Margins = () => {
     const [remainingGIS, setRemainingGIS] = useState('')
 
     const cName = compData?.name?.slice(0, 3).toLowerCase()
+
+    // --- Margin Alert state ---
+    // This table has no cost/revenue column, so a "% margin" is not derivable.
+    // The actionable signal is Total Margin (profit $) at or below a threshold.
+    // Threshold lives in Firestore under settings.MarginAlert.threshold so it
+    // follows the user account. Default 0 → flag zero/negative-profit items.
+    const settingsThreshold = settings?.MarginAlert?.threshold;
+    const [threshold, setThreshold] = useState(() => {
+        if (settingsThreshold != null) return parseFloat(settingsThreshold);
+        if (typeof window === 'undefined') return 0;
+        return parseFloat(localStorage.getItem('ims-margin-threshold') || '0');
+    });
+    const [alertedItems, setAlertedItems] = useState([]);
+    const [incompleteCount, setIncompleteCount] = useState(0); // rows with no margin entered yet
+    const [alertHistory, setAlertHistory] = useState([]); // [{ month, count, items }]
+    const [historyOpen, setHistoryOpen] = useState(false);
+    const [alertDismissed, setAlertDismissed] = useState(false);
+    const [explainOpen, setExplainOpen] = useState(false);
+    const [explaining, setExplaining] = useState(false);
+    const [explanation, setExplanation] = useState('');
+    const explainScrollRef = useRef(null);
+    const thresholdSaveTimer = useRef(null);
+
+    // Sync threshold once settings doc finishes loading
+    useEffect(() => {
+        if (settingsThreshold != null) {
+            const n = parseFloat(settingsThreshold);
+            if (!isNaN(n)) setThreshold(n);
+        }
+    }, [settingsThreshold]);
+
+    const handleThresholdChange = (val) => {
+        const n = parseFloat(val);
+        if (isNaN(n) || n < 0) return;
+        setThreshold(n);
+        setAlertDismissed(false);
+
+        // Debounce Firestore write so we don't hammer it on every keystroke
+        if (thresholdSaveTimer.current) clearTimeout(thresholdSaveTimer.current);
+        thresholdSaveTimer.current = setTimeout(() => {
+            if (uidCollection) {
+                updateSettings(uidCollection, { threshold: n }, 'MarginAlert', true);
+            }
+        }, 600);
+    };
+
+    const handleExplainAlerts = async () => {
+        if (explaining) return;
+        setExplainOpen(true);
+        setExplaining(true);
+        setExplanation('');
+        try {
+            const res = await authedFetch('/api/ai/margin-alert', {
+                method: 'POST',
+                body: JSON.stringify({ alertedItems, threshold }),
+            });
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n\n');
+                buffer = lines.pop() || '';
+                for (const line of lines) {
+                    if (!line.startsWith('data: ')) continue;
+                    const payload = line.slice(6).trim();
+                    if (payload === '[DONE]') break;
+                    try {
+                        const { text } = JSON.parse(payload);
+                        if (text) setExplanation(prev => prev + text);
+                    } catch { /* ignore */ }
+                }
+            }
+        } catch { setExplanation('Failed to load explanation. Please try again.'); }
+        finally { setExplaining(false); }
+    };
+
+    // Keep the streamed explanation scrolled to the bottom WITHOUT moving the page.
+    // We scroll the inner container only — scrollIntoView() on a page-level element
+    // yanks the whole window on every token and makes the screen flicker.
+    useEffect(() => {
+        if (!explainOpen) return;
+        const box = explainScrollRef.current;
+        if (box) box.scrollTop = box.scrollHeight;
+    }, [explanation, explainOpen]);
+    // --- End Margin Alert state ---
 
     useEffect(() => {
         setYr(currentYear)
@@ -140,7 +230,59 @@ const Margins = () => {
         setTotalMarginGIS(_totalMarginGIS);
         setOutStandingShipGIS(_openShipGIS);
         setRemainingGIS(_remainingGIS);
-    }, [data])
+
+        // `purchase` = Qty (MT); `margin` = per-unit profit $; `totalMargin` = total profit $.
+        // No cost basis exists so a % can't be computed. Two distinct signals:
+        //   • REAL ALERT  → margin was entered and total profit is ≤ threshold (losses / thin deals)
+        //   • INCOMPLETE  → a real row (has description or qty) but no margin entered yet
+        // Truly blank template rows are ignored entirely.
+        const alerted = [];
+        const byMonth = new Map();
+        let incomplete = 0;
+        data.forEach(monthRow => {
+            const monthAlerts = [];
+            (monthRow.items || []).forEach(item => {
+                const qty = parseFloat(item.purchase) || 0;
+                const perUnitMargin = parseFloat(item.margin) || 0;
+                const totalMarginVal = parseFloat(item.totalMargin) || 0;
+                const hasContent = (item.description && String(item.description).trim())
+                    || qty > 0 || perUnitMargin !== 0 || totalMarginVal !== 0;
+                if (!hasContent) return; // blank template row — ignore
+
+                const marginEntered = perUnitMargin !== 0 || totalMarginVal !== 0;
+                if (!marginEntered) {
+                    incomplete++; // has data but margin not filled in — not a financial alert
+                    return;
+                }
+
+                if (totalMarginVal <= threshold) {
+                    const row = {
+                        ...item,
+                        qty,
+                        perUnitMargin,
+                        totalMarginVal,
+                        isLoss: totalMarginVal < 0,
+                        month: monthRow.month,
+                    };
+                    alerted.push(row);
+                    monthAlerts.push(row);
+                }
+            });
+            if (monthAlerts.length) {
+                byMonth.set(monthRow.month, {
+                    month: monthRow.month,
+                    count: monthAlerts.length,
+                    items: monthAlerts,
+                });
+            }
+        });
+        setAlertedItems(alerted);
+        setIncompleteCount(incomplete);
+        // Sort months descending so the most recent appears first
+        const history = [...byMonth.values()].sort((a, b) => Number(b.month) - Number(a.month));
+        setAlertHistory(history);
+        if (alerted.length > 0) setAlertDismissed(false);
+    }, [data, threshold])
 
     const handleChangeDate = useCallback((e, i, month) => {
         const dd = dateFormat(e, 'yyyy-mm-dd')
@@ -298,13 +440,152 @@ const Margins = () => {
                                     {getTtl('Margins', ln)}
                                 </h1>
 
-                                <div className='flex items-center gap-2 group'>
-                                    <div className="relative">
-                                        <YearSelect yr={yr} setYr={setYr} />
+                                <div className='flex items-center gap-3'>
+                                    {/* Margin alert threshold — flags items whose total margin (profit) is at/below this amount */}
+                                    <div className='flex items-center gap-1.5' title='Flag items whose Total Margin (profit) is at or below this amount. 0 = flag zero/negative profit.'>
+                                        <AlertTriangle className='w-3 h-3' style={{ color: '#f59e0b' }} />
+                                        <span className='text-xs font-medium whitespace-nowrap' style={{ color: 'var(--chathams-blue)', fontSize: '0.65rem' }}>Alert if total margin ≤</span>
+                                        <input
+                                            type='number'
+                                            min='0'
+                                            step='100'
+                                            value={threshold}
+                                            onChange={e => handleThresholdChange(e.target.value)}
+                                            aria-label='Minimum acceptable total margin'
+                                            className='w-20 text-center rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
+                                            style={{ fontSize: '0.65rem', borderColor: '#b8ddf8', background: '#f8fbff', color: 'var(--port-gore)' }}
+                                        />
                                     </div>
-                                    <Tooltip txt='Select year' />
+                                    <div className='flex items-center gap-2 group'>
+                                        <div className="relative">
+                                            <YearSelect yr={yr} setYr={setYr} />
+                                        </div>
+                                        <Tooltip txt='Select year' />
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Margin Alert Banner */}
+                            {!loading && !alertDismissed && alertedItems.length > 0 && (
+                                <div className='rounded-xl mb-3 overflow-hidden' style={{ border: '1px solid #ffc107', background: '#fff3cd' }} role='alert' aria-live='polite'>
+                                    <div className='flex items-center justify-between px-3 py-2'>
+                                        <div className='flex items-center gap-2'>
+                                            <AlertTriangle className='w-4 h-4 flex-shrink-0' style={{ color: '#d97706' }} />
+                                            <span className='font-medium' style={{ fontSize: '0.72rem', color: '#92400e' }}>
+                                                {alertedItems.length} item{alertedItems.length > 1 ? 's' : ''} with total margin ≤ {Number(threshold).toLocaleString()}
+                                            </span>
+                                            <div className='flex flex-wrap gap-1'>
+                                                {alertedItems.slice(0, 3).map((item, i) => (
+                                                    <span key={i} className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.58rem', background: '#fde68a', color: '#78350f' }}>
+                                                        {item.description || 'Item'} · {Number(item.totalMarginVal || 0).toLocaleString()} ({item.month})
+                                                    </span>
+                                                ))}
+                                                {alertedItems.length > 3 && (
+                                                    <span className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.58rem', background: '#fde68a', color: '#78350f' }}>
+                                                        +{alertedItems.length - 3} more
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className='flex items-center gap-1.5'>
+                                            <button
+                                                onClick={handleExplainAlerts}
+                                                disabled={explaining}
+                                                className='flex items-center gap-1 px-2.5 py-1 rounded-full text-white transition-all disabled:opacity-60'
+                                                style={{ fontSize: '0.62rem', background: '#d97706' }}
+                                            >
+                                                {explaining ? <Loader2 className='w-3 h-3 animate-spin' /> : null}
+                                                Explain with AI
+                                                {explainOpen
+                                                    ? <ChevronUp className='w-3 h-3' />
+                                                    : <ChevronDown className='w-3 h-3' />
+                                                }
+                                            </button>
+                                            <button
+                                                onClick={() => setAlertDismissed(true)}
+                                                aria-label='Dismiss margin alert banner'
+                                                className='p-1 rounded-full hover:bg-[#fde68a] transition-colors focus:outline-none focus:ring-2 focus:ring-[#d97706]/40'
+                                            >
+                                                <X className='w-3.5 h-3.5' style={{ color: '#92400e' }} aria-hidden='true' />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {explainOpen && (
+                                        <div className='px-3 pb-3'>
+                                            <div
+                                                ref={explainScrollRef}
+                                                className='rounded-lg p-2.5 overflow-y-auto'
+                                                style={{ background: 'white', border: '1px solid #fde68a', minHeight: '48px', maxHeight: '320px' }}
+                                            >
+                                                {explanation ? (
+                                                    <p className='whitespace-pre-wrap' style={{ fontSize: '0.68rem', color: '#78350f', lineHeight: '1.5' }}>
+                                                        {explanation}
+                                                    </p>
+                                                ) : explaining ? (
+                                                    <div className='flex items-center gap-2'>
+                                                        <Loader2 className='w-3 h-3 animate-spin' style={{ color: '#d97706' }} />
+                                                        <span style={{ fontSize: '0.65rem', color: '#92400e' }}>Analyzing margins…</span>
+                                                    </div>
+                                                ) : null}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Alert history (per-month breakdown) */}
+                                    {alertHistory.length > 1 && (
+                                        <div className='px-3 pb-3'>
+                                            <button
+                                                onClick={() => setHistoryOpen(o => !o)}
+                                                className='flex items-center gap-1 text-left'
+                                                style={{ fontSize: '0.62rem', color: '#92400e', fontWeight: 600 }}
+                                                aria-expanded={historyOpen}
+                                            >
+                                                {historyOpen ? <ChevronUp className='w-3 h-3' /> : <ChevronDown className='w-3 h-3' />}
+                                                Alert trend across {alertHistory.length} month{alertHistory.length !== 1 ? 's' : ''}
+                                            </button>
+                                            {historyOpen && (
+                                                <div className='rounded-lg p-2 mt-1.5' style={{ background: 'white', border: '1px solid #fde68a' }}>
+                                                    <div className='flex items-end gap-1.5 mb-2' style={{ height: '40px' }}>
+                                                        {(() => {
+                                                            const max = Math.max(...alertHistory.map(h => h.count), 1);
+                                                            return alertHistory.slice().reverse().map(h => {
+                                                                const heightPct = (h.count / max) * 100;
+                                                                return (
+                                                                    <div key={h.month} className='flex-1 flex flex-col items-center gap-0.5' title={`Month ${h.month}: ${h.count} alert(s)`}>
+                                                                        <div className='w-full rounded-t' style={{
+                                                                            height: `${Math.max(heightPct, 8)}%`,
+                                                                            background: h.count >= 5 ? '#dc2626' : h.count >= 3 ? '#f59e0b' : '#fbbf24',
+                                                                            minHeight: '4px'
+                                                                        }} />
+                                                                        <span style={{ fontSize: '0.5rem', color: '#92400e' }}>{h.month}</span>
+                                                                    </div>
+                                                                );
+                                                            });
+                                                        })()}
+                                                    </div>
+                                                    <p style={{ fontSize: '0.55rem', color: '#78350f', textAlign: 'center' }}>
+                                                        Months with alerts (bar height = count). Tap above to see current items.
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Quiet data-completeness notice — informational, not an alarm */}
+                            {!loading && incompleteCount > 0 && (
+                                <div
+                                    className='flex items-center gap-2 px-3 py-1.5 mb-3 rounded-lg'
+                                    style={{ background: '#f8fbff', border: '1px solid #dbeeff' }}
+                                >
+                                    <Info className='w-3 h-3 flex-shrink-0' style={{ color: 'var(--regent-gray)' }} />
+                                    <span style={{ fontSize: '0.62rem', color: 'var(--regent-gray)' }}>
+                                        {incompleteCount} item{incompleteCount !== 1 ? 's have' : ' has'} no margin entered yet — fill in the Margin column to track profitability.
+                                    </span>
+                                </div>
+                            )}
+
                             {/* Stats Section */}
                             <FirstPart
                                 incoming={incoming}
@@ -318,7 +599,7 @@ const Margins = () => {
                             <div className="rounded-2xl border border-[#b8ddf8]">
                                 <div className="p-2 flex gap-3 mt-3">
                                     <button
-                                        className="bg-[#dbeeff] text-[var(--endeavour)] px-3 py-1 text-[0.68rem] rounded-full hover:opacity-90 transition-all"
+                                        className="bg-[#dbeeff] text-[var(--chathams-blue)] font-medium px-3 py-1 text-[0.68rem] rounded-full hover:opacity-90 transition-all"
                                         disabled={data.length >= 12}
                                         onClick={addMonth}
                                     >
@@ -335,7 +616,7 @@ const Margins = () => {
 
                                 {/* Margins Tables */}
                                 <div className="w-full p-2 mt-2">
-                                    <div className="w-full max-w-8xl divide-y rounded-xl">
+                                    <div className="w-full max-w-8xl divide-y divide-[#dbeeff] rounded-xl">
                                         {data.map(({ month, items, openMonth }) => {
                                             return (
                                                 <div key={month}>

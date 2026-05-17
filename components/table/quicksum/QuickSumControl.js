@@ -122,7 +122,7 @@ export function QuickSumButton({
             ref={triggerRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="h-7 px-2 rounded-2xl text-[11px] font-medium transition-all bg-white text-[var(--port-gore)] border border-[#b8ddf8] hover:border-[#b8ddf8]"
+            className="h-7 px-2 rounded-2xl text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium transition-all bg-white text-[var(--port-gore)] border border-[#b8ddf8] hover:border-[#b8ddf8]"
             title="Choose columns"
           >
             Columns ▾
