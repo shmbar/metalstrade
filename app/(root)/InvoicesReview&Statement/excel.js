@@ -1,7 +1,6 @@
 import React from 'react'
 import { saveAs } from 'file-saver';
-import { Workbook } from 'exceljs';
-// import removed: SiMicrosoft not available
+// exceljs is dynamically imported inside exportExcel to keep it off the first-load bundle.
 import { FileSpreadsheet } from 'lucide-react';
 import dateFormat from "dateformat";
 import { OutTurn, Finalizing, relStts } from '../../../components/const'
@@ -9,14 +8,15 @@ import { getTtl } from '../../../utils/languages';
 import Tltip from '../../../components/tlTip';
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
-const wb = new Workbook();
-wb.creator = 'IMS';
-wb.created = new Date();
 
-const sheet = wb.addWorksheet('Data', { properties: {} },);
-sheet.views = [
-    { rightToLeft: false }
-];
+// Safely format a date — returns '' for null / undefined / empty / unparseable
+// values. `dateformat` throws "Invalid date" on bad input, which would abort
+// the entire export, so this guards every date column.
+const safeDate = (v) => {
+    if (!v) return '';
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? '' : dateFormat(d, 'dd.mm.yy');
+};
 
 
 function getNumFmtForCurrency(currency) {
@@ -37,9 +37,22 @@ export const EXD = (dataTable, settings, name, ln, totals) => {
 
     const exportExcel = async () => {
 
-        while (sheet.rowCount > 1) {
-            sheet.spliceRows(2, 1);
+        // Guard: this export builds totals rows from `totals[0].us` / `totals[1].eu`.
+        // `totals` is React state that starts as [] and is populated after data
+        // loads. If the user clicks export before that, bail out with a clear
+        // message instead of either crashing (totals[0].us on undefined) or
+        // silently producing an empty file.
+        if (!totals || !totals[0]?.us || !totals[1]?.eu || !dataTable?.length) {
+            alert('Data is still loading. Please wait a moment and try again.');
+            return;
         }
+
+        const { Workbook } = await import('exceljs');
+        const wb = new Workbook();
+        wb.creator = 'IMS';
+        wb.created = new Date();
+        const sheet = wb.addWorksheet('Data', { properties: {} });
+        sheet.views = [{ rightToLeft: false }];
 
         sheet.columns = [
             { key: 'order', header: 'PO#', width: 14, style: styles },
@@ -117,8 +130,8 @@ export const EXD = (dataTable, settings, name, ln, totals) => {
                 debtaftr: item.debtaftr,
 
                 status: item.status === '' ? '' : relStts.find(x => x.id === item.status).status,
-                etd: item.etd === '' ? '' : dateFormat(item.etd, 'dd.mm.yy'),
-                eta: item.eta === '' ? '' : dateFormat(item.eta, 'dd.mm.yy'),
+                etd: safeDate(item.etd),
+                eta: safeDate(item.eta),
 
                 rcvd: item.rcvd === '' ? '' : OutTurn.find(x => x.id === item.rcvd).rcvd,
                 outtrnAmnt: item.outrnamnt * 1,
@@ -166,8 +179,11 @@ export const EXD = (dataTable, settings, name, ln, totals) => {
 
         // Now row 1 and 2 are empty, existing table is pushed down
         // You can now add your Totals/Sub Totals in row 1 & 2
-        let us = totals[0].us
-        let eu = totals[1].eu
+        // The guard above already ensures totals[0].us and totals[1].eu exist,
+        // but individual fields may still be undefined; default to '' so empty
+        // cells render correctly instead of "undefined" strings.
+        const us = totals[0].us || {}
+        const eu = totals[1].eu || {}
         sheet.getRow(1).values = ["Total $:", '', '', us.supplierInvAmount, us.supplierPrepayment, us.supBlnc,
             '', '', us.totalAmount, us.prepaidPer, us.totalPrepayment1, us.debtaftr, '', '', '', '', '',
             us.deviation, us.debtBlnc, '', '', us.inDebt, us.payments
