@@ -202,12 +202,17 @@ const Accounting = () => {
 
       let consArr = []
       arrContracts.forEach(contract => {
+        // Firestore docs may be missing poInvoices / dateRange / inner invRef.
+        // Without these guards the whole Load() throws → setLoading(false)
+        // never runs → page stays on the loading spinner forever.
+        if (!contract || !Array.isArray(contract.poInvoices)) return;
         contract.poInvoices.forEach(poInvoice => {
+          if (!poInvoice || !Array.isArray(poInvoice.invRef)) return;
           poInvoice.invRef.forEach(ref => {
             if (invArr.map(z => z.saleInvoice).includes(ref)) {
               let item = {
                 num: '',
-                dateExp: contract.dateRange.endDate,
+                dateExp: contract.dateRange?.endDate,
                 expInvoice: poInvoice.inv,
                 clientExp: contract.supplier,
                 amountExp: poInvoice.invValue,
@@ -223,7 +228,7 @@ const Accounting = () => {
 
 
 
-      let expArr = dt.filter(x => x.expenses.length).map(x => x.expenses).flat()
+      let expArr = dt.filter(x => Array.isArray(x.expenses) && x.expenses.length).map(x => x.expenses).flat()
       let expData = await loadExpensesForAccounting(uidCollection, expArr) // array of expenses
 
       expArr = [];
