@@ -1,19 +1,12 @@
 import React from 'react'
 import { saveAs } from 'file-saver';
-import { Workbook } from 'exceljs';
+// exceljs is dynamically imported inside exportExcel to keep it off the first-load bundle.
 import { getTtl } from '../../../utils/languages';
 import Tltip from '../../../components/tlTip';
 import { FileSpreadsheet } from 'lucide-react';
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
-const wb = new Workbook();
-wb.creator = 'IMS';
-wb.created = new Date();
-
-const sheet = wb.addWorksheet('Data', { properties: {} },);
-sheet.views = [
-    { rightToLeft: false }
-];
+// wb / sheet are now created lazily inside exportExcel — see Edit 3.
 
 function getNumFmtForCurrency(currency) {
     switch (currency) {
@@ -42,9 +35,12 @@ export const EXD = (dataTable, settings, name, ln, sumData, columnVisibility = {
 
     const exportExcel = async () => {
 
-        while (sheet.rowCount > 1) {
-            sheet.spliceRows(2, 1);
-        }
+        const { Workbook } = await import('exceljs');
+        const wb = new Workbook();
+        wb.creator = 'IMS';
+        wb.created = new Date();
+        const sheet = wb.addWorksheet('Data', { properties: {} });
+        sheet.views = [{ rightToLeft: false }];
 
         // Build visible column list from propDefaults order, filtered by columnVisibility
         const visibleCols = (allColumns.length > 0 ? allColumns : Object.keys(COL_META).map(k => ({ accessorKey: k, header: k })))
