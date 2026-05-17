@@ -135,7 +135,7 @@ const ContractModal = () => {
 			...valueCon, 'supplier': gisAccount ? "f891ad09-aa67-4ba4-83f0-abe7040e0dd2" : '0dfe23d3-3199-4556-a178-07ad52529e37',
 			'poInvoices': [], 'expenses': [], lstSaved: formatted, invoices: [],
 		}
-		
+
 		const uid = gisAccount ? 'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2' : 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS'
 
 		let success = await saveDatatoServer(uid, 'contracts', newCon)
@@ -143,7 +143,7 @@ const ContractModal = () => {
 		success && setToast({ show: true, text: 'Data successfully copied!', clr: 'success' })
 
 		let stockData = valueCon.stock.length > 0 ? await loadStockData(uidCollection, 'id', valueCon.stock) : []
-	
+
 		stockData = stockData.map(x => ({
 			...x, client: '', poInvoice: '', poInvoices: [], status: '',
 			'supplier': gisAccount ? "f891ad09-aa67-4ba4-83f0-abe7040e0dd2" : '0dfe23d3-3199-4556-a178-07ad52529e37',

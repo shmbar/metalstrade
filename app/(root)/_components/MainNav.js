@@ -5,8 +5,6 @@ import { UserAuth } from '../../../contexts/useAuthContext'
 import { SettingsContext } from '../../../contexts/useSettingsContext'
 import { getTtl } from '../../../utils/languages'
 import { useRouter } from 'next/navigation'
-import { BiSearch, BiLogOutCircle, BiMessageRoundedDots } from 'react-icons/bi'
-import { FiSettings } from 'react-icons/fi'
 import { IoClose } from 'react-icons/io5';
 import Image from 'next/image';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext'
@@ -100,7 +98,7 @@ export const MainNav = () => {
 
       {/* Right Side: All icons and controls in a row, all functional */}
       <div className='flex items-center gap-2 ml-auto'>
-        {/* Global Search */}
+        {/* Global Search */} 
         <div className='relative flex items-center' ref={searchRef}>
 
 
