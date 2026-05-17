@@ -1,49 +1,29 @@
 
 'use client';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import { m, LazyMotion, domAnimation } from 'framer-motion';
 import Spinner from '@components/spinner';
 import VideoLoader from '@components/videoLoader';
 import { UserAuth } from "@contexts/useAuthContext"
 import { SettingsContext } from "@contexts/useSettingsContext";
 import Toast from '@components/toast.js'
 import Spin from '@components/spinTable';
-import {
-  Chart as ChartJS,
-  ArcElement,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-} from 'chart.js';
-import { Bar, Line } from 'react-chartjs-2';
 import { loadData, groupedArrayInvoice, getInvoices } from '@utils/utils'
 import { setMonthsInvoices, calContracts } from './funcs'
 import { getTtl } from '@utils/languages';
 import DateRangePicker from '@components/dateRangePicker';
 import TooltipComp from '@components/tooltip';
-import MarketsTicker from '@components/Dashboard/MarketsTicker';
+// MarketsTicker pulls in ~250 inlined flag images (react-world-flags); load it
+// off the first-paint critical path so it doesn't bloat the dashboard bundle.
+const MarketsTicker = dynamic(() => import('@components/Dashboard/MarketsTicker'), { ssr: false });
 import AIAlertsBar from '@components/Dashboard/AIAlertsBar';
 
 import { BarChartContracts, HorizontalBar } from './charts';
 
-ChartJS.register(
-  CategoryScale,
-  ArcElement,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-);
+// chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
+const Line = dynamic(() => import('./LazyCharts').then((mod) => mod.Line), { ssr: false });
+const Bar = dynamic(() => import('./LazyCharts').then((mod) => mod.Bar), { ssr: false });
 
 const fmtMoney = (n, decimals = 2) => {
   const num = typeof n === "string"
@@ -97,7 +77,7 @@ const sumObj = (obj) => Object.values(obj || {}).reduce((a, v) => a + (Number(v)
 
 function CardShell({ className = "", children }) {
   return (
-    <motion.div
+    <m.div
       className={`bg-[#f8fbff] rounded-2xl border border-[#b8ddf8] ${className}`}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
@@ -105,7 +85,7 @@ function CardShell({ className = "", children }) {
       whileHover={{ scale: 1.02, boxShadow: '0 8px 32px rgba(0,0,0,0.08)' }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -120,7 +100,7 @@ function StatKpiCard({
   iconBg = '#fff',
 }) {
   return (
-    <motion.div
+    <m.div
       className={`relative h-full min-h-[130px] rounded-xl overflow-hidden bg-gradient-to-br ${grad} shadow-md flex flex-col`}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -181,7 +161,7 @@ function StatKpiCard({
           />
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -262,8 +242,8 @@ function DebtSnapshotCard({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPer
 
         {/* 2x2 Metric Grid */}
         <div className="grid grid-cols-2 gap-3 flex-1">
-          {metrics.map((m, i) => (
-            <motion.div
+          {metrics.map((metric, i) => (
+            <m.div
               key={i}
               className="flex flex-col gap-0.5 p-2 rounded-lg border border-[#b8ddf8] bg-white"
               initial={{ opacity: 0, y: 10 }}
@@ -272,14 +252,14 @@ function DebtSnapshotCard({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPer
               whileHover={{ scale: 1.02, boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}
             >
               <div className="flex items-center gap-2">
-                {m.icon}
+                {metric.icon}
               </div>
-              <div className="responsiveTextTitle font-medium mt-0.5" style={{ color: m.valueColor }}>
-                {m.value}
+              <div className="responsiveTextTitle font-medium mt-0.5" style={{ color: metric.valueColor }}>
+                {metric.value}
               </div>
-              <div className="responsiveTextTable text-[var(--regent-gray)] leading-tight">{m.label}</div>
-              {m.sub && <div className="responsiveTextTable text-[var(--regent-gray)] leading-tight">{m.sub}</div>}
-            </motion.div>
+              <div className="responsiveTextTable text-[var(--regent-gray)] leading-tight">{metric.label}</div>
+              {metric.sub && <div className="responsiveTextTable text-[var(--regent-gray)] leading-tight">{metric.sub}</div>}
+            </m.div>
           ))}
         </div>
       </div>
@@ -444,21 +424,22 @@ const Dash = () => {
   if (Object.keys(settings).length === 0) return <VideoLoader loading={true} fullScreen={true} />;
 
   return (
+    <LazyMotion features={domAnimation}>
     <div className="w-full ">
       <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px] min-h-screen ">
         <Toast />
         <VideoLoader loading={loading} fullScreen={true} />
 
-        <motion.div className="mb-4" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
+        <m.div className="mb-4" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
           <MarketsTicker />
-        </motion.div>
+        </m.div>
 
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
+        <m.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
           <AIAlertsBar />
-        </motion.div>
+        </m.div>
 
         {/* HEADER */}
-        <motion.div className="mb-5 flex items-center justify-between" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
+        <m.div className="mb-5 flex items-center justify-between" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
           <div>
             <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
               {getTtl('Dashboard', ln)}
@@ -469,17 +450,17 @@ const Dash = () => {
           </div>
           <DateRangePicker />
           <TooltipComp txt="Select Dates Range" />
-        </motion.div>
+        </m.div>
 
         {/* MAIN GRID */}
-        <motion.div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-5"
+        <m.div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
 
           {/* LEFT COLUMN */}
-          <motion.div className="flex flex-col gap-4"
+          <m.div className="flex flex-col gap-4"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
@@ -594,7 +575,7 @@ const Dash = () => {
                     const pct = max > 0 ? (value / max) * 100 : 0;
 
                     return (
-                      <motion.div
+                      <m.div
                         key={idx}
                         className="flex items-center gap-2 mb-0.5"
                         initial={{ opacity: 0, x: -20 }}
@@ -602,14 +583,14 @@ const Dash = () => {
                         transition={{ duration: 0.4, delay: idx * 0.07 }}
                       >
                         {/* Avatar */}
-                        <motion.div
+                        <m.div
                           className="flex items-center justify-center rounded-full font-medium text-white flex-shrink-0"
                           style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
                           whileHover={{ scale: 1.1 }}
                           transition={{ type: 'spring', stiffness: 300 }}
                         >
                           {getInitials(lbl)}
-                        </motion.div>
+                        </m.div>
 
                         {/* Name */}
                         <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">
@@ -617,9 +598,9 @@ const Dash = () => {
                         </div>
 
                         {/* Bar */}
-                        <motion.div className="flex-1 min-w-0">
+                        <m.div className="flex-1 min-w-0">
                           <div className="w-full bg-gray-100 rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
-                            <motion.div
+                            <m.div
                               className="rounded-r-full h-full flex items-center pl-2"
                               style={{
                                 width: `${pct}%`,
@@ -635,19 +616,19 @@ const Dash = () => {
                               <span className="font-medium text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
                                 {(max > 0 ? value / max : 0).toFixed(2)}
                               </span>
-                            </motion.div>
+                            </m.div>
                           </div>
-                        </motion.div>
+                        </m.div>
 
                         {/* Value */}
-                        <motion.div className="w-16 text-right responsiveText text-[var(--port-gore)] font-normal flex-shrink-0"
+                        <m.div className="w-16 text-right responsiveText text-[var(--port-gore)] font-normal flex-shrink-0"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ duration: 0.4, delay: idx * 0.09 }}
                         >
                           {fmtAutoKM(value)}
-                        </motion.div>
-                      </motion.div>
+                        </m.div>
+                      </m.div>
                     );
                   })}
                 </div>
@@ -691,7 +672,7 @@ const Dash = () => {
                     const pct = max > 0 ? (value / max) * 100 : 0;
 
                     return (
-                      <motion.div
+                      <m.div
                         key={idx}
                         className="flex items-center gap-2 mb-0.5"
                         initial={{ opacity: 0, x: -20 }}
@@ -699,22 +680,22 @@ const Dash = () => {
                         transition={{ duration: 0.4, delay: idx * 0.07 }}
                       >
                         {/* Avatar */}
-                        <motion.div
+                        <m.div
                           className="flex items-center justify-center rounded-full font-medium text-white flex-shrink-0"
                           style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
                           whileHover={{ scale: 1.1 }}
                           transition={{ type: 'spring', stiffness: 300 }}
                         >
                           {getInitials(lbl)}
-                        </motion.div>
+                        </m.div>
                         {/* Name */}
                         <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">
                           {lbl}
                         </div>
                         {/* Bar */}
-                        <motion.div className="flex-1 min-w-0">
+                        <m.div className="flex-1 min-w-0">
                           <div className="w-full bg-gray-100 rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
-                            <motion.div
+                            <m.div
                               className="rounded-r-full h-full flex items-center pl-2"
                               style={{
                                 width: `${pct}%`,
@@ -730,28 +711,28 @@ const Dash = () => {
                               <span className="font-medium text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
                                 {(max > 0 ? value / max : 0).toFixed(2)}
                               </span>
-                            </motion.div>
+                            </m.div>
                           </div>
-                        </motion.div>
+                        </m.div>
                         {/* Value */}
-                        <motion.div className="w-16 text-right responsiveText text-[var(--port-gore)] font-normal flex-shrink-0"
+                        <m.div className="w-16 text-right responsiveText text-[var(--port-gore)] font-normal flex-shrink-0"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ duration: 0.4, delay: idx * 0.09 }}
                         >
                           {fmtAutoKM(value)}
-                        </motion.div>
-                      </motion.div>
+                        </m.div>
+                      </m.div>
                     );
                   })}
                 </div>
               </div>
             </CardShell>
 
-          </motion.div>
+          </m.div>
 
           {/* RIGHT COLUMN */}
-          <motion.div className="flex flex-col gap-4 lg:sticky lg:top-[76px] lg:self-start"
+          <m.div className="flex flex-col gap-4 lg:sticky lg:top-[76px] lg:self-start"
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
@@ -835,12 +816,13 @@ const Dash = () => {
 
             </div>
 
-          </motion.div>
+          </m.div>
 
-        </motion.div>
+        </m.div>
 
       </div>
     </div>
+    </LazyMotion>
   );
 }
 
