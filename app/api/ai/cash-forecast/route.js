@@ -18,11 +18,17 @@ function getOpenAI() {
 const memCache = new Map();
 const CACHE_TTL = 15 * 60 * 1000;
 
+// Firestore document paths need an EVEN number of segments after db
+// (collection/doc/collection/doc...). Combine horizon+date into a single
+// doc id so the path is {uid}/aiCache/forecast/{horizon_date} = 4 segments.
+function l2Ref(uid, horizon, todayStr) {
+    return doc(db, uid, 'aiCache', 'forecast', `${horizon}_${todayStr}`);
+}
+
 async function readL2Cache(uid, horizon, todayStr) {
     if (!uid) return null;
     try {
-        const ref = doc(db, uid, 'aiCache', 'forecast', String(horizon), todayStr);
-        const snap = await getDoc(ref);
+        const snap = await getDoc(l2Ref(uid, horizon, todayStr));
         if (!snap.exists()) return null;
         const { data, ts } = snap.data();
         if (!ts || Date.now() - ts > CACHE_TTL) return null;
@@ -35,8 +41,7 @@ async function readL2Cache(uid, horizon, todayStr) {
 async function writeL2Cache(uid, horizon, todayStr, data) {
     if (!uid) return;
     try {
-        const ref = doc(db, uid, 'aiCache', 'forecast', String(horizon), todayStr);
-        await setDoc(ref, { data, ts: Date.now() });
+        await setDoc(l2Ref(uid, horizon, todayStr), { data, ts: Date.now() });
     } catch {
         // Non-fatal — cache write failure shouldn't break the response
     }
