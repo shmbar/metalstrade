@@ -178,13 +178,18 @@ const Margins = () => {
         const Load = async () => {
             setLoading(true)
 
+            console.time('[perf] 1-loadMargins fetch')
             let dt = await loadMargins(uidCollection, yr)
+            console.timeEnd('[perf] 1-loadMargins fetch')
+            console.log('[perf] margins rows:', dt.length, '| total items:', dt.reduce((a, r) => a + (r.items?.length || 0), 0))
 
+            console.time('[perf] 2-margins post-processing')
             dt = dt.map(({ items, ids, ...rest }) => ({
                 ...rest,
                 ids,
                 items: ids?.map(id => items?.find(item => item.id === id)).filter(Boolean) || []
             }));
+            console.timeEnd('[perf] 2-margins post-processing')
 
             if (!uidCollection) return;
             setData(dt)
@@ -195,6 +200,7 @@ const Margins = () => {
     }, [yr, uidCollection])
 
     useEffect(() => {
+        console.time('[perf] 3-margins totals effect')
         // Main totals
         let _purchase = 0, _openShip = 0, _totalMargin = 0, _remaining = 0;
         // GIS totals
@@ -282,6 +288,7 @@ const Margins = () => {
         const history = [...byMonth.values()].sort((a, b) => Number(b.month) - Number(a.month));
         setAlertHistory(history);
         if (alerted.length > 0) setAlertDismissed(false);
+        console.timeEnd('[perf] 3-margins totals effect')
     }, [data, threshold])
 
     const handleChangeDate = useCallback((e, i, month) => {
