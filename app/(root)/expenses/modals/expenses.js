@@ -19,18 +19,30 @@ const Expenses = () => {
     const { valueExp, setValueExp, blankExpense, saveData_ExpenseExpenses,
         deleteExpenseFromExpPage, errorsExp, setErrorsExp } = useContext(ExpensesContext);
     const { valueInv, setValueInv, } = useContext(InvoiceContext);
-    const { settings, ln } = useContext(SettingsContext);
+    const { settings, ln, setToast } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
 
     const [categorizing, setCategorizing] = useState(false);
     const [catResult, setCatResult] = useState(null); // null | 'high' | 'medium' | 'low' | 'error'
 
     const handleAutoCategory = async () => {
-        // Combine title + comments for stronger signal — title often has the key keyword
-        const title = (valueExp.expense || '').trim();
+        // The "Expense Invoice" field is a reference NUMBER (e.g. "9") — useless for
+        // categorisation. The real signals are the Vendor (e.g. a freight forwarder
+        // → Freight) and the Comments. Resolve the supplier id to its name.
+        const sup = (settings.Supplier?.Supplier || []).find(s => s.id === valueExp.supplier);
+        const vendorName = [sup?.supplier, sup?.nname].filter(Boolean).join(' / ');
         const comments = (valueExp.comments || '').trim();
-        const description = [title, comments].filter(Boolean).join(' — ');
-        if (!description) return;
+        const description = [
+            vendorName ? `Vendor: ${vendorName}` : '',
+            comments ? `Notes: ${comments}` : '',
+        ].filter(Boolean).join('. ');
+
+        if (description.trim().length < 3) {
+            setCatResult('error');
+            setToast?.({ show: true, text: 'Add a Vendor or Comments first so AI has something to categorise.', clr: 'fail' });
+            setTimeout(() => setCatResult(null), 3000);
+            return;
+        }
 
         const categories = (settings.Expenses?.Expenses || []).map(e => ({ id: e.id, label: e.expType }));
         if (!categories.length) return;
@@ -43,12 +55,13 @@ const Expenses = () => {
                 body: JSON.stringify({ description, categories }),
             });
             const data = await res.json();
-            if (!res.ok || data.error) throw new Error(data.error || 'Failed');
+            if (!res.ok || data.error) throw new Error(data.error || 'Categorisation failed');
             handleChange(data.categoryId, 'expType');
             setCatResult(data.confidence);
             setTimeout(() => setCatResult(null), 3000);
-        } catch {
+        } catch (e) {
             setCatResult('error');
+            setToast?.({ show: true, text: e.message || 'AI categorisation failed. Try again.', clr: 'fail' });
             setTimeout(() => setCatResult(null), 3000);
         } finally {
             setCategorizing(false);
@@ -124,11 +137,11 @@ const Expenses = () => {
                         <div className='pt-1'>
                             <div className='flex items-center justify-between mb-0.5'>
                                 <p className='text-sm font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Type', ln)}:</p>
-                                <Tltip direction='top' tltpText={(valueExp.expense?.trim() || valueExp.comments?.trim()) ? 'Auto-categorize from expense name + comments' : 'Add an expense name or comments first'}>
+                                <Tltip direction='top' tltpText={(valueExp.supplier || valueExp.comments?.trim()) ? 'Auto-categorize from Vendor + Comments' : 'Select a Vendor or add Comments first'}>
                                     <button
                                         type='button'
                                         onClick={handleAutoCategory}
-                                        disabled={categorizing || !(valueExp.expense?.trim() || valueExp.comments?.trim())}
+                                        disabled={categorizing || !(valueExp.supplier || valueExp.comments?.trim())}
                                         aria-label={categorizing ? 'AI is detecting expense category' : 'Auto-detect expense category using AI'}
                                         aria-busy={categorizing}
                                         className='flex items-center gap-1 px-2 py-0.5 rounded-full text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
