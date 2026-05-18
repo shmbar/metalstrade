@@ -670,6 +670,7 @@ const Margins = () => {
                                         totalMargin={totalMarginGIS}
                                         yr={yr}
                                         title={cName === 'ims' ? 'Total GIS' : 'Total IMS'}
+                                        isGIS
                                     />
                                 </div>
                             </div>

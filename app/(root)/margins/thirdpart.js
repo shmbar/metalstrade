@@ -1,7 +1,9 @@
 ﻿
 import { NumericFormat } from "react-number-format";
+import Tltip from "../../../components/tlTip";
+import { addComma } from "../../../app/(root)/cashflow/funcs";
 
-const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr, title }) => {
+const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr, title, isGIS }) => {
 
     return (
         <div className="w-full lg:flex-1 p-2 mt-2 overflow-x-auto">
@@ -196,6 +198,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
+                                                {isGIS ? (
+                                                <Tltip direction="top" tltpText={"IMS: $" + addComma(z.totalMargin / 2)}>
                                                 <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1]  fade-in">
                                                     <NumericFormat
                                                         value={z.totalMargin}
@@ -208,6 +212,21 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         className="responsiveTextTable"
                                                     />
                                                 </div>
+                                                </Tltip>
+                                                ) : (
+                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1]  fade-in">
+                                                    <NumericFormat
+                                                        value={z.totalMargin}
+                                                        displayType="text"
+                                                        thousandSeparator
+                                                        allowNegative={true}
+                                                        prefix={'$'}
+                                                        decimalScale="2"
+                                                        fixedDecimalScale
+                                                        className="responsiveTextTable"
+                                                    />
+                                                </div>
+                                                )}
                                             </td>
 
                                             <td
@@ -245,6 +264,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
+                                                {isGIS ? (
+                                                <Tltip direction="top" tltpText={"IMS: $" + addComma(z.remaining / 2)}>
                                                 <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff] fade-in">
                                                     <NumericFormat
                                                         value={z.remaining}
@@ -257,6 +278,21 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         className="responsiveTextTable"
                                                     />
                                                 </div>
+                                                </Tltip>
+                                                ) : (
+                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff] fade-in">
+                                                    <NumericFormat
+                                                        value={z.remaining}
+                                                        displayType="text"
+                                                        thousandSeparator
+                                                        allowNegative={true}
+                                                        prefix={'$'}
+                                                        decimalScale="2"
+                                                        fixedDecimalScale
+                                                        className="responsiveTextTable"
+                                                    />
+                                                </div>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
