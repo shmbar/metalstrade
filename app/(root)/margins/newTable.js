@@ -217,7 +217,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
               >
                 <div className="flex items-center justify-center w-full">
                   <NumericFormat
-                    value={cell.getValue()}
+                    value={cell.getValue() / 2}
                     displayType="input"
                     readOnly
                     thousandSeparator
@@ -586,9 +586,12 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                                 );
                                                             }
                                                             if (['totalMargin', 'remaining', 'openShip'].includes(col.accessorKey)) {
+                                                                const displayVal = (['totalMargin', 'remaining'].includes(col.accessorKey) && row.gis)
+                                                                    ? row[col.accessorKey] / 2
+                                                                    : row[col.accessorKey];
                                                                 return (
                                                                     <NumericFormat
-                                                                        value={row[col.accessorKey]}
+                                                                        value={displayVal}
                                                                         displayType="text"
                                                                         thousandSeparator
                                                                         allowNegative={true}
