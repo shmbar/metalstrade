@@ -210,7 +210,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
             ) : (cell.column.id === "totalMargin" || cell.column.id === "remaining") && row.original.gis ? (
               <Tltip
                 direction="top"
-                tltpText={"Total deal: $" + addComma(cell.getValue())}
+                tltpText={"Total: $" + addComma(cell.getValue())}
               >
                 <div className="flex items-center justify-center w-full">
                   <NumericFormat
