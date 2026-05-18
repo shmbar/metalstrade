@@ -9,7 +9,7 @@ import Remarks from './remarksSelection.js'
 import PriceRemarks from './priceRemarks.js'
 import { usePathname } from 'next/navigation';
 import ModalToDelete from '@components/modalToProceed';
-import { validate, ErrDiv, reOrderTableCon, getD, sortArr, saveDatatoServer, loadStockData, saveStockIn } from '@utils/utils'
+import { validate, ErrDiv, reOrderTableCon, getD, sortArr, saveDatatoServer, loadStockData, saveStockIn, loadInvoice, loadDataSettings, saveMultipleData, setNewInvoiceNum } from '@utils/utils'
 import { UserAuth } from "@contexts/useAuthContext";
 import FilesModal from './filesModal.js'
 import PoInvModal from './poInvModal.js'
@@ -22,7 +22,7 @@ import { Selector } from '@components/selectors/selectShad';
 import { X, Save, LoaderCircle, FileText, Trash, Copy, SendToBack, Database, Files } from "lucide-react"
 import Toast from '../../../../components/toast.js'
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
-
+import { v4 as uuidv4 } from 'uuid';
 
 const ContractModal = () => {
 
@@ -133,14 +133,68 @@ const ContractModal = () => {
 			hour12: false
 		}).replace(',', '');
 
-		const newCon = {
-			...valueCon, 'supplier': gisAccount ? "f891ad09-aa67-4ba4-83f0-abe7040e0dd2" : '0dfe23d3-3199-4556-a178-07ad52529e37',
-			'poInvoices': [], 'expenses': [], lstSaved: formatted, invoices: [],
-		}
-
 		const uid = gisAccount ? 'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2' : 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS'
 
+		let indvData = await Promise.all(
+			valueCon.invoices?.map(inv =>
+				loadInvoice(!gisAccount ? 'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2' : 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS',
+					'invoices', inv)
+			)
+		) || [];
+
+	
+		const getInvoiceNum = async (x) => {
+			let aa = await loadDataSettings(x, 'invoiceNum')
+			return aa.num + 1;
+		}
+
+		const invoices1 = await Promise.all(
+			indvData.map(async (inv) => {
+				const invoiceNum = await getInvoiceNum(uid);
+
+				return {
+					date: inv.date || '',
+					id: inv.id || '',
+					invType: "1111",
+					invoice: invoiceNum,
+				};
+			})
+		);
+
+
+		const poInvoices = valueCon.invoices.map((invoice, indx) => ({
+			blnc: indvData[indx]?.balanceDue || indvData[indx]?.totalAmount,
+			id: indvData[indx]?.id || '',
+			inv: invoice.invoice,
+			invRef: [],
+			invValue: indvData[indx]?.totalAmount || 0,
+			payments: [],
+		}));
+
+		const newCon = {
+			...valueCon,
+			'supplier': gisAccount ? "f891ad09-aa67-4ba4-83f0-abe7040e0dd2" : '0dfe23d3-3199-4556-a178-07ad52529e37',
+			'order': gisAccount ? valueCon.order?.replace("-", "") : valueCon.order?.slice(0, -2) + "-" + valueCon.order?.slice(-2),
+			'poInvoices': poInvoices.length ? poInvoices : [], 'expenses': [], lstSaved: formatted,
+			invoices: invoices1,
+		}
+
+
+		indvData = indvData.map(x => ({
+			...x, expenses: [], invoice: invoices1.find(inv => inv.id === x.id)?.invoice || '',
+			poSupplier: {
+				date: newCon.date || '',
+				id: newCon.supplier || '',
+				order: newCon.order || '',
+			},
+			poSupplierOrder: newCon.poSupplier?.order || '',
+			payments: [], client: ''
+		}));
+
+	
 		let success = await saveDatatoServer(uid, 'contracts', newCon)
+		await saveMultipleData(uid, 'invoices', indvData)
+		await setNewInvoiceNum(uid)
 
 		success && setToast({ show: true, text: 'Data successfully copied!', clr: 'success' })
 

@@ -68,7 +68,7 @@ const useInvoiceState = () => {
             setErrors({})
         },
         delInvoice: async (uidCollection, valueCon, setValueCon, contractsData, setContractsData) => {
-
+       
             let tmpInvRef = valueCon.poInvoices.map(z => z.invRef).flat().map(x => parseFloat(x))
             if (tmpInvRef.includes(valueInv.invoice)) {
                 setToast({
@@ -77,7 +77,7 @@ const useInvoiceState = () => {
                 })
                 return;
             }
-
+  
             if (valueInv.expenses.length > 0) {
                 setToast({
                     show: true,
@@ -87,13 +87,14 @@ const useInvoiceState = () => {
             }
 
             if (valueInv.productsDataInvoice.length > 0) {
+                    console.log('hwew')
                 setToast({
                     show: true,
                     text: getTtl('This invoice contains materials; therefore, it cannot be deleted!', ln), clr: 'fail'
                 })
                 return;
             }
-
+      
             //Delete Stock
             if (deleteProdcuts.length > 0) delStock(uidCollection, deleteProdcuts)
 

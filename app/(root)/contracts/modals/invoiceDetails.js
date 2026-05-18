@@ -139,7 +139,7 @@ const ContractModal = () => {
 
 		if (isInvCreationCNFL) {
 			let newVal = {
-				...inv, invType: valueInv.invType, expenses: [], payments: [], id: '', invoice: inv.invoice,
+				...inv, invType: valueInv.invType, expenses: [], completed: false, payments: [], id: '', invoice: inv.invoice,
 				cur: inv.cur, totalPrepayment: '', originalInvoice: { id: inv.id, date: inv.dateRange.endDate },
 				productsDataInvoice: inv.productsDataInvoice.map(x => ({ ...x, id: uuidv4() }))
 			}

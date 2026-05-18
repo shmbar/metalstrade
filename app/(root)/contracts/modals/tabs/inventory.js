@@ -141,7 +141,7 @@ const Inventory = () => {
     const showDetail = (obj, x, i) => {
 
         return x === 'client' ? obj.final ? obj.client.nname :
-            settings.Client.Client.find(z => z.id === obj.client).nname :
+            settings.Client.Client.find(z => z.id === obj.client)?.nname :
             x === 'invoice' ? obj[x] + getprefixInv(obj) :
                 x === 'd' ? dateFormat(obj.d, 'dd-mmm-yyyy') :
                     x === 'shipped' ? obj.canceled ? 0 : frm(obj.productsDataInvoice.map(x => x.qnty)
