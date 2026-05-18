@@ -550,40 +550,65 @@ function executeTool(name, args, data) {
             const now = new Date();
             now.setHours(0, 0, 0, 0);
 
-            const inflow = {};
-            const outflow = {};
-            let inflowCount = 0, outflowCount = 0;
+            // Track projected (in-window) AND overdue separately, then combine for the net.
+            // Overdue cash is just as real (more urgent) than future cash — ignoring it
+            // would let "net 0" hide a real obligation.
+            const inflow = {}, outflow = {};
+            const overdueIn = {}, overdueOut = {};
+            let inflowCount = 0, outflowCount = 0, overdueInCount = 0, overdueOutCount = 0;
 
             invoices.forEach(inv => {
                 if (!inv.isFinal || inv.canceled || inv.paymentStatus === 'Paid') return;
                 if (!inv.dueDate) return;
                 const due = new Date(inv.dueDate);
-                if (due < now || due > cutoff) return;
                 const cur = inv.currency || 'USD';
-                inflow[cur] = (inflow[cur] || 0) + (inv.balanceDue || 0);
-                inflowCount++;
+                const amt = inv.balanceDue || 0;
+                if (due < now) {
+                    overdueIn[cur] = (overdueIn[cur] || 0) + amt;
+                    overdueInCount++;
+                } else if (due <= cutoff) {
+                    inflow[cur] = (inflow[cur] || 0) + amt;
+                    inflowCount++;
+                }
             });
             expenses.forEach(exp => {
-                if (!exp.amount || /paid/i.test(exp.paid || '')) return;
+                // BUG-FIX: /paid/i matches BOTH "Paid" and "Unpaid" (substring match),
+                // which silently dropped every unpaid expense. Use exact match.
+                if (!exp.amount || String(exp.paid || '').trim().toLowerCase() === 'paid') return;
                 if (!exp.date) return;
                 const d = new Date(exp.date);
-                if (d < now || d > cutoff) return;
                 const cur = exp.currency || 'USD';
-                outflow[cur] = (outflow[cur] || 0) + (parseFloat(exp.amount) || 0);
-                outflowCount++;
+                const amt = parseFloat(exp.amount) || 0;
+                if (d < now) {
+                    overdueOut[cur] = (overdueOut[cur] || 0) + amt;
+                    overdueOutCount++;
+                } else if (d <= cutoff) {
+                    outflow[cur] = (outflow[cur] || 0) + amt;
+                    outflowCount++;
+                }
             });
 
-            const allCurs = new Set([...Object.keys(inflow), ...Object.keys(outflow)]);
-            if (!allCurs.size) return `Cash forecast for the next ${horizon} days: no invoices or expenses are due in this window.`;
+            const allCurs = new Set([
+                ...Object.keys(inflow), ...Object.keys(outflow),
+                ...Object.keys(overdueIn), ...Object.keys(overdueOut),
+            ]);
+            if (!allCurs.size) return `Cash forecast for the next ${horizon} days: nothing projected and no overdue items.`;
 
             const lines = [...allCurs].map(cur => {
-                const i = inflow[cur] || 0;
-                const o = outflow[cur] || 0;
-                const net = i - o;
+                const i = inflow[cur] || 0, o = outflow[cur] || 0;
+                const oi = overdueIn[cur] || 0, oo = overdueOut[cur] || 0;
+                const net = i + oi - o - oo;
                 const netLabel = net >= 0 ? `+${net.toFixed(2)}` : net.toFixed(2);
-                return `• ${cur}: Inflow ${i.toFixed(2)} — Outflow ${o.toFixed(2)} — Net ${netLabel}`;
+                const overdueStr = (oi > 0 || oo > 0)
+                    ? ` (incl. overdue receivable ${oi.toFixed(2)}, overdue payable ${oo.toFixed(2)})`
+                    : '';
+                return `• ${cur}: Projected inflow ${i.toFixed(2)} − outflow ${o.toFixed(2)} → Net ${netLabel}${overdueStr}`;
             }).join('\n');
-            return `${horizon}-day cash forecast (${inflowCount} invoice(s) inflow, ${outflowCount} expense(s) outflow):\n${lines}\nFor detailed assumptions and AI risk analysis, open the Cashflow page and click "AI Cash Forecast".`;
+
+            const overdueSummary = (overdueInCount + overdueOutCount > 0)
+                ? `\n${overdueInCount} overdue receivable(s) + ${overdueOutCount} overdue payable(s) are included in the net.`
+                : '';
+            return `${horizon}-day cash forecast — net includes both projected (${inflowCount} inv, ${outflowCount} exp in window) and overdue items:\n${lines}${overdueSummary}\nFor full breakdown with AI risk analysis, open the Cashflow page.`;
         }
 
         case 'get_margin_alerts': {
