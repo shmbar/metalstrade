@@ -409,7 +409,7 @@ const ContractModal = () => {
 			<div className="p-3 flex gap-2 flex-wrap justify-start flex-row">
 				<Tltip direction='top' tltpText='Save/Update contract'>
 					<button
-						className="blackButton py-1"
+						className="blackButton py-1 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={btnClck}
 						disabled={isButtonDisabled}
 					>

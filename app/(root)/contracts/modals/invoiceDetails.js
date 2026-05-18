@@ -605,8 +605,9 @@ const ContractModal = () => {
 					{(!fnl && isSelectedInv) &&
 						<Tltip direction='top' tltpText='Save/Update invoice'>
 							<button
-								className="blackButton py-1"
+								className="blackButton py-1 disabled:opacity-50 disabled:cursor-not-allowed"
 								onClick={btnClck}
+								disabled={isButtonDisabled}
 							>
 								<Save className='size-4' />
 								{isButtonDisabled ? getTtl('saving', ln) : getTtl('save', ln)}

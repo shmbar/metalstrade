@@ -564,8 +564,9 @@ const InvoiceModal = () => {
 					<Tltip direction='top' tltpText='Save/Update invoice'>
 						<button
 							type="button"
-							className="blackButton py-1"
+							className="blackButton py-1 disabled:opacity-50 disabled:cursor-not-allowed"
 							onClick={saveData}
+							disabled={isButtonDisabled}
 						>
 							<VscSaveAs className='size-4' />
 							{isButtonDisabled ? getTtl('saving', ln) : getTtl('save', ln)}
