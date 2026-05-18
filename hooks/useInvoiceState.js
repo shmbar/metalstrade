@@ -302,61 +302,67 @@ const useInvoiceState = () => {
                 return false;
             }
 
-            const tmpValue = { ...valueInv, invoice: valueInv.invoice * 1, lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM") }
-            const tmpArr = invoicesData.map((k) => (k.id === tmpValue.id ? tmpValue : k));
-            setInvoicesData(tmpArr)
+            try {
+                const tmpValue = { ...valueInv, invoice: valueInv.invoice * 1, lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM") }
+                const tmpArr = invoicesData.map((k) => (k.id === tmpValue.id ? tmpValue : k));
+                setInvoicesData(tmpArr)
 
-            //check if a date was changed
-            if (dateYr !== tmpValue.dateRange.startDate.substring(0, 4) && dateYr != null) {
-                let valueInvTmp = ({ id: tmpValue.id, date: dateYr })
-                await delDoc(uidCollection, 'invoices', valueInvTmp)
-                setDateYr(tmpValue.dateRange.startDate.substring(0, 4))
+                //check if a date was changed
+                if (dateYr !== tmpValue.dateRange.startDate.substring(0, 4) && dateYr != null) {
+                    let valueInvTmp = ({ id: tmpValue.id, date: dateYr })
+                    await delDoc(uidCollection, 'invoices', valueInvTmp)
+                    setDateYr(tmpValue.dateRange.startDate.substring(0, 4))
 
-                //update valueCon.invoices
-                let valCon = await loadInvoice(uidCollection, 'contracts', tmpValue.poSupplier)
-                let tmpArr = valCon.invoices.map((k) => (k.id === tmpValue.id ?
-                    {
-                        ...k, date: tmpValue.dateRange.startDate, invoice: tmpValue.invoice * 1
-                    } : k));
-                let tmpObj = { ...valCon, invoices: tmpArr }
-                await saveData(uidCollection, 'contracts', tmpObj)
+                    //update valueCon.invoices
+                    let valCon = await loadInvoice(uidCollection, 'contracts', tmpValue.poSupplier)
+                    let tmpArr = valCon.invoices.map((k) => (k.id === tmpValue.id ?
+                        {
+                            ...k, date: tmpValue.dateRange.startDate, invoice: tmpValue.invoice * 1
+                        } : k));
+                    let tmpObj = { ...valCon, invoices: tmpArr }
+                    await saveData(uidCollection, 'contracts', tmpObj)
 
-                //in Case there is a change in a date of the final/credit invoice date - for accounting
-                if (tmpValue.invType !== '1111') {
-                    //update the original invoice
+                    //in Case there is a change in a date of the final/credit invoice date - for accounting
+                    if (tmpValue.invType !== '1111') {
+                        //update the original invoice
 
-                    let newFieldData = { id: tmpValue.id, date: tmpValue.dateRange.startDate }
-                    await updateDocument(uidCollection, 'invoices', 'cnORfl', tmpValue.originalInvoice, newFieldData)
+                        let newFieldData = { id: tmpValue.id, date: tmpValue.dateRange.startDate }
+                        await updateDocument(uidCollection, 'invoices', 'cnORfl', tmpValue.originalInvoice, newFieldData)
 
+                    }
                 }
+
+                //save data again, to keep invoice integer and not string
+                let valCon1 = await loadInvoice(uidCollection, 'contracts', tmpValue.poSupplier)
+                let tmpArr1 = valCon1.invoices.map((k) => (k.id === tmpValue.id ?
+                    {
+                        ...k, invoice: k.invoice * 1
+                    } : k));
+                let tmpObj = { ...valCon1, invoices: tmpArr1 }
+                await saveData(uidCollection, 'contracts', tmpObj)
+                ///////////////////
+
+                //save Stock
+                let tmpObj1 = tmpValue.productsDataInvoice.filter(z => z.qnty !== "s").map(x => ({
+                    ...x, invoice: tmpValue.invoice * 1, invType: tmpValue.invType,
+                    date: tmpValue.final ? tmpValue.date : tmpValue.dateRange.startDate,
+                    type: 'out', productsData: tmpValue.productsData,
+                    client: tmpValue.final ? tmpValue.client.client :
+                        settings.Client.Client.find(z => z.id === tmpValue.client)['client'],
+                    cur: tmpValue.cur
+                }))
+
+                await saveStockIn(uidCollection, tmpObj1)
+                if (deleteProdcuts.length > 0) delStock(uidCollection, deleteProdcuts)
+
+                let success = await saveData(uidCollection, 'invoices', tmpValue)
+
+                return success === true;
+            } catch (e) {
+                console.error('saveData_InvoiceInInvoices failed:', e)
+                setToast({ show: true, text: getTtl('Error saving. Please try again.', ln), clr: 'fail' })
+                return false;
             }
-
-            //save data again, to keep invoice integer and not string
-            let valCon1 = await loadInvoice(uidCollection, 'contracts', tmpValue.poSupplier)
-            let tmpArr1 = valCon1.invoices.map((k) => (k.id === tmpValue.id ?
-                {
-                    ...k, invoice: k.invoice * 1
-                } : k));
-            let tmpObj = { ...valCon1, invoices: tmpArr1 }
-            await saveData(uidCollection, 'contracts', tmpObj)
-            ///////////////////
-
-            //save Stock
-            let tmpObj1 = tmpValue.productsDataInvoice.filter(z => z.qnty !== "s").map(x => ({
-                ...x, invoice: tmpValue.invoice * 1, invType: tmpValue.invType,
-                date: tmpValue.final ? tmpValue.date : tmpValue.dateRange.startDate,
-                type: 'out', productsData: tmpValue.productsData,
-                client: tmpValue.final ? tmpValue.client.client :
-                    settings.Client.Client.find(z => z.id === tmpValue.client)['client'],
-                cur: tmpValue.cur
-            }))
-
-            await saveStockIn(uidCollection, tmpObj1)
-            if (deleteProdcuts.length > 0) delStock(uidCollection, deleteProdcuts)
-
-            let success = await saveData(uidCollection, 'invoices', tmpValue)
-
-            if (success) return true;
         },
         /*
         finilizeInvoice: async (uidCollection, settings) => {
