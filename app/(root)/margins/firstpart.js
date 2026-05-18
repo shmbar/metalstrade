@@ -77,8 +77,6 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
         <div className="w-full mb-3">
             {/* Import Poppins font and apply consistent styling exactly like newTable */}
             <style jsx global>{`
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-                
                 .stats-cards, .stats-cards * {
                     font-family: var(--font-poppins), 'Poppins', sans-serif;
                     transition-property: color, background-color, border-color, box-shadow, transform !important;

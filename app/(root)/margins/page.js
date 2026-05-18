@@ -174,6 +174,12 @@ const Margins = () => {
     }, [])
 
     useEffect(() => {
+        // yr starts undefined and is set after mount (effect above), and
+        // uidCollection resolves async. Without this guard Load() ran 2-3x
+        // per page open — once with no year/uid (wasted ~566ms fetch that
+        // returns 0 rows) — each run also re-triggering the totals effect and
+        // a full MarginTable re-render. Skip until both are ready.
+        if (!uidCollection || !yr) return;
 
         const Load = async () => {
             setLoading(true)
@@ -186,7 +192,6 @@ const Margins = () => {
                 items: ids?.map(id => items?.find(item => item.id === id)).filter(Boolean) || []
             }));
 
-            if (!uidCollection) return;
             setData(dt)
             setLoading(false)
         }

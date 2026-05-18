@@ -459,7 +459,16 @@ const Invoices = () => {
 				const showFollowupDot = dueForFollowup || neverReminded;
 
 				const clientList = settings?.Client?.Client || [];
-				const clientObj = clientList.find(c => c.id === row.client);
+				// `row.client` has been replaced with the client NAME by getFormatted, so the
+				// original ID is lost. Look up the unformatted invoice to recover the real
+				// client id (and email). Fall back to matching by nname for finalized rows
+				// where the original is structurally different.
+				const rawInv = invoicesData.find(x => x.id === row.id);
+				const rawClientId = rawInv && typeof rawInv.client === 'string'
+					? rawInv.client
+					: rawInv?.client?.id;
+				const clientObj = clientList.find(c => c.id === rawClientId)
+					|| clientList.find(c => c.nname === row.client);
 				const currencyList = settings?.Currency?.Currency || [];
 				const currency = currencyList.find(c => c.id === row.cur)?.cur || row.cur || 'USD';
 
@@ -476,7 +485,7 @@ const Invoices = () => {
 						onClick={e => {
 							e.stopPropagation();
 							if (onCooldown) return;
-							setReminderInvoice({ ...row, number: row.invoice, balanceDue: balanceDue > 0 ? balanceDue : 0, currency, paymentStatus: balanceDue <= 0 ? 'Paid' : totalPaid > 0 ? 'Partially Paid' : 'Unpaid', client: clientObj?.nname || row.client || 'Client', uidCollection });
+							setReminderInvoice({ ...row, number: row.invoice, balanceDue: balanceDue > 0 ? balanceDue : 0, currency, paymentStatus: balanceDue <= 0 ? 'Paid' : totalPaid > 0 ? 'Partially Paid' : 'Unpaid', client: clientObj?.nname || row.client || 'Client', clientEmail: clientObj?.email || '', uidCollection });
 						}}
 						disabled={onCooldown}
 						title={titleText}

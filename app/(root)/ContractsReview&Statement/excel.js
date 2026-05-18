@@ -1,7 +1,8 @@
 import React from 'react'
 import { saveAs } from 'file-saver';
-import { Workbook } from 'exceljs';
-// import removed: SiMicrosoft not available
+// exceljs is dynamically imported inside exportExcel to keep it off the
+// first-load bundle. It's a ~1 MB library that only runs when the user
+// actually clicks the export button.
 import { FileSpreadsheet } from 'lucide-react';
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
@@ -9,14 +10,6 @@ import Tltip from '../../../components/tlTip';
 
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
-const wb = new Workbook();
-wb.creator = 'IMS';
-wb.created = new Date();
-
-const sheet = wb.addWorksheet('Data', { properties: {} },);
-sheet.views = [
-    { rightToLeft: false }
-];
 
 
 function getNumFmtForCurrency(currency) {
@@ -37,9 +30,12 @@ export const EXD = (dataTable, settings, name, ln, valCur) => {
 
     const exportExcel = async () => {
 
-        while (sheet.rowCount > 1) {
-            sheet.spliceRows(2, 1);
-        }
+        const { Workbook } = await import('exceljs');
+        const wb = new Workbook();
+        wb.creator = 'IMS';
+        wb.created = new Date();
+        const sheet = wb.addWorksheet('Data', { properties: {} });
+        sheet.views = [{ rightToLeft: false }];
 
         sheet.columns = [
             { key: 'date', header: 'Date', width: 15, style: styles },

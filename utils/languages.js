@@ -132,6 +132,7 @@ const TitlesArr = [
     { Invoices: ['Invoices', 'Счета'] },
     { 'Shipments Tracking': ['Shipments Tracking', 'Отгрузки'] },
     { Inventory: ['Inventory', 'Инвентарь'] },
+    { Certificate: ['Certificate', 'Сертификат'] },
 
     { 'Supplier Name': ['Supplier Name', 'Имя поставщика'] },
     { 'Payment Terms': ['Payment Terms', 'Условия оплаты'] },

@@ -2,7 +2,7 @@
 import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { SettingsContext } from "../contexts/useSettingsContext";
 import { UserAuth } from "../contexts/useAuthContext";
-import { loadData, loadMargins, loadAllStockData, resolveDueDate, resolveInvoiceDate } from '../utils/utils';
+import { loadData, loadMarginsRange, loadAllStockData, resolveDueDate, resolveInvoiceDate } from '../utils/utils';
 import { authedFetch } from '../utils/aiClient';
 import { X, Send, Loader2, Trash2, RefreshCw, ExternalLink } from 'lucide-react';
 import { BsRobot, BsPerson } from "react-icons/bs";
@@ -90,13 +90,12 @@ const FloatingChat = () => {
 
         setDataLoading(true);
         try {
-            const currentYear = new Date().getFullYear();
             const [contracts, invoices, expenses, stocks, margins] = await Promise.all([
                 loadData(uidCollection, 'contracts', dateSelect),
                 loadData(uidCollection, 'invoices', dateSelect),
                 loadData(uidCollection, 'expenses', dateSelect),
                 loadAllStockData(uidCollection).catch(() => []),
-                loadMargins(uidCollection, currentYear).catch(() => []),
+                loadMarginsRange(uidCollection, dateSelect).catch(() => []),
             ]);
 
             setContractsData(contracts || []);

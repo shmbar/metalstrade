@@ -279,18 +279,32 @@ const Shipments = () => {
       let newArr = []
 
       dt.forEach(innerObj => {
-        if (innerObj.invoicesData && Array.isArray(innerObj.invoicesData)) {
-          let reducedArr = innerObj.poInvoices.filter(invoice => invoice.invRef.includes((innerObj.invoicesData[0].invoice).toString()));
+        // Guard every field this block depends on. A contract loaded from
+        // Firestore may legitimately be missing `poInvoices`, or its first
+        // invoicesData entry may have no `.invoice` number — skipping those
+        // rows here lets the rest of the page load instead of aborting.
+        if (
+          !innerObj?.invoicesData ||
+          !Array.isArray(innerObj.invoicesData) ||
+          innerObj.invoicesData.length === 0 ||
+          !Array.isArray(innerObj.poInvoices)
+        ) return;
 
-          newArr.push({
-            arr: innerObj.invoicesData, poCur: innerObj.cur, order: innerObj.order, supplier: innerObj.supplier, euroToUSD: innerObj.euroToUSD,
-            poInvoices: reducedArr.map(invoice => invoice.inv),
-            invAmntSup: reducedArr.map(invoice => invoice.invValue),
-            prpMntSup: reducedArr.map(item => item.pmnt),
-            blncSup: reducedArr.map(item => item.blnc),
-          })
+        const firstInvNum = innerObj.invoicesData[0]?.invoice;
+        if (firstInvNum == null) return;
+        const invNumStr = firstInvNum.toString();
 
-        }
+        const reducedArr = innerObj.poInvoices.filter(
+          invoice => invoice?.invRef && invoice.invRef.includes(invNumStr)
+        );
+
+        newArr.push({
+          arr: innerObj.invoicesData, poCur: innerObj.cur, order: innerObj.order, supplier: innerObj.supplier, euroToUSD: innerObj.euroToUSD,
+          poInvoices: reducedArr.map(invoice => invoice.inv),
+          invAmntSup: reducedArr.map(invoice => invoice.invValue),
+          prpMntSup: reducedArr.map(item => item.pmnt),
+          blncSup: reducedArr.map(item => item.blnc),
+        })
       })
 
       dt = setCurFilterData(newArr)

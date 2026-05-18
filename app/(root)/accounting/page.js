@@ -1,5 +1,6 @@
 'use client';
 import { useContext, useEffect, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Customtable from './newTable';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import MonthSelect from '../../../components/monthSelect';
@@ -18,8 +19,7 @@ import { EXD } from './excel'
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+// chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
 import { FaWallet, FaArrowTrendUp, FaArrowTrendDown, FaPiggyBank } from 'react-icons/fa6';
 import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
@@ -29,7 +29,7 @@ import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 
 
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+const Bar = dynamic(() => import('./LazyCharts').then((mod) => mod.Bar), { ssr: false });
 
 
 const getprefixInv = (x) => {
@@ -202,12 +202,17 @@ const Accounting = () => {
 
       let consArr = []
       arrContracts.forEach(contract => {
+        // Firestore docs may be missing poInvoices / dateRange / inner invRef.
+        // Without these guards the whole Load() throws → setLoading(false)
+        // never runs → page stays on the loading spinner forever.
+        if (!contract || !Array.isArray(contract.poInvoices)) return;
         contract.poInvoices.forEach(poInvoice => {
+          if (!poInvoice || !Array.isArray(poInvoice.invRef)) return;
           poInvoice.invRef.forEach(ref => {
             if (invArr.map(z => z.saleInvoice).includes(ref)) {
               let item = {
                 num: '',
-                dateExp: contract.dateRange.endDate,
+                dateExp: contract.dateRange?.endDate,
                 expInvoice: poInvoice.inv,
                 clientExp: contract.supplier,
                 amountExp: poInvoice.invValue,
@@ -223,7 +228,7 @@ const Accounting = () => {
 
 
 
-      let expArr = dt.filter(x => x.expenses.length).map(x => x.expenses).flat()
+      let expArr = dt.filter(x => Array.isArray(x.expenses) && x.expenses.length).map(x => x.expenses).flat()
       let expData = await loadExpensesForAccounting(uidCollection, expArr) // array of expenses
 
       expArr = [];

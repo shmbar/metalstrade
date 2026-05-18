@@ -134,12 +134,18 @@ const ForecastPanel = () => {
 
     return (
         <section className='mb-3 rounded-xl overflow-hidden' style={{ border: '1px solid #b8ddf8' }} aria-labelledby='forecast-panel-title'>
-            {/* Header / toggle */}
-            <button
+            {/* Header / toggle — div+role rather than <button> so the inner
+                Refresh <button> can be a real nested interactive element
+                (nested <button> inside <button> is invalid HTML and hard-errors
+                in React 19). Keyboard support preserved via onKeyDown. */}
+            <div
                 onClick={handleOpen}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpen(); } }}
+                role='button'
+                tabIndex={0}
                 aria-expanded={opened}
                 aria-controls='forecast-panel-body'
-                className='w-full flex items-center justify-between px-4 py-2.5 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
+                className='w-full flex items-center justify-between px-4 py-2.5 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
                 style={{ background: '#dbeeff' }}
             >
                 <div className='flex items-center gap-2'>
@@ -163,7 +169,7 @@ const ForecastPanel = () => {
                         {opened ? '▲' : '▼'}
                     </span>
                 </div>
-            </button>
+            </div>
 
             {opened && (
                 <div className='p-3 bg-white'>
@@ -206,13 +212,13 @@ const ForecastPanel = () => {
                     {/* Results */}
                     {!loading && result && (
                         <div>
-                            {/* Unified base-currency total */}
+                            {/* Unified base-currency total (includes overdue) */}
                             {result.baseTotals && result.baseCurrency && (
                                 <div className='rounded-xl p-3 mb-3 flex items-center justify-between flex-wrap gap-2'
                                     style={{ background: 'linear-gradient(135deg, #dbeeff 0%, #f0f9ff 100%)', border: '1px solid #93c5fd' }}>
                                     <div>
                                         <p style={{ fontSize: '0.58rem', color: 'var(--regent-gray)' }}>
-                                            Unified net (all currencies → {result.baseCurrency} @ ECB rates)
+                                            Effective net (projected + overdue, all currencies → {result.baseCurrency} @ ECB rates)
                                         </p>
                                         <p className='font-semibold' style={{
                                             fontSize: '1rem',
@@ -222,8 +228,8 @@ const ForecastPanel = () => {
                                         </p>
                                     </div>
                                     <div className='text-right' style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>
-                                        <div>Inflow: <span style={{ color: '#15803d', fontWeight: 600 }}>{result.baseCurrency} {Number(result.baseTotals.inflow).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></div>
-                                        <div>Outflow: <span style={{ color: '#dc2626', fontWeight: 600 }}>{result.baseCurrency} {Number(result.baseTotals.outflow).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></div>
+                                        <div>Inflow (proj+overdue): <span style={{ color: '#15803d', fontWeight: 600 }}>{result.baseCurrency} {Number((result.baseTotals.inflow || 0) + (result.baseTotals.overdueInflow || 0)).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></div>
+                                        <div>Outflow (proj+overdue): <span style={{ color: '#dc2626', fontWeight: 600 }}>{result.baseCurrency} {Number((result.baseTotals.outflow || 0) + (result.baseTotals.overdueOutflow || 0)).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></div>
                                     </div>
                                 </div>
                             )}
@@ -251,9 +257,9 @@ const ForecastPanel = () => {
                                     </p>
                                 </div>
                                 <div className='rounded-xl p-3' style={{ background: '#eff6ff', border: '1px solid #93c5fd' }}>
-                                    <div className='flex items-center gap-1 mb-1'>
+                                    <div className='flex items-center gap-1 mb-1' title='Net = projected + already-overdue (the cash that needs to move regardless of when it was originally due)'>
                                         <Minus className='w-3 h-3' style={{ color: 'var(--endeavour)' }} />
-                                        <span className='font-semibold' style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>Net Position</span>
+                                        <span className='font-semibold' style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>Net Position (incl. overdue)</span>
                                     </div>
                                     {Object.entries(result.net || {}).map(([cur, val]) => (
                                         <p key={cur} className='font-semibold' style={{ fontSize: '0.78rem', color: val >= 0 ? '#15803d' : '#dc2626' }}>

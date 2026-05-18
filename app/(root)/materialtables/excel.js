@@ -1,5 +1,5 @@
 import { saveAs } from 'file-saver';
-import { Workbook } from 'exceljs';
+// exceljs is dynamically imported inside exportExcel to keep it off the first-load bundle.
 import Tltip from '../../../components/tlTip';
 import { FileSpreadsheet } from 'lucide-react';
 import { DEFAULT_ELEMENTS, UNIT_LABELS, UNIT_TO_MT } from './constants';
@@ -16,6 +16,7 @@ export const EXD = (table) => {
         const showContainer = table.showContainer || false
         const hasPrices = elems.some(el => el.key !== 'fe' && prices[el.key])
 
+        const { Workbook } = await import('exceljs');
         const wb = new Workbook()
         wb.creator = 'IMS'
         wb.created = new Date()

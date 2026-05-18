@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { AlertTriangle, FileWarning, TrendingDown, Bell, Loader2 } from 'lucide-react';
 import { SettingsContext } from '@contexts/useSettingsContext';
 import { UserAuth } from '@contexts/useAuthContext';
-import { loadData, loadMargins, resolveDueDate } from '@utils/utils';
+import { loadData, loadMarginsRange, resolveDueDate } from '@utils/utils';
 
 // Compact pill button used for each alert chip
 function AlertPill({ icon: Icon, label, count, severity, onClick }) {
@@ -53,10 +53,9 @@ const AIAlertsBar = () => {
             if (!uidCollection || !dateSelect) return;
             setLoading(true);
             try {
-                const yr = new Date().getFullYear();
                 const [invoices, margins] = await Promise.all([
                     loadData(uidCollection, 'invoices', dateSelect),
-                    loadMargins(uidCollection, yr),
+                    loadMarginsRange(uidCollection, dateSelect),
                 ]);
                 if (cancelled) return;
 

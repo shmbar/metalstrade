@@ -1,6 +1,6 @@
 import React from 'react'
 import { saveAs } from 'file-saver';
-import { Workbook } from 'exceljs';
+// exceljs is dynamically imported inside exportExcel to keep it off the first-load bundle.
 import { FileSpreadsheet } from 'lucide-react';
 import dateFormat from "dateformat";
 import { OutTurn, Finalizing, relStts } from '@components/const'
@@ -8,14 +8,15 @@ import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
-const wb = new Workbook();
-wb.creator = 'IMS';
-wb.created = new Date();
 
-const sheet = wb.addWorksheet('Data', { properties: {} },);
-sheet.views = [
-    { rightToLeft: false }
-];
+// Safely format a date — returns '' for null / undefined / empty / unparseable
+// values. `dateformat` throws "Invalid date" on bad input, which would abort
+// the entire export, so this guards every date column.
+const safeDate = (v) => {
+    if (!v) return '';
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? '' : dateFormat(d, 'dd.mm.yy');
+};
 
 
 function getNumFmtForCurrency(currency) {
@@ -49,9 +50,21 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
 
     const exportExcel = async () => {
 
-        while (sheet.rowCount > 1) {
-            sheet.spliceRows(2, 1);
+        // Guard: this export iterates dataTable for styling + a summary section.
+        // If dataTable hasn't been populated yet (state still []), bail with a
+        // clear message instead of producing a meaningless empty file or
+        // throwing later inside the styling loop.
+        if (!dataTable?.length) {
+            alert('Data is still loading. Please wait a moment and try again.');
+            return;
         }
+
+        const { Workbook } = await import('exceljs');
+        const wb = new Workbook();
+        wb.creator = 'IMS';
+        wb.created = new Date();
+        const sheet = wb.addWorksheet('Data', { properties: {} });
+        sheet.views = [{ rightToLeft: false }];
 
         sheet.columns = [
             { key: 'supplier', header: 'Supplier', width: 16, style: styles },
@@ -103,7 +116,7 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
                 pmntAmount: item.pmntAmount,
                 blnc: item.blnc,
                 InvNum: item.InvNum,
-                dateInv: item.dateInv === '' ? '' : dateFormat(item.dateInv, 'dd.mm.yy'),
+                dateInv: safeDate(item.dateInv),
                 client: item.client !== '' ? settings.Client.Client.find(q => q.id === item.client)?.nname : '',
                 totalInvoices: item.totalInvoices,
                 prepaidPer: item.prepaidPer,
@@ -114,8 +127,8 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
                 rcvd: item.rcvd === '' || item.rcvd == null ? '' : OutTurn.find(x => x.id === item.rcvd).rcvd,
                 fnlzing: item.fnlzing === '' || item.fnlzing == null ? '' : Finalizing.find(x => x.id === item.fnlzing).fnlzing,
                 status: item.status === '' || item.status == null ? '' : relStts.find(x => x.id === item.status).status,
-                etd: item.etd === '' ? '' : dateFormat(item.etd, 'dd.mm.yy'),
-                eta: item.eta === '' ? '' : dateFormat(item.eta, 'dd.mm.yy'),
+                etd: safeDate(item.etd),
+                eta: safeDate(item.eta),
             })
         }
 
@@ -140,7 +153,8 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
                 if (rowNumber !== 1) {
                     let obj = dataTable[rowNumber - 2]
 
-                    if (((obj.type === 'exp' && obj.invData.paid === '111') ||
+                    // obj.invData can be undefined for some 'exp' rows; use ?. to avoid crashing.
+                    if (((obj.type === 'exp' && obj.invData?.paid === '111') ||
                         (obj.type === 'con' && obj.pmntAmount > 0)) && colNumber < 6
                     ) {
                         cell.fill = {
@@ -242,8 +256,12 @@ export const EXD = (dataTable, settings, name, ln, dtSumSupplers, dtSumClients) 
                 let cArr1 = [5, 6, 7, 11, 13, 14]
                 if (cArr1.includes(colNumber) && rowNumber > startSummary) {
                     let item = colNumber <= 6 ? dtSumSupplers[rowNumber - startSummary - 1] : dtSumClients[rowNumber - startSummary - 1]
-                    let sym = getNumFmtForCurrency1(item.cur)
-                    row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]${sym}#,##0.00`
+                    // item can be undefined when dtSumSupplers and dtSumClients have different
+                    // lengths (the shorter array doesn't have a value for the trailing rows).
+                    if (item?.cur) {
+                        let sym = getNumFmtForCurrency1(item.cur)
+                        row.getCell(colNumber).numFmt = `${sym}#,##0.00;[Red]${sym}#,##0.00`
+                    }
                 }
             })
         })

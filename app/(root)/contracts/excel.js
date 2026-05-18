@@ -1,5 +1,5 @@
 import { saveAs } from 'file-saver';
-import { Workbook } from 'exceljs';
+// exceljs is dynamically imported inside exportExcel to keep it off the first-load bundle.
 import Tooltip from '@components/tooltip';
 import { FileSpreadsheet } from 'lucide-react';
 import dateFormat from "dateformat";
@@ -8,23 +8,18 @@ import Tltip from '@components/tlTip';
 
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle' } }
-const wb = new Workbook();
-wb.creator = 'IMS';
-wb.created = new Date();
-
-const sheet = wb.addWorksheet('Data', { properties: {} },);
-sheet.views = [
-    { rightToLeft: false }
-];
 
 //{ font: { bold: true }
 export const EXD = (dataTable, settings, name, ln) => {
 
     const exportExcel = async () => {
 
-        while (sheet.rowCount > 1) {
-            sheet.spliceRows(2, 1);
-        }
+        const { Workbook } = await import('exceljs');
+        const wb = new Workbook();
+        wb.creator = 'IMS';
+        wb.created = new Date();
+        const sheet = wb.addWorksheet('Data', { properties: {} });
+        sheet.views = [{ rightToLeft: false }];
 
         sheet.columns = [
             { key: 'opDate', header: 'Operation Time', width: 30, style: styles },

@@ -679,6 +679,23 @@ export const loadMargins = async (uidCollection, yr) => {
   return arr;
 }
 
+// Loads margin months across EVERY year in a dateSelect range, not just the
+// current year. Used by the chat assistant + dashboard so profit/margin-alert
+// answers stay correct when the active date filter points at a prior year.
+export const loadMarginsRange = async (uidCollection, dateSelect) => {
+  const startYr = parseInt(dateSelect?.start?.substring(0, 4));
+  const endYr = parseInt(dateSelect?.end?.substring(0, 4));
+  if (!startYr || !endYr) {
+    return loadMargins(uidCollection, new Date().getFullYear());
+  }
+  const years = [];
+  for (let y = startYr; y <= endYr; y++) years.push(y);
+  const perYear = await Promise.all(
+    years.map(y => loadMargins(uidCollection, y).catch(() => []))
+  );
+  return perYear.flat();
+}
+
 ////////////////////////////////////////
 export const speciaInvoices = async (uidCollection, data) => {
 

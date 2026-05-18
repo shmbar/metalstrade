@@ -167,8 +167,8 @@ const InvoiceModal = () => {
 
 			setTimeout(() => {
 				setIsButtonDisabled(false);
-				result && setToast({ show: true, text: 'Invoice successfully saved!', clr: 'success' })
-			}, 2000); // Adjust the delay as needed
+				result && setToast({ show: true, text: getTtl('Invoice successfully saved!', ln), clr: 'success' })
+			}, 3000); // Adjust the delay as needed
 		}
 	}
 

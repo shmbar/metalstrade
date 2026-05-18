@@ -18,11 +18,19 @@ function getOpenAI() {
 const memCache = new Map();
 const CACHE_TTL = 15 * 60 * 1000;
 
-async function readL2Cache(uid, horizon, todayStr) {
+// Firestore document paths need an EVEN number of segments after db
+// (collection/doc/collection/doc...). Combine horizon+base+date into a single
+// doc id so the path is {uid}/aiCache/forecast/{horizon_base_date} = 4 segments.
+// baseCurrency is part of the key so changing it in Company Settings
+// immediately invalidates stale cached baseTotals.
+function l2Ref(uid, horizon, base, todayStr) {
+    return doc(db, uid, 'aiCache', 'forecast', `${horizon}_${base}_${todayStr}`);
+}
+
+async function readL2Cache(uid, horizon, base, todayStr) {
     if (!uid) return null;
     try {
-        const ref = doc(db, uid, 'aiCache', 'forecast', String(horizon), todayStr);
-        const snap = await getDoc(ref);
+        const snap = await getDoc(l2Ref(uid, horizon, base, todayStr));
         if (!snap.exists()) return null;
         const { data, ts } = snap.data();
         if (!ts || Date.now() - ts > CACHE_TTL) return null;
@@ -32,11 +40,10 @@ async function readL2Cache(uid, horizon, todayStr) {
     }
 }
 
-async function writeL2Cache(uid, horizon, todayStr, data) {
+async function writeL2Cache(uid, horizon, base, todayStr, data) {
     if (!uid) return;
     try {
-        const ref = doc(db, uid, 'aiCache', 'forecast', String(horizon), todayStr);
-        await setDoc(ref, { data, ts: Date.now() });
+        await setDoc(l2Ref(uid, horizon, base, todayStr), { data, ts: Date.now() });
     } catch {
         // Non-fatal — cache write failure shouldn't break the response
     }
@@ -105,10 +112,19 @@ function computeForecast(invoices, expenses, horizon, today) {
         overdueOutflowByCur[cur] = (overdueOutflowByCur[cur] || 0) + (parseFloat(exp.amount) || 0);
     });
 
+    // Net includes BOTH in-window projected items AND already-overdue items, because
+    // overdue cash is just as real (more urgent) than future cash. Showing only the
+    // projected net would let a user see "+0" while owing thousands in overdue payables.
     const net = {};
-    const allCurs = [...new Set([...Object.keys(inflow), ...Object.keys(outflow)])];
+    const allCurs = [...new Set([
+        ...Object.keys(inflow),
+        ...Object.keys(outflow),
+        ...Object.keys(overdueInflowByCur),
+        ...Object.keys(overdueOutflowByCur),
+    ])];
     allCurs.forEach(cur => {
-        net[cur] = (inflow[cur] || 0) - (outflow[cur] || 0);
+        net[cur] = (inflow[cur] || 0) + (overdueInflowByCur[cur] || 0)
+                 - (outflow[cur] || 0) - (overdueOutflowByCur[cur] || 0);
     });
 
     return {
@@ -143,7 +159,9 @@ export async function POST(request) {
         today.setHours(0, 0, 0, 0);
         const todayStr = today.toISOString().split('T')[0];
 
-        const cacheKey = `${uid}:${horizon}:${todayStr}`;
+        // Cache key includes baseCurrency — switching base in Company Settings
+        // must NOT return stale cached baseTotals computed at the old base.
+        const cacheKey = `${uid}:${horizon}:${base}:${todayStr}`;
 
         // L1 — memory
         const memHit = memCache.get(cacheKey);
@@ -152,7 +170,7 @@ export async function POST(request) {
         }
 
         // L2 — Firestore (survives cold starts)
-        const l2Hit = await readL2Cache(uid, horizon, todayStr);
+        const l2Hit = await readL2Cache(uid, horizon, base, todayStr);
         if (l2Hit) {
             memCache.set(cacheKey, { data: l2Hit, ts: Date.now() });
             return Response.json({ ...l2Hit, cacheSource: 'firestore' });
@@ -171,7 +189,10 @@ export async function POST(request) {
             overdueInflow: sumInBase(forecast.overdueInflow),
             overdueOutflow: sumInBase(forecast.overdueOutflow),
         };
-        baseTotals.net = baseTotals.inflow - baseTotals.outflow;
+        // Same rule for the unified base-currency net: include overdue so the
+        // headline figure reflects the true cash position, not a cosmetic zero.
+        baseTotals.net = baseTotals.inflow + baseTotals.overdueInflow
+                       - baseTotals.outflow - baseTotals.overdueOutflow;
 
         // Build summary string for GPT
         const inflowStr = Object.entries(forecast.inflow).map(([c, v]) => `${c} ${v.toFixed(2)}`).join(', ') || 'none';
@@ -222,7 +243,7 @@ Source: ${forecast.sources.invoiceCount} due invoices, ${forecast.sources.expens
         };
 
         memCache.set(cacheKey, { data: result, ts: Date.now() });
-        await writeL2Cache(uid, horizon, todayStr, result);
+        await writeL2Cache(uid, horizon, base, todayStr, result);
         return Response.json({ ...result, cacheSource: 'fresh' });
 
     } catch (err) {

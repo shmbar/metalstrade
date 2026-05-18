@@ -4,7 +4,7 @@ import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import Spinner from '../../../../components/spinner';
 import Toast from '../../../../components/toast.js';
-import { loadData, loadMargins, loadAllStockData, resolveDueDate, resolveInvoiceDate } from '../../../../utils/utils';
+import { loadData, loadMarginsRange, loadAllStockData, resolveDueDate, resolveInvoiceDate } from '../../../../utils/utils';
 import { authedFetch } from '../../../../utils/aiClient';
 import { IoSend, IoRefresh } from "react-icons/io5";
 import { BsRobot, BsPerson } from "react-icons/bs";
@@ -48,13 +48,12 @@ const AssistantChat = () => {
         if (!force && contractsData.length > 0) return;
         setDataLoading(true);
         try {
-            const currentYear = new Date().getFullYear();
             const [contracts, invoices, expenses, stocks, margins] = await Promise.all([
                 loadData(uidCollection, 'contracts', dateSelect),
                 loadData(uidCollection, 'invoices', dateSelect),
                 loadData(uidCollection, 'expenses', dateSelect),
                 loadAllStockData(uidCollection).catch(() => []),
-                loadMargins(uidCollection, currentYear).catch(() => []),
+                loadMarginsRange(uidCollection, dateSelect).catch(() => []),
             ]);
             setContractsData(contracts || []);
             setInvoicesData(invoices || []);
