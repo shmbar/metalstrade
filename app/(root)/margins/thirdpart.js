@@ -199,7 +199,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 }}
                                             >
                                                 {isGIS ? (
-                                                <Tltip direction="top" tltpText={"IMS: $" + addComma(z.totalMargin / 2)}>
+                                                <Tltip direction="top" tltpText={"IMS: " + addComma(z.totalMargin / 2)}>
                                                 <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff]  hover:shadow-[inset_0_0_0_1px_#d1d1d1]  fade-in">
                                                     <NumericFormat
                                                         value={z.totalMargin}
@@ -265,7 +265,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 }}
                                             >
                                                 {isGIS ? (
-                                                <Tltip direction="top" tltpText={"IMS: $" + addComma(z.remaining / 2)}>
+                                                <Tltip direction="top" tltpText={"IMS: " + addComma(z.remaining / 2)}>
                                                 <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] transition-all duration-200 ease-in-out bg-[#f8fbff] fade-in">
                                                     <NumericFormat
                                                         value={z.remaining}
