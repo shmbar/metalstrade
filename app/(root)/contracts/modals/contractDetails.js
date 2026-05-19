@@ -20,7 +20,6 @@ import CheckBox from '@components/checkbox.js';
 import Tltip from '@components/tlTip.js';
 import { Selector } from '@components/selectors/selectShad';
 import { X, Save, LoaderCircle, FileText, Trash, Copy, SendToBack, Database, Files } from "lucide-react"
-import Toast from '../../../../components/toast.js'
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -212,7 +211,6 @@ const ContractModal = () => {
 
 	return (
 		<div className="px-1">
-			<Toast />
 			<div className='grid grid-cols-1 md:grid-cols-6 gap-3 pt-1'>
 				<div className='md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>
 					<div className='flex flex-col md:flex-row gap-3 items-start md:items-center'>
@@ -463,7 +461,7 @@ const ContractModal = () => {
 			<div className="p-3 flex gap-2 flex-wrap justify-start flex-row">
 				<Tltip direction='top' tltpText='Save/Update contract'>
 					<button
-						className="blackButton py-1"
+						className="blackButton py-1 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={btnClck}
 						disabled={isButtonDisabled}
 					>
