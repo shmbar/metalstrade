@@ -14,7 +14,7 @@ const FindCOntract4Materials = ({ open, setOpen, uidCollection, value, setValue 
 
         let cont = await loadContract(uidCollection, value1);
         setContract(cont)
-
+     
         if (cont.length > 0) {
             let tmpArr = cont[0].productsData.map(x => ({ ...x, import: true, importedFrom: { id: cont[0].id, date: cont[0].date } }))
 
@@ -27,7 +27,7 @@ const FindCOntract4Materials = ({ open, setOpen, uidCollection, value, setValue 
                 ...valueCon,
                 productsData: newProductsData
             }
-
+         
             setValueCon(newValueCon)
 
             let newVal = { ...value, productsData: newProductsData }
