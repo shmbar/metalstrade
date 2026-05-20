@@ -88,7 +88,11 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
     const found = options.find(o => String(o.value) === String(val));
     // Fallback to delTimeList if options lookup fails (e.g. settings not yet loaded)
     const fallback = !found && val ? delTimeList.find(d => String(d.id) === String(val))?.deltime : null;
-    const rawLabel = found?.label ?? fallback ?? val ?? "";
+    // When options have loaded but the stored value matches none of them
+    // (typically a stale Firestore id like POL referencing a deleted entry),
+    // render empty rather than the raw UUID. While options are still loading
+    // (length 0), keep showing the value so we don't flash empty.
+    const rawLabel = found?.label ?? fallback ?? (options.length > 0 ? "" : val) ?? "";
     const safeLabel =
       typeof rawLabel === "string" || typeof rawLabel === "number"
         ? rawLabel
