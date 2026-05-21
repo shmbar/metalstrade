@@ -24,12 +24,12 @@ import { TbSortAscending, TbSortDescending } from 'react-icons/tb';
 const STATUSES = ['', 'Pending', 'In Transit', 'At Port', 'Delivered', 'On Hold'];
 
 const STATUS_STYLES = {
-    'Pending':    { backgroundColor: '#fef9c3', border: '1px solid #fde68a', color: '#92400e' },
+    'Pending':    { backgroundColor: '#fef9c3', border: '1px solid #fde68a', color: '#78350f' },
     'In Transit': { backgroundColor: '#dbeeff', border: '1px solid #b8ddf8', color: 'var(--chathams-blue)' },
-    'At Port':    { backgroundColor: '#ede9fe', border: '1px solid #ddd6fe', color: '#7c3aed' },
-    'Delivered':  { backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#166534' },
-    'On Hold':    { backgroundColor: '#fce7f3', border: '1px solid #fbcfe8', color: '#be185d' },
-    '':           { backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', color: 'var(--regent-gray)' },
+    'At Port':    { backgroundColor: '#ede9fe', border: '1px solid #ddd6fe', color: '#4c1d95' },
+    'Delivered':  { backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#14532d' },
+    'On Hold':    { backgroundColor: '#fce7f3', border: '1px solid #fbcfe8', color: '#831843' },
+    '':           { backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', color: 'var(--port-gore)' },
 };
 
 function NotesCell({ value, contractId, contractDate, uidCollection, onChange }) {
@@ -193,16 +193,19 @@ function StatusSelect({ value, onChange }) {
     };
 
     return (
-        <div className="flex justify-center px-2">
-            <button
+        <div className="flex justify-center">
+            <div
                 ref={btnRef}
                 onClick={handleToggle}
-                className="flex items-center gap-1 rounded-full px-2 py-1 font-medium responsiveTextTable cursor-pointer focus:outline-none w-full justify-between min-w-[110px]"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggle(); } }}
+                className="px-3 py-1 rounded-xl font-normal responsiveTextTable text-center whitespace-nowrap cursor-pointer"
                 style={STATUS_STYLES[value]}
             >
-                <span>{value || '— Select —'}</span>
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
-            </button>
+                {value || '— Select —'}
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" style={{ display: 'inline-block', marginLeft: 6, verticalAlign: 'middle', marginTop: -1 }}><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+            </div>
             {open && typeof document !== 'undefined' && createPortal(
                 <div
                     ref={dropRef}
@@ -213,7 +216,7 @@ function StatusSelect({ value, onChange }) {
                         <div
                             key={s}
                             onClick={() => { onChange(s); setOpen(false); }}
-                            className="px-3 py-1 responsiveTextTable font-normal cursor-pointer mx-1.5 my-1 rounded-xl transition-all"
+                            className="px-3 py-1 responsiveText font-normal cursor-pointer mx-1.5 my-1 rounded-xl transition-all"
                             style={{ ...STATUS_STYLES[s], opacity: value === s ? 1 : 0.85 }}
                         >
                             {s || '— Select —'}
@@ -746,8 +749,8 @@ const ShipmentPage = () => {
                                         { label: 'POL',           width: '8%',  col: 'pol'      },
                                         { label: 'POD',           width: '8%',  col: 'pod'      },
                                         { label: 'Ship Type',     width: '8%',  col: 'shpType'  },
-                                        { label: 'Status',        width: '10%', col: 'status'   },
-                                        { label: 'Notes',         width: '15%', col: null       },
+                                        { label: 'Status',        width: '9%',  col: 'status'   },
+                                        { label: 'Notes',         width: '16%', col: null       },
                                     ].map(({ label, width, col }) => (
                                         <th key={label} className="font-poppins responsiveTextTable font-medium py-2"
                                             onClick={col ? () => handleSort(col) : undefined}
