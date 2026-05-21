@@ -116,7 +116,7 @@ export default function Sidebar() {
     borderRadius: isCollapsed ? "10px" : "10px",
     background: active ? "#ffffff" : "transparent",
     boxShadow: active ? "0 2px 10px 0 rgba(44, 130, 201, 0.18)" : "none",
-    fontWeight: active ? 500 : 400,
+    fontWeight: active ? 600 : 500,
     color: "var(--port-gore)",
     marginLeft: isCollapsed ? "auto" : "8px",
     marginRight: isCollapsed ? "auto" : "8px",
@@ -278,7 +278,7 @@ export default function Sidebar() {
                                 <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
                                   <span className="responsiveText" style={{
                                     whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                                    fontWeight: isActive ? 500 : 400,
+                                    fontWeight: isActive ? 600 : 500,
                                   }}>
                                     {getTtl(link.item, ln)}
                                   </span>
