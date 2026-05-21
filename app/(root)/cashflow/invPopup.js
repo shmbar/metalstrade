@@ -1,5 +1,5 @@
 'use client';
-import { Dialog, DialogContent } from '../../../components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '../../../components/ui/dialog';
 import dateFormat from 'dateformat';
 import { getD, reOrderTableInv } from '../../../utils/utils';
 import { Pdf as InvoicePdf } from '../contracts/modals/pdf/pdfInvoice';
@@ -93,6 +93,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                 boxShadow: '0 24px 80px rgba(3,102,174,0.18)',
                 fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
             }}>
+                <DialogTitle className="sr-only">Supplier Invoice {invNo}</DialogTitle>
                 {/* Status ribbon — sits OUTSIDE the document */}
                 <div style={{
                     background: '#f8fbff',
@@ -151,7 +152,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                 <p style={{ fontSize: '10px' }}>{supplier?.country || ''}</p>
                                 <p style={{ fontSize: '10px' }}>{supplier?.other1 || ''}</p>
                             </div>
-                            <div style={{ minWidth: '220px' }}>
+                            <div style={{ minWidth: '220px', display: 'flex', justifyContent: 'flex-end' }}>
                                 <table style={{ fontSize: '10px', borderCollapse: 'collapse' }}>
                                     <tbody>
                                         <tr>
@@ -173,9 +174,9 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
 
                         {/* Shipment (from contract) */}
                         {(shipDisplay || originDisplay || delTermDisplay || polDisplay || podDisplay || packingDisplay || c.ttlGross) && (
-                            <div style={{ marginBottom: '48px', fontSize: '10px', display: 'flex', color: '#203764' }}>
+                            <div style={{ marginBottom: '48px', fontSize: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', color: '#203764' }}>
                                 {/* Left: Shipment / Origin / Delivery Terms */}
-                                <div style={{ flex: '0 0 34%' }}>
+                                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                                     <table style={{ borderCollapse: 'collapse' }}>
                                         <tbody>
                                             {shipDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Shipment:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{shipDisplay}</td></tr>}
@@ -185,7 +186,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                     </table>
                                 </div>
                                 {/* Middle: POL / POD / Packing */}
-                                <div style={{ flex: '0 0 35%' }}>
+                                <div style={{ display: 'flex', justifyContent: 'center' }}>
                                     <table style={{ borderCollapse: 'collapse' }}>
                                         <tbody>
                                             {polDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POL:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{polDisplay}</td></tr>}
@@ -195,7 +196,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                     </table>
                                 </div>
                                 {/* Right: WT values */}
-                                <div style={{ flex: '0 0 31%' }}>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                     <table style={{ borderCollapse: 'collapse' }}>
                                         <tbody>
                                             <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Net WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td></tr>
@@ -352,6 +353,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                 boxShadow: '0 24px 80px rgba(3,102,174,0.18)',
                 fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
             }}>
+                <DialogTitle className="sr-only">{getInvTypeLabel(inv).replace(':', '')} {invNo}</DialogTitle>
                 {/* Status ribbon — sits OUTSIDE the document */}
                 <div style={{
                     background: '#f8fbff',
@@ -427,7 +429,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 <p style={{ fontSize: '10px' }}>{client?.country || ''}</p>
                                 <p style={{ fontSize: '10px' }}>{client?.other1 || ''}</p>
                             </div>
-                            <div style={{ minWidth: '220px' }}>
+                            <div style={{ minWidth: '220px', display: 'flex', justifyContent: 'flex-end' }}>
                                 <table style={{ fontSize: '10px', borderCollapse: 'collapse' }}>
                                     <tbody>
                                         <tr>
@@ -452,9 +454,9 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         </div>
 
                         {/* ── Shipment details ── */}
-                        <div style={{ marginBottom: '48px', fontSize: '10px', display: 'flex', color: '#203764' }}>
+                        <div style={{ marginBottom: '48px', fontSize: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', color: '#203764' }}>
                             {/* Left: Shipment / Origin / Delivery Terms */}
-                            <div style={{ flex: '0 0 34%' }}>
+                            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                                 <table style={{ borderCollapse: 'collapse' }}>
                                     <tbody>
                                         {shipDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Shipment:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{shipDisplay}</td></tr>}
@@ -464,7 +466,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 </table>
                             </div>
                             {/* Middle: POL / POD / Packing */}
-                            <div style={{ flex: '0 0 35%' }}>
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
                                 <table style={{ borderCollapse: 'collapse' }}>
                                     <tbody>
                                         {polDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POL:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{polDisplay}</td></tr>}
@@ -474,7 +476,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 </table>
                             </div>
                             {/* Right: WT values */}
-                            <div style={{ flex: '0 0 31%' }}>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                 <table style={{ borderCollapse: 'collapse' }}>
                                     <tbody>
                                         <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Net WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td></tr>
