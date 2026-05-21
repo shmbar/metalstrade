@@ -398,82 +398,94 @@ const Customtable = ({
                         })}
                       </tr>
 
-                      {/* ── Inline Detail Panel ── */}
-                      {row.getIsExpanded() && row.subRows && row.subRows.length > 0 && (
-                        <tr>
-                          <td
-                            colSpan={columnsWithSelection.length}
-                            style={{ padding: '2px 12px 10px 12px', background: '#f0f6ff' }}
-                          >
-                            <div style={{
-                              border: '1px solid #b8ddf8',
-                              borderRadius: '12px',
-                              overflow: 'hidden',
-                              boxShadow: '0 2px 8px rgba(3,102,174,0.07)',
-                              background: '#fff',
-                            }}>
-                              {/* Card header — mirrors cashflow accordion trigger */}
-                              <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                padding: '6px 14px',
-                                background: '#dbeeff',
-                                borderBottom: '1px solid #b8ddf8',
-                              }}>
-                                <span className="responsiveTextTable font-medium" style={{ color: 'var(--chathams-blue)' }}>
-                                  {[
-                                    row.original.poWeight != null && `${new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(row.original.poWeight)} MT`,
-                                    row.original.order && `PO# ${row.original.order}`,
-                                    row.original.supplier
-                                  ].filter(Boolean).join(' · ')}
-                                </span>
-                              </div>
+                      {/* ── Inline SubRows — aligned under parent columns ── */}
+                      {row.getIsExpanded() && row.subRows && row.subRows.map((sub, si) => {
+                        const parentOnlyCols = ['date','order','supplier','poWeight','shiipedWeight','remaining'];
+                        return (
+                          <tr key={sub.id} style={{ background: '#f0f6ff' }}>
+                            {sub.getVisibleCells().map((cell) => {
+                              if (cell.column.id === 'expander') {
+                                const isLast = si === row.subRows.length - 1;
+                                return (
+                                  <td key={cell.id} style={{ position: 'relative', whiteSpace: 'nowrap', minWidth: '60px', maxWidth: 'none', padding: 0 }}>
+                                    <div style={{
+                                      position: 'absolute',
+                                      left: '50%',
+                                      top: 0,
+                                      bottom: isLast ? '50%' : 0,
+                                      width: '1.5px',
+                                      background: '#b8ddf8',
+                                    }} />
+                                    <div style={{
+                                      position: 'absolute',
+                                      left: '50%',
+                                      top: '50%',
+                                      width: '14px',
+                                      height: '1.5px',
+                                      background: '#b8ddf8',
+                                    }} />
+                                    <div style={{
+                                      position: 'absolute',
+                                      left: 'calc(50% + 12px)',
+                                      top: '50%',
+                                      width: '6px',
+                                      height: '6px',
+                                      borderRadius: '50%',
+                                      background: 'var(--endeavour)',
+                                      transform: 'translate(-50%, -50%)',
+                                      boxShadow: '0 0 0 2px #f0f6ff',
+                                    }} />
+                                  </td>
+                                )
+                              }
+                              if (cell.column.id === 'select') {
+                                return <td key={cell.id} className="px-2 py-1" style={{ minWidth: '50px', maxWidth: '50px' }} />
+                              }
+                              if (parentOnlyCols.includes(cell.column.id)) {
+                                return <td key={cell.id} className="px-2 py-1" style={{ minWidth: '60px' }} />
+                              }
+                              const isStatus = cell.column.id === 'status';
+                              const val = cell.getValue();
 
-                              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead>
-                                  <tr>
-                                    {row.subRows[0].getVisibleCells()
-                                      .filter(c => !['expander','select','date','order','supplier','poWeight','shiipedWeight','remaining'].includes(c.column.id))
-                                      .map(c => (
-                                        <th key={c.column.id}
-                                          className="responsiveTextTable font-medium"
-                                          style={{ padding: '6px 8px', background: '#f8fbff', color: 'var(--chathams-blue)', textAlign: 'center', whiteSpace: 'nowrap', borderBottom: '1px solid #d8e8f5', ...(c.column.id === 'description' ? { maxWidth: '120px', whiteSpace: 'normal' } : {}) }}
+                              return (
+                                <td
+                                  key={cell.id}
+                                  className="px-2 py-1.5 text-center"
+                                  style={{ minWidth: '60px', whiteSpace: 'nowrap' }}
+                                >
+                                  {isStatus ? (
+                                    <div className="flex justify-center">
+                                      <div
+                                        className="px-3 py-1 rounded-xl responsiveTextTable font-normal flex items-center justify-center"
+                                        style={{
+                                          backgroundColor: val === 'Paid' ? '#dcfce7' : val === 'Unpaid' ? '#fef9c3' : '#ffffff',
+                                          border: val ? `1px solid ${val === 'Paid' ? '#bbf7d0' : val === 'Unpaid' ? '#fde68a' : '#cecece'}` : 'none',
+                                          color: val === 'Paid' ? '#166534' : val === 'Unpaid' ? '#92400e' : 'var(--port-gore)'
+                                        }}
+                                      >
+                                        {val || ' '}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="flex justify-center">
+                                      {val !== null && val !== undefined && val !== '' ? (
+                                        <div
+                                          className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center"
+                                          style={{ backgroundColor: '#ffffff', border: '1px solid #d8e8f5' }}
                                         >
-                                          {c.column.columnDef.header}
-                                        </th>
-                                      ))
-                                    }
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {row.subRows.map((sub, si) => (
-                                    <tr key={sub.id} style={{ background: si % 2 === 0 ? '#fff' : '#f8fbff' }}>
-                                      {sub.getVisibleCells()
-                                        .filter(c => !['expander','select','date','order','supplier','poWeight','shiipedWeight','remaining'].includes(c.column.id))
-                                        .map(c => (
-                                          <td key={c.id}
-                                            className="responsiveTextTable"
-                                            style={{ padding: '5px 8px', textAlign: 'center', color: 'var(--port-gore)', whiteSpace: 'nowrap', borderBottom: si < row.subRows.length - 1 ? '1px solid #e8f0f8' : 'none', ...(c.column.id === 'description' ? { maxWidth: '120px', whiteSpace: 'normal', wordBreak: 'break-word', textAlign: 'center' } : {}) }}
-                                          >
-                                            {c.column.id === 'description' ? (
-                                              <div className="flex justify-center [&>p]:w-auto [&>p]:text-center">
-                                                {flexRender(c.column.columnDef.cell, c.getContext())}
-                                              </div>
-                                            ) : (
-                                              flexRender(c.column.columnDef.cell, c.getContext())
-                                            )}
-                                          </td>
-                                        ))
-                                      }
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
+                                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </div>
+                                      ) : (
+                                        <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]" style={{ backgroundColor: '#ffffff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
+                                      )}
+                                    </div>
+                                  )}
+                                </td>
+                              )
+                            })}
+                          </tr>
+                        )
+                      })}
                     </Fragment>
                     );
                   })}
