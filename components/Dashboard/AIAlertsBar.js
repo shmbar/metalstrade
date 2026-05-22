@@ -44,7 +44,7 @@ const AIAlertsBar = () => {
     const { settings, dateSelect } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
 
-    const [counts, setCounts] = useState({ unpaid: 0, overdue: 0, marginAlerts: 0, recentReminders: 0 });
+    const [counts, setCounts] = useState({ balance: 0, due: 0, marginAlerts: 0, recentReminders: 0 });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -61,11 +61,12 @@ const AIAlertsBar = () => {
 
                 const today = new Date();
 
-                // Two metrics:
-                //   unpaid  = every issued invoice with an outstanding balance (matches Cashflow)
-                //   overdue = the subset that ALSO has a delivery/due date already in the past
-                let unpaid = 0;
-                let overdue = 0;
+                // Receivables split into TWO mutually-exclusive categories:
+                //   due     = issued, unpaid, delivery/due date in the past (urgent)
+                //   balance = issued, unpaid, due date in future OR not set (not yet due)
+                // Sum of both = total outstanding receivables.
+                let due = 0;
+                let balance = 0;
                 let recentReminders = 0;
                 const reminderCutoff = Date.now() - 7 * 86400000;
                 invoices.forEach(inv => {
@@ -75,9 +76,9 @@ const AIAlertsBar = () => {
                         const totalPaid = (inv.payments || []).reduce((s, p) => s + (parseFloat(p.pmnt) || 0), 0);
                         const balanceDue = inv.debtBlnc != null ? parseFloat(inv.debtBlnc) : totalAmt - totalPaid;
                         if (balanceDue > 0.01) {
-                            unpaid++;
-                            const due = resolveDueDate(inv);
-                            if (due && new Date(due) < today) overdue++;
+                            const dueDate = resolveDueDate(inv);
+                            if (dueDate && new Date(dueDate) < today) due++;
+                            else balance++;
                         }
                     }
                     (inv.reminders || []).forEach(r => {
@@ -105,7 +106,7 @@ const AIAlertsBar = () => {
                     });
                 });
 
-                setCounts({ unpaid, overdue, marginAlerts, recentReminders });
+                setCounts({ balance, due, marginAlerts, recentReminders });
             } catch {
                 // Soft fail — dashboard shouldn't break if this widget fails
             } finally {
@@ -125,13 +126,13 @@ const AIAlertsBar = () => {
         );
     }
 
-    const hasAny = counts.unpaid > 0 || counts.overdue > 0 || counts.marginAlerts > 0 || counts.recentReminders > 0;
+    const hasAny = counts.balance > 0 || counts.due > 0 || counts.marginAlerts > 0 || counts.recentReminders > 0;
     if (!hasAny) {
         return (
             <div className='flex items-center gap-2 px-3 py-2 rounded-xl mb-3' style={{ border: '1px solid #86efac', background: '#f0fdf4' }}>
                 <AlertTriangle className='w-3.5 h-3.5' style={{ color: '#16a34a' }} />
                 <span style={{ fontSize: '0.65rem', color: '#15803d', fontWeight: 600 }}>
-                    All clear — no unpaid invoices or margin alerts.
+                    All clear — no outstanding receivables or margin alerts.
                 </span>
             </div>
         );
@@ -147,21 +148,21 @@ const AIAlertsBar = () => {
             <span style={{ fontSize: '0.65rem', color: 'var(--chathams-blue)', fontWeight: 600 }}>
                 Live alerts:
             </span>
-            {counts.unpaid > 0 && (
+            {counts.due > 0 && (
                 <AlertPill
                     icon={FileWarning}
-                    label='Unpaid invoices'
-                    count={counts.unpaid}
-                    severity='amber'
+                    label='Due invoices'
+                    count={counts.due}
+                    severity='red'
                     onClick={() => router.push('/invoices')}
                 />
             )}
-            {counts.overdue > 0 && (
+            {counts.balance > 0 && (
                 <AlertPill
                     icon={FileWarning}
-                    label='Overdue (past due date)'
-                    count={counts.overdue}
-                    severity='red'
+                    label='Balance invoices'
+                    count={counts.balance}
+                    severity='amber'
                     onClick={() => router.push('/invoices')}
                 />
             )}

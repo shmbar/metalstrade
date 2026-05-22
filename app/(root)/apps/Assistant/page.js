@@ -4,7 +4,7 @@ import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import Spinner from '../../../../components/spinner';
 import Toast from '../../../../components/toast.js';
-import { loadData, loadMarginsRange, loadAllStockData, resolveDueDate, resolveInvoiceDate } from '../../../../utils/utils';
+import { loadData, loadMarginsRange, loadAllStockData, loadCompanyExpenses, resolveDueDate, resolveInvoiceDate, groupInvoicesByNumber } from '../../../../utils/utils';
 import { authedFetch } from '../../../../utils/aiClient';
 import { IoSend, IoRefresh } from "react-icons/io5";
 import { BsRobot, BsPerson } from "react-icons/bs";
@@ -48,16 +48,22 @@ const AssistantChat = () => {
         if (!force && contractsData.length > 0) return;
         setDataLoading(true);
         try {
-            const [contracts, invoices, expenses, stocks, margins] = await Promise.all([
+            // Load BOTH supplier expenses AND companyExpenses — Cashflow aggregates
+            // both, so the assistant must too or it'll miss overdue payables that
+            // live in the companyExpenses collection.
+            const [contracts, invoices, expenses, companyExpenses, stocks, margins] = await Promise.all([
                 loadData(uidCollection, 'contracts', dateSelect),
                 loadData(uidCollection, 'invoices', dateSelect),
                 loadData(uidCollection, 'expenses', dateSelect),
+                loadCompanyExpenses(uidCollection, 'companyExpenses', dateSelect).catch(() => []),
                 loadAllStockData(uidCollection).catch(() => []),
                 loadMarginsRange(uidCollection, dateSelect).catch(() => []),
             ]);
+            const taggedSupplier = (expenses || []).map(e => ({ ...e, kind: 'Supplier' }));
+            const taggedCompany = (companyExpenses || []).map(e => ({ ...e, kind: 'Company' }));
             setContractsData(contracts || []);
             setInvoicesData(invoices || []);
-            setExpensesData(expenses || []);
+            setExpensesData([...taggedSupplier, ...taggedCompany]);
             setStocksData(stocks || []);
             setMarginsData(margins || []);
         } catch (err) {
@@ -85,6 +91,12 @@ const AssistantChat = () => {
 
         const resolveClient = (f) =>
             f?.nname ? f.nname : clientList.find(c => c.id === f)?.nname || f || 'Unknown';
+        // Full company name for fuzzy text search ("Prime Metals" should match even if nname is just "Prime")
+        const resolveClientFull = (f) => {
+            if (f?.client) return f.client;
+            const obj = clientList.find(c => c.id === f);
+            return obj?.client || obj?.nname || (typeof f === 'string' ? f : '') || '';
+        };
         const resolveSupplier = (f) =>
             f?.nname ? f.nname : supplierList.find(s => s.id === f)?.nname || f || 'Unknown';
         const resolveCurrency = (f) =>
@@ -107,7 +119,9 @@ const AssistantChat = () => {
                 shipmentEta: con.shipmentEta || null,
                 shipmentStatus: con.shipmentStatus || null,
             })),
-            invoices: invoicesData.map(inv => {
+            // Group by invoice number so credit notes / final settlements don't
+            // double-count when summing balances per client / per currency.
+            invoices: groupInvoicesByNumber(invoicesData).map(inv => {
                 // Project model: `draft` is a manual checkbox flagging not-yet-real invoices.
                 // The formal `final` flag is rarely set (its finalize action is disabled),
                 // so an "issued" invoice = NOT a draft and NOT canceled — matching how the
@@ -127,6 +141,7 @@ const AssistantChat = () => {
                     id: inv.id,
                     invoice: inv.invoice,
                     client: resolveClient(inv.client),
+                    clientFull: resolveClientFull(inv.client),
                     date: resolveInvoiceDate(inv),
                     invoiceStatus,
                     paymentStatus,
@@ -143,16 +158,21 @@ const AssistantChat = () => {
                 };
             }),
             expenses: expensesData.map(exp => {
+                // Project's TRUE convention: exp.paid === '111' means paid; everything
+                // else (undefined, '222', custom statuses) means unpaid.
+                const isPaid = exp.paid === '111';
                 const paidLabel = expPmntList.find(p => p.id === exp.paid)?.paid
                     || (exp.paid === '111' ? 'Paid' : exp.paid === '222' ? 'Unpaid' : exp.paid || 'Unknown');
                 return {
                     id: exp.id,
-                    vendor: resolveSupplier(exp.supplier) || exp.vendor || 'Unknown',
+                    kind: exp.kind || 'Supplier',  // Supplier (regular) | Company (overhead)
+                    vendor: resolveSupplier(exp.supplier) || exp.vendor || (exp.kind === 'Company' ? 'Company expense' : 'Unknown'),
                     date: exp.date,
                     amount: parseFloat(exp.amount) || 0,
                     currency: resolveCurrency(exp.cur),
-                    type: resolveExpType(exp.expType),
+                    type: resolveExpType(exp.expType) || exp.type || '—',
                     paid: paidLabel,
+                    isPaid,
                 };
             }),
             stocks: stocksData.map(s => {

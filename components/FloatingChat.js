@@ -2,7 +2,7 @@
 import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { SettingsContext } from "../contexts/useSettingsContext";
 import { UserAuth } from "../contexts/useAuthContext";
-import { loadData, loadMarginsRange, loadAllStockData, resolveDueDate, resolveInvoiceDate } from '../utils/utils';
+import { loadData, loadMarginsRange, loadAllStockData, loadCompanyExpenses, resolveDueDate, resolveInvoiceDate, groupInvoicesByNumber } from '../utils/utils';
 import { authedFetch } from '../utils/aiClient';
 import { X, Send, Loader2, Trash2, RefreshCw, ExternalLink } from 'lucide-react';
 import { BsRobot, BsPerson } from "react-icons/bs";
@@ -90,17 +90,26 @@ const FloatingChat = () => {
 
         setDataLoading(true);
         try {
-            const [contracts, invoices, expenses, stocks, margins] = await Promise.all([
+            // Load BOTH regular supplier expenses AND companyExpenses — the Cashflow
+            // page aggregates both, so the assistant must too or it'll miss
+            // overdue payables that live in the companyExpenses collection.
+            const [contracts, invoices, expenses, companyExpenses, stocks, margins] = await Promise.all([
                 loadData(uidCollection, 'contracts', dateSelect),
                 loadData(uidCollection, 'invoices', dateSelect),
                 loadData(uidCollection, 'expenses', dateSelect),
+                loadCompanyExpenses(uidCollection, 'companyExpenses', dateSelect).catch(() => []),
                 loadAllStockData(uidCollection).catch(() => []),
                 loadMarginsRange(uidCollection, dateSelect).catch(() => []),
             ]);
 
+            // Tag each row with its kind so the assistant can tell suppliers apart
+            // from company/overhead expenses when listing or summarising.
+            const taggedSupplier = (expenses || []).map(e => ({ ...e, kind: 'Supplier' }));
+            const taggedCompany = (companyExpenses || []).map(e => ({ ...e, kind: 'Company' }));
+
             setContractsData(contracts || []);
             setInvoicesData(invoices || []);
-            setExpensesData(expenses || []);
+            setExpensesData([...taggedSupplier, ...taggedCompany]);
             setStocksData(stocks || []);
             setMarginsData(margins || []);
         } catch (err) {
@@ -291,6 +300,13 @@ const FloatingChat = () => {
         // Finalized invoices store client/cur as objects; drafts store IDs
         const resolveClient = (f) =>
             f?.nname ? f.nname : clientList.find(c => c.id === f)?.nname || f || 'Unknown';
+        // Full company name (Settings → Clients "Name" field) used for fuzzy text search
+        // so "show invoices to Prime Metals" matches even if the nickname is just "Prime".
+        const resolveClientFull = (f) => {
+            if (f?.client) return f.client;
+            const obj = clientList.find(c => c.id === f);
+            return obj?.client || obj?.nname || (typeof f === 'string' ? f : '') || '';
+        };
         const resolveSupplier = (f) =>
             f?.nname ? f.nname : supplierList.find(s => s.id === f)?.nname || f || 'Unknown';
         const resolveCurrency = (f) =>
@@ -313,7 +329,9 @@ const FloatingChat = () => {
                 shipmentEta: con.shipmentEta || null,
                 shipmentStatus: con.shipmentStatus || null,
             })),
-            invoices: invoicesData.map(inv => {
+            // Group by invoice number so credit notes / final settlements don't
+            // double-count when summing balances per client / per currency.
+            invoices: groupInvoicesByNumber(invoicesData).map(inv => {
                 // Project model: `draft` is a manual "not real yet" checkbox; the formal
                 // `final` flag is rarely set. An "issued" invoice = NOT draft, NOT canceled —
                 // same rule the Cashflow page uses for outstanding client debt.
@@ -336,6 +354,7 @@ const FloatingChat = () => {
                     id: inv.id,
                     invoice: inv.invoice,
                     client: resolveClient(inv.client),
+                    clientFull: resolveClientFull(inv.client),
                     date: resolveInvoiceDate(inv),
                     invoiceStatus,       // 'Issued' | 'Draft' | 'Canceled'
                     paymentStatus,       // 'Paid' | 'Partially Paid' | 'Unpaid'
@@ -352,17 +371,21 @@ const FloatingChat = () => {
                 };
             }),
             expenses: expensesData.map(exp => {
-                // paid is stored as an ID from settings.ExpPmnt.ExpPmnt
+                // Project's TRUE convention: exp.paid === '111' means paid; everything
+                // else (including undefined / '222' / custom statuses) means unpaid.
+                const isPaid = exp.paid === '111';
                 const paidLabel = expPmntList.find(p => p.id === exp.paid)?.paid
                     || (exp.paid === '111' ? 'Paid' : exp.paid === '222' ? 'Unpaid' : exp.paid || 'Unknown');
                 return {
                     id: exp.id,
-                    vendor: resolveSupplier(exp.supplier) || exp.vendor || 'Unknown',
+                    kind: exp.kind || 'Supplier',  // Supplier (regular) | Company (overhead)
+                    vendor: resolveSupplier(exp.supplier) || exp.vendor || (exp.kind === 'Company' ? 'Company expense' : 'Unknown'),
                     date: exp.date,
                     amount: parseFloat(exp.amount) || 0,
                     currency: resolveCurrency(exp.cur),
-                    type: resolveExpType(exp.expType),
+                    type: resolveExpType(exp.expType) || exp.type || '—',
                     paid: paidLabel,
+                    isPaid,
                 };
             }),
             stocks: stocksData.map(s => {

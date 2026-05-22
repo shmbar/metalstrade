@@ -14,7 +14,7 @@ const SYSTEM_PROMPT = `You are an intelligent assistant for IMS (Inventory Manag
 This IMS manages: Contracts (purchase orders), Invoices (sales), Expenses, Stocks/Inventory, and Margins/Profit tracking.
 
 ## DATA TOOLS — ALWAYS use these for data questions. NEVER guess numbers.
-- get_overdue_invoices — unpaid issued invoices; flags strictly overdue (past due date) and still lists unpaid ones if none are strictly overdue
+- get_overdue_invoices — outstanding receivables split into two clear categories: DUE invoices (past due date, urgent) and BALANCE invoices (final invoices with balance but not yet due). Per-currency totals included.
 - get_pending_invoices — final invoices not yet fully paid (Unpaid or Partially Paid)
 - get_client_debt_ranking — clients ranked by total outstanding balance due (answers "who owes the most?")
 - get_revenue_summary — total sales from all final invoices by currency (invoiced total, collected, outstanding); accepts optional year filter
@@ -55,7 +55,9 @@ This IMS manages: Contracts (purchase orders), Invoices (sales), Expenses, Stock
 3. Use bullet points with "•" for lists, numbered steps for workflows
 4. Use **bold** sparingly
 5. Under 300 words when possible
-6. Always use tools for data questions — never invent numbers`;
+6. Always use tools for data questions — never invent numbers
+7. PRESERVE key tool data verbatim: when a tool returns a line containing "Nd overdue" (days overdue counter), keep that exact "Nd overdue" annotation in every bullet you show — do NOT drop or rephrase it. Same rule for explicit currency amounts and invoice numbers.
+8. If a tool returns multiple sections (e.g. "🔴 DUE INVOICES" and "🟡 BALANCE INVOICES"), keep the section headers and their per-section totals. Don't merge them into one list.`;
 
 // OpenAI tool definitions
 const TOOLS = [
@@ -63,7 +65,7 @@ const TOOLS = [
         type: 'function',
         function: {
             name: 'get_overdue_invoices',
-            description: 'Unpaid issued invoices. Reports those strictly overdue (delivery/due date in the past) and, if none are strictly overdue, still lists what is unpaid. Answers "show overdue invoices", "what is unpaid?", "who hasn\'t paid?"',
+            description: 'Outstanding receivables split into two categories: (1) DUE invoices — past their delivery/due date (urgent), and (2) BALANCE invoices — final invoices with outstanding balance but not yet due. Answers "show due invoices", "show balance invoices", "show overdue invoices", "what is unpaid?", "who hasn\'t paid?", "show outstanding receivables"',
             parameters: { type: 'object', properties: {} }
         }
     },
@@ -153,11 +155,11 @@ const TOOLS = [
         type: 'function',
         function: {
             name: 'get_client_invoices',
-            description: 'Get all invoices for a specific client by name — answers "show invoices for ABC Corp", "what does XYZ owe?"',
+            description: 'Get all invoices for a specific client by name (matches both full company name and nickname, partial / tokenized match). Answers "show invoices for ABC Corp", "what does XYZ owe?", "show unpaid invoices to Prime Metals", "Iberinox invoices". Each line includes outstanding balance, payment status, and days-overdue if applicable.',
             parameters: {
                 type: 'object',
                 properties: {
-                    client_name: { type: 'string', description: 'Client name to search for (partial match)' }
+                    client_name: { type: 'string', description: 'Client name to search for. Matches full company name OR nickname, partial OK. Use the name as the user typed it.' }
                 },
                 required: ['client_name']
             }
@@ -254,7 +256,10 @@ function executeTool(name, args, data) {
 
     switch (name) {
         case 'get_overdue_invoices': {
-            // Issued (not draft) + not canceled + still owing money.
+            // Receivables come in TWO categories:
+            //   DUE  — issued + unpaid + delivery/due date already in the past (urgent)
+            //   BALANCE — issued + unpaid + due date in future OR not set (not yet due)
+            // Together they sum to total outstanding receivables.
             const unpaidIssued = invoices.filter(inv =>
                 inv.isFinal && !inv.canceled && inv.paymentStatus !== 'Paid' && (inv.balanceDue || 0) > 0.01
             );
@@ -262,30 +267,63 @@ function executeTool(name, args, data) {
                 return 'No unpaid invoices — every issued invoice is fully paid.';
             }
 
-            // Of those, the ones with a delivery/due date already in the past = strictly overdue.
-            const overdue = unpaidIssued.filter(inv => {
-                const due = inv.dueDate ? new Date(inv.dueDate) : null;
-                return due && due < today;
+            const due = []; // past due date
+            const balance = []; // has balance but not yet due (future date or no date)
+            unpaidIssued.forEach(inv => {
+                const d = inv.dueDate ? new Date(inv.dueDate) : null;
+                if (d && d < today) due.push(inv);
+                else balance.push(inv);
             });
-            const noDueDate = unpaidIssued.filter(inv => !inv.dueDate);
 
-            if (overdue.length) {
-                const overdueLines = overdue
+            // Totals per currency for each category
+            const sumByCur = (arr) => {
+                const m = {};
+                arr.forEach(inv => {
+                    const cur = inv.currency || 'USD';
+                    m[cur] = (m[cur] || 0) + (inv.balanceDue || 0);
+                });
+                return Object.entries(m).map(([c, v]) => `${c} ${v.toFixed(2)}`).join(' + ') || '—';
+            };
+
+            const daysBetween = (later, earlier) =>
+                Math.max(0, Math.ceil((later.getTime() - earlier.getTime()) / 86400000));
+
+            const formatDueLine = (inv) => {
+                const d = new Date(inv.dueDate);
+                const days = daysBetween(today, d);
+                // Days overdue placed FIRST (right after invoice #) so the AI is less
+                // likely to drop it when summarising a long list.
+                return `• Invoice #${inv.invoice} · ${days}d overdue · ${inv.client} · ${inv.currency} ${inv.balanceDue.toFixed(2)} outstanding · Due ${inv.dueDate} · ${inv.paymentStatus}`;
+            };
+            const formatBalanceLine = (inv) =>
+                `• Invoice #${inv.invoice} — ${inv.client} — ${inv.currency} ${inv.balanceDue.toFixed(2)} outstanding — ${inv.dueDate ? `Due: ${inv.dueDate}` : 'no due date set'} — ${inv.paymentStatus}`;
+
+            const sections = [];
+
+            // Section 1: Due invoices (past due date) — urgent, sorted by most-overdue first
+            if (due.length) {
+                const list = due
                     .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-                    .map(inv => `• Invoice #${inv.invoice} — ${inv.client} — ${inv.currency} ${inv.balanceDue.toFixed(2)} outstanding — Due: ${inv.dueDate} — ${inv.paymentStatus}`)
+                    .slice(0, 15)
+                    .map(formatDueLine)
                     .join('\n');
-                const tail = noDueDate.length
-                    ? `\n\nAlso ${noDueDate.length} unpaid invoice(s) have no delivery/due date set, so they can't be classed as overdue — review them on the Invoices or Cashflow page.`
-                    : '';
-                return `${overdue.length} overdue invoice(s) (past due date):\n${overdueLines}${tail}`;
+                const more = due.length > 15 ? `\n…and ${due.length - 15} more.` : '';
+                sections.push(`🔴 DUE INVOICES — ${due.length} item(s) past due date · Total: ${sumByCur(due)}\n${list}${more}`);
             }
 
-            // Nothing strictly overdue, but money is still owed — answer honestly.
-            const sample = unpaidIssued
-                .slice(0, 15)
-                .map(inv => `• Invoice #${inv.invoice} — ${inv.client} — ${inv.currency} ${inv.balanceDue.toFixed(2)} outstanding — ${inv.dueDate ? `Due: ${inv.dueDate}` : 'no due date set'} — ${inv.paymentStatus}`)
-                .join('\n');
-            return `No invoices are strictly *overdue* (none have a delivery/due date in the past), but ${unpaidIssued.length} invoice(s) are still unpaid${noDueDate.length ? ` — ${noDueDate.length} of them have no due date set` : ''}:\n${sample}${unpaidIssued.length > 15 ? `\n…and ${unpaidIssued.length - 15} more.` : ''}`;
+            // Section 2: Balance invoices (final/issued with balance, not yet due)
+            if (balance.length) {
+                const list = balance
+                    .slice(0, 15)
+                    .map(formatBalanceLine)
+                    .join('\n');
+                const more = balance.length > 15 ? `\n…and ${balance.length - 15} more.` : '';
+                sections.push(`🟡 BALANCE INVOICES — ${balance.length} final invoice(s) with outstanding balance · Total: ${sumByCur(balance)}\n${list}${more}`);
+            }
+
+            const grandTotal = sumByCur(unpaidIssued);
+            const header = `Receivables breakdown — ${unpaidIssued.length} total invoice(s) outstanding · Grand total: ${grandTotal}`;
+            return `${header}\n\n${sections.join('\n\n')}`;
         }
 
         case 'get_pending_invoices': {
@@ -390,18 +428,47 @@ function executeTool(name, args, data) {
         }
 
         case 'get_unpaid_expenses': {
-            // paid label comes resolved from settings.ExpPmnt — treat anything not 'Paid' as unpaid
-            const unpaid = expenses.filter(exp => exp.paid?.toLowerCase() !== 'paid');
-            if (!unpaid.length) return 'No unpaid expenses found. All expenses are paid.';
+            // Defensive filter — handles three input shapes:
+            //   1. New client (preferred): exp.isPaid boolean set from exp.paid === '111'
+            //   2. Legacy client: only the resolved `paid` label string
+            //   3. Anything else: explicit equality with the '111' id
+            // An expense is UNPAID if none of the "paid" signals are true.
+            const isExpensePaid = (exp) => {
+                if (typeof exp.isPaid === 'boolean') return exp.isPaid;
+                const label = String(exp.paid || '').trim().toLowerCase();
+                if (label === 'paid') return true;
+                return exp.paid === '111';
+            };
+            const unpaid = expenses.filter(exp => !isExpensePaid(exp));
+
+            if (!unpaid.length) {
+                // Diagnostic so the user knows WHY nothing was found — most common
+                // causes are date-range filter and Payment Status not being set.
+                return `No unpaid expenses found in the currently loaded date range — ${expenses.length} expense(s) checked, all marked as Paid.\n\nIf you expect unpaid expenses, check: (1) the date range filter in the app header covers their period, (2) their Payment status in the Expenses page isn't set to "Paid".`;
+            }
             const total = {};
             unpaid.forEach(exp => {
                 const cur = exp.currency || 'USD';
                 total[cur] = (total[cur] || 0) + (exp.amount || 0);
             });
             const totalStr = Object.entries(total).map(([cur, amt]) => `${cur} ${amt.toFixed(2)}`).join(' + ');
-            return `${unpaid.length} unpaid expense(s) — Total: ${totalStr}\n${unpaid.map(exp =>
-                `• ${exp.vendor} — ${exp.currency} ${exp.amount?.toFixed(2)} — ${exp.type} — ${exp.paid} — ${exp.date}`
-            ).join('\n')}`;
+            // Sort oldest first so the most overdue payables surface at the top
+            const sorted = [...unpaid].sort((a, b) => {
+                const da = a.date ? new Date(a.date).getTime() : 0;
+                const db = b.date ? new Date(b.date).getTime() : 0;
+                return da - db;
+            });
+            // Break down by kind (Supplier vs Company overhead) so the user sees
+            // where the obligation lives — both feed into the Cashflow page.
+            const kindCounts = unpaid.reduce((acc, exp) => {
+                const k = exp.kind || 'Supplier';
+                acc[k] = (acc[k] || 0) + 1;
+                return acc;
+            }, {});
+            const kindStr = Object.entries(kindCounts).map(([k, n]) => `${n} ${k}`).join(' + ');
+            return `${unpaid.length} unpaid expense(s) of ${expenses.length} total (${kindStr}) — Total owed: ${totalStr}\n${sorted.slice(0, 25).map(exp =>
+                `• [${exp.kind || 'Supplier'}] ${exp.vendor} — ${exp.currency} ${(exp.amount || 0).toFixed(2)} — ${exp.type} — ${exp.paid || 'no status'} — ${exp.date || 'no date'}`
+            ).join('\n')}${sorted.length > 25 ? `\n…and ${sorted.length - 25} more.` : ''}`;
         }
 
         case 'get_profit_info': {
@@ -500,24 +567,76 @@ function executeTool(name, args, data) {
         case 'get_client_invoices': {
             const search = (args?.client_name || '').toLowerCase().trim();
             if (!search) return 'Please provide a client name to search for.';
-            const matched = invoices.filter(inv =>
-                inv.isFinal && !inv.canceled &&
-                (inv.client || '').toLowerCase().includes(search)
-            );
-            if (!matched.length) return `No final invoices found for client matching "${args.client_name}".`;
+
+            // Search BOTH the nickname (inv.client) and the full company name
+            // (inv.clientFull). Also tokenize so "prime metals" still finds a
+            // client whose name is "Metals Prime Co." or whose nickname is just
+            // "Prime". Match if the candidate contains the whole search string
+            // OR contains every token.
+            const tokens = search.split(/\s+/).filter(Boolean);
+            const matches = (candidate) => {
+                const c = String(candidate || '').toLowerCase();
+                if (!c) return false;
+                if (c.includes(search)) return true;
+                return tokens.length > 1 && tokens.every(t => c.includes(t));
+            };
+
+            const matched = invoices.filter(inv => {
+                if (!inv.isFinal || inv.canceled) return false;
+                return matches(inv.client) || matches(inv.clientFull);
+            });
+
+            if (!matched.length) {
+                // Help the user: list a few nearby client names so they can spot a typo
+                const allNames = new Set();
+                invoices.forEach(inv => {
+                    if (inv.client) allNames.add(inv.client);
+                    if (inv.clientFull) allNames.add(inv.clientFull);
+                });
+                const looseHits = [...allNames].filter(n =>
+                    tokens.some(t => String(n).toLowerCase().includes(t))
+                ).slice(0, 5);
+                const suggest = looseHits.length
+                    ? `\n\nClients with at least one matching word: ${looseHits.join(', ')}.`
+                    : '';
+                return `No invoices found for client matching "${args.client_name}".${suggest}\nTip: try the nickname as shown in Settings → Clients.`;
+            }
+
             const totalByCur = {};
             const outstandingByCur = {};
+            const unpaidByCur = {};
+            const today2 = new Date();
             matched.forEach(inv => {
                 const cur = inv.currency || 'USD';
-                totalByCur[cur] = (totalByCur[cur] || 0) + inv.totalAmount;
-                outstandingByCur[cur] = (outstandingByCur[cur] || 0) + inv.balanceDue;
+                totalByCur[cur] = (totalByCur[cur] || 0) + (inv.totalAmount || 0);
+                outstandingByCur[cur] = (outstandingByCur[cur] || 0) + (inv.balanceDue || 0);
+                if ((inv.balanceDue || 0) > 0.01) {
+                    unpaidByCur[cur] = (unpaidByCur[cur] || 0) + (inv.balanceDue || 0);
+                }
             });
             const summaryStr = Object.entries(totalByCur)
-                .map(([cur, t]) => `${cur} ${t.toFixed(2)} invoiced, ${(outstandingByCur[cur] || 0).toFixed(2)} outstanding`).join(' | ');
-            const lines = matched.slice(0, 15).map(inv =>
-                `• Invoice #${inv.invoice} — ${inv.currency} ${inv.totalAmount.toFixed(2)} — ${inv.paymentStatus}${inv.dueDate ? ' — Due: ' + inv.dueDate : ''}`
-            ).join('\n');
-            return `${matched.length} invoice(s) for "${matched[0]?.client}":\nSummary: ${summaryStr}\n${lines}`;
+                .map(([cur, t]) => `${cur} ${t.toFixed(2)} invoiced · ${(outstandingByCur[cur] || 0).toFixed(2)} outstanding`).join(' | ');
+
+            // Sort by most-overdue first so the urgent items surface at the top
+            const sorted = [...matched].sort((a, b) => {
+                const ad = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+                const bd = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+                return ad - bd;
+            });
+            const lines = sorted.slice(0, 25).map(inv => {
+                let overdueTag = '';
+                if (inv.dueDate) {
+                    const dueT = new Date(inv.dueDate);
+                    if (dueT < today2 && (inv.balanceDue || 0) > 0.01) {
+                        const days = Math.max(0, Math.ceil((today2.getTime() - dueT.getTime()) / 86400000));
+                        overdueTag = ` · ${days}d overdue`;
+                    }
+                }
+                return `• Invoice #${inv.invoice}${overdueTag} · ${inv.currency} ${(inv.totalAmount || 0).toFixed(2)} total · ${(inv.balanceDue || 0).toFixed(2)} outstanding · ${inv.paymentStatus}${inv.dueDate ? ' · Due ' + inv.dueDate : ''}`;
+            }).join('\n');
+            const more = sorted.length > 25 ? `\n…and ${sorted.length - 25} more.` : '';
+            const displayName = matched[0]?.clientFull || matched[0]?.client || args.client_name;
+            return `${matched.length} invoice(s) for "${displayName}":\nSummary: ${summaryStr}\n${lines}${more}`;
         }
 
         case 'get_record_by_number': {
@@ -574,7 +693,8 @@ function executeTool(name, args, data) {
             expenses.forEach(exp => {
                 // BUG-FIX: /paid/i matches BOTH "Paid" and "Unpaid" (substring match),
                 // which silently dropped every unpaid expense. Use exact match.
-                if (!exp.amount || String(exp.paid || '').trim().toLowerCase() === 'paid') return;
+                // Use raw isPaid boolean (exp.paid === '111') — labels are unreliable
+                if (!exp.amount || exp.isPaid) return;
                 if (!exp.date) return;
                 const d = new Date(exp.date);
                 const cur = exp.currency || 'USD';

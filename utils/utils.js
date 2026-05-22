@@ -118,6 +118,46 @@ export const reOrderTableFinal = (dt) => {
   return reorderedData;
 }
 
+/**
+ * Groups raw invoice docs by their `invoice` number and merges related
+ * docs (original + credit notes + final settlements) into a single
+ * deduplicated entry per invoice. Mirrors the logic of runInvoices() in
+ * app/(root)/cashflow/funcs.js so AI features can use the same accurate
+ * receivables figures the Cashflow page already shows.
+ */
+export const groupInvoicesByNumber = (invoices) => {
+  if (!Array.isArray(invoices)) return [];
+  const groups = {};
+  invoices.forEach(inv => {
+    if (!inv || inv.invoice == null) return;
+    const key = String(inv.invoice);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(inv);
+  });
+  return Object.values(groups).flatMap(group => {
+    if (group.length === 1) return group;
+
+    const types = group.map(g => parseInt(g.invType, 10)).filter(t => !isNaN(t));
+    if (types.length < 2 || new Set(types).size === 1) return group;
+
+    // Keep only the highest invType doc(s) (CN/FN supersede the original
+    // '1111' invoice). Payments are combined across ALL related docs.
+    const maxType = Math.max(...types);
+    const keptDocs = group.filter(g => parseInt(g.invType, 10) === maxType);
+    const allPayments = group.flatMap(g => g.payments || []);
+    const totalAmount = keptDocs.reduce((s, g) => s + (parseFloat(g.totalAmount) || 0), 0);
+    const paidSum = allPayments.reduce((s, p) => s + (parseFloat(p.pmnt) || 0), 0);
+    const debtBlnc = totalAmount - paidSum;
+
+    return [{
+      ...keptDocs[0],
+      payments: allPayments,
+      totalAmount,
+      debtBlnc,
+    }];
+  });
+};
+
 export const reOrderTableInv = (dt) => {
 
   const columnOrder = ['id', 'po', 'description', 'container', 'qnty', 'unitPrc', 'total']
