@@ -95,24 +95,23 @@ Rules:
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: `Certificate text:\n${r.text}` },
                 ];
-            } else if (r.reason === 'EMPTY') {
-                // Scanned cert PDF — send raw PDF to gpt-4o for OCR (no manual conversion)
+            } else {
+                // EMPTY (scanned) OR FAILED (worker missing on Vercel / corrupt PDF)
+                // → fall back to gpt-4o OCR of the raw PDF. This keeps the feature
+                // working even when pdfjs's worker isn't bundled in the serverless
+                // function.
+                console.warn('PDF extraction did not return text, falling back to vision:',
+                    r.reason || 'unknown', r.message || '', r.attempted || '');
                 messages = [
                     { role: 'system', content: systemPrompt },
                     {
                         role: 'user',
                         content: [
                             { type: 'file', file: { filename: 'certificate.pdf', file_data: `data:application/pdf;base64,${fileBase64}` } },
-                            { type: 'text', text: 'This is a scanned mill certificate. Read it and extract all chemical composition elements.' },
+                            { type: 'text', text: 'This is a mill certificate (may be digital or scanned). Read it and extract all chemical composition elements.' },
                         ],
                     },
                 ];
-            } else {
-                console.error('PDF extraction failed:', r.message, r.attempted);
-                return Response.json({
-                    error: `Could not read this PDF: ${r.message}. Try re-saving the PDF or uploading pages as JPG/PNG.`,
-                    attempted: r.attempted,
-                }, { status: 422 });
             }
         } else {
             messages = [

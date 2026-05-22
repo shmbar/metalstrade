@@ -21,27 +21,26 @@ export async function POST(request) {
             return Response.json({ error: 'No file provided' }, { status: 400 });
         }
 
-        // Extract text from PDF. If the PDF is a SCANNED image (no text layer),
-        // we don't error out — we fall back to sending the raw PDF to gpt-4o,
-        // which OCRs it via vision. Only a genuine parse failure errors out.
+        // Extract text from PDF. ANY failure (scanned image, missing pdfjs worker
+        // on Vercel, corrupt PDF, etc.) falls back to sending the raw PDF to
+        // gpt-4o — which OCRs both digital and scanned PDFs server-side. This
+        // means the feature works on Vercel even when pdfjs's worker isn't
+        // bundled in the serverless function (a known Vercel + pdfjs-dist quirk).
         let extractedText = '';
-        let scannedPdf = false; // true → use the vision/OCR path for this PDF
+        let usePdfVision = false; // true → send raw PDF to gpt-4o (no local parse)
         if (mimeType === 'application/pdf') {
             const buffer = Buffer.from(fileBase64, 'base64');
             const r = await extractPdfText(buffer);
 
             if (r.ok) {
                 extractedText = r.text;
-            } else if (r.reason === 'EMPTY') {
-                // Scanned image PDF — let gpt-4o read it directly (no manual conversion)
-                scannedPdf = true;
             } else {
-                console.error('PDF extraction failed:', r.message, r.attempted);
-                return Response.json({
-                    error: 'PDF_PARSE_FAILED',
-                    message: `Could not read this PDF: ${r.message}. Try re-saving / re-exporting the PDF, or upload each page as a JPG / PNG instead.`,
-                    attempted: r.attempted,
-                }, { status: 422 });
+                // EMPTY (scanned) OR FAILED (worker missing / corrupt) — let
+                // gpt-4o read the PDF directly. Log the underlying reason so we
+                // can still see in the server console which path was taken.
+                console.warn('PDF extraction did not return text, falling back to vision:',
+                    r.reason || 'unknown', r.message || '', r.attempted || '');
+                usePdfVision = true;
             }
         }
 
@@ -132,15 +131,15 @@ Return ONLY the JSON object, no extra text.`;
 
         let messages;
         let model;
-        if (mimeType === 'application/pdf' && !scannedPdf) {
+        if (mimeType === 'application/pdf' && !usePdfVision) {
             // Digital PDF with a text layer — cheapest path
             messages = [
                 { role: 'system', content: systemTextPrompt },
                 { role: 'user', content: extractedText || 'Could not extract text from PDF — return all fields as null.' },
             ];
             model = 'gpt-4o-mini';
-        } else if (mimeType === 'application/pdf' && scannedPdf) {
-            // Scanned PDF (no text layer) — send the raw PDF to gpt-4o, which OCRs it
+        } else if (mimeType === 'application/pdf' && usePdfVision) {
+            // Scanned PDF / extraction failed — send the raw PDF to gpt-4o, which OCRs it
             messages = [
                 { role: 'system', content: systemVisionPrompt },
                 {
