@@ -1,8 +1,6 @@
 export const dynamic = 'force-dynamic';
 import OpenAI from 'openai';
 import { guardAiRequest } from '../../../../utils/aiGuard';
-import { db } from '../../../../utils/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getRates, convert } from '../../../../utils/fxRates';
 
 let openai;
@@ -11,43 +9,12 @@ function getOpenAI() {
     return openai;
 }
 
-// Two-tier cache:
-//   L1: in-memory Map — instant hit for the warm Node process
-//   L2: Firestore doc at {uid}/aiCache/forecast — survives cold starts, shared across instances
-// Both TTL at 15 minutes.
+// In-memory cache only. A Firestore L2 cache was tried but the server uses the
+// client Firebase SDK with no auth context — every write hit PERMISSION_DENIED
+// and the cache never persisted. Cold starts re-run the forecast (~one cheap
+// gpt-4o-mini call), which is acceptable for the volume of this internal tool.
 const memCache = new Map();
 const CACHE_TTL = 15 * 60 * 1000;
-
-// Firestore document paths need an EVEN number of segments after db
-// (collection/doc/collection/doc...). Combine horizon+base+date into a single
-// doc id so the path is {uid}/aiCache/forecast/{horizon_base_date} = 4 segments.
-// baseCurrency is part of the key so changing it in Company Settings
-// immediately invalidates stale cached baseTotals.
-function l2Ref(uid, horizon, base, todayStr) {
-    return doc(db, uid, 'aiCache', 'forecast', `${horizon}_${base}_${todayStr}`);
-}
-
-async function readL2Cache(uid, horizon, base, todayStr) {
-    if (!uid) return null;
-    try {
-        const snap = await getDoc(l2Ref(uid, horizon, base, todayStr));
-        if (!snap.exists()) return null;
-        const { data, ts } = snap.data();
-        if (!ts || Date.now() - ts > CACHE_TTL) return null;
-        return data;
-    } catch {
-        return null;
-    }
-}
-
-async function writeL2Cache(uid, horizon, base, todayStr, data) {
-    if (!uid) return;
-    try {
-        await setDoc(l2Ref(uid, horizon, base, todayStr), { data, ts: Date.now() });
-    } catch {
-        // Non-fatal — cache write failure shouldn't break the response
-    }
-}
 
 function addDays(date, days) {
     const d = new Date(date);
@@ -163,17 +130,9 @@ export async function POST(request) {
         // must NOT return stale cached baseTotals computed at the old base.
         const cacheKey = `${uid}:${horizon}:${base}:${todayStr}`;
 
-        // L1 — memory
         const memHit = memCache.get(cacheKey);
         if (memHit && Date.now() - memHit.ts < CACHE_TTL) {
             return Response.json({ ...memHit.data, cacheSource: 'memory' });
-        }
-
-        // L2 — Firestore (survives cold starts)
-        const l2Hit = await readL2Cache(uid, horizon, base, todayStr);
-        if (l2Hit) {
-            memCache.set(cacheKey, { data: l2Hit, ts: Date.now() });
-            return Response.json({ ...l2Hit, cacheSource: 'firestore' });
         }
 
         const forecast = computeForecast(invoices || [], expenses || [], horizon, today);
@@ -243,7 +202,6 @@ Source: ${forecast.sources.invoiceCount} due invoices, ${forecast.sources.expens
         };
 
         memCache.set(cacheKey, { data: result, ts: Date.now() });
-        await writeL2Cache(uid, horizon, base, todayStr, result);
         return Response.json({ ...result, cacheSource: 'fresh' });
 
     } catch (err) {
