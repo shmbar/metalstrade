@@ -44,7 +44,7 @@ function ConfidenceBadge({ confidence }) {
 
 const ForecastPanel = () => {
     const { uidCollection } = UserAuth();
-    const { settings, dateSelect } = useContext(SettingsContext);
+    const { settings } = useContext(SettingsContext);
 
     const [activeHorizon, setActiveHorizon] = useState(30);
     const [results, setResults] = useState({}); // keyed by horizon
@@ -58,15 +58,27 @@ const ForecastPanel = () => {
     }, [settings]);
 
     const loadAndForecast = useCallback(async (horizon) => {
-        if (!uidCollection || !dateSelect) return;
+        if (!uidCollection) return;
         if (results[horizon]) { setActiveHorizon(horizon); return; }
 
         setLoading(true);
         setError(null);
         try {
+            // The forecast needs every invoice/expense whose DUE date is within the
+            // horizon OR already overdue — that pool is independent of the cashflow
+            // page's date filter (which slices by ISSUE date). Using `dateSelect`
+            // here meant a user filtering "this month only" saw a USD 0 forecast
+            // because invoices issued in earlier months were excluded even when
+            // their due date is days away. So we load a wide fixed window:
+            // 3 years back through 1 year forward (covers all realistic open AR/AP).
+            const todayYr = new Date().getFullYear();
+            const forecastRange = {
+                start: `${todayYr - 3}-01-01`,
+                end: `${todayYr + 1}-12-31`,
+            };
             const [rawInvoices, rawExpenses] = await Promise.all([
-                loadData(uidCollection, 'invoices', dateSelect),
-                loadData(uidCollection, 'expenses', dateSelect),
+                loadData(uidCollection, 'invoices', forecastRange),
+                loadData(uidCollection, 'expenses', forecastRange),
             ]);
 
             const clientList = settings?.Client?.Client || [];
@@ -116,7 +128,7 @@ const ForecastPanel = () => {
         } finally {
             setLoading(false);
         }
-    }, [uidCollection, dateSelect, settings, results, resolveCurrency]);
+    }, [uidCollection, settings, results, resolveCurrency]);
 
     const handleOpen = () => {
         if (!opened) {
@@ -327,7 +339,7 @@ const ForecastPanel = () => {
                             </div>
 
                             <p style={{ fontSize: '0.55rem', color: 'var(--regent-gray)', marginTop: '8px' }}>
-                                Generated {result.generatedAt} · cached 15 min · based on data in current date range
+                                Generated {result.generatedAt} · cached 15 min · scans all open AR/AP (ignores page date filter)
                             </p>
                         </div>
                     )}
