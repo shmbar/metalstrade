@@ -22,7 +22,7 @@ const SectionLabel = ({ text }) => (
     <p className="md:col-span-2 text-[0.7rem] font-medium text-[var(--endeavour)] mt-2 border-b border-[#dbeeff] pb-0.5">{text}</p>
 );
 
-const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
+const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
     const ax = valueInv.annexVII ?? {};
     const templates = settings['Annex VII']?.['Annex VII'] ?? [];
     const carriers = settings['Carrier']?.['Carrier'] ?? [];
@@ -40,7 +40,8 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
 
     const handleInput = (e) => update(e.target.name, e.target.value);
 
-    // Auto-fill weight, container and date on mount if fields are empty
+    // Auto-fill weight, container, date AND material/waste description on mount
+    // (only when those fields are still empty — never overwrites user edits).
     useEffect(() => {
         const rows = valueInv.productsDataInvoice?.filter(r => r.qnty !== 's') ?? [];
         const sum = rows.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
@@ -55,6 +56,41 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
             dateStr = `${dd}.${mm}.${d.getFullYear()}`;
         }
 
+        // Build a waste description string. Priority:
+        // 1. Contract's certSpec (saved by the AI Certificate Checker) — most precise,
+        //    has actual element composition with ranges.
+        // 2. Invoice product descriptions concatenated — fallback when no cert spec.
+        let wasteDesc = '';
+        const certSpec = Array.isArray(valueCon?.certSpec) ? valueCon.certSpec : [];
+        if (certSpec.length) {
+            // Use the contract's product description as the material name, then
+            // append the element composition we already validated.
+            const materialName = (valueCon?.productsData || [])
+                .map(p => p?.description)
+                .filter(Boolean)
+                .join(' / ');
+            const elements = certSpec
+                .filter(s => s.element)
+                .map(s => {
+                    const lo = s.min !== '' && s.min != null ? String(s.min) : '';
+                    const hi = s.max !== '' && s.max != null ? String(s.max) : '';
+                    if (lo && hi) return `${s.element} ${lo}–${hi}%`;
+                    if (lo) return `${s.element} ≥${lo}%`;
+                    if (hi) return `${s.element} ≤${hi}%`;
+                    return s.element;
+                })
+                .join(', ');
+            wasteDesc = materialName
+                ? `${materialName}${elements ? ' — ' + elements : ''}`
+                : elements;
+        } else {
+            // No cert spec — fall back to invoice product descriptions
+            wasteDesc = rows
+                .map(r => r?.description)
+                .filter(Boolean)
+                .join('; ');
+        }
+
         setValueInv(prev => {
             const ax = prev.annexVII ?? {};
             const updates = {};
@@ -62,6 +98,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings }) => {
             if (firstCtn && !ax.carrier1Transport) updates.carrier1Transport = firstCtn;
             if (dateStr && !ax.carrier1Date) updates.carrier1Date = dateStr;
             if (dateStr && !ax.carrier2Date) updates.carrier2Date = dateStr;
+            if (wasteDesc && !ax.wasteDescription) updates.wasteDescription = wasteDesc;
             if (!Object.keys(updates).length) return prev;
             return { ...prev, annexVII: { ...ax, ...updates } };
         });

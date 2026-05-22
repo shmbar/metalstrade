@@ -2,6 +2,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
+import { InvoiceContext } from "@contexts/useInvoiceContext";
 import Datepicker from "react-tailwindcss-datepicker";
 import { Pdf } from './pdf/pdfContract.js';
 import ProductsTable from './productsTable.js';
@@ -28,6 +29,7 @@ const ContractModal = () => {
 	const { settings, compData, setToast, ln } = useContext(SettingsContext);
 	const { valueCon, setValueCon, saveData, delContract, setIsOpenCon,
 		errors, setErrors, duplicate, contractsData, isButtonDisabled, setIsButtonDisabled } = useContext(ContractsContext);
+	const { setValueInv } = useContext(InvoiceContext);
 	const sups = settings.Supplier.Supplier;
 	const supplier = valueCon.supplier && sups.find(z => z.id === valueCon.supplier);
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
@@ -207,6 +209,85 @@ const ContractModal = () => {
 
 		await saveStockIn(uid, stockData)
 	}
+
+	// One-click: build a draft sales invoice from this contract's data so the
+	// user doesn't have to retype supplier, currency, shipment terms and product
+	// lines. They still need to set client + invoice number on the Invoices tab.
+	const createInvoiceFromContract = () => {
+		if (!valueCon?.id) {
+			setToast({ show: true, text: 'Save this contract first before creating an invoice from it.', clr: 'fail' });
+			return;
+		}
+		const products = (valueCon.productsData || [])
+			.filter(p => p && (p.description || p.qnty || p.unitPrc))
+			.map((p) => {
+				const qty = parseFloat(p.qnty) || 0;
+				const price = parseFloat(p.unitPrc) || 0;
+				return {
+					id: uuidv4(),
+					descriptionId: '',
+					container: '',
+					description: p.description || '',
+					qnty: p.qnty || '',
+					unitPrc: p.unitPrc || '',
+					total: qty * price || '',
+					stock: '',
+					stockValue: '',
+					mtrlStatus: '',
+				};
+			});
+
+		const draft = {
+			id: '',
+			opDate: '',
+			lstSaved: '',
+			invoice: '',
+			date: '',
+			dateRange: { startDate: null, endDate: null },
+			invoiceStatus: '',
+			client: '',
+			shpType: valueCon.shpType || '',
+			origin: valueCon.origin || '',
+			delTerm: valueCon.delTerm || '',
+			pol: valueCon.pol || '',
+			pod: valueCon.pod || '',
+			packing: valueCon.packing || '',
+			delDate: { startDate: null, endDate: null },
+			cur: valueCon.cur || '',
+			ttlGross: '',
+			ttlPackages: '',
+			productsDataInvoice: products,
+			invType: '1111',
+			totalAmount: products.reduce((s, p) => s + (Number(p.total) || 0), 0) || '',
+			percentage: '',
+			totalPrepayment: '',
+			bankNname: '',
+			final: false,
+			canceled: false,
+			balanceDue: '',
+			expenses: [],
+			poSupplier: {
+				id: valueCon.id,
+				order: valueCon.order || '',
+				date: valueCon.dateRange?.startDate || valueCon.date || '',
+			},
+			remarks: [],
+			hs1: valueCon.hs1 || '',
+			hs2: valueCon.hs2 || '',
+			payments: [],
+			shipData: { rcvd: '', outrnamnt: '', fnlzing: '2587', status: '', etd: '', eta: '' },
+			comments: '',
+			annexVII: { enabled: false, templateId: '' },
+			isf: { enabled: false, templateId: '' },
+		};
+
+		setValueInv(draft);
+		setToast({
+			show: true,
+			text: `Draft invoice created from ${valueCon.order || 'contract'} — open the Invoices tab to set client + invoice number and save.`,
+			clr: 'success'
+		});
+	};
 
 
 	return (
@@ -548,15 +629,26 @@ const ContractModal = () => {
 						{!gisAccount ? "Copy to GIS" : "Copy to IMS"}
 					</button>
 				</Tltip>
-				<Tltip direction='top' tltpText='Import data from a supplier PDF document'>
+				<Tltip direction='top' tltpText='Drop a supplier proforma / contract PDF to pre-fill this form. For supplier invoices billing an existing contract, use the Expense form (Expenses tab) — that flow also auto-reconciles against the contract.'>
 					<button
 						className="whiteButton py-1 flex"
 						onClick={() => setShowDocImport(true)}
 					>
 						<FileText className='size-4' />
-						Import PDF
+						Autofill from supplier proforma
 					</button>
 				</Tltip>
+				{valueCon.id !== '' && (
+					<Tltip direction='top' tltpText="Create a draft sales invoice pre-filled with this contract's products, currency and shipment terms. You can then add the client + invoice number on the Invoices tab.">
+						<button
+							className="whiteButton py-1 flex"
+							onClick={createInvoiceFromContract}
+						>
+							<Files className='size-4' />
+							+ Invoice from this contract
+						</button>
+					</Tltip>
+				)}
 			</div>
 			{showDocImport && (
 				<DocumentImportOverlay
@@ -564,7 +656,21 @@ const ContractModal = () => {
 					suppliers={settings.Supplier?.Supplier || []}
 					clients={[]}
 					currencies={settings.Currency?.Currency || []}
-					onApply={(fields) => setValueCon(prev => ({ ...prev, ...fields }))}
+					onApply={(fields) => {
+						setValueCon(prev => ({ ...prev, ...fields }));
+						const labels = Object.keys(fields || {}).map(k => ({
+							order: 'PO No', supplier: 'Supplier', cur: 'Currency',
+							productsData: 'Products', comments: 'Comments', date: 'Date', dateRange: 'Date',
+						}[k])).filter(Boolean);
+						const uniq = [...new Set(labels)];
+						setToast({
+							show: true,
+							text: uniq.length
+								? `Applied to the form: ${uniq.join(', ')}. Review the fields, then click Save to store the contract.`
+								: 'Nothing applied — no fields matched. If supplier/currency showed "no match", pick them manually.',
+							clr: uniq.length ? 'success' : 'fail',
+						});
+					}}
 					onClose={() => setShowDocImport(false)}
 				/>
 			)}

@@ -1,5 +1,8 @@
+// Polyfills MUST be imported before any code that may transitively load pdfjs-dist
+import '../../../../utils/pdfPolyfill';
 import OpenAI from 'openai';
 import { guardAiRequest } from '../../../../utils/aiGuard';
+import { extractPdfText } from '../../../../utils/pdfExtract';
 
 let openai;
 function getOpenAI() {
@@ -84,24 +87,33 @@ Rules:
         let messages;
 
         if (mimeType === 'application/pdf') {
-            const pdfParse = (await import('pdf-parse')).default;
             const buffer = Buffer.from(fileBase64, 'base64');
-            let pdfText = '';
-            try {
-                const pdfData = await pdfParse(buffer);
-                pdfText = pdfData.text;
-            } catch {
-                pdfText = '';
-            }
-            if (!pdfText.trim() || pdfText.trim().length < 30) {
+            const r = await extractPdfText(buffer);
+            if (r.ok) {
+                // Digital PDF with text layer
+                messages = [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: `Certificate text:\n${r.text}` },
+                ];
+            } else if (r.reason === 'EMPTY') {
+                // Scanned cert PDF — send raw PDF to gpt-4o for OCR (no manual conversion)
+                messages = [
+                    { role: 'system', content: systemPrompt },
+                    {
+                        role: 'user',
+                        content: [
+                            { type: 'file', file: { filename: 'certificate.pdf', file_data: `data:application/pdf;base64,${fileBase64}` } },
+                            { type: 'text', text: 'This is a scanned mill certificate. Read it and extract all chemical composition elements.' },
+                        ],
+                    },
+                ];
+            } else {
+                console.error('PDF extraction failed:', r.message, r.attempted);
                 return Response.json({
-                    error: 'Could not extract text from this PDF — it may be a scanned image. Try uploading it as a JPG or PNG instead.'
+                    error: `Could not read this PDF: ${r.message}. Try re-saving the PDF or uploading pages as JPG/PNG.`,
+                    attempted: r.attempted,
                 }, { status: 422 });
             }
-            messages = [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: `Certificate text:\n${pdfText}` },
-            ];
         } else {
             messages = [
                 { role: 'system', content: systemPrompt },

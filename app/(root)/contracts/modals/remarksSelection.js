@@ -10,6 +10,11 @@ import { Button } from '@components/ui/button.jsx';
 const Remraks = ({ value, setValue, settings }) => {
 
     const { ln } = useContext(SettingsContext);
+    // Defensive: `remarks` must be an array. If anything ever sets it to a string
+    // or undefined (e.g. a bad import), coerce so the component never crashes.
+    if (value && !Array.isArray(value.remarks)) {
+        value = { ...value, remarks: [] };
+    }
     const deleteItem = (i) => {
         const tmp = value.remarks;
         setValue({ ...value, remarks: tmp.filter((x, y) => y !== i) });

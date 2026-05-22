@@ -1,5 +1,6 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FileText, Upload, Loader2, X, CheckSquare, Square, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { authedFetch } from '../utils/aiClient';
 
@@ -39,7 +40,92 @@ function FieldRow({ label, value, confidence, selected, onToggle }) {
     );
 }
 
-const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, onApply, onClose }) => {
+function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
+    if (!reconcile) return null;
+    const cur = extractedCurrency || linkedContract?.currency || '';
+    const fmt = (n) => Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const pct = (n) => n == null ? '' : `${n >= 0 ? '+' : ''}${n.toFixed(1)}%`;
+    const isDrift = (p) => p != null && Math.abs(p) > 0.5;
+    const totalDriftBad = isDrift(reconcile.totalPct);
+
+    return (
+        <div
+            className='rounded-lg mt-3 p-3'
+            style={{
+                background: totalDriftBad ? '#fef2f2' : '#f0fdf4',
+                border: `1px solid ${totalDriftBad ? '#fca5a5' : '#86efac'}`,
+            }}
+            role='region'
+            aria-label='Contract reconciliation'
+        >
+            <div className='flex items-center justify-between mb-2'>
+                <div className='flex items-center gap-1.5'>
+                    {totalDriftBad
+                        ? <AlertTriangle className='w-3.5 h-3.5' style={{ color: '#991b1b' }} />
+                        : <CheckCircle2 className='w-3.5 h-3.5' style={{ color: '#16a34a' }} />
+                    }
+                    <span className='font-semibold' style={{ fontSize: '0.68rem', color: totalDriftBad ? '#991b1b' : '#15803d' }}>
+                        Reconciliation vs contract {linkedContract?.order}
+                    </span>
+                </div>
+                {reconcile.currencyMatch === false && (
+                    <span className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.55rem', background: '#fee2e2', color: '#991b1b' }}>
+                        ⚠ currency mismatch
+                    </span>
+                )}
+            </div>
+
+            {/* Per-product comparison */}
+            {Array.isArray(reconcile.rows) && reconcile.rows.length > 0 && (
+                <div className='space-y-1 mb-2'>
+                    {reconcile.rows.map((r, i) => {
+                        if (!r.contractFound) {
+                            return (
+                                <div key={i} className='flex items-center gap-1.5 px-2 py-1 rounded' style={{ background: 'white', border: '1px solid #fde68a' }}>
+                                    <AlertTriangle className='w-3 h-3 flex-shrink-0' style={{ color: '#d97706' }} />
+                                    <span style={{ fontSize: '0.6rem', color: '#92400e' }}>
+                                        {r.description}: no matching product on contract — invoice qty {r.qntyInvoice} @ {r.priceInvoice}
+                                    </span>
+                                </div>
+                            );
+                        }
+                        const qBad = isDrift(r.qntyPct);
+                        const pBad = isDrift(r.pricePct);
+                        const lineBad = qBad || pBad;
+                        return (
+                            <div key={i} className='px-2 py-1 rounded' style={{ background: 'white', border: `1px solid ${lineBad ? '#fca5a5' : '#bbf7d0'}` }}>
+                                <p className='font-semibold' style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>{r.description}</p>
+                                <div className='flex flex-wrap gap-x-3' style={{ fontSize: '0.58rem', color: 'var(--port-gore)' }}>
+                                    <span style={{ color: qBad ? '#991b1b' : '#15803d' }}>
+                                        Qty: {r.qntyContract} → {r.qntyInvoice} ({pct(r.qntyPct)})
+                                    </span>
+                                    <span style={{ color: pBad ? '#991b1b' : '#15803d' }}>
+                                        Price: {r.priceContract} → {r.priceInvoice} ({pct(r.pricePct)})
+                                    </span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Total comparison */}
+            <div className='flex flex-wrap items-center gap-x-3 gap-y-1 pt-1.5 mt-1 border-t' style={{ borderColor: totalDriftBad ? '#fca5a5' : '#bbf7d0', fontSize: '0.6rem' }}>
+                <span style={{ color: 'var(--regent-gray)' }}>
+                    Expected: {cur} {fmt(reconcile.expectedTotal)}
+                </span>
+                <span style={{ color: 'var(--regent-gray)' }}>
+                    Invoiced: <strong style={{ color: 'var(--port-gore)' }}>{cur} {fmt(reconcile.invoicedTotal)}</strong>
+                </span>
+                <span style={{ color: totalDriftBad ? '#991b1b' : '#15803d', fontWeight: 600 }}>
+                    Diff: {cur} {fmt(reconcile.totalDiff)} ({pct(reconcile.totalPct)})
+                </span>
+            </div>
+        </div>
+    );
+}
+
+const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, expenseTypes, contractIndex, onApply, onClose }) => {
     const [file, setFile] = useState(null);
     const [reading, setReading] = useState(false);
     const [result, setResult] = useState(null);
@@ -74,13 +160,19 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, o
                     suppliers: suppliers || [],
                     clients: clients || [],
                     currencies: currencies || [],
+                    expenseTypes: expenseTypes || [],
+                    contractIndex: contractIndex || [],
                 }),
             });
             const data = await res.json();
             if (!res.ok || data.error) {
-                // Surface a friendly message for the scanned-PDF case
+                // Distinguish scanned-image PDFs from parse failures so the user
+                // gets an accurate, actionable message.
                 if (data.error === 'SCANNED_PDF') {
                     throw new Error(data.message || 'PDF has no embedded text. Export it as an image and re-upload.');
+                }
+                if (data.error === 'PDF_PARSE_FAILED') {
+                    throw new Error(data.message || 'Could not read this PDF. Try re-saving it or upload pages as images.');
                 }
                 throw new Error(data.error || data.message || 'Read failed');
             }
@@ -89,7 +181,9 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, o
             const sel = {};
             const allFields = documentType === 'contract'
                 ? ['order', 'supplier', 'date', 'currency', 'products', 'remarks']
-                : ['invoice', 'client', 'date', 'currency', 'products', 'remarks'];
+                : documentType === 'expense'
+                    ? ['vendorInvoiceNumber', 'supplier', 'buyerPoNumber', 'date', 'currency', 'amount', 'expenseType', 'comments']
+                    : ['invoice', 'client', 'date', 'currency', 'products', 'remarks'];
             allFields.forEach(f => {
                 const conf = data.confidence?.[f] || data.confidence?.supplier || data.confidence?.client;
                 sel[f] = conf !== 'low';
@@ -120,7 +214,37 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, o
                     id: `doc-${i}`, description: p.description || '', qnty: p.qnty || '', unitPrc: p.unitPrc || ''
                 }));
             }
-            if (selected.remarks && result.remarks) out.remarks = result.remarks;
+            // `remarks` is a structured ARRAY in this app — never overwrite it with a
+            // freeform string. The AI's notes go to the plain-string `comments` field.
+            if (selected.remarks && result.remarks) out.comments = String(result.remarks);
+        } else if (documentType === 'expense') {
+            // Map supplier-invoice fields onto the project's Expense shape.
+            // Field names mirror what hooks/useExpensesState.js uses.
+            if (selected.vendorInvoiceNumber && result.vendorInvoiceNumber) out.expense = result.vendorInvoiceNumber;
+            if (selected.supplier && result.supplierId) out.supplier = result.supplierId;
+            if (selected.date && result.date) {
+                out.dateRange = { startDate: result.date, endDate: result.date };
+                out.date = result.date;
+            }
+            if (selected.currency && result.currencyId) out.cur = result.currencyId;
+            if (selected.amount && result.amount != null) out.amount = String(result.amount);
+            if (selected.expenseType && result.expenseTypeId) out.expType = result.expenseTypeId;
+            if (selected.comments) {
+                const parts = [];
+                if (result.buyerPoNumber) parts.push(`Buyer PO: ${result.buyerPoNumber}`);
+                if (result.comments) parts.push(result.comments);
+                if (parts.length) out.comments = parts.join('\n');
+            }
+            // Auto-link to the contract the AI matched by PO number (if present and
+            // the user kept the buyerPoNumber selected). The Expense form reads
+            // `poSupplier` as { id, order, date }.
+            if (selected.buyerPoNumber && result.linkedContract) {
+                out.poSupplier = {
+                    id: result.linkedContract.id,
+                    order: result.linkedContract.order,
+                    date: result.linkedContract.date || result.date || '',
+                };
+            }
         } else {
             if (selected.invoice && result.invoice) out.invoice = result.invoice;
             if (selected.client && result.clientId) out.client = result.clientId;
@@ -135,7 +259,8 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, o
                     id: `doc-${i}`, description: p.description || '', descriptionId: '', qnty: p.qnty || '', unitPrc: p.unitPrc || '', stock: ''
                 }));
             }
-            if (selected.remarks && result.remarks) out.remarks = result.remarks;
+            // `remarks` is a structured ARRAY here too — route the AI string to `comments`.
+            if (selected.remarks && result.remarks) out.comments = String(result.remarks);
         }
         onApply(out);
         onClose();
@@ -144,8 +269,14 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, o
     const toggle = (field) => setSelected(prev => ({ ...prev, [field]: !prev[field] }));
 
     const isContract = documentType === 'contract';
+    const isExpense = documentType === 'expense';
 
-    return (
+    // Mount-gate so the portal only renders client-side (SSR safety).
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => { setMounted(true); }, []);
+    if (!mounted) return null;
+
+    const overlay = (
         <div
             className='fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-4'
             style={{ background: 'rgba(0,0,0,0.5)' }}
@@ -159,7 +290,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, o
                     <div className='flex items-center gap-2'>
                         <FileText className='w-4 h-4' style={{ color: 'var(--endeavour)' }} />
                         <span id='doc-import-title' className='font-semibold' style={{ fontSize: '0.75rem', color: 'var(--chathams-blue)' }}>
-                            Import from Document — {isContract ? 'Contract' : 'Invoice'}
+                            {isContract ? 'Autofill contract from supplier proforma' : isExpense ? 'Autofill expense from supplier invoice' : 'Import from Document — Invoice'}
                         </span>
                     </div>
                     <button
@@ -233,6 +364,16 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, o
                                 </button>
                             </div>
 
+                            {/* Multi-invoice warning — this PDF holds more than one invoice */}
+                            {isExpense && result.multipleInvoices && (
+                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: '#fff3cd', border: '1px solid #ffc107' }}>
+                                    <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: '#d97706' }} />
+                                    <span style={{ fontSize: '0.62rem', color: '#92400e' }}>
+                                        This PDF appears to contain more than one invoice. Only the FIRST one was extracted — record the others as separate expenses.
+                                    </span>
+                                </div>
+                            )}
+
                             {isContract ? (
                                 <>
                                     <FieldRow label='PO Number' value={result.order} confidence={result.confidence?.order} selected={selected.order} onToggle={() => toggle('order')} />
@@ -240,7 +381,28 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, o
                                     <FieldRow label='Date' value={result.date} confidence={result.confidence?.date} selected={selected.date} onToggle={() => toggle('date')} />
                                     <FieldRow label='Currency' value={result.currencyId ? result.currencyCode : result.currencyCode ? `${result.currencyCode} (no match)` : null} confidence={result.confidence?.currency} selected={selected.currency} onToggle={() => toggle('currency')} />
                                     <FieldRow label='Products' value={result.products} confidence={result.confidence?.products} selected={selected.products} onToggle={() => toggle('products')} />
-                                    <FieldRow label='Remarks' value={result.remarks} confidence='medium' selected={selected.remarks} onToggle={() => toggle('remarks')} />
+                                    <FieldRow label='Notes / comments' value={result.remarks} confidence='medium' selected={selected.remarks} onToggle={() => toggle('remarks')} />
+                                </>
+                            ) : isExpense ? (
+                                <>
+                                    <FieldRow label='Vendor invoice #' value={result.vendorInvoiceNumber} confidence={result.confidence?.vendorInvoiceNumber} selected={selected.vendorInvoiceNumber} onToggle={() => toggle('vendorInvoiceNumber')} />
+                                    <FieldRow label='Vendor (supplier)' value={result.supplierId ? result.supplierName : result.supplierName ? `${result.supplierName} (no match — pick manually)` : null} confidence={result.confidence?.supplier} selected={selected.supplier} onToggle={() => toggle('supplier')} />
+                                    <FieldRow
+                                        label='Linked contract (auto-matched by PO#)'
+                                        value={result.linkedContract
+                                            ? `${result.linkedContract.order} — ${result.linkedContract.supplierName || ''}`
+                                            : result.buyerPoNumber
+                                                ? `Found PO ${result.buyerPoNumber} on document — no matching contract in your data`
+                                                : null}
+                                        confidence={result.confidence?.buyerPoNumber}
+                                        selected={selected.buyerPoNumber}
+                                        onToggle={() => toggle('buyerPoNumber')}
+                                    />
+                                    <FieldRow label='Invoice date' value={result.date} confidence={result.confidence?.date} selected={selected.date} onToggle={() => toggle('date')} />
+                                    <FieldRow label='Currency' value={result.currencyId ? result.currencyCode : result.currencyCode ? `${result.currencyCode} (no match)` : null} confidence={result.confidence?.currency} selected={selected.currency} onToggle={() => toggle('currency')} />
+                                    <FieldRow label='Amount' value={result.amount != null ? Number(result.amount).toLocaleString() : null} confidence={result.confidence?.amount} selected={selected.amount} onToggle={() => toggle('amount')} />
+                                    <FieldRow label='Expense category' value={result.expenseTypeId ? result.expenseTypeName : result.expenseTypeName ? `${result.expenseTypeName} (no match — pick manually)` : null} confidence='medium' selected={selected.expenseType} onToggle={() => toggle('expenseType')} />
+                                    <FieldRow label='Comments' value={result.comments} confidence='medium' selected={selected.comments} onToggle={() => toggle('comments')} />
                                 </>
                             ) : (
                                 <>
@@ -249,8 +411,13 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, o
                                     <FieldRow label='Date' value={result.date} confidence={result.confidence?.date} selected={selected.date} onToggle={() => toggle('date')} />
                                     <FieldRow label='Currency' value={result.currencyId ? result.currencyCode : result.currencyCode ? `${result.currencyCode} (no match)` : null} confidence={result.confidence?.currency} selected={selected.currency} onToggle={() => toggle('currency')} />
                                     <FieldRow label='Products' value={result.products} confidence={result.confidence?.products} selected={selected.products} onToggle={() => toggle('products')} />
-                                    <FieldRow label='Remarks' value={result.remarks} confidence='medium' selected={selected.remarks} onToggle={() => toggle('remarks')} />
+                                    <FieldRow label='Notes / comments' value={result.remarks} confidence='medium' selected={selected.remarks} onToggle={() => toggle('remarks')} />
                                 </>
+                            )}
+
+                            {/* Reconciliation panel — only when expense is auto-linked to a contract */}
+                            {isExpense && result.reconcile && (
+                                <ReconciliationPanel reconcile={result.reconcile} linkedContract={result.linkedContract} extractedCurrency={result.currencyCode} />
                             )}
                         </div>
                     )}
@@ -278,6 +445,11 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, o
             </div>
         </div>
     );
+
+    // Portal escapes any parent stacking context (e.g. sticky/fixed parents in
+    // the contract or expense modal). Renders directly under document.body so
+    // the navbar's z-[10000] can't visually cover the overlay's header.
+    return createPortal(overlay, document.body);
 };
 
 export default DocumentImportOverlay;

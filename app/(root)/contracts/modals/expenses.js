@@ -13,18 +13,45 @@ import { usePathname } from 'next/navigation'
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad';
-import { Save, Eraser, Trash } from "lucide-react"
+import { Save, Eraser, Trash, FileText } from "lucide-react"
 import { Button } from '@components/ui/button';
+import DocumentImportOverlay from '@components/DocumentImportOverlay';
 
 const Expenses = ({ showExpenses }) => {
 
     const { valueExp, setValueExp, blankExpense, saveData_ExpenseInInvoice,
         delExpense, errorsExp, setErrorsExp } = useContext(ExpensesContext);
     const { valueInv, setValueInv, invoicesData, setInvoicesData } = useContext(InvoiceContext);
-    const { settings, setLoading, setDateYr, ln } = useContext(SettingsContext);
+    const { settings, setLoading, setDateYr, ln, setToast } = useContext(SettingsContext);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+    const [showDocImport, setShowDocImport] = useState(false)
     const { uidCollection } = UserAuth();
     const { valueCon, contractsData, setContractsData, setValueCon } = useContext(ContractsContext);
+
+    // Compact contract index for the AI to auto-link the supplier invoice by PO#
+    const buildContractIndex = () => {
+        const supList = settings?.Supplier?.Supplier || [];
+        const curList = settings?.Currency?.Currency || [];
+        return (contractsData || [])
+            .filter(c => !c.deleted && c.order)
+            .map(c => {
+                const sup = supList.find(s => s.id === c.supplier);
+                const curObj = curList.find(x => x.id === c.cur);
+                return {
+                    id: c.id,
+                    order: c.order,
+                    supplier: c.supplier,
+                    supplierName: sup?.nname || sup?.supplier || '',
+                    currency: curObj?.cur || '',
+                    date: c.date || c.dateRange?.startDate || '',
+                    products: (c.productsData || []).map(p => ({
+                        description: p.description || '',
+                        qnty: parseFloat(p.qnty) || 0,
+                        unitPrc: parseFloat(p.unitPrc) || 0,
+                    })),
+                };
+            });
+    };
 
     const sups = settings.Supplier.Supplier;
     const pathname = usePathname();
@@ -182,7 +209,7 @@ const Expenses = ({ showExpenses }) => {
                             <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
                             <div>
                                 <textarea rows="5" name="comments"
-                                    className="input shadow-lg h-24 p-1 !rounded-full w-full"
+                                    className="input shadow-lg h-24 px-3 py-2 !rounded-xl w-full"
                                     style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
                                     value={valueExp.comments} onChange={handleValue} />
                             </div>
@@ -207,6 +234,16 @@ const Expenses = ({ showExpenses }) => {
                                         {getTtl('Clear', ln)}
                                     </Button>
                                 </Tltip>
+                                <Tltip direction='top' tltpText='Drop a supplier invoice/proforma PDF — AI extracts vendor, amount, date, currency and reconciles against the contract.'>
+                                    <Button
+                                        className="h-7 px-2"
+                                        variant='outline'
+                                        onClick={() => setShowDocImport(true)}
+                                    >
+                                        <FileText />
+                                        Autofill from PDF
+                                    </Button>
+                                </Tltip>
                                 {valueExp.id !== '' &&
                                     <Tltip direction='top' tltpText='Delete Expense'>
                                         <Button
@@ -229,6 +266,34 @@ const Expenses = ({ showExpenses }) => {
                     </div>
                 </div>
             </div>
+
+            {showDocImport && (
+                <DocumentImportOverlay
+                    documentType='expense'
+                    suppliers={settings?.Supplier?.Supplier || []}
+                    clients={[]}
+                    currencies={settings?.Currency?.Currency || []}
+                    expenseTypes={settings?.Expenses?.Expenses || []}
+                    contractIndex={buildContractIndex()}
+                    onApply={(fields) => {
+                        setValueExp(prev => ({ ...prev, ...fields }));
+                        const labels = Object.keys(fields || {}).map(k => ({
+                            expense: 'Invoice #', supplier: 'Vendor', cur: 'Currency',
+                            amount: 'Amount', expType: 'Expense type', comments: 'Comments',
+                            date: 'Date', dateRange: 'Date', poSupplier: 'Linked contract',
+                        }[k])).filter(Boolean);
+                        const uniq = [...new Set(labels)];
+                        setToast?.({
+                            show: true,
+                            text: uniq.length
+                                ? `Applied to the form: ${uniq.join(', ')}. Review, then click Save to record the expense.`
+                                : 'Nothing applied — pick the vendor / expense type manually if they showed "no match".',
+                            clr: uniq.length ? 'success' : 'fail',
+                        });
+                    }}
+                    onClose={() => setShowDocImport(false)}
+                />
+            )}
         </div >
 
 

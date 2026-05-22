@@ -7,6 +7,11 @@ import { Button } from '@components/ui/button.jsx';
 
 const Remraks = ({ value, setValue, ln }) => {
 
+    // Defensive: `remarks` must be an array (bad imports could set a string)
+    if (value && !Array.isArray(value.remarks)) {
+        value = { ...value, remarks: [] };
+    }
+
     //  const [rmrks, setRmrks] = useState(rmks);
     const [edit, setEdit] = useState({ status: false, id: '' })
     const [value1, setValue1] = useState('')

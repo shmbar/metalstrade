@@ -1,20 +1,8 @@
+// Polyfills MUST be imported before any code that may transitively load pdfjs-dist
+import '../../../../utils/pdfPolyfill';
 import OpenAI from 'openai';
 import { guardAiRequest } from '../../../../utils/aiGuard';
-
-// pdfjs-dist (used by pdf-parse) references DOMMatrix which doesn't exist in Node.js < 19
-if (typeof globalThis.DOMMatrix === 'undefined') {
-    globalThis.DOMMatrix = class DOMMatrix {
-        constructor() {
-            Object.assign(this, { a:1,b:0,c:0,d:1,e:0,f:0, m11:1,m12:0,m13:0,m14:0, m21:0,m22:1,m23:0,m24:0, m31:0,m32:0,m33:1,m34:0, m41:0,m42:0,m43:0,m44:1, is2D:true, isIdentity:true });
-        }
-        multiply(m) { return m || this; }
-        translate() { return this; }
-        scale() { return this; }
-        rotate() { return this; }
-        inverse() { return this; }
-        transformPoint(p) { return { x: p?.x||0, y: p?.y||0, z: p?.z||0, w: p?.w||1 }; }
-    };
-}
+import { extractPdfText } from '../../../../utils/pdfExtract';
 
 let openai;
 function getOpenAI() {
@@ -27,41 +15,54 @@ export async function POST(request) {
     if (guard.error) return Response.json({ error: guard.error }, { status: guard.status });
 
     try {
-        const { fileBase64, mimeType, documentType, suppliers, clients, currencies } = await request.json();
+        const { fileBase64, mimeType, documentType, suppliers, clients, currencies, expenseTypes, contractIndex } = await request.json();
 
         if (!fileBase64) {
             return Response.json({ error: 'No file provided' }, { status: 400 });
         }
 
-        // Extract text from PDF
+        // Extract text from PDF. If the PDF is a SCANNED image (no text layer),
+        // we don't error out — we fall back to sending the raw PDF to gpt-4o,
+        // which OCRs it via vision. Only a genuine parse failure errors out.
         let extractedText = '';
+        let scannedPdf = false; // true → use the vision/OCR path for this PDF
         if (mimeType === 'application/pdf') {
-            const pdfParse = (await import('pdf-parse')).default;
             const buffer = Buffer.from(fileBase64, 'base64');
-            try {
-                const pdfData = await pdfParse(buffer);
-                extractedText = pdfData.text || '';
-            } catch {
-                extractedText = '';
-            }
+            const r = await extractPdfText(buffer);
 
-            // Scanned PDF detection — if pdf-parse returned almost nothing, it's an image-based PDF.
-            // OpenAI's image_url input doesn't accept PDFs directly, so we return a clear,
-            // actionable error rather than letting the AI hallucinate nulls.
-            if (extractedText.trim().length < 30) {
+            if (r.ok) {
+                extractedText = r.text;
+            } else if (r.reason === 'EMPTY') {
+                // Scanned image PDF — let gpt-4o read it directly (no manual conversion)
+                scannedPdf = true;
+            } else {
+                console.error('PDF extraction failed:', r.message, r.attempted);
                 return Response.json({
-                    error: 'SCANNED_PDF',
-                    message: 'This PDF appears to be a scanned image with no embedded text. Please export each page as a JPG or PNG and upload that instead — the AI will read it via Vision.',
+                    error: 'PDF_PARSE_FAILED',
+                    message: `Could not read this PDF: ${r.message}. Try re-saving / re-exporting the PDF, or upload each page as a JPG / PNG instead.`,
+                    attempted: r.attempted,
                 }, { status: 422 });
             }
         }
 
-        const entityLists = documentType === 'contract'
-            ? `Known suppliers: ${(suppliers || []).map(s => `"${s.nname}" (id: ${s.id})`).join(', ')}\nKnown currencies: ${(currencies || []).map(c => `"${c.cur}" (id: ${c.id})`).join(', ')}`
-            : `Known clients: ${(clients || []).map(c => `"${c.nname}" (id: ${c.id})`).join(', ')}\nKnown currencies: ${(currencies || []).map(c => `"${c.cur}" (id: ${c.id})`).join(', ')}`;
+        // Build the list of known entities the AI can match against (per document type)
+        const supplierList = (suppliers || []).map(s => `"${s.nname}" (id: ${s.id})`).join(', ');
+        const clientListStr = (clients || []).map(c => `"${c.nname}" (id: ${c.id})`).join(', ');
+        const currencyList = (currencies || []).map(c => `"${c.cur}" (id: ${c.id})`).join(', ');
+        const expenseTypeList = (expenseTypes || []).map(e => `"${e.expType}" (id: ${e.id})`).join(', ');
 
-        const schemaGuide = documentType === 'contract'
-            ? `Return JSON for a contract/purchase order:
+        let entityLists;
+        if (documentType === 'contract') {
+            entityLists = `Known suppliers: ${supplierList}\nKnown currencies: ${currencyList}`;
+        } else if (documentType === 'expense') {
+            entityLists = `Known suppliers (vendors): ${supplierList}\nKnown currencies: ${currencyList}\nKnown expense categories: ${expenseTypeList}`;
+        } else {
+            entityLists = `Known clients: ${clientListStr}\nKnown currencies: ${currencyList}`;
+        }
+
+        let schemaGuide;
+        if (documentType === 'contract') {
+            schemaGuide = `Return JSON for a contract/purchase order:
 {
   "order": "PO number string or null",
   "supplierName": "extracted supplier name",
@@ -72,8 +73,36 @@ export async function POST(request) {
   "products": [{ "description": "string", "qnty": number_or_null, "unitPrc": number_or_null }],
   "remarks": "any notes or terms from the document",
   "confidence": { "order": "high|medium|low", "supplier": "high|medium|low", "date": "high|medium|low", "products": "high|medium|low" }
-}`
-            : `Return JSON for an invoice:
+}`;
+        } else if (documentType === 'expense') {
+            // For supplier-invoice → expense flow. The document was sent BY the
+            // supplier TO bill our company, so the SELLER is the vendor we want.
+            schemaGuide = `Return JSON for a supplier invoice / proforma that will be recorded as an expense.
+
+CRITICAL EXTRACTION RULES:
+- supplierName = the SELLER / issuer of the invoice (the company whose letterhead/logo is at the top, e.g. "ELG Utica Alloys", "Exotech", "Thormet Europe GmbH", "Triart Capital"). It is NEVER the buyer ("IMS Metals & Alloys" or "GIS Metals" — those are us, the bill-to party).
+- buyerPoNumber = the purchase-order reference, which appears under MANY different labels: "P.O. No", "PO No", "Cust PO #", "Purchase No", "Your PO", "PO#". Extract whatever value follows any of these (e.g. "280426-4", "0904-26", "PO210426-1", "280426"). If several invoices/POs appear, use the FIRST.
+- amount = the TOTAL invoice value owed (grand total / total USD / total amount). If the invoice shows a prepayment and a smaller "balance to pay", still return the FULL total, not the balance.
+- NUMBER FORMATS: documents may use European format where "." is the thousands separator and "," is the decimal (e.g. "273.429,00" means 273429.00). Also strip currency symbols and thousands commas (e.g. "$489,876.93" means 489876.93). ALWAYS return amount as a plain JSON number.
+- multipleInvoices = true if the document clearly contains MORE THAN ONE separate invoice (different invoice numbers / PO numbers / totals on different pages). Otherwise false. When true, extract only the FIRST invoice's data.
+
+{
+  "vendorInvoiceNumber": "supplier's own invoice number string or null",
+  "supplierName": "the SELLER company name (issuer)",
+  "supplierId": "matched supplier id or null",
+  "buyerPoNumber": "the PO reference (any label) or null",
+  "date": "YYYY-MM-DD (invoice issue date — NOT the original PO date) or null",
+  "currencyCode": "USD/EUR/etc or null",
+  "currencyId": "matched currency id or null",
+  "amount": number_or_null,
+  "multipleInvoices": true_or_false,
+  "expenseTypeName": "best-guess category (e.g. 'Material purchase', 'Freight', 'Customs', 'Insurance') based on what is being billed",
+  "expenseTypeId": "matched expense category id or null",
+  "comments": "short notes — delivery / payment terms, what was billed, anything useful",
+  "confidence": { "vendorInvoiceNumber": "high|medium|low", "supplier": "high|medium|low", "amount": "high|medium|low", "date": "high|medium|low", "buyerPoNumber": "high|medium|low" }
+}`;
+        } else {
+            schemaGuide = `Return JSON for an invoice:
 {
   "invoice": "invoice number string or null",
   "clientName": "extracted client name",
@@ -85,46 +114,61 @@ export async function POST(request) {
   "remarks": "any notes or payment terms",
   "confidence": { "invoice": "high|medium|low", "client": "high|medium|low", "date": "high|medium|low", "products": "high|medium|low" }
 }`;
+        }
 
-        const messages = mimeType === 'application/pdf'
-            ? [
-                {
-                    role: 'system',
-                    content: `You are a document parsing assistant for a metals trading IMS.
+        const systemTextPrompt = `You are a document parsing assistant for a metals trading IMS.
 Extract structured data from the document text.
 ${entityLists}
 Match names to known entities (fuzzy match — "Jinchuan Group" matches "Jinchuan Group Co Ltd").
 ${schemaGuide}
-Return ONLY the JSON object, no extra text.`
-                },
-                {
-                    role: 'user',
-                    content: extractedText || 'Could not extract text from PDF — return all fields as null.'
-                }
-            ]
-            : [
-                {
-                    role: 'system',
-                    content: `You are a document parsing assistant for a metals trading IMS.
-Extract structured data from the document image.
+Return ONLY the JSON object, no extra text.`;
+
+        const systemVisionPrompt = `You are a document parsing assistant for a metals trading IMS.
+Extract structured data from the document (image or scanned PDF).
 ${entityLists}
+Match names to known entities (fuzzy match).
 ${schemaGuide}
-Return ONLY the JSON object, no extra text.`
-                },
+Return ONLY the JSON object, no extra text.`;
+
+        let messages;
+        let model;
+        if (mimeType === 'application/pdf' && !scannedPdf) {
+            // Digital PDF with a text layer — cheapest path
+            messages = [
+                { role: 'system', content: systemTextPrompt },
+                { role: 'user', content: extractedText || 'Could not extract text from PDF — return all fields as null.' },
+            ];
+            model = 'gpt-4o-mini';
+        } else if (mimeType === 'application/pdf' && scannedPdf) {
+            // Scanned PDF (no text layer) — send the raw PDF to gpt-4o, which OCRs it
+            messages = [
+                { role: 'system', content: systemVisionPrompt },
                 {
                     role: 'user',
                     content: [
-                        {
-                            type: 'image_url',
-                            image_url: { url: `data:${mimeType};base64,${fileBase64}` }
-                        },
-                        { type: 'text', text: `Extract ${documentType} data from this document.` }
-                    ]
-                }
+                        { type: 'file', file: { filename: 'document.pdf', file_data: `data:application/pdf;base64,${fileBase64}` } },
+                        { type: 'text', text: `This is a scanned ${documentType} document. Read it and extract the data.` },
+                    ],
+                },
             ];
+            model = 'gpt-4o';
+        } else {
+            // Image upload (JPG/PNG) — vision
+            messages = [
+                { role: 'system', content: systemVisionPrompt },
+                {
+                    role: 'user',
+                    content: [
+                        { type: 'image_url', image_url: { url: `data:${mimeType};base64,${fileBase64}` } },
+                        { type: 'text', text: `Extract ${documentType} data from this document.` },
+                    ],
+                },
+            ];
+            model = 'gpt-4o';
+        }
 
         const response = await getOpenAI().chat.completions.create({
-            model: mimeType === 'application/pdf' ? 'gpt-4o-mini' : 'gpt-4o',
+            model,
             temperature: 0,
             max_tokens: 1500,
             response_format: { type: 'json_object' },
@@ -133,7 +177,99 @@ Return ONLY the JSON object, no extra text.`
 
         guard.recordUsage(response.usage?.total_tokens);
         const result = JSON.parse(response.choices[0].message.content);
-        return Response.json({ ...result, documentType, rawText: extractedText.slice(0, 500) });
+
+        // Safety net: normalize `amount` if the model returned it as a string in a
+        // tricky format. Handles "$489,876.93", "273.429,00" (EU), "1 234,56".
+        if (documentType === 'expense' && result.amount != null && typeof result.amount !== 'number') {
+            const raw = String(result.amount).replace(/[^\d.,-]/g, '').trim();
+            let normalized = raw;
+            const lastComma = raw.lastIndexOf(',');
+            const lastDot = raw.lastIndexOf('.');
+            if (lastComma > lastDot) {
+                // EU format: comma is decimal, dots are thousands → "273.429,00" → "273429.00"
+                normalized = raw.replace(/\./g, '').replace(',', '.');
+            } else {
+                // US format: dot is decimal, commas are thousands → "489,876.93" → "489876.93"
+                normalized = raw.replace(/,/g, '');
+            }
+            const n = parseFloat(normalized);
+            result.amount = Number.isFinite(n) ? n : null;
+        }
+
+        // For an expense, try to auto-link the supplier invoice to an existing
+        // contract using the buyer's PO number that the supplier referenced.
+        // Also build a reconciliation block (qty/price drift) so the UI can
+        // flag over-billing before the user approves the expense.
+        let linkedContract = null;
+        let reconcile = null;
+        if (documentType === 'expense' && Array.isArray(contractIndex) && result.buyerPoNumber) {
+            const target = String(result.buyerPoNumber).toLowerCase().replace(/[^a-z0-9-]/g, '');
+            const matchByOrder = (c) => {
+                const ord = String(c.order || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+                if (!ord || !target) return false;
+                return ord === target || ord.includes(target) || target.includes(ord);
+            };
+            const match = contractIndex.find(matchByOrder);
+            if (match) {
+                linkedContract = {
+                    id: match.id,
+                    order: match.order,
+                    supplier: match.supplier,
+                    supplierName: match.supplierName,
+                    currency: match.currency,
+                    products: match.products || [],
+                };
+
+                // Build per-product reconciliation. We can only check qty/price
+                // when the supplier's document has product lines AND the contract
+                // has matching products by (normalised) description.
+                if (Array.isArray(result.products) && result.products.length && Array.isArray(match.products) && match.products.length) {
+                    const norm = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+                    const rows = result.products.map(invP => {
+                        const conP = match.products.find(cp => norm(cp.description) === norm(invP.description))
+                            || match.products.find(cp => norm(cp.description).includes(norm(invP.description)) || norm(invP.description).includes(norm(cp.description)));
+                        if (!conP) return { description: invP.description, qntyInvoice: invP.qnty, priceInvoice: invP.unitPrc, contractFound: false };
+                        const qInv = Number(invP.qnty) || 0;
+                        const qCon = Number(conP.qnty) || 0;
+                        const pInv = Number(invP.unitPrc) || 0;
+                        const pCon = Number(conP.unitPrc) || 0;
+                        const qDiff = qInv - qCon;
+                        const pDiff = pInv - pCon;
+                        const qPct = qCon ? (qDiff / qCon) * 100 : null;
+                        const pPct = pCon ? (pDiff / pCon) * 100 : null;
+                        return {
+                            description: invP.description,
+                            qntyContract: qCon, qntyInvoice: qInv, qntyDiff: qDiff, qntyPct: qPct,
+                            priceContract: pCon, priceInvoice: pInv, priceDiff: pDiff, pricePct: pPct,
+                            contractFound: true,
+                        };
+                    });
+                    // Total expected vs total invoiced (in invoice currency)
+                    const expectedTotal = rows.reduce((s, r) => s + (r.contractFound ? r.qntyContract * r.priceContract : 0), 0);
+                    const invoicedTotal = (result.amount != null)
+                        ? Number(result.amount)
+                        : rows.reduce((s, r) => s + ((Number(r.qntyInvoice) || 0) * (Number(r.priceInvoice) || 0)), 0);
+                    reconcile = {
+                        currencyMatch: result.currencyCode && match.currency
+                            ? String(result.currencyCode).toUpperCase() === String(match.currency).toUpperCase()
+                            : null,
+                        rows,
+                        expectedTotal,
+                        invoicedTotal,
+                        totalDiff: invoicedTotal - expectedTotal,
+                        totalPct: expectedTotal ? ((invoicedTotal - expectedTotal) / expectedTotal) * 100 : null,
+                    };
+                }
+            }
+        }
+
+        return Response.json({
+            ...result,
+            documentType,
+            rawText: extractedText.slice(0, 500),
+            linkedContract,
+            reconcile,
+        });
 
     } catch (err) {
         console.error('Document reader error:', err);

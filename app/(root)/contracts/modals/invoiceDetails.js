@@ -266,7 +266,7 @@ const ContractModal = () => {
 					</button>
 					{docsOpen && (
 						<div className="mt-2 flex flex-col gap-2">
-							<AnnexVII valueInv={valueInv} setValueInv={setValueInv} compData={compData} settings={settings} />
+							<AnnexVII valueInv={valueInv} setValueInv={setValueInv} compData={compData} settings={settings} valueCon={valueCon} />
 							<ISF valueInv={valueInv} setValueInv={setValueInv} compData={compData} settings={settings} valueCon={valueCon} />
 						</div>
 					)}

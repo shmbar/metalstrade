@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { ExpensesContext } from "../../../../contexts/useExpensesContext";
+import { ContractsContext } from "../../../../contexts/useContractsContext";
 import Datepicker from "react-tailwindcss-datepicker";
 import { Selector } from '../../../../components/selectors/selectShad.js'
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
@@ -11,19 +12,22 @@ import { validate, ErrDiv } from '../../../../utils/utils'
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
 import Tltip from '../../../../components/tlTip';
-import { Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Loader2, Sparkles, CheckCircle2, FileText } from 'lucide-react';
 import { authedFetch } from '../../../../utils/aiClient';
+import DocumentImportOverlay from '../../../../components/DocumentImportOverlay';
 
 const Expenses = () => {
 
     const { valueExp, setValueExp, blankExpense, saveData_ExpenseExpenses,
         deleteExpenseFromExpPage, errorsExp, setErrorsExp } = useContext(ExpensesContext);
     const { valueInv, setValueInv, } = useContext(InvoiceContext);
+    const { contractsData } = useContext(ContractsContext);
     const { settings, ln, setToast } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
 
     const [categorizing, setCategorizing] = useState(false);
     const [catResult, setCatResult] = useState(null); // null | 'high' | 'medium' | 'low' | 'error'
+    const [showDocImport, setShowDocImport] = useState(false);
 
     const handleAutoCategory = async () => {
         // The "Expense Invoice" field is a reference NUMBER (e.g. "9") — useless for
@@ -93,8 +97,62 @@ const Expenses = () => {
         setValueExp({ ...valueExp, dateRange: newValue, date: newValue.startDate })
     }
 
+    // Build a compact contract index (just the fields the AI needs to auto-link).
+    // Sending the full contracts array would balloon the request payload.
+    const buildContractIndex = () => {
+        const supList = settings?.Supplier?.Supplier || [];
+        const curList = settings?.Currency?.Currency || [];
+        return (contractsData || [])
+            .filter(c => !c.deleted && c.order)
+            .map(c => {
+                const sup = supList.find(s => s.id === c.supplier);
+                const curObj = curList.find(x => x.id === c.cur);
+                return {
+                    id: c.id,
+                    order: c.order,
+                    supplier: c.supplier,
+                    supplierName: sup?.nname || sup?.supplier || '',
+                    currency: curObj?.cur || '',
+                    date: c.date || c.dateRange?.startDate || '',
+                    products: (c.productsData || []).map(p => ({
+                        description: p.description || '',
+                        qnty: parseFloat(p.qnty) || 0,
+                        unitPrc: parseFloat(p.unitPrc) || 0,
+                    })),
+                };
+            });
+    };
+
     return (
         <div>
+            {/* Action bar — AI-powered supplier invoice import */}
+            <div className='flex items-center justify-end gap-2 mx-2 mt-2'>
+                <Tltip direction='top' tltpText='Drop a supplier invoice/proforma PDF — AI extracts amount, vendor, date, currency and auto-links to the contract by PO number.'>
+                    <button
+                        type='button'
+                        onClick={() => setShowDocImport(true)}
+                        className='flex items-center gap-1 px-3 py-1 rounded-full text-white transition-all'
+                        style={{ fontSize: '0.62rem', background: 'var(--endeavour)' }}
+                    >
+                        <FileText className='w-3 h-3' />
+                        Autofill from supplier invoice
+                    </button>
+                </Tltip>
+            </div>
+
+            {showDocImport && (
+                <DocumentImportOverlay
+                    documentType='expense'
+                    suppliers={settings?.Supplier?.Supplier || []}
+                    clients={[]}
+                    currencies={settings?.Currency?.Currency || []}
+                    expenseTypes={settings?.Expenses?.Expenses || []}
+                    contractIndex={buildContractIndex()}
+                    onApply={(fields) => setValueExp(prev => ({ ...prev, ...fields }))}
+                    onClose={() => setShowDocImport(false)}
+                />
+            )}
+
             <div className='z-10 relative mt-2 rounded-2xl flex m-2 pb-4' style={{ border: '1px solid #b8ddf8', background: '#f4f9ff' }}>
 
                 <div className='grid grid-cols-1 md:grid-cols-12 gap-3 w-full p-2'>
