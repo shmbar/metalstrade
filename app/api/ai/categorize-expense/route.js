@@ -46,7 +46,10 @@ export async function POST(request) {
             .join('\n');
 
         const response = await getOpenAI().chat.completions.create({
-            model: 'gpt-4o-mini',
+            // gpt-4o for domain-specific synonyms ("tugboat" → Freight,
+            // "broker's commission" → Commission). mini occasionally guessed
+            // a wrong but plausible category on freight/handling terms.
+            model: 'gpt-4o',
             temperature: 0,
             max_tokens: 120,
             response_format: { type: 'json_object' },

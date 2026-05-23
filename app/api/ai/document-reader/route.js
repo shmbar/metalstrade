@@ -132,12 +132,15 @@ Return ONLY the JSON object, no extra text.`;
         let messages;
         let model;
         if (mimeType === 'application/pdf' && !usePdfVision) {
-            // Digital PDF with a text layer — cheapest path
+            // Digital PDF with a text layer. We use gpt-4o (not mini) because
+            // supplier invoices have unpredictable layouts and label variants
+            // ("Cust PO #", "Your PO", EU-format amounts like 273.429,00) — the
+            // accuracy gap on extraction is worth the ~10x cost on small payloads.
             messages = [
                 { role: 'system', content: systemTextPrompt },
                 { role: 'user', content: extractedText || 'Could not extract text from PDF — return all fields as null.' },
             ];
-            model = 'gpt-4o-mini';
+            model = 'gpt-4o';
         } else if (mimeType === 'application/pdf' && usePdfVision) {
             // Scanned PDF / extraction failed — send the raw PDF to gpt-4o, which OCRs it
             messages = [

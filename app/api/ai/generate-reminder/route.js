@@ -23,7 +23,10 @@ export async function POST(request) {
             : 'Write the email in English.';
 
         const response = await getOpenAI().chat.completions.create({
-            model: 'gpt-4o-mini',
+            // gpt-4o writes noticeably more natural, less templated reminder
+            // copy than mini — and reminders are low-volume + client-facing,
+            // so the quality lift is worth it.
+            model: 'gpt-4o',
             temperature: 0.6,
             max_tokens: 400,
             response_format: { type: 'json_object' },

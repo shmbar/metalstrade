@@ -855,9 +855,12 @@ export async function POST(request) {
             ...messages.map(m => ({ role: m.role, content: m.content }))
         ];
 
-        // Phase 1: tool detection (non-streaming, fast)
+        // Phase 1: tool detection. gpt-4o picks the right tool more reliably
+        // for fuzzy questions like "which client owes the most" and avoids the
+        // wrong-tool errors mini made (e.g. answering "no unpaid" when the data
+        // had unpaid records under a different field shape).
         const toolResponse = await getOpenAI().chat.completions.create({
-            model: 'gpt-4o-mini',
+            model: 'gpt-4o',
             messages: apiMessages,
             tools: TOOLS,
             tool_choice: 'auto',
@@ -880,7 +883,7 @@ export async function POST(request) {
             }));
 
             const finalStream = await getOpenAI().chat.completions.create({
-                model: 'gpt-4o-mini',
+                model: 'gpt-4o',
                 messages: [...apiMessages, toolMessage, ...toolResults],
                 temperature: 0.4,
                 max_tokens: 800,
