@@ -110,23 +110,23 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
     return (
         <div className='relative'>
             <div className="flex relative">
-                <div className="overflow-x-auto rounded-l-md">
-                    <table className="w-full border border-r-0">
-                        <thead className="divide-y divide-gray-200 ">
+                <div className="overflow-x-auto rounded-l-2xl">
+                    <table className="w-full border border-r-0 border-[#b8ddf8]">
+                        <thead className="divide-y divide-[#d8e8f5]">
                             <tr className='text-center' >
-                                <th className='font-medium responsiveTextTable bg-[#dbeeff] whitespace-nowrap h-10 px-3' rowSpan="2">{getTtl('POInvoices', ln)}</th>
+                                <th className='font-medium responsiveTextTable bg-[#dbeeff] text-[var(--chathams-blue)] whitespace-nowrap h-10 px-3 border-b border-[#b8ddf8]' rowSpan="2">{getTtl('POInvoices', ln)}</th>
                             </tr>
 
                         </thead>
-                        <tbody className="divide-y divide-gray-200 ">
+                        <tbody className="divide-y divide-[#d8e8f5]">
                             {rows.map((y) => (
                                 <tr key={(y._source?.id || 'local') + '_' + y.id}>
-                                    <td className={`bg-[#dbeeff] table_cell p-1 border border-r-0 responsiveTextTable
-                                        whitespace-nowrap px-2 text-center ${y._source ? 'italic' : ''}`} >
-                                        <div className='flex flex-col items-center leading-tight'>
-                                            <span>{y.inv}</span>
+                                    <td className={`bg-[#f8fbff] table_cell p-1 border border-r-0 border-[#d8e8f5] responsiveTextTable
+                                        whitespace-nowrap px-2 text-center text-[var(--port-gore)] ${y._source ? 'italic' : ''}`} >
+                                        <div className='flex flex-col items-center leading-tight gap-0.5 py-0.5'>
+                                            <span className='font-medium'>{y.inv}</span>
                                             {y._source &&
-                                                <span className='text-[0.6rem] text-[var(--regent-gray)]'>
+                                                <span className='text-[0.6rem] px-1.5 rounded-full bg-[#dbeeff] text-[var(--chathams-blue)] not-italic'>
                                                     {y._source.order}
                                                 </span>
                                             }
@@ -138,11 +138,11 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                         </tbody>
                     </table>
                 </div>
-                <div className="rounded-r-md">
-                    <table className="w-full border ">
-                        <thead className="divide-y divide-gray-200 ">
+                <div className="rounded-r-2xl overflow-hidden">
+                    <table className="w-full border border-[#b8ddf8]">
+                        <thead className="divide-y divide-[#d8e8f5]">
                             <tr className='text-center' >
-                                <th className='font-medium responsiveTextTable bg-[#dbeeff] h-5 whitespace-nowrap'
+                                <th className='font-medium responsiveTextTable bg-[#dbeeff] text-[var(--chathams-blue)] h-5 whitespace-nowrap border-b border-[#b8ddf8]'
                                     colSpan={salesInvCols.length}>{getTtl('SalesInvoices', ln)}</th>
                             </tr>
                             <tr>
@@ -150,7 +150,7 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                     <th
                                         scope="col"
                                         key={k}
-                                        className='bg-[#dbeeff] border-b px-3  responsiveTextTable font-medium text-[var(--chathams-blue)]
+                                        className='bg-[#dbeeff] border-b border-[#b8ddf8] px-3 responsiveTextTable font-medium text-[var(--chathams-blue)]
                                     h-5 text-center whitespace-nowrap'
                                     >
                                         {y}
@@ -159,17 +159,19 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 ">
+                        <tbody className="divide-y divide-[#d8e8f5]">
                             {rows.map((y) => (
                                 <tr key={(y._source?.id || 'local') + '_' + y.id}>
                                     {salesInvCols.map((x, q) => (
-                                        <td key={q} data-label={q} className={`table_cell py-1 border responsiveTextTable
-                                        w-2 h-[1.55rem] cursor-pointer
+                                        <td key={q} data-label={q} className={`table_cell py-1 border border-[#d8e8f5] responsiveTextTable
+                                        w-2 h-[1.55rem] cursor-pointer transition-colors
                                         ${salesInvCols.length === 1 && 'flex w-full justify-center'}
-                                        ${y.invRef.includes(x.toString()) ? 'bg-slate-500 text-white hover:bg-slate-500' : 'hover:bg-slate-100'}
+                                        ${y.invRef.includes(x.toString())
+                                            ? 'bg-[var(--endeavour)] text-white hover:bg-[var(--chathams-blue)]'
+                                            : 'hover:bg-[#dbeeff]'}
                                         `} onClick={e => setRef(y, x)} >
 
-                                            {y.invRef.includes(x.toString()) && <GiCheckMark />}
+                                            {y.invRef.includes(x.toString()) && <GiCheckMark className='mx-auto' />}
                                         </td>
                                     ))}
                                 </tr>
