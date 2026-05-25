@@ -197,11 +197,11 @@ const Inventory = () => {
                                     ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 ">
+                        <tbody className="divide-y divide-[#d8e8f5]">
                             {data.map((obj, i) => (
                                 <tr key={i}>
                                     {cols.map(y => (
-                                        <td key={y.field} data-label={y.header} className={`table_cell px-3 py-0.5 responsiveTextTable items-center`} >
+                                        <td key={y.field} data-label={y.header} className="px-3 py-0.5 responsiveTextTable text-[var(--port-gore)] whitespace-nowrap leading-4">
                                             <div className='py-1'>
                                                 {showDetail(obj, y.field, i)}
                                             </div>
