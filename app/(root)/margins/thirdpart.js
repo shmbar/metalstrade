@@ -351,6 +351,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 background: '#dbeeff'
                                             }}
                                         >
+                                            {isGIS ? (
+                                            <Tltip direction="top" tltpText={"IMS: " + addComma(totalMargin / 2)}>
                                             <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
                                                 <NumericFormat
                                                     value={totalMargin}
@@ -362,6 +364,20 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     fixedDecimalScale
                                                 />
                                             </div>
+                                            </Tltip>
+                                            ) : (
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
+                                                <NumericFormat
+                                                    value={totalMargin}
+                                                    displayType="text"
+                                                    thousandSeparator
+                                                    allowNegative={true}
+                                                    prefix={'$'}
+                                                    decimalScale="2"
+                                                    fixedDecimalScale
+                                                />
+                                            </div>
+                                            )}
                                         </td>
 
                                         <td
@@ -400,6 +416,8 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 background: '#dbeeff'
                                             }}
                                         >
+                                            {isGIS ? (
+                                            <Tltip direction="top" tltpText={"IMS: " + addComma(remaining / 2)}>
                                             <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
                                                 <NumericFormat
                                                     value={remaining}
@@ -411,6 +429,20 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     fixedDecimalScale
                                                 />
                                             </div>
+                                            </Tltip>
+                                            ) : (
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[#d8e8f5] text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
+                                                <NumericFormat
+                                                    value={remaining}
+                                                    displayType="text"
+                                                    thousandSeparator
+                                                    allowNegative={true}
+                                                    prefix={'$'}
+                                                    decimalScale="2"
+                                                    fixedDecimalScale
+                                                />
+                                            </div>
+                                            )}
                                         </td>
                                     </tr>
                                 </tbody>
