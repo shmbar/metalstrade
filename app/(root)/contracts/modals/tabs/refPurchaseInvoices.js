@@ -1,15 +1,13 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { GiCheckMark } from 'react-icons/gi';
+import React, { useEffect, useMemo, useState } from 'react'
+import { Check } from 'lucide-react';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@utils/firebase';
 import { UserAuth } from "@contexts/useAuthContext";
-import { SettingsContext } from "@contexts/useSettingsContext";
 import { getTtl } from '@utils/languages';
 
 const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln }) => {
 
     const { uidCollection } = UserAuth();
-    const { setToast } = useContext(SettingsContext);
     const [foreignContracts, setForeignContracts] = useState([]);
 
     const sourceRefs = useMemo(() => {
@@ -67,19 +65,6 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
 
     const setRef = async (y, x) => {
         const has = y.invRef.includes(x.toString());
-
-        // Within a single contract, keep the 1-to-1 PO-invoice ↔ sales-invoice rule.
-        // For foreign (imported) rows, allow multiple refs since the same PO invoice
-        // can legitimately be split across multiple contracts' sales invoices.
-        if (!y._source && !has && y.invRef.length >= 1 && y.invRef[0] * 1 !== x) {
-            setToast({
-                show: true,
-                text: `Purchase invoice ${y.inv} is already linked to sales invoice ${y.invRef[0]}. Unlink it first.`,
-                clr: 'fail'
-            });
-            return;
-        }
-
         const newArr = has ? y.invRef.filter(it => it !== x.toString()) : [...y.invRef, x.toString()];
 
         if (!y._source) {
@@ -162,18 +147,27 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                         <tbody className="divide-y divide-[#d8e8f5]">
                             {rows.map((y) => (
                                 <tr key={(y._source?.id || 'local') + '_' + y.id}>
-                                    {salesInvCols.map((x, q) => (
-                                        <td key={q} data-label={q} className={`table_cell py-1 border border-[#d8e8f5] responsiveTextTable
-                                        w-2 h-[1.55rem] cursor-pointer transition-colors
-                                        ${salesInvCols.length === 1 && 'flex w-full justify-center'}
-                                        ${y.invRef.includes(x.toString())
-                                            ? 'bg-[var(--endeavour)] text-white hover:bg-[var(--chathams-blue)]'
-                                            : 'hover:bg-[#dbeeff]'}
-                                        `} onClick={e => setRef(y, x)} >
-
-                                            {y.invRef.includes(x.toString()) && <GiCheckMark className='mx-auto' />}
-                                        </td>
-                                    ))}
+                                    {salesInvCols.map((x, q) => {
+                                        const active = y.invRef.includes(x.toString());
+                                        return (
+                                            <td
+                                                key={q}
+                                                data-label={q}
+                                                className={`px-3 border border-[#d8e8f5] h-[1.85rem] cursor-pointer transition-colors
+                                                ${active ? 'bg-[#dbeeff]' : 'bg-white hover:bg-[#f4f9ff]'}`}
+                                                onClick={() => setRef(y, x)}
+                                            >
+                                                <div className='flex items-center justify-center'>
+                                                    <span className={`inline-flex items-center justify-center size-4 rounded-md transition-all
+                                                    ${active
+                                                            ? 'bg-[var(--endeavour)] text-white shadow-sm'
+                                                            : 'border border-[#b8ddf8] bg-white'}`}>
+                                                        {active && <Check className='size-3' strokeWidth={3} />}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        );
+                                    })}
                                 </tr>
                             ))}
                         </tbody>
