@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -61,7 +63,6 @@
     "jspdf-autotable": "^3.8.2",
     "lucide-react": "^0.446.0",
     "mathjs": "^13.0.2",
-    "motion": "^12.38.0",
     "next": "^15.3.9",
     "next-themes": "^0.4.6",
     "openai": "^6.34.0",
@@ -87,9 +88,7 @@
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^10.0.0",
-    "vaul": "^1.1.2",
-    "wouter": "^3.9.0",
-    "xlsx": "^0.18.5"
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@types/caseless": "^0.12.5",
@@ -99,11 +98,13 @@
     "@types/react": "19.2.14",
     "@types/request": "^2.48.13",
     "@types/tough-cookie": "^4.0.5",
+    "@vitejs/plugin-react": "^6.0.2",
     "eslint": "^9.39.4",
     "eslint-config-next": "^15.3.9",
     "postcss": "^8.5.10",
     "tailwindcss": "^3.4.19",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "^4.1.7"
   },
   "description": "",
   "main": "createTestUser.js",

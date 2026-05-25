@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 import { Analytics } from "@vercel/analytics/next"
 import FloatingChat from '../../components/FloatingChat';
 import GlobalSearchLoader from '../../utils/globalSearch/GlobalSearchLoader'
+import CommandPalette from '../../components/CommandPalette';
 
 
 export default function MyLayout({
@@ -52,6 +53,9 @@ export default function MyLayout({
 
 			{/* AI-Powered Floating Chat */}
 			<FloatingChat />
+
+			{/* Cmd/Ctrl+K command palette — global navigation + record search */}
+			<CommandPalette />
 		</main>
 	);
 }
