@@ -1,12 +1,16 @@
 'use client';
 import { useContext, useEffect, useState, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { SettingsContext } from "../contexts/useSettingsContext";
 import { UserAuth } from "../contexts/useAuthContext";
 import { loadData, loadMarginsRange, loadAllStockData, loadCompanyExpenses, resolveDueDate, resolveInvoiceDate, groupInvoicesByNumber } from '../utils/utils';
 import { authedFetch } from '../utils/aiClient';
-import { X, Send, Loader2, Trash2, RefreshCw, ExternalLink } from 'lucide-react';
+import { X, Send, Loader2, Trash2, RefreshCw, ExternalLink, Receipt, FileText, Wallet } from 'lucide-react';
 import { BsRobot, BsPerson } from "react-icons/bs";
 import dateFormat from "dateformat";
+
+// Map citation source type → icon for the chip row under each AI answer.
+const SOURCE_ICONS = { invoice: Receipt, contract: FileText, expense: Wallet };
 
 const STORAGE_KEY = 'ims-chat-messages';
 
@@ -47,6 +51,7 @@ function getNavButtons(content) {
 }
 
 const FloatingChat = () => {
+    const router = useRouter();
     const { settings, dateSelect } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
 
@@ -490,11 +495,18 @@ const FloatingChat = () => {
                     const payload = line.slice(6).trim();
                     if (payload === '[DONE]') break;
                     try {
-                        const { text: chunk, error } = JSON.parse(payload);
-                        if (error) throw new Error(error);
-                        if (chunk) {
+                        const parsed = JSON.parse(payload);
+                        if (parsed.error) throw new Error(parsed.error);
+                        if (parsed.text) {
                             setMessages(prev => prev.map(m =>
-                                m.id === msgId ? { ...m, content: m.content + chunk } : m
+                                m.id === msgId ? { ...m, content: m.content + parsed.text } : m
+                            ));
+                        }
+                        // The server emits a final {sources:[...]} event right before [DONE]
+                        // containing the records the AI's answer was grounded in.
+                        if (Array.isArray(parsed.sources) && parsed.sources.length) {
+                            setMessages(prev => prev.map(m =>
+                                m.id === msgId ? { ...m, sources: parsed.sources } : m
                             ));
                         }
                     } catch (e) {
@@ -510,11 +522,16 @@ const FloatingChat = () => {
                     const payload = line.slice(6).trim();
                     if (payload !== '[DONE]') {
                         try {
-                            const { text: chunk, error } = JSON.parse(payload);
-                            if (error) throw new Error(error);
-                            if (chunk) setMessages(prev => prev.map(m =>
-                                m.id === msgId ? { ...m, content: m.content + chunk } : m
+                            const parsed = JSON.parse(payload);
+                            if (parsed.error) throw new Error(parsed.error);
+                            if (parsed.text) setMessages(prev => prev.map(m =>
+                                m.id === msgId ? { ...m, content: m.content + parsed.text } : m
                             ));
+                            if (Array.isArray(parsed.sources) && parsed.sources.length) {
+                                setMessages(prev => prev.map(m =>
+                                    m.id === msgId ? { ...m, sources: parsed.sources } : m
+                                ));
+                            }
                         } catch (e) { /* ignore malformed trailing chunk */ }
                     }
                 }
@@ -644,6 +661,39 @@ const FloatingChat = () => {
                                     />
                                     {msg.isStreaming && (
                                         <span className="inline-block w-1.5 h-3.5 bg-[var(--endeavour)] ml-0.5 animate-pulse rounded-sm" />
+                                    )}
+                                    {/* Citation chips — clicking opens the record in its page via ?focus= */}
+                                    {Array.isArray(msg.sources) && msg.sources.length > 0 && (
+                                        <div className="mt-2 pt-2 border-t border-[var(--selago)] flex flex-wrap gap-1">
+                                            <span style={{ fontSize: '0.55rem', color: 'var(--regent-gray)', textTransform: 'uppercase', letterSpacing: '0.04em' }} className="font-semibold w-full mb-0.5">
+                                                Sources ({msg.sources.length})
+                                            </span>
+                                            {msg.sources.slice(0, 12).map((src) => {
+                                                const Icon = SOURCE_ICONS[src.type] || ExternalLink;
+                                                return (
+                                                    <button
+                                                        key={`${src.type}:${src.id}`}
+                                                        onClick={() => {
+                                                            const params = new URLSearchParams();
+                                                            params.set('focus', src.id);
+                                                            router.push(`${src.route}?${params.toString()}`);
+                                                            setChatOpen(false);
+                                                        }}
+                                                        title={`Open ${src.label} in ${src.route.replace('/', '')}`}
+                                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-[#d8e8f5] hover:border-[var(--endeavour)] hover:bg-[#f0f9ff] transition-colors"
+                                                        style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}
+                                                    >
+                                                        <Icon className="w-2.5 h-2.5" aria-hidden="true" />
+                                                        <span className="truncate max-w-[120px]">{src.label}</span>
+                                                    </button>
+                                                );
+                                            })}
+                                            {msg.sources.length > 12 && (
+                                                <span style={{ fontSize: '0.58rem', color: 'var(--regent-gray)' }} className="self-center">
+                                                    +{msg.sources.length - 12} more
+                                                </span>
+                                            )}
+                                        </div>
                                     )}
                                     <span className="mt-1 block text-right text-[var(--regent-gray)]" style={{ fontSize: '0.6rem' }}>
                                         {msg.time}

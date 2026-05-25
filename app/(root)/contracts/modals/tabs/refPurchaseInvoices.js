@@ -45,10 +45,15 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
     }, [sourceRefsKey, uidCollection]);
 
     const rows = useMemo(() => {
-        const local = (valueCon.poInvoices || []).map(p => ({ ...p, _source: null }));
+        const local = (valueCon.poInvoices || []).map(p => ({
+            ...p,
+            invRef: Array.isArray(p.invRef) ? p.invRef : [],
+            _source: null,
+        }));
         const foreign = foreignContracts.flatMap(c =>
             (c.poInvoices || []).map(p => ({
                 ...p,
+                invRef: Array.isArray(p.invRef) ? p.invRef : [],
                 _source: { id: c.id, order: c.order, date: c.dateRange?.startDate || c.date }
             }))
         );

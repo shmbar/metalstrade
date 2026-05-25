@@ -250,6 +250,19 @@ const TOOLS = [
     },
 ];
 
+// Helper: build a "source citation" object for a single record. The UI turns
+// these into clickable chips so the user can verify exactly which records the
+// assistant based its answer on. `id` must be the Firestore doc id so the
+// destination page (e.g. /invoices) can deep-link with ?focus=<id>.
+const srcInvoice = (inv) => ({ type: 'invoice', id: inv.id, label: `#${inv.invoice}`, route: '/invoices' });
+const srcContract = (con) => ({ type: 'contract', id: con.id, label: `PO ${con.order}`, route: '/contracts' });
+const srcExpense = (exp) => ({ type: 'expense', id: exp.id, label: `${exp.vendor || 'Expense'} ${exp.currency || ''} ${(exp.amount || 0).toFixed(0)}`, route: '/expenses' });
+
+// Cap citation lists so a single tool can't dump 100 chips into the UI. Mirrors
+// the per-tool list cap (top 15-25 records shown in text) — anything beyond that
+// is a "and N more" summary anyway, so chip parity stays honest.
+const CITATIONS_MAX = 25;
+
 function executeTool(name, args, data) {
     const { contracts = [], invoices = [], expenses = [], stocks = [], margins = [], marginAlertThreshold } = data;
     const today = new Date();
@@ -323,16 +336,24 @@ function executeTool(name, args, data) {
 
             const grandTotal = sumByCur(unpaidIssued);
             const header = `Receivables breakdown — ${unpaidIssued.length} total invoice(s) outstanding · Grand total: ${grandTotal}`;
-            return `${header}\n\n${sections.join('\n\n')}`;
+            // Sources: cite urgent items first (DUE) then BALANCE, both already
+            // sorted by most-overdue / order shown above. Cap at CITATIONS_MAX.
+            const sources = [...due.slice(0, 15), ...balance.slice(0, 15)]
+                .filter(inv => inv.id)
+                .slice(0, CITATIONS_MAX)
+                .map(srcInvoice);
+            return { text: `${header}\n\n${sections.join('\n\n')}`, sources };
         }
 
         case 'get_pending_invoices': {
             // Final invoices that are not fully paid and not canceled
             const pending = invoices.filter(inv => inv.isFinal && !inv.canceled && inv.paymentStatus !== 'Paid');
             if (!pending.length) return 'No pending invoices. All issued invoices are fully paid.';
-            return `${pending.length} pending invoice(s):\n${pending.map(inv =>
+            const text = `${pending.length} pending invoice(s):\n${pending.map(inv =>
                 `• Invoice #${inv.invoice} — ${inv.client} — ${inv.currency} ${inv.balanceDue.toFixed(2)} remaining — ${inv.paymentStatus}`
             ).join('\n')}`;
+            const sources = pending.filter(inv => inv.id).slice(0, CITATIONS_MAX).map(srcInvoice);
+            return { text, sources };
         }
 
         case 'get_client_debt_ranking': {
@@ -353,11 +374,21 @@ function executeTool(name, args, data) {
                     const bT = Object.values(b.amounts).reduce((s, v) => s + v, 0);
                     return bT - aT;
                 });
-            return `Clients by outstanding balance (highest first):\n${sorted.slice(0, 10).map((c, i) => {
+            const text = `Clients by outstanding balance (highest first):\n${sorted.slice(0, 10).map((c, i) => {
                 const amtStr = Object.entries(c.amounts)
                     .map(([cur, amt]) => `${cur} ${amt.toFixed(2)}`).join(' + ');
                 return `${i + 1}. ${c.client}: ${amtStr}`;
             }).join('\n')}`;
+            // Cite the unpaid invoices of the TOP client — that's the data the
+            // user will most often want to drill into ("why does Iberinox owe so much?").
+            const topClient = sorted[0]?.client;
+            const sources = topClient
+                ? outstanding
+                    .filter(inv => inv.client === topClient && inv.id)
+                    .slice(0, CITATIONS_MAX)
+                    .map(srcInvoice)
+                : [];
+            return { text, sources };
         }
 
         case 'get_revenue_summary': {
@@ -466,9 +497,11 @@ function executeTool(name, args, data) {
                 return acc;
             }, {});
             const kindStr = Object.entries(kindCounts).map(([k, n]) => `${n} ${k}`).join(' + ');
-            return `${unpaid.length} unpaid expense(s) of ${expenses.length} total (${kindStr}) — Total owed: ${totalStr}\n${sorted.slice(0, 25).map(exp =>
+            const text = `${unpaid.length} unpaid expense(s) of ${expenses.length} total (${kindStr}) — Total owed: ${totalStr}\n${sorted.slice(0, 25).map(exp =>
                 `• [${exp.kind || 'Supplier'}] ${exp.vendor} — ${exp.currency} ${(exp.amount || 0).toFixed(2)} — ${exp.type} — ${exp.paid || 'no status'} — ${exp.date || 'no date'}`
             ).join('\n')}${sorted.length > 25 ? `\n…and ${sorted.length - 25} more.` : ''}`;
+            const sources = sorted.filter(exp => exp.id).slice(0, CITATIONS_MAX).map(srcExpense);
+            return { text, sources };
         }
 
         case 'get_profit_info': {
@@ -636,7 +669,9 @@ function executeTool(name, args, data) {
             }).join('\n');
             const more = sorted.length > 25 ? `\n…and ${sorted.length - 25} more.` : '';
             const displayName = matched[0]?.clientFull || matched[0]?.client || args.client_name;
-            return `${matched.length} invoice(s) for "${displayName}":\nSummary: ${summaryStr}\n${lines}${more}`;
+            const text = `${matched.length} invoice(s) for "${displayName}":\nSummary: ${summaryStr}\n${lines}${more}`;
+            const sources = sorted.filter(inv => inv.id).slice(0, CITATIONS_MAX).map(srcInvoice);
+            return { text, sources };
         }
 
         case 'get_record_by_number': {
@@ -647,17 +682,21 @@ function executeTool(name, args, data) {
                     String(c.order || '').toLowerCase().includes(num)
                 );
                 if (!found.length) return `No contract found with PO number containing "${args.number}".`;
-                return `${found.length} contract(s) matching "${args.number}":\n${found.slice(0, 5).map(c =>
+                const text = `${found.length} contract(s) matching "${args.number}":\n${found.slice(0, 5).map(c =>
                     `• PO ${c.order} — ${c.supplier} — ${c.date} — Status: ${c.status} — ${c.currency}`
                 ).join('\n')}`;
+                const sources = found.filter(c => c.id).slice(0, 5).map(srcContract);
+                return { text, sources };
             } else {
                 const found = invoices.filter(inv =>
                     String(inv.invoice || '').toLowerCase().includes(num)
                 );
                 if (!found.length) return `No invoice found with number containing "${args.number}".`;
-                return `${found.length} invoice(s) matching "${args.number}":\n${found.slice(0, 5).map(inv =>
+                const text = `${found.length} invoice(s) matching "${args.number}":\n${found.slice(0, 5).map(inv =>
                     `• Invoice #${inv.invoice} — ${inv.client} — ${inv.currency} ${inv.totalAmount.toFixed(2)} — ${inv.paymentStatus}${inv.dueDate ? ' — Due: ' + inv.dueDate : ''} — ${inv.invoiceStatus}`
                 ).join('\n')}`;
+                const sources = found.filter(inv => inv.id).slice(0, 5).map(srcInvoice);
+                return { text, sources };
             }
         }
 
@@ -872,15 +911,33 @@ export async function POST(request) {
 
         // Phase 2a: tool was called — execute and stream final answer
         if (toolMessage.tool_calls?.length > 0) {
-            const toolResults = toolMessage.tool_calls.map(tc => ({
-                tool_call_id: tc.id,
-                role: 'tool',
-                content: executeTool(
+            // Tools may return either a plain string (legacy) OR { text, sources }.
+            // We normalise both here: `text` is what the model sees, `sources`
+            // is what the UI renders as clickable citation chips.
+            const allSources = [];
+            const toolResults = toolMessage.tool_calls.map(tc => {
+                const raw = executeTool(
                     tc.function.name,
                     JSON.parse(tc.function.arguments || '{}'),
                     currentData || {}
-                )
-            }));
+                );
+                const { text, sources = [] } = typeof raw === 'string'
+                    ? { text: raw, sources: [] }
+                    : raw;
+                if (Array.isArray(sources)) allSources.push(...sources);
+                return { tool_call_id: tc.id, role: 'tool', content: text };
+            });
+
+            // Dedupe by `${type}:${id}` so two tools citing the same invoice
+            // don't render two pills.
+            const seen = new Set();
+            const uniqueSources = allSources.filter(s => {
+                if (!s?.id) return false;
+                const key = `${s.type}:${s.id}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
 
             const finalStream = await getOpenAI().chat.completions.create({
                 model: 'gpt-4o',
@@ -897,6 +954,13 @@ export async function POST(request) {
                         const text = chunk.choices[0]?.delta?.content || '';
                         if (text) controller.enqueue(encoder.encode(sseText(text)));
                         if (chunk.usage?.total_tokens) guard.recordUsage(chunk.usage.total_tokens);
+                    }
+                    // Emit citation chips just before [DONE]. The client merges
+                    // these into the final assistant message state.
+                    if (uniqueSources.length) {
+                        controller.enqueue(encoder.encode(
+                            `data: ${JSON.stringify({ sources: uniqueSources })}\n\n`
+                        ));
                     }
                     controller.enqueue(encoder.encode(sseDone()));
                     controller.close();
