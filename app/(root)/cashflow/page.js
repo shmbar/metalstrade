@@ -7,7 +7,7 @@ import { getTtl } from "../../../utils/languages";
 import React, { useContext, useEffect, useState } from 'react'
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
-import { loadData, loadDataSettings, loadInvoice, loadMargins, loadStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, updateClientPayment, updateExpPayments } from "../../../utils/utils";
+import { loadData, loadDataSettings, loadInvoice, loadMargins, loadStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments } from "../../../utils/utils";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
 import { MdDeleteOutline } from "react-icons/md";
@@ -677,6 +677,7 @@ const Cashflow = () => {
         }
 
         let success = await saveMultipleData(uidCollection, 'contracts', tmpArr)
+        await Promise.all(tmpArr.map(c => syncSpecialInvoicesPaidStatus(uidCollection, c)))
         success && setToast({ show: true, text: getTtl('Payments successfully saved!', ln), clr: 'success' })
 
         let newArr = supPaymentsData.filter(z => !arr1.map(x => x.id).includes(z.id))
@@ -746,6 +747,7 @@ const Cashflow = () => {
         inv.poInvoices = [...updatedpoInvoices]
 
         await saveMultipleData(uidCollection, 'contracts', [inv])
+        await syncSpecialInvoicesPaidStatus(uidCollection, inv)
 
         let newArr;
 

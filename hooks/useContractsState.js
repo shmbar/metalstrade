@@ -6,6 +6,7 @@ import {
     validate, saveData, delDoc, updatePoSupplierInv, updatePoSupplierExp,
     updateDocumentContract, saveStockIn, delStock,
     speciaInvoices,
+    syncSpecialInvoicesPaidStatus,
     loadStockData,
 } from '@utils/utils'
 import { SettingsContext } from "@contexts/useSettingsContext";
@@ -205,6 +206,8 @@ const useContractsState = (props) => {
 
                 await saveStockIn(uidCollection, tmpdata)
             }
+
+            await syncSpecialInvoicesPaidStatus(uidCollection, valueCon)
 
         },
         saveData_PoInvoices: async (uidCollection, newValCon) => {

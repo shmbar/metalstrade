@@ -672,6 +672,39 @@ export const speciaInvoices = async (uidCollection, data) => {
 
 }
 
+// Keep Misc Invoices (`specialInvoices`) paidNotPaid in sync with the contract's
+// poInvoices payments. Status is otherwise only written on full contract save,
+// so payments recorded via the cashflow popup or the contract payments tab can
+// leave Misc Invoices stuck on "Not Paid".
+export const syncSpecialInvoicesPaidStatus = async (uidCollection, contract) => {
+  if (!contract?.order || !Array.isArray(contract?.poInvoices)) return;
+
+  const q = query(
+    collection(db, uidCollection, 'data', 'specialInvoices'),
+    where('order', '==', contract.order)
+  );
+  const snap = await getDocs(q);
+  if (snap.empty) return;
+
+  const batch = writeBatch(db);
+  let hasUpdate = false;
+
+  snap.docs.forEach(d => {
+    const data = d.data();
+    const p = contract.poInvoices.find(x => x.inv === data.invoice);
+    if (!p) return;
+    const invValue = parseFloat(p.invValue);
+    const ratio = invValue > 0 ? parseFloat(p.pmnt) / invValue : 0;
+    const paidNotPaid = ratio > 0.95 ? 'Paid' : 'Not Paid';
+    if (data.paidNotPaid !== paidNotPaid) {
+      batch.update(d.ref, { paidNotPaid });
+      hasUpdate = true;
+    }
+  });
+
+  if (hasUpdate) await batch.commit();
+};
+
 export const loadDataInvoices = async (uidCollection, path, dateSelect) => {
 
   let arr = []
