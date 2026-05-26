@@ -106,9 +106,9 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                         <tbody className="divide-y divide-[#d8e8f5]">
                             {rows.map((y) => (
                                 <tr key={(y._source?.id || 'local') + '_' + y.id}>
-                                    <td className={`bg-[#f8fbff] table_cell p-1 border border-r-0 border-[#d8e8f5] responsiveTextTable
-                                        whitespace-nowrap px-2 text-center text-[var(--port-gore)] ${y._source ? 'italic' : ''}`} >
-                                        <div className='flex flex-col items-center leading-tight gap-0.5 py-0.5'>
+                                    <td className={`bg-[#f8fbff] border border-r-0 border-[#d8e8f5] responsiveTextTable
+                                        whitespace-nowrap px-3 h-11 text-center text-[var(--port-gore)] ${y._source ? 'italic' : ''}`} >
+                                        <div className='flex flex-col items-center justify-center leading-tight gap-0.5'>
                                             <span className='font-medium'>{y.inv}</span>
                                             {y._source &&
                                                 <span className='text-[0.6rem] px-1.5 rounded-full bg-[#dbeeff] text-[var(--chathams-blue)] not-italic'>
@@ -153,7 +153,7 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                             <td
                                                 key={q}
                                                 data-label={q}
-                                                className={`px-3 border border-[#d8e8f5] h-[1.85rem] cursor-pointer transition-colors
+                                                className={`px-3 border border-[#d8e8f5] h-11 cursor-pointer transition-colors
                                                 ${active ? 'bg-[#dbeeff]' : 'bg-white hover:bg-[#f4f9ff]'}`}
                                                 onClick={() => setRef(y, x)}
                                             >
