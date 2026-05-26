@@ -290,7 +290,7 @@ const Cashflow = () => {
 
     const addItem = () => {
 
-        let newArr = [...initialData, { title: 'New item', num: '' }]
+        let newArr = [...initialData, { title: 'New item', num: 0 }]
         setInitialData(newArr)
     }
 
@@ -303,24 +303,29 @@ const Cashflow = () => {
 
     const saveInitData = async () => {
 
-        for (let year of yr) {
-            const key = `total${year}`;
-            await saveCashflow(uidCollection, year,
-                {
-                    [key]: totalYrs.find(obj => obj.hasOwnProperty(key))?.[key]
-                }
-            )
+        try {
+            for (let year of yr) {
+                const key = `total${year}`;
+                const val = totalYrs.find(obj => obj.hasOwnProperty(key))?.[key];
+                if (val === undefined) continue;
+                await saveCashflow(uidCollection, year, { [key]: val })
+            }
+        } catch (err) {
+            console.error('saveCashflow totals failed', err)
         }
 
-        await saveCashflowFinanced(uidCollection,
-            {
-                initial: initialData,
-                financedLeft, financedRight,
-            }
-        )
-
-
-        setToast({ show: true, text: 'Data successfully saved!', clr: 'success' })
+        try {
+            await saveCashflowFinanced(uidCollection,
+                {
+                    initial: initialData,
+                    financedLeft, financedRight,
+                }
+            )
+            setToast({ show: true, text: 'Data successfully saved!', clr: 'success' })
+        } catch (err) {
+            console.error('saveCashflowFinanced failed', err)
+            setToast({ show: true, text: 'Save failed!', clr: 'fail' })
+        }
     }
 
     const sortStocks = () => {
