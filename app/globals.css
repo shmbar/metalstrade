@@ -403,51 +403,66 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
   background-color: #dbeeff !important;
 }
 
-/* ========== Custom Scrollbar ========== */
+/* ========== Custom Scrollbar (always-visible) ========== */
 .custom-scroll::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
+  -webkit-appearance: none;
 }
 
 .custom-scroll::-webkit-scrollbar-track {
   background: #f1f5fb;
+  border-radius: 4px;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
   background: #b8d4ee;
   border-radius: 4px;
+  min-height: 30px;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb:hover {
   background: #7aaed6;
 }
 
+.custom-scroll::-webkit-scrollbar-corner {
+  background: #f1f5fb;
+}
+
 .custom-scroll {
-  scrollbar-width: thin;
+  scrollbar-width: auto;
   scrollbar-color: #b8d4ee #f1f5fb;
 }
 /* ========== End Custom Scrollbar ========== */
 
-/* ========== Global Thin Scrollbar ========== */
+/* ========== Global Always-Visible Scrollbar ========== */
+/* Force non-overlay scrollbars across the entire app, so users see the
+   track/thumb before they start scrolling and can grab it from any edge. */
 *::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
+  -webkit-appearance: none;
 }
 *::-webkit-scrollbar-track {
   background: #f1f5fb;
+  border-radius: 4px;
 }
 *::-webkit-scrollbar-thumb {
   background: #b8d4ee;
   border-radius: 4px;
+  min-height: 30px;
 }
 *::-webkit-scrollbar-thumb:hover {
   background: #7aaed6;
 }
+*::-webkit-scrollbar-corner {
+  background: #f1f5fb;
+}
 * {
-  scrollbar-width: thin;
+  scrollbar-width: auto;
   scrollbar-color: #b8d4ee #f1f5fb;
 }
-/* ========== End Global Thin Scrollbar ========== */
+/* ========== End Global Always-Visible Scrollbar ========== */
 
 /* ========== Radix Tooltip: no scroll, no max-width ========== */
 [data-radix-popper-content-wrapper] {

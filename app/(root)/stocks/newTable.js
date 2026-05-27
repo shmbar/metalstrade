@@ -44,7 +44,7 @@ const Customtable = ({
   const [columnVisibility, setColumnVisibility] = useState(invisible);
   const [filterOn, setFilterOn] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
-  const [columnFilters, setColumnFilters] = useState([{ id: 'sType', value: 'Warehouse' }]);
+  const [columnFilters, setColumnFilters] = useState([]);
   const [sorting, setSorting] = useState([]);
   const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 });
 

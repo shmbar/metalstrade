@@ -15,6 +15,7 @@ import { EXD } from './excel'
 import { getTtl } from '../../../utils/languages';
 import SumTable from './sumtables/sumTable'
 import GradeTable from './sumtables/gradeTable'
+import StockAudit from './stockAudit'
 import { isNumber } from 'mathjs';
 import dateFormat from 'dateformat';
 
@@ -55,6 +56,8 @@ const Stocks = () => {
   const [filteredArray1, setFilteredArray1] = useState([])
   const [item, setItem] = useState(null)
   const [isLoadingStock, setIsLoadingStock] = useState(false)
+  const [rawStockData, setRawStockData] = useState([])
+  const [auditOpen, setAuditOpen] = useState(false)
 
 
   const handleSelectStock = (x) => {
@@ -127,6 +130,7 @@ const Stocks = () => {
         stockData = await loadAllStockData(uidCollection)
       }
 
+      setRawStockData(stockData || [])
 
       let newArr = []
       stockData = stockData.map(x => (
@@ -166,7 +170,7 @@ const Stocks = () => {
                   ((currentObj.finalqnty && currentObj.finalqnty * 1 !== currentObj.qnty * 1) ?
                     (currentObj.qnty * 1 - currentObj.finalqnty * 1) * -1 : 0)
                   : (parseFloat(currentObj[key]) * -1 || 0));
-            } else if (currentObj.type === 'in' && currentObj.description) { //referring to Contract invoices
+            } else if (currentObj.type === 'in' && currentObj.description && parseFloat(currentObj.qnty) > 0) { //referring to Contract invoices; skip 0-qnty balancing rows so their invoice-total doesn't overwrite the real unit price
               totalObj[key] = currentObj[key];
             }
 
@@ -333,6 +337,14 @@ const Stocks = () => {
                 <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                   {getTtl('Stocks', ln)}
                 </h1>
+                <button
+                  type="button"
+                  onClick={() => setAuditOpen(true)}
+                  className="whiteButton whitespace-nowrap"
+                  title="Stock Audit"
+                >
+                  Stock Audit
+                </button>
               </div>
 
               {/* Table Component */}
@@ -385,6 +397,15 @@ const Stocks = () => {
                 title=''
                 item={item}
                 setItem={setItem}
+              />
+            )}
+
+            {auditOpen && (
+              <StockAudit
+                isOpen={auditOpen}
+                setIsOpen={setAuditOpen}
+                stockData={rawStockData}
+                settings={settings}
               />
             )}
           </>

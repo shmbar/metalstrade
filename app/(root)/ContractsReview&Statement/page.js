@@ -371,7 +371,7 @@ const ContractsMerged = () => {
                         z.productsDataInvoice.forEach(f => {
                             if (f.descriptionId === x) {
 
-                                totalShipped += parseFloat(f.qnty)
+                                totalShipped += parseFloat(f.qnty) || 0
                                 let clnt = z.final ? z.client.nname : (settings.Client.Client).find(x => x.id === z.client).nname
                                 let pod = z.final ? z.pod : (settings.POD.POD).find(x => x.id === z.pod)?.['pod']
 
@@ -625,12 +625,18 @@ const ContractsMerged = () => {
             filterFn: arrayIncludesString,
             cell: (props) => {
                 const val = props.getValue();
-                if (enabledSwitch) return val;
-                const joined = Array.isArray(val) ? val.join(', ') : val;
+                const items = Array.isArray(val) ? val : (val ? [val] : []);
+                if (enabledSwitch) return items.join(', ');
                 return (
-                    <Tltip direction="right" tltpText={joined}>
-                        <div className="truncate max-w-[140px]">{joined}</div>
-                    </Tltip>
+                    <div className="flex flex-col">
+                        {items.map((item, index) => {
+                            const dashIdx = typeof item === 'string' ? item.lastIndexOf('-') : -1;
+                            const display = dashIdx > -1
+                                ? `${item.slice(0, dashIdx)} — ${item.slice(dashIdx + 1)}`
+                                : item;
+                            return <div key={index}>{display}</div>;
+                        })}
+                    </div>
                 );
             },
         },
@@ -760,10 +766,10 @@ const ContractsMerged = () => {
                 unitPrc: '',
                 description: '',
                 shiipedWeight: i.reduce((total, obj) => {
-                    return total + obj.shiipedWeight * 1;
+                    return total + (Number(obj.shiipedWeight) || 0);
                 }, 0),
                 remaining: i.reduce((total, obj) => {
-                    return total + obj.remaining * 1;
+                    return total + (Number(obj.remaining) || 0);
                 }, 0),
                 qntyReceived: '',
                 client: '',
@@ -785,7 +791,11 @@ const ContractsMerged = () => {
                         return <div key={index}>{item}</div>
                     }),
                     status: z.status.map((item, index) => {
-                        return <div key={index}>{item}</div>
+                        const dashIdx = typeof item === 'string' ? item.lastIndexOf('-') : -1;
+                        const display = dashIdx > -1
+                            ? `${item.slice(0, dashIdx)} — ${item.slice(dashIdx + 1)}`
+                            : item;
+                        return <div key={index}>{display}</div>
                     }),
                 }))
             })
