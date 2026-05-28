@@ -30,6 +30,7 @@ import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { Filter } from "../../../components/table/filters/filterFunc";
+import { labelAwareGlobalFilter } from "../../../components/table/filters/labelAwareGlobalFilter";
 import Tltip from "../../../components/tlTip";
 
 const EMPTY_STATE_VIDEO_SRC = '/logo/no-data.mp4';
@@ -72,17 +73,9 @@ const Customtable = ({
   useEffect(() => {
     try { localStorage.setItem(storageKey, JSON.stringify(columnVisibility)) } catch {}
   }, [columnVisibility, storageKey])
-  const { ln, settings } = useContext(SettingsContext);
+  const { ln } = useContext(SettingsContext);
 
-  const globalFilterFn = useMemo(() => (row, columnId, filterValue) => {
-    const search = String(filterValue ?? '').toLowerCase();
-    const val = row.getValue(columnId);
-    if (columnId === 'supplier' || columnId === 'originSupplier') {
-      const name = (settings?.Supplier?.Supplier ?? []).find(s => s.id === val)?.nname || '';
-      return name.toLowerCase().includes(search);
-    }
-    return String(val ?? '').toLowerCase().includes(search);
-  }, [settings]);
+  const globalFilterFn = labelAwareGlobalFilter;
 
   const [quickSumEnabled, setQuickSumEnabled] = useState(false);
   const [quickSumColumns, setQuickSumColumns] = useState([]);

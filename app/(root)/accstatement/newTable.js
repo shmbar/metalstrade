@@ -17,6 +17,7 @@ import { Filter } from '../../../components/table/filters/filterFunc'
 import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
+import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
 
 const EMPTY_STATE_VIDEO_SRC = '/logo/no-data.mp4';
 
@@ -96,6 +97,7 @@ const Customtable = ({
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     filterFns: { dateBetweenFilterFn },
+    globalFilterFn: labelAwareGlobalFilter,
     state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection },
     onGlobalFilterChange: setGlobalFilter,
     onColumnFiltersChange: setColumnFilters,

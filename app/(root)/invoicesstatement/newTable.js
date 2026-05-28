@@ -19,6 +19,7 @@ import { Filter } from '../../../components/table/filters/filterFunc';
 import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
+import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
 
 const EMPTY_STATE_VIDEO_SRC = '/logo/no-data.mp4';
 
@@ -97,6 +98,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
         enableRowSelection: quickSumEnabled,
         getCoreRowModel: getCoreRowModel(),
         filterFns: { dateBetweenFilterFn },
+        globalFilterFn: labelAwareGlobalFilter,
         state: {
             globalFilter,
             columnVisibility,

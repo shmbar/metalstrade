@@ -27,6 +27,7 @@ import { Filter } from '../../../components/table/filters/filterFunc';
 import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
+import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
 
 const Customtable = ({
   data,
@@ -105,6 +106,7 @@ const Customtable = ({
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     filterFns: { dateBetweenFilterFn },
+    globalFilterFn: labelAwareGlobalFilter,
     state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection, sorting },
     onGlobalFilterChange: setGlobalFilter,
     onColumnFiltersChange: setColumnFilters,
