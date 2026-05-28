@@ -88,21 +88,26 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
             poInvoices: prev.poInvoices.map(item => {
                 if (item.id !== x.id) return item;
 
-                let newObj = {
-                    ...item, [e.target.name]: e.target.name === 'inv' ?
-                        e.target.value : removeNonNumeric(e.target.value),
-                    payments: item.payments.map(z => ({ ...z, pmnt: removeNonNumeric(e.target.value) * z.pmntPerc / 100 }))
-                };
+                // Editing the invoice number is a label change only — never touch payments.
+                if (e.target.name === 'inv') {
+                    return { ...item, inv: e.target.value };
+                }
 
-                let tmp = newObj.payments.reduce((t, obj) => t + (parseFloat(obj.pmnt) || 0), 0)
-                let amnt = e.target.name === 'inv' ? item.invValue : removeNonNumeric(e.target.value)
+                // Editing the invoice value: rescale each payment by its stored percentage.
+                const newInvValue = removeNonNumeric(e.target.value);
+                const payments = item.payments.map(z => ({
+                    ...z, pmnt: newInvValue * z.pmntPerc / 100
+                }));
+                const tmp = payments.reduce((t, obj) => t + (parseFloat(obj.pmnt) || 0), 0);
 
                 return {
-                    ...newObj, pmnt: tmp, blnc: Math.round((amnt - tmp) * 100) / 100
+                    ...item,
+                    invValue: newInvValue,
+                    payments,
+                    pmnt: tmp,
+                    blnc: Math.round((newInvValue - tmp) * 100) / 100,
                 };
             })
-
-
         }));
     }
 
