@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Modal from '@components/modal.js'
+import Tltip from '@components/tlTip'
 import { NumericFormat } from 'react-number-format'
 import dateFormat from 'dateformat'
 
@@ -144,11 +145,27 @@ const cellTd = {
 
 const descTd = {
   ...cellTd,
-  whiteSpace: 'normal',
-  wordBreak: 'break-word',
   maxWidth: '260px',
   minWidth: '180px',
 }
+
+const descClamp = {
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  wordBreak: 'break-word',
+  whiteSpace: 'normal',
+  lineHeight: 1.3,
+  cursor: 'help',
+}
+
+const DescCell = ({ text }) => (
+  <Tltip tltpText={text || '(no name)'} direction="top">
+    <span style={descClamp}>{text || '(no name)'}</span>
+  </Tltip>
+)
 
 const ShortId = ({ id }) => (
   <span title={id} style={{ fontFamily: 'monospace', fontSize: '0.7rem', color: 'var(--regent-gray)' }}>
@@ -212,7 +229,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings }) => {
                 <tbody>
                   {audit.dupes.map(r => (
                     <tr key={r.id}>
-                      <td style={descTd} title={r.descNm}>{r.descNm || '(no name)'}</td>
+                      <td style={descTd}><DescCell text={r.descNm} /></td>
                       <td style={cellTd}>{r.stockNm}</td>
                       <td style={cellTd}>{fmtQ(r.qnty)}</td>
                       <td style={cellTd}>{fmtP(r.unitPrc, r.cur)}</td>
@@ -246,7 +263,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings }) => {
                 <tbody>
                   {audit.over.map(g => (
                     <tr key={`${g.stockId}|${g.descId}`}>
-                      <td style={descTd} title={g.names}>{g.names || '(no name)'}</td>
+                      <td style={descTd}><DescCell text={g.names} /></td>
                       <td style={cellTd}>{g.stockNm}</td>
                       <td style={cellTd}>{fmtQ(g.inQty)}</td>
                       <td style={cellTd}>{fmtQ(g.outQty)}</td>
@@ -277,7 +294,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings }) => {
                 <tbody>
                   {audit.orphan.map(g => (
                     <tr key={`${g.stockId}|${g.descId}`}>
-                      <td style={descTd} title={g.names}>{g.names || '(no name)'}</td>
+                      <td style={descTd}><DescCell text={g.names} /></td>
                       <td style={cellTd}>{g.stockNm}</td>
                       <td style={cellTd}>{fmtQ(g.outQty)}</td>
                       <td style={cellTd}>{g.outRows}</td>
@@ -307,7 +324,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings }) => {
                 <tbody>
                   {audit.zeroIn.map(r => (
                     <tr key={r.id}>
-                      <td style={descTd} title={r.descNm}>{r.descNm || '(no name)'}</td>
+                      <td style={descTd}><DescCell text={r.descNm} /></td>
                       <td style={cellTd}>{r.stockNm}</td>
                       <td style={cellTd}>{fmtP(r.unitPrc, r.cur)}</td>
                       <td style={cellTd}>{r.supplier}</td>
