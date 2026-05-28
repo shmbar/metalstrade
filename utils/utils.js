@@ -676,28 +676,52 @@ export const speciaInvoices = async (uidCollection, data) => {
 // poInvoices payments. Status is otherwise only written on full contract save,
 // so payments recorded via the cashflow popup or the contract payments tab can
 // leave Misc Invoices stuck on "Not Paid".
+//
+// Matching is canonical: specialInvoices doc id === stock item id, and the
+// stock item holds the poInvoice UUID. The `invoice` field on specialInvoices
+// is only a label snapshot and can drift if the user renames a Purchase Inv#,
+// so we don't rely on it for matching — but we refresh it here so the page
+// shows the current label.
 export const syncSpecialInvoicesPaidStatus = async (uidCollection, contract) => {
   if (!contract?.order || !Array.isArray(contract?.poInvoices)) return;
 
-  const q = query(
+  const snap = await getDocs(query(
     collection(db, uidCollection, 'data', 'specialInvoices'),
     where('order', '==', contract.order)
-  );
-  const snap = await getDocs(q);
+  ));
   if (snap.empty) return;
+
+  const stockIds = Array.isArray(contract.stock) ? contract.stock : [];
+  const stockItems = stockIds.length > 0 ? await loadStockData(uidCollection, 'id', stockIds) : [];
+  const poInvoiceByStockId = new Map();
+  for (const s of stockItems) {
+    if (s?.id && s?.poInvoice) poInvoiceByStockId.set(s.id, s.poInvoice);
+  }
 
   const batch = writeBatch(db);
   let hasUpdate = false;
 
   snap.docs.forEach(d => {
     const data = d.data();
-    const p = contract.poInvoices.find(x => x.inv === data.invoice);
+
+    // Canonical match: doc id → stock.poInvoice → contract.poInvoices.id
+    let p = null;
+    const poInvId = poInvoiceByStockId.get(d.id);
+    if (poInvId) p = contract.poInvoices.find(x => x.id === poInvId);
+    // Fallback for older rows whose stock link is missing
+    if (!p && data.invoice) p = contract.poInvoices.find(x => x.inv === data.invoice);
     if (!p) return;
+
     const invValue = parseFloat(p.invValue);
     const ratio = invValue > 0 ? parseFloat(p.pmnt) / invValue : 0;
     const paidNotPaid = ratio > 0.95 ? 'Paid' : 'Not Paid';
-    if (data.paidNotPaid !== paidNotPaid) {
-      batch.update(d.ref, { paidNotPaid });
+
+    const update = {};
+    if (data.paidNotPaid !== paidNotPaid) update.paidNotPaid = paidNotPaid;
+    if ((data.invoice ?? '') !== (p.inv ?? '')) update.invoice = p.inv ?? '';
+
+    if (Object.keys(update).length > 0) {
+      batch.update(d.ref, update);
       hasUpdate = true;
     }
   });
