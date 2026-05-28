@@ -19,7 +19,7 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
 
     const handleChange = (newValue) => {
         if (newValue?.startDate) {
-            handleChangeDate(new Date(newValue.startDate), props.row.index, month);
+            handleChangeDate(new Date(newValue.startDate), props.row.original.id, month);
         }
         // Intentionally ignore null events — the library fires null when clicking
         // an already-selected date (toggle behaviour). We use a separate clear
@@ -27,7 +27,7 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
     };
 
     const handleClear = () => {
-        handleCancelDate(null, props.row.index, month);
+        handleCancelDate(null, props.row.original.id, month);
     };
 
     const repositionPopup = useCallback(() => {

@@ -192,7 +192,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                   onChange={() =>
                     handleCheckBox(
                       !cell.getValue(),
-                      cell.row.index,
+                      cell.row.original.id,
                       month
                     )
                   }
@@ -202,7 +202,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
               <div className="flex items-center justify-center">
                 <button
                   className="p-0 bg-transparent border-0 outline-none text-[var(--endeavour)] hover:text-red-500 transition-colors"
-                  onClick={(e) => deleteRow(e, cell.row.index, month)}
+                  onClick={(e) => deleteRow(e, cell.row.original.id, month)}
                 >
                   <MdDeleteOutline className="w-4 h-4" />
                 </button>
@@ -487,9 +487,9 @@ const Customtable = (props) => {
                                         >
                                             Entry #{rowIdx + 1}
                                         </span>
-                                        <button 
-                                            className="text-[var(--endeavour)] hover:text-red-600 transition-colors flex items-center justify-center" 
-                                            onClick={e => props.deleteRow(e, rowIdx, row.month)}
+                                        <button
+                                            className="text-[var(--endeavour)] hover:text-red-600 transition-colors flex items-center justify-center"
+                                            onClick={e => props.deleteRow(e, row.id, row.month)}
                                             style={{ width: '20px', height: '20px' }}
                                         >
                                             <MdDeleteOutline className="w-4 h-4" />
@@ -555,7 +555,7 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
         size="size-3"
         checked={row.gis ?? false}
         onChange={() =>
-          props.handleCheckBox(!row.gis, rowIdx, row.month)
+          props.handleCheckBox(!row.gis, row.id, row.month)
         }
       />
     </div>

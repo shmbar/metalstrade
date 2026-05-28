@@ -63,7 +63,7 @@ export const Input = function Input({ props, handleChange, month, name, styles, 
         if (name === 'description') {
           savedCursor.current = e.target.selectionStart;
         }
-        handleChange(e, props.row.index, month);
+        handleChange(e, props.row.original.id, month);
       }}
       className={cn(styles, INPUT_CLASS)}
       style={INPUT_STYLE}

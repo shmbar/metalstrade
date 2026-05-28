@@ -289,18 +289,18 @@ const Margins = () => {
         if (alerted.length > 0) setAlertDismissed(false);
     }, [data, threshold])
 
-    const handleChangeDate = useCallback((e, i, month) => {
+    const handleChangeDate = useCallback((e, id, month) => {
         const dd = dateFormat(e, 'yyyy-mm-dd')
         setData(prev => prev.map(z => z.month === month ? {
-            ...z, items: z.items.map((x, k) => k === i ? {
+            ...z, items: z.items.map(x => x.id === id ? {
                 ...x, date: { endDate: dd, startDate: dd }
             } : x)
         } : z))
     }, [])
 
-    const handleCancelDate = useCallback((e, i, month) => {
+    const handleCancelDate = useCallback((e, id, month) => {
         setData(prev => prev.map(z => z.month === month ? {
-            ...z, items: z.items.map((x, k) => k === i ? {
+            ...z, items: z.items.map(x => x.id === id ? {
                 ...x, date: { endDate: null, startDate: null }
             } : x)
         } : z))
@@ -340,11 +340,11 @@ const Margins = () => {
         ));
     }, []);
 
-    const deleteRow = useCallback((e, i, month) => {
+    const deleteRow = useCallback((e, id, month) => {
         setData(prev => prev.map(z => z.month === month ? {
             ...z,
-            items: z.items.filter((_, k) => k !== i),
-            ids: z.ids.filter((_, k) => k !== i)
+            items: z.items.filter(x => x.id !== id),
+            ids: z.ids.filter(x => x !== id)
         } : z))
     }, [])
 
@@ -361,18 +361,18 @@ const Margins = () => {
         setData(newData)
     }
 
-    const handleChange = useCallback((e, i, month) => {
+    const handleChange = useCallback((e, id, month) => {
         if (countDecimalDigits(e.target.value) > 3) return;
         const name = e.target.name;
         const value = name === 'description' ? e.target.value : removeNonNumeric(e.target.value);
 
         setData(prev => {
             let monthData = prev.map(z => z.month === month ? {
-                ...z, items: z.items.map((x, k) => k === i ? { ...x, [name]: value } : x)
+                ...z, items: z.items.map(x => x.id === id ? { ...x, [name]: value } : x)
             } : z)
 
             monthData = monthData.map(z => z.month === month ? {
-                ...z, items: z.items.map((x, k) => k === i ? {
+                ...z, items: z.items.map(x => x.id === id ? {
                     ...x, totalMargin: x.purchase * x.margin,
                     openShip: x.purchase - x.shipped,
                     remaining: (x.purchase - x.shipped) * x.margin
@@ -389,14 +389,14 @@ const Margins = () => {
         })
     }, [])
 
-    const handleChangeSelect = useCallback((e, i, month, name) => {
+    const handleChangeSelect = useCallback((e, id, month, name) => {
         setData((prevData) =>
             prevData.map((z) =>
                 z.month === month
                     ? {
                         ...z,
-                        items: z.items.map((x, k) =>
-                            k === i ? { ...x, [name]: e } : x
+                        items: z.items.map(x =>
+                            x.id === id ? { ...x, [name]: e } : x
                         )
                     }
                     : z
@@ -404,10 +404,10 @@ const Margins = () => {
         );
     }, [setData]); // Add `setData` as a dependency
 
-    const handleCheckBox = useCallback((value, i, month) => {
+    const handleCheckBox = useCallback((value, id, month) => {
         setData(prev => {
             let newArr = prev.map(z => z.month === month ? {
-                ...z, items: z.items.map((x, k) => k === i ? { ...x, gis: value } : x)
+                ...z, items: z.items.map(x => x.id === id ? { ...x, gis: value } : x)
             } : z)
             return newArr.map(z => z.month === month ? {
                 ...z,
