@@ -248,7 +248,8 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
   );
 }, (prev, next) =>
   prev.row.original === next.row.original &&
-  prev.cName === next.cName
+  prev.cName === next.cName &&
+  prev.props.settings === next.props.settings
 );
 
 

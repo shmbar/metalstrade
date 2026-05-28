@@ -41,3 +41,6 @@ next-env.d.ts
 utils/skey.json
 .md
 .CLAUDE.md
+
+# Firebase admin credentials (do not commit)
+service-account.json
