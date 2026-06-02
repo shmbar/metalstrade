@@ -319,7 +319,7 @@ console.log(valueCon.poInvoices)
                                             <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Balance', ln)}:</p>
                                             <div className='flex pr-3'>
                                                 <input type='text' disabled className="number-separator input border-slate-300 h-7 responsiveTextTable" name='blnc'
-                                                    style={{ color: Number(x.blnc) > 0 ? '#dc2626' : undefined, fontWeight: Number(x.blnc) > 0 ? 600 : undefined }}
+                                                    style={{ color: Number(x.blnc) > 0 ? '#dc2626' : undefined }}
                                                     value={addComma(x.blnc, true, 'total')} />
                                                 <div className='group relative'>
                                                     <ArrowBigRight className='text-[var(--regent-gray)] ml-3 cursor-pointer' onClick={switchToStocks} />

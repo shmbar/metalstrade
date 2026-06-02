@@ -1103,7 +1103,7 @@ const Cashflow = () => {
                                                                                 prefix={x.cur === 'us' ? '$' : '€'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className={`responsiveText ${Number(x.debtBlnc) > 0 ? 'text-red-600 font-semibold' : 'text-[var(--port-gore)] font-medium'}`}
+                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
                                                                             />
 
                                                                         </div>
@@ -1127,7 +1127,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className={`responsiveTextTotal font-medium border-t border-[var(--chathams-blue)] pt-0.5 ${clientInvoices2.reduce((t, obj) => t + (parseFloat(obj.debtBlnc) || 0), 0) > 0 ? 'text-red-600' : 'text-[var(--chathams-blue)]'}`}
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
@@ -1160,7 +1160,7 @@ const Cashflow = () => {
                                                                                 prefix={x.cur === 'us' ? '$' : '€'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className={`responsiveText ${Number(x.debtBlnc) > 0 ? 'text-red-600 font-semibold' : 'text-[var(--port-gore)] font-medium'}`}
+                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
                                                                             />
 
                                                                         </div>
@@ -1185,7 +1185,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className={`responsiveTextTotal font-medium border-t border-[var(--chathams-blue)] pt-0.5 ${clientInvoices1.reduce((t, obj) => t + (parseFloat(obj.debtBlnc) || 0), 0) > 0 ? 'text-red-600' : 'text-[var(--chathams-blue)]'}`}
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
@@ -1279,7 +1279,7 @@ const Cashflow = () => {
                                                                                 prefix={'$'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className={`responsiveText ${Number(x.blnc) > 0 ? 'text-red-600 font-semibold' : 'text-[var(--port-gore)] font-medium'}`}
+                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1304,7 +1304,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className={`responsiveTextTotal font-medium border-t border-[var(--chathams-blue)] pt-0.5 ${(supPayments2?.reduce((t, obj) => t + (parseFloat(obj.blnc) || 0), 0) || 0) > 0 ? 'text-red-600' : 'text-[var(--chathams-blue)]'}`}
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
@@ -1339,7 +1339,7 @@ const Cashflow = () => {
                                                                                 prefix={'$'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className={`responsiveText ${Number(x.blnc) > 0 ? 'text-red-600 font-semibold' : 'text-[var(--port-gore)] font-medium'}`}
+                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1364,7 +1364,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className={`responsiveTextTotal font-medium border-t border-[var(--chathams-blue)] pt-0.5 ${(supPayments1?.reduce((t, obj) => t + (parseFloat(obj.blnc) || 0), 0) || 0) > 0 ? 'text-red-600' : 'text-[var(--chathams-blue)]'}`}
+                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>

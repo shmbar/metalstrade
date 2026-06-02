@@ -369,7 +369,7 @@ const Invoices = () => {
 		{
 			accessorKey: 'balanceDue',
 			header: getTtl('Balance', ln),
-			cell: (props) => <span className={`whitespace-nowrap ${Number(props.getValue()) > 0 ? 'text-red-600 font-semibold' : ''}`}>{showAmount(props)}</span>,
+			cell: (props) => <span className={`whitespace-nowrap ${Number(props.getValue()) > 0 ? 'text-red-600' : ''}`}>{showAmount(props)}</span>,
 			meta: {
 				filterVariant: 'range',
 			},

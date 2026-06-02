@@ -717,7 +717,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 prefix={currentCur}
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                style={{ color: Number(value.balanceDue) > 0 ? '#dc2626' : undefined, fontWeight: Number(value.balanceDue) > 0 ? 600 : undefined }}
+                                                style={{ color: Number(value.balanceDue) > 0 ? '#dc2626' : undefined }}
                                             />
 
                                         </td>

@@ -1216,7 +1216,6 @@ const Customtable = ({
                                     backgroundColor: isUnpaidValue ? '#fee2e2' : isPaidValue ? '#dcfce7' : '#f8fbff',
                                     color: isPaidValue ? '#166534' : isUnpaidValue ? '#dc2626' : 'var(--port-gore)',
                                     border: `1px solid ${isPaidValue ? '#bbf7d0' : isUnpaidValue ? '#fecaca' : '#cecece'}`,
-                                    fontWeight: isUnpaidValue ? '600' : '400',
                                   }}>
                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </div>

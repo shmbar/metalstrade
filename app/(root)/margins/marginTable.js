@@ -155,7 +155,6 @@ const MarginTable = memo(function MarginTable(props) {
                                                 fixedDecimalScale
                                                 style={{
                                                     color: totalOpenShip > 0 ? '#dc2626' : 'var(--chathams-blue)',
-                                                    fontWeight: totalOpenShip > 0 ? '600' : undefined,
                                                     lineHeight: '1.2'
                                                 }}
                                             />
@@ -185,7 +184,6 @@ const MarginTable = memo(function MarginTable(props) {
                                                 fixedDecimalScale
                                                 style={{
                                                     color: remaining > 0 ? '#dc2626' : 'var(--chathams-blue)',
-                                                    fontWeight: remaining > 0 ? '600' : undefined,
                                                     lineHeight: '1.2'
                                                 }}
                                             />

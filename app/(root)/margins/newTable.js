@@ -225,7 +225,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                     className={cn(
                       "w-full bg-transparent border-none outline-none px-1 text-center text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]",
                       cell.column.id === "remaining" && Number(cell.getValue()) > 0
-                        ? "text-red-600 font-semibold"
+                        ? "text-red-600"
                         : "text-[var(--port-gore)]"
                     )}
                     style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
@@ -245,7 +245,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                 className={cn(
                   "w-full bg-transparent border-none outline-none px-1 text-center text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]",
                   ["openShip", "remaining"].includes(cell.column.id) && Number(cell.getValue()) > 0
-                    ? "text-red-600 font-semibold"
+                    ? "text-red-600"
                     : "text-[var(--port-gore)]"
                 )}
                 style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
@@ -466,7 +466,7 @@ const Customtable = (props) => {
                                                                     className="text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]"
                                                                     style={{
                                                                         color: ['openShip', 'remaining'].includes(accessorKey) && total > 0 ? '#dc2626' : 'var(--chathams-blue)',
-                                                                        fontWeight: ['openShip', 'remaining'].includes(accessorKey) && total > 0 ? '600' : '500',
+                                                                        fontWeight: '500',
                                                                         lineHeight: '1.2'
                                                                     }}
                                                                 />
@@ -609,7 +609,7 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                                         className="responsiveTextTable"
                                                                         style={{
                                                                             color: ['openShip', 'remaining'].includes(col.accessorKey) && Number(displayVal) > 0 ? '#dc2626' : 'var(--chathams-blue)',
-                                                                            fontWeight: ['openShip', 'remaining'].includes(col.accessorKey) && Number(displayVal) > 0 ? '600' : '400',
+                                                                            fontWeight: '400',
                                                                             lineHeight: '1.2'
                                                                         }}
                                                                     />
