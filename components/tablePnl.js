@@ -78,8 +78,10 @@ const Customtable = ({ data, propDefaults, val, mult }) => {
 								x === 'debtaftr' ? data.length === 1 || sortedData(data).findIndex(x => x.id === obj.id) !== (data.length - 1) ? frmNum(obj.totalPrepayment - accum(obj.payments, 'pmnt'), obj, settings) :
 									frmNum(obj.totalPrepayment - totalPaymentsData(data), obj, settings)
 									:
-									x === 'debtBlnc' ? data.length === 1 || sortedData(data).findIndex(x => x.id === obj.id) !== (data.length - 1) ? frmNum(obj.totalAmount - accum(obj.payments, 'pmnt'), obj, settings) :
-										frmNum(obj.totalAmount - totalPaymentsData(data), obj, settings)
+									x === 'debtBlnc' ? (() => {
+										const v = (data.length === 1 || sortedData(data).findIndex(z => z.id === obj.id) !== (data.length - 1)) ? obj.totalAmount - accum(obj.payments, 'pmnt') : obj.totalAmount - totalPaymentsData(data);
+										return <span style={{ color: v > 0 ? '#dc2626' : undefined, fontWeight: v > 0 ? 600 : undefined }}>{frmNum(v, obj, settings)}</span>;
+									})()
 										:
 										x === 'expenses' ? frmNum(accumExp(obj.expenses, 'amount', val, mult), val, settings) :
 											(x === 'deviation' && data.length > 1 && obj.invType !== '1111' &&

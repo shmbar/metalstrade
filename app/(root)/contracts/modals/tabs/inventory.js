@@ -147,8 +147,10 @@ const Inventory = () => {
                     x === 'shipped' ? obj.canceled ? 0 : frm(obj.productsDataInvoice.map(x => x.qnty)
                         .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0)) :
                         x === 'remaining' ?
-                            loading ? '' : frm(setNum(totalInvWeight, valueCon, settings) - Total(data.slice(0, i + 1),
-                                'productsDataInvoice', 'qnty'))
+                            loading ? '' : (() => {
+                                const rem = setNum(totalInvWeight, valueCon, settings) - Total(data.slice(0, i + 1), 'productsDataInvoice', 'qnty');
+                                return <span style={{ color: rem > 0 ? '#dc2626' : undefined, fontWeight: rem > 0 ? 600 : undefined }}>{frm(rem)}</span>;
+                            })()
                             :
                             ''
 
@@ -173,7 +175,7 @@ const Inventory = () => {
                 <div className='pt-1.5 border-t border-slate-500'></div>
                 <div className='flex justify-between font-bold'>
                     <p className='responsiveTextTable font-medium text-[var(--chathams-blue)] full'>{getTtl('Remaining QTY', ln)} / MT:</p>
-                    <p className='responsiveTextTable text-[var(--port-gore)] whitespace-nowrap'>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings) -
+                    <p className={`responsiveTextTable whitespace-nowrap ${(setNum(totalInvWeight, valueCon, settings) - Total(data, 'productsDataInvoice', 'qnty')) > 0 ? 'text-red-600 font-semibold' : 'text-[var(--port-gore)]'}`}>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings) -
                         Total(data, 'productsDataInvoice', 'qnty'))}</p>
                 </div>
             </div>
