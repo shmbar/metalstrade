@@ -18,10 +18,26 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
   const table1 = useReactTable({
     columns,
     data,
+    enableSortingRemoval: false,
+    initialState: {
+      sorting: [{ id: 'supplier', desc: false }]
+    },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
+
+  const supplierCol = table1.getColumn('supplier')
+  const amountCol = table1.getColumn('amount')
+
+  const sortIndicator = (col) => {
+    const dir = col?.getIsSorted()
+    return (
+      <span style={{ marginLeft: 4, fontSize: '0.8em', opacity: dir ? 1 : 0.35 }}>
+        {dir === 'desc' ? '▼' : '▲'}
+      </span>
+    )
+  }
 
   const showAmount = (x, y) =>
     new Intl.NumberFormat('en-US', {
@@ -83,23 +99,27 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           }}
         >
           <div
-            className="responsiveTextTable"
+            className="responsiveTextTable flex items-center select-none cursor-pointer"
             style={{
               fontWeight: 400,
               color: 'var(--endeavour)'
             }}
+            onClick={() => supplierCol?.toggleSorting()}
           >
             Vendor
+            {sortIndicator(supplierCol)}
           </div>
 
           <div
-            className="responsiveTextTable"
+            className="responsiveTextTable flex items-center justify-end select-none cursor-pointer"
             style={{
               fontWeight: 400,
               color: 'var(--endeavour)'
             }}
+            onClick={() => amountCol?.toggleSorting()}
           >
             Amount
+            {sortIndicator(amountCol)}
           </div>
         </div>
 
