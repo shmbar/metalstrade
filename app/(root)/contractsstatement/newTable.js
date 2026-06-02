@@ -20,6 +20,7 @@ import {
 
 import { Fragment, useEffect, useMemo, useState } from "react"
 import { TbSortDescending, TbSortAscending } from "react-icons/tb";
+import { IoIosArrowDown } from "react-icons/io";
 
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
@@ -32,6 +33,63 @@ import dateBetweenFilterFn from '../../../components/table/filters/date-between-
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
 
 const EMPTY_STATE_VIDEO_SRC = '/logo/no-data.mp4';
+
+// Expandable detail for a contract line: warehouse lots + shipments
+const DetailPanel = ({ lots = [], shipments = [] }) => {
+  const fmt = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(Number(n) || 0);
+  const headSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: '0.56rem', background: '#f8fbff', color: 'var(--regent-gray)', fontWeight: 500, letterSpacing: '0.04em' };
+  const cellSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: '0.64rem', color: 'var(--port-gore)', background: '#ffffff' };
+  const lotChip = (status) => {
+    const s = (status || '').toLowerCase();
+    const map = {
+      sold: { bg: '#dcfce7', c: '#166534', b: '#bbf7d0', t: 'Sold' },
+      unsold: { bg: '#fee2e2', c: '#dc2626', b: '#fecaca', t: 'Unsold' },
+    };
+    const v = map[s] || { bg: '#f1f5f9', c: '#64748b', b: '#e2e8f0', t: status || '—' };
+    return <span style={{ backgroundColor: v.bg, color: v.c, border: `1px solid ${v.b}`, borderRadius: 8, padding: '1px 8px', fontSize: '0.6rem' }}>{v.t}</span>;
+  };
+  return (
+    <div className="flex flex-col lg:flex-row gap-3" style={{ animation: 'fadeIn .2s ease-in' }}>
+      {/* Lots */}
+      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #d8e8f5', flex: '1 1 0', minWidth: 0 }}>
+        <div style={{ background: '#dbeeff', color: 'var(--chathams-blue)', fontSize: '0.62rem', fontWeight: 600, padding: '5px 12px' }}>Lots in warehouse</div>
+        {lots.length ? (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr><th style={headSt}>QUANTITY</th><th style={headSt}>STATUS</th></tr></thead>
+            <tbody>
+              {lots.map((l, i) => (
+                <tr key={i} style={{ borderTop: '1px solid #eef4fb' }}>
+                  <td style={cellSt}>{fmt(l.qnty)} MT</td>
+                  <td style={cellSt}>{lotChip(l.status)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : <div style={{ padding: '8px 12px', fontSize: '0.62rem', color: 'var(--regent-gray)' }}>No lots in warehouse</div>}
+      </div>
+      {/* Shipments */}
+      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #d8e8f5', flex: '2 1 0', minWidth: 0 }}>
+        <div style={{ background: '#dbeeff', color: 'var(--chathams-blue)', fontSize: '0.62rem', fontWeight: 600, padding: '5px 12px' }}>Shipments</div>
+        {shipments.length ? (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr>{['INVOICE', 'CONSIGNEE', 'PO CLIENT', 'DESTINATION', 'QTY'].map(h => <th key={h} style={headSt}>{h}</th>)}</tr></thead>
+            <tbody>
+              {shipments.map((s, i) => (
+                <tr key={i} style={{ borderTop: '1px solid #eef4fb' }}>
+                  <td style={cellSt}>{s.invoice || '—'}</td>
+                  <td style={cellSt}>{s.consignee || '—'}</td>
+                  <td style={cellSt}>{s.po || '—'}</td>
+                  <td style={cellSt}>{s.destination || '—'}</td>
+                  <td style={cellSt}>{fmt(s.qnty)} MT</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : <div style={{ padding: '8px 12px', fontSize: '0.62rem', color: 'var(--regent-gray)' }}>No shipments yet</div>}
+      </div>
+    </div>
+  );
+};
 
 const Customtable = ({
   data,
@@ -56,6 +114,7 @@ const Customtable = ({
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
 
   const [expanded, setExpanded] = useState({})
+  const [openLots, setOpenLots] = useState({})
   const [columnFilters, setColumnFilters] = useState([])
   const [sorting, setSorting] = useState([])
 
@@ -370,16 +429,7 @@ const Customtable = ({
                             >
                               {isStatus ? (
                                 <div className="flex justify-center">
-                                  <div
-                                    className="px-3 py-1 rounded-xl responsiveTextTable font-normal flex items-center justify-center"
-                                    style={{
-                                      backgroundColor: val === 'Paid' ? '#dcfce7' : val === 'Unpaid' ? '#fef9c3' : '#f8fbff',
-                                      border: val ? `1px solid ${val === 'Paid' ? '#bbf7d0' : val === 'Unpaid' ? '#fde68a' : '#cecece'}` : 'none',
-                                      color: val === 'Paid' ? '#166534' : val === 'Unpaid' ? '#92400e' : 'var(--port-gore)'
-                                    }}
-                                  >
-                                    {val || '\u00A0'}
-                                  </div>
+                                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </div>
                               ) : (
                                 <div className="flex justify-center">
@@ -403,8 +453,15 @@ const Customtable = ({
                       {/* ── Inline SubRows — aligned under parent columns ── */}
                       {row.getIsExpanded() && row.subRows && row.subRows.map((sub, si) => {
                         const parentOnlyCols = ['date','order','supplier','poWeight','shiipedWeight','remaining'];
+                        const isOpen = !!openLots[sub.id];
+                        const hasDetail = !!((sub.original.lots && sub.original.lots.length) || (sub.original.shipments && sub.original.shipments.length));
                         return (
-                          <tr key={sub.id} style={{ background: '#f0f6ff' }}>
+                          <Fragment key={sub.id}>
+                          <tr
+                            style={{ background: isOpen ? '#e7f1fd' : '#f0f6ff' }}
+                            className={hasDetail ? 'cursor-pointer hover-row' : ''}
+                            onClick={hasDetail ? () => setOpenLots(p => ({ ...p, [sub.id]: !p[sub.id] })) : undefined}
+                          >
                             {sub.getVisibleCells().map((cell) => {
                               if (cell.column.id === 'expander') {
                                 const isLast = si === row.subRows.length - 1;
@@ -447,7 +504,33 @@ const Customtable = ({
                                 return <td key={cell.id} className="px-2 py-1" style={{ minWidth: '60px' }} />
                               }
                               const isStatus = cell.column.id === 'status';
+                              const isDesc = cell.column.id === 'description';
                               const val = cell.getValue();
+
+                              if (isStatus) {
+                                return (
+                                  <td key={cell.id} className="px-2 py-1.5 text-center" style={{ minWidth: '60px', whiteSpace: 'nowrap' }}>
+                                    <div className="flex justify-center">
+                                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </div>
+                                  </td>
+                                )
+                              }
+
+                              if (isDesc) {
+                                return (
+                                  <td key={cell.id} className="px-2 py-1.5 text-center" style={{ minWidth: '60px', whiteSpace: 'nowrap' }}>
+                                    <div className="flex items-center justify-center gap-1.5">
+                                      {hasDetail && (
+                                        <IoIosArrowDown size={11} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} style={{ color: 'var(--endeavour)', flexShrink: 0 }} />
+                                      )}
+                                      <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center" style={{ backgroundColor: '#ffffff', border: '1px solid #d8e8f5' }}>
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                      </div>
+                                    </div>
+                                  </td>
+                                )
+                              }
 
                               return (
                                 <td
@@ -486,6 +569,14 @@ const Customtable = ({
                               )
                             })}
                           </tr>
+                          {isOpen && hasDetail && (
+                            <tr style={{ background: '#f7fbff' }}>
+                              <td colSpan={sub.getVisibleCells().length} style={{ border: 'none', background: '#f7fbff', padding: '6px 18px 14px' }}>
+                                <DetailPanel lots={sub.original.lots} shipments={sub.original.shipments} />
+                              </td>
+                            </tr>
+                          )}
+                          </Fragment>
                         )
                       })}
                     </Fragment>

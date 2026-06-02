@@ -836,6 +836,8 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
                                 <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <SortTh colKey="percentage" label="Prepayment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                                <th className="text-left">Prep. Amount</th>
+                                <th className="text-left">ETD</th>
                                 <th className="text-left">Pmn</th>
                                 <th className="text-left p-1 2xl:p-1 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
@@ -871,6 +873,18 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                         <td className="text-left">{
                                             z.percentage + '%'
                                         }</td>
+                                        <td className="text-left">{
+                                            <NumericFormat
+                                                value={z.totalAmount * (z.percentage / 100) || 0}
+                                                displayType="text"
+                                                thousandSeparator
+                                                allowNegative={true}
+                                                prefix={z.cur === 'us' ? '$' : '€'}
+                                                decimalScale='2'
+                                                fixedDecimalScale
+                                            />
+                                        }</td>
+                                        <td className="text-left">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
                                         <td className="text-left !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>
                                                 <div className='flex items-center justify-start'>
@@ -901,9 +915,11 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <th className="text-left">
                                     {showAmount(filteredArr1.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
                                 </th>
+                                <th></th>
                                 <th className="text-left">
                                     {showAmount(filteredArr1.reduce((sum, item) => sum + item.totalAmount * (item.percentage / 100), 0), 'usd')}
                                 </th>
+                                <th></th>
                                 <th></th>
                                 <th className="text-left">
                                     <div className='flex items-center justify-start'>

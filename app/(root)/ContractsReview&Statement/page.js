@@ -32,6 +32,56 @@ import { Switch } from "../../../components/ui/switch";
 import React from "react";
 import VideoLoader from '../../../components/videoLoader';
 
+// ── Statement roll-up indicators ───────────────────────────────────────────
+const fmtMT = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number(n) || 0);
+
+// Single computed chip for the sold/unsold roll-up of a contract line's lots
+const StatusChip = ({ rollup }) => {
+    if (!rollup || rollup.tone === 'none' || !rollup.receivedQty) {
+        return <span className="responsiveTextTable" style={{ color: 'var(--regent-gray)' }}>—</span>;
+    }
+    const { tone, soldQty, receivedQty } = rollup;
+    const styles = {
+        sold: { bg: '#dcfce7', color: '#166534', border: '#bbf7d0', label: 'Sold' },
+        partial: { bg: '#fef9c3', color: '#92400e', border: '#fde68a', label: `Sold ${fmtMT(soldQty)} / ${fmtMT(receivedQty)} MT` },
+        unsold: { bg: '#fee2e2', color: '#dc2626', border: '#fecaca', label: `Unsold ${fmtMT(receivedQty)} MT` },
+    };
+    const s = styles[tone] || styles.unsold;
+    return (
+        <span className="px-3 py-1 rounded-xl responsiveTextTable font-normal whitespace-nowrap"
+            style={{ backgroundColor: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
+            {s.label}
+        </span>
+    );
+};
+
+// Shipped-vs-contracted progress bar
+const ProgressBar = ({ shipped, total }) => {
+    const t = parseFloat(total) || 0;
+    const s = parseFloat(shipped) || 0;
+    const pct = t > 0 ? Math.max(0, Math.min(100, Math.round((s / t) * 100))) : 0;
+    const color = pct >= 100 ? '#16a34a' : pct > 0 ? 'var(--endeavour)' : '#cbd5e1';
+    return (
+        <div className="flex flex-col items-center gap-1" style={{ minWidth: 84 }}>
+            <div style={{ width: '100%', height: 6, borderRadius: 9999, background: '#e6eef7', overflow: 'hidden' }}>
+                <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 9999, transition: 'width .2s' }} />
+            </div>
+            <span style={{ color: 'var(--port-gore)', fontSize: '0.6rem', fontWeight: 500 }}>{fmtMT(s)} / {fmtMT(t)} · {pct}%</span>
+        </div>
+    );
+};
+
+// Clean vertical stack for multi-value cells (consignee, PO, destination, invoice)
+const StackCell = ({ value }) => {
+    const arr = Array.isArray(value) ? value : (value ? [value] : []);
+    if (arr.length === 0) return '';
+    return (
+        <div className="flex flex-col items-center gap-0.5">
+            {arr.map((v, i) => <div key={i} className="whitespace-nowrap">{v}</div>)}
+        </div>
+    );
+};
+
 const TotalInvoicePayments = (data, val, mult) => {
     let accumulatedPmnt = 0;
 
@@ -360,6 +410,7 @@ const ContractsMerged = () => {
                 let totalPo = [];
                 let totalDestination = [];
                 let totalInvoices = [];
+                let shipments = [];
 
                 let invTypeArr = getInvArray(obj)
 
@@ -379,12 +430,26 @@ const ContractsMerged = () => {
                                 totalClients.push(clnt)
                                 totalDestination.push(pod)
                                 totalInvoices.push(z.invoice)
+                                shipments.push({
+                                    invoice: z.invoice,
+                                    consignee: clnt,
+                                    po: countPOs > 1 ? (f.po).trim() : (z.productsDataInvoice[0].po).trim(),
+                                    destination: pod,
+                                    qnty: parseFloat(f.qnty) || 0,
+                                })
                             }
                         })
                     }
                 })
 
                 let objTmp = obj.stcokData.filter(c => c.description === x).filter(v => v.qnty * 1 !== 0)
+
+                const lots = objTmp.map(l => ({ qnty: parseFloat(l.qnty) || 0, status: (l.status || '').toLowerCase() }))
+                const receivedQty = lots.reduce((t, l) => t + l.qnty, 0)
+                const soldQty = lots.filter(l => l.status === 'sold').reduce((t, l) => t + l.qnty, 0)
+                let tone = 'none'
+                if (receivedQty > 0.0001) tone = soldQty <= 0.0001 ? 'unsold' : (soldQty < receivedQty - 0.0001 ? 'partial' : 'sold')
+
                 newObj = {
                     supplier: obj.supplier, date: obj.date, order: obj.order, poWeight: total,
                     comments: obj.comments, description: obj.productsData.find(z => z.id === x).description,
@@ -399,7 +464,10 @@ const ContractsMerged = () => {
                     status: objTmp.map(x => x.qnty + '-' + (x.status ?? '')),
                     qntyReceived: objTmp.reduce((total, obj1) => {
                         return total + obj1.qnty * 1;
-                    }, 0)
+                    }, 0),
+                    lots,
+                    shipments,
+                    soldRollup: { tone, soldQty, receivedQty },
                 }
                 newArr.push(newObj)
             })
@@ -593,21 +661,12 @@ const ContractsMerged = () => {
         {
             accessorKey: 'client', header: getTtl('Consignee', ln),
             filterFn: arrayIncludesString,
-            cell: (props) => {
-                const val = props.getValue();
-                if (enabledSwitch) return val;
-                const joined = Array.isArray(val) ? val.join(', ') : val;
-                return (
-                    <Tltip direction="right" tltpText={joined}>
-                        <div className="truncate max-w-[100px]">{joined}</div>
-                    </Tltip>
-                );
-            },
+            cell: (props) => <StackCell value={props.getValue()} />,
         },
         { accessorKey: 'poWeight', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props.getValue())}</p> },
         { accessorKey: 'description', header: getTtl('Description', ln), cell: (props) => <p className='text-wrap w-20  md:w-64'>{props.getValue()}</p> },
         { accessorKey: 'unitPrc', header: getTtl('purchaseValue', ln), cell: (props) => <p>{showAmountStatement(props)}</p> },
-        { accessorKey: 'shiipedWeight', header: getTtl('Shipped Weight', ln) + ' MT', cell: (props) => <p>{showWeight(props.getValue())}</p> },
+        { accessorKey: 'shiipedWeight', header: getTtl('Shipped Weight', ln) + ' MT', cell: (props) => <ProgressBar shipped={props.getValue()} total={props.row.original.poWeight} /> },
         {
             accessorKey: 'remaining', header: getTtl('Remaining Weight', ln) + ' MT', cell: (props) => <p className={`${props.getValue() < 0 ? 'text-red-400 font-semibold' : ''}`}>
                 {props.getValue() > 0 ? showWeight(props.getValue()) : showWeight(props.getValue() * -1)}</p>
@@ -623,61 +682,22 @@ const ContractsMerged = () => {
         {
             accessorKey: 'status', header: getTtl('Status', ln),
             filterFn: arrayIncludesString,
-            cell: (props) => {
-                const val = props.getValue();
-                const items = Array.isArray(val) ? val : (val ? [val] : []);
-                if (enabledSwitch) return items.join(', ');
-                return (
-                    <div className="flex flex-col">
-                        {items.map((item, index) => {
-                            const dashIdx = typeof item === 'string' ? item.lastIndexOf('-') : -1;
-                            const display = dashIdx > -1
-                                ? `${item.slice(0, dashIdx)} — ${item.slice(dashIdx + 1)}`
-                                : item;
-                            return <div key={index}>{display}</div>;
-                        })}
-                    </div>
-                );
-            },
+            cell: (props) => <StatusChip rollup={props.row.original.soldRollup} />,
         },
         {
             accessorKey: 'totalPo', header: getTtl('PO Client', ln),
             filterFn: arrayIncludesString,
-            cell: (props) => {
-                return enabledSwitch ? props.getValue() : (
-                    <div className="flex flex-col">
-                        {props.getValue().map((totalPo, index) => (
-                            <div key={index}>{totalPo}</div>
-                        ))}
-                    </div>
-                );
-            },
+            cell: (props) => <StackCell value={props.getValue()} />,
         },
         {
             accessorKey: 'destination', header: getTtl('Destination', ln),
             filterFn: arrayIncludesString,
-            cell: (props) => {
-                return enabledSwitch ? props.getValue() : (
-                    <div className="flex flex-col">
-                        {props.getValue().map((destination, index) => (
-                            <div key={index}>{destination}</div>
-                        ))}
-                    </div>
-                );
-            },
+            cell: (props) => <StackCell value={props.getValue()} />,
         },
         {
             accessorKey: 'invoiceNum', header: getTtl('Invoice', ln),
             filterFn: arrayIncludesString,
-            cell: (props) => {
-                return enabledSwitch ? props.getValue() : (
-                    <div className="flex flex-col">
-                        {props.getValue().map((invoiceNum, index) => (
-                            <div key={index}>{invoiceNum}</div>
-                        ))}
-                    </div>
-                );
-            },
+            cell: (props) => <StackCell value={props.getValue()} />,
         },
         { accessorKey: 'comments', header: getTtl('Comments/Status', ln), cell: (props) => <span className='w-[560px] flex text-wrap'>{props.getValue()}</span> },
     ];
@@ -758,6 +778,11 @@ const ContractsMerged = () => {
         let newArr = []
         for (let i of groupedArray1) {
 
+            const aggReceived = i.reduce((t, o) => t + (o.soldRollup?.receivedQty || 0), 0)
+            const aggSold = i.reduce((t, o) => t + (o.soldRollup?.soldQty || 0), 0)
+            let aggTone = 'none'
+            if (aggReceived > 0.0001) aggTone = aggSold <= 0.0001 ? 'unsold' : (aggSold < aggReceived - 0.0001 ? 'partial' : 'sold')
+
             newArr.push({
                 ...i[0],
                 poWeight: i.reduce((total, obj) => {
@@ -777,27 +802,10 @@ const ContractsMerged = () => {
                 destination: '',
                 status: '',
                 invoiceNum: '',
-                subRows: i.map(z => ({
-                    ...z, client: z.client.map((item, index) => {
-                        return <div key={index}>{item}</div>
-                    }),
-                    totalPo: z.totalPo.map((item, index) => {
-                        return <div key={index}>{item}</div>
-                    }),
-                    destination: z.destination.map((item, index) => {
-                        return <div key={index}>{item}</div>
-                    }),
-                    invoiceNum: z.invoiceNum.map((item, index) => {
-                        return <div key={index}>{item}</div>
-                    }),
-                    status: z.status.map((item, index) => {
-                        const dashIdx = typeof item === 'string' ? item.lastIndexOf('-') : -1;
-                        const display = dashIdx > -1
-                            ? `${item.slice(0, dashIdx)} — ${item.slice(dashIdx + 1)}`
-                            : item;
-                        return <div key={index}>{display}</div>
-                    }),
-                }))
+                lots: [],
+                shipments: [],
+                soldRollup: { tone: aggTone, soldQty: aggSold, receivedQty: aggReceived },
+                subRows: i.map(z => ({ ...z })),
             })
         }
 
