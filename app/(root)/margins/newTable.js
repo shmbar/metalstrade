@@ -222,7 +222,12 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                     prefix="$"
                     decimalScale={2}
                     fixedDecimalScale
-                    className="w-full bg-transparent border-none outline-none px-1 text-[var(--port-gore)] text-center text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]"
+                    className={cn(
+                      "w-full bg-transparent border-none outline-none px-1 text-center text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]",
+                      cell.column.id === "remaining" && Number(cell.getValue()) > 0
+                        ? "text-red-600 font-semibold"
+                        : "text-[var(--port-gore)]"
+                    )}
                     style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
                   />
                 </div>
@@ -237,7 +242,12 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                 prefix={currs.includes(cell.column.id) ? "$" : ""}
                 decimalScale={currs.includes(cell.column.id) ? 2 : 3}
                 fixedDecimalScale
-                className="w-full bg-transparent border-none outline-none px-1 text-[var(--port-gore)] text-center text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]"
+                className={cn(
+                  "w-full bg-transparent border-none outline-none px-1 text-center text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]",
+                  ["openShip", "remaining"].includes(cell.column.id) && Number(cell.getValue()) > 0
+                    ? "text-red-600 font-semibold"
+                    : "text-[var(--port-gore)]"
+                )}
                 style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
               />
             )}
@@ -455,8 +465,8 @@ const Customtable = (props) => {
                                                                     fixedDecimalScale
                                                                     className="text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]"
                                                                     style={{
-                                                                        color: 'var(--chathams-blue)',
-                                                                        fontWeight: '500',
+                                                                        color: ['openShip', 'remaining'].includes(accessorKey) && total > 0 ? '#dc2626' : 'var(--chathams-blue)',
+                                                                        fontWeight: ['openShip', 'remaining'].includes(accessorKey) && total > 0 ? '600' : '500',
                                                                         lineHeight: '1.2'
                                                                     }}
                                                                 />
@@ -598,8 +608,8 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                                         fixedDecimalScale
                                                                         className="responsiveTextTable"
                                                                         style={{
-                                                                            color: 'var(--chathams-blue)',
-                                                                            fontWeight: '400',
+                                                                            color: ['openShip', 'remaining'].includes(col.accessorKey) && Number(displayVal) > 0 ? '#dc2626' : 'var(--chathams-blue)',
+                                                                            fontWeight: ['openShip', 'remaining'].includes(col.accessorKey) && Number(displayVal) > 0 ? '600' : '400',
                                                                             lineHeight: '1.2'
                                                                         }}
                                                                     />

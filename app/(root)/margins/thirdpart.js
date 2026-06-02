@@ -249,6 +249,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         decimalScale={!Number.isInteger(z.openShip) && '2'}
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
+                                                        style={{ color: Number(z.openShip) > 0 ? '#dc2626' : undefined, fontWeight: Number(z.openShip) > 0 ? 600 : undefined }}
                                                     />
                                                 </div>
                                             </td>
@@ -276,6 +277,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         decimalScale="2"
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
+                                                        style={{ color: Number(z.remaining) > 0 ? '#dc2626' : undefined, fontWeight: Number(z.remaining) > 0 ? 600 : undefined }}
                                                     />
                                                 </div>
                                                 </Tltip>
@@ -290,6 +292,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         decimalScale="2"
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
+                                                        style={{ color: Number(z.remaining) > 0 ? '#dc2626' : undefined, fontWeight: Number(z.remaining) > 0 ? 600 : undefined }}
                                                     />
                                                 </div>
                                                 )}
@@ -400,6 +403,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     allowNegative={true}
                                                     decimalScale="2"
                                                     fixedDecimalScale
+                                                    style={{ color: Number(outStandingShip) > 0 ? '#dc2626' : undefined, fontWeight: Number(outStandingShip) > 0 ? 600 : undefined }}
                                                 />
                                             </div>
                                         </td>
@@ -427,6 +431,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     prefix={'$'}
                                                     decimalScale="2"
                                                     fixedDecimalScale
+                                                    style={{ color: Number(remaining) > 0 ? '#dc2626' : undefined, fontWeight: Number(remaining) > 0 ? 600 : undefined }}
                                                 />
                                             </div>
                                             </Tltip>
@@ -440,6 +445,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     prefix={'$'}
                                                     decimalScale="2"
                                                     fixedDecimalScale
+                                                    style={{ color: Number(remaining) > 0 ? '#dc2626' : undefined, fontWeight: Number(remaining) > 0 ? 600 : undefined }}
                                                 />
                                             </div>
                                             )}
@@ -737,6 +743,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 prefix={'$'}
                                                 decimalScale="2"
                                                 fixedDecimalScale
+                                                style={{ color: Number(remaining) > 0 ? '#dc2626' : undefined, fontWeight: Number(remaining) > 0 ? 600 : undefined }}
                                             />
                                         </div>
                                     </div>
