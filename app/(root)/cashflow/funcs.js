@@ -768,6 +768,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 prefix={z.cur === 'us' ? '$' : '€'}
                                                 decimalScale='2'
                                                 fixedDecimalScale
+                                                style={{ color: Number(z.debtBlnc) > 0 ? '#dc2626' : undefined, fontWeight: Number(z.debtBlnc) > 0 ? 600 : undefined }}
                                             />
                                         }</td>
                                         <td className="text-left">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
@@ -807,7 +808,10 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                         .reduce((sum, payment) => sum + (parseFloat(payment.pmnt) || 0), 0), 'usd')}
                                 </th>
                                 <th className="text-left">
-                                    {showAmount(filteredArr.reduce((sum, item) => sum + item.debtBlnc, 0), 'usd')}
+                                    {(() => {
+                                        const t = filteredArr.reduce((sum, item) => sum + item.debtBlnc, 0);
+                                        return <span style={{ color: t > 0 ? '#dc2626' : undefined, fontWeight: t > 0 ? 600 : undefined }}>{showAmount(t, 'usd')}</span>;
+                                    })()}
                                 </th>
                                 <th></th>
                                 <th></th>
@@ -1170,6 +1174,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         prefix={z.cur === 'us' ? '$' : '€'}
                                         decimalScale='2'
                                         fixedDecimalScale
+                                        style={{ color: Number(z.blnc) > 0 ? '#dc2626' : undefined, fontWeight: Number(z.blnc) > 0 ? 600 : undefined }}
                                     />
                                 }</td>
                                 <td className="text-left !py-1">
@@ -1202,7 +1207,10 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.pmnt * 1, 0), 'usd')}
                         </th>
                         <th className="text-left">
-                            {showAmount(filteredArr.reduce((sum, item) => sum + item.blnc * 1, 0), 'usd')}
+                            {(() => {
+                                const t = filteredArr.reduce((sum, item) => sum + item.blnc * 1, 0);
+                                return <span style={{ color: t > 0 ? '#dc2626' : undefined, fontWeight: t > 0 ? 600 : undefined }}>{showAmount(t, 'usd')}</span>;
+                            })()}
                         </th>
                         <th></th>
                         <th className="text-left">

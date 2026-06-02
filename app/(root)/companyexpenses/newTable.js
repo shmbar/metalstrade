@@ -420,12 +420,12 @@ const Customtable = ({
                     style={{
                       backgroundColor:
                         value === 'Paid' ? '#dcfce7' :
-                        value === 'Unpaid' ? '#fef9c3' : '#f8fbff',
+                        value === 'Unpaid' ? '#fee2e2' : '#f8fbff',
                       color:
                         value === 'Paid' ? '#166534' :
-                        value === 'Unpaid' ? '#92400e' : 'var(--port-gore)',
-                      border: `1px solid ${value === 'Paid' ? '#bbf7d0' : value === 'Unpaid' ? '#fde68a' : '#d8e8f5'}`,
-                      fontWeight: '400',
+                        value === 'Unpaid' ? '#dc2626' : 'var(--port-gore)',
+                      border: `1px solid ${value === 'Paid' ? '#bbf7d0' : value === 'Unpaid' ? '#fecaca' : '#d8e8f5'}`,
+                      fontWeight: value === 'Unpaid' ? '600' : '400',
                       ...(isEditMode && { boxShadow: 'inset 0 0 0 1px #d1d1d1' })
                     }}
                   >
