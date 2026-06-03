@@ -464,6 +464,9 @@ const TitlesArr = [
     {
         'Material Tables': ['Material Tables', 'Материал таблицы']
     },
+    {
+        'Activity Log': ['Activity Log', 'Журнал действий']
+    },
      {
         'Formulas Calc': ['Formulas Calc', 'Формулы']
     },
