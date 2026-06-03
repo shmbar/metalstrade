@@ -212,7 +212,7 @@ export const logEvent = async (uidCollection, evt = {}) => {
     // which carries per-user read state + snooze. Same id links the two.
     if (evt.notify) {
       await setDoc(doc(db, uidCollection, 'data', 'notifications', id), {
-        ...record, severity: evt.severity || 'info', readBy: [], snoozedBy: {},
+        ...record, severity: evt.severity || 'info', readBy: [], readReceipts: {}, snoozedBy: {},
       });
     }
     return record;
@@ -242,18 +242,28 @@ export const loadActivity = async (uidCollection, { entityType, entityId, max = 
 
 // Per-user read state + snooze for notifications (the mutable companion to the
 // append-only activity feed). All best-effort — never throw to the caller.
-export const markNotificationRead = async (uidCollection, id, uid) => {
+// `readBy` stays for the fast unread check; `readReceipts` is the tracking history —
+// a map of uid → { name, at } recording WHO read it and WHEN (first read wins via
+// arrayUnion on readBy; the receipt timestamp is the moment they marked it).
+export const markNotificationRead = async (uidCollection, id, uid, name) => {
   if (!uidCollection || !id || !uid) return;
   try {
-    await updateDoc(doc(db, uidCollection, 'data', 'notifications', id), { readBy: arrayUnion(uid) });
+    await updateDoc(doc(db, uidCollection, 'data', 'notifications', id), {
+      readBy: arrayUnion(uid),
+      [`readReceipts.${uid}`]: { name: name || 'Unknown', at: new Date().toISOString() },
+    });
   } catch (e) { console.warn('markNotificationRead failed:', e?.message || e); }
 }
 
-export const markAllNotificationsRead = async (uidCollection, ids, uid) => {
+export const markAllNotificationsRead = async (uidCollection, ids, uid, name) => {
   if (!uidCollection || !uid || !ids?.length) return;
   try {
+    const at = new Date().toISOString();
     const batch = writeBatch(db);
-    ids.forEach(id => batch.update(doc(db, uidCollection, 'data', 'notifications', id), { readBy: arrayUnion(uid) }));
+    ids.forEach(id => batch.update(doc(db, uidCollection, 'data', 'notifications', id), {
+      readBy: arrayUnion(uid),
+      [`readReceipts.${uid}`]: { name: name || 'Unknown', at },
+    }));
     await batch.commit();
   } catch (e) { console.warn('markAllNotificationsRead failed:', e?.message || e); }
 }
@@ -298,7 +308,7 @@ export const ensureNotification = async (uidCollection, id, payload = {}) => {
     await setDoc(ref, {
       id, createdAt: now.toISOString(), createdAtMs: now.getTime(),
       actorUid: 'system', actorName: 'System', audience: 'all',
-      readBy: [], snoozedBy: {}, severity: 'info', notify: true,
+      readBy: [], readReceipts: {}, snoozedBy: {}, severity: 'info', notify: true,
       ...payload,
     });
   } catch (e) { console.warn('ensureNotification failed:', e?.message || e); }

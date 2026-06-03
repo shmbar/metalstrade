@@ -116,6 +116,9 @@ const NotificationBell = () => {
                                 const meta = metaFor(n.entityType);
                                 const Icon = meta.icon;
                                 const unreadFlag = unreadIds.has(n.id);
+                                const receipts = Object.values(n.readReceipts || {}); // [{ name, at }]
+                                const seenTitle = receipts.map(r => `${r.name} — ${relativeTime(new Date(r.at).getTime())}`).join('\n');
+                                const seenSummary = receipts.length === 1 ? receipts[0].name : `${receipts[0]?.name} +${receipts.length - 1}`;
                                 return (
                                     <div
                                         key={n.id}
@@ -135,6 +138,11 @@ const NotificationBell = () => {
                                                 <span>·</span>
                                                 <span title={n.createdAt}>{relativeTime(n.createdAtMs)}</span>
                                             </div>
+                                            {receipts.length > 0 && (
+                                                <div className='flex items-center gap-1 mt-0.5' style={{ fontSize: '0.55rem', color: '#16a34a' }} title={seenTitle}>
+                                                    <CheckCheck className='w-2.5 h-2.5' /> Seen by {seenSummary}
+                                                </div>
+                                            )}
                                         </button>
                                         <div className='flex flex-col items-center gap-1 flex-shrink-0'>
                                             <button onClick={() => markRead?.(n.id)} title='Mark as read' className='p-0.5 rounded hover:bg-[#dbeeff]'>

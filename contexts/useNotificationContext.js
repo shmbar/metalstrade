@@ -33,6 +33,7 @@ function chime() {
 const NotificationProvider = ({ children }) => {
     const { uidCollection, currentUser } = UserAuth() || {};
     const uid = currentUser?.uid || '';
+    const name = currentUser?.name || '';
 
     const [all, setAll] = useState([]);
     const [muted, setMuted] = useState(false);
@@ -91,10 +92,10 @@ const NotificationProvider = ({ children }) => {
     );
     const unreadCount = unread.length;
 
-    const markRead = useCallback((id) => markNotificationRead(uidCollection, id, uid), [uidCollection, uid]);
+    const markRead = useCallback((id) => markNotificationRead(uidCollection, id, uid, name), [uidCollection, uid, name]);
     const markAllRead = useCallback(
-        () => markAllNotificationsRead(uidCollection, unread.map(n => n.id), uid),
-        [uidCollection, unread, uid]
+        () => markAllNotificationsRead(uidCollection, unread.map(n => n.id), uid, name),
+        [uidCollection, unread, uid, name]
     );
     const snooze = useCallback(
         (id, ms) => snoozeNotification(uidCollection, id, uid, Date.now() + ms),
