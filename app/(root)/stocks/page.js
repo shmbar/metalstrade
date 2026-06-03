@@ -15,6 +15,7 @@ import { EXD } from './excel'
 import { getTtl } from '../../../utils/languages';
 import SumTable from './sumtables/sumTable'
 import GradeTable from './sumtables/gradeTable'
+import StorageAging from './storageAging'
 import StockAudit from './stockAudit'
 import { isNumber } from 'mathjs';
 import dateFormat from 'dateformat';
@@ -385,6 +386,9 @@ const Stocks = () => {
                   settings={settings}
                 />
               </div>
+
+              {/* Warehouse / terminal storage-aging monitor (#11) */}
+              <StorageAging data={data} />
             </div>
 
             {/* Modal */}

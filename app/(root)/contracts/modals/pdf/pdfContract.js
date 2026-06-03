@@ -62,7 +62,7 @@ const Signatiure = (doc, compData, gisAccount) => {
 
 }
 
-export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount) => {
+export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mode = 'save') => {
 
 
     const sups = settings.Supplier.Supplier;
@@ -386,6 +386,12 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount) =>
 
     Signatiure(doc, compData, gisAccount)
 
-    doc.save("PO_" + supp.nname + "_" + valueCon.order + ".pdf"); // will save the file in the current working directory
+    const filename = "PO_" + supp.nname + "_" + valueCon.order + ".pdf";
+    // 'preview' → hand the caller a Blob to render in an in-app viewer (no download).
+    // Default 'save' keeps the original behavior (download to the working directory).
+    if (mode === 'preview') {
+        return { blob: doc.output('blob'), filename };
+    }
+    doc.save(filename);
 
 };

@@ -12,7 +12,7 @@ import MonthSelect from '../../../components/monthSelect';
 import Toast from '../../../components/toast.js'
 import ModalCopyInvoice from '../../../components/modalCopyInvoice';
 import useInlineEdit from '../../../hooks/useInlineEdit';
-import { loadData, sortArr, getD, saveDataSettings } from '../../../utils/utils'
+import { loadData, sortArr, getD, saveDataSettings, ensureNotification } from '../../../utils/utils'
 import Spinner from '../../../components/spinner';
 import VideoLoader from '../../../components/videoLoader';
 import { UserAuth } from "../../../contexts/useAuthContext"
@@ -23,7 +23,6 @@ import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
 import Tooltip from '../../../components/tooltip';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Modal from '../../../components/modal';
 import DlayedResponse from './modals/delayedResponse';
 import Image from 'next/image';
 import Tltip from '../../../components/tlTip';
@@ -43,7 +42,6 @@ const Contracts = () => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const [alertArr, setAlertArr] = useState([]);
-	const [openAlert, setOpenAlert] = useState(true)
 	const [filteredData, setFilteredData] = useState([])
 	const [highlightId, setHighlightId] = useState(null)
 	const { upsertSourceItems } = useGlobalSearch();
@@ -102,8 +100,18 @@ const Contracts = () => {
 				}
 			})
 
-			setOpenAlert(true)
 			setAlertArr(invArr)
+
+			// Surface delayed-response alerts in the notification center (idempotent —
+			// create-if-absent keeps repeated loads from duplicating or resetting state).
+			invArr.slice(0, 50).forEach(z => {
+				ensureNotification(uidCollection, `delayed:contract:${z.id}`, {
+					type: 'contract.delayed', entityType: 'contract', entityId: z.id || '',
+					entityLabel: `PO ${z.order ?? ''}`, action: 'delayed', severity: 'warning',
+					message: `PO ${z.order ?? ''} — no purchase invoice 14+ days after delivery`,
+				});
+			});
+
 			setLoading(false)
 		}
 
@@ -403,16 +411,8 @@ const Contracts = () => {
 							/>
 						)}
 
-						{alertArr.length > 0 && (
-							<Modal
-								isOpen={openAlert}
-								setIsOpen={setOpenAlert}
-								title='Notification for delayed response'
-								w='max-w-2xl'
-							>
-								<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
-							</Modal>
-						)}
+						{/* Delayed-response popup retired (#5) — delayed contracts now surface in the
+						    notification center (bell). The inline banner above remains as page context. */}
 					</>
 				}
 			</div>

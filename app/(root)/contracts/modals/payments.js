@@ -37,7 +37,7 @@ const Payments = ({ showPayments }) => {
 
     const { valueInv, setValueInv, saveData_payments } = useContext(InvoiceContext);
     const { settings, ln } = useContext(SettingsContext);
-    const { uidCollection } = UserAuth();
+    const { uidCollection, logActivity } = UserAuth();
     const [checkedItems, setCheckedItems] = useState([]);
     const { contractsData, setContractsData, valueCon } = useContext(ContractsContext);
     const pathName = usePathname();
@@ -120,6 +120,12 @@ const Payments = ({ showPayments }) => {
 
     const saveD = () => {
         saveData_payments(uidCollection)
+        logActivity?.({
+            type: 'payment.recorded', entityType: 'invoice', entityId: valueInv?.id || '',
+            entityLabel: `Invoice #${valueInv?.invoice ?? ''}`, action: 'paid',
+            message: `Payment recorded on Invoice #${valueInv?.invoice ?? ''}`,
+            notify: true, severity: 'success',
+        })
         if (pathName === '/contractsreview' || pathName === '/invoicesreview') { //only for contractsreview table
             let tmpValue = { ...valueCon, lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM") }
             let tmpArr = contractsData.map((k) => (k.id === valueCon.id ? tmpValue : k));

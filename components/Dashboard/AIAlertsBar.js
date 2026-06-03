@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { AlertTriangle, FileWarning, TrendingDown, Bell, Loader2 } from 'lucide-react';
 import { SettingsContext } from '@contexts/useSettingsContext';
 import { UserAuth } from '@contexts/useAuthContext';
-import { loadData, loadMarginsRange, resolveDueDate } from '@utils/utils';
+import { loadData, loadMarginsRange, resolveDueDate, ensureNotification } from '@utils/utils';
 
 // Compact pill button used for each alert chip
 function AlertPill({ icon: Icon, label, count, severity, onClick }) {
@@ -68,6 +68,7 @@ const AIAlertsBar = () => {
                 let due = 0;
                 let balance = 0;
                 let recentReminders = 0;
+                const overdueInvs = [];
                 const reminderCutoff = Date.now() - 7 * 86400000;
                 invoices.forEach(inv => {
                     // Issued = not a draft and not canceled (matches Cashflow debt logic)
@@ -77,12 +78,27 @@ const AIAlertsBar = () => {
                         const balanceDue = inv.debtBlnc != null ? parseFloat(inv.debtBlnc) : totalAmt - totalPaid;
                         if (balanceDue > 0.01) {
                             const dueDate = resolveDueDate(inv);
-                            if (dueDate && new Date(dueDate) < today) due++;
+                            if (dueDate && new Date(dueDate) < today) { due++; overdueInvs.push({ ...inv, _balanceDue: balanceDue, _dueDate: dueDate }); }
                             else balance++;
                         }
                     }
                     (inv.reminders || []).forEach(r => {
                         if (r.sentAt && new Date(r.sentAt).getTime() >= reminderCutoff) recentReminders++;
+                    });
+                });
+
+                // Turn overdue receivables into real (idempotent) notifications so they
+                // surface in the bell, not just as a count. ensureNotification is
+                // create-if-absent — repeated dashboard loads neither duplicate nor
+                // reset read/snooze. Capped to avoid a burst of reads.
+                overdueInvs.slice(0, 50).forEach(inv => {
+                    const days = Math.max(0, Math.ceil((today.getTime() - new Date(inv._dueDate).getTime()) / 86400000));
+                    const clientName = settings?.Client?.Client?.find(c => c.id === inv.client)?.nname || 'client';
+                    const cur = settings?.Currency?.Currency?.find(c => c.id === inv.cur)?.cur || '';
+                    ensureNotification(uidCollection, `overdue:invoice:${inv.id}`, {
+                        type: 'settlement.overdue', entityType: 'invoice', entityId: inv.id || '',
+                        entityLabel: `Invoice #${inv.invoice ?? ''}`, action: 'overdue', severity: 'warning',
+                        message: `Invoice #${inv.invoice ?? ''} overdue ${days}d — ${cur} ${Number(inv._balanceDue || 0).toFixed(2)} (${clientName})`,
                     });
                 });
 

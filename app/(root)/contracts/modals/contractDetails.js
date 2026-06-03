@@ -20,8 +20,12 @@ import FinalSettlmentModal from './finalSettlmentModal.js';
 import CheckBox from '@components/checkbox.js';
 import Tltip from '@components/tlTip.js';
 import { Selector } from '@components/selectors/selectShad';
-import { X, Save, LoaderCircle, FileText, Trash, Copy, SendToBack, Database, Files } from "lucide-react"
+import { X, Save, LoaderCircle, FileText, Trash, Copy, SendToBack, Database, Files, Eye, History, MessageSquare } from "lucide-react"
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
+import PdfPreview from '@components/PdfPreview';
+import Modal from '@components/modal';
+import ActivityLog from '@components/ActivityLog';
+import CommentThread from '@components/CommentThread';
 import { v4 as uuidv4 } from 'uuid';
 
 const ContractModal = () => {
@@ -34,12 +38,38 @@ const ContractModal = () => {
 	const supplier = valueCon.supplier && sups.find(z => z.id === valueCon.supplier);
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 	const [isDuplicateOpen, setIsDuplicateOpen] = useState(false)
-	const { uidCollection, gisAccount } = UserAuth();
+	const { uidCollection, gisAccount, logActivity } = UserAuth();
 	const [showFilesModal, setShowFilesModal] = useState(false)
 	const [showPoInvModal, setShowPoInvModal] = useState(false)
 	const [showStockModal, setShowStockModal] = useState(false)
 	const [showFinalSettlmntModal, setShowFinalSettlmntModal] = useState(false);
 	const [showDocImport, setShowDocImport] = useState(false);
+	const [pdfPreview, setPdfPreview] = useState(null);
+	const [showHistory, setShowHistory] = useState(false);
+	const [showComments, setShowComments] = useState(false);
+
+	// Build the PO product-table rows exactly as the PO PDF generator expects them.
+	// Shared by both the Preview and the Download (PDF) buttons so they can't drift.
+	const buildPoTable = () =>
+		reOrderTableCon(valueCon.productsData.filter(x => !x.import)).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
+			.map((values, index) => {
+				const number = values[1];
+				const number1 = values[2];
+				const formattedNumber = new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(number);
+				const formattedNumber1 = isNaN(number1 * 1) ? number1 :
+					new Intl.NumberFormat('en-US', {
+						style: 'currency',
+						currency: valueCon.cur !== '' ? getD(settings.Currency.Currency, valueCon, 'cur') : 'USD',
+						minimumFractionDigits: 2
+					}).format(number1);
+				return [index + 1, values[0], formattedNumber, formattedNumber1];
+			});
+
+	// Open the PO as an in-app preview (looks exactly like the supplier's PDF, no download).
+	const openPoPreview = async () => {
+		const res = await Pdf(valueCon, buildPoTable(), settings, compData, gisAccount, 'preview');
+		if (res?.blob) setPdfPreview({ blob: res.blob, filename: res.filename });
+	};
 
 	const pathName = usePathname();
 
@@ -68,6 +98,7 @@ const ContractModal = () => {
 
 
 		if (!isButtonDisabled) {
+			const wasNew = !valueCon.id; // new contracts start with id '' (assigned on save)
 			setIsButtonDisabled(true);
 			let result = await saveData(uidCollection)
 			if (!result) setIsButtonDisabled(false); //false
@@ -75,6 +106,13 @@ const ContractModal = () => {
 			setTimeout(() => {
 				setIsButtonDisabled(false);
 				result && setToast({ show: true, text: getTtl('Contract successfully saved!', ln), clr: 'success' })
+				result && logActivity({
+					type: wasNew ? 'contract.created' : 'contract.updated',
+					entityType: 'contract', entityId: valueCon.id || '',
+					entityLabel: `PO ${valueCon.order ?? ''}`, action: wasNew ? 'created' : 'updated',
+					message: `Contract PO ${valueCon.order ?? ''} ${wasNew ? 'created' : 'updated'}`,
+					notify: wasNew, severity: 'info', // notify on creation only — updates aren't noise-worthy
+				})
 			}, 3000); // Adjust the delay as needed
 		}
 	}
@@ -560,7 +598,32 @@ const ContractModal = () => {
 						{getTtl('Close', ln)}
 					</button>
 				</Tltip>
-				<Tltip direction='top' tltpText='Create PDF document'>
+				<Tltip direction='top' tltpText='Preview the PO exactly as the supplier receives it — no download'>
+						<button
+							className="whiteButton py-1"
+							onClick={openPoPreview}
+						>
+							<Eye className='size-4' />
+							Preview
+						</button>
+					</Tltip>
+					{valueCon.id !== '' && (
+						<Tltip direction='top' tltpText='View the activity / change history for this contract'>
+							<button className="whiteButton py-1" onClick={() => setShowHistory(true)}>
+								<History className='size-4' />
+								History
+							</button>
+						</Tltip>
+					)}
+					{valueCon.id !== '' && (
+						<Tltip direction='top' tltpText='Comments & team discussion for this contract'>
+							<button className="whiteButton py-1" onClick={() => setShowComments(true)}>
+								<MessageSquare className='size-4' />
+								Comments
+							</button>
+						</Tltip>
+					)}
+					<Tltip direction='top' tltpText='Create PDF document'>
 					<button
 						className="whiteButton py-1"
 						onClick={() => Pdf(valueCon,
@@ -677,9 +740,27 @@ const ContractModal = () => {
 			<ModalToDelete isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}
 				ttl={getTtl('delConfirmation', ln)} txt={getTtl('delConfirmationTxtContract', ln)}
 				doAction={() => delContract(uidCollection)} />
+			{pdfPreview && (
+				<PdfPreview
+					blob={pdfPreview.blob}
+					filename={pdfPreview.filename}
+					title={pdfPreview.filename}
+					onClose={() => setPdfPreview(null)}
+				/>
+			)}
 			<ModalToDelete isDeleteOpen={isDuplicateOpen} setIsDeleteOpen={setIsDuplicateOpen}
 				ttl={getTtl('Duplicate Contract', ln)} txt={getTtl('duplicateConfirmationTxt', ln)}
 				doAction={() => duplicate(uidCollection)} />
+			{showHistory && (
+				<Modal isOpen={showHistory} setIsOpen={setShowHistory} title='Activity / History' w='max-w-2xl'>
+					<ActivityLog entityType='contract' entityId={valueCon.id} />
+				</Modal>
+			)}
+			{showComments && (
+				<Modal isOpen={showComments} setIsOpen={setShowComments} title={`Comments — PO ${valueCon.order ?? ''}`} w='max-w-lg'>
+					<CommentThread entityType='contract' entityId={valueCon.id} entityLabel={`PO ${valueCon.order ?? ''}`} />
+				</Modal>
+			)}
 
 			{
 				showFilesModal && <FilesModal isOpen={showFilesModal} setIsOpen={setShowFilesModal}

@@ -27,7 +27,10 @@ import { getTtl } from '@utils/languages.js';
 import Tltip from '@components/tlTip.js';
 import { Selector } from '@components/selectors/selectShad.js';
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
-import { X, Save, LoaderCircle, Eraser, FileText, FileUp, Trash, PanelTopOpen, Banknote, Copy, ClipboardCheck, ChevronDown, ChevronUp, ScrollText } from "lucide-react";
+import Modal from '@components/modal';
+import ActivityLog from '@components/ActivityLog';
+import CommentThread from '@components/CommentThread';
+import { X, Save, LoaderCircle, Eraser, FileText, FileUp, Trash, PanelTopOpen, Banknote, Copy, ClipboardCheck, ChevronDown, ChevronUp, ScrollText, History, MessageSquare } from "lucide-react";
 
 
 const ContractModal = () => {
@@ -45,7 +48,7 @@ const ContractModal = () => {
 	const fnl = valueInv?.final
 	const [showExpenses, setShowExpenses] = useState(false)
 	const [showPayments, setShowPayments] = useState(false)
-	const { uidCollection, gisAccount } = UserAuth();
+	const { uidCollection, gisAccount, logActivity } = UserAuth();
 	const { blankExpense } = useContext(ExpensesContext);
 	const [isSelectedInv, setIsSelectedInv] = useState(true)
 	const [isButtonDisabled, setIsButtonDisabled] = useState(false);
@@ -53,6 +56,8 @@ const ContractModal = () => {
 	const [certOpen, setCertOpen] = useState(false)
 	const [docsOpen, setDocsOpen] = useState(false)
 	const [showDocImport, setShowDocImport] = useState(false)
+	const [showHistory, setShowHistory] = useState(false)
+	const [showComments, setShowComments] = useState(false)
 
 	const selectInvType = (e) => {
 		!fnl && setValueInv({
@@ -227,6 +232,11 @@ const ContractModal = () => {
 			setTimeout(() => {
 				setIsButtonDisabled(false);
 				result && setToast({ show: true, text: getTtl('Invoice successfully saved!', ln), clr: 'success' })
+				result && logActivity({
+					type: 'invoice.saved', entityType: 'invoice', entityId: valueInv.id || '',
+					entityLabel: `Invoice #${valueInv.invoice ?? ''}`, action: 'saved',
+					message: `Invoice #${valueInv.invoice ?? ''} saved` + (valueCon?.order ? ` (PO ${valueCon.order})` : ''),
+				})
 			}, 2000); // Adjust the delay as needed
 		}
 	}
@@ -645,6 +655,22 @@ const ContractModal = () => {
 							{getTtl('Close', ln)}
 						</button>
 					</Tltip>
+					{valueInv.id !== '' && (
+						<Tltip direction='top' tltpText='View the activity / change history for this invoice'>
+							<button className="whiteButton py-1" onClick={() => setShowHistory(true)}>
+								<History className='size-4' />
+								History
+							</button>
+						</Tltip>
+					)}
+					{valueInv.id !== '' && (
+						<Tltip direction='top' tltpText='Comments & team discussion for this invoice'>
+							<button className="whiteButton py-1" onClick={() => setShowComments(true)}>
+								<MessageSquare className='size-4' />
+								Comments
+							</button>
+						</Tltip>
+					)}
 					<Tltip direction='top' tltpText='Create PDF document'>
 						<button
 							className="whiteButton py-1"
@@ -795,10 +821,29 @@ const ContractModal = () => {
 					doAction={() => delInvoice(uidCollection, valueCon, setValueCon, contractsData, setContractsData)} />
 				<ModalToDelete isDeleteOpen={isFinilizeOpen} setIsDeleteOpen={setIsFinilizeOpen}
 					ttl='Invoice finalization' txt='To finalize this invoice please confirm to proceed.'
-					doAction={() => finilizeInvoice(uidCollection, settings)} />
+					doAction={() => {
+						finilizeInvoice(uidCollection, settings);
+						logActivity({
+							type: 'invoice.finalized', entityType: 'invoice', entityId: valueInv.id || '',
+							entityLabel: `Invoice #${valueInv.invoice ?? ''}`, action: 'finalized',
+							message: `Invoice #${valueInv.invoice ?? ''} finalized` + (valueCon?.order ? ` (PO ${valueCon.order})` : ''),
+							notify: true, severity: 'success',
+						});
+					}} />
 				<ModalToDelete isDeleteOpen={isCanceleOpen} setIsDeleteOpen={setIsCancelOpen}
 					ttl='Invoice cancellation' txt='To cancel this invoice please confirm to proceed.'
 					doAction={() => cancelInvoice(uidCollection)} />
+
+				{showHistory && (
+					<Modal isOpen={showHistory} setIsOpen={setShowHistory} title='Activity / History' w='max-w-2xl'>
+						<ActivityLog entityType='invoice' entityId={valueInv.id} />
+					</Modal>
+				)}
+				{showComments && (
+					<Modal isOpen={showComments} setIsOpen={setShowComments} title={`Comments — Invoice #${valueInv.invoice ?? ''}`} w='max-w-lg'>
+						<CommentThread entityType='invoice' entityId={valueInv.id} entityLabel={`Invoice #${valueInv.invoice ?? ''}`} />
+					</Modal>
+				)}
 
 				{showDocImport && (
 					<DocumentImportOverlay

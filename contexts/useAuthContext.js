@@ -1,9 +1,9 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react'
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import { auth } from '../utils/firebase'
-import { loadDataSettings } from '../utils/utils'
+import { loadDataSettings, logEvent } from '../utils/utils'
 
 import { useRouter, usePathname } from "next/navigation";
 import { SettingsContext } from "../contexts/useSettingsContext";
@@ -24,6 +24,21 @@ const AuthContextProvider = ({ children }) => {
   const pathName = usePathname()
 
   const gisAccount = uidCollection=== 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS' ?  true: false
+
+  // Acting user identity for attribution ("who did what"). Firebase displayName
+  // is often unset, so fall back to email. Used by logActivity below.
+  const currentUser = useMemo(() => ({
+    uid: user?.uid || '',
+    name: user?.displayName || user?.email || 'Unknown',
+    email: user?.email || '',
+  }), [user])
+
+  // Fire-and-forget activity logger — auto-injects the acting user + account so
+  // call sites stay one-liners: logActivity({ type, entityType, entityId, ... }).
+  // Never throws; never blocks the caller's save.
+  const logActivity = useCallback((evt = {}) => {
+    return logEvent(uidCollection, { ...evt, actorUid: currentUser.uid, actorName: currentUser.name })
+  }, [uidCollection, currentUser])
 
   const SignIn = async (email, password) => {
     try {
@@ -145,7 +160,7 @@ const AuthContextProvider = ({ children }) => {
 
 
   return (
-    <AuthContext.Provider value={{ user, SignIn, err, SignOut, loadingPage, uidCollection, gisAccount, userTitle }}>
+    <AuthContext.Provider value={{ user, SignIn, err, SignOut, loadingPage, uidCollection, gisAccount, userTitle, currentUser, logActivity }}>
       {children}
     </AuthContext.Provider>
   )

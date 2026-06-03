@@ -28,6 +28,7 @@ import EditableSelectCell from '../../../components/table/inlineEditing/Editable
 import { updateInvoiceField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 import ReminderModal from '../../../components/invoices/ReminderModal';
+import StatusBadge from '../../../components/StatusBadge';
 import { Bell } from 'lucide-react';
 
 
@@ -226,9 +227,7 @@ const Invoices = () => {
 		{
 			accessorKey: 'invoiceStatus',
 			header: getTtl('Status', ln),
-			cell: (props) => <span
-				className={`${setInvStatus(props) === 'Draft' ? 'text-[var(--endeavour)]' : setInvStatus(props) === 'Final' ? 'text-green-600' : 'text-red-600'} 
-			p-1.5 rounded-xl bg-[var(--selago)] px-3 justify-center flex font-medium whitespace-nowrap`}>{setInvStatus(props)}</span>,
+			cell: (props) => <StatusBadge label={setInvStatus(props)} />,
 			size: 100
 		},
 		{

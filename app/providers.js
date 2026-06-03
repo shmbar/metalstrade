@@ -5,11 +5,13 @@ import ContractsProvider from '../contexts/useContractsContext';
 import InvoiceProvider from '../contexts/useInvoiceContext';
 import ExpensesProvider from '../contexts/useExpensesContext';
 import { default as AuthContextProvider } from '../contexts/useAuthContext';
+import NotificationProvider from '../contexts/useNotificationContext';
 
 const Providers=({ children }) =>{
     return (
             <SettingsProvider>
                 <AuthContextProvider>
+                <NotificationProvider>
                 <ContractsProvider >
                     <InvoiceProvider >
                         <ExpensesProvider>
@@ -17,6 +19,7 @@ const Providers=({ children }) =>{
                         </ExpensesProvider>
                     </InvoiceProvider>
                 </ContractsProvider>
+                </NotificationProvider>
                 </AuthContextProvider>
         </SettingsProvider>
     );

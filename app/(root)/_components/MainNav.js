@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext'
 import Tltip from '../../../components/tlTip'
 import { Selector } from '@components/selectors/selectShad';
+import NotificationBell from '@components/NotificationBell';
 
 export const MainNav = () => {
   const { SignOut, user, gisAccount } = UserAuth();
@@ -178,15 +179,8 @@ export const MainNav = () => {
             <img src='/logo/Ai bot.svg' alt='Chatbot' className='w-5 h-5' />
           </button>
         </Tltip>
-        {/* Notification Icon (placeholder, can be made functional) */}
-        <Tltip tltpText={getTtl('Notifications', ln) || 'Notifications'} direction='bottom'>
-          <button
-            className='flex items-center justify-center w-10 h-10'
-            aria-label='Notifications'
-          >
-            <img src='/logo/notofication.svg' alt='Notifications' className='w-5 h-5' />
-          </button>
-        </Tltip>
+        {/* Notification center — live bell with unread badge, snooze & sound */}
+        <NotificationBell />
         {/* Logout Icon */}
         <Tltip tltpText={getTtl('Logout', ln) || 'Logout'} direction='bottom'>
           <button

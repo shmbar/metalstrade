@@ -13,6 +13,7 @@ import { CgEreader } from "react-icons/cg";
 import { TbReportMoney } from "react-icons/tb";
 import { GiProfit } from "react-icons/gi";
 import { TbBrandCashapp } from "react-icons/tb";
+import { TbHistory } from "react-icons/tb";
 import { FaTableList } from "react-icons/fa6";
 import { RiFormula } from "react-icons/ri";
 import { BiMessageRoundedDetail, BiPhone, BiCalendar } from "react-icons/bi";
@@ -64,6 +65,7 @@ export const sideBar = (userTitle, gisAccount) => {
                 { item: 'Misc Invoices', img: <TbFileInvoice />, page: 'specialinvoices' },
                 { item: 'Company Expenses', img: <DiBrackets />, page: 'companyexpenses' },
                 { item: 'Material Tables', img: <FaTableList className="scale-[0.8] text-slate-500" />, page: 'materialtables' },
+                { item: 'Activity Log', img: <TbHistory />, page: 'activity' },
             ]
         },
         {

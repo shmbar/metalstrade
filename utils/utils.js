@@ -1,7 +1,7 @@
 import { db } from '../utils/firebase'
 import {
   setDoc, doc, getDoc, collection, getDocs, query, where, deleteDoc, writeBatch, updateDoc,
-  arrayUnion, arrayRemove, increment, or, and, deleteField
+  arrayUnion, arrayRemove, increment, or, and, deleteField, onSnapshot, orderBy, limit
 } from "firebase/firestore";
 
 import { getStorage, ref, uploadBytes, listAll, getDownloadURL, deleteObject } from "firebase/storage";
@@ -173,6 +173,172 @@ export const saveDataSettings = async (uidCollection, doc1, obj) => {
 export const loadDataSettings = async (uidCollection, doc1) => {
   const docSnap = await getDoc(doc(db, uidCollection, doc1));
   return docSnap.exists() ? docSnap.data() : {};
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Activity log / event feed  (foundation for #9 activity log, #4/#5 notifications,
+// #6 task comments). Append-only collection per account at
+// {uidCollection}/data/activity/{id}. Writes are best-effort and must NEVER block
+// or fail a user's save — callers fire-and-forget.
+// ─────────────────────────────────────────────────────────────────────────────
+const newId = () =>
+  (typeof crypto !== 'undefined' && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+export const logEvent = async (uidCollection, evt = {}) => {
+  if (!uidCollection) return null;
+  try {
+    const id = evt.id || newId();
+    const now = new Date();
+    const record = {
+      id,
+      type: evt.type || 'activity',        // e.g. 'contract.created', 'invoice.finalized'
+      entityType: evt.entityType || '',     // 'contract' | 'invoice' | 'expense' | 'stock' | 'settings'
+      entityId: evt.entityId || '',
+      entityLabel: evt.entityLabel || '',    // human ref, e.g. 'PO 280426' / 'Invoice #12'
+      action: evt.action || '',              // 'created' | 'updated' | 'finalized' | 'paid' | 'deleted'
+      message: evt.message || '',
+      actorUid: evt.actorUid || '',
+      actorName: evt.actorName || 'Unknown',
+      createdAt: now.toISOString(),
+      createdAtMs: now.getTime(),            // numeric sort key (no string parsing on read)
+      notify: !!evt.notify,                  // also surface in the notification center?
+      audience: evt.audience || 'all',       // 'all' | [uid, ...]
+      meta: evt.meta || {},                  // optional extras (fromValue/toValue, amount, currency)
+    };
+    await setDoc(doc(db, uidCollection, 'data', 'activity', id), record);
+    // Notify-worthy events also land in the (mutable) notifications collection,
+    // which carries per-user read state + snooze. Same id links the two.
+    if (evt.notify) {
+      await setDoc(doc(db, uidCollection, 'data', 'notifications', id), {
+        ...record, severity: evt.severity || 'info', readBy: [], snoozedBy: {},
+      });
+    }
+    return record;
+  } catch (e) {
+    console.warn('logEvent failed (non-fatal):', e?.message || e);
+    return null;
+  }
+}
+
+// Reads the activity feed, newest-first. Sorted client-side to avoid requiring a
+// Firestore composite index while the feature is young. Pass entityType+entityId
+// for a per-record History view; omit for the global log.
+export const loadActivity = async (uidCollection, { entityType, entityId, max = 200 } = {}) => {
+  if (!uidCollection) return [];
+  try {
+    const snap = await getDocs(collection(db, uidCollection, 'data', 'activity'));
+    let rows = snap.docs.map(d => d.data());
+    if (entityType) rows = rows.filter(r => r.entityType === entityType);
+    if (entityId) rows = rows.filter(r => r.entityId === entityId);
+    rows.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
+    return rows.slice(0, max);
+  } catch (e) {
+    console.warn('loadActivity failed:', e?.message || e);
+    return [];
+  }
+}
+
+// Per-user read state + snooze for notifications (the mutable companion to the
+// append-only activity feed). All best-effort — never throw to the caller.
+export const markNotificationRead = async (uidCollection, id, uid) => {
+  if (!uidCollection || !id || !uid) return;
+  try {
+    await updateDoc(doc(db, uidCollection, 'data', 'notifications', id), { readBy: arrayUnion(uid) });
+  } catch (e) { console.warn('markNotificationRead failed:', e?.message || e); }
+}
+
+export const markAllNotificationsRead = async (uidCollection, ids, uid) => {
+  if (!uidCollection || !uid || !ids?.length) return;
+  try {
+    const batch = writeBatch(db);
+    ids.forEach(id => batch.update(doc(db, uidCollection, 'data', 'notifications', id), { readBy: arrayUnion(uid) }));
+    await batch.commit();
+  } catch (e) { console.warn('markAllNotificationsRead failed:', e?.message || e); }
+}
+
+export const snoozeNotification = async (uidCollection, id, uid, untilMs) => {
+  if (!uidCollection || !id || !uid) return;
+  try {
+    await updateDoc(doc(db, uidCollection, 'data', 'notifications', id), { [`snoozedBy.${uid}`]: untilMs });
+  } catch (e) { console.warn('snoozeNotification failed:', e?.message || e); }
+}
+
+// Live subscription for the notification center. Single-field orderBy needs no
+// composite index. Returns an unsubscribe fn.
+export const subscribeNotifications = (uidCollection, cb) => {
+  if (!uidCollection) return () => {};
+  try {
+    const q = query(
+      collection(db, uidCollection, 'data', 'notifications'),
+      orderBy('createdAtMs', 'desc'),
+      limit(100)
+    );
+    return onSnapshot(q,
+      (snap) => cb(snap.docs.map(d => d.data())),
+      (err) => { console.warn('subscribeNotifications error:', err?.message || err); cb([]); }
+    );
+  } catch (e) {
+    console.warn('subscribeNotifications failed:', e?.message || e);
+    return () => {};
+  }
+}
+
+// Idempotent system/derived notification for time-derived alerts (e.g. overdue
+// settlements) that a scan may re-detect on every load. Create-if-absent keeps a
+// stable id from duplicating AND preserves the user's read/snooze state across scans.
+export const ensureNotification = async (uidCollection, id, payload = {}) => {
+  if (!uidCollection || !id) return;
+  try {
+    const ref = doc(db, uidCollection, 'data', 'notifications', id);
+    const snap = await getDoc(ref);
+    if (snap.exists()) return; // already raised — don't reset readBy/snoozedBy
+    const now = new Date();
+    await setDoc(ref, {
+      id, createdAt: now.toISOString(), createdAtMs: now.getTime(),
+      actorUid: 'system', actorName: 'System', audience: 'all',
+      readBy: [], snoozedBy: {}, severity: 'info', notify: true,
+      ...payload,
+    });
+  } catch (e) { console.warn('ensureNotification failed:', e?.message || e); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Task comments (#6) — chat threads attached to a record. Stored at
+// {uidCollection}/data/comments/{id}. `entityKey` ('type:id') lets us subscribe
+// with a single-field equality query (no composite index) and sort client-side.
+// ─────────────────────────────────────────────────────────────────────────────
+export const addComment = async (uidCollection, { entityType, entityId, text, authorUid, authorName } = {}) => {
+  if (!uidCollection || !entityId || !text?.trim()) return null;
+  try {
+    const id = newId();
+    const now = new Date();
+    const rec = {
+      id, entityType: entityType || '', entityId, entityKey: `${entityType || ''}:${entityId}`,
+      text: text.trim(), authorUid: authorUid || '', authorName: authorName || 'Unknown',
+      createdAt: now.toISOString(), createdAtMs: now.getTime(),
+    };
+    await setDoc(doc(db, uidCollection, 'data', 'comments', id), rec);
+    return rec;
+  } catch (e) { console.warn('addComment failed:', e?.message || e); return null; }
+}
+
+export const subscribeComments = (uidCollection, entityType, entityId, cb) => {
+  if (!uidCollection || !entityId) return () => {};
+  try {
+    const q = query(
+      collection(db, uidCollection, 'data', 'comments'),
+      where('entityKey', '==', `${entityType || ''}:${entityId}`)
+    );
+    return onSnapshot(q,
+      (snap) => cb(snap.docs.map(d => d.data()).sort((a, b) => (a.createdAtMs || 0) - (b.createdAtMs || 0))),
+      (err) => { console.warn('subscribeComments error:', err?.message || err); cb([]); }
+    );
+  } catch (e) {
+    console.warn('subscribeComments failed:', e?.message || e);
+    return () => {};
+  }
 }
 
 export const saveData = async (uidCollection, path, obj) => {

@@ -12,6 +12,7 @@ import { usePathname } from 'next/navigation';
 import { FiSettings } from "react-icons/fi";
 import { ImMenu } from "react-icons/im";
 import CompanySelect from './companySelect';
+import NotificationBell from '@components/NotificationBell';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { getTtl } from "../../../utils/languages";
 
@@ -145,6 +146,8 @@ const SideBarMini = () => {
         </div>
 
 
+           <div className='flex items-center gap-1'>
+           <NotificationBell />
            <Menu as="div" className="relative inline-block text-left">
             {({ close }) => (
               <>
@@ -249,6 +252,7 @@ const SideBarMini = () => {
           </>
             )}
           </Menu>
+          </div>
       </div>
     </nav>
   )

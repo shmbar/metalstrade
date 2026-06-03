@@ -68,6 +68,12 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
 
         setPnlData(pnlDataTmp)
         saveData_shipPnl(uidCollection, dataValue[i])
+        logActivity?.({
+            type: 'shipment.updated', entityType: 'invoice', entityId: dataValue[i].id || '',
+            entityLabel: `Invoice #${invTmp?.invoice ?? ''}`, action: 'updated',
+            message: `Shipment details updated for Invoice #${invTmp?.invoice ?? ''} (ETD ${dataValue[i]?.etd?.startDate || dataValue[i]?.etd || '—'}, ETA ${dataValue[i]?.eta?.startDate || dataValue[i]?.eta || '—'})`,
+            notify: true, severity: 'info',
+        })
 
     }
 
