@@ -26,7 +26,8 @@ import { usePathname } from 'next/navigation';
 import { getTtl } from '@utils/languages.js';
 import Tltip from '@components/tlTip.js';
 import { Selector } from '@components/selectors/selectShad.js';
-import { X, Save, LoaderCircle, Eraser, FileText, Trash, PanelTopOpen, Banknote, Copy, ClipboardCheck, ChevronDown, ChevronUp, ScrollText } from "lucide-react";
+import DocumentImportOverlay from '@components/DocumentImportOverlay';
+import { X, Save, LoaderCircle, Eraser, FileText, FileUp, Trash, PanelTopOpen, Banknote, Copy, ClipboardCheck, ChevronDown, ChevronUp, ScrollText } from "lucide-react";
 
 
 const ContractModal = () => {
@@ -51,6 +52,7 @@ const ContractModal = () => {
 	const pathName = usePathname();
 	const [certOpen, setCertOpen] = useState(false)
 	const [docsOpen, setDocsOpen] = useState(false)
+	const [showDocImport, setShowDocImport] = useState(false)
 
 	const selectInvType = (e) => {
 		!fnl && setValueInv({
@@ -624,6 +626,16 @@ const ContractModal = () => {
 							{fnl ? 'New' : getTtl('Clear', ln)}
 						</button>
 					</Tltip>
+					{(!fnl && showButton) &&
+						<Tltip direction='top' tltpText='Upload a customer PO (PDF/JPG/PNG) — AI extracts client, currency, products and dates to pre-fill this invoice. Review before saving.'>
+							<button
+								className="whiteButton py-1"
+								onClick={() => setShowDocImport(true)}
+							>
+								<FileUp className='size-4' />
+								Autofill from customer PO
+							</button>
+						</Tltip>}
 					<Tltip direction='top' tltpText='Close form'>
 						<button
 							className="whiteButton py-1"
@@ -788,6 +800,51 @@ const ContractModal = () => {
 					ttl='Invoice cancellation' txt='To cancel this invoice please confirm to proceed.'
 					doAction={() => cancelInvoice(uidCollection)} />
 
+				{showDocImport && (
+					<DocumentImportOverlay
+						documentType='invoice'
+						suppliers={[]}
+						clients={settings.Client?.Client || []}
+						currencies={settings.Currency?.Currency || []}
+						onApply={(fields) => {
+							const mapped = { ...fields };
+							// Our invoice number is auto-generated — never overwrite it with the
+							// customer's PO/invoice number.
+							delete mapped.invoice;
+							// Remap AI products into the invoice row shape (free-text descriptions
+							// via descriptionText + mtrlStatus 'edit', since a customer PO's line
+							// items won't match our material IDs).
+							if (Array.isArray(fields.productsDataInvoice) && fields.productsDataInvoice.length) {
+								mapped.productsDataInvoice = fields.productsDataInvoice.map(p => {
+									const qnty = String(p.qnty ?? '') || '0';
+									const unitPrc = String(p.unitPrc ?? '') || '0';
+									const total = Math.round(((parseFloat(qnty) || 0) * (parseFloat(unitPrc) || 0)) * 100) / 100;
+									return {
+										id: uuidv4(), po: '', descriptionId: '', container: '',
+										qnty, unitPrc, total,
+										descriptionText: p.description || '', mtrlStatus: 'edit',
+										stock: '', stockValue: '',
+									};
+								});
+								mapped.totalAmount = mapped.productsDataInvoice.reduce((s, p) => s + (Number(p.total) || 0), 0);
+							}
+							setValueInv(prev => ({ ...prev, ...mapped }));
+							const labels = Object.keys(mapped).map(k => ({
+								client: 'Client', cur: 'Currency', productsDataInvoice: 'Products',
+								comments: 'Comments', date: 'Date', dateRange: 'Date', totalAmount: 'Total',
+							}[k])).filter(Boolean);
+							const uniq = [...new Set(labels)];
+							setToast({
+								show: true,
+								text: uniq.length
+									? `Applied to the invoice: ${uniq.join(', ')}. Review the fields, then click Save.`
+									: 'Nothing applied — no fields matched. If client/currency showed "no match", pick them manually.',
+								clr: uniq.length ? 'success' : 'fail',
+							});
+						}}
+						onClose={() => setShowDocImport(false)}
+					/>
+				)}
 
 			</div>
 		</div>

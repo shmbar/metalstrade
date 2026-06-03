@@ -194,8 +194,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
 
             setValue({
                 ...value, percentage: e.target.value,
-                totalPrepayment: e.target.value / 100 * value.totalAmount,
-                balanceDue: value.totalAmount - e.target.value / 100 * value.totalAmount
+                totalPrepayment: Math.round((e.target.value / 100 * value.totalAmount) * 100) / 100,
+                balanceDue: Math.round((value.totalAmount - e.target.value / 100 * value.totalAmount) * 100) / 100
             });
 
             setPercent(false);
@@ -220,7 +220,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
             }
 
             setValue({
-                ...value, totalPrepayment: e.target.value, balanceDue: value.totalAmount - e.target.value
+                ...value, totalPrepayment: e.target.value, balanceDue: Math.round((value.totalAmount - e.target.value) * 100) / 100
             });
             setPrepayment(false);
             setValue1('');
@@ -710,7 +710,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                         <td className="py-2 pl-4"></td>
                                         <td className="px-1 py-2 responsiveText text-[var(--port-gore)] whitespace-nowrap">
                                             <NumericFormat
-                                                value={Math.ceil(value.balanceDue * 100) / 100}
+                                                value={value.balanceDue || 0}
                                                 displayType="text"
                                                 thousandSeparator
                                                 allowNegative={true}
