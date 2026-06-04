@@ -110,8 +110,11 @@ const Payments = ({ showPayments }) => {
     const setPrepPayment = () => {
   
         let itm = valueInv.payments[0]
+        // Round the prepayment/balance to whole cents — percentage * total can
+        // produce a sub-cent figure that otherwise desyncs the cashflow balance.
+        const prep = valueInv.invType === '1111' ? valueInv.totalPrepayment : valueInv.balanceDue
         itm = {
-            ...itm, pmnt: valueInv.invType === '1111' ? valueInv.totalPrepayment : valueInv.balanceDue
+            ...itm, pmnt: Math.round((Number(prep) || 0) * 100) / 100
         }
         let newObj = valueInv.payments
         newObj[0] = itm;

@@ -17,6 +17,11 @@ import Tltip from '@components/tlTip'
 
 const cols = ['container', 'qnty', 'unitPrc', 'total', 'stock', 'stockValue']
 
+// Round to whole cents. Subtracting two already-rounded amounts can leave a
+// float residue (e.g. 31864.8099999998) that NumericFormat truncates but Intl
+// rounds — wrapping the whole expression in round2 keeps every surface in sync.
+const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+
 const ProductsTable = ({ value, setValue, currency, settings, uidCollection, setDeleteProducts, materialsArr,
     certOpen, setCertOpen
 }) => {
@@ -76,8 +81,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
         setValue({
             ...value, productsDataInvoice: value.productsDataInvoice.filter((item) => !checkedItems.includes(item.id)), totalAmount: tmptotalAmount,
             totalPrepayment: value.invType === '1111' ? value.percentage !== '' ?
-                value.percentage / 100 * tmptotalAmount : '' : value.totalPrepayment,
-            balanceDue: (value.invType === '2222' || value.invType === '3333') ? tmptotalAmount - value.totalPrepayment :
+                Math.round((value.percentage / 100 * tmptotalAmount) * 100) / 100 : '' : value.totalPrepayment,
+            balanceDue: (value.invType === '2222' || value.invType === '3333') ? Math.round((tmptotalAmount - value.totalPrepayment) * 100) / 100 :
                 value.balanceDue,
         });
 
@@ -167,8 +172,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
             setValue({
                 ...value, productsDataInvoice: newArr, totalAmount: tmptotalAmount,
                 totalPrepayment: value.invType === '1111' ? value.percentage !== '' ?
-                    value.percentage / 100 * tmptotalAmount : '' : value.totalPrepayment,
-                balanceDue: (value.invType === '2222' || value.invType === '3333') ? Math.round((tmptotalAmount - value.totalPrepayment) * 100) / 100 :
+                    Math.round((value.percentage / 100 * tmptotalAmount) * 100) / 100 : '' : value.totalPrepayment,
+                balanceDue: (value.invType === '2222' || value.invType === '3333') ? round2(round2(tmptotalAmount) - round2(value.totalPrepayment)) :
                     value.balanceDue
             });
             setEdit({ status: false, id: null, header: null });
@@ -194,8 +199,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
 
             setValue({
                 ...value, percentage: e.target.value,
-                totalPrepayment: Math.round((e.target.value / 100 * value.totalAmount) * 100) / 100,
-                balanceDue: Math.round((value.totalAmount - e.target.value / 100 * value.totalAmount) * 100) / 100
+                totalPrepayment: round2(e.target.value / 100 * value.totalAmount),
+                balanceDue: round2(round2(value.totalAmount) - round2(e.target.value / 100 * value.totalAmount))
             });
 
             setPercent(false);
@@ -220,7 +225,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
             }
 
             setValue({
-                ...value, totalPrepayment: e.target.value, balanceDue: Math.round((value.totalAmount - e.target.value) * 100) / 100
+                ...value, totalPrepayment: e.target.value, balanceDue: round2(round2(value.totalAmount) - round2(e.target.value))
             });
             setPrepayment(false);
             setValue1('');
@@ -644,7 +649,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     </td>
                                     <td className="px-1 py-2 responsiveText text-[var(--port-gore)] whitespace-nowrap">
                                         <NumericFormat
-                                            value={value.totalPrepayment}
+                                            value={Math.round((value.totalPrepayment || 0) * 100) / 100}
                                             displayType="text"
                                             thousandSeparator
                                             allowNegative={false}
@@ -683,7 +688,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 />
                                                 :
                                                 <NumericFormat
-                                                    value={value.totalPrepayment}
+                                                    value={Math.round((value.totalPrepayment || 0) * 100) / 100}
                                                     displayType="text"
                                                     thousandSeparator
                                                     allowNegative={true}
@@ -710,7 +715,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                         <td className="py-2 pl-4"></td>
                                         <td className="px-1 py-2 responsiveText text-[var(--port-gore)] whitespace-nowrap">
                                             <NumericFormat
-                                                value={value.balanceDue || 0}
+                                                value={round2(round2(value.totalAmount) - round2(value.totalPrepayment))}
                                                 displayType="text"
                                                 thousandSeparator
                                                 allowNegative={true}

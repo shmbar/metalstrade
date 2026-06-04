@@ -67,6 +67,12 @@ let showAmount = (x, y) => {
     }).format(x)
 }
 
+// Round to whole cents (nearest). Money is stored/derived with occasional
+// sub-cent fractions (e.g. a prepayment = percentage * total). Rounding every
+// component before we subtract guarantees Amount - Payment === Balance on screen,
+// and matches how the PDF / invoice preview already format (Intl rounds too).
+const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+
 function isNumber(str) {
     if (typeof str !== "string") {
         return false; // Return false for non-string inputs
@@ -623,9 +629,9 @@ export const runInvoices = async (uidCollection, settings, yr) => {
             return total + (obj1.totalAmount * 1 || 0);
         }, 0)
 
-        let db = totalAmount * 1 - arr1.reduce((total, obj1) => {
+        let db = round2(round2(totalAmount) - round2(arr1.reduce((total, obj1) => {
             return total + (obj1.pmnt * 1 || 0);
-        }, 0)
+        }, 0)))
 
         obj = { ...obj[0], payments: arr1, debtBlnc: db, totalAmount }
 
@@ -665,7 +671,7 @@ const setCurFilterData = (arr, settings) => {
         let srtX = sortedData(x.arr)
         const totalAmount = Total(srtX, 'totalAmount', { cur: 'us' }, x.euroToUSD, settings).accumuLastInv
         const payments = TotalInvoicePayments(srtX);
-        const debtBlnc = totalAmount - payments;
+        const debtBlnc = round2(round2(totalAmount) - round2(payments));
 
 
 
@@ -748,9 +754,9 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                         }</td>
                                         <td className="text-left">{
                                             <NumericFormat
-                                                value={z.payments.reduce((total, obj) => {
+                                                value={round2(z.payments.reduce((total, obj) => {
                                                     return total + obj.pmnt * 1;
-                                                }, 0)}
+                                                }, 0))}
                                                 displayType="text"
                                                 thousandSeparator
                                                 allowNegative={true}

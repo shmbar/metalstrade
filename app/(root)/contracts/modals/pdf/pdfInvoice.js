@@ -334,19 +334,25 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
         minimumFractionDigits: 2
     }).format(value.totalAmount);
 
+    // Round to whole cents and derive Balance Due as Total - Prepaid so the
+    // document always reconciles (and matches the cashflow / preview screens).
+    const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+    const prepaidR = r2(value.totalPrepayment);
+    const balanceR = r2(r2(value.totalAmount) - prepaidR);
+
     const formattedNumber2 = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: value.cur !== '' ? getD(settings.Currency.Currency, value, 'cur') :
             'USD',
         minimumFractionDigits: 2
-    }).format(value.totalPrepayment);
+    }).format(prepaidR);
 
     const formattedNumber4 = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: value.cur !== '' ? getD(settings.Currency.Currency, value, 'cur') :
             'USD',
         minimumFractionDigits: 2
-    }).format(value.balanceDue);
+    }).format(balanceR);
 
     const formattedNumber3 = value.percentage === '' ? '' : value.percentage + '%';
 

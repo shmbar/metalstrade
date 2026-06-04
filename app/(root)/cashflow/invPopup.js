@@ -525,7 +525,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                         <td colSpan={4} style={{ border: 'none' }} />
                                         <td className="text-left text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>Prepayment:</td>
                                         <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{inv.percentage}%</td>
-                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{fmtAmt(inv.totalPrepayment)}</td>
+                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{fmtAmt(Math.round((inv.totalPrepayment || 0) * 100) / 100)}</td>
                                     </tr>
                                 )}
                                 {(isCN || (!isInvoice && !isCN)) && inv.totalPrepayment && (
@@ -533,7 +533,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                         <td colSpan={4} style={{ border: 'none' }} />
                                         <td className="text-left text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '4px', whiteSpace: 'nowrap' }}>Prepaid Amount:</td>
                                         <td style={{ paddingTop: '4px', paddingBottom: '4px' }} />
-                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '4px' }}>{fmtAmt(inv.totalPrepayment)}</td>
+                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '4px' }}>{fmtAmt(Math.round((inv.totalPrepayment || 0) * 100) / 100)}</td>
                                     </tr>
                                 )}
                                 {(isCN || (!isInvoice && !isCN)) && inv.balanceDue != null && (
@@ -541,7 +541,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                         <td colSpan={4} style={{ border: 'none' }} />
                                         <td className="text-left text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px', whiteSpace: 'nowrap' }}>Balance Due:</td>
                                         <td style={{ paddingTop: '4px', paddingBottom: '8px' }} />
-                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{fmtAmt(inv.balanceDue)}</td>
+                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{fmtAmt(Math.round((inv.totalAmount || 0) * 100) / 100 - Math.round((inv.totalPrepayment || 0) * 100) / 100)}</td>
                                     </tr>
                                 )}
                             </tbody>
