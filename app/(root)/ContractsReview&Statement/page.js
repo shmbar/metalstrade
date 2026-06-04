@@ -22,6 +22,7 @@ import Tltip from '../../../components/tlTip'
 import CBox from '../../../components/combobox.js'
 import { EXD } from './excel'
 import { EXD as EXDStatement } from '../contractsstatement/excel'
+import { lotIsSold, computeSoldRollup, aggregateRollups } from '../contractsstatement/soldStatus'
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
@@ -210,6 +211,21 @@ const arrayIncludesString = (row, columnId, filterValue) => {
         if (item === null || item === undefined) return false;
         return item.toString().toLowerCase().includes(search);
     });
+};
+
+// Filters the Status column by the derived sold roll-up (matches the chip shown), not the raw flag
+const statusRollupFilter = (row, columnId, filterValue) => {
+    if (!filterValue) return true;
+    const fv = String(filterValue).toLowerCase().trim();
+    if (!fv) return true;
+    const tone = row.original?.soldRollup?.tone || 'none';
+    const keywords = {
+        sold: ['sold'],
+        partial: ['sold', 'partial', 'partially'],
+        unsold: ['unsold'],
+        none: ['none'],
+    }[tone] || [];
+    return keywords.some(k => k.startsWith(fv) || k === fv);
 };
 
 const CB = (settings, setValCur, valCur) => {
@@ -444,11 +460,15 @@ const ContractsMerged = () => {
 
                 let objTmp = obj.stcokData.filter(c => c.description === x).filter(v => v.qnty * 1 !== 0)
 
-                const lots = objTmp.map(l => ({ qnty: parseFloat(l.qnty) || 0, status: (l.status || '').toLowerCase() }))
-                const receivedQty = lots.reduce((t, l) => t + l.qnty, 0)
-                const soldQty = lots.filter(l => l.status === 'sold').reduce((t, l) => t + l.qnty, 0)
-                let tone = 'none'
-                if (receivedQty > 0.0001) tone = soldQty <= 0.0001 ? 'unsold' : (soldQty < receivedQty - 0.0001 ? 'partial' : 'sold')
+                // "Sold" is derived from real allocation (consignee / sales-PO) or the manual flag,
+                // so a lot that has been committed to a buyer no longer wrongly shows as Unsold.
+                const lots = objTmp.map(l => {
+                    const consignee = l.client ? (settings.Client.Client.find(d => d.id === l.client)?.nname ?? '') : ''
+                    const salesPo = (l.salesPo || '').toString().trim()
+                    const sold = lotIsSold(l)
+                    return { qnty: parseFloat(l.qnty) || 0, status: sold ? 'sold' : 'unsold', sold, consignee, salesPo }
+                })
+                const { tone, soldQty, receivedQty } = computeSoldRollup(lots)
 
                 newObj = {
                     supplier: obj.supplier, date: obj.date, order: obj.order, poWeight: total,
@@ -681,7 +701,7 @@ const ContractsMerged = () => {
         },
         {
             accessorKey: 'status', header: getTtl('Status', ln),
-            filterFn: arrayIncludesString,
+            filterFn: statusRollupFilter,
             cell: (props) => <StatusChip rollup={props.row.original.soldRollup} />,
         },
         {
@@ -778,10 +798,7 @@ const ContractsMerged = () => {
         let newArr = []
         for (let i of groupedArray1) {
 
-            const aggReceived = i.reduce((t, o) => t + (o.soldRollup?.receivedQty || 0), 0)
-            const aggSold = i.reduce((t, o) => t + (o.soldRollup?.soldQty || 0), 0)
-            let aggTone = 'none'
-            if (aggReceived > 0.0001) aggTone = aggSold <= 0.0001 ? 'unsold' : (aggSold < aggReceived - 0.0001 ? 'partial' : 'sold')
+            const aggRollup = aggregateRollups(i.map(o => o.soldRollup))
 
             newArr.push({
                 ...i[0],
@@ -804,7 +821,7 @@ const ContractsMerged = () => {
                 invoiceNum: '',
                 lots: [],
                 shipments: [],
-                soldRollup: { tone: aggTone, soldQty: aggSold, receivedQty: aggReceived },
+                soldRollup: aggRollup,
                 subRows: i.map(z => ({ ...z })),
             })
         }

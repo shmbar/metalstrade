@@ -23,6 +23,15 @@ function getNumFmtForCurrency(currency) {
     }
 }
 
+// Readable sold/unsold label from the derived roll-up (matches the on-screen chip)
+const soldLabel = (r) => {
+    if (!r || r.tone === 'none' || !r.receivedQty) return '';
+    const f = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number(n) || 0);
+    if (r.tone === 'sold') return 'Sold';
+    if (r.tone === 'partial') return `Sold ${f(r.soldQty)} / ${f(r.receivedQty)} MT`;
+    return `Unsold ${f(r.receivedQty)} MT`;
+};
+
 //{ font: { bold: true }
 export const EXD = (dataTable, settings, name, ln) => {
 
@@ -49,6 +58,7 @@ export const EXD = (dataTable, settings, name, ln) => {
             { key: 'client', header: 'Consignee', width: 16, style: styles },
             { key: 'totalPo', header: 'PO Client', width: 16, style: styles },
             { key: 'destination', header: 'Destination', width: 16, style: styles },
+            { key: 'status', header: 'Sold Status', width: 18, style: styles },
             { key: 'comments', header: 'Comments/Status', width: 30, style: styles },
 
         ];
@@ -84,6 +94,7 @@ export const EXD = (dataTable, settings, name, ln) => {
                 client: item.client.map(x => x).join('\n'),
                 totalPo: item.totalPo.map(x => x).join('\n'),
                 destination: item.destination.map(x => x).join('\n'),
+                status: soldLabel(item.soldRollup),
                 comments: item.comments,
             })
         }

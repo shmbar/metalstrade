@@ -51,16 +51,18 @@ const DetailPanel = ({ lots = [], shipments = [] }) => {
   return (
     <div className="flex flex-col lg:flex-row gap-3" style={{ animation: 'fadeIn .2s ease-in' }}>
       {/* Lots */}
-      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #d8e8f5', flex: '1 1 0', minWidth: 0 }}>
+      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #d8e8f5', flex: '1.4 1 0', minWidth: 0 }}>
         <div style={{ background: '#dbeeff', color: 'var(--chathams-blue)', fontSize: '0.62rem', fontWeight: 600, padding: '5px 12px' }}>Lots in warehouse</div>
         {lots.length ? (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr><th style={headSt}>QUANTITY</th><th style={headSt}>STATUS</th></tr></thead>
+            <thead><tr><th style={headSt}>QUANTITY</th><th style={headSt}>STATUS</th><th style={headSt}>CONSIGNEE</th><th style={headSt}>SALES PO</th></tr></thead>
             <tbody>
               {lots.map((l, i) => (
                 <tr key={i} style={{ borderTop: '1px solid #eef4fb' }}>
                   <td style={cellSt}>{fmt(l.qnty)} MT</td>
                   <td style={cellSt}>{lotChip(l.status)}</td>
+                  <td style={cellSt}>{l.consignee || '—'}</td>
+                  <td style={cellSt}>{l.salesPo || '—'}</td>
                 </tr>
               ))}
             </tbody>
