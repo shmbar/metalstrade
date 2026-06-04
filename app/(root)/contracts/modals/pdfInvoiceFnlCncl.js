@@ -116,13 +116,13 @@ export const PdfFnlCncl = async (value, arrTable, settings, compData) => {
         'Credit Note No:' : 'Final Note No:', 130, 50);
     doc.setFont('Poppins', 'normal');
     doc.setFontSize(8);
-    doc.text(value.invoice.toString() + getprefixInv(value), 160, 50);
+    doc.text(value.invoice.toString() + getprefixInv(value), 200, 50, { align: 'right' });
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(8);
     doc.text('Date:', 130, 54);
     doc.setFont('Poppins', 'normal');
     doc.setFontSize(8);
-    doc.text(value.date, 160, 54);
+    doc.text(value.date, 200, 54, { align: 'right' });
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(8);
     doc.text('PO#:', 130, 58);
@@ -132,7 +132,7 @@ export const PdfFnlCncl = async (value, arrTable, settings, compData) => {
     let poArr = [...new Set(value.productsDataInvoice.map(x => x.po).filter(x => x !== ''))]
 
     for (let i = 0; i < poArr.length; i++) {
-        doc.text(poArr[i], 160, 58 + i * 4);
+        doc.text(poArr[i], 200, 58 + i * 4, { align: 'right' });
     }
 
     doc.setFontSize(8);
@@ -193,7 +193,7 @@ export const PdfFnlCncl = async (value, arrTable, settings, compData) => {
     doc.setFont('PoppinsB', 'bold');
     doc.text('Total Net WT Kgs:', 130, 92);
     doc.setFont('Poppins', 'normal');
-    doc.text(NetWTKgs, 165, 92);
+    doc.text(NetWTKgs, 200, 92, { align: 'right' });
 
     //Total Tarre WT Kgs:
     const TotalTarre = (value.ttlGross - NetWTKgsTmp).toLocaleString(locale, options);
@@ -204,7 +204,7 @@ export const PdfFnlCncl = async (value, arrTable, settings, compData) => {
     doc.setFont('PoppinsB', 'bold');
     if (!secondRule && value.invType !== 'Credit Note' && value.invType !== 'Final Note') doc.text('Total Tarre WT Kgs:', 130, 98);
     doc.setFont('Poppins', 'normal');
-    if (!secondRule && value.invType !== 'Credit Note' && value.invType !== 'Final Note') doc.text(TotalTarre, 165, 98);
+    if (!secondRule && value.invType !== 'Credit Note' && value.invType !== 'Final Note') doc.text(TotalTarre, 200, 98, { align: 'right' });
 
     let thirdRule = value.packing === 'P6' || value.packing === 'Ingots'
     let fourthRule = value.packing === 'P7' || value.packing === 'Loose'
@@ -213,7 +213,7 @@ export const PdfFnlCncl = async (value, arrTable, settings, compData) => {
     !fourthRule && doc.text(thirdRule ? 'QTY Ingots' : 'Total Gross WT Kgs:', 130, 104);
     doc.setFont('Poppins', 'normal');
     if (!fourthRule)
-        doc.text((value.ttlGross * 1).toLocaleString(locale, options), 165, 104);
+        doc.text((value.ttlGross * 1).toLocaleString(locale, options), 200, 104, { align: 'right' });
 
     doc.setFont('PoppinsB', 'bold');
     if (!secondRule && value.invType !== 'Credit Note' && value.invType !== 'Final Note')
@@ -221,7 +221,7 @@ export const PdfFnlCncl = async (value, arrTable, settings, compData) => {
     doc.setFont('Poppins', 'normal');
 
     if (!secondRule && value.invType !== 'Credit Note' && value.invType !== 'Final Note')
-        doc.text((value.ttlPackages * 1).toLocaleString(locale, options), 165, 110);
+        doc.text((value.ttlPackages * 1).toLocaleString(locale, options), 200, 110, { align: 'right' });
 
     footer();
 
@@ -250,17 +250,23 @@ export const PdfFnlCncl = async (value, arrTable, settings, compData) => {
         minimumFractionDigits: 2
     }).format(value.totalAmount);
 
+    // Round to cents and derive Balance Due as Total - Prepaid so the document
+    // reconciles internally (Prepaid + Balance Due = Total).
+    const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+    const prepaidR = r2(value.totalPrepayment);
+    const balanceR = r2(r2(value.totalAmount) - prepaidR);
+
     const formattedNumber2 = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: value.cur.cur,
         minimumFractionDigits: 2
-    }).format(value.totalPrepayment);
+    }).format(prepaidR);
 
     const formattedNumber4 = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: value.cur.cur,
         minimumFractionDigits: 2
-    }).format(value.balanceDue);
+    }).format(balanceR);
 
     const formattedNumber3 = value.percentage === '' ? '' : value.percentage + '%';
     const newRow1 = [, , , , 'Total Amount:', , formattedNumber1];

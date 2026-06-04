@@ -178,14 +178,14 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
         'Credit Note No:' : 'Final Note No:', 138, 50);
     doc.setFont('Poppins', 'normal');
     doc.setFontSize(8);
-    doc.text(String(value.invoice).padStart(4, "0") + getprefixInv(value), 165, 50);
+    doc.text(String(value.invoice).padStart(4, "0") + getprefixInv(value), 200, 50, { align: 'right' });
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(8);
     doc.text('Date:', 138, 54);
     doc.setFont('Poppins', 'normal');
     doc.setFontSize(8);
     doc.text(value.dateRange.startDate === '' || value.dateRange.startDate === null ? '' :
-        dateFormat(value.dateRange.startDate, 'dd-mmm-yyyy'), 165, 54);
+        dateFormat(value.dateRange.startDate, 'dd-mmm-yyyy'), 200, 54, { align: 'right' });
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(8);
     doc.text('PO#:', 138, 58);
@@ -194,7 +194,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
 
     let poArr = [...new Set(value.productsDataInvoice.map(x => x.po).filter(x => x !== ''))]
     for (let i = 0; i < poArr.length; i++) {
-        doc.text(poArr[i], 165, 58 + i * 4);
+        doc.text(poArr[i], 200, 58 + i * 4, { align: 'right' });
     }
 
     doc.setFontSize(8);
@@ -259,7 +259,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     doc.setFont('PoppinsB', 'bold');
     doc.text('Total Net WT Kgs:', 138, 92);
     doc.setFont('Poppins', 'normal');
-    doc.text(NetWTKgs, 165, 92);
+    doc.text(NetWTKgs, 200, 92, { align: 'right' });
 
     //Total Tarre WT Kgs:
     const TotalTarre = (value.ttlGross - NetWTKgsTmp).toLocaleString(locale, options);
@@ -274,7 +274,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     if (!secondRule && !fifthRule && value.invType !== '2222' && value.invType !== '3333')
         doc.text('Total Tarre WT Kgs:', 138, 96);
     doc.setFont('Poppins', 'normal');
-    if (!secondRule && !fifthRule && value.invType !== '2222' && value.invType !== '3333') doc.text(TotalTarre, 165, 96);
+    if (!secondRule && !fifthRule && value.invType !== '2222' && value.invType !== '3333') doc.text(TotalTarre, 200, 96, { align: 'right' });
 
 
 
@@ -283,7 +283,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
         (!fourthRule && !fifthRule) && doc.text(thirdRule ? 'QTY Ingots' : 'Total Gross WT Kgs:', 138, 100);
         doc.setFont('Poppins', 'normal');
         if (!fourthRule && !fifthRule)
-            doc.text((value.ttlGross * 1).toLocaleString(locale, options), 165, 100);
+            doc.text((value.ttlGross * 1).toLocaleString(locale, options), 200, 100, { align: 'right' });
     }
 
 
@@ -294,7 +294,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
         doc.setFont('Poppins', 'normal');
 
         if (!secondRule && value.invType !== '2222' && value.invType !== '3333')
-            doc.text(value.ttlPackages, 165, 104);
+            doc.text(value.ttlPackages, 200, 104, { align: 'right' });
     }
 
     if (value.hs1 !== '' || value.hs2 !== '') {
