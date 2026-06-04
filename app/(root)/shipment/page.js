@@ -3,7 +3,7 @@ import { useContext, useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
-import { loadData, updateContractField } from '../../../utils/utils';
+import { loadData, updateContractField, ensureNotification } from '../../../utils/utils';
 import VideoLoader from '../../../components/videoLoader';
 import Toast from '../../../components/toast.js';
 import DateRangePicker from '../../../components/dateRangePicker';
@@ -21,14 +21,23 @@ import { Menu, Transition, MenuButton, MenuItem, MenuItems } from '@headlessui/r
 import { Fragment } from 'react';
 import { TbSortAscending, TbSortDescending } from 'react-icons/tb';
 
-const STATUSES = ['', 'Pending', 'In Transit', 'At Port', 'Delivered', 'On Hold'];
+const STATUSES = ['', 'Pending', 'Shipped', 'In Transit', 'Arrived', 'Completed', 'On Hold'];
+
+// Legacy stored values are normalized to the new vocabulary on load (below), so no
+// data migration is needed — old "At Port"/"Delivered" records show as Arrived/Completed.
+const LEGACY_ALIASES = { 'At Port': 'Arrived', 'Delivered': 'Completed' };
+const normalizeStatus = (s) => LEGACY_ALIASES[s] || s || '';
 
 const STATUS_STYLES = {
     'Pending':    { backgroundColor: '#fef9c3', border: '1px solid #fde68a', color: '#78350f' },
+    'Shipped':    { backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#075985' },
     'In Transit': { backgroundColor: '#dbeeff', border: '1px solid #b8ddf8', color: 'var(--chathams-blue)' },
+    'Arrived':    { backgroundColor: '#ede9fe', border: '1px solid #ddd6fe', color: '#4c1d95' },
+    'Completed':  { backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#14532d' },
+    'On Hold':    { backgroundColor: '#fce7f3', border: '1px solid #fbcfe8', color: '#831843' },
+    // Legacy keys kept as a safety net for any raw (un-normalized) value.
     'At Port':    { backgroundColor: '#ede9fe', border: '1px solid #ddd6fe', color: '#4c1d95' },
     'Delivered':  { backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#14532d' },
-    'On Hold':    { backgroundColor: '#fce7f3', border: '1px solid #fbcfe8', color: '#831843' },
     '':           { backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', color: 'var(--port-gore)' },
 };
 
@@ -231,7 +240,7 @@ function StatusSelect({ value, onChange }) {
 
 const ShipmentPage = () => {
     const { settings, dateSelect, loading, setLoading } = useContext(SettingsContext);
-    const { uidCollection } = UserAuth();
+    const { uidCollection, logActivity } = UserAuth();
     const router = useRouter();
 
     const [contracts, setContracts] = useState([]);
@@ -272,6 +281,7 @@ const ShipmentPage = () => {
                 const contractsData = await loadData(uidCollection, 'contracts', dateSelect);
 
                 const sortedContracts = (contractsData || []).filter(Boolean)
+                    .map(c => ({ ...c, shipmentStatus: normalizeStatus(c.shipmentStatus) }))
                     .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
                 setContracts(sortedContracts);
 
@@ -362,6 +372,18 @@ const ShipmentPage = () => {
         if (floatingPicker) {
             handleDateFieldChange(floatingPicker.contractId, floatingPicker.field, d);
             updateContractField(uidCollection, floatingPicker.contractId, floatingPicker.contractDate, { [floatingPicker.field]: d });
+            // Track who set ETD/ETA + when in the activity log (no bell ping — the
+            // proactive date-reached reminders below are the notifications).
+            if (d) {
+                const order = contracts.find(c => c.id === floatingPicker.contractId)?.order ?? '';
+                const isEtd = floatingPicker.field === 'shipmentEtd';
+                logActivity?.({
+                    type: isEtd ? 'shipment.etd' : 'shipment.eta', entityType: 'contract',
+                    entityId: floatingPicker.contractId || '', entityLabel: `PO ${order}`, action: 'date',
+                    message: `${isEtd ? 'ETD' : 'ETA'} set for PO ${order}: ${d}`,
+                    notify: false,
+                });
+            }
         }
         setFloatingPicker(null);
     };
@@ -407,7 +429,63 @@ const ShipmentPage = () => {
             prev.map(c => c.id === contract.id ? { ...c, shipmentStatus: status } : c)
         );
         await updateContractField(uidCollection, contract.id, contract.date, { shipmentStatus: status });
+        // Notify the team when cargo moves through the pipeline (skip when cleared).
+        if (status) {
+            logActivity?.({
+                type: 'shipment.status', entityType: 'contract', entityId: contract.id || '',
+                entityLabel: `PO ${contract.order ?? ''}`, action: 'status',
+                message: `Cargo (PO ${contract.order ?? ''}) marked "${status}"`,
+                notify: true,
+                severity: status === 'Completed' ? 'success' : status === 'On Hold' ? 'warning' : 'info',
+            });
+        }
     };
+
+    // Proactive shipment reminders (date-derived). One per shipment, idempotent
+    // (keyed by the date) so repeated visits don't duplicate. Priority: 14-days-
+    // past-ETA > ETA reached > ETD reached. Delivered cargo is skipped.
+    const shipScanRef = useRef(false);
+    useEffect(() => {
+        if (!uidCollection || shipScanRef.current || !contracts.length) return;
+        shipScanRef.current = true;
+        const now = Date.now();
+        contracts.forEach(c => {
+            const status = c.shipmentStatus || '';
+            if (status === 'Completed') return;
+            const order = c.order ?? '';
+            const etaStr = c.shipmentEta || invoiceMap[c.id]?.eta;
+            const etdStr = c.shipmentEtd || invoiceMap[c.id]?.etd;
+            const eta = etaStr ? new Date(etaStr) : null;
+            if (eta && !isNaN(eta.getTime())) {
+                const days = Math.floor((now - eta.getTime()) / 86400000);
+                if (days >= 14) {
+                    ensureNotification(uidCollection, `eta14:${c.id}:${etaStr}`, {
+                        type: 'shipment.eta14', entityType: 'contract', entityId: c.id || '',
+                        entityLabel: `PO ${order}`, action: 'reminder', severity: 'warning',
+                        message: `PO ${order}: ${days} days since ETA (${etaStr})${status ? ` — "${status}"` : ''}, follow up`,
+                    });
+                    return;
+                }
+                if (days >= 0) {
+                    ensureNotification(uidCollection, `etadue:${c.id}:${etaStr}`, {
+                        type: 'shipment.eta', entityType: 'contract', entityId: c.id || '',
+                        entityLabel: `PO ${order}`, action: 'reminder', severity: 'info',
+                        message: `PO ${order}: arrival due (ETA ${etaStr})${status ? ` — "${status}"` : ''}`,
+                    });
+                    return;
+                }
+            }
+            const etd = etdStr ? new Date(etdStr) : null;
+            if (etd && !isNaN(etd.getTime()) && now >= etd.getTime() && (!status || status === 'Pending')) {
+                ensureNotification(uidCollection, `etddue:${c.id}:${etdStr}`, {
+                    type: 'shipment.etd', entityType: 'contract', entityId: c.id || '',
+                    entityLabel: `PO ${order}`, action: 'reminder', severity: 'info',
+                    message: `PO ${order}: departure due (ETD ${etdStr})`,
+                });
+            }
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [contracts, uidCollection]);
 
     const handleNotesChange = (contractId, value) => {
         setContracts(prev =>

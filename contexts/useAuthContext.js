@@ -27,11 +27,22 @@ const AuthContextProvider = ({ children }) => {
 
   // Acting user identity for attribution ("who did what"). Firebase displayName
   // is often unset, so fall back to email. Used by logActivity below.
-  const currentUser = useMemo(() => ({
-    uid: user?.uid || '',
-    name: user?.displayName || user?.email || 'Unknown',
-    email: user?.email || '',
-  }), [user])
+  const currentUser = useMemo(() => {
+    // Prefer the user's set name (Settings → Users → Name = Firebase displayName).
+    // If it's empty (e.g. a user created without a name), derive a readable name
+    // from the email local-part ("anna.smith@x.com" → "Anna Smith") so nobody shows
+    // up as a raw address or "Unknown".
+    const fromEmail = (e) => {
+      if (!e) return '';
+      return String(e).split('@')[0].split(/[._-]+/).filter(Boolean)
+        .map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+    };
+    return {
+      uid: user?.uid || '',
+      name: user?.displayName?.trim() || fromEmail(user?.email) || 'Unknown',
+      email: user?.email || '',
+    };
+  }, [user])
 
   // Fire-and-forget activity logger — auto-injects the acting user + account so
   // call sites stay one-liners: logActivity({ type, entityType, entityId, ... }).
