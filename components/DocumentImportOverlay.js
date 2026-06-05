@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FileText, Upload, Loader2, X, CheckSquare, Square, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { authedFetch } from '../utils/aiClient';
+import { uploadFile } from '../utils/utils';
 
 const ACCEPTED = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
 
@@ -262,7 +263,14 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             // `remarks` is a structured ARRAY here too — route the AI string to `comments`.
             if (selected.remarks && result.remarks) out.comments = String(result.remarks);
         }
-        onApply(out);
+        // Persist the original document so it appears on the related preview.
+        // A supplier invoice imported as an expense is anchored to the linked
+        // contract — the supplier-invoice preview reads attachments by contract id.
+        const anchorId = documentType === 'expense' ? result?.linkedContract?.id : null;
+        if (anchorId && file) {
+            uploadFile(anchorId, file, () => { }).catch(() => { });
+        }
+        onApply(out, file);
         onClose();
     };
 

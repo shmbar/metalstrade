@@ -1,9 +1,11 @@
 'use client';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '../../../components/ui/dialog';
 import dateFormat from 'dateformat';
-import { getD, reOrderTableInv } from '../../../utils/utils';
+import { getD, reOrderTableInv, getAllfiles, uploadFile } from '../../../utils/utils';
 import { Pdf as InvoicePdf } from '../contracts/modals/pdf/pdfInvoice';
 import { FaFilePdf } from 'react-icons/fa';
+import { FileUploader } from 'react-drag-drop-files';
 
 const getprefixInv = (x) => {
     if (!x?.invType) return '';
@@ -39,34 +41,44 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
         style: 'currency', currency: currencyCode, minimumFractionDigits: 2,
     }).format(v || 0);
 
-    const fmtQty = (v) => v === 's' ? 'Service' : new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(v || 0);
-    const fmtNum = (v) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(v || 0);
+    const [files, setFiles] = useState([]);
+    const [loadingFiles, setLoadingFiles] = useState(true);
 
-    const products = (c.productsData || []).filter(x => !x.import);
-    const hasLinePrices = true;
+    const contractId = inv.orderData?.id;
+    useEffect(() => {
+        let active = true;
+        if (!contractId) { setLoadingFiles(false); return; }
+        setLoadingFiles(true);
+        (async () => {
+            try {
+                const arr = await getAllfiles(contractId);
+                if (active) setFiles(Array.isArray(arr) ? arr : []);
+            } catch {
+                if (active) setFiles([]);
+            } finally {
+                if (active) setLoadingFiles(false);
+            }
+        })();
+        return () => { active = false; };
+    }, [contractId]);
 
-    const getDescription = (item) => {
-        if (item.mtrlStatus === 'select' || item.isSelection) {
-            return c.productsData?.find(x => x.id === item.descriptionId)?.description || item.descriptionText || item.description || '';
+    const isPdf = (n = '') => /\.pdf(\?|$)/i.test(n);
+    const isImage = (n = '') => /\.(png|jpe?g|gif|webp|bmp)(\?|$)/i.test(n);
+    const primaryFile = files.find(f => isPdf(f.name)) || files.find(f => isImage(f.name)) || files[0] || null;
+
+    const [uploading, setUploading] = useState(false);
+    const handleUpload = async (file) => {
+        if (!file || !contractId) return;
+        setUploading(true);
+        try {
+            await uploadFile(contractId, file, setFiles);
+        } finally {
+            setUploading(false);
         }
-        return item.descriptionText || item.description || '';
     };
 
     const invNo = String(inv.invoice || '').padStart(4, '0');
     const invDate = c.date || inv.orderData?.date || '';
-
-    const shipDisplay = settings ? getD(settings.Shipment?.Shipment || [], c, 'shpType') : '';
-    const originDisplay = settings ? getD(settings.Origin?.Origin || [], c, 'origin') : '';
-    const delTermDisplay = settings ? getD(settings['Delivery Terms']?.['Delivery Terms'] || [], c, 'delTerm') : '';
-    const polDisplay = settings ? getD(settings.POL?.POL || [], c, 'pol') : '';
-    const podDisplay = settings ? getD(settings.POD?.POD || [], c, 'pod') : '';
-    const packingDisplay = settings ? getD(settings.Packing?.Packing || [], c, 'packing') : '';
-    const qTypeDisplay = settings ? getD(settings.Quantity?.Quantity || [], c, 'qTypeTable') : 'MT';
-
-    const NetWTKgsTmp = products.filter(q => q.qnty !== 's').reduce((acc, x) => acc + (x.qnty * 1 || 0), 0) * 1000;
-    const NetWTKgs = fmtNum(NetWTKgsTmp);
-    const TotalGross = fmtNum(c.ttlGross);
-    const TotalTarre = fmtNum((c.ttlGross || 0) - NetWTKgsTmp);
 
     const total = inv.invValue * 1 || 0;
     const paid = inv.pmnt * 1 || 0;
@@ -77,11 +89,6 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
     const status = balance === 0 ? 'PAID' : paid > 0 ? 'PARTIALLY PAID' : 'UNPAID';
     const statusBg = balance === 0 ? '#dcfce7' : paid > 0 ? '#fef3c7' : '#fee2e2';
     const statusFg = balance === 0 ? '#16a34a' : paid > 0 ? '#d97706' : '#dc2626';
-
-    const TH = 'text-left text-[10px] font-semibold py-2 px-2 text-white';
-    const TH_R = 'text-right text-[10px] font-semibold py-2 px-2 text-white';
-    const TD = 'text-left text-[10px] py-1 px-2 align-top';
-    const TD_R = 'text-right text-[10px] py-1 px-2 align-top';
 
     return (
         <Dialog open={!!inv} onOpenChange={onClose}>
@@ -172,81 +179,63 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                             </div>
                         </div>
 
-                        {/* Shipment (from contract) */}
-                        {(shipDisplay || originDisplay || delTermDisplay || polDisplay || podDisplay || packingDisplay || c.ttlGross) && (
-                            <div style={{ marginBottom: '48px', fontSize: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', color: '#203764' }}>
-                                {/* Left: Shipment / Origin / Delivery Terms */}
-                                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                                    <table style={{ borderCollapse: 'collapse' }}>
-                                        <tbody>
-                                            {shipDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Shipment:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{shipDisplay}</td></tr>}
-                                            {originDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Origin:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{originDisplay}</td></tr>}
-                                            {delTermDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Delivery Terms:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{delTermDisplay}</td></tr>}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                {/* Middle: POL / POD / Packing */}
-                                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                                    <table style={{ borderCollapse: 'collapse' }}>
-                                        <tbody>
-                                            {polDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POL:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{polDisplay}</td></tr>}
-                                            {podDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POD:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{podDisplay}</td></tr>}
-                                            {packingDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Packing:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{packingDisplay}</td></tr>}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                {/* Right: WT values */}
-                                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                    <table style={{ borderCollapse: 'collapse' }}>
-                                        <tbody>
-                                            <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Net WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td></tr>
-                                            {c.ttlGross && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Tare WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{TotalTarre}</td></tr>}
-                                            {c.ttlGross && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Gross WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{TotalGross}</td></tr>}
-                                        </tbody>
-                                    </table>
+                        {/* Original uploaded supplier invoice — or a clean summary if none */}
+                        {loadingFiles ? (
+                            <div style={{ textAlign: 'center', fontSize: '11px', color: 'var(--regent-gray)', padding: '40px 0' }}>
+                                Loading original invoice…
+                            </div>
+                        ) : primaryFile ? (
+                            <div>
+                                {isPdf(primaryFile.name) ? (
+                                    <iframe title={primaryFile.name} src={primaryFile.url}
+                                        style={{ width: '100%', height: '68vh', border: '1px solid #d8e8f5', borderRadius: '6px', background: '#fff' }} />
+                                ) : isImage(primaryFile.name) ? (
+                                    <img src={primaryFile.url} alt={primaryFile.name}
+                                        style={{ display: 'block', maxWidth: '100%', margin: '0 auto', borderRadius: '6px', border: '1px solid #d8e8f5' }} />
+                                ) : (
+                                    <div style={{ fontSize: '11px', color: 'var(--regent-gray)', padding: '12px 0' }}>
+                                        This file type can’t be previewed inline — open it with the link below.
+                                    </div>
+                                )}
+                                <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    {files.map((f, i) => (
+                                        <a key={i} href={f.url} target="_blank" rel="noreferrer"
+                                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', color: 'var(--endeavour)' }}>
+                                            <FaFilePdf size={11} /> {f.name}{f === primaryFile ? ' (shown above)' : ''}
+                                        </a>
+                                    ))}
                                 </div>
                             </div>
+                        ) : (
+                            <div>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px', fontSize: '10px' }}>
+                                    <tbody>
+                                        <tr>
+                                            <td colSpan={3} />
+                                            <td className="text-left text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px', whiteSpace: 'nowrap', width: '18%' }}>Total Amount:</td>
+                                            <td className="text-right text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px', width: '15%' }}>{fmtAmt(total)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colSpan={3} />
+                                            <td className="text-left text-[10px] px-2" style={{ padding: '4px 8px', whiteSpace: 'nowrap' }}>Paid:</td>
+                                            <td className="text-right text-[10px] px-2" style={{ padding: '4px 8px' }}>{fmtAmt(paid)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colSpan={3} />
+                                            <td className="text-left text-[10px] px-2" style={{ padding: '4px 8px', whiteSpace: 'nowrap' }}>Balance:</td>
+                                            <td className="text-right text-[10px] px-2" style={{ padding: '4px 8px', color: balance > 0 ? '#dc2626' : '#16a34a' }}>{fmtAmt(balance)}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '11px', color: 'var(--regent-gray)' }}>
+                                    No original invoice uploaded for this contract.
+                                </p>
+                                <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
+                                    <FileUploader handleChange={handleUpload} name="file" types={['PDF', 'PNG', 'JPG', 'JPEG']} disabled={uploading || !contractId} />
+                                </div>
+                                {uploading && <p style={{ marginTop: '8px', textAlign: 'center', fontSize: '10px', color: 'var(--endeavour)' }}>Uploading…</p>}
+                            </div>
                         )}
-
-                        {/* Products from contract */}
-                        {products.length > 0 && (
-                            <table className="inv-preview-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4px', fontSize: '10px' }}>
-                                <thead>
-                                    <tr style={{ background: '#096eb6', color: '#fff' }}>
-                                        <th className={TH} style={{ width: '5%' }}>#</th>
-                                        <th className={TH} style={{ width: hasLinePrices ? '60%' : '78%' }}>Description</th>
-                                        <th className={TH_R} style={{ width: hasLinePrices ? '13%' : '17%' }}>Quantity<br />{qTypeDisplay || 'MT'}</th>
-                                        {hasLinePrices && <th className={TH_R} style={{ width: '11%' }}>Unit Price<br />{currencyCode}</th>}
-                                        {hasLinePrices && <th className={TH_R} style={{ width: '11%' }}>Total<br />{currencyCode}</th>}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {products.map((item, i) => {
-                                        const lineTotal = (item.qnty * 1 || 0) * (item.unitPrc * 1 || 0);
-                                        return (
-                                            <tr key={i}>
-                                                <td className={TD}>{i + 1}</td>
-                                                <td className={TD}>{getDescription(item)}</td>
-                                                <td className={TD_R}>{fmtQty(item.qnty)}</td>
-                                                {hasLinePrices && <td className={TD_R}>{fmtAmt(item.unitPrc)}</td>}
-                                                {hasLinePrices && <td className={TD_R}>{fmtAmt(lineTotal)}</td>}
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        )}
-
-                        {/* Invoice total — matches PDF (just Total Amount) */}
-                        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px', fontSize: '10px' }}>
-                            <tbody>
-                                <tr>
-                                    <td colSpan={3} />
-                                    <td className="text-left text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px', whiteSpace: 'nowrap', width: '15%' }}>Total Amount:</td>
-                                    <td className="text-right text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px', width: '15%' }}>{fmtAmt(total)}</td>
-                                </tr>
-                            </tbody>
-                        </table>
 
                         </div>
                     </div>
