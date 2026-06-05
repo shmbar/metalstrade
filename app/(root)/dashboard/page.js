@@ -3,12 +3,10 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
-import Spinner from '@components/spinner';
 import VideoLoader from '@components/videoLoader';
 import { UserAuth } from "@contexts/useAuthContext"
 import { SettingsContext } from "@contexts/useSettingsContext";
 import Toast from '@components/toast.js'
-import Spin from '@components/spinTable';
 import { loadData, groupedArrayInvoice, getInvoices } from '@utils/utils'
 import { setMonthsInvoices, calContracts } from './funcs'
 import { getTtl } from '@utils/languages';
@@ -19,11 +17,13 @@ import TooltipComp from '@components/tooltip';
 const MarketsTicker = dynamic(() => import('@components/Dashboard/MarketsTicker'), { ssr: false });
 import AIAlertsBar from '@components/Dashboard/AIAlertsBar';
 
-import { BarChartContracts, HorizontalBar } from './charts';
+import { HorizontalBar } from './charts';
 
 // chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
 const Line = dynamic(() => import('./LazyCharts').then((mod) => mod.Line), { ssr: false });
-const Bar = dynamic(() => import('./LazyCharts').then((mod) => mod.Bar), { ssr: false });
+const Doughnut = dynamic(() => import('./LazyCharts').then((mod) => mod.Doughnut), { ssr: false });
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const fmtMoney = (n, decimals = 2) => {
   const num = typeof n === "string"
@@ -78,72 +78,128 @@ const sumObj = (obj) => Object.values(obj || {}).reduce((a, v) => a + (Number(v)
 function CardShell({ className = "", children }) {
   return (
     <m.div
-      className={`bg-[#f8fbff] rounded-2xl border border-[#b8ddf8] ${className}`}
-      initial={{ opacity: 0, y: 30 }}
+      className={`bg-white rounded-2xl border border-[#e6eef8] shadow-sm ${className}`}
+      initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-      whileHover={{ scale: 1.02, boxShadow: '0 8px 32px rgba(0,0,0,0.08)' }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      whileHover={{ boxShadow: '0 10px 30px rgba(16,58,122,0.08)' }}
     >
       {children}
     </m.div>
   );
 }
 
+function SectionHeader({ title, subtitle, right }) {
+  return (
+    <div className="flex items-start justify-between gap-3 mb-3">
+      <div className="min-w-0">
+        <h3 className="responsiveTextTitle font-semibold font-poppins text-[var(--chathams-blue)]">{title}</h3>
+        {subtitle && <p className="responsiveTextTable text-[var(--regent-gray)] mt-0.5">{subtitle}</p>}
+      </div>
+      {right}
+    </div>
+  );
+}
+
+// Month-over-month delta from a monthly series: compares the latest non-zero
+// month to the most recent prior month that has data. Returns null when there
+// isn't enough data to compute a meaningful change.
+function computeTrend(series) {
+  if (!Array.isArray(series) || series.length < 2) return null;
+  let last = -1;
+  for (let i = series.length - 1; i >= 0; i--) {
+    if (Number.isFinite(series[i]) && series[i] !== 0) { last = i; break; }
+  }
+  if (last <= 0) return null;
+  let prev = -1;
+  for (let i = last - 1; i >= 0; i--) {
+    if (Number.isFinite(series[i])) { prev = i; break; }
+  }
+  if (prev < 0) return null;
+  const before = series[prev];
+  if (!before) return null;
+  const pct = ((series[last] - before) / Math.abs(before)) * 100;
+  if (!Number.isFinite(pct)) return null;
+  return { pct, up: pct >= 0 };
+}
+
 function StatKpiCard({
   title,
-  badgeText,
   value,
   chartData,
-  chartColor = "rgba(255,255,255,0.92)",
-  grad = "from-red-500 to-rose-600",
+  accent = '#2563eb',
   icon,
-  iconBg = '#fff',
+  goodWhenUp = true,
 }) {
+  const series = useMemo(
+    () => (Array.isArray(chartData) ? chartData : Object.values(chartData || {})).map(Number),
+    [chartData]
+  );
+  const trend = useMemo(() => computeTrend(series), [series]);
+  const good = trend ? trend.up === goodWhenUp : true;
+  const deltaColor = good ? '#16a34a' : '#dc2626';
+  const deltaBg = good ? '#dcfce7' : '#fee2e2';
+
   return (
     <m.div
-      className={`relative h-full min-h-[130px] rounded-xl overflow-hidden bg-gradient-to-br ${grad} shadow-md flex flex-col`}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-      whileHover={{ scale: 1.03, boxShadow: '0 8px 32px rgba(0,0,0,0.10)' }}
+      className="relative h-full min-h-[140px] rounded-xl bg-white border border-[#e6eef8] shadow-sm flex flex-col overflow-hidden"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
     >
-      <div className="p-2.5 flex flex-col justify-between h-full">
-        {/* Top Section - Icon, Title and Badge */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            {icon && (
-              <span className="inline-flex items-center justify-center rounded-full flex-shrink-0" style={{ background: iconBg, width: 22, height: 22 }}>
-                {icon}
+      <div className="p-3 flex flex-col h-full">
+        {/* Icon tile + title */}
+        <div className="flex items-center gap-2">
+          {icon && (
+            <span
+              className="inline-flex items-center justify-center rounded-lg flex-shrink-0"
+              style={{ background: `${accent}1A`, color: accent, width: 30, height: 30 }}
+            >
+              {icon}
+            </span>
+          )}
+          <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">
+            {title}
+          </span>
+        </div>
+
+        {/* Hero number */}
+        <div
+          className="mt-2 font-semibold text-[var(--port-gore)] leading-none"
+          style={{ fontSize: 'clamp(1.15rem, 0.9rem + 0.7vw, 1.6rem)' }}
+        >
+          {value}
+        </div>
+
+        {/* Trend delta */}
+        <div className="mt-1.5 flex items-center gap-1.5" style={{ minHeight: 16 }}>
+          {trend && (
+            <>
+              <span
+                className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 font-semibold"
+                style={{ background: deltaBg, color: deltaColor, fontSize: '0.6rem' }}
+              >
+                {trend.up ? '▲' : '▼'} {Math.abs(trend.pct).toFixed(1)}%
               </span>
-            )}
-            <div className="text-white/90 responsiveTextTable font-medium leading-tight">
-              {title}
-            </div>
-          </div>
-          <div className="px-1.5 py-0.5 rounded-md bg-white/20 text-white flex-shrink-0" style={{ fontSize: '0.58rem' }}>
-            {badgeText}
-          </div>
+              <span className="text-[var(--regent-gray)]" style={{ fontSize: '0.58rem' }}>vs prev mo</span>
+            </>
+          )}
         </div>
 
-        {/* Middle Section - Left Aligned Value */}
-        <div className="flex-1 flex items-center justify-start">
-          <div className="responsiveTextTitle font-medium text-white">
-            {value}
-          </div>
-        </div>
-
-        {/* Bottom Section - Chart */}
-        <div className="h-[32px]">
+        {/* Sparkline */}
+        <div className="mt-auto h-[30px] -mx-1">
           <Line
             data={{
-              labels: Object.keys(chartData || {}).slice(0, 12),
+              labels: series.slice(0, 12).map((_, i) => i),
               datasets: [{
-                data: Object.values(chartData || {}).slice(0, 12),
-                borderColor: chartColor,
+                data: series.slice(0, 12),
+                borderColor: accent,
+                backgroundColor: `${accent}1F`,
                 borderWidth: 2,
                 tension: 0.4,
                 pointRadius: 0,
-                fill: false,
+                fill: true,
               }]
             }}
             options={{
@@ -165,10 +221,97 @@ function StatKpiCard({
   );
 }
 
-// ─────────────────────────────────────────────
-// FIX #1 — NEW: Debt Snapshot Card Component
-// ─────────────────────────────────────────────
-function DebtSnapshotCard({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT }) {
+// Ranking list (Contracts / Consignees) — avatar + animated progress bar per row.
+function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
+  const colorPalette = [
+    '#38BDF8', '#22B0F0', '#7DD3F8', '#4F46E5',
+    '#7C6FE0', '#1477C0', '#2D3FB8', '#6366F1',
+    '#0A5EA8', '#8B7FE8'
+  ];
+  const avatarSize = 26;
+  const getInitials = (name = '') =>
+    name.toString().split(' ').map((s) => s[0] || '').slice(0, 2).join('').toUpperCase();
+  const rowCount = labels.length || 1;
+  const barHeight = Math.max(14, Math.min(28, Math.round(28 - rowCount * 1.5)));
+  const max = Math.max(...(data.length ? data : [1]), 1);
+
+  return (
+    <CardShell>
+      <div className="p-4">
+        <SectionHeader
+          title={title}
+          subtitle={subtitle}
+          right={
+            <div className="text-right flex-shrink-0">
+              <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
+              <span className="font-semibold text-[var(--chathams-blue)]">{fmtAutoKM(totalValue)}</span>
+            </div>
+          }
+        />
+
+        {/* Column headers */}
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-[116px] font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0 whitespace-nowrap" style={{ fontSize: '0.62rem' }}>Name</div>
+          <div className="flex-1 font-medium text-[var(--regent-gray)] uppercase tracking-wide text-center" style={{ fontSize: '0.62rem' }}>Contribution Share (0 – 1.0)</div>
+          <div className="w-16 text-right font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0" style={{ fontSize: '0.62rem' }}>Value</div>
+        </div>
+
+        <div className="overflow-y-auto custom-scroll" style={{ maxHeight: 360 }}>
+          {labels.map((lbl, idx) => {
+            const value = data[idx] || 0;
+            const pct = max > 0 ? (value / max) * 100 : 0;
+            const color = colorPalette[idx % colorPalette.length];
+            return (
+              <m.div
+                key={idx}
+                className="flex items-center gap-2 mb-0.5"
+                initial={{ opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.35, delay: idx * 0.04 }}
+              >
+                {/* Avatar */}
+                <m.div
+                  className="flex items-center justify-center rounded-full font-medium text-white flex-shrink-0"
+                  style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: 'spring', stiffness: 300 }}
+                >
+                  {getInitials(lbl)}
+                </m.div>
+
+                {/* Name */}
+                <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">{lbl}</div>
+
+                {/* Bar */}
+                <div className="flex-1 min-w-0">
+                  <div className="w-full bg-[#eef3f9] rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
+                    <m.div
+                      className="h-full flex items-center pl-2"
+                      style={{ width: `${pct}%`, background: color, minWidth: '42px', borderRadius: '0 9999px 9999px 0', transformOrigin: 'left' }}
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ duration: 0.5, delay: idx * 0.04, ease: 'easeOut' }}
+                    >
+                      <span className="font-medium text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
+                        {(max > 0 ? value / max : 0).toFixed(2)}
+                      </span>
+                    </m.div>
+                  </div>
+                </div>
+
+                {/* Value */}
+                <div className="w-16 text-right responsiveText text-[var(--port-gore)] flex-shrink-0">{fmtAutoKM(value)}</div>
+              </m.div>
+            );
+          })}
+        </div>
+      </div>
+    </CardShell>
+  );
+}
+
+// Per-MT unit economics — 4-up strip.
+function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT }) {
   const profitColor = avgProfitPerMT >= 0 ? '#16a34a' : '#dc2626';
 
   const metrics = [
@@ -224,41 +367,27 @@ function DebtSnapshotCard({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPer
   ];
 
   return (
-    <CardShell className="h-[300px]">
-      <div className="p-4 h-full flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">Per-MT Metrics</h3>
-          {/* <div className="flex items-center gap-1 px-2 py-1 rounded-md border border-gray-200 bg-gray-50 text-[10px] text-gray-500">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="4" width="18" height="18" rx="2" stroke="#9ca3af" strokeWidth="2"/>
-              <line x1="16" y1="2" x2="16" y2="6" stroke="#9ca3af" strokeWidth="2"/>
-              <line x1="8" y1="2" x2="8" y2="6" stroke="#9ca3af" strokeWidth="2"/>
-              <line x1="3" y1="10" x2="21" y2="10" stroke="#9ca3af" strokeWidth="2"/>
-            </svg>
-            {debtRange}
-          </div> */}
-        </div>
-
-        {/* 2x2 Metric Grid */}
-        <div className="grid grid-cols-2 gap-3 flex-1">
+    <CardShell>
+      <div className="p-4">
+        <SectionHeader title="Per-MT Metrics" subtitle="Unit economics for the selected period" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {metrics.map((metric, i) => (
             <m.div
               key={i}
-              className="flex flex-col gap-0.5 p-2 rounded-lg border border-[#b8ddf8] bg-white"
+              className="p-3 rounded-xl border border-[#e6eef8] bg-[#f8fbff]"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-              whileHover={{ scale: 1.02, boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}
+              transition={{ duration: 0.35, delay: i * 0.06 }}
+              whileHover={{ y: -2, boxShadow: '0 6px 18px rgba(16,58,122,0.07)' }}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mb-1">
                 {metric.icon}
+                <span className="responsiveTextTable text-[var(--regent-gray)] leading-tight">{metric.label}</span>
               </div>
-              <div className="responsiveTextTitle font-medium mt-0.5" style={{ color: metric.valueColor }}>
+              <div className="font-semibold leading-none" style={{ color: metric.valueColor, fontSize: 'clamp(1.05rem, 0.85rem + 0.6vw, 1.45rem)' }}>
                 {metric.value}
               </div>
-              <div className="responsiveTextTable text-[var(--regent-gray)] leading-tight">{metric.label}</div>
-              {metric.sub && <div className="responsiveTextTable text-[var(--regent-gray)] leading-tight">{metric.sub}</div>}
+              <div className="responsiveTextTable text-[var(--regent-gray)] mt-1 leading-tight">{metric.sub}</div>
             </m.div>
           ))}
         </div>
@@ -344,484 +473,290 @@ const Dash = () => {
   const avgExpensePerMT = useMemo(() => totalMT > 0 ? totalExpenses / totalMT : 0, [totalExpenses, totalMT]);
   const avgProfitPerMT = useMemo(() => totalMT > 0 ? totalPL / totalMT : 0, [totalPL, totalMT]);
 
-  // Prepare horizontal bar data objects (use real dataPie* sources)
+  // ── Hero trend series (Revenue area + Costs & Profit lines) ──────────────
+  const revLabels = useMemo(
+    () => Object.keys(dataInvoices).map((k) => MONTHS[Number(k) - 1] || k),
+    [dataInvoices]
+  );
+  const revenueSeries = useMemo(() => Object.values(dataInvoices).map(Number), [dataInvoices]);
+  const costsSeries = useMemo(
+    () => Object.keys(dataContracts).map((k) => (Number(dataContracts[k]) || 0) + (Number(dataExpenses[k]) || 0)),
+    [dataContracts, dataExpenses]
+  );
+  const profitSeries = useMemo(() => dataPL.map(Number), [dataPL]);
+
+  const heroData = {
+    labels: revLabels,
+    datasets: [
+      {
+        label: 'Revenue',
+        data: revenueSeries,
+        borderColor: '#2563eb',
+        backgroundColor: (ctx) => {
+          const { chart } = ctx;
+          const { ctx: c, chartArea } = chart;
+          if (!chartArea) return 'rgba(37,99,235,0.10)';
+          const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          g.addColorStop(0, 'rgba(37,99,235,0.28)');
+          g.addColorStop(1, 'rgba(37,99,235,0.00)');
+          return g;
+        },
+        borderWidth: 2.5,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        fill: 'origin',
+      },
+      {
+        label: 'Costs',
+        data: costsSeries,
+        borderColor: '#f43f5e',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        fill: false,
+      },
+      {
+        label: 'Profit',
+        data: profitSeries,
+        borderColor: '#16a34a',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [5, 4],
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        fill: false,
+      },
+    ],
+  };
+
+  const heroOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+        align: 'end',
+        labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 6, padding: 16, font: { size: 11 }, color: '#28264f' },
+      },
+      tooltip: {
+        backgroundColor: 'rgba(255,255,255,0.97)',
+        titleColor: '#28264f',
+        bodyColor: '#28264f',
+        borderColor: '#e6eef8',
+        borderWidth: 1,
+        cornerRadius: 10,
+        padding: 12,
+        usePointStyle: true,
+        callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${fmtAutoKM(ctx.parsed.y)}` },
+      },
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#838ca7' }, border: { display: false } },
+      y: { grid: { color: '#eef3f9' }, ticks: { callback: (v) => fmtAutoKM(v, 1), font: { size: 10 }, color: '#838ca7' }, border: { display: false } },
+    },
+  };
+
+  // ── Capital breakdown donut (Purchase / Expenses / Profit) ───────────────
+  const profitForArc = Math.max(Number(totalPL) || 0, 0);
+  const donutData = {
+    labels: ['Purchase Costs', 'Other Expenses', 'Net Profit'],
+    datasets: [{
+      data: [totalContracts, totalExpenses, profitForArc],
+      backgroundColor: ['#2563eb', '#db2777', '#16a34a'],
+      borderColor: '#ffffff',
+      borderWidth: 2,
+      hoverOffset: 6,
+    }],
+  };
+
+  const donutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '72%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(255,255,255,0.97)',
+        titleColor: '#28264f',
+        bodyColor: '#28264f',
+        borderColor: '#e6eef8',
+        borderWidth: 1,
+        cornerRadius: 10,
+        padding: 10,
+        callbacks: { label: (ctx) => ` ${ctx.label}: ${fmtAutoKM(ctx.parsed)}` },
+      },
+    },
+  };
+
+  const donutLegend = [
+    { label: 'Purchase Costs', value: totalContracts, color: '#2563eb' },
+    { label: 'Other Expenses', value: totalExpenses, color: '#db2777' },
+    { label: 'Net Profit', value: totalPL, color: '#16a34a' },
+  ];
+
+  // Ranking data sources
   const hbSupps = HorizontalBar(dataPieSupps || {});
   const hbClnts = HorizontalBar(dataPieClnts || {});
-
-  const getInitials = (name = '') =>
-    name
-      .toString()
-      .split(' ')
-      .map((s) => s[0] || '')
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-
-  // Calculate chart heights so rows align with avatar/name list and values
-  const avatarSize = 26; // px for rounded avatar
-  const rowHeight = avatarSize + 4; // px per row (avatar + gap)
-  const hbSuppsRows = (hbSupps.obj.labels || []).length || 1;
-  const hbClntsRows = (hbClnts.obj.labels || []).length || 1;
-  const hbSuppsHeight = Math.max(120, hbSuppsRows * rowHeight);
-  const hbClntsHeight = Math.max(120, hbClntsRows * rowHeight);
-
-  // Ensure chart dataset bar thickness roughly matches avatar size so bars align vertically
-  const normalizeChartData = (chartObj) => {
-    if (!chartObj) return chartObj;
-    const ds = chartObj.datasets?.map((d) => ({
-      ...d,
-      barThickness: Math.max(8, Math.round(avatarSize * 0.55)),
-      categoryPercentage: 0.75,
-      barPercentage: 0.9,
-      borderRadius: { topLeft: 999, topRight: 999, bottomLeft: 0, bottomRight: 0 },
-      borderSkipped: 'bottom',
-    }));
-    return { ...chartObj, datasets: ds };
-  };
-
-  const hbSuppsData = normalizeChartData(hbSupps.obj);
-  const hbClntsData = normalizeChartData(hbClnts.obj);
-
-  const makeChartOptions = (baseOptions, height) => {
-    const base = baseOptions || {};
-    const scales = base.scales || {};
-    const y = scales.y || {};
-    const x = scales.x || {};
-
-    return {
-      ...base,
-      indexAxis: 'y',
-      maintainAspectRatio: false,
-      responsive: true,
-      layout: {
-        padding: {
-          left: 0,
-          right: 8,
-          top: 8,
-          bottom: 8,
-        },
-      },
-      scales: {
-        ...scales,
-        y: {
-          ...y,
-          ticks: { display: false }, // hide labels (we render them to the left)
-          grid: { display: false },
-        },
-        x: {
-          ...x,
-          grid: { color: (x.grid && x.grid.color) || '#f3f4f6' },
-          ticks: {
-            ...(x.ticks || {}),
-            callback: (v) => fmtK(v),
-            font: { size: 10 },
-          },
-        },
-      },
-    };
-  };
 
   if (Object.keys(settings).length === 0) return <VideoLoader loading={true} fullScreen={true} />;
 
   return (
     <LazyMotion features={domAnimation}>
-    <div className="w-full ">
-      <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px] min-h-screen ">
-        <Toast />
-        <VideoLoader loading={loading} fullScreen={true} />
+      <div className="w-full">
+        <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-6 mt-[72px] min-h-screen">
+          <Toast />
+          <VideoLoader loading={loading} fullScreen={true} />
 
-        <m.div className="mb-4" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
-          <MarketsTicker />
-        </m.div>
-
-        <m.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
-          <AIAlertsBar />
-        </m.div>
-
-        {/* HEADER */}
-        <m.div className="mb-5 flex items-center justify-between" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
-          <div>
-            <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-              {getTtl('Dashboard', ln)}
-            </h1>
-            <p className="responsiveText text-[var(--regent-gray)] pl-3 mt-0.5">
-              Financial overview and analytics
-            </p>
-          </div>
-          <DateRangePicker />
-          <TooltipComp txt="Select Dates Range" />
-        </m.div>
-
-        {/* MAIN GRID */}
-        <m.div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-
-          {/* LEFT COLUMN */}
-          <m.div className="flex flex-col gap-4"
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.25 }}
-          >
-
-            {/* TOTAL REVENUE */}
-            <CardShell className="h-[300px]">
-              <div className="p-4 h-full flex flex-col">
-
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">
-                    Total Revenue
-                  </h3>
-
-                </div>
-
-                <div className="flex-1 min-h-0">
-                  <Bar
-                    data={{
-                      labels: Object.keys(dataInvoices),
-                      datasets: [
-                        {
-                          label: 'Sales Revenue',
-                          data: Object.values(dataInvoices),
-                          backgroundColor: '#4F99FF',
-                          borderRadius: { topLeft: 999, topRight: 999, bottomLeft: 0, bottomRight: 0 },
-                          borderSkipped: 'bottom',
-                          barThickness: 'flex',
-                          maxBarThickness: 18,
-                        },
-                        {
-                          label: 'Purchase Costs',
-                          data: Object.values(dataContracts),
-                          backgroundColor: '#1D3A8A',
-                          borderRadius: { topLeft: 999, topRight: 999, bottomLeft: 0, bottomRight: 0 },
-                          borderSkipped: 'bottom',
-                          barThickness: 'flex',
-                          maxBarThickness: 18,
-                        }
-                      ]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: {
-                          display: true,
-                          position: 'bottom',
-                          labels: {
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            padding: 15,
-                            font: { size: 11 }
-                          }
-                        }
-                      },
-                      scales: {
-                        x: {
-                          grid: { display: false },
-                          ticks: { font: { size: 10 } }
-                        },
-                        y: {
-                          grid: { color: '#f3f4f6' },
-                          ticks: {
-                            callback: (v) => fmtK(v),
-                            font: { size: 10 }
-                          }
-                        }
-                      }
-                    }}
-                  />
-
-                </div>
-
-              </div>
-            </CardShell>
-
-            {/* SUPPLIERS */}
-            <CardShell>
-              <div className="p-4">
-                <div className="flex justify-between mb-1">
-                  <div>
-                    <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">Contracts - $</h3>
-                    <p className="responsiveTextTable text-[var(--regent-gray)]">Contribution breakdown by contract values</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
-                    <span className="font-medium text-[var(--chathams-blue)]">{fmtAutoKM(totalContracts)}</span>
-                  </div>
-                </div>
-
-                {/* Column Headers */}
-                <div className="flex items-center gap-3 mb-2 mt-2">
-                  <div className="w-[116px] font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0 whitespace-nowrap" style={{ fontSize: '0.62rem' }}>Client Name</div>
-                  <div className="flex-1 font-medium text-[var(--regent-gray)] uppercase tracking-wide text-center" style={{ fontSize: '0.62rem' }}>Contribution Share (0 – 1.0)</div>
-                  <div className="w-16 text-right font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0" style={{ fontSize: '0.62rem' }}>Value</div>
-                </div>
-
-                <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
-                  {(hbSupps.obj.labels || []).map((lbl, idx) => {
-                    const rowCount = (hbSupps.obj.labels || []).length;
-                    const barHeight = Math.max(14, Math.min(28, Math.round(28 - rowCount * 1.5)));
-                    const colorPalette = [
-                      '#38BDF8', '#22B0F0', '#7DD3F8', '#4F46E5',
-                      '#7C6FE0', '#1477C0', '#2D3FB8', '#6366F1',
-                      '#0A5EA8', '#8B7FE8'
-                    ];
-                    const color = colorPalette[idx % colorPalette.length];
-                    const value = hbSuppsData?.datasets?.[0]?.data?.[idx] || 0;
-                    const allValues = hbSuppsData?.datasets?.[0]?.data || [1];
-                    const max = Math.max(...allValues);
-                    const pct = max > 0 ? (value / max) * 100 : 0;
-
-                    return (
-                      <m.div
-                        key={idx}
-                        className="flex items-center gap-2 mb-0.5"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.4, delay: idx * 0.07 }}
-                      >
-                        {/* Avatar */}
-                        <m.div
-                          className="flex items-center justify-center rounded-full font-medium text-white flex-shrink-0"
-                          style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
-                          whileHover={{ scale: 1.1 }}
-                          transition={{ type: 'spring', stiffness: 300 }}
-                        >
-                          {getInitials(lbl)}
-                        </m.div>
-
-                        {/* Name */}
-                        <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">
-                          {lbl}
-                        </div>
-
-                        {/* Bar */}
-                        <m.div className="flex-1 min-w-0">
-                          <div className="w-full bg-gray-100 rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
-                            <m.div
-                              className="rounded-r-full h-full flex items-center pl-2"
-                              style={{
-                                width: `${pct}%`,
-                                background: color,
-                                minWidth: '42px',
-                                borderRadius: '0 9999px 9999px 0'
-                              }}
-                              initial={{ scaleX: 0 }}
-                              animate={{ scaleX: 1 }}
-                              transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
-                              whileHover={{ scaleY: 1.1 }}
-                            >
-                              <span className="font-medium text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
-                                {(max > 0 ? value / max : 0).toFixed(2)}
-                              </span>
-                            </m.div>
-                          </div>
-                        </m.div>
-
-                        {/* Value */}
-                        <m.div className="w-16 text-right responsiveText text-[var(--port-gore)] font-normal flex-shrink-0"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.4, delay: idx * 0.09 }}
-                        >
-                          {fmtAutoKM(value)}
-                        </m.div>
-                      </m.div>
-                    );
-                  })}
-                </div>
-              </div>
-            </CardShell>
-
-            {/* CLIENTS */}
-            <CardShell>
-              <div className="p-4">
-                <div className="flex justify-between mb-1">
-                  <div>
-                    <h3 className="responsiveTextTitle font-medium font-poppins text-[var(--chathams-blue)]">Consignees - $</h3>
-                    <p className="responsiveTextTable text-[var(--regent-gray)]">Contribution breakdown by client volume</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
-                    <span className="font-medium text-[var(--chathams-blue)]">{fmtAutoKM(totalInvoices)}</span>
-                  </div>
-                </div>
-
-                {/* Column Headers */}
-                <div className="flex items-center gap-3 mb-2 mt-2">
-                  <div className="w-[116px] font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0 whitespace-nowrap" style={{ fontSize: '0.62rem' }}>Client Name</div>
-                  <div className="flex-1 font-medium text-[var(--regent-gray)] uppercase tracking-wide text-center" style={{ fontSize: '0.62rem' }}>Contribution Share (0 – 1.0)</div>
-                  <div className="w-16 text-right font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0" style={{ fontSize: '0.62rem' }}>Value</div>
-                </div>
-
-                <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
-                  {(hbClnts.obj.labels || []).map((lbl, idx) => {
-                    const rowCount = (hbClnts.obj.labels || []).length;
-                    const barHeight = Math.max(14, Math.min(28, Math.round(28 - rowCount * 1.5)));
-                    const colorPalette = [
-                      '#38BDF8', '#22B0F0', '#7DD3F8', '#4F46E5',
-                      '#7C6FE0', '#1477C0', '#2D3FB8', '#6366F1',
-                      '#0A5EA8', '#8B7FE8'
-                    ];
-                    const color = colorPalette[idx % colorPalette.length];
-                    const value = hbClntsData?.datasets?.[0]?.data?.[idx] || 0;
-                    const allValues = hbClntsData?.datasets?.[0]?.data || [1];
-                    const max = Math.max(...allValues);
-                    const pct = max > 0 ? (value / max) * 100 : 0;
-
-                    return (
-                      <m.div
-                        key={idx}
-                        className="flex items-center gap-2 mb-0.5"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.4, delay: idx * 0.07 }}
-                      >
-                        {/* Avatar */}
-                        <m.div
-                          className="flex items-center justify-center rounded-full font-medium text-white flex-shrink-0"
-                          style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
-                          whileHover={{ scale: 1.1 }}
-                          transition={{ type: 'spring', stiffness: 300 }}
-                        >
-                          {getInitials(lbl)}
-                        </m.div>
-                        {/* Name */}
-                        <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">
-                          {lbl}
-                        </div>
-                        {/* Bar */}
-                        <m.div className="flex-1 min-w-0">
-                          <div className="w-full bg-gray-100 rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
-                            <m.div
-                              className="rounded-r-full h-full flex items-center pl-2"
-                              style={{
-                                width: `${pct}%`,
-                                background: color,
-                                minWidth: '42px',
-                                borderRadius: '0 9999px 9999px 0'
-                              }}
-                              initial={{ scaleX: 0 }}
-                              animate={{ scaleX: 1 }}
-                              transition={{ duration: 0.5, delay: idx * 0.07, ease: 'easeOut' }}
-                              whileHover={{ scaleY: 1.1 }}
-                            >
-                              <span className="font-medium text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
-                                {(max > 0 ? value / max : 0).toFixed(2)}
-                              </span>
-                            </m.div>
-                          </div>
-                        </m.div>
-                        {/* Value */}
-                        <m.div className="w-16 text-right responsiveText text-[var(--port-gore)] font-normal flex-shrink-0"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.4, delay: idx * 0.09 }}
-                        >
-                          {fmtAutoKM(value)}
-                        </m.div>
-                      </m.div>
-                    );
-                  })}
-                </div>
-              </div>
-            </CardShell>
-
+          {/* Market ticker */}
+          <m.div className="mb-4" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+            <MarketsTicker />
           </m.div>
 
-          {/* RIGHT COLUMN */}
-          <m.div className="flex flex-col gap-4 lg:sticky lg:top-[76px] lg:self-start"
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            {/* ─────────────────────────────────────────
-              FIX #2 — REMOVED: Sales Overview line chart
-              FIX #3 — ADDED: Debt Snapshot card (top-right)
-              The Debt Snapshot now sits top-right, exactly
-              mirroring Total Revenue on the left.
-          ───────────────────────────────────────── */}
-            <DebtSnapshotCard
-              totalMT={totalMT}
-              avgCostPerMT={avgCostPerMT}
-              avgExpensePerMT={avgExpensePerMT}
-              avgProfitPerMT={avgProfitPerMT}
-            />
+          {/* AI alerts */}
+          <m.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
+            <AIAlertsBar />
+          </m.div>
 
-            {/* KPI GRID */}
-            <div className="grid grid-cols-2 gap-3 auto-rows-fr flex-1">
-
-              <StatKpiCard
-                title="P&L"
-                badgeText="Profit"
-                value={fmtAutoKM(totalPL)}
-                chartData={dataPL}
-                grad="from-[#6B44C8] to-[#3E2090]"
-                chartColor="rgba(255,255,255,0.95)"
-                icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2" /><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>}
-                iconBg="rgba(255,255,255,0.2)"
-              />
-              <StatKpiCard
-                title="Sales Revenue"
-                badgeText="Sales"
-                value={fmtAutoKM(totalInvoices)}
-                chartData={dataInvoices}
-                grad="from-[#0E7058] to-[#09523E]"
-                chartColor="rgba(255,255,255,0.95)"
-                icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#fff" strokeWidth="2" /><path d="M8 10h8M8 14h8" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>}
-                iconBg="rgba(255,255,255,0.2)"
-              />
-              <StatKpiCard
-                title="Total Costs"
-                badgeText="Costs"
-                value={fmtAutoKM(totalContracts + totalExpenses)}
-                chartData={dataContracts}
-                grad="from-[#C42840] to-[#902030]"
-                chartColor="rgba(255,255,255,0.95)"
-                icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2" /><path d="M12 8v4l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>}
-                iconBg="rgba(255,255,255,0.2)"
-              />
-              <StatKpiCard
-                title="MT Purchased"
-                badgeText="Volume"
-                value={`${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`}
-                chartData={dataContracts}
-                grad="from-[#2255C8] to-[#1A3A98]"
-                chartColor="rgba(255,255,255,0.95)"
-                icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#fff" strokeWidth="2" /><path d="M7 10h10M7 14h6" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>}
-                iconBg="rgba(255,255,255,0.2)"
-              />
-              <StatKpiCard
-                title="Other Expenses"
-                badgeText="Costs"
-                value={fmtAutoKM(totalExpenses)}
-                chartData={dataExpenses}
-                grad="from-[#C42860] to-[#901040]"
-                chartColor="rgba(255,255,255,0.95)"
-                icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="#fff" strokeWidth="2" /><path d="M12 8v4" stroke="#fff" strokeWidth="2" strokeLinecap="round" /><path d="M12 12l2 2" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>}
-                iconBg="rgba(255,255,255,0.2)"
-              />
-              <StatKpiCard
-                title="Avg Profit / MT"
-                badgeText="Per MT"
-                value={fmtAutoKM(avgProfitPerMT)}
-                chartData={dataPL}
-                grad="from-[#BF6A18] to-[#8A3E0A]"
-                chartColor="rgba(255,255,255,0.95)"
-                icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 17l4-4 4 4 4-8 4 4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-                iconBg="rgba(255,255,255,0.2)"
-              />
-
+          {/* Header */}
+          <m.div className="mb-5 flex flex-wrap items-center justify-between gap-3"
+            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
+            <div>
+              <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-semibold border-l-4 border-[var(--chathams-blue)] pl-2">
+                {getTtl('Dashboard', ln)}
+              </h1>
+              <p className="responsiveText text-[var(--regent-gray)] pl-3 mt-0.5">
+                Financial overview · {currentYear}
+              </p>
             </div>
-
+            <div className="flex items-center gap-1">
+              <DateRangePicker />
+              <TooltipComp txt="Select Dates Range" />
+            </div>
           </m.div>
 
-        </m.div>
+          {/* KPI ROW */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-5">
+            <StatKpiCard
+              title="P&L"
+              value={fmtAutoKM(totalPL)}
+              chartData={dataPL}
+              accent="#6366F1"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" /><path d="M12 8v4l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
+            />
+            <StatKpiCard
+              title="Sales Revenue"
+              value={fmtAutoKM(totalInvoices)}
+              chartData={dataInvoices}
+              accent="#16a34a"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" strokeWidth="2" /><path d="M8 10h8M8 14h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
+            />
+            <StatKpiCard
+              title="Total Costs"
+              value={fmtAutoKM(totalContracts + totalExpenses)}
+              chartData={dataContracts}
+              accent="#dc2626"
+              goodWhenUp={false}
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" /><path d="M12 8v4l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
+            />
+            <StatKpiCard
+              title="MT Purchased"
+              value={`${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`}
+              chartData={dataContracts}
+              accent="#2563eb"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="2" /><path d="M7 10h10M7 14h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
+            />
+            <StatKpiCard
+              title="Other Expenses"
+              value={fmtAutoKM(totalExpenses)}
+              chartData={dataExpenses}
+              accent="#db2777"
+              goodWhenUp={false}
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" /><path d="M12 8v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /><path d="M12 12l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
+            />
+            <StatKpiCard
+              title="Avg Profit / MT"
+              value={fmtAutoKM(avgProfitPerMT)}
+              chartData={dataPL}
+              accent="#ea580c"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 17l4-4 4 4 4-8 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+            />
+          </div>
 
+          {/* MAIN ROW — hero trend + capital breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+            <CardShell className="lg:col-span-2">
+              <div className="p-4">
+                <SectionHeader
+                  title="Revenue, Costs & Profit"
+                  subtitle="Monthly trend for the selected period"
+                />
+                <div style={{ height: 320 }}>
+                  <Line data={heroData} options={heroOptions} />
+                </div>
+              </div>
+            </CardShell>
+
+            <CardShell>
+              <div className="p-4">
+                <SectionHeader title="Capital Breakdown" subtitle="How revenue was allocated" />
+                <div className="relative" style={{ height: 200 }}>
+                  <Doughnut data={donutData} options={donutOptions} />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="responsiveTextTable text-[var(--regent-gray)]">Revenue</span>
+                    <span className="font-semibold text-[var(--port-gore)]" style={{ fontSize: 'clamp(1rem, 0.8rem + 0.6vw, 1.35rem)' }}>
+                      {fmtAutoKM(totalInvoices)}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-col gap-2">
+                  {donutLegend.map((d) => (
+                    <div key={d.label} className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: d.color }} />
+                        <span className="responsiveTextTable text-[var(--port-gore)] truncate">{d.label}</span>
+                      </div>
+                      <span className="responsiveTextTable font-semibold flex-shrink-0" style={{ color: d.color }}>{fmtAutoKM(d.value)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardShell>
+          </div>
+
+          {/* RANKINGS ROW */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+            <RankingList
+              title="Contracts — $"
+              subtitle="Contribution breakdown by contract values"
+              labels={hbSupps.obj.labels || []}
+              data={hbSupps.obj.datasets?.[0]?.data || []}
+              totalValue={totalContracts}
+            />
+            <RankingList
+              title="Consignees — $"
+              subtitle="Contribution breakdown by client volume"
+              labels={hbClnts.obj.labels || []}
+              data={hbClnts.obj.datasets?.[0]?.data || []}
+              totalValue={totalInvoices}
+            />
+          </div>
+
+          {/* PER-MT STRIP */}
+          <PerMtStrip
+            totalMT={totalMT}
+            avgCostPerMT={avgCostPerMT}
+            avgExpensePerMT={avgExpensePerMT}
+            avgProfitPerMT={avgProfitPerMT}
+          />
+
+        </div>
       </div>
-    </div>
     </LazyMotion>
   );
 }

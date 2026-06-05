@@ -15,7 +15,7 @@ import {
   Legend,
   Filler,
 } from 'chart.js';
-import { Bar as RBar, Line as RLine } from 'react-chartjs-2';
+import { Bar as RBar, Line as RLine, Doughnut as RDoughnut } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -36,4 +36,8 @@ export function Bar(props) {
 
 export function Line(props) {
   return <RLine {...props} />;
+}
+
+export function Doughnut(props) {
+  return <RDoughnut {...props} />;
 }
