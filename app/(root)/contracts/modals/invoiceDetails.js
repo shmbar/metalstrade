@@ -292,7 +292,7 @@ const ContractModal = () => {
 								{valueCon.invoices.map((x, i) => {
 									return (
 										<li key={i} onClick={() => selectRow(i)}
-											className={`items-center py-1 px-1.5 responsiveTextTable truncate
+											className={`shrink-0 items-center py-1 px-1.5 responsiveTextTable truncate
 									${valueCon.invoices[i]['id'] === valueInv.id && 'font-medium bg-slate-100 '}
 									${(isInvCreationCNFL && x.invType !== '1111') ? 'bg-[#f3f4f6] pointer-events-none cursor-not-allowed text-[var(--regent-gray)]' : 'cursor-pointer text-[var(--port-gore)]'}
 								
@@ -351,7 +351,7 @@ const ContractModal = () => {
 							{poArr.map((x, i) => {
 								return (
 									<li key={i}
-										className='items-center py-0.5 px-1.5 responsiveText text-[var(--port-gore)]
+										className='shrink-0 items-center py-0.5 px-1.5 responsiveText text-[var(--port-gore)]
 									truncate'>
 										{x}
 									</li>
