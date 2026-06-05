@@ -157,15 +157,15 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                     <tbody>
                                         <tr>
                                             <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>Invoice No:</td>
-                                            <td style={{ paddingBottom: '3px', textAlign: 'right' }}>{invNo}</td>
+                                            <td style={{ paddingBottom: '3px' }}>{invNo}</td>
                                         </tr>
                                         <tr>
                                             <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>Contract #:</td>
-                                            <td style={{ paddingBottom: '3px', textAlign: 'right' }}>{inv.order || ''}</td>
+                                            <td style={{ paddingBottom: '3px' }}>{inv.order || ''}</td>
                                         </tr>
                                         <tr>
                                             <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>Date:</td>
-                                            <td style={{ paddingBottom: '3px', textAlign: 'right' }}>{invDate ? dateFormat(invDate, 'dd.mm.yy') : ''}</td>
+                                            <td style={{ paddingBottom: '3px' }}>{invDate ? dateFormat(invDate, 'dd.mm.yy') : ''}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -199,9 +199,9 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                     <table style={{ borderCollapse: 'collapse' }}>
                                         <tbody>
-                                            <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Net WT Kgs:</td><td style={{ paddingBottom: '3px', textAlign: 'right' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td></tr>
-                                            {c.ttlGross && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Tare WT Kgs:</td><td style={{ paddingBottom: '3px', textAlign: 'right' }}>{TotalTarre}</td></tr>}
-                                            {c.ttlGross && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Gross WT Kgs:</td><td style={{ paddingBottom: '3px', textAlign: 'right' }}>{TotalGross}</td></tr>}
+                                            <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Net WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td></tr>
+                                            {c.ttlGross && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Tare WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{TotalTarre}</td></tr>}
+                                            {c.ttlGross && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Gross WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{TotalGross}</td></tr>}
                                         </tbody>
                                     </table>
                                 </div>
@@ -434,16 +434,16 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                     <tbody>
                                         <tr>
                                             <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>{getInvTypeLabel(inv)}</td>
-                                            <td style={{ paddingBottom: '3px', textAlign: 'right' }}>{invNo}</td>
+                                            <td style={{ paddingBottom: '3px' }}>{invNo}</td>
                                         </tr>
                                         <tr>
                                             <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>Date:</td>
-                                            <td style={{ paddingBottom: '3px', textAlign: 'right' }}>{invDate ? dateFormat(invDate, 'dd.mm.yy') : ''}</td>
+                                            <td style={{ paddingBottom: '3px' }}>{invDate ? dateFormat(invDate, 'dd.mm.yy') : ''}</td>
                                         </tr>
                                         {poList.length > 0 && (
                                             <tr>
                                                 <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px', verticalAlign: 'top' }}>PO#:</td>
-                                                <td style={{ paddingBottom: '3px', textAlign: 'right' }}>
+                                                <td style={{ paddingBottom: '3px' }}>
                                                     {poList.map((p, i) => <div key={i}>{p}</div>)}
                                                 </td>
                                             </tr>
@@ -479,10 +479,10 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                 <table style={{ borderCollapse: 'collapse' }}>
                                     <tbody>
-                                        <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Net WT Kgs:</td><td style={{ paddingBottom: '3px', textAlign: 'right' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td></tr>
-                                        {!secondRule && !fifthRule && isInvoice && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Tarre WT Kgs:</td><td style={{ paddingBottom: '3px', textAlign: 'right' }}>{TotalTarre}</td></tr>}
-                                        {!fourthRule && !fifthRule && inv.ttlGross && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>{thirdRule ? 'QTY Ingots:' : 'Total Gross WT Kgs:'}</td><td style={{ paddingBottom: '3px', textAlign: 'right' }}>{TotalGross}</td></tr>}
-                                        {isInvoice && !secondRule && inv.ttlPackages && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Packages:</td><td style={{ paddingBottom: '3px', textAlign: 'right' }}>{inv.ttlPackages}</td></tr>}
+                                        <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Net WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td></tr>
+                                        {!secondRule && !fifthRule && isInvoice && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Tarre WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{TotalTarre}</td></tr>}
+                                        {!fourthRule && !fifthRule && inv.ttlGross && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>{thirdRule ? 'QTY Ingots:' : 'Total Gross WT Kgs:'}</td><td style={{ paddingBottom: '3px' }}>{TotalGross}</td></tr>}
+                                        {isInvoice && !secondRule && inv.ttlPackages && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Packages:</td><td style={{ paddingBottom: '3px' }}>{inv.ttlPackages}</td></tr>}
                                     </tbody>
                                 </table>
                             </div>
