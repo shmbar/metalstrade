@@ -34,17 +34,17 @@ export default function HeadlineTicker({
   // ── theme ──────────────────────────────────────────────────────────────────
   const theme = useMemo(() => {
     const t = {
-      shell:         'border border-[#b8ddf8] bg-[#dbeeff] shadow-sm',
+      shell:         'border border-[#e6eef8] bg-white shadow-sm',
       headerIconWrap:'bg-[var(--endeavour)] text-white',
       titleText:     'text-[var(--chathams-blue)]',
       subText:       'text-[var(--endeavour)] text-xs',
       tickerDot:     'bg-[#b8ddf8]',
-      itemLabel:     'text-[var(--port-gore)] responsiveTextTable',
-      itemValue:     'text-[var(--chathams-blue)] responsiveTextTable font-bold',
+      itemLabel:     'text-[var(--regent-gray)] responsiveTextTable',
+      itemValue:     'text-[var(--port-gore)] responsiveTextTable font-bold',
       itemSub:       'text-[var(--regent-gray)] responsiveTextTable',
-      itemPill:      'bg-white border border-[#b8ddf8] rounded-full shadow-sm',
+      itemPill:      'bg-[#f8fbff] border border-[#e6eef8] rounded-full',
       itemIcon:      'text-[var(--endeavour)]/70',
-      hover:         'hover:shadow-md hover:border-[#b8ddf8]',
+      hover:         'hover:shadow-md',
       mask:          'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
     };
     return t;
@@ -267,22 +267,30 @@ export default function HeadlineTicker({
               return (
                 <div
                   key={`${it.key}-${idx}`}
-                  className={['flex items-center whitespace-nowrap rounded-full px-2 py-0.5 responsiveTextTable', theme.itemPill].join(' ')}
+                  className={['flex items-center whitespace-nowrap rounded-full px-2.5 py-1 responsiveTextTable', theme.itemPill].join(' ')}
                 >
                   {Icon ? <Icon className={['w-3.5 h-3.5 mr-2', theme.itemIcon].join(' ')} /> : null}
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-2">
                     <span className={['responsiveTextTable font-medium', theme.itemLabel].join(' ')}>{it.label}</span>
-                    <span className="mx-6 w-px h-4 bg-slate-200" />
-                    <span className={['responsiveTextTable font-semibold', theme.itemValue].join(' ')}>{it.value}</span>
-                    {it.change != null && (
-                      <span style={{
-                        fontSize: 'inherit', fontWeight: 600, marginLeft: 5,
-                        color: it.change >= 0 ? '#16a34a' : '#dc2626',
-                      }}>
-                        {it.change >= 0 ? '+' : ''}{it.change.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        {it.change_pct != null ? ` (${it.change_pct >= 0 ? '+' : ''}${it.change_pct.toFixed(2)}%)` : ''}
-                      </span>
-                    )}
+                    <span className={['responsiveTextTable font-bold', theme.itemValue].join(' ')}>{it.value}</span>
+                    {it.change != null && (() => {
+                      const c = it.change > 0
+                        ? { bg: '#dcfce7', fg: '#16a34a', arrow: '▲' }
+                        : it.change < 0
+                          ? { bg: '#fee2e2', fg: '#dc2626', arrow: '▼' }
+                          : { bg: '#eef3f9', fg: '#64748b', arrow: '•' };
+                      const pct = it.change_pct != null
+                        ? `${Math.abs(it.change_pct).toFixed(2)}%`
+                        : Math.abs(it.change).toFixed(2);
+                      return (
+                        <span
+                          className="inline-flex items-center gap-0.5 rounded-full font-semibold"
+                          style={{ background: c.bg, color: c.fg, fontSize: '0.56rem', padding: '1px 6px' }}
+                        >
+                          {c.arrow} {pct}
+                        </span>
+                      );
+                    })()}
                     {it.subValue ? <span className={['text-xs ml-1', theme.itemSub].join(' ')}>{it.subValue}</span> : null}
                   </div>
                   {it.subValue ? <span className={['w-1.5 h-1.5 rounded-full ml-1', theme.tickerDot].join(' ')} /> : null}

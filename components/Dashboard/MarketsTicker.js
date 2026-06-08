@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import HeadlineTicker from './HeadlineTicker';
 import useExchangeRates from '../../hooks/useExchangeRates';
 import useMetalPrices from '../../hooks/useMetalPrices';
-import { HiCube, HiRefresh } from 'react-icons/hi';
+import { HiCube, HiRefresh, HiCurrencyDollar } from 'react-icons/hi';
 import { FaEuroSign } from 'react-icons/fa';
 import Flag from 'react-world-flags';
 
@@ -90,38 +90,48 @@ export default function MarketsTicker({ className = '' }) {
     }, [metals.lastUpdated, metals.loading, metals.error]);
 
     return (
-        <div className={['mt-3 mb-2 space-y-2', className].join(' ')}>
+        <div className={['mt-3 mb-2 space-y-3', className].join(' ')}>
 
             {/* ===== FX ===== */}
-            <div className="flex items-center gap-2 px-1 mb-1">
-                <span className="responsiveText font-semibold text-[var(--chathams-blue)] flex items-center">
-                    Exchange Rates
-                </span>
-            </div>
-            <HeadlineTicker variant="fx" leftIcon={null} items={fxItems} speed={50} pauseOnHover rightToLeft gap={22} />
+            <HeadlineTicker
+                variant="fx"
+                title="Exchange Rates"
+                leftIcon={HiCurrencyDollar}
+                items={fxItems}
+                speed={50}
+                pauseOnHover
+                rightToLeft
+                gap={18}
+            />
 
             {/* ===== METALS ===== */}
-            <div className="flex items-center justify-between px-1 mb-1 mt-2">
-                <div className="flex items-center gap-2">
-                    <span className="responsiveText font-semibold text-[var(--chathams-blue)] flex items-center">
-                        <HiCube className="mr-2" />
-                        Metal Prices
-                    </span>
-                    <button
-                        onClick={metals.refresh}
-                        title="Refresh metal prices"
-                        className="text-[var(--endeavour)] hover:opacity-70 transition"
-                    >
-                        <HiRefresh className="w-4 h-4" />
-                    </button>
-                </div>
-                {updatedLabel && (
-                    <span className="text-[0.72rem] font-medium" style={{ color: '#3a6a9e' }}>
-                        {metals.apiDate ? `LME · ${metals.apiDate}` : ''}{metals.apiDate && metals.lastUpdated ? ' · ' : ''}{metals.lastUpdated ? updatedLabel.split('·')[1]?.trim() || '' : updatedLabel}
-                    </span>
-                )}
-            </div>
-            <HeadlineTicker variant="metal" leftIcon={null} items={metalItems} speed={50} pauseOnHover rightToLeft gap={26} />
+            <HeadlineTicker
+                variant="metal"
+                title="Metal Prices"
+                leftIcon={HiCube}
+                rightSlot={
+                    <div className="flex items-center gap-2">
+                        {updatedLabel && (
+                            <span className="text-[0.72rem] font-medium" style={{ color: '#3a6a9e' }}>
+                                {metals.apiDate ? `LME · ${metals.apiDate}` : updatedLabel}
+                            </span>
+                        )}
+                        <button
+                            onClick={metals.refresh}
+                            title="Refresh metal prices"
+                            aria-label="Refresh metal prices"
+                            className="text-[var(--endeavour)] hover:opacity-70 transition"
+                        >
+                            <HiRefresh className="w-4 h-4" />
+                        </button>
+                    </div>
+                }
+                items={metalItems}
+                speed={50}
+                pauseOnHover
+                rightToLeft
+                gap={22}
+            />
         </div>
     );
 }

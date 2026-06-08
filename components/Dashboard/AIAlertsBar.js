@@ -135,7 +135,7 @@ const AIAlertsBar = () => {
 
     if (loading) {
         return (
-            <div className='flex items-center gap-2 px-3 py-2 rounded-xl mb-3' style={{ border: '1px solid #b8ddf8', background: '#f8fbff' }}>
+            <div className='flex items-center gap-2 px-3 py-2.5 rounded-xl mb-3 shadow-sm' style={{ border: '1px solid #e6eef8', background: '#ffffff' }}>
                 <Loader2 className='w-3.5 h-3.5 animate-spin' style={{ color: 'var(--endeavour)' }} />
                 <span style={{ fontSize: '0.65rem', color: 'var(--regent-gray)' }}>Checking alerts…</span>
             </div>
@@ -156,13 +156,17 @@ const AIAlertsBar = () => {
 
     return (
         <div
-            className='flex flex-wrap items-center gap-2 px-3 py-2 rounded-xl mb-3'
-            style={{ border: '1px solid #b8ddf8', background: '#f8fbff' }}
+            className='flex flex-wrap items-center gap-2 px-3 py-2.5 rounded-xl mb-3 shadow-sm'
+            style={{ border: '1px solid #e6eef8', background: '#ffffff' }}
             role='region'
             aria-label='AI alerts summary'
         >
-            <span style={{ fontSize: '0.65rem', color: 'var(--chathams-blue)', fontWeight: 600 }}>
-                Live alerts:
+            <span className='flex items-center gap-1.5' style={{ fontSize: '0.65rem', color: 'var(--chathams-blue)', fontWeight: 600 }}>
+                <span className='relative flex h-2 w-2'>
+                    <span className='absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping' />
+                    <span className='relative inline-flex rounded-full h-2 w-2 bg-emerald-500' />
+                </span>
+                Live alerts
             </span>
             {counts.due > 0 && (
                 <AlertPill

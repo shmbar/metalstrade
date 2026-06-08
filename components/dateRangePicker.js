@@ -71,8 +71,8 @@ const DateRangePicker = ({ displayLabel }) => {
             .react-tailwindcss-datepicker-container > div:not(:first-child),
             .shadow-sm.border.border-gray-300.px-1.py-0\\.5.bg-white.rounded-lg {
                 border-radius: 1.25rem !important;
-                border: 1px solid #b8ddf8 !important;
-                box-shadow: 0 8px 32px rgba(3,102,174,0.13) !important;
+                border: 1px solid #e6eef8 !important;
+                box-shadow: 0 12px 40px rgba(16,58,122,0.12) !important;
                 overflow: hidden !important;
                 z-index: 9999 !important;
                 transform-origin: top right !important;
@@ -141,9 +141,9 @@ const DateRangePicker = ({ displayLabel }) => {
                 border-radius: 999px !important;
             }
 
-            /* ── Range highlight days ── */
+            /* ── Range highlight days (soft wash, not loud circles) ── */
             .bg-blue-100 {
-                background-color: #dbeeff !important;
+                background-color: #eef5fd !important;
             }
 
             /* ── Shortcuts list items ── */
@@ -191,11 +191,11 @@ const DateRangePicker = ({ displayLabel }) => {
                         w-full
                         bg-white
                         rounded-full
-                        border border-[#b8ddf8]
+                        border border-[#e6eef8]
                         shadow-sm
                         cursor-pointer
                         focus:outline-none
-                        focus:ring-1 focus:ring-[#b8ddf8]
+                        focus:ring-1 focus:ring-[#cbe3f7]
                         tracking-normal
                         leading-tight
                     "
