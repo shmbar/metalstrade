@@ -323,6 +323,14 @@ const Stocks = () => {
 
   const stockSelector = useMemo(() => CB(settings, handleSelectStock, selectedStock), [settings, selectedStock]);
 
+  // Rows currently visible after the table's filters (supplier, item, warehouse, etc.).
+  // Used for both the "Avg Cost Price per Grade" table and the Excel export so they
+  // follow whatever the user filters on.
+  const filteredData = useMemo(
+    () => data.filter(x => filteredArray1.some(z => z.id === x.id)),
+    [data, filteredArray1]
+  );
+
   return (
     <div className="w-full " style={{ background: "#f8fbff" }}>
       <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
@@ -358,7 +366,7 @@ const Stocks = () => {
                   type='stock'
                   invisible={invisible}
                   excellReport={(columnVisibility) => EXD(
-                    data.filter(x => filteredArray1.map(z => z.id).includes(x.id)),
+                    filteredData,
                     settings,
                     getTtl('Stocks', ln),
                     ln,
@@ -381,7 +389,7 @@ const Stocks = () => {
                   ln={ln}
                 />
                 <GradeTable
-                  dataTable={data}
+                  dataTable={filteredData}
                   loading={loading}
                   settings={settings}
                 />

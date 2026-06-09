@@ -4,6 +4,7 @@ import { saveAs } from 'file-saver';
 import { getTtl } from '../../../utils/languages';
 import Tltip from '../../../components/tlTip';
 import { FileSpreadsheet } from 'lucide-react';
+import { computeGradeSummary } from './sumtables/gradeTable';
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
 // wb / sheet are now created lazily inside exportExcel — see Edit 3.
@@ -142,6 +143,51 @@ export const EXD = (dataTable, settings, name, ln, sumData, columnVisibility = {
                 }
             });
         });
+
+        // ---- Avg Cost Price per Grade (separate sheet) ----
+        // Total weight + weighted average cost per MT for each grade, based on the
+        // same (filtered) rows shown in the table.
+        const gradeRows = computeGradeSummary(dataTable, settings);
+        if (gradeRows.length > 0) {
+            const gSheet = wb.addWorksheet('Avg Cost per Grade');
+            gSheet.views = [{ rightToLeft: false }];
+            gSheet.columns = [
+                { key: 'descriptionName', header: 'Description', width: 45, style: styles },
+                { key: 'totalQnty', header: 'Total Weight (MT)', width: 18, style: styles },
+                { key: 'avgPrice', header: 'Avg Cost /MT', width: 16, style: styles },
+                { key: 'cur', header: '$/€', width: 8, style: styles },
+            ];
+
+            gSheet.getRow(1).eachCell((cell) => {
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '800080' } };
+                cell.font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
+            });
+
+            gradeRows.forEach(r => {
+                gSheet.addRow({
+                    descriptionName: r.descriptionName,
+                    totalQnty: r.totalQnty,
+                    avgPrice: r.avgPrice,
+                    cur: r.isoCode === 'EUR' ? '€' : '$',
+                });
+            });
+
+            gSheet.eachRow((row, rowNumber) => {
+                row.eachCell((cell, colNumber) => {
+                    cell.border = {
+                        top: { style: 'thin' },
+                        left: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        right: { style: 'thin' },
+                    };
+                    if (rowNumber > 1) {
+                        const sym = gradeRows[rowNumber - 2]?.isoCode === 'EUR' ? '€' : '$';
+                        if (colNumber === 2) cell.numFmt = `#,##0.000;[Red]#,##0.000`;
+                        if (colNumber === 3) cell.numFmt = `${sym}#,##0.00;[Red]${sym}#,##0.00`;
+                    }
+                });
+            });
+        }
 
         const buf = await wb.xlsx.writeBuffer();
         saveAs(new Blob([buf]), `${name}.xlsx`);

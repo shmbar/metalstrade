@@ -2,8 +2,12 @@
 
 import { NumericFormat } from 'react-number-format'
 
-const GradeTable = ({ dataTable, loading, settings }) => {
-  if (loading || !dataTable || dataTable.length === 0) return null
+// Group stock rows by grade (descriptionName + currency), returning total
+// quantity and the weighted average cost per MT for each grade. Shared between
+// the on-screen "Avg Cost Price per Grade" table and the Excel export so both
+// reflect the same (filtered) data.
+export const computeGradeSummary = (dataTable, settings) => {
+  if (!dataTable || dataTable.length === 0) return []
 
   const gCur = (id) => settings?.Currency?.Currency?.find(q => q.id === id)?.cur || id
 
@@ -22,9 +26,24 @@ const GradeTable = ({ dataTable, loading, settings }) => {
     groups[key].totalValue += val
   })
 
-  const rows = Object.values(groups)
+  return Object.values(groups)
     .filter(r => r.totalQnty > 0.1)
     .sort((a, b) => a.descriptionName.localeCompare(b.descriptionName))
+    .map(r => {
+      const curCode = gCur(r.curId)
+      const isoCode = curCode?.toLowerCase() === 'eur' ? 'EUR' : 'USD'
+      return {
+        ...r,
+        avgPrice: r.totalQnty > 0 ? r.totalValue / r.totalQnty : 0,
+        isoCode,
+      }
+    })
+}
+
+const GradeTable = ({ dataTable, loading, settings }) => {
+  if (loading) return null
+
+  const rows = computeGradeSummary(dataTable, settings)
 
   if (rows.length === 0) return null
 
@@ -80,9 +99,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
             </thead>
             <tbody>
               {rows.map((r, i) => {
-                const avgPrice = r.totalQnty > 0 ? r.totalValue / r.totalQnty : 0
-                const curCode = gCur(r.curId)
-                const isoCode = curCode?.toLowerCase() === 'eur' ? 'EUR' : 'USD'
+                const { avgPrice, isoCode } = r
                 return (
                   <tr key={i} style={{ background: '#fff' }}>
                     <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '14px' }}>
