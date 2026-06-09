@@ -201,8 +201,11 @@ const Customtable = ({
   })
 
   useEffect(() => {
+    // flatRows includes the per-material sub-rows, not just the PO parent rows, so the Excel
+    // export contains every line even while the PO groups are collapsed. (For the flat "Table
+    // mode" there are no sub-rows, so flatRows === rows and behaviour is unchanged.)
     setFilteredData(
-      table.getFilteredRowModel().rows.map(r => r.original)
+      table.getFilteredRowModel().flatRows.map(r => r.original)
     )
   }, [globalFilter, columnFilters])
 

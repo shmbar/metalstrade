@@ -55,9 +55,11 @@ export const EXD = (dataTable, settings, name, ln) => {
             { key: 'salesPrice', header: 'Sales Price', width: 10, style: styles },
             { key: 'shiipedWeight', header: 'Shipped Weight MT', width: 20, style: styles },
             { key: 'remaining', header: 'Remaining Weight MT', width: 16, style: styles },
+            { key: 'qntyReceived', header: 'Mat. Table MT', width: 14, style: styles },
             { key: 'client', header: 'Consignee', width: 16, style: styles },
             { key: 'totalPo', header: 'PO Client', width: 16, style: styles },
             { key: 'destination', header: 'Destination', width: 16, style: styles },
+            { key: 'invoiceNum', header: 'Invoice', width: 16, style: styles },
             { key: 'status', header: 'Sold Status', width: 18, style: styles },
             { key: 'comments', header: 'Comments/Status', width: 30, style: styles },
 
@@ -91,9 +93,11 @@ export const EXD = (dataTable, settings, name, ln) => {
                 salesPrice: '',
                 shiipedWeight: item.shiipedWeight,
                 remaining: item.remaining,
+                qntyReceived: isNaN(item.qntyReceived * 1) ? '' : item.qntyReceived * 1,
                 client: item.client.map(x => x).join('\n'),
                 totalPo: item.totalPo.map(x => x).join('\n'),
                 destination: item.destination.map(x => x).join('\n'),
+                invoiceNum: (item.invoiceNum || []).map(x => x).join('\n'),
                 status: soldLabel(item.soldRollup),
                 comments: item.comments,
             })
@@ -110,7 +114,7 @@ export const EXD = (dataTable, settings, name, ln) => {
                     };
                 }
 
-                let cArr3 = [5, 9, 10]
+                let cArr3 = [5, 9, 10, 11]
                 if (cArr3.includes(colNumber) && rowNumber > 1) {
                     let item = dataTable[rowNumber - 2]
                     row.getCell(colNumber).numFmt = `#,##0.000;[Red]#,##0.00`
