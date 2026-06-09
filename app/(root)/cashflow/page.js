@@ -28,6 +28,7 @@ import ContractModal from "../contracts/modals/dataModal";
 import ExpenseModal from "../expenses/modals/dataModal";
 import InvPopup from "./invPopup";
 import ForecastPanel from "./ForecastPanel";
+import SumBasket from "./sumBasket";
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -129,6 +130,24 @@ const Cashflow = () => {
 
     const [toggleSupplier, setToggleSupplier] = useState({})
     const [toggleExp, setToggleExp] = useState({})
+
+    // Running-sum basket — a scratch tally of any invoices ticked across sections.
+    // Keyed by composite key; pure UI state, never written to Firestore.
+    const [sumSel, setSumSel] = useState({})
+    const toggleSum = (item) => {
+        setSumSel(prev => {
+            const next = { ...prev };
+            if (next[item.key]) delete next[item.key];
+            else next[item.key] = item;
+            return next;
+        });
+    };
+    const removeSum = (key) => setSumSel(prev => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+    });
+    const clearSum = () => setSumSel({});
 
 
     useEffect(() => {
@@ -1108,7 +1127,7 @@ const Cashflow = () => {
 
                                                                         </div>
                                                                     </div>}>
-                                                                    <ClientDetails client={x.client} data={clientsData} type="InDebt" uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckClient={toggleCheckClient} toggleCheckClientAll={toggleCheckClientAll} toggleClientPartial={toggleClientPartial} toggleClientFull={toggleClientFull} savePmntClient={savePmntClient} clientPartialPayment={clientPartialPayment} openInvModal={openInvModal} />
+                                                                    <ClientDetails client={x.client} data={clientsData} type="InDebt" uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckClient={toggleCheckClient} toggleCheckClientAll={toggleCheckClientAll} toggleClientPartial={toggleClientPartial} toggleClientFull={toggleClientFull} savePmntClient={savePmntClient} clientPartialPayment={clientPartialPayment} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
                                                         )
@@ -1165,7 +1184,7 @@ const Cashflow = () => {
 
                                                                         </div>
                                                                     </div>}>
-                                                                    <ClientDetails client={x.client} data={clientsData} type="PartPaid" uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckClient={toggleCheckClient} toggleCheckClientAll={toggleCheckClientAll} toggleClientPartial={toggleClientPartial} toggleClientFull={toggleClientFull} savePmntClient={savePmntClient} clientPartialPayment={clientPartialPayment} openInvModal={openInvModal} />
+                                                                    <ClientDetails client={x.client} data={clientsData} type="PartPaid" uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckClient={toggleCheckClient} toggleCheckClientAll={toggleCheckClientAll} toggleClientPartial={toggleClientPartial} toggleClientFull={toggleClientFull} savePmntClient={savePmntClient} clientPartialPayment={clientPartialPayment} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
                                                         )
@@ -1284,7 +1303,7 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 === 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} openInvModal={openInvModal} />
+                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 === 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
 
@@ -1344,7 +1363,7 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 > 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} openInvModal={openInvModal} />
+                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 > 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
                                                         )
@@ -1401,7 +1420,7 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    <ExpensesToolTip supplier={x.supplier} expensesAll={expensesAll} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueExp={setValueExp} setIsOpen={setIsOpen} blankInvoice={blankInvoice} router={router} toggleCheckExp={toggleCheckExp} toggleCheckExpAll={toggleCheckExpAll} toggleExp={toggleExp} savePmntExp={savePmntExp} />
+                                                                    <ExpensesToolTip supplier={x.supplier} expensesAll={expensesAll} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueExp={setValueExp} setIsOpen={setIsOpen} blankInvoice={blankInvoice} router={router} toggleCheckExp={toggleCheckExp} toggleCheckExpAll={toggleCheckExpAll} toggleExp={toggleExp} savePmntExp={savePmntExp} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
 
@@ -1587,6 +1606,9 @@ const Cashflow = () => {
 
                         {/* Invoice preview popup */}
                         <InvPopup inv={invPreview} onClose={() => setInvPreview(null)} settings={settings} compData={compData} gisAccount={gisAccount} />
+
+                        {/* Running-sum basket — floats bottom-left so it clears the FloatingChat */}
+                        <SumBasket items={Object.values(sumSel)} onRemove={removeSum} onClear={clearSum} />
 
                     </>
                 }
