@@ -125,20 +125,24 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
                         x.descriptionText
         }))
 
-    const tmpArr10 = contractsData.flatMap(con =>
-        (con.productsData || []).map(prod => ({
-            ...prod,
-            order: con.order,
-            supplier: con.supplier,
-            originSupplier: con.originSupplier,
-            total: prod.qnty * prod.unitPrc,
-            cur: con.cur,
-            orderData: { date: con.date, id: con.id },
-        }))
-    ).filter(x => !x.import);
-
-    const ids = new Set(stockData.filter(x => x.type === 'in').map(i => i.description).filter(Boolean));
-    const unSoldAll = tmpArr10.filter(i => !ids.has(i.id));
+    // Unsold Stocks is driven by the contract's manual status rather than an automatic
+    // "has it moved into stock yet?" calculation. A contract counts as unsold when it is
+    // explicitly marked "Unsold" (conStatus 'E34656') or has no status set yet (e.g. a
+    // brand-new contract). Every product on those contracts is listed.
+    const UNSOLD_STATUS = 'E34656';
+    const unSoldAll = contractsData
+        .filter(con => !con.conStatus || con.conStatus === UNSOLD_STATUS)
+        .flatMap(con =>
+            (con.productsData || []).map(prod => ({
+                ...prod,
+                order: con.order,
+                supplier: con.supplier,
+                originSupplier: con.originSupplier,
+                total: prod.qnty * prod.unitPrc,
+                cur: con.cur,
+                orderData: { date: con.date, id: con.id },
+            }))
+        ).filter(x => !x.import);
 
     const unSoldArrTitles = Object.values(
         unSoldAll.reduce((acc, item) => {

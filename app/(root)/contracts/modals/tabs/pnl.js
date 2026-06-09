@@ -193,20 +193,30 @@ const PNL = () => {
               TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD) - TotalArrsExp(pnlData, valCur, valueCon.euroToUSD)), settings)}</p>
           </div>
         </div>
-        {/*
-        <div className='col-span-12 md:col-span-2 border border-[#b8ddf8] p-2 rounded-2xl'>
-          <p className='responsiveText'>Contract Status:</p>
-          
-          <button className='mt-2 py-0.5 bg-slate-100  px-2 border border-slate-400 shadow-md rounded-lg text-slate-700
-                    flex items-center gap-1'
-            onClick={() => saveContractStatus(uidCollection)}
-          >
-            <VscSaveAs className='text-slate-700' />
-            <p className='text-sm'>Save</p></button>
-        </div>
-          */}
         <div className='flex col-span-6 border border-[#b8ddf8] rounded-2xl overflow-hidden'>
           <TableIbvPurchs valueCon={valueCon} setValueCon={setValueCon} saveData_PoInvoices={saveData_PoInvoices} ln={ln} />
+        </div>
+
+        {/* Contract Status — drives the Cashflow "Unsold Stocks" tab. A contract with
+            status "Unsold" (or no status set yet) is treated as unsold there. */}
+        <div className='col-span-12 flex items-center gap-3 flex-wrap border border-[#b8ddf8] p-2 rounded-2xl'>
+          <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem] whitespace-nowrap'>Contract Status:</p>
+          <div className='w-44'>
+            <Selector
+              arr={conSttusArr}
+              value={valueCon}
+              onChange={(e) => setValueCon({ ...valueCon, conStatus: e })}
+              name='conStatus'
+              classes='h-7'
+            />
+          </div>
+          <button
+            type='button'
+            className='blackButton h-7 px-4 rounded-lg'
+            onClick={() => saveContractStatus(uidCollection)}
+          >
+            {getTtl('save', ln)}
+          </button>
         </div>
       </div>
 
