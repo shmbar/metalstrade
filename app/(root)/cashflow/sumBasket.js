@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { NumericFormat } from 'react-number-format';
 import { Sigma, X, ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
 
-const kindLabel = { client: 'Client', supplier: 'Supplier', expense: 'Expense' };
+const kindLabel = { client: 'Client', supplier: 'Supplier', expense: 'Expense', stock: 'Stock' };
 
 const fmt = (v, cur) => new Intl.NumberFormat('en-US', {
     style: 'currency', currency: cur === 'us' ? 'USD' : 'EUR', minimumFractionDigits: 2,

@@ -457,7 +457,9 @@ const Customtable = ({
 
                       {/* ── Inline SubRows — aligned under parent columns ── */}
                       {row.getIsExpanded() && row.subRows && row.subRows.map((sub, si) => {
-                        const parentOnlyCols = ['date','order','supplier','poWeight','shiipedWeight','remaining'];
+                        // Quantity (poWeight) is shown per material line on sub-rows; only the
+                        // header/identity + PO-level totals stay parent-only.
+                        const parentOnlyCols = ['date','order','supplier','shiipedWeight','remaining'];
                         const isOpen = !!openLots[sub.id];
                         const hasDetail = !!((sub.original.lots && sub.original.lots.length) || (sub.original.shipments && sub.original.shipments.length));
                         return (

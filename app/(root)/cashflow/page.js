@@ -905,7 +905,7 @@ const Cashflow = () => {
                                                             </div>
                                                         </div>
                                                     }>
-                                                        <StocksUnSold supplier={x.supplier} stockDataAllArray={stockDataAllArray} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} />
+                                                        <StocksUnSold supplier={x.supplier} stockDataAllArray={stockDataAllArray} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} sumSel={sumSel} toggleSum={toggleSum} />
                                                     </MyAccordion>
                                                 </div>
                                             ))}
@@ -1005,7 +1005,7 @@ const Cashflow = () => {
                                                                     </div>
                                                                 }>
 
-                                                                    <StoclToolTip stock={x.stock} stockDataAll={stockDataAll} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} />
+                                                                    <StoclToolTip stock={x.stock} stockDataAll={stockDataAll} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
 
 
@@ -1069,7 +1069,7 @@ const Cashflow = () => {
                                                                     </div>
                                                                 }>
 
-                                                                    <StoclToolTip stock={x.stock} stockDataAll={stockDataNoPayment} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} />
+                                                                    <StoclToolTip stock={x.stock} stockDataAll={stockDataNoPayment} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
 

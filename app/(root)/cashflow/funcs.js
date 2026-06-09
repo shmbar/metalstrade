@@ -376,7 +376,7 @@ const moveToContracts = async (z, ent, uidCollection, setDateSelect,
 }
 
 export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, setDateSelect,
-    setValueCon, setIsOpenCon, blankInvoice, router }) => {
+    setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
 
     const base = stockDataAll
@@ -385,12 +385,19 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
         .map(z => ({ ...z, _supplierName: settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || '' }));
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
 
+    const buildSumItem = (z) => ({
+        key: sumKey('stock', z.id), id: z.id, kind: 'stock',
+        label: z._supplierName || 'Stock', sub: z.descriptionName || z.order || '',
+        amount: parseFloat(z.total) || 0, cur: z.cur,
+    });
+
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
+                        <SumTh />
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
                         <SortTh colKey="_supplierName" label="Supplier" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
                         <SortTh colKey="descriptionName" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
@@ -403,6 +410,9 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                     {filteredArr.map((z, i) => {
                         return (
                             <tr key={i}>
+                                <td className="!py-1 px-1">
+                                    <SumToggle active={!!sumSel[sumKey('stock', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
+                                </td>
                                 <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
@@ -450,6 +460,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                 </tbody>
                 <tfoot>
                     <tr className="bg-[#dbeeff]">
+                        <th></th>
                         <th className="text-left">
                             Total
                         </th>
@@ -484,12 +495,19 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
 }
 
 export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
-    setValueCon, setIsOpenCon, blankInvoice, router }) => {
+    setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
 
     const base = stockDataAllArray.filter(z => z.supplier === supplier);
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
     const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd');
+
+    const buildSumItem = (z) => ({
+        key: sumKey('stock', z.id), id: z.id, kind: 'stock',
+        label: settings.Supplier?.Supplier?.find(q => q.id === z.supplier)?.nname || 'Stock',
+        sub: z.description || z.order || '',
+        amount: parseFloat(z.total) || 0, cur: z.cur,
+    });
 
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
@@ -497,6 +515,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
                     <tr>
+                        <SumTh />
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
                         <SortTh colKey="description" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
                         <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
@@ -508,6 +527,9 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                     {filteredArr.map((z, i) => {
                         return (
                             <tr key={i}>
+                                <td className="!py-1 px-1">
+                                    <SumToggle active={!!sumSel[sumKey('stock', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
+                                </td>
                                 <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router)}>
@@ -554,6 +576,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                 </tbody>
                 <tfoot>
                     <tr className="bg-[#dbeeff]">
+                        <th></th>
                         <th className="text-left">
                             Total
                         </th>

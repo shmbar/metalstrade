@@ -22,7 +22,7 @@ import Tltip from '../../../components/tlTip'
 import CBox from '../../../components/combobox.js'
 import { EXD } from './excel'
 import { EXD as EXDStatement } from '../contractsstatement/excel'
-import { lotIsSold, computeSoldRollup, aggregateRollups } from '../contractsstatement/soldStatus'
+import { lotIsSold, computeLineSold, aggregateRollups } from '../contractsstatement/soldStatus'
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
@@ -468,7 +468,8 @@ const ContractsMerged = () => {
                     const sold = lotIsSold(l)
                     return { qnty: parseFloat(l.qnty) || 0, status: sold ? 'sold' : 'unsold', sold, consignee, salesPo }
                 })
-                const { tone, soldQty, receivedQty } = computeSoldRollup(lots)
+                // Sold = shipped/invoiced OR allocated on the lot, measured against the contract qty.
+                const { tone, soldQty, receivedQty } = computeLineSold({ contractQty: total, shippedQty: totalShipped, lots })
 
                 newObj = {
                     supplier: obj.supplier, date: obj.date, order: obj.order, poWeight: total,
