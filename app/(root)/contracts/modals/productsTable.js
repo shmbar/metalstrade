@@ -154,6 +154,27 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
         }
     };
 
+    // Switching the per-cell unit converts the number in the box to the same physical
+    // value in the new unit (e.g. 11.300 MT -> 24,912.4956 Lb), so the digits track the
+    // unit. It round-trips (MT->Lb->MT returns to the original), so toggling never compounds.
+    const handleUnitSwitch = (newUnit) => {
+        const prev = inputUnit;
+        const s = String(value1 ?? '');
+        if (prev !== newUnit && s !== '' && s.substr(0, 1) !== '=' && !isNaN(parseFloat(s))) {
+            const n = parseFloat(s);
+            const baseUnit = unitFromLabel(getD(quantityTable, value, 'qTypeTable'));
+            const conv = edit.header === 'unitPrc'
+                ? convertPrice(n, prev, newUnit)
+                : convertWeight(n, prev, newUnit);
+            // Back at the base unit -> clean base precision (so the stored value is exact);
+            // intermediate units keep more decimals to avoid drift while toggling.
+            const dec = newUnit === baseUnit ? (edit.header === 'unitPrc' ? 2 : 3) : 6;
+            setValue1(String(roundTo(conv, dec)));
+        }
+        setInputUnit(newUnit);
+        inputRef.current?.focus();
+    };
+
     const q = getD(quantityTable, value, 'qTypeTable');
     const c = getD(currency, value, 'cur');
     const curSymbol = (value.cur && currency.find(x => x.id === value.cur)?.['symbol']) || '';
@@ -330,8 +351,8 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                     <div className='relative shrink-0' onClick={(e) => e.stopPropagation()}>
                                                                         <select
                                                                             value={inputUnit}
-                                                                            onChange={(e) => { setInputUnit(e.target.value); inputRef.current?.focus(); }}
-                                                                            title={`Enter the value in this unit — converted to the contract's ${UNIT_LABEL[baseUnit]} base on Enter`}
+                                                                            onChange={(e) => handleUnitSwitch(e.target.value)}
+                                                                            title={`Switch the unit to convert the value; it's stored in the contract's ${UNIT_LABEL[baseUnit]} base on Enter`}
                                                                             className={`appearance-none h-7 rounded-md border bg-[#f8fbff] pl-2 pr-5 font-semibold cursor-pointer focus:outline-0 transition-colors
                                                                                 ${inputUnit === baseUnit
                                                                                     ? 'border-[#d8e8f5] text-[var(--chathams-blue)]'
