@@ -5,6 +5,7 @@ import CheckBox from "../../../components/checkbox";
 import Tltip from "../../../components/tlTip";
 import { Button } from "../../../components/ui/button";
 import { filteredArray, groupedArrayInvoice, loadAllStockData, loadCompanyExpense, loadCompanyExpenses, loadData, loadInvoice } from "../../../utils/utils"
+import { lotIsSold } from "../contractsstatement/soldStatus"
 import dateFormat from 'dateformat';
 import { ContactRoundIcon, Save } from "lucide-react";
 import { NumericFormat } from "react-number-format";
@@ -125,15 +126,29 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
                         x.descriptionText
         }))
 
-    // Unsold Stocks is driven by the contract's manual status rather than an automatic
-    // "has it moved into stock yet?" calculation. A contract counts as unsold when it is
-    // explicitly marked "Unsold" (conStatus 'E34656') or has no status set yet (e.g. a
-    // brand-new contract). Every product on those contracts is listed.
-    const UNSOLD_STATUS = 'E34656';
-    const unSoldAll = contractsData
-        .filter(con => !con.conStatus || con.conStatus === UNSOLD_STATUS)
-        .flatMap(con =>
-            (con.productsData || []).map(prod => ({
+    // Unsold Stocks is driven by the manual "Sold / Unsold" status set per line in each
+    // contract's Materials Breakdown. Those lots are saved into the stocks collection as
+    // type 'in' entries that carry `status` ('sold'/'unsold'), `client` and `salesPo`.
+    // A contract product line counts as SOLD only when it has lot(s) AND every one of them
+    // is sold — using the same rule as the Contracts Statement (marked 'sold', or allocated
+    // to a consignee / sales-PO). Everything else is listed as unsold: partly sold, marked
+    // unsold, or never broken down (a new/old contract with no status set yet).
+    const lotsByLine = new Map(); // `${contractId}|${productId}` -> lots[]
+    for (const lot of stockData) {
+        if (lot.type !== 'in') continue;
+        const key = (lot.contractData?.id || '') + '|' + (lot.description || '');
+        if (!lotsByLine.has(key)) lotsByLine.set(key, []);
+        lotsByLine.get(key).push(lot);
+    }
+    const lineIsSold = (conId, prodId) => {
+        const lots = lotsByLine.get(conId + '|' + prodId);
+        return !!lots && lots.length > 0 && lots.every(lotIsSold);
+    };
+
+    const unSoldAll = contractsData.flatMap(con =>
+        (con.productsData || [])
+            .filter(prod => !prod.import && !lineIsSold(con.id, prod.id))
+            .map(prod => ({
                 ...prod,
                 order: con.order,
                 supplier: con.supplier,
@@ -142,7 +157,7 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
                 cur: con.cur,
                 orderData: { date: con.date, id: con.id },
             }))
-        ).filter(x => !x.import);
+    );
 
     const unSoldArrTitles = Object.values(
         unSoldAll.reduce((acc, item) => {
