@@ -352,7 +352,7 @@ const Contracts = () => {
 							{/* Table Component */}
 
 							<Customtable
-								data={contractsData.sort((a, b) => (b.date || '').localeCompare(a.date || ''))}
+								data={contractsData.slice().sort((a, b) => (b.order || '').localeCompare(a.order || '', undefined, { numeric: true }))}
 								columns={propDefaults}
 								SelectRow={SelectRow}
 								invisible={invisible}
