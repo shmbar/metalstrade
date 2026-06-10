@@ -406,8 +406,8 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
 
     const buildSumItem = (z) => ({
         key: sumKey('stock', z.id), id: z.id, kind: 'stock',
-        label: z._supplierName || 'Stock', sub: z.descriptionName || z.order || '',
-        amount: parseFloat(z.total) || 0, cur: z.cur,
+        label: z._supplierName || 'Stock', sub: z.descriptionName || z.order || '', cur: z.cur,
+        amount: parseFloat(z.total) || 0, paid: null, balance: null, autoMetric: 'amount',
     });
 
     return (
@@ -524,8 +524,8 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
     const buildSumItem = (z) => ({
         key: sumKey('stock', z.id), id: z.id, kind: 'stock',
         label: settings.Supplier?.Supplier?.find(q => q.id === z.supplier)?.nname || 'Stock',
-        sub: z.description || z.order || '',
-        amount: parseFloat(z.total) || 0, cur: z.cur,
+        sub: z.description || z.order || '', cur: z.cur,
+        amount: parseFloat(z.total) || 0, paid: null, balance: null, autoMetric: 'amount',
     });
 
     return (
@@ -767,8 +767,12 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
 
     const buildSumItem = (z) => ({
         key: sumKey('client', z.id), id: z.id, kind: 'client',
-        label: z.clientName || '', sub: z.invoice,
-        amount: parseFloat(z.totalAmount) || 0, cur: z.cur,
+        label: z.clientName || '', sub: z.invoice, cur: z.cur,
+        amount: parseFloat(z.totalAmount) || 0,
+        paid: (z.payments || []).reduce((t, p) => t + (parseFloat(p.pmnt) || 0), 0),
+        balance: parseFloat(z.debtBlnc) || 0,
+        // Auto: Balances section totals the outstanding Balance; Payment section the full Amount
+        autoMetric: type === 'PartPaid' ? 'balance' : 'amount',
     });
 
     const tmp = data.filter(z => z.client === client);
@@ -1194,15 +1198,18 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
 
-    const buildSumItem = (z) => ({
-        key: sumKey('supplier', z.id), id: z.id, kind: 'supplier',
-        label: z.suplierName || '', sub: z.invoice,
-        amount: parseFloat(z.invValue) || 0, cur: z.cur,
-    });
-
     const base = data.filter(z => z.supplier === supplier && z.blnc * 1 !== 0);
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
     const type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt';
+
+    const buildSumItem = (z) => ({
+        key: sumKey('supplier', z.id), id: z.id, kind: 'supplier',
+        label: z.suplierName || '', sub: z.invoice, cur: z.cur,
+        amount: parseFloat(z.invValue) || 0,
+        paid: parseFloat(z.pmnt) || 0,
+        balance: parseFloat(z.blnc) || 0,
+        autoMetric: type === 'PartPaid' ? 'balance' : 'amount',
+    });
 
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
@@ -1384,7 +1391,8 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
     const buildSumItem = (z) => ({
         key: sumKey('expense', z.id), id: z.id, kind: 'expense',
         label: settings.Supplier?.Supplier?.find(s => s.id === z.supplier)?.nname || 'Expense',
-        sub: z.expense, amount: parseFloat(z.amount) || 0, cur: z.cur,
+        sub: z.expense, cur: z.cur,
+        amount: parseFloat(z.amount) || 0, paid: null, balance: null, autoMetric: 'amount',
     });
 
     const base = expensesAll.filter(z => z.supplier === supplier)
