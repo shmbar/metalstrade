@@ -12,7 +12,7 @@ import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
 import { MdDeleteOutline } from "react-icons/md";
 import { MdOutlineClose } from "react-icons/md";
-import { addComma, ClientDetails, clientToolTip, ExpensesToolTip, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
+import { addComma, ClientDetails, clientToolTip, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
 import Tltip from "../../../components/tlTip";
 import { FaSortAmountDown } from "react-icons/fa";
 import { FaSortAmountUpAlt } from "react-icons/fa";
@@ -218,11 +218,23 @@ const Cashflow = () => {
             setClientInvoices1(getTotals(invoices.filter(z => z.payments.length > 0)))
             setClientInvoices2(getTotals(invoices.filter(z => z.payments.length === 0)))
 
-
+            // Shipment-finalized status (shipData.fnlzing) lives only on the sales
+            // invoice, but the supplier balances below need the same flag so both
+            // sides agree on whether a balance is before/after the final invoice.
+            // Map it per contract (invoice.poSupplier.id === contract.id); a 'Yes'
+            // ('4568') always wins if any linked invoice for the contract is finalized.
+            const fnlzingByContract = {};
+            for (const inv of invoices) {
+                const cid = inv.poSupplier?.id;
+                if (!cid) continue;
+                if (inv.shipData?.fnlzing === '4568' || !(cid in fnlzingByContract)) {
+                    fnlzingByContract[cid] = inv.shipData?.fnlzing;
+                }
+            }
 
             //load payments to Suppliers
             let supPayments = await runSupPayments(uidCollection, settings, yr, contractsData)
-            supPayments = supPayments.map(z => ({ ...z, suplierName: settings.Supplier.Supplier.find(a => a.id === z.supplier)?.nname, checked: false }))
+            supPayments = supPayments.map(z => ({ ...z, suplierName: settings.Supplier.Supplier.find(a => a.id === z.supplier)?.nname, checked: false, fnlzing: fnlzingByContract[z.orderData?.id] }))
             setsupPaymentsData(supPayments)
             setSupPayments1(getTotalsSupPayments(supPayments.filter(z => z.pmnt * 1 > 0)))
             setSupPayments2(getTotalsSupPayments(supPayments.filter(z => parseFloat(z.pmnt) === 0)))
@@ -1109,9 +1121,11 @@ const Cashflow = () => {
                                                             <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
-                                                                        <div className="responsiveText text-[var(--port-gore)] font-medium items-center flex outline-none whitespace-normal break-words min-w-0"
-                                                                        >
-                                                                            {settings.Client.Client.find(z => z.id === x.client)?.nname}
+                                                                        <div className="flex items-center gap-1.5 min-w-0">
+                                                                            <div className="responsiveText text-[var(--port-gore)] font-medium items-center flex outline-none whitespace-normal break-words min-w-0">
+                                                                                {settings.Client.Client.find(z => z.id === x.client)?.nname}
+                                                                            </div>
+                                                                            <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                         </div>
                                                                         <div className='leading-4 2xl:leading-6 '>
                                                                             <NumericFormat
@@ -1166,9 +1180,11 @@ const Cashflow = () => {
                                                             <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
-                                                                        <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
-                                                                        >
-                                                                            {settings.Client.Client.find(z => z.id === x.client)?.nname}
+                                                                        <div className="flex items-center gap-1.5 min-w-0">
+                                                                            <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
+                                                                                {settings.Client.Client.find(z => z.id === x.client)?.nname}
+                                                                            </div>
+                                                                            <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                         </div>
                                                                         <div className='leading-4 2xl:leading-6'>
                                                                             <NumericFormat
@@ -1285,10 +1301,12 @@ const Cashflow = () => {
                                                             <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                                        <span className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words w-full min-w-0"
-                                                                        >
-                                                                            {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
-                                                                        </span>
+                                                                        <div className="flex items-center gap-1.5 w-full min-w-0">
+                                                                            <span className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
+                                                                                {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
+                                                                            </span>
+                                                                            <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
+                                                                        </div>
                                                                         <div className="w-full text-right">
                                                                             <NumericFormat
                                                                                 value={x.blnc}
@@ -1345,10 +1363,12 @@ const Cashflow = () => {
                                                             <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between leading-4 2xl:leading-6">
-                                                                        <span className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words w-full min-w-0"
-                                                                        >
-                                                                            {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
-                                                                        </span>
+                                                                        <div className="flex items-center gap-1.5 w-full min-w-0">
+                                                                            <span className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0">
+                                                                                {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
+                                                                            </span>
+                                                                            <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
+                                                                        </div>
                                                                         <div className="w-full text-right">
                                                                             <NumericFormat
                                                                                 value={x.blnc}

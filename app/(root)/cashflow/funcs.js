@@ -71,6 +71,86 @@ const SumTh = () => (
     </th>
 );
 
+// Shipment-finalized badge. The only "finalized" signal in the app is the sales
+// invoice's shipData.fnlzing (Finalizing const: '4568' = Yes, '2587' = No). A
+// finalized shipment means the final invoice has been issued; anything else
+// (No, or unset on older data) is still provisional — i.e. a balance from
+// BEFORE the final invoice. Used on client balances (read straight off the
+// invoice) and supplier balances (mirrored from the linked contract's sales
+// invoice via contract id, wired up in cashflow/page.js).
+const FinalBadge = ({ fnlzing }) => {
+    const yes = fnlzing === '4568';
+    // Matches FinalSummaryBadge: soft tint + inset ring + status dot.
+    const tone = yes
+        ? { dot: '#10b981', text: '#047857', bg: '#ecfdf5', ring: '#a7f3d0' }
+        : { dot: '#f59e0b', text: '#b45309', bg: '#fffbeb', ring: '#fde68a' };
+    return (
+        <Tltip direction='top' tltpText={yes ? 'Shipment finalized — final invoice issued' : 'Not finalized — balance is before the final invoice'}>
+            <span
+                className="inline-flex items-center gap-1 rounded-full font-semibold leading-none cursor-default whitespace-nowrap"
+                style={{
+                    color: tone.text,
+                    backgroundColor: tone.bg,
+                    boxShadow: `inset 0 0 0 1px ${tone.ring}`,
+                    fontSize: '0.6rem',
+                    padding: '3px 7px',
+                }}
+            >
+                <span className="rounded-full shrink-0" style={{ width: 5, height: 5, backgroundColor: tone.dot }} />
+                {yes ? 'Yes' : 'No'}
+            </span>
+        </Tltip>
+    );
+};
+
+// Header cell for the "Final" column (same tooltip wording on every table).
+const FinalTh = () => (
+    <th className="text-left">
+        <Tltip direction='top' tltpText='Final invoice issued (shipment finalized)?'>
+            <span className="cursor-default">Final</span>
+        </Tltip>
+    </th>
+);
+
+// Aggregate finalized chip for the collapsed summary rows (per supplier / per
+// client). A party's balance usually spans several shipments, so a single
+// Yes/No is wrong here — instead we show how many of its balance lines have the
+// final invoice issued: green "All final", amber "Provisional" (none), or blue
+// "n/m final" when mixed. `finalized`/`total` are precomputed in getTotals /
+// getTotalsSupPayments.
+export const FinalSummaryBadge = ({ finalized = 0, total = 0 }) => {
+    if (!total) return null;
+    const allDone = finalized === total;
+    const noneDone = finalized === 0;
+    // Refined status-indicator palette: soft tint background, crisp 1px inset
+    // ring, and a matching status dot — reads as a modern dashboard chip rather
+    // than a flat block of colour.
+    const tone = allDone
+        ? { dot: '#10b981', text: '#047857', bg: '#ecfdf5', ring: '#a7f3d0' }   // emerald — all finalized
+        : noneDone
+            ? { dot: '#f59e0b', text: '#b45309', bg: '#fffbeb', ring: '#fde68a' } // amber — provisional
+            : { dot: '#3b82f6', text: '#1d4ed8', bg: '#eff6ff', ring: '#bfdbfe' }; // blue — partial
+    const label = allDone ? 'Finalized' : noneDone ? 'Provisional' : `${finalized}/${total} final`;
+    return (
+        <Tltip direction='top' tltpText={`${finalized} of ${total} balance line(s) have the final invoice issued`}>
+            <span
+                className="inline-flex items-center gap-1 shrink-0 rounded-full font-semibold leading-none cursor-default whitespace-nowrap"
+                style={{
+                    color: tone.text,
+                    backgroundColor: tone.bg,
+                    boxShadow: `inset 0 0 0 1px ${tone.ring}`,
+                    fontSize: '0.55rem',
+                    letterSpacing: '0.02em',
+                    padding: '3px 7px',
+                }}
+            >
+                <span className="rounded-full shrink-0" style={{ width: 5, height: 5, backgroundColor: tone.dot }} />
+                {label}
+            </span>
+        </Tltip>
+    );
+};
+
 let propDefaults = [
     { accessorKey: 'order', },
     { accessorKey: 'date', },
@@ -720,11 +800,18 @@ export const getTotals = (arr) => {
         const ent = item.client;
         if (!ent) continue;
 
+        // Carry counts forward when re-aggregating an already-summarised array
+        // (the sort handlers re-run getTotals on its own output); only fall back
+        // to the raw shipData flag on the first pass over per-invoice rows.
+        const incTotal = item._finTotal != null ? item._finTotal : 1;
+        const incFinal = item._finTotal != null ? (item._finCount || 0) : (item.shipData?.fnlzing === '4568' ? 1 : 0);
         if (!acc.has(ent)) {
-            acc.set(ent, { ...item });
+            acc.set(ent, { ...item, _finCount: incFinal, _finTotal: incTotal });
         } else {
             const existing = acc.get(ent);
             existing.debtBlnc += item.debtBlnc;
+            existing._finCount += incFinal;
+            existing._finTotal += incTotal;
             acc.set(ent, existing); // not strictly necessary, but clear
         }
     }
@@ -797,6 +884,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <SortTh colKey="_pmntTotal" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <SortTh colKey="debtBlnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                                <FinalTh />
                                 <th className="text-left">ETD</th>
                                 <th className="text-left">ETA</th>
                                 <th className="text-left">Pmn</th>
@@ -859,6 +947,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 fixedDecimalScale
                                             />
                                         }</td>
+                                        <td className="text-left"><FinalBadge fnlzing={z.shipData?.fnlzing} /></td>
                                         <td className="text-left">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
                                         <td className="text-left">{dateFormat(z.shipData?.eta?.startDate, 'dd.mm.yy')}</td>
                                         <td className="text-left !py-1">
@@ -902,6 +991,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <th></th>
                                 <th></th>
                                 <th></th>
+                                <th></th>
                                 <th className="text-left">
                                     <div className='flex items-center justify-start'>
                                         <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
@@ -928,6 +1018,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <SortTh colKey="percentage" label="Prepayment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <th className="text-left">Prep. Amount</th>
+                                <FinalTh />
                                 <th className="text-left">ETD</th>
                                 <th className="text-left">Pmn</th>
                                 <th className="text-left p-1 2xl:p-1 py-0">
@@ -978,6 +1069,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 fixedDecimalScale
                                             />
                                         }</td>
+                                        <td className="text-left"><FinalBadge fnlzing={z.shipData?.fnlzing} /></td>
                                         <td className="text-left">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
                                         <td className="text-left !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>
@@ -1014,6 +1106,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <th className="text-left">
                                     {showAmount(filteredArr1.reduce((sum, item) => sum + item.totalAmount * (item.percentage / 100), 0), 'usd')}
                                 </th>
+                                <th></th>
                                 <th></th>
                                 <th></th>
                                 <th className="text-left">
@@ -1177,13 +1270,20 @@ export const getTotalsSupPayments = (arr) => {
     let totalBySupplier = Object.values(arr.reduce((acc, item) => {
         const supplier = item.supplier;
         const blncValue = item.cur === 'us' ? parseFloat(item.blnc) : parseFloat(item.blnc * item.euroToUSD);
+        // Idempotent under re-aggregation (sort handlers re-run this on its own
+        // output): carry forward existing counts, else derive from the raw flag.
+        const incTotal = item._finTotal != null ? item._finTotal : 1;
+        const incFinal = item._finTotal != null ? (item._finCount || 0) : (item.fnlzing === '4568' ? 1 : 0);
         if (!acc[supplier]) {
             // If the stock is not yet in the accumulator, initialize it
-            acc[supplier] = { ...item };
+            acc[supplier] = { ...item, _finCount: incFinal, _finTotal: incTotal };
         } else {
             // If the stock is already in the accumulator, sum up qnty and total
             acc[supplier].blnc += blncValue;
+            acc[supplier]._finCount += incFinal;
+            acc[supplier]._finTotal += incTotal;
         }
+
         return acc;
     }, {}));
 
@@ -1223,6 +1323,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <SortTh colKey="invValue" label="Value" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                         <SortTh colKey="pmnt" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                         <SortTh colKey="blnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <FinalTh />
                         <th className="text-left">Pmn</th>
                         <th className="text-left py-0">
                             <Tltip direction='right' tltpText='Select all'>
@@ -1281,6 +1382,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         fixedDecimalScale
                                     />
                                 }</td>
+                                <td className="text-left"><FinalBadge fnlzing={z.fnlzing} /></td>
                                 <td className="text-left !py-1">
                                     <Tltip direction='right' tltpText='Partial Payment'>
                                         <div className='flex items-center justify-start'>
@@ -1314,6 +1416,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <th className="text-left">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.blnc * 1, 0), 'usd')}
                         </th>
+                        <th></th>
                         <th></th>
                         <th className="text-left">
                             <div className='flex items-center justify-start'>

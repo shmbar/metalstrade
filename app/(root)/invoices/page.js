@@ -88,6 +88,7 @@ const Invoices = () => {
 				poSupplierOrder: z.poSupplier?.order || '',
 				etdDate: z.shipData?.etd?.endDate || '',
 				etaDate: z.shipData?.eta?.endDate || '',
+				fnlzing: z.shipData?.fnlzing || '',
 				totalPrepayment: parseFloat(z.totalPrepayment)
 			}))
 
@@ -392,6 +393,39 @@ const Invoices = () => {
 			accessorKey: 'etaDate',
 			header: 'ETA',
 			cell: (props) => <span className="whitespace-nowrap">{props.getValue() ? dateFormat(props.getValue(), 'dd.mm.yy') : ''}</span>,
+			meta: { excludeFromQuickSum: true },
+			size: 110
+		},
+		{
+			// Shipment finalized (shipData.fnlzing: '4568' = Yes, '2587' = No).
+			// Distinct from the "Status" column (document Draft/Final/Canceled) and
+			// from "Shipment" (shipment type) — this is whether the FINAL invoice has
+			// been issued. Same source of truth used on Cashflow + the statements.
+			accessorKey: 'fnlzing',
+			header: getTtl('Finalizing', ln),
+			cell: (props) => {
+				const yes = props.getValue() === '4568';
+				// Same status-indicator language as the Cashflow finalized chips:
+				// soft tint + 1px inset ring + matching status dot.
+				const tone = yes
+					? { dot: '#10b981', text: '#047857', bg: '#ecfdf5', ring: '#a7f3d0' }
+					: { dot: '#f59e0b', text: '#b45309', bg: '#fffbeb', ring: '#fde68a' };
+				return (
+					<span
+						className="inline-flex items-center gap-1.5 rounded-full responsiveTextTable font-semibold leading-none whitespace-nowrap"
+						style={{
+							color: tone.text,
+							backgroundColor: tone.bg,
+							boxShadow: `inset 0 0 0 1px ${tone.ring}`,
+							padding: '4px 10px',
+						}}
+					>
+						<span className="rounded-full shrink-0" style={{ width: 6, height: 6, backgroundColor: tone.dot }} />
+						{yes ? 'Yes' : 'No'}
+					</span>
+				);
+			},
+			enableColumnFilter: false,
 			meta: { excludeFromQuickSum: true },
 			size: 110
 		},

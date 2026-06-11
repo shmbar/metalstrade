@@ -360,7 +360,7 @@ const Customtable = ({
 
                         const isCompleted = cell.column.id === 'completed';
                         const isStatus = cell.column.id === 'status';
-                        const isCustomCell = cell.column.id === 'invoiceStatus';
+                        const isCustomCell = cell.column.id === 'invoiceStatus' || cell.column.id === 'fnlzing';
                         const isCurrency = cell.column.id === 'cur';
 
                         return (

@@ -221,6 +221,63 @@ function StatKpiCard({
   );
 }
 
+// Outstanding receivables split by shipment finalization. "Finalized" = the
+// final invoice has been issued (shipData.fnlzing === '4568'); "Provisional" =
+// balances still before the final invoice. Lets the team see, at a glance, how
+// much of what's owed is locked-in vs still subject to final-invoice changes.
+function ReceivablesSplitCard({ finalized = 0, provisional = 0, finalizedCount = 0, provisionalCount = 0 }) {
+  const total = finalized + provisional;
+  const pctFinal = total > 0 ? (finalized / total) * 100 : 0;
+  return (
+    <m.div
+      className="relative rounded-xl bg-white border border-[#e6eef8] shadow-sm overflow-hidden"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
+    >
+      <div className="p-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0"
+              style={{ background: '#2563eb1A', color: '#2563eb', width: 30, height: 30 }}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 7h18v10H3z" stroke="currentColor" strokeWidth="2" /><path d="M3 11h18" stroke="currentColor" strokeWidth="2" /></svg>
+            </span>
+            <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Outstanding Receivables</span>
+          </div>
+          <span className="font-semibold text-[var(--port-gore)] leading-none" style={{ fontSize: 'clamp(1.05rem, 0.85rem + 0.6vw, 1.45rem)' }}>
+            {fmtAutoKM(total)}
+          </span>
+        </div>
+
+        {/* Finalized proportion bar — emerald fill (finalized) over amber track (provisional) */}
+        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#fde68a' }}>
+          <div className="h-full rounded-full transition-all" style={{ width: `${pctFinal}%`, backgroundColor: '#10b981' }} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-lg p-2.5" style={{ backgroundColor: '#ecfdf5', boxShadow: 'inset 0 0 0 1px #a7f3d0' }}>
+            <div className="flex items-center gap-1.5">
+              <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: '#10b981' }} />
+              <span className="text-[0.6rem] font-semibold tracking-wide" style={{ color: '#047857' }}>FINALIZED</span>
+            </div>
+            <div className="font-semibold mt-1 leading-none" style={{ color: '#047857', fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem)' }}>{fmtAutoKM(finalized)}</div>
+            <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">{finalizedCount} invoice{finalizedCount === 1 ? '' : 's'} · after final invoice</div>
+          </div>
+          <div className="rounded-lg p-2.5" style={{ backgroundColor: '#fffbeb', boxShadow: 'inset 0 0 0 1px #fde68a' }}>
+            <div className="flex items-center gap-1.5">
+              <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: '#f59e0b' }} />
+              <span className="text-[0.6rem] font-semibold tracking-wide" style={{ color: '#b45309' }}>PROVISIONAL</span>
+            </div>
+            <div className="font-semibold mt-1 leading-none" style={{ color: '#b45309', fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem)' }}>{fmtAutoKM(provisional)}</div>
+            <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">{provisionalCount} invoice{provisionalCount === 1 ? '' : 's'} · before final invoice</div>
+          </div>
+        </div>
+      </div>
+    </m.div>
+  );
+}
+
 // Ranking list (Contracts / Consignees) — avatar + animated progress bar per row.
 function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
   const colorPalette = [
@@ -411,6 +468,7 @@ const Dash = () => {
   const [dataPieSupps, setDataPieSupps] = useState([]);
   const [dataPieClnts, setDataPieClnts] = useState([]);
   const [totalMT, setTotalMT] = useState(0);
+  const [receivables, setReceivables] = useState({ finalized: 0, provisional: 0, finalizedCount: 0, provisionalCount: 0 });
 
   useEffect(() => {
 
@@ -453,6 +511,26 @@ const Dash = () => {
       }, {});
 
       setDataPL(Object.values(tmpPL));
+
+      // Outstanding receivables split by shipment finalization (shipData.fnlzing
+      // === '4568' = Yes). Same issued/unpaid rule as the alerts bar + Cashflow:
+      // an invoice counts only if it's not a draft, not canceled, and still owed.
+      const invsForRecv = await loadData(uidCollection, 'invoices', {
+        start: dateSelect?.start || `${year}-01-01`,
+        end: dateSelect?.end || `${year}-12-31`,
+      });
+      const recv = { finalized: 0, provisional: 0, finalizedCount: 0, provisionalCount: 0 };
+      invsForRecv.forEach(inv => {
+        if (inv.draft === true || inv.canceled) return;
+        const totalAmt = parseFloat(inv.totalAmount) || 0;
+        const totalPaid = (inv.payments || []).reduce((s, p) => s + (parseFloat(p.pmnt) || 0), 0);
+        const balanceDue = inv.debtBlnc != null ? parseFloat(inv.debtBlnc) : totalAmt - totalPaid;
+        if (balanceDue > 0.01) {
+          if (inv.shipData?.fnlzing === '4568') { recv.finalized += balanceDue; recv.finalizedCount++; }
+          else { recv.provisional += balanceDue; recv.provisionalCount++; }
+        }
+      });
+      setReceivables(recv);
 
       setLoading(false);
     };
@@ -686,6 +764,11 @@ const Dash = () => {
               accent="#ea580c"
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 17l4-4 4 4 4-8 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
             />
+          </div>
+
+          {/* RECEIVABLES — finalized vs provisional split */}
+          <div className="mb-5">
+            <ReceivablesSplitCard {...receivables} />
           </div>
 
           {/* MAIN ROW — hero trend + capital breakdown */}
