@@ -206,28 +206,30 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
                         x.descriptionText
         }))
 
-    // Unsold Stocks is driven by the manual "Sold / Unsold" status set per line in each
-    // contract's Materials Breakdown. Those lots are saved into the stocks collection as
-    // type 'in' entries that carry `status` ('sold'/'unsold'), `client` and `salesPo`.
-    // A contract product line counts as SOLD only when it has lot(s) AND every one of them
-    // is sold — using the same rule as the Contracts Statement (marked 'sold', or allocated
-    // to a consignee / sales-PO). Everything else is listed as unsold: partly sold, marked
-    // unsold, or never broken down (a new/old contract with no status set yet).
-    const lotsByLine = new Map(); // `${contractId}|${productId}` -> lots[]
-    for (const lot of stockData) {
-        if (lot.type !== 'in') continue;
-        const key = (lot.contractData?.id || '') + '|' + (lot.description || '');
-        if (!lotsByLine.has(key)) lotsByLine.set(key, []);
-        lotsByLine.get(key).push(lot);
-    }
-    const lineIsSold = (conId, prodId) => {
-        const lots = lotsByLine.get(conId + '|' + prodId);
-        return !!lots && lots.length > 0 && lots.every(lotIsSold);
-    };
-
-    const unSoldAll = contractsData.flatMap(con =>
-        (con.productsData || [])
-            .filter(prod => !prod.import && !lineIsSold(con.id, prod.id))
+    // Unsold Stocks is driven by the manual "Sold / Unsold" status on each warehouse lot in
+    // the contract's Materials Breakdown. A contract's lots are looked up via its own `stock`
+    // id list — NOT via lot.contractData.id — which is what makes duplicated contracts work:
+    // a duplicate copies the stock id list, so it resolves to the same (sold) lots and is
+    // correctly treated as sold even though those lots point back at the original contract.
+    // "Sold" uses the Contracts Statement rule: a lot is sold when marked 'sold' or allocated
+    // to a consignee / sales-PO.
+    //
+    // A whole contract is hidden when it has lots and every one is sold (covers fully-sold
+    // contracts and their phantom duplicates). Otherwise each product line is listed unless
+    // that product's own lots are all sold. Contracts with no stock yet (nothing received /
+    // broken down) still show — they are bought-but-unsold.
+    const inLotById = new Map(stockData.filter(l => l.type === 'in').map(l => [l.id, l]));
+    const unSoldAll = contractsData.flatMap(con => {
+        const ownLots = (con.stock || []).map(id => inLotById.get(id)).filter(Boolean);
+        const contractFullySold = ownLots.length > 0 && ownLots.every(lotIsSold);
+        if (contractFullySold) return [];
+        return (con.productsData || [])
+            .filter(prod => {
+                if (prod.import) return false;
+                const prodLots = ownLots.filter(l => l.description === prod.id || l.descriptionId === prod.id);
+                const prodFullySold = prodLots.length > 0 && prodLots.every(lotIsSold);
+                return !prodFullySold;
+            })
             .map(prod => ({
                 ...prod,
                 order: con.order,
@@ -236,8 +238,8 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
                 total: prod.qnty * prod.unitPrc,
                 cur: con.cur,
                 orderData: { date: con.date, id: con.id },
-            }))
-    );
+            }));
+    });
 
     const unSoldArrTitles = Object.values(
         unSoldAll.reduce((acc, item) => {
