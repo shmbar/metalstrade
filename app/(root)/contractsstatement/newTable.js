@@ -93,6 +93,36 @@ const DetailPanel = ({ lots = [], shipments = [] }) => {
   );
 };
 
+// Modern rounded checkbox (brand-blue when active) used for row selection + select-all.
+const RowCheckbox = ({ checked = false, indeterminate = false, disabled = false, onChange }) => {
+  const active = checked || indeterminate;
+  return (
+    <label
+      className={`inline-flex items-center justify-center ${disabled ? 'opacity-40' : 'cursor-pointer'}`}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <input type="checkbox" className="sr-only" checked={checked} disabled={disabled} onChange={onChange} />
+      <span
+        className="flex items-center justify-center transition-all duration-150"
+        style={{
+          width: 16, height: 16, borderRadius: 5,
+          border: `1px solid ${active ? 'var(--endeavour)' : '#c3d9ef'}`,
+          background: active ? 'var(--endeavour)' : '#ffffff',
+          boxShadow: active ? '0 1px 2px rgba(3,102,174,0.25)' : 'none',
+        }}
+      >
+        {indeterminate ? (
+          <span style={{ width: 8, height: 2, borderRadius: 1, background: '#fff' }} />
+        ) : checked ? (
+          <svg viewBox="0 0 12 12" width="11" height="11" fill="none">
+            <path d="M2.5 6.2l2.2 2.2 4.8-4.8" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        ) : null}
+      </span>
+    </label>
+  );
+};
+
 const Customtable = ({
   data,
   columns,
@@ -136,28 +166,19 @@ const Customtable = ({
         id: "select",
         header: ({ table }) => (
           <div className="flex items-center justify-center w-full h-full">
-            <input
-              type="checkbox"
+            <RowCheckbox
               checked={table.getIsAllPageRowsSelected()}
-              ref={el => {
-                if (!el) return;
-                el.indeterminate = table.getIsSomePageRowsSelected();
-              }}
+              indeterminate={!table.getIsAllPageRowsSelected() && table.getIsSomePageRowsSelected()}
               onChange={table.getToggleAllPageRowsSelectedHandler()}
-              className="w-4 h-4 cursor-pointer rounded"
-              style={{ accentColor: '#9333EA' }}
             />
           </div>
         ),
        cell: ({ row }) => (
         <div className="flex items-center justify-center w-full h-full">
-          <input
-            type="checkbox"
+          <RowCheckbox
             checked={row.getIsSelected()}
             disabled={!row.getCanSelect()}
             onChange={row.getToggleSelectedHandler()}
-            className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: '#BCE1FE' }}
           />
         </div>
       ),
@@ -353,8 +374,8 @@ const Customtable = ({
                             className="font-poppins responsiveTextTable font-medium"
                             style={{
                               color: 'var(--chathams-blue)',
-                              minWidth: header.column.id === 'select' ? '50px' : header.column.id === 'expander' ? '80px' : '60px',
-                              maxWidth: header.column.id === 'select' ? '50px' : header.column.id === 'expander' ? '80px' : 'none',
+                              minWidth: header.column.id === 'select' ? '42px' : header.column.id === 'expander' ? '52px' : '60px',
+                              maxWidth: header.column.id === 'select' ? '42px' : header.column.id === 'expander' ? '52px' : 'none',
                               letterSpacing: '0.05em',
                               textAlign: 'center',
                               cursor: header.column.getCanSort() ? 'pointer' : 'default',
@@ -410,12 +431,13 @@ const Customtable = ({
                     <Fragment key={row.id}>
                       <tr
                         tabIndex={0}
-                        className={`cursor-pointer transition-colors hover-row ${row.getIsExpanded() ? 'bg-[#dbeeff]' : ''}`}
+                        className="cursor-pointer transition-colors hover-row"
+                        style={{ background: row.getIsSelected() ? '#eff6ff' : row.getIsExpanded() ? '#dbeeff' : undefined }}
                       >
                         {row.getVisibleCells().map((cell) => {
                           if (cell.column.id === 'expander') {
                             return (
-                              <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '60px', maxWidth: 'none' }}>
+                              <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '50px', maxWidth: '50px' }}>
                                 <div className="flex justify-center">
                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </div>
@@ -424,7 +446,7 @@ const Customtable = ({
                           }
                           if (cell.column.id === 'select') {
                             return (
-                              <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '50px', maxWidth: '50px' }}>
+                              <td key={cell.id} className="px-2 py-0.5 text-center" style={{ whiteSpace: 'nowrap', minWidth: '42px', maxWidth: '42px', boxShadow: row.getIsSelected() ? 'inset 3px 0 0 var(--endeavour)' : undefined }}>
                                 <div className="flex justify-center">
                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </div>
@@ -481,7 +503,7 @@ const Customtable = ({
                               if (cell.column.id === 'expander') {
                                 const isLast = si === row.subRows.length - 1;
                                 return (
-                                  <td key={cell.id} style={{ position: 'relative', whiteSpace: 'nowrap', minWidth: '60px', maxWidth: 'none', padding: 0 }}>
+                                  <td key={cell.id} style={{ position: 'relative', whiteSpace: 'nowrap', minWidth: '52px', maxWidth: '52px', padding: 0 }}>
                                     <div style={{
                                       position: 'absolute',
                                       left: '50%',
@@ -513,7 +535,7 @@ const Customtable = ({
                                 )
                               }
                               if (cell.column.id === 'select') {
-                                return <td key={cell.id} className="px-2 py-1" style={{ minWidth: '50px', maxWidth: '50px' }} />
+                                return <td key={cell.id} className="px-2 py-1" style={{ minWidth: '42px', maxWidth: '42px', boxShadow: row.getIsSelected() ? 'inset 3px 0 0 var(--endeavour)' : undefined }} />
                               }
                               if (parentOnlyCols.includes(cell.column.id)) {
                                 return <td key={cell.id} className="px-2 py-1" style={{ minWidth: '60px' }} />

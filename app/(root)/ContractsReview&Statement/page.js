@@ -638,17 +638,17 @@ const ContractsMerged = () => {
             enablePinning: true,
             enableColumnFilter: false,
             cell: ({ row }) => (
-                <div className='w-10 flex items-center justify-center'>
+                <div className='flex items-center justify-center'>
                     {row.getCanExpand() ? (
                         <button
                             onClick={row.getToggleExpandedHandler()}
                             aria-label={row.getIsExpanded() ? 'Collapse details' : 'Expand details'}
-                            className={`flex items-center justify-center w-6 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--endeavour)] ${row.getIsExpanded() ? 'bg-[var(--endeavour)] text-white' : 'bg-white text-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
+                            className={`flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-200 focus:outline-none ${row.getIsExpanded() ? 'bg-[#e7f1fd] text-[var(--endeavour)]' : 'text-[var(--endeavour)] hover:bg-[#eef5fd]'}`}
                         >
-                            <IoIosArrowDown size={12} className={`transform transition-transform duration-200 ${row.getIsExpanded() ? 'rotate-180' : 'rotate-0'}`} />
+                            <IoIosArrowDown size={13} className={`transition-transform duration-200 ${row.getIsExpanded() ? 'rotate-180' : 'rotate-0'}`} />
                         </button>
                     ) : (
-                        <span className='pl-4'>🔵</span>
+                        <span className='inline-block w-1.5 h-1.5 rounded-full' style={{ background: '#cbd5e1' }} />
                     )}
                 </div>
             ),
