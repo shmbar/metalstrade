@@ -5,7 +5,10 @@
 // dropdown in the Materials Breakdown modal was never updated. This was the client-reported bug
 // (e.g. 698 Solids/Turnings, Thormet) where genuinely sold material kept reading "Unsold".
 
+import { normalizeStatus } from './shipmentStatus';
+
 const hasVal = (v) => v !== null && v !== undefined && String(v).trim() !== '';
+const fmtQty = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number(n) || 0);
 
 // A single warehouse lot counts as sold if it is allocated to a buyer (consignee or sales-PO set)
 // or was manually flagged "sold".
@@ -29,15 +32,38 @@ export const rollupTone = (soldQty, basisQty) => {
 // `receivedQty` carries the basis (contract qty) so the chip/label denominator is correct.
 export const computeLineSold = ({ contractQty = 0, shippedQty = 0, lots = [] }) => {
     const basis = Number(contractQty) || 0;
+    const shipped = Number(shippedQty) || 0;
     const allocatedQty = lots.reduce((t, l) => t + (l.sold ? (Number(l.qnty) || 0) : 0), 0);
     // Most that is demonstrably sold, without double-counting shipped vs allocated, capped at basis.
-    const soldQty = Math.min(basis, Math.max(Number(shippedQty) || 0, allocatedQty));
-    return { tone: rollupTone(soldQty, basis), soldQty, receivedQty: basis };
+    const soldQty = Math.min(basis, Math.max(shipped, allocatedQty));
+    return { tone: rollupTone(soldQty, basis), soldQty, receivedQty: basis, shippedQty: shipped };
 };
 
 // Aggregate already-computed line roll-ups into a PO-level roll-up.
 export const aggregateRollups = (rollups = []) => {
     const soldQty = rollups.reduce((t, r) => t + (Number(r?.soldQty) || 0), 0);
     const receivedQty = rollups.reduce((t, r) => t + (Number(r?.receivedQty) || 0), 0);
-    return { tone: rollupTone(soldQty, receivedQty), soldQty, receivedQty };
+    const shippedQty = rollups.reduce((t, r) => t + (Number(r?.shippedQty) || 0), 0);
+    return { tone: rollupTone(soldQty, receivedQty), soldQty, receivedQty, shippedQty };
+};
+
+// Final status for a line/PO. Follows the software lifecycle: the contract's shipment status
+// (Pending/Shipped/In Transit/Arrived/Completed/On Hold) when it's set, otherwise an auto-derived
+// status from sold + shipped quantities. Returns { key, label, isShipment } — `key` selects the
+// chip colour (a shipment-status name when isShipment, else one of the fallback keys below).
+export const lineStatus = ({ shipmentStatus, rollup } = {}) => {
+    const st = normalizeStatus(shipmentStatus);
+    if (st) return { key: st, label: st, isShipment: true };
+
+    if (!rollup || rollup.tone === 'none' || !(Number(rollup.receivedQty) > 0.0001)) {
+        return { key: 'none', label: '—', isShipment: false };
+    }
+    const basis = Number(rollup.receivedQty) || 0;   // contracted quantity (the basis)
+    const shipped = Number(rollup.shippedQty) || 0;
+    const sold = Number(rollup.soldQty) || 0;
+
+    if (shipped >= basis - 0.0001) return { key: 'shipped', label: 'Shipped', isShipment: false };
+    if (shipped > 0.0001) return { key: 'partial', label: `Shipped ${fmtQty(shipped)} / ${fmtQty(basis)} MT`, isShipment: false };
+    if (sold > 0.0001) return { key: 'pending', label: 'Sold · pending shipment', isShipment: false };
+    return { key: 'unsold', label: `Unsold ${fmtQty(basis)} MT`, isShipment: false };
 };

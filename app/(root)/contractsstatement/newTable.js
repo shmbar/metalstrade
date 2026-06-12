@@ -100,6 +100,7 @@ const Customtable = ({
   excellReport,
   ln,
   setFilteredData,
+  onSelectionChange,
   tableModes,
   type
 }) => {
@@ -127,9 +128,9 @@ const Customtable = ({
 
   usePathname()
 
+  // Selection checkbox column is always present so contracts can be ticked for Excel export
+  // (it also feeds Quick Sum when that mode is on).
   const columnsWithSelection = useMemo(() => {
-    if (!quickSumEnabled) return columns
-
     return [
       {
         id: "select",
@@ -168,12 +169,12 @@ const Customtable = ({
       },
       ...(columns || [])
     ]
-  }, [columns, quickSumEnabled])
+  }, [columns])
 
   const table = useReactTable({
     data,
     columns: columnsWithSelection,
-    enableRowSelection: quickSumEnabled,
+    enableRowSelection: true,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -208,6 +209,13 @@ const Customtable = ({
       table.getFilteredRowModel().flatRows.map(r => r.original)
     )
   }, [globalFilter, columnFilters])
+
+  // Report ticked rows (incl. the per-material sub-rows of any selected PO) up for the Excel export.
+  useEffect(() => {
+    onSelectionChange?.(
+      table.getSelectedRowModel().flatRows.map(r => r.original?.id).filter(Boolean)
+    )
+  }, [rowSelection])
 
   const resetTable = () => table.resetColumnFilters()
 

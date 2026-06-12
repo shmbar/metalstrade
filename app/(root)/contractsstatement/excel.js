@@ -6,6 +6,7 @@ import dateFormat from "dateformat";
 import { OutTurn, Finalizing, relStts } from '@components/const'
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
+import { lineStatus } from './soldStatus';
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
 
@@ -22,15 +23,6 @@ function getNumFmtForCurrency(currency) {
             return ''; // Default to empty string
     }
 }
-
-// Readable sold/unsold label from the derived roll-up (matches the on-screen chip)
-const soldLabel = (r) => {
-    if (!r || r.tone === 'none' || !r.receivedQty) return '';
-    const f = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number(n) || 0);
-    if (r.tone === 'sold') return 'Sold';
-    if (r.tone === 'partial') return `Sold ${f(r.soldQty)} / ${f(r.receivedQty)} MT`;
-    return `Unsold ${f(r.receivedQty)} MT`;
-};
 
 //{ font: { bold: true }
 export const EXD = (dataTable, settings, name, ln) => {
@@ -98,7 +90,7 @@ export const EXD = (dataTable, settings, name, ln) => {
                 totalPo: item.totalPo.map(x => x).join('\n'),
                 destination: item.destination.map(x => x).join('\n'),
                 invoiceNum: (item.invoiceNum || []).map(x => x).join('\n'),
-                status: soldLabel(item.soldRollup),
+                status: lineStatus({ shipmentStatus: item.shipmentStatus, rollup: item.soldRollup }).label,
                 comments: item.comments,
             })
         }

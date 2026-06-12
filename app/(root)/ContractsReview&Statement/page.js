@@ -22,7 +22,8 @@ import Tltip from '../../../components/tlTip'
 import CBox from '../../../components/combobox.js'
 import { EXD } from './excel'
 import { EXD as EXDStatement } from '../contractsstatement/excel'
-import { lotIsSold, computeLineSold, aggregateRollups } from '../contractsstatement/soldStatus'
+import { lotIsSold, computeLineSold, aggregateRollups, lineStatus } from '../contractsstatement/soldStatus'
+import { SHIPMENT_STATUS_STYLES } from '../contractsstatement/shipmentStatus'
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
@@ -36,22 +37,24 @@ import VideoLoader from '../../../components/videoLoader';
 // ── Statement roll-up indicators ───────────────────────────────────────────
 const fmtMT = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number(n) || 0);
 
-// Single computed chip for the sold/unsold roll-up of a contract line's lots
-const StatusChip = ({ rollup }) => {
-    if (!rollup || rollup.tone === 'none' || !rollup.receivedQty) {
-        return <span className="responsiveTextTable" style={{ color: 'var(--regent-gray)' }}>—</span>;
-    }
-    const { tone, soldQty, receivedQty } = rollup;
-    const styles = {
-        sold: { bg: '#dcfce7', color: '#166534', border: '#bbf7d0', label: 'Sold' },
-        partial: { bg: '#fef9c3', color: '#92400e', border: '#fde68a', label: `Sold ${fmtMT(soldQty)} / ${fmtMT(receivedQty)} MT` },
-        unsold: { bg: '#fee2e2', color: '#dc2626', border: '#fecaca', label: `Unsold ${fmtMT(receivedQty)} MT` },
-    };
-    const s = styles[tone] || styles.unsold;
+// Auto-derived lifecycle colours, used only when the contract has no manual shipment status set.
+const FALLBACK_STATUS_STYLES = {
+    shipped: { backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#075985' },
+    partial: { backgroundColor: '#dbeeff', border: '1px solid #b8ddf8', color: 'var(--chathams-blue)' },
+    pending: { backgroundColor: '#fef9c3', border: '1px solid #fde68a', color: '#92400e' },
+    unsold:  { backgroundColor: '#fee2e2', border: '1px solid #fecaca', color: '#dc2626' },
+};
+
+// Status chip that follows the software lifecycle: the contract's shipment status (Pending /
+// Shipped / In Transit / Arrived / Completed / On Hold) when set, otherwise an auto-derived
+// status (Unsold / Sold·pending shipment / Shipped) from the sold + shipped quantities.
+const StatusChip = ({ shipmentStatus, rollup }) => {
+    const { key, label, isShipment } = lineStatus({ shipmentStatus, rollup });
+    if (key === 'none') return <span className="responsiveTextTable" style={{ color: 'var(--regent-gray)' }}>—</span>;
+    const style = isShipment ? (SHIPMENT_STATUS_STYLES[key] || SHIPMENT_STATUS_STYLES['']) : FALLBACK_STATUS_STYLES[key];
     return (
-        <span className="px-3 py-1 rounded-xl responsiveTextTable font-normal whitespace-nowrap"
-            style={{ backgroundColor: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
-            {s.label}
+        <span className="px-3 py-1 rounded-xl responsiveTextTable font-normal whitespace-nowrap" style={style}>
+            {label}
         </span>
     );
 };
@@ -213,19 +216,13 @@ const arrayIncludesString = (row, columnId, filterValue) => {
     });
 };
 
-// Filters the Status column by the derived sold roll-up (matches the chip shown), not the raw flag
+// Filters the Status column by the visible status label (shipment status or derived lifecycle)
 const statusRollupFilter = (row, columnId, filterValue) => {
     if (!filterValue) return true;
     const fv = String(filterValue).toLowerCase().trim();
     if (!fv) return true;
-    const tone = row.original?.soldRollup?.tone || 'none';
-    const keywords = {
-        sold: ['sold'],
-        partial: ['sold', 'partial', 'partially'],
-        unsold: ['unsold'],
-        none: ['none'],
-    }[tone] || [];
-    return keywords.some(k => k.startsWith(fv) || k === fv);
+    const { key, label } = lineStatus({ shipmentStatus: row.original?.shipmentStatus, rollup: row.original?.soldRollup });
+    return String(label).toLowerCase().includes(fv) || String(key).toLowerCase().includes(fv);
 };
 
 const CB = (settings, setValCur, valCur) => {
@@ -253,6 +250,7 @@ const ContractsMerged = () => {
     const [dataTableStatement, setDataTableStatement] = useState([])
     const [totalsStatement, setTotalsStatement] = useState([])
     const [filteredDataStatement, setFilteredDataStatement] = useState([])
+    const [selectedIdsStatement, setSelectedIdsStatement] = useState([])
     const [enabledSwitch, setEnabledSwitch] = useState(true)
 
     const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
@@ -469,7 +467,7 @@ const ContractsMerged = () => {
                     return { qnty: parseFloat(l.qnty) || 0, status: sold ? 'sold' : 'unsold', sold, consignee, salesPo }
                 })
                 // Sold = shipped/invoiced OR allocated on the lot, measured against the contract qty.
-                const { tone, soldQty, receivedQty } = computeLineSold({ contractQty: total, shippedQty: totalShipped, lots })
+                const soldRollup = computeLineSold({ contractQty: total, shippedQty: totalShipped, lots })
 
                 newObj = {
                     supplier: obj.supplier, date: obj.date, order: obj.order, poWeight: total,
@@ -488,7 +486,8 @@ const ContractsMerged = () => {
                     }, 0),
                     lots,
                     shipments,
-                    soldRollup: { tone, soldQty, receivedQty },
+                    soldRollup,
+                    shipmentStatus: obj.shipmentStatus || '',
                 }
                 newArr.push(newObj)
             })
@@ -703,7 +702,7 @@ const ContractsMerged = () => {
         {
             accessorKey: 'status', header: getTtl('Status', ln),
             filterFn: statusRollupFilter,
-            cell: (props) => <StatusChip rollup={props.row.original.soldRollup} />,
+            cell: (props) => <StatusChip shipmentStatus={props.row.original.shipmentStatus} rollup={props.row.original.soldRollup} />,
         },
         {
             accessorKey: 'totalPo', header: getTtl('PO Client', ln),
@@ -952,16 +951,18 @@ const ContractsMerged = () => {
                                 <div className='mt-2'>
                                     {enabledSwitch ?
                                         <CustomtableStatement data={loading ? [] : groupedArrayInvoiceStatement(getFormattedStatement(dataTableStatement))} columns={propDefaultsStatement}
-                                            excellReport={EXDStatement(dataTableStatement.filter(x => filteredDataStatement.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
+                                            excellReport={EXDStatement(dataTableStatement.filter(x => (selectedIdsStatement.length ? selectedIdsStatement : filteredDataStatement.map(z => z.id)).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
                                             invisible={invisibleStatement} ln={ln}
                                             setFilteredData={setFilteredDataStatement}
+                                            onSelectionChange={setSelectedIdsStatement}
                                             tableModes={<TableModes />} type='contractStatementTableModes'
                                         />
                                         :
                                         <CustomtableStatement1 data={loading ? [] : (getFormattedStatement(dataTableStatement))} columns={propDefaultsStatement.slice(1)}
-                                            excellReport={EXDStatement(dataTableStatement.filter(x => filteredDataStatement.map(z => z.id).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
+                                            excellReport={EXDStatement(dataTableStatement.filter(x => (selectedIdsStatement.length ? selectedIdsStatement : filteredDataStatement.map(z => z.id)).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
                                             invisible={invisibleStatement} ln={ln}
                                             setFilteredData={setFilteredDataStatement}
+                                            onSelectionChange={setSelectedIdsStatement}
                                             tableModes={<TableModes />} type='contractStatementTableModes'
                                         />
                                     }
