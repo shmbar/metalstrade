@@ -32,12 +32,12 @@ const FindInvoiceModal = ({ open, setOpen, uidCollection, value, setValue }) => 
         //Prepare data for saving
         inv.expenses = [...inv.expenses, {
             amount: value.amount,
-            cur: value.cur, date: value.date, expense: value.expense, id: value.id
+            cur: value.cur, date: value.date, expense: value.expense, id: value.id, expType: value.expType
         }]
 
         con.expenses = [...con.expenses, {
             amount: value.amount,
-            cur: value.cur, date: value.date, expense: value.expense, id: value.id
+            cur: value.cur, date: value.date, expense: value.expense, id: value.id, expType: value.expType
         }]
 
 

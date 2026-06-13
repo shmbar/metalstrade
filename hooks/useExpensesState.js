@@ -65,7 +65,7 @@ const useSettingsState = (props) => {
                 tmpArr = valueInv.expenses.map((k) => (k.id === valueExp.id ?
                     {
                         ...k, expense: valueExp.expense, date: valueExp.dateRange.startDate,
-                        amount: valueExp.amount, cur: valueExp.cur
+                        amount: valueExp.amount, cur: valueExp.cur, expType: valueExp.expType
                     } : k));
 
                 tmpObj = { ...valueInv, expenses: tmpArr }
@@ -73,7 +73,7 @@ const useSettingsState = (props) => {
                 let tmpValExp = {
                     id: valueExp.id, expense: valueExp.expense,
                     date: valueExp.dateRange.startDate, amount: valueExp.amount,
-                    cur: valueExp.cur
+                    cur: valueExp.cur, expType: valueExp.expType
                 }
 
                 const tmpExpArr = await loadInvoice(uidCollection, 'contracts', valueInv.poSupplier)
@@ -104,7 +104,7 @@ const useSettingsState = (props) => {
                 tmpArr = [...valueInv.expenses,
                 {
                     id: valueExpObj.id, expense: valueExpObj.expense, date: valueExpObj.dateRange.startDate,
-                    amount: valueExpObj.amount, cur: valueExpObj.cur
+                    amount: valueExpObj.amount, cur: valueExpObj.cur, expType: valueExpObj.expType
                 }]
                 tmpObj = { ...valueInv, expenses: tmpArr }
 
@@ -113,7 +113,7 @@ const useSettingsState = (props) => {
                 let tmpValExp = {
                     id: valueExpObj.id, expense: valueExpObj.expense,
                     date: valueExpObj.dateRange.startDate, amount: valueExpObj.amount,
-                    cur: valueExpObj.cur
+                    cur: valueExpObj.cur, expType: valueExpObj.expType
                 }
 
                 //save to server in Contracts
