@@ -6,7 +6,7 @@
 // Phase 0: this module is additive. Nothing imports it yet, so no displayed number can
 // change until a screen is deliberately migrated to it (with golden-value verification).
 
-import { resolveDueDate, resolveInvoiceDate, toIsoDate } from './pureHelpers';
+import { resolveDueDate, resolveInvoiceDate, toIsoDate } from './pureHelpers.js';
 
 export { resolveDueDate, resolveInvoiceDate, toIsoDate };
 

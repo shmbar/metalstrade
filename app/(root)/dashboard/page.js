@@ -8,6 +8,7 @@ import { UserAuth } from "@contexts/useAuthContext"
 import { SettingsContext } from "@contexts/useSettingsContext";
 import Toast from '@components/toast.js'
 import { loadData, groupedArrayInvoice, getInvoices, loadCompanyExpenses } from '@utils/utils'
+import { receivables as financeReceivables } from '@utils/finance'
 import { setMonthsInvoices, calContracts } from './funcs'
 import { getTtl } from '@utils/languages';
 import DateRangePicker from '@components/dateRangePicker';
@@ -769,23 +770,13 @@ const Dash = () => {
   // = Yes). Same issued/unpaid rule as the alerts bar + Cashflow. Responds to the Client
   // filter (suppliers/materials don't map cleanly onto a sales invoice).
   const receivables = useMemo(() => {
-    // Per-currency — invoices only carry `cur` (no FX rate), and the rest of the app
-    // (Cashflow) keeps $ and € separate, so we never sum across currencies.
-    const byCur = {}; // cur -> { finalized, provisional, finalizedCount, provisionalCount }
-    const slot = (c) => (byCur[c] || (byCur[c] = { finalized: 0, provisional: 0, finalizedCount: 0, provisionalCount: 0 }));
-    rawRecvInvoices.forEach(inv => {
-      if (inv.draft === true || inv.canceled) return;
-      if (fClient && resolveClientName(inv.client) !== fClient) return;
-      const totalAmt = parseFloat(inv.totalAmount) || 0;
-      const totalPaid = (inv.payments || []).reduce((s, p) => s + (parseFloat(p.pmnt) || 0), 0);
-      const balanceDue = inv.debtBlnc != null ? parseFloat(inv.debtBlnc) : totalAmt - totalPaid;
-      if (balanceDue > 0.01) {
-        const s = slot(inv.cur === 'eu' ? 'eu' : 'us');
-        if (inv.shipData?.fnlzing === '4568') { s.finalized += balanceDue; s.finalizedCount++; }
-        else { s.provisional += balanceDue; s.provisionalCount++; }
-      }
-    });
-    return { byCur };
+    // Canonical receivables (utils/finance.js) — deduped (an invoice + its Credit/Final
+    // note count ONCE, payments combined), balance = total − payments (same rule the
+    // Cashflow page uses), per-currency, draft/canceled excluded, finalized/provisional split.
+    const list = fClient
+      ? rawRecvInvoices.filter(inv => resolveClientName(inv.client) === fClient)
+      : rawRecvInvoices;
+    return financeReceivables(list, { asOf: new Date() });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawRecvInvoices, fClient, settings]);
 

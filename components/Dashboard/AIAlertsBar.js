@@ -5,6 +5,7 @@ import { AlertTriangle, FileWarning, TrendingDown, Bell, Loader2 } from 'lucide-
 import { SettingsContext } from '@contexts/useSettingsContext';
 import { UserAuth } from '@contexts/useAuthContext';
 import { loadData, loadMarginsRange, resolveDueDate, ensureNotification } from '@utils/utils';
+import { receivables as financeReceivables, groupInvoices, isOverdue, invoiceBalance } from '@utils/finance';
 
 // Compact pill button used for each alert chip
 function AlertPill({ icon: Icon, label, count, severity, onClick }) {
@@ -68,27 +69,24 @@ const AIAlertsBar = () => {
 
                 const today = new Date();
 
-                // Receivables split into TWO mutually-exclusive categories:
-                //   due     = issued, unpaid, delivery/due date in the past (urgent)
-                //   balance = issued, unpaid, due date in future OR not set (not yet due)
-                // Sum of both = total outstanding receivables.
+                // Receivables via the canonical finance module — deduped (an invoice + its
+                // Credit/Final note count ONCE, payments combined), balance = total − payments
+                // (same rule the Cashflow page uses), draft/canceled excluded. `due` = overdue
+                // (past due date); `balance` = owed but not yet due.
+                const recv = financeReceivables(invoices, { asOf: today });
                 let due = 0;
                 let balance = 0;
+                Object.values(recv.byCur).forEach(s => { due += s.dueCount; balance += s.balanceCount; });
+
+                // Overdue invoices (for the bell notifications) — same canonical rule.
+                const overdueInvs = groupInvoices(invoices)
+                    .filter(inv => isOverdue(inv, today))
+                    .map(inv => ({ ...inv, _balanceDue: invoiceBalance(inv), _dueDate: resolveDueDate(inv) }));
+
+                // Reminders sent in the last 7 days.
                 let recentReminders = 0;
-                const overdueInvs = [];
                 const reminderCutoff = Date.now() - 7 * 86400000;
                 invoices.forEach(inv => {
-                    // Issued = not a draft and not canceled (matches Cashflow debt logic)
-                    if (inv.draft !== true && !inv.canceled) {
-                        const totalAmt = parseFloat(inv.totalAmount) || 0;
-                        const totalPaid = (inv.payments || []).reduce((s, p) => s + (parseFloat(p.pmnt) || 0), 0);
-                        const balanceDue = inv.debtBlnc != null ? parseFloat(inv.debtBlnc) : totalAmt - totalPaid;
-                        if (balanceDue > 0.01) {
-                            const dueDate = resolveDueDate(inv);
-                            if (dueDate && new Date(dueDate) < today) { due++; overdueInvs.push({ ...inv, _balanceDue: balanceDue, _dueDate: dueDate }); }
-                            else balance++;
-                        }
-                    }
                     (inv.reminders || []).forEach(r => {
                         if (r.sentAt && new Date(r.sentAt).getTime() >= reminderCutoff) recentReminders++;
                     });
