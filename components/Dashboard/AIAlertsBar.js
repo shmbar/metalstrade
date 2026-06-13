@@ -53,8 +53,15 @@ const AIAlertsBar = () => {
             if (!uidCollection || !dateSelect) return;
             setLoading(true);
             try {
+                // Outstanding receivables are a running total, not a single-year flow — an
+                // unpaid 2024/2025 invoice is still money owed today. Load a multi-year
+                // window (last 4 years) so the alert reflects TRUE outstanding, not just
+                // invoices dated in the currently-selected period. Margin alerts stay
+                // scoped to the selected period (margins are a period figure).
+                const curYr = new Date().getFullYear();
+                const outstandingRange = { start: `${curYr - 3}-01-01`, end: `${curYr}-12-31` };
                 const [invoices, margins] = await Promise.all([
-                    loadData(uidCollection, 'invoices', dateSelect),
+                    loadData(uidCollection, 'invoices', outstandingRange),
                     loadMarginsRange(uidCollection, dateSelect),
                 ]);
                 if (cancelled) return;

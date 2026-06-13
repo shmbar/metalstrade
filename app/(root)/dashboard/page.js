@@ -7,7 +7,7 @@ import VideoLoader from '@components/videoLoader';
 import { UserAuth } from "@contexts/useAuthContext"
 import { SettingsContext } from "@contexts/useSettingsContext";
 import Toast from '@components/toast.js'
-import { loadData, groupedArrayInvoice, getInvoices } from '@utils/utils'
+import { loadData, groupedArrayInvoice, getInvoices, loadCompanyExpenses } from '@utils/utils'
 import { setMonthsInvoices, calContracts } from './funcs'
 import { getTtl } from '@utils/languages';
 import DateRangePicker from '@components/dateRangePicker';
@@ -553,6 +553,43 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
   );
 }
 
+// Annual total of P1 "Misc Invoices" — standalone sales not tied to a contract.
+function MiscInvoicesCard({ byCur = {}, count = 0 }) {
+  const fmtCur = (cur, v) => `${cur === 'us' ? '$' : cur === 'eu' ? '€' : ''}${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
+  const entries = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
+  return (
+    <m.div
+      className="relative rounded-xl bg-white border border-[#e6eef8] shadow-sm overflow-hidden"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
+    >
+      <div className="p-4 flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: '#db27771A', color: '#db2777', width: 30, height: 30 }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M7 3h10l3 4v14H4V7l3-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M8 11h8M8 15h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+          </span>
+          <div className="min-w-0">
+            <div className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Misc Invoices · not linked to contracts</div>
+            <div className="text-[var(--regent-gray)] leading-tight" style={{ fontSize: '0.6rem' }}>{count} invoice{count === 1 ? '' : 's'} in period</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          {entries.length === 0
+            ? <span className="responsiveTextTable text-[var(--regent-gray)]">None in this period</span>
+            : entries.map(([cur, v]) => (
+              <span key={cur} className="rounded-full px-3 py-1 font-semibold"
+                style={{ background: '#fdf2f8', boxShadow: 'inset 0 0 0 1px #fbcfe8', color: '#9d174d', fontSize: '0.82rem' }}>
+                {fmtCur(cur, v)}
+              </span>
+            ))}
+        </div>
+      </div>
+    </m.div>
+  );
+}
+
 const Dash = () => {
 
   const { settings, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
@@ -565,6 +602,7 @@ const Dash = () => {
   // Supplier / Client / Material filters recompute instantly without re-fetching Firestore.
   const [rawContracts, setRawContracts] = useState([]);     // contracts enriched with invoicesData
   const [rawRecvInvoices, setRawRecvInvoices] = useState([]);
+  const [rawMiscInvoices, setRawMiscInvoices] = useState([]); // P1 misc invoices, not linked to contracts
 
   const [fSupplier, setFSupplier] = useState('');
   const [fClient, setFClient] = useState('');
@@ -590,11 +628,21 @@ const Dash = () => {
       );
       setRawContracts(dtConTmp);
 
+      // Outstanding receivables are a running total — load a multi-year window (last 4
+      // years) so the card reflects TRUE outstanding, not just invoices dated this period.
+      const curYr = new Date().getFullYear();
       const invsForRecv = await loadData(uidCollection, 'invoices', {
+        start: `${curYr - 3}-01-01`,
+        end: `${curYr}-12-31`,
+      });
+      setRawRecvInvoices(invsForRecv);
+
+      // P1 "Misc Invoices" — standalone sales not linked to any contract.
+      const misc = await loadCompanyExpenses(uidCollection, 'specialInvoices', {
         start: dateSelect?.start || `${year}-01-01`,
         end: dateSelect?.end || `${year}-12-31`,
       });
-      setRawRecvInvoices(invsForRecv);
+      setRawMiscInvoices(Array.isArray(misc) ? misc.filter(Boolean) : []);
 
       setLoading(false);
     };
@@ -698,6 +746,16 @@ const Dash = () => {
     return recv;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawRecvInvoices, fClient, settings]);
+
+  // P1 misc invoices total by currency (annual summary — independent of the contract filters).
+  const miscInvoices = useMemo(() => {
+    const byCur = {};
+    rawMiscInvoices.forEach(r => {
+      const cur = r.cur || 'us';
+      byCur[cur] = (byCur[cur] || 0) + (parseFloat(r.total) || 0);
+    });
+    return { byCur, count: rawMiscInvoices.length };
+  }, [rawMiscInvoices]);
 
   const totalPL = useMemo(() => dataPL.reduce((a, v) => a + (Number(v) || 0), 0), [dataPL]);
   const totalInvoices = useMemo(() => sumObj(dataInvoices), [dataInvoices]);
@@ -918,7 +976,7 @@ const Dash = () => {
           {/* KPI ROW */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-5">
             <StatKpiCard
-              title="P&L"
+              title="P&L · deal basis"
               value={fmtAutoKM(totalPL)}
               chartData={dataPL}
               accent="#6366F1"
@@ -969,13 +1027,18 @@ const Dash = () => {
             <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} />
           </div>
 
+          {/* MISC INVOICES — P1 standalone sales not linked to contracts */}
+          <div className="mb-5">
+            <MiscInvoicesCard byCur={miscInvoices.byCur} count={miscInvoices.count} />
+          </div>
+
           {/* MAIN ROW — hero trend + capital breakdown */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
             <CardShell className="lg:col-span-2">
               <div className="p-4">
                 <SectionHeader
                   title="Revenue, Costs & Profit"
-                  subtitle="Monthly trend for the selected period"
+                  subtitle="By-contract (deal) basis — each contract's sales vs its own cost · selected period"
                 />
                 <div style={{ height: 320 }}>
                   <Line data={heroData} options={heroOptions} />

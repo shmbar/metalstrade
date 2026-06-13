@@ -147,6 +147,26 @@ const PNL = () => {
     })
   }
 
+  // Per-contract freight allocation: freight-type expenses on this contract ÷ contracted MT,
+  // shown in the selected currency. Same freight-label detection and currency conversion the
+  // rest of this tab uses, so it lines up with the Expenses total.
+  const freightIds = new Set(
+    (settings.Expenses?.Expenses || [])
+      .filter(e => String(e.expType || '').toLowerCase().includes('freight'))
+      .map(e => e.id)
+  )
+  const contractMT = (valueCon.productsData || []).reduce((s, p) => s + (parseFloat(p.qnty) || 0), 0)
+  const freightTotal = (valueCon.expenses || []).reduce((s, exp) => {
+    if (!exp || !freightIds.has(exp.expType)) return s
+    const amt = parseFloat(exp.amount)
+    if (isNaN(amt)) return s
+    const mltTmp = exp.cur === valCur.cur ? 1
+      : exp.cur === 'us' && valCur.cur === 'eu' ? 1 / valueCon.euroToUSD
+        : valueCon.euroToUSD
+    return s + amt * mltTmp
+  }, 0)
+  const freightPerMT = contractMT > 0 ? freightTotal / contractMT : 0
+
 
   return (
     <div className='p-1'>
@@ -169,6 +189,10 @@ const PNL = () => {
               </div>
   */}
 
+          </div>
+          <div className='flex gap-2 pt-2 flex-wrap'>
+            <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>Freight / MT:</p>
+            <p className='responsiveText items-center flex text-[var(--port-gore)] font-medium'>{setNum(valCur, freightPerMT, settings)}</p>
           </div>
         </div>
         <div className='col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>

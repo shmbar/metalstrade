@@ -10,7 +10,9 @@ const Total = (data, name, mult, settings) => {
             if (obj && !isNaN(obj[name])) {
                 const currentCur = !obj.final ? obj.cur : settings.Currency.Currency.find(x => x.cur === obj.cur.cur)['id']
                 let mltTmp = currentCur === 'us' ? 1 : mult
-                let num = obj.canceled ? 0 : obj[name] * 1 * mltTmp
+                // Exclude drafts and canceled invoices — only issued invoices count as revenue
+            // (matches the dashboard Receivables rule, which skips drafts).
+            let num = (obj.canceled || obj.draft === true) ? 0 : obj[name] * 1 * mltTmp
 
                 accumuLastInv += (innerArray.length === 1 && ['1111', 'Invoice'].includes(obj.invType) ||
                     innerArray.length > 1 && !['1111', 'Invoice'].includes(obj.invType)) ?
@@ -31,7 +33,9 @@ const TotalClients = (data, name, mult, settings) => {
             const currentCur = !obj.final ? obj.cur : settings.Currency.Currency.find(x => x.cur === obj.cur.cur)['id']
             clnt = !obj.final ? settings.Client.Client.find(x => x.id === obj.client)?.['nname'] : obj.client.nname
             let mltTmp = currentCur === 'us' ? 1 : mult
-            let num = obj.canceled ? 0 : obj[name] * 1 * mltTmp
+            // Exclude drafts and canceled invoices — only issued invoices count as revenue
+            // (matches the dashboard Receivables rule, which skips drafts).
+            let num = (obj.canceled || obj.draft === true) ? 0 : obj[name] * 1 * mltTmp
 
 
             accumuLastInv += (data.length === 1 && ['1111', 'Invoice'].includes(obj.invType) ||
