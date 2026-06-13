@@ -12,9 +12,10 @@ import { validate, ErrDiv } from '../../../../utils/utils'
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
 import Tltip from '../../../../components/tlTip';
-import { Loader2, Sparkles, CheckCircle2, FileText } from 'lucide-react';
+import { Loader2, Sparkles, CheckCircle2, FileText, Paperclip } from 'lucide-react';
 import { authedFetch } from '../../../../utils/aiClient';
 import DocumentImportOverlay from '../../../../components/DocumentImportOverlay';
+import ExpenseFilesModal from './filesModal';
 
 const Expenses = () => {
 
@@ -28,6 +29,7 @@ const Expenses = () => {
     const [categorizing, setCategorizing] = useState(false);
     const [catResult, setCatResult] = useState(null); // null | 'high' | 'medium' | 'low' | 'error'
     const [showDocImport, setShowDocImport] = useState(false);
+    const [showFiles, setShowFiles] = useState(false);
 
     const handleAutoCategory = async () => {
         // The "Expense Invoice" field is a reference NUMBER (e.g. "9") — useless for
@@ -125,8 +127,19 @@ const Expenses = () => {
 
     return (
         <div>
-            {/* Action bar — AI-powered supplier invoice import */}
+            {/* Action bar — AI-powered supplier invoice import + file attachments */}
             <div className='flex items-center justify-end gap-2 mx-2 mt-2'>
+                <Tltip direction='top' tltpText='Attach the expense invoice PDF/image. Saved to a folder for this expense, or the general expenses folder for new entries.'>
+                    <button
+                        type='button'
+                        onClick={() => setShowFiles(true)}
+                        className='flex items-center gap-1 px-3 py-1 rounded-full transition-all border'
+                        style={{ fontSize: '0.62rem', color: 'var(--endeavour)', background: '#e3f3ff', borderColor: '#d8e8f5' }}
+                    >
+                        <Paperclip className='w-3 h-3' />
+                        Files
+                    </button>
+                </Tltip>
                 <Tltip direction='top' tltpText='Drop a supplier invoice/proforma PDF — AI extracts amount, vendor, date, currency and auto-links to the contract by PO number.'>
                     <button
                         type='button'
@@ -139,6 +152,15 @@ const Expenses = () => {
                     </button>
                 </Tltip>
             </div>
+
+            {showFiles && (
+                <ExpenseFilesModal
+                    isOpen={showFiles}
+                    setIsOpen={setShowFiles}
+                    folderId={valueExp.id || 'generalExpenses'}
+                    setToast={setToast}
+                />
+            )}
 
             {showDocImport && (
                 <DocumentImportOverlay

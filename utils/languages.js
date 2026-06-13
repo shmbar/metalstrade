@@ -178,6 +178,7 @@ const TitlesArr = [
     { Stock: ['Stock', 'Склад'] },
 
     { 'Contract files': ['Contract files', 'Файлы контрактов'] },
+    { 'Expense files': ['Expense files', 'Файлы расходов'] },
 
 
     /*****Invoice */

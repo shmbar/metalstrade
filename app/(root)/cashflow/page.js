@@ -29,6 +29,8 @@ import ExpenseModal from "../expenses/modals/dataModal";
 import InvPopup from "./invPopup";
 import ForecastPanel from "./ForecastPanel";
 import SumBasket from "./sumBasket";
+import { exportCashflowToExcel } from "./excel";
+import { FiDownload } from "react-icons/fi";
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -840,6 +842,44 @@ const Cashflow = () => {
     }
     // ...existing code...
 
+    // Export the current cashflow view to Excel (one worksheet per section). Builds
+    // rows from the same state arrays the page renders, resolving entity names via
+    // settings so the file reads like the on-screen lists.
+    const handleExportCashflow = () => {
+        const stocksS = settings.Stocks?.Stocks || [];
+        const clientsS = settings.Client?.Client || [];
+        const suppliersS = settings.Supplier?.Supplier || [];
+        const nameOf = (arr, id) => arr.find(z => z.id === id)?.nname || '';
+        const curOf = (cur) => cur === 'us' ? 'USD' : cur === 'eu' ? 'EUR' : (cur || '');
+
+        if (activeTab === 'unsold') {
+            exportCashflowToExcel({
+                fileName: `cashflow-unsold-stocks-${yr}.xlsx`,
+                sections: [{
+                    name: 'Unsold Stocks',
+                    rows: stockDataNoSold.map(x => ({
+                        name: x.supplierName || nameOf(suppliersS, x.supplier),
+                        currency: curOf(x.cur), amount: x.total,
+                    })),
+                }],
+            });
+            return;
+        }
+
+        exportCashflowToExcel({
+            fileName: `cashflow-${yr}.xlsx`,
+            sections: [
+                { name: 'Stocks - Paid', rows: stockData1.map(x => ({ name: nameOf(stocksS, x.stock), currency: curOf(x.cur), amount: x.total })) },
+                { name: 'Stocks - UnPaid', rows: stockData2.map(x => ({ name: nameOf(stocksS, x.stock), currency: curOf(x.cur), amount: x.total })) },
+                { name: 'Clients - Payment', rows: clientInvoices2.map(x => ({ name: nameOf(clientsS, x.client), currency: curOf(x.cur), amount: x.debtBlnc })) },
+                { name: 'Clients - Balances', rows: clientInvoices1.map(x => ({ name: nameOf(clientsS, x.client), currency: curOf(x.cur), amount: x.debtBlnc })) },
+                { name: 'Supplier - Payment', rows: supPayments2.map(x => ({ name: nameOf(suppliersS, x.supplier), currency: curOf(x.cur), amount: x.blnc })) },
+                { name: 'Supplier - Balances', rows: supPayments1.map(x => ({ name: nameOf(suppliersS, x.supplier), currency: curOf(x.cur), amount: x.blnc })) },
+                { name: 'Expenses', rows: expenses.map(x => ({ name: nameOf(suppliersS, x.supplier), currency: curOf(x.cur), amount: x.amount })) },
+            ],
+        });
+    };
+
     return (
         <div className="w-full" style={{ background: "#f8fbff" }}>
             <div className="mx-auto max-w-full px-1 md:px-2 pb-4 mt-[72px]">
@@ -853,6 +893,15 @@ const Cashflow = () => {
                                     {getTtl('Cashflow', ln)}
                                 </h1>
                                 <div className="flex items-center gap-2 group">
+                                    <Tltip direction='bottom' tltpText='Export the current cashflow tables to Excel'>
+                                        <button
+                                            type="button"
+                                            onClick={handleExportCashflow}
+                                            className="flex items-center gap-1.5 border border-[#d8e8f5] text-[var(--endeavour)] px-3 h-8 text-[0.72rem] font-medium rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all"
+                                        >
+                                            <FiDownload className="scale-110" /> Export
+                                        </button>
+                                    </Tltip>
                                     <YearSelect yr={yr} setYr={setYr} />
                                 </div>
                             </div>

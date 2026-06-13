@@ -4,7 +4,9 @@
       "Bash(find:*)",
       "Bash(git commit:*)",
       "Bash(git add:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(tail -n 14 \"/c/Users/hp/AppData/Local/Temp/claude/c--Users-hp-Desktop-metalstrade/ac4a8704-071b-4ca0-a5ad-d0cbbe56cb2e/tasks/bhpmnsgmk.output\")",
+      "Read(//c/Users/hp/AppData/Local/Temp/claude/c--Users-hp-Desktop-metalstrade/ac4a8704-071b-4ca0-a5ad-d0cbbe56cb2e/tasks/**)"
     ]
   }
 }

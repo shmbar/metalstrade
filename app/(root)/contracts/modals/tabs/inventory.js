@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ContractsContext } from "@contexts/useContractsContext";
 import { SettingsContext } from "@contexts/useSettingsContext";
-import { getD, getInvoices, loadStockData, sortArr } from '@utils/utils'
+import { getD, getInvoices, loadStockData } from '@utils/utils'
 import { UserAuth } from "@contexts/useAuthContext";
 import dateFormat from "dateformat";
 import { getTtl } from '@utils/languages';
@@ -57,13 +57,15 @@ const getReduced = (dt) => {
             arr = [...arr, obj];
         }
     }
+    // Order by date, then by invoice number as a numeric tie-break so invoices that
+    // share the same date still appear in logical numbering order (1, 2, 10 — not 1, 10, 2).
     arr = arr.map(x => ({ ...x, d: x.final ? x.date : x.date.startDate })).sort((a, b) => {
-        const dateA = new Date(a.d);
-        const dateB = new Date(b.d);
-        return dateA - dateB;
+        const dateA = new Date(a.d).getTime();
+        const dateB = new Date(b.d).getTime();
+        if (dateA !== dateB) return dateA - dateB;
+        return String(a.invoice ?? '').localeCompare(String(b.invoice ?? ''), undefined, { numeric: true });
     });
 
-    arr = sortArr(arr, 'invoice')
     return arr;
 }
 

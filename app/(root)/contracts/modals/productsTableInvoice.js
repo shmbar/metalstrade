@@ -33,7 +33,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
     const [percent, setPercent] = useState(false)
     const [prepayment, setPrepayment] = useState(false)
     const fnl = value.final;
-    const { setToast, ln } = useContext(SettingsContext);
+    const { setToast, ln, compData } = useContext(SettingsContext);
     const [valueDesc, setValueDesc] = useState('')
     const [openFindContract, setOpenFindContract] = useState(false)
 
@@ -622,7 +622,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <td className="py-2 pl-4"></td>
                                     <td className="py-2 pl-4"></td>
                                     <td className="px-1 py-2 responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap ">
-                                        {getTtl('Prepayment', ln)}:
+                                        {(compData?.invPrepaymentLabel?.trim() || getTtl('Prepayment', ln))}:
                                     </td>
                                     <td className="px-1 py-2 responsiveText text-[var(--port-gore)] whitespace-nowrap" onClick={() => !fnl && handleClick1()}>
                                         {percent ?

@@ -356,8 +356,9 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
 
     const formattedNumber3 = value.percentage === '' ? '' : value.percentage + '%';
 
+    const prepayLabel = compData?.invPrepaymentLabel?.trim() || 'Prepayment';
     const newRow1 = [, , , , 'Total Amount:', , formattedNumber1];
-    const newRow2 = [, , , , 'Prepayment:', formattedNumber3, formattedNumber2];
+    const newRow2 = [, , , , prepayLabel + ':', formattedNumber3, formattedNumber2];
     const newRow3 = [, , , , 'Prepaid Amount:', , formattedNumber2];
     const newRow4 = [, , , , 'Balance Due:', , formattedNumber4];
 
@@ -442,17 +443,23 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     }
 
 
+    // Append the configurable Non-Radioactive invoice note (Settings → General) as a
+    // remark line so it flows through the existing remarks layout + overflow handling.
+    const nonRadioNote = compData?.invNonRadioText?.trim();
+    const remarksList = nonRadioNote ? [...value.remarks, { rmrk: nonRadioNote }] : value.remarks;
+    const valueWithRemarks = { ...value, remarks: remarksList };
+
     let startRemarksRow = finalY + 10;
-    let RemarksBlock = value.remarks.length > 0 ? 5 + (value.remarks.length - 1) * 4 : 0;
+    let RemarksBlock = remarksList.length > 0 ? 5 + (remarksList.length - 1) * 4 : 0;
 
     if (RemarksBlock !== 0) {
         if (startRemarksRow + RemarksBlock + 5 <= 265) {
-            showRemarks(doc, startRemarksRow, value)
+            showRemarks(doc, startRemarksRow, valueWithRemarks)
         } else if ((startRemarksRow + RemarksBlock + 5 > 265) && pageCount === 1) {
             doc.addPage('a4', '1')
             header();
             startRemarksRow = 50;
-            showRemarks(doc, startRemarksRow, value)
+            showRemarks(doc, startRemarksRow, valueWithRemarks)
             footer();
         }
     }

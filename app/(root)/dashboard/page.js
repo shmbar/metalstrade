@@ -16,6 +16,7 @@ import TooltipComp from '@components/tooltip';
 // off the first-paint critical path so it doesn't bloat the dashboard bundle.
 const MarketsTicker = dynamic(() => import('@components/Dashboard/MarketsTicker'), { ssr: false });
 import AIAlertsBar from '@components/Dashboard/AIAlertsBar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 
 import { HorizontalBar } from './charts';
 
@@ -368,7 +369,7 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
 }
 
 // Per-MT unit economics — 4-up strip.
-function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT }) {
+function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, avgFreightPerMT }) {
   const profitColor = avgProfitPerMT >= 0 ? '#16a34a' : '#dc2626';
 
   const metrics = [
@@ -412,6 +413,19 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT }) 
     {
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="1" y="6" width="13" height="10" rx="1.5" stroke="#6366F1" strokeWidth="2" fill="#e0e7ff" />
+          <path d="M14 9h4l3 3v4h-7V9z" stroke="#6366F1" strokeWidth="2" strokeLinejoin="round" fill="#e0e7ff" />
+          <circle cx="6" cy="18" r="1.6" fill="#6366F1" /><circle cx="17.5" cy="18" r="1.6" fill="#6366F1" />
+        </svg>
+      ),
+      value: fmtAutoKM(avgFreightPerMT),
+      label: 'Avg Freight / MT',
+      sub: 'freight cost per MT',
+      valueColor: '#6366F1',
+    },
+    {
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke={profitColor} strokeWidth="2" fill={avgProfitPerMT >= 0 ? '#dcfce7' : '#fee2e2'} />
           <path d={avgProfitPerMT >= 0 ? 'M8 12l3 3 5-5' : 'M8 12l3-3 5 5'} stroke={profitColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -427,7 +441,7 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT }) 
     <CardShell>
       <div className="p-4">
         <SectionHeader title="Per-MT Metrics" subtitle="Unit economics for the selected period" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {metrics.map((metric, i) => (
             <m.div
               key={i}
@@ -453,6 +467,92 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT }) 
   );
 }
 
+// Pill-styled filter control built on the app's Radix Select (themed dropdown, small
+// Poppins text, check indicators) — not a native <select>, so the menu matches the rest
+// of the app. Lifts to the --endeavour accent when a value is set. ('all' is the sentinel
+// for "no filter" since Radix Select can't use an empty-string value.)
+function FilterSelect({ label, icon, value, onChange, options }) {
+  const active = !!value;
+  return (
+    <Select value={value || 'all'} onValueChange={(v) => onChange(v === 'all' ? '' : v)}>
+      <SelectTrigger
+        className="group h-8 w-auto min-w-[122px] max-w-[210px] gap-1.5 rounded-full pl-2.5 pr-1.5 shadow-sm focus:ring-0 focus:ring-offset-0"
+        style={{
+          fontSize: '0.7rem',
+          background: active ? '#eaf4ff' : '#f8fbff',
+          borderColor: active ? 'var(--endeavour)' : '#d8e8f5',
+          boxShadow: active ? '0 1px 8px rgba(3,102,174,0.16)' : undefined,
+        }}
+      >
+        <span className="flex items-center gap-1.5 min-w-0">
+          <span className="flex shrink-0" style={{ color: active ? 'var(--endeavour)' : 'var(--rock-blue)' }}>{icon}</span>
+          <span className="font-medium shrink-0" style={{ fontSize: '0.7rem', color: 'var(--regent-gray)' }}>{label}</span>
+          <SelectValue className="font-semibold truncate"
+            style={{ fontSize: '0.7rem', color: active ? 'var(--endeavour)' : 'var(--chathams-blue)' }} />
+        </span>
+      </SelectTrigger>
+      <SelectContent className="rounded-xl border border-[#dbeeff] shadow-md max-h-72 min-w-[var(--radix-select-trigger-width)]">
+        <SelectItem value="all" className="rounded-lg text-[var(--chathams-blue)]" style={{ fontSize: '0.7rem' }}>All</SelectItem>
+        {options.map((o) => (
+          <SelectItem key={o.value} value={o.value} className="rounded-lg text-[var(--chathams-blue)]" style={{ fontSize: '0.7rem' }}>
+            {o.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+// Purchased vs Shipped vs Pending tonnage, with a shipped-progress bar.
+function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
+  const pctShipped = purchased > 0 ? Math.min(100, (shipped / purchased) * 100) : 0;
+  const fmtMT = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
+  const pills = [
+    { label: 'PURCHASED', value: purchased, bg: '#eff6ff', ring: '#bfdbfe', dot: '#2563eb', color: '#1d4ed8' },
+    { label: 'SHIPPED', value: shipped, bg: '#ecfdf5', ring: '#a7f3d0', dot: '#10b981', color: '#047857' },
+    { label: 'PENDING', value: pending, bg: '#fffbeb', ring: '#fde68a', dot: '#f59e0b', color: '#b45309' },
+  ];
+  return (
+    <m.div
+      className="relative rounded-xl bg-white border border-[#e6eef8] shadow-sm overflow-hidden"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
+    >
+      <div className="p-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0"
+              style={{ background: '#2563eb1A', color: '#2563eb', width: 30, height: 30 }}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M3 7v10l9 4 9-4V7" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
+            </span>
+            <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Tonnage — Purchased vs Shipped</span>
+          </div>
+          <span className="responsiveTextTable font-medium" style={{ color: '#047857' }}>{pctShipped.toFixed(0)}% shipped</span>
+        </div>
+
+        {/* Shipped proportion bar — blue track (purchased) with emerald fill (shipped) */}
+        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#dbeafe' }}>
+          <div className="h-full rounded-full transition-all" style={{ width: `${pctShipped}%`, backgroundColor: '#10b981' }} />
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          {pills.map((p) => (
+            <div key={p.label} className="rounded-lg p-2.5" style={{ backgroundColor: p.bg, boxShadow: `inset 0 0 0 1px ${p.ring}` }}>
+              <div className="flex items-center gap-1.5">
+                <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: p.dot }} />
+                <span className="text-[0.6rem] font-semibold tracking-wide" style={{ color: p.color }}>{p.label}</span>
+              </div>
+              <div className="font-semibold mt-1 leading-none" style={{ color: p.color, fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem)' }}>{fmtMT(p.value)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </m.div>
+  );
+}
+
 const Dash = () => {
 
   const { settings, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
@@ -461,14 +561,14 @@ const Dash = () => {
   const clientCount = settings.Client?.Client?.length || 0;
   const supplierCount = settings.Supplier?.Supplier?.length || 0;
 
-  const [dataInvoices, setDataInvoices] = useState([]);
-  const [dataContracts, setDataContracts] = useState([]);
-  const [dataExpenses, setDataExpenses] = useState([]);
-  const [dataPL, setDataPL] = useState([]);
-  const [dataPieSupps, setDataPieSupps] = useState([]);
-  const [dataPieClnts, setDataPieClnts] = useState([]);
-  const [totalMT, setTotalMT] = useState(0);
-  const [receivables, setReceivables] = useState({ finalized: 0, provisional: 0, finalizedCount: 0, provisionalCount: 0 });
+  // Raw loaded data — every aggregate below is derived (memoized) from these, so the
+  // Supplier / Client / Material filters recompute instantly without re-fetching Firestore.
+  const [rawContracts, setRawContracts] = useState([]);     // contracts enriched with invoicesData
+  const [rawRecvInvoices, setRawRecvInvoices] = useState([]);
+
+  const [fSupplier, setFSupplier] = useState('');
+  const [fClient, setFClient] = useState('');
+  const [fMaterial, setFMaterial] = useState('');
 
   useEffect(() => {
 
@@ -488,49 +588,13 @@ const Dash = () => {
           return { ...x, invoicesData: Invoices };
         })
       );
+      setRawContracts(dtConTmp);
 
-      let tmpData = calContracts(dtConTmp, settings);
-
-      setDataContracts(tmpData.accumulatedPmnt);
-      setDataExpenses(tmpData.accumulatedExp);
-      setDataPieSupps(tmpData.pieArrSupps);
-      setTotalMT(tmpData.totalMT || 0);
-
-      let arrInvoices = setMonthsInvoices(dtConTmp, settings);
-      setDataInvoices(arrInvoices.accumulatedPmnt);
-      setDataPieClnts(arrInvoices.pieArrClnts);
-
-      const summedArr = Object.keys(tmpData.accumulatedPmnt).reduce((acc, key) => {
-        acc[key] = tmpData.accumulatedPmnt[key] + tmpData.accumulatedExp[key];
-        return acc;
-      }, {});
-
-      const tmpPL = Object.keys(arrInvoices.accumulatedPmnt).reduce((acc, key) => {
-        acc[key] = arrInvoices.accumulatedPmnt[key] - summedArr[key];
-        return acc;
-      }, {});
-
-      setDataPL(Object.values(tmpPL));
-
-      // Outstanding receivables split by shipment finalization (shipData.fnlzing
-      // === '4568' = Yes). Same issued/unpaid rule as the alerts bar + Cashflow:
-      // an invoice counts only if it's not a draft, not canceled, and still owed.
       const invsForRecv = await loadData(uidCollection, 'invoices', {
         start: dateSelect?.start || `${year}-01-01`,
         end: dateSelect?.end || `${year}-12-31`,
       });
-      const recv = { finalized: 0, provisional: 0, finalizedCount: 0, provisionalCount: 0 };
-      invsForRecv.forEach(inv => {
-        if (inv.draft === true || inv.canceled) return;
-        const totalAmt = parseFloat(inv.totalAmount) || 0;
-        const totalPaid = (inv.payments || []).reduce((s, p) => s + (parseFloat(p.pmnt) || 0), 0);
-        const balanceDue = inv.debtBlnc != null ? parseFloat(inv.debtBlnc) : totalAmt - totalPaid;
-        if (balanceDue > 0.01) {
-          if (inv.shipData?.fnlzing === '4568') { recv.finalized += balanceDue; recv.finalizedCount++; }
-          else { recv.provisional += balanceDue; recv.provisionalCount++; }
-        }
-      });
-      setReceivables(recv);
+      setRawRecvInvoices(invsForRecv);
 
       setLoading(false);
     };
@@ -542,6 +606,99 @@ const Dash = () => {
 
   const currentYear = dateSelect?.start?.substring(0, 4) || new Date().getFullYear();
 
+  // Resolve a client display name from either an id (draft invoices) or an object
+  // (finalized invoices store { nname }). Used by both filter options and matching.
+  const resolveClientName = (client) => {
+    if (client && typeof client === 'object') return client.nname || '';
+    return settings.Client?.Client?.find(c => c.id === client)?.nname || '';
+  };
+
+  // Filter option lists, built from what's actually loaded so the dropdowns never
+  // show entities that aren't in the current period.
+  const supplierOptions = useMemo(() => {
+    const ids = [...new Set(rawContracts.map(c => c.supplier).filter(Boolean))];
+    return ids
+      .map(id => ({ id, name: settings.Supplier?.Supplier?.find(s => s.id === id)?.nname || '' }))
+      .filter(o => o.name)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [rawContracts, settings]);
+
+  const materialOptions = useMemo(() => {
+    const set = new Set();
+    rawContracts.forEach(c => (c.productsData || []).forEach(p => { if (p.description) set.add(p.description); }));
+    return [...set].sort((a, b) => a.localeCompare(b));
+  }, [rawContracts]);
+
+  const clientOptions = useMemo(() => {
+    const set = new Set();
+    rawContracts.forEach(c => (c.invoicesData || []).forEach(group => group.forEach(inv => {
+      const n = resolveClientName(inv.client); if (n) set.add(n);
+    })));
+    return [...set].sort((a, b) => a.localeCompare(b));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawContracts, settings]);
+
+  // Apply the active Supplier / Material / Client filters to the raw contracts.
+  const filteredContracts = useMemo(() => {
+    return rawContracts.filter(c => {
+      if (fSupplier && c.supplier !== fSupplier) return false;
+      if (fMaterial && !(c.productsData || []).some(p => (p.description || '') === fMaterial)) return false;
+      if (fClient && !(c.invoicesData || []).some(group => group.some(inv => resolveClientName(inv.client) === fClient))) return false;
+      return true;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawContracts, fSupplier, fMaterial, fClient, settings]);
+
+  const filtersActive = !!(fSupplier || fClient || fMaterial);
+  const clearFilters = () => { setFSupplier(''); setFClient(''); setFMaterial(''); };
+
+  // Aggregates — recomputed only when the filtered set (or settings) changes.
+  const conAgg = useMemo(() => calContracts(filteredContracts, settings), [filteredContracts, settings]);
+  const invAgg = useMemo(() => setMonthsInvoices(filteredContracts, settings), [filteredContracts, settings]);
+
+  const dataContracts = conAgg.accumulatedPmnt;
+  const dataExpenses = conAgg.accumulatedExp;
+  const dataPieSupps = conAgg.pieArrSupps;
+  const dataInvoices = invAgg.accumulatedPmnt;
+  const dataPieClnts = invAgg.pieArrClnts;
+
+  const totalMT = conAgg.totalMT || 0;
+  const shippedMT = Math.min(conAgg.shippedMT || 0, totalMT); // never exceed purchased
+  const pendingMT = Math.max(0, totalMT - shippedMT);
+  const freightTotal = conAgg.freightTotal || 0;
+
+  const dataPL = useMemo(() => {
+    const summed = Object.keys(dataContracts).reduce((acc, key) => {
+      acc[key] = (dataContracts[key] || 0) + (dataExpenses[key] || 0);
+      return acc;
+    }, {});
+    const pl = Object.keys(dataInvoices).reduce((acc, key) => {
+      acc[key] = (dataInvoices[key] || 0) - (summed[key] || 0);
+      return acc;
+    }, {});
+    return Object.values(pl);
+  }, [dataContracts, dataExpenses, dataInvoices]);
+
+  // Outstanding receivables split by shipment finalization (shipData.fnlzing === '4568'
+  // = Yes). Same issued/unpaid rule as the alerts bar + Cashflow. Responds to the Client
+  // filter (suppliers/materials don't map cleanly onto a sales invoice).
+  const receivables = useMemo(() => {
+    const recv = { finalized: 0, provisional: 0, finalizedCount: 0, provisionalCount: 0 };
+    rawRecvInvoices.forEach(inv => {
+      if (inv.draft === true || inv.canceled) return;
+      if (fClient && resolveClientName(inv.client) !== fClient) return;
+      const totalAmt = parseFloat(inv.totalAmount) || 0;
+      const totalPaid = (inv.payments || []).reduce((s, p) => s + (parseFloat(p.pmnt) || 0), 0);
+      const balanceDue = inv.debtBlnc != null ? parseFloat(inv.debtBlnc) : totalAmt - totalPaid;
+      if (balanceDue > 0.01) {
+        if (inv.shipData?.fnlzing === '4568') { recv.finalized += balanceDue; recv.finalizedCount++; }
+        else { recv.provisional += balanceDue; recv.provisionalCount++; }
+      }
+    });
+    return recv;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawRecvInvoices, fClient, settings]);
+
   const totalPL = useMemo(() => dataPL.reduce((a, v) => a + (Number(v) || 0), 0), [dataPL]);
   const totalInvoices = useMemo(() => sumObj(dataInvoices), [dataInvoices]);
   const totalContracts = useMemo(() => sumObj(dataContracts), [dataContracts]);
@@ -550,6 +707,7 @@ const Dash = () => {
   const avgCostPerMT = useMemo(() => totalMT > 0 ? totalContracts / totalMT : 0, [totalContracts, totalMT]);
   const avgExpensePerMT = useMemo(() => totalMT > 0 ? totalExpenses / totalMT : 0, [totalExpenses, totalMT]);
   const avgProfitPerMT = useMemo(() => totalMT > 0 ? totalPL / totalMT : 0, [totalPL, totalMT]);
+  const avgFreightPerMT = useMemo(() => totalMT > 0 ? freightTotal / totalMT : 0, [freightTotal, totalMT]);
 
   // ── Hero trend series (Revenue area + Costs & Profit lines) ──────────────
   const revLabels = useMemo(
@@ -710,11 +868,50 @@ const Dash = () => {
               </h1>
               <p className="responsiveText text-[var(--regent-gray)] pl-3 mt-0.5">
                 Financial overview · {currentYear}
+                {filtersActive && <span className="text-[var(--endeavour)] font-medium"> · filtered</span>}
               </p>
             </div>
             <div className="flex items-center gap-1">
               <DateRangePicker />
               <TooltipComp txt="Select Dates Range" />
+            </div>
+          </m.div>
+
+          {/* FILTER BAR — Supplier / Client / Material (date range lives in the header) */}
+          <m.div className="mb-5" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.08 }}>
+            <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[#e6eef8] px-3 py-2.5 shadow-sm"
+              style={{ background: 'linear-gradient(180deg,#ffffff,#f8fbff)' }}>
+              <span className="inline-flex items-center gap-1.5 pr-2 mr-0.5 border-r border-[#e6eef8]">
+                <span className="inline-flex items-center justify-center rounded-lg" style={{ background: 'var(--endeavour)', color: '#fff', width: 22, height: 22 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 5h18M6 12h12M10 19h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+                </span>
+                <span className="font-semibold" style={{ fontSize: '0.7rem', color: 'var(--chathams-blue)' }}>Filters</span>
+                {filtersActive && (
+                  <span className="inline-flex items-center justify-center rounded-full text-white font-semibold"
+                    style={{ background: 'var(--endeavour)', minWidth: 15, height: 15, fontSize: '0.58rem', padding: '0 4px' }}>
+                    {[fSupplier, fClient, fMaterial].filter(Boolean).length}
+                  </span>
+                )}
+              </span>
+
+              <FilterSelect label="Supplier" value={fSupplier} onChange={setFSupplier}
+                icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 21V9l6-3v4l6-3v4l6-2v12H3z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><path d="M8 21v-4h4v4" stroke="currentColor" strokeWidth="1.8" /></svg>}
+                options={supplierOptions.map(o => ({ value: o.id, label: o.name }))} />
+              <FilterSelect label="Client" value={fClient} onChange={setFClient}
+                icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.8" /><path d="M5 20c0-3.3 3.1-5 7-5s7 1.7 7 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>}
+                options={clientOptions.map(o => ({ value: o, label: o }))} />
+              <FilterSelect label="Material" value={fMaterial} onChange={setFMaterial}
+                icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /></svg>}
+                options={materialOptions.map(o => ({ value: o, label: o }))} />
+
+              {filtersActive && (
+                <button onClick={clearFilters}
+                  className="ml-auto inline-flex items-center gap-1 rounded-full px-2.5 h-7 font-semibold transition-colors hover:brightness-95"
+                  style={{ fontSize: '0.7rem', color: 'var(--endeavour)', background: '#eaf4ff', border: '1px solid #cfe3f5' }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+                  Clear all
+                </button>
+              )}
             </div>
           </m.div>
 
@@ -766,9 +963,10 @@ const Dash = () => {
             />
           </div>
 
-          {/* RECEIVABLES — finalized vs provisional split */}
-          <div className="mb-5">
+          {/* RECEIVABLES split + TONNAGE breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
             <ReceivablesSplitCard {...receivables} />
+            <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} />
           </div>
 
           {/* MAIN ROW — hero trend + capital breakdown */}
@@ -836,6 +1034,7 @@ const Dash = () => {
             avgCostPerMT={avgCostPerMT}
             avgExpensePerMT={avgExpensePerMT}
             avgProfitPerMT={avgProfitPerMT}
+            avgFreightPerMT={avgFreightPerMT}
           />
 
         </div>

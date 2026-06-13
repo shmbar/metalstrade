@@ -348,6 +348,36 @@ const General = () => {
                     {/* <div className=' border border-slate-300 p-4 rounded-2xl  mt-5 w-full'>
                         <Logos compData={compData} setCompData={setCompData} />
                     </div> */}
+                    <div className='border border-[#b8ddf8] p-4 rounded-2xl mt-5 w-full'>
+                        <p className='responsiveText font-medium text-[0.825rem] mb-3 text-[var(--chathams-blue)]'>Invoice wording</p>
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            <div className='flex gap-4 items-center'>
+                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[170px] text-[var(--chathams-blue)]'>Prepayment label:</p>
+                                <input
+                                    type='input'
+                                    placeholder='Prepayment'
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    value={compData?.invPrepaymentLabel || ''}
+                                    onChange={e => setCompData({ ...(compData || {}), invPrepaymentLabel: e.target.value })}
+                                />
+                            </div>
+                            <div className='flex gap-4 items-start'>
+                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[170px] pt-1 text-[var(--chathams-blue)]'>Invoice note (Non&#8209;Radioactive):</p>
+                                <textarea
+                                    rows={2}
+                                    placeholder='e.g. We hereby certify the goods are non-radioactive and free of contamination.'
+                                    className="flex-1 p-2 rounded-2xl border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    style={{ fontFamily: 'inherit' }}
+                                    value={compData?.invNonRadioText || ''}
+                                    onChange={e => setCompData({ ...(compData || {}), invNonRadioText: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                        <p className='responsiveTextTable text-[var(--regent-gray)] mt-2'>
+                            Prepayment label replaces the word &quot;Prepayment&quot; on invoices. The note prints on the invoice PDF under Remarks — leave blank to omit.
+                        </p>
+                    </div>
+
                     <div className="flex mt-3 ml-3">
                         <Tltip direction='top' tltpText='Save/update company data'>
                             <Button variant='customBlue'

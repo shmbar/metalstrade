@@ -269,8 +269,9 @@ export const PdfFnlCncl = async (value, arrTable, settings, compData) => {
     }).format(balanceR);
 
     const formattedNumber3 = value.percentage === '' ? '' : value.percentage + '%';
+    const prepayLabel = compData?.invPrepaymentLabel?.trim() || 'Prepayment';
     const newRow1 = [, , , , 'Total Amount:', , formattedNumber1];
-    const newRow2 = [, , , , 'Prepayment:', formattedNumber3, formattedNumber2];
+    const newRow2 = [, , , , prepayLabel + ':', formattedNumber3, formattedNumber2];
     const newRow3 = [, , , , 'Prepaid Amount:', , formattedNumber2];
     const newRow4 = [, , , , 'Balance Due:', , formattedNumber4];
 

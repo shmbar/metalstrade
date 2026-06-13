@@ -82,6 +82,30 @@ const setPieArrs = (arr) => {
     return arrTmp;
 }
 
+// Shipped tonnage from a contract's invoices. Uses the same group-selection rule as
+// Total() (a plain Invoice when it's the only one in its group, otherwise the Final/
+// Credit note that supersedes it) so shipped MT lines up with invoiced value and never
+// double-counts an Invoice + its Final note. Quantities are treated as MT, matching how
+// the dashboard sums contract productsData.
+const sumInvProductsMT = (invoicesData) => {
+    let mt = 0;
+    (invoicesData || []).forEach(innerArray => {
+        if (!Array.isArray(innerArray)) return;
+        innerArray.forEach(obj => {
+            if (!obj || obj.canceled) return;
+            const isInvoice = ['1111', 'Invoice'].includes(obj.invType);
+            const counts = (innerArray.length === 1 && isInvoice) || (innerArray.length > 1 && !isInvoice);
+            if (!counts) return;
+            (obj.productsDataInvoice || []).forEach(p => {
+                if (p && p.qnty !== 's' && p.qnty !== '' && !isNaN(parseFloat(p.qnty))) {
+                    mt += parseFloat(p.qnty);
+                }
+            });
+        });
+    });
+    return mt;
+};
+
 const sortedData = (arr) => {
     return arr.map(z => ({
         ...z,
@@ -159,6 +183,16 @@ export const calContracts = (data, settings) => {
     let accumulatedExp = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedTop5Sup = data.map(x => x.supplier).reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let totalMT = 0
+    let shippedMT = 0
+    let freightTotal = 0
+
+    // Expense-type ids whose label looks like freight (freight, freightReloadCourier, …),
+    // so we can isolate freight cost for the per-MT freight allocation metric.
+    const freightIds = new Set(
+        (settings.Expenses?.Expenses || [])
+            .filter(e => String(e.expType || '').toLowerCase().includes('freight'))
+            .map(e => e.id)
+    )
 
     data.map((x, i) => {
         let mult = x.euroToUSD
@@ -172,6 +206,8 @@ export const calContracts = (data, settings) => {
         if (Array.isArray(x.productsData)) {
             x.productsData.forEach(p => { totalMT += parseFloat(p.qnty) || 0 })
         }
+        // shipped MT (sum invoiced quantities, same group-selection rule as value)
+        shippedMT += sumInvProductsMT(x.invoicesData)
 
         //expenses
         x.expenses.forEach(obj => {
@@ -179,7 +215,9 @@ export const calContracts = (data, settings) => {
                 let mltTmp = obj.cur === 'us' ? 1 : mult
 
                 if (obj && !isNaN(parseFloat(obj.amount))) {
-                    accumulatedExp[dateFormat(x.dateRange.startDate, 'm') * 1] += parseFloat(obj.amount * 1 * mltTmp);
+                    const amt = parseFloat(obj.amount * 1 * mltTmp);
+                    accumulatedExp[dateFormat(x.dateRange.startDate, 'm') * 1] += amt;
+                    if (freightIds.has(obj.expType)) freightTotal += amt;
                 }
             };
         });
@@ -194,7 +232,7 @@ export const calContracts = (data, settings) => {
 
     let pieArrSupps = setPieArrs(arrTmp)
 
-    return { accumulatedPmnt, accumulatedExp, pieArrSupps, totalMT };
+    return { accumulatedPmnt, accumulatedExp, pieArrSupps, totalMT, shippedMT, freightTotal };
 }
 
 
