@@ -155,7 +155,9 @@ export const setMonthsInvoices = (data, settings) => {
  
     data.forEach(obj => {
 
-        let mult = obj.euroToUSD
+        // FX safety: never let a missing rate turn EUR revenue into NaN (see calContracts).
+        const rate = parseFloat(obj.euroToUSD)
+        const mult = rate > 0 ? rate : 1
         let totalInvoices = Total(obj.invoicesData, 'totalAmount', mult, settings);
         let month = !obj.final ? dateFormat(obj.dateRange.startDate, 'm') * 1 : dateFormat(obj.date, 'm') * 1
         accumulatedPmnt[month] += parseFloat(totalInvoices);
@@ -189,6 +191,7 @@ export const calContracts = (data, settings) => {
     let totalMT = 0
     let shippedMT = 0
     let freightTotal = 0
+    let missingRate = 0  // EUR contracts with no usable euroToUSD — counted at 1:1, surfaced to the UI
 
     // Expense-type ids whose label looks like freight (freight, freightReloadCourier, …),
     // so we can isolate freight cost for the per-MT freight allocation metric.
@@ -199,18 +202,27 @@ export const calContracts = (data, settings) => {
     )
 
     data.map((x, i) => {
-        let mult = x.euroToUSD
+        // FX safety: a blank/invalid euroToUSD on an EUR contract must NOT become NaN and
+        // poison the whole total (NaN propagates through every sum). Fall back to 1:1 and
+        // flag it so the data gap is visible rather than silently zeroing the figures.
+        const rate = parseFloat(x.euroToUSD)
+        const mult = rate > 0 ? rate : 1
+        if (x.cur !== 'us' && !(rate > 0)) missingRate++
         let mltTmp = x.cur === 'us' ? 1 : mult
         //contracts
         let tmp = ContractsValue(x, 'pmnt', mltTmp)
         accumulatedPmnt[dateFormat(x.dateRange.startDate, 'm') * 1] += tmp;
         //top 5 suppliers
         accumulatedTop5Sup[x.supplier] += tmp * 1
-        // total MT purchased (sum productsData quantities)
+        // total MT purchased — convert each contract's quantity to MT by its unit
+        // (qTypeTable: KGS ÷ 1000, LB ÷ 2000), matching the Inventory tab's setNum.
+        const qUnit = settings?.Quantity?.Quantity?.find(q => q.id === x.qTypeTable)?.qTypeTable
+        const mtFactor = qUnit === 'KGS' ? 0.001 : qUnit === 'LB' ? 0.0005 : 1
         if (Array.isArray(x.productsData)) {
-            x.productsData.forEach(p => { totalMT += parseFloat(p.qnty) || 0 })
+            x.productsData.forEach(p => { totalMT += (parseFloat(p.qnty) || 0) * mtFactor })
         }
-        // shipped MT (sum invoiced quantities, same group-selection rule as value)
+        // shipped MT — invoice quantities are already recorded in MT (same basis the
+        // Inventory tab subtracts against the MT purchase qty), so no unit conversion here.
         shippedMT += sumInvProductsMT(x.invoicesData)
 
         //expenses
@@ -236,7 +248,7 @@ export const calContracts = (data, settings) => {
 
     let pieArrSupps = setPieArrs(arrTmp)
 
-    return { accumulatedPmnt, accumulatedExp, pieArrSupps, totalMT, shippedMT, freightTotal };
+    return { accumulatedPmnt, accumulatedExp, pieArrSupps, totalMT, shippedMT, freightTotal, missingRate };
 }
 
 

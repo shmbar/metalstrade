@@ -226,9 +226,36 @@ function StatKpiCard({
 // final invoice has been issued (shipData.fnlzing === '4568'); "Provisional" =
 // balances still before the final invoice. Lets the team see, at a glance, how
 // much of what's owed is locked-in vs still subject to final-invoice changes.
-function ReceivablesSplitCard({ finalized = 0, provisional = 0, finalizedCount = 0, provisionalCount = 0 }) {
-  const total = finalized + provisional;
-  const pctFinal = total > 0 ? (finalized / total) * 100 : 0;
+function ReceivablesSplitCard({ byCur = {} }) {
+  // Currency-aware compact formatter — never sums across currencies.
+  const fmtCurKM = (cur, n) => {
+    const s = cur === 'us' ? '$' : cur === 'eu' ? '€' : '';
+    const num = Number(n) || 0;
+    const a = Math.abs(num);
+    if (a >= 1e6) return `${s}${(num / 1e6).toFixed(2)}M`;
+    if (a >= 1e3) return `${s}${(num / 1e3).toFixed(2)}K`;
+    return `${s}${num.toFixed(2)}`;
+  };
+
+  const curs = Object.keys(byCur).filter(c => {
+    const d = byCur[c];
+    return (d.finalized + d.provisional) > 0.005 || (d.finalizedCount + d.provisionalCount) > 0;
+  });
+  const finCount = curs.reduce((s, c) => s + byCur[c].finalizedCount, 0);
+  const provCount = curs.reduce((s, c) => s + byCur[c].provisionalCount, 0);
+  const totalCount = finCount + provCount;
+  // Proportion bar is by invoice COUNT (currency-agnostic), so amounts in different
+  // currencies are never added together.
+  const pctFinal = totalCount > 0 ? (finCount / totalCount) * 100 : 0;
+
+  const totalsLine = curs.length
+    ? curs.map(c => fmtCurKM(c, byCur[c].finalized + byCur[c].provisional))
+    : ['$0.00'];
+  const amountsFor = (key) => {
+    const list = curs.filter(c => byCur[c][key] > 0.005).map(c => fmtCurKM(c, byCur[c][key]));
+    return list.length ? list : ['$0.00'];
+  };
+
   return (
     <m.div
       className="relative rounded-xl bg-white border border-[#e6eef8] shadow-sm overflow-hidden"
@@ -238,20 +265,22 @@ function ReceivablesSplitCard({ finalized = 0, provisional = 0, finalizedCount =
       whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
     >
       <div className="p-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0"
               style={{ background: '#2563eb1A', color: '#2563eb', width: 30, height: 30 }}>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 7h18v10H3z" stroke="currentColor" strokeWidth="2" /><path d="M3 11h18" stroke="currentColor" strokeWidth="2" /></svg>
             </span>
             <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Outstanding Receivables</span>
           </div>
-          <span className="font-semibold text-[var(--port-gore)] leading-none" style={{ fontSize: 'clamp(1.05rem, 0.85rem + 0.6vw, 1.45rem)' }}>
-            {fmtAutoKM(total)}
-          </span>
+          <div className="text-right flex-shrink-0">
+            {totalsLine.map((t, i) => (
+              <div key={i} className="font-semibold text-[var(--port-gore)] leading-tight" style={{ fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.35rem)' }}>{t}</div>
+            ))}
+          </div>
         </div>
 
-        {/* Finalized proportion bar — emerald fill (finalized) over amber track (provisional) */}
+        {/* Proportion bar by invoice count — emerald (finalized) over amber (provisional) */}
         <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#fde68a' }}>
           <div className="h-full rounded-full transition-all" style={{ width: `${pctFinal}%`, backgroundColor: '#10b981' }} />
         </div>
@@ -262,16 +291,24 @@ function ReceivablesSplitCard({ finalized = 0, provisional = 0, finalizedCount =
               <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: '#10b981' }} />
               <span className="text-[0.6rem] font-semibold tracking-wide" style={{ color: '#047857' }}>FINALIZED</span>
             </div>
-            <div className="font-semibold mt-1 leading-none" style={{ color: '#047857', fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem)' }}>{fmtAutoKM(finalized)}</div>
-            <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">{finalizedCount} invoice{finalizedCount === 1 ? '' : 's'} · after final invoice</div>
+            <div className="mt-1 leading-tight" style={{ color: '#047857' }}>
+              {amountsFor('finalized').map((a, i) => (
+                <div key={i} className="font-semibold" style={{ fontSize: 'clamp(0.9rem, 0.78rem + 0.4vw, 1.15rem)' }}>{a}</div>
+              ))}
+            </div>
+            <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">{finCount} invoice{finCount === 1 ? '' : 's'} · after final invoice</div>
           </div>
           <div className="rounded-lg p-2.5" style={{ backgroundColor: '#fffbeb', boxShadow: 'inset 0 0 0 1px #fde68a' }}>
             <div className="flex items-center gap-1.5">
               <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: '#f59e0b' }} />
               <span className="text-[0.6rem] font-semibold tracking-wide" style={{ color: '#b45309' }}>PROVISIONAL</span>
             </div>
-            <div className="font-semibold mt-1 leading-none" style={{ color: '#b45309', fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem)' }}>{fmtAutoKM(provisional)}</div>
-            <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">{provisionalCount} invoice{provisionalCount === 1 ? '' : 's'} · before final invoice</div>
+            <div className="mt-1 leading-tight" style={{ color: '#b45309' }}>
+              {amountsFor('provisional').map((a, i) => (
+                <div key={i} className="font-semibold" style={{ fontSize: 'clamp(0.9rem, 0.78rem + 0.4vw, 1.15rem)' }}>{a}</div>
+              ))}
+            </div>
+            <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">{provCount} invoice{provCount === 1 ? '' : 's'} · before final invoice</div>
           </div>
         </div>
       </div>
@@ -714,6 +751,7 @@ const Dash = () => {
   const shippedMT = Math.min(conAgg.shippedMT || 0, totalMT); // never exceed purchased
   const pendingMT = Math.max(0, totalMT - shippedMT);
   const freightTotal = conAgg.freightTotal || 0;
+  const missingRate = conAgg.missingRate || 0; // EUR contracts missing an FX rate (counted 1:1)
 
   const dataPL = useMemo(() => {
     const summed = Object.keys(dataContracts).reduce((acc, key) => {
@@ -731,7 +769,10 @@ const Dash = () => {
   // = Yes). Same issued/unpaid rule as the alerts bar + Cashflow. Responds to the Client
   // filter (suppliers/materials don't map cleanly onto a sales invoice).
   const receivables = useMemo(() => {
-    const recv = { finalized: 0, provisional: 0, finalizedCount: 0, provisionalCount: 0 };
+    // Per-currency — invoices only carry `cur` (no FX rate), and the rest of the app
+    // (Cashflow) keeps $ and € separate, so we never sum across currencies.
+    const byCur = {}; // cur -> { finalized, provisional, finalizedCount, provisionalCount }
+    const slot = (c) => (byCur[c] || (byCur[c] = { finalized: 0, provisional: 0, finalizedCount: 0, provisionalCount: 0 }));
     rawRecvInvoices.forEach(inv => {
       if (inv.draft === true || inv.canceled) return;
       if (fClient && resolveClientName(inv.client) !== fClient) return;
@@ -739,11 +780,12 @@ const Dash = () => {
       const totalPaid = (inv.payments || []).reduce((s, p) => s + (parseFloat(p.pmnt) || 0), 0);
       const balanceDue = inv.debtBlnc != null ? parseFloat(inv.debtBlnc) : totalAmt - totalPaid;
       if (balanceDue > 0.01) {
-        if (inv.shipData?.fnlzing === '4568') { recv.finalized += balanceDue; recv.finalizedCount++; }
-        else { recv.provisional += balanceDue; recv.provisionalCount++; }
+        const s = slot(inv.cur === 'eu' ? 'eu' : 'us');
+        if (inv.shipData?.fnlzing === '4568') { s.finalized += balanceDue; s.finalizedCount++; }
+        else { s.provisional += balanceDue; s.provisionalCount++; }
       }
     });
-    return recv;
+    return { byCur };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawRecvInvoices, fClient, settings]);
 
@@ -973,6 +1015,16 @@ const Dash = () => {
             </div>
           </m.div>
 
+          {/* FX data-gap warning — a missing rate is counted at 1:1, not silently zeroed */}
+          {missingRate > 0 && (
+            <div className="mb-4 flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: '#fff7ed', border: '1px solid #fed7aa' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0" style={{ color: '#c2410c' }}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+              <span className="responsiveTextTable" style={{ color: '#9a3412' }}>
+                {missingRate} EUR contract{missingRate === 1 ? '' : 's'} missing an FX rate — counted at 1:1, so USD totals may be understated. Set the EUR→USD rate on those contracts for accurate figures.
+              </span>
+            </div>
+          )}
+
           {/* KPI ROW */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-5">
             <StatKpiCard
@@ -1023,7 +1075,7 @@ const Dash = () => {
 
           {/* RECEIVABLES split + TONNAGE breakdown */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-            <ReceivablesSplitCard {...receivables} />
+            <ReceivablesSplitCard byCur={receivables.byCur} />
             <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} />
           </div>
 
