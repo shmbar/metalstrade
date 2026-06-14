@@ -187,11 +187,16 @@ export const calContracts = (data, settings) => {
 
     let accumulatedPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedExp = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
+    let cogsByMonth = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedTop5Sup = data.map(x => x.supplier).reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let totalMT = 0
     let shippedMT = 0
     let freightTotal = 0
     let missingRate = 0  // EUR contracts with no usable euroToUSD — counted at 1:1, surfaced to the UI
+    let cogs = 0          // cost of SOLD material only (sold-basis P&L)
+    let unsoldValue = 0   // purchase value of unsold material — stock, NOT a cost/loss
+    const expByType = {}  // expense label -> total (freight, warehouse, commission, …)
+    const materialSold = {} // material description -> sold MT
 
     // Expense-type ids whose label looks like freight (freight, freightReloadCourier, …),
     // so we can isolate freight cost for the per-MT freight allocation metric.
@@ -200,43 +205,64 @@ export const calContracts = (data, settings) => {
             .filter(e => String(e.expType || '').toLowerCase().includes('freight'))
             .map(e => e.id)
     )
+    const expLabel = (id) => settings.Expenses?.Expenses?.find(e => e.id === id)?.expType || 'Unspecified'
 
-    data.map((x, i) => {
+    data.forEach((x) => {
         // FX safety: a blank/invalid euroToUSD on an EUR contract must NOT become NaN and
         // poison the whole total (NaN propagates through every sum). Fall back to 1:1 and
         // flag it so the data gap is visible rather than silently zeroing the figures.
         const rate = parseFloat(x.euroToUSD)
         const mult = rate > 0 ? rate : 1
         if (x.cur !== 'us' && !(rate > 0)) missingRate++
-        let mltTmp = x.cur === 'us' ? 1 : mult
-        //contracts
-        let tmp = ContractsValue(x, 'pmnt', mltTmp)
-        accumulatedPmnt[dateFormat(x.dateRange.startDate, 'm') * 1] += tmp;
+        const mltTmp = x.cur === 'us' ? 1 : mult
+        const month = dateFormat(x.dateRange.startDate, 'm') * 1
+        //contracts — total purchase value (this is NOT the profit cost; see cogs below)
+        const contractPurchase = ContractsValue(x, 'pmnt', mltTmp)
+        accumulatedPmnt[month] += contractPurchase
         //top 5 suppliers
-        accumulatedTop5Sup[x.supplier] += tmp * 1
+        accumulatedTop5Sup[x.supplier] += contractPurchase
+
         // total MT purchased — convert each contract's quantity to MT by its unit
         // (qTypeTable: KGS ÷ 1000, LB ÷ 2000), matching the Inventory tab's setNum.
         const qUnit = settings?.Quantity?.Quantity?.find(q => q.id === x.qTypeTable)?.qTypeTable
         const mtFactor = qUnit === 'KGS' ? 0.001 : qUnit === 'LB' ? 0.0005 : 1
+        let contractTotalMT = 0
         if (Array.isArray(x.productsData)) {
-            x.productsData.forEach(p => { totalMT += (parseFloat(p.qnty) || 0) * mtFactor })
+            x.productsData.forEach(p => { contractTotalMT += (parseFloat(p.qnty) || 0) * mtFactor })
         }
+        totalMT += contractTotalMT
         // shipped MT — invoice quantities are already recorded in MT (same basis the
         // Inventory tab subtracts against the MT purchase qty), so no unit conversion here.
-        shippedMT += sumInvProductsMT(x.invoicesData)
+        const contractShipped = sumInvProductsMT(x.invoicesData)
+        shippedMT += contractShipped
 
-        //expenses
+        // SOLD-BASIS economics: only the cost of the SOLD portion is a cost; the rest is
+        // unsold stock (capital tied up, not a loss). Weighted-average cost of goods sold.
+        const soldFrac = contractTotalMT > 0 ? Math.min(1, contractShipped / contractTotalMT) : 0
+        cogs += contractPurchase * soldFrac
+        unsoldValue += contractPurchase * (1 - soldFrac)
+        cogsByMonth[month] += contractPurchase * soldFrac
+
+        // most-sold material — attribute each contract's material tonnage by its sold fraction
+        if (Array.isArray(x.productsData)) {
+            x.productsData.forEach(p => {
+                const d = String(p.description || '').trim()
+                if (!d) return
+                materialSold[d] = (materialSold[d] || 0) + (parseFloat(p.qnty) || 0) * mtFactor * soldFrac
+            })
+        }
+
+        //expenses — total, by month, and by type
         x.expenses.forEach(obj => {
-            if (obj) {
-                let mltTmp = obj.cur === 'us' ? 1 : mult
-
-                if (obj && !isNaN(parseFloat(obj.amount))) {
-                    const amt = parseFloat(obj.amount * 1 * mltTmp);
-                    accumulatedExp[dateFormat(x.dateRange.startDate, 'm') * 1] += amt;
-                    if (freightIds.has(obj.expType)) freightTotal += amt;
-                }
-            };
-        });
+            if (obj && !isNaN(parseFloat(obj.amount))) {
+                const m2 = obj.cur === 'us' ? 1 : mult
+                const amt = parseFloat(obj.amount) * m2
+                accumulatedExp[month] += amt
+                if (freightIds.has(obj.expType)) freightTotal += amt
+                const lbl = expLabel(obj.expType)
+                expByType[lbl] = (expByType[lbl] || 0) + amt
+            }
+        })
     })
 
 
@@ -248,7 +274,7 @@ export const calContracts = (data, settings) => {
 
     let pieArrSupps = setPieArrs(arrTmp)
 
-    return { accumulatedPmnt, accumulatedExp, pieArrSupps, totalMT, shippedMT, freightTotal, missingRate };
+    return { accumulatedPmnt, accumulatedExp, pieArrSupps, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, materialSold };
 }
 
 

@@ -628,6 +628,62 @@ function MiscInvoicesCard({ byCur = {}, count = 0 }) {
   );
 }
 
+// Value of purchased-but-unsold material. Shown separately because it's stock (capital
+// tied up), NOT a cost or loss — it only becomes a cost when the material is sold.
+function UnsoldStockCard({ value = 0, mt = 0 }) {
+  const fmtMT = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
+  return (
+    <m.div
+      className="relative rounded-xl bg-white border border-[#e6eef8] shadow-sm overflow-hidden"
+      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
+    >
+      <div className="p-4 flex flex-col gap-2 h-full">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: '#f59e0b1A', color: '#b45309', width: 30, height: 30 }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M3 7v10l9 4 9-4V7" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
+          </span>
+          <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Unsold Stock · not a cost</span>
+        </div>
+        <div className="font-semibold text-[var(--port-gore)] leading-none mt-1" style={{ fontSize: 'clamp(1.15rem, 0.9rem + 0.7vw, 1.6rem)' }}>{fmtAutoKM(value)}</div>
+        <div className="rounded-lg p-2.5 mt-auto" style={{ backgroundColor: '#fffbeb', boxShadow: 'inset 0 0 0 1px #fde68a' }}>
+          <div className="font-semibold leading-none" style={{ color: '#b45309', fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem)' }}>{fmtMT(mt)}</div>
+          <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">in stock · capital tied up, excluded from profit</div>
+        </div>
+      </div>
+    </m.div>
+  );
+}
+
+// Horizontal-bar breakdown card (expenses by type, materials by tonnage, etc.).
+function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = '#2563eb' }) {
+  const max = Math.max(...entries.map(([, v]) => v), 1);
+  return (
+    <CardShell>
+      <div className="p-4">
+        <SectionHeader
+          title={title}
+          subtitle={subtitle}
+          right={total != null ? <div className="text-right flex-shrink-0"><div className="responsiveTextTable text-[var(--regent-gray)]">Total</div><span className="font-semibold text-[var(--chathams-blue)]">{fmtVal(total)}</span></div> : null}
+        />
+        {entries.length === 0
+          ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No data for this period</div>
+          : entries.map(([label, value]) => (
+            <div key={label} className="flex items-center gap-2 mb-1.5">
+              <div className="w-28 responsiveTextTable text-[var(--port-gore)] truncate flex-shrink-0" title={label}>{label}</div>
+              <div className="flex-1 min-w-0">
+                <div className="w-full bg-[#eef3f9] rounded-full overflow-hidden" style={{ height: 16 }}>
+                  <div className="h-full rounded-full" style={{ width: `${max > 0 ? (value / max) * 100 : 0}%`, minWidth: 4, background: accent, borderRadius: '0 9999px 9999px 0' }} />
+                </div>
+              </div>
+              <div className="w-20 text-right responsiveTextTable font-medium text-[var(--port-gore)] flex-shrink-0">{fmtVal(value)}</div>
+            </div>
+          ))}
+      </div>
+    </CardShell>
+  );
+}
+
 const Dash = () => {
 
   const { settings, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
@@ -753,18 +809,23 @@ const Dash = () => {
   const pendingMT = Math.max(0, totalMT - shippedMT);
   const freightTotal = conAgg.freightTotal || 0;
   const missingRate = conAgg.missingRate || 0; // EUR contracts missing an FX rate (counted 1:1)
+  const cogs = conAgg.cogs || 0;               // cost of SOLD material only
+  const unsoldValue = conAgg.unsoldValue || 0; // purchase value of unsold stock (NOT a loss)
+  const cogsByMonth = conAgg.cogsByMonth || {};
+  const expByType = conAgg.expByType || {};
+  const materialSold = conAgg.materialSold || {};
 
+  // SOLD-BASIS monthly profit = revenue (sold) − cost-of-sold − expenses. Unsold material
+  // is stock, not a cost, so it never drags profit negative the way the old "all purchases"
+  // method did.
   const dataPL = useMemo(() => {
-    const summed = Object.keys(dataContracts).reduce((acc, key) => {
-      acc[key] = (dataContracts[key] || 0) + (dataExpenses[key] || 0);
-      return acc;
-    }, {});
     const pl = Object.keys(dataInvoices).reduce((acc, key) => {
-      acc[key] = (dataInvoices[key] || 0) - (summed[key] || 0);
+      acc[key] = (dataInvoices[key] || 0) - (cogsByMonth[key] || 0) - (dataExpenses[key] || 0);
       return acc;
     }, {});
     return Object.values(pl);
-  }, [dataContracts, dataExpenses, dataInvoices]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataInvoices, conAgg, dataExpenses]);
 
   // Outstanding receivables split by shipment finalization (shipData.fnlzing === '4568'
   // = Yes). Same issued/unpaid rule as the alerts bar + Cashflow. Responds to the Client
@@ -797,7 +858,8 @@ const Dash = () => {
 
   const avgCostPerMT = useMemo(() => totalMT > 0 ? totalContracts / totalMT : 0, [totalContracts, totalMT]);
   const avgExpensePerMT = useMemo(() => totalMT > 0 ? totalExpenses / totalMT : 0, [totalExpenses, totalMT]);
-  const avgProfitPerMT = useMemo(() => totalMT > 0 ? totalPL / totalMT : 0, [totalPL, totalMT]);
+  // Profit per ton is per ton SOLD (profit only exists on sold material).
+  const avgProfitPerMT = useMemo(() => shippedMT > 0 ? totalPL / shippedMT : 0, [totalPL, shippedMT]);
   const avgFreightPerMT = useMemo(() => totalMT > 0 ? freightTotal / totalMT : 0, [freightTotal, totalMT]);
 
   // ── Hero trend series (Revenue area + Costs & Profit lines) ──────────────
@@ -806,9 +868,11 @@ const Dash = () => {
     [dataInvoices]
   );
   const revenueSeries = useMemo(() => Object.values(dataInvoices).map(Number), [dataInvoices]);
+  // Costs line = cost of SOLD material + expenses (sold basis), per month.
   const costsSeries = useMemo(
-    () => Object.keys(dataContracts).map((k) => (Number(dataContracts[k]) || 0) + (Number(dataExpenses[k]) || 0)),
-    [dataContracts, dataExpenses]
+    () => Object.keys(dataInvoices).map((k) => (Number(cogsByMonth[k]) || 0) + (Number(dataExpenses[k]) || 0)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [conAgg, dataExpenses, dataInvoices]
   );
   const profitSeries = useMemo(() => dataPL.map(Number), [dataPL]);
 
@@ -889,12 +953,12 @@ const Dash = () => {
     },
   };
 
-  // ── Capital breakdown donut (Purchase / Expenses / Profit) ───────────────
+  // ── Revenue breakdown donut (Cost of Sold / Expenses / Profit = Revenue) ──
   const profitForArc = Math.max(Number(totalPL) || 0, 0);
   const donutData = {
-    labels: ['Purchase Costs', 'Other Expenses', 'Net Profit'],
+    labels: ['Cost of Sold', 'Other Expenses', 'Net Profit'],
     datasets: [{
-      data: [totalContracts, totalExpenses, profitForArc],
+      data: [cogs, totalExpenses, profitForArc],
       backgroundColor: ['#2563eb', '#db2777', '#16a34a'],
       borderColor: '#ffffff',
       borderWidth: 2,
@@ -922,7 +986,7 @@ const Dash = () => {
   };
 
   const donutLegend = [
-    { label: 'Purchase Costs', value: totalContracts, color: '#2563eb' },
+    { label: 'Cost of Sold', value: cogs, color: '#2563eb' },
     { label: 'Other Expenses', value: totalExpenses, color: '#db2777' },
     { label: 'Net Profit', value: totalPL, color: '#16a34a' },
   ];
@@ -1019,7 +1083,7 @@ const Dash = () => {
           {/* KPI ROW */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-5">
             <StatKpiCard
-              title="P&L · deal basis"
+              title="Net Profit · sold"
               value={fmtAutoKM(totalPL)}
               chartData={dataPL}
               accent="#6366F1"
@@ -1033,9 +1097,9 @@ const Dash = () => {
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" strokeWidth="2" /><path d="M8 10h8M8 14h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
             />
             <StatKpiCard
-              title="Total Costs"
-              value={fmtAutoKM(totalContracts + totalExpenses)}
-              chartData={dataContracts}
+              title="Cost of Sold"
+              value={fmtAutoKM(cogs)}
+              chartData={cogsByMonth}
               accent="#dc2626"
               goodWhenUp={false}
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" /><path d="M12 8v4l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
@@ -1064,10 +1128,11 @@ const Dash = () => {
             />
           </div>
 
-          {/* RECEIVABLES split + TONNAGE breakdown */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+          {/* RECEIVABLES split + TONNAGE breakdown + UNSOLD STOCK */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
             <ReceivablesSplitCard byCur={receivables.byCur} />
             <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} />
+            <UnsoldStockCard value={unsoldValue} mt={pendingMT} />
           </div>
 
           {/* MISC INVOICES — P1 standalone sales not linked to contracts */}
@@ -1081,7 +1146,7 @@ const Dash = () => {
               <div className="p-4">
                 <SectionHeader
                   title="Revenue, Costs & Profit"
-                  subtitle="By-contract (deal) basis — each contract's sales vs its own cost · selected period"
+                  subtitle="Sold basis — sales vs cost of material actually sold (unsold stock excluded) · selected period"
                 />
                 <div style={{ height: 320 }}>
                   <Line data={heroData} options={heroOptions} />
@@ -1131,6 +1196,26 @@ const Dash = () => {
               labels={hbClnts.obj.labels || []}
               data={hbClnts.obj.datasets?.[0]?.data || []}
               totalValue={totalInvoices}
+            />
+          </div>
+
+          {/* EXPENSES BY TYPE + MOST-SOLD MATERIAL */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+            <BreakdownCard
+              title="Expenses by Type"
+              subtitle="Freight, warehouse, commission, …"
+              entries={Object.entries(expByType).filter(([, v]) => Math.abs(v) > 0.5).sort((a, b) => b[1] - a[1])}
+              total={totalExpenses}
+              fmtVal={(v) => fmtAutoKM(v)}
+              accent="#db2777"
+            />
+            <BreakdownCard
+              title="Most-Sold Material"
+              subtitle="By tonnage sold this period"
+              entries={Object.entries(materialSold).filter(([, v]) => v > 0.01).sort((a, b) => b[1] - a[1]).slice(0, 8)}
+              total={shippedMT}
+              fmtVal={(v) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)} MT`}
+              accent="#2563eb"
             />
           </div>
 
