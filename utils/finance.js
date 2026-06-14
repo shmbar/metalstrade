@@ -13,6 +13,11 @@ export { resolveDueDate, resolveInvoiceDate, toIsoDate };
 // shipData.fnlzing === FINALIZED_FLAG means the final invoice has been issued.
 export const FINALIZED_FLAG = '4568';
 
+// Default payment term: when an invoice has no explicit delivery/due date, its due date
+// is assumed to be this many days after the invoice date. Adjustable (later: per-account
+// setting). Lets overdue detection work without forcing manual due-date entry.
+export const DEFAULT_TERM_DAYS = 30;
+
 // Quantity unit → metric-tonne factor. Mirrors the Inventory tab's setNum().
 export const UNIT_TO_MT = { MT: 1, KGS: 0.001, LB: 0.0005 };
 
@@ -53,11 +58,22 @@ export const isIssued = (inv) => inv?.draft !== true && !inv?.canceled;
 
 export const isFinalized = (inv) => inv?.shipData?.fnlzing === FINALIZED_FLAG;
 
-// Overdue = issued, still owes money, and has a due date in the past.
-// DECISION #4: behaviour when delDate is absent (currently: not overdue).
-export const isOverdue = (inv, asOf = new Date()) => {
+// Effective due date: the explicit delivery/due date if present, otherwise invoice date +
+// DEFAULT_TERM_DAYS. So overdue detection works even when no due date was entered.
+export const effectiveDueDate = (inv, termDays = DEFAULT_TERM_DAYS) => {
+  const explicit = resolveDueDate(inv);
+  if (explicit) return explicit;
+  const invDate = resolveInvoiceDate(inv);
+  if (!invDate) return null;
+  const d = new Date(invDate);
+  d.setDate(d.getDate() + termDays);
+  return d.toISOString().slice(0, 10);
+};
+
+// Overdue = issued, still owes money, and past its effective due date.
+export const isOverdue = (inv, asOf = new Date(), termDays = DEFAULT_TERM_DAYS) => {
   if (!isIssued(inv) || invoiceBalance(inv) <= 0.01) return false;
-  const due = resolveDueDate(inv);
+  const due = effectiveDueDate(inv, termDays);
   return !!due && new Date(due) < asOf;
 };
 
@@ -133,6 +149,30 @@ export const receivables = (list, { asOf = new Date() } = {}) => {
     else { s.provisional += bal; s.provisionalCount++; }
   });
   return { byCur };
+};
+
+// Receivables aging — outstanding balances bucketed by how old each invoice is
+// (days since invoice date): 0–30 / 31–60 / 61–90 / 90+. Per currency, deduped,
+// issued-only. Standard AR aging; needs no due-date entry.
+export const agingBuckets = (list, { asOf = new Date() } = {}) => {
+  const buckets = [
+    { label: '0–30', maxDays: 30 },
+    { label: '31–60', maxDays: 60 },
+    { label: '61–90', maxDays: 90 },
+    { label: '90+', maxDays: Infinity },
+  ].map(b => ({ ...b, byCur: {}, count: 0 }));
+  groupInvoices(list).filter(isIssued).forEach(inv => {
+    const bal = invoiceBalance(inv);
+    if (bal <= 0.01) return;
+    const invDate = resolveInvoiceDate(inv);
+    if (!invDate) return;
+    const ageDays = Math.max(0, Math.floor((asOf - new Date(invDate)) / 86400000));
+    const b = buckets.find(x => ageDays <= x.maxDays) || buckets[buckets.length - 1];
+    const c = resolveCur(inv);
+    b.byCur[c] = (b.byCur[c] || 0) + bal;
+    b.count++;
+  });
+  return buckets;
 };
 
 // Contract purchase value (Σ poInvoices.pmnt), per-currency + base.

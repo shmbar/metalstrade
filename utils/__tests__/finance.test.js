@@ -15,6 +15,9 @@ import {
   receivables,
   contractPurchaseValue,
   pnl,
+  effectiveDueDate,
+  agingBuckets,
+  DEFAULT_TERM_DAYS,
 } from '../finance.js';
 
 const settings = {
@@ -77,6 +80,47 @@ describe('isOverdue', () => {
     expect(isOverdue({ totalAmount: 100, delDate: '2026-12-31', payments: [] }, asOf)).toBe(false);
     expect(isOverdue({ totalAmount: 100, payments: [] }, asOf)).toBe(false); // no delDate
     expect(isOverdue({ totalAmount: 100, delDate: '2026-01-01', draft: true, payments: [] }, asOf)).toBe(false);
+  });
+});
+
+describe('effectiveDueDate (default term)', () => {
+  it('uses the explicit delivery/due date when present', () => {
+    expect(effectiveDueDate({ delDate: '2026-05-14' })).toBe('2026-05-14');
+  });
+  it('falls back to invoice date + DEFAULT_TERM_DAYS when no due date', () => {
+    expect(DEFAULT_TERM_DAYS).toBe(30);
+    expect(effectiveDueDate({ date: '2026-01-01' })).toBe('2026-01-31');
+    expect(effectiveDueDate({ date: '2026-01-01' }, 60)).toBe('2026-03-02');
+  });
+  it('returns null when there is no date at all', () => {
+    expect(effectiveDueDate({})).toBeNull();
+  });
+});
+
+describe('isOverdue with default term', () => {
+  const asOf = new Date('2026-06-14');
+  it('flags an old unpaid invoice with NO due date as overdue (via the 30-day default)', () => {
+    expect(isOverdue({ totalAmount: 100, date: '2026-01-01', payments: [] }, asOf)).toBe(true);
+  });
+  it('a recent invoice (within the term) is not yet overdue', () => {
+    expect(isOverdue({ totalAmount: 100, date: '2026-06-10', payments: [] }, asOf)).toBe(false);
+  });
+});
+
+describe('agingBuckets', () => {
+  const asOf = new Date('2026-06-14');
+  it('buckets outstanding balances by invoice age, per currency', () => {
+    const list = [
+      { invoice: 1, cur: 'us', date: '2026-06-01', totalAmount: 100, payments: [] }, // ~13d → 0–30
+      { invoice: 2, cur: 'us', date: '2026-05-01', totalAmount: 200, payments: [] }, // ~44d → 31–60
+      { invoice: 3, cur: 'eu', date: '2026-01-01', totalAmount: 300, payments: [] }, // ~164d → 90+
+      { invoice: 4, cur: 'us', date: '2026-06-01', totalAmount: 50, payments: [{ pmnt: 50 }] }, // settled → excluded
+    ];
+    const b = agingBuckets(list, { asOf });
+    expect(b[0].byCur.us).toBe(100); expect(b[0].count).toBe(1);   // 0–30
+    expect(b[1].byCur.us).toBe(200);                               // 31–60
+    expect(b[3].byCur.eu).toBe(300);                               // 90+
+    expect(b[2].count).toBe(0);                                    // 61–90 empty
   });
 });
 

@@ -8,7 +8,7 @@ import { UserAuth } from "@contexts/useAuthContext"
 import { SettingsContext } from "@contexts/useSettingsContext";
 import Toast from '@components/toast.js'
 import { loadData, groupedArrayInvoice, getInvoices, loadCompanyExpenses } from '@utils/utils'
-import { receivables as financeReceivables } from '@utils/finance'
+import { receivables as financeReceivables, agingBuckets } from '@utils/finance'
 import { setMonthsInvoices, calContracts } from './funcs'
 import { getTtl } from '@utils/languages';
 import DateRangePicker from '@components/dateRangePicker';
@@ -655,6 +655,54 @@ function UnsoldStockCard({ value = 0, mt = 0 }) {
   );
 }
 
+// Receivables aging — outstanding split by invoice age (0–30 / 31–60 / 61–90 / 90+),
+// per currency, colored green→red as it ages. Shows how overdue money is at a glance.
+function AgingCard({ buckets = [] }) {
+  const colors = ['#16a34a', '#f59e0b', '#ea580c', '#dc2626'];
+  const fmtCurKM = (cur, n) => {
+    const s = cur === 'us' ? '$' : cur === 'eu' ? '€' : '';
+    const v = Number(n) || 0, a = Math.abs(v);
+    if (a >= 1e6) return `${s}${(v / 1e6).toFixed(2)}M`;
+    if (a >= 1e3) return `${s}${(v / 1e3).toFixed(1)}K`;
+    return `${s}${v.toFixed(0)}`;
+  };
+  const bTot = (b) => Object.values(b.byCur || {}).reduce((s, v) => s + v, 0);
+  const max = Math.max(...buckets.map(bTot), 1);
+  const anyData = buckets.some(b => b.count > 0);
+  return (
+    <CardShell>
+      <div className="p-4">
+        <SectionHeader title="Receivables Aging" subtitle="Outstanding by invoice age (days) — older = more overdue" />
+        {!anyData
+          ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No outstanding receivables</div>
+          : buckets.map((b, i) => {
+            const curs = Object.keys(b.byCur || {}).filter(c => b.byCur[c] > 0.005);
+            const tot = bTot(b);
+            return (
+              <div key={b.label} className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-1.5 w-24 flex-shrink-0">
+                  <span className="rounded-full" style={{ width: 8, height: 8, background: colors[i] }} />
+                  <span className="responsiveTextTable text-[var(--port-gore)] font-medium">{b.label} d</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="w-full bg-[#eef3f9] rounded-full overflow-hidden" style={{ height: 16 }}>
+                    <div className="h-full rounded-full" style={{ width: `${max > 0 ? (tot / max) * 100 : 0}%`, minWidth: tot > 0 ? 4 : 0, background: colors[i], borderRadius: '0 9999px 9999px 0' }} />
+                  </div>
+                </div>
+                <div className="w-28 text-right flex-shrink-0">
+                  {curs.length
+                    ? curs.map(c => <div key={c} className="responsiveTextTable font-medium text-[var(--port-gore)] leading-tight">{fmtCurKM(c, b.byCur[c])}</div>)
+                    : <span className="responsiveTextTable text-[var(--regent-gray)]">—</span>}
+                  <div className="text-[0.58rem] text-[var(--regent-gray)]">{b.count} inv</div>
+                </div>
+              </div>
+            );
+          })}
+      </div>
+    </CardShell>
+  );
+}
+
 // Horizontal-bar breakdown card (expenses by type, materials by tonnage, etc.).
 function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = '#2563eb' }) {
   const max = Math.max(...entries.map(([, v]) => v), 1);
@@ -838,6 +886,15 @@ const Dash = () => {
       ? rawRecvInvoices.filter(inv => resolveClientName(inv.client) === fClient)
       : rawRecvInvoices;
     return financeReceivables(list, { asOf: new Date() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawRecvInvoices, fClient, settings]);
+
+  // Receivables aging buckets (0–30 / 31–60 / 61–90 / 90+), same source as receivables.
+  const aging = useMemo(() => {
+    const list = fClient
+      ? rawRecvInvoices.filter(inv => resolveClientName(inv.client) === fClient)
+      : rawRecvInvoices;
+    return agingBuckets(list, { asOf: new Date() });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawRecvInvoices, fClient, settings]);
 
@@ -1133,6 +1190,11 @@ const Dash = () => {
             <ReceivablesSplitCard byCur={receivables.byCur} />
             <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} />
             <UnsoldStockCard value={unsoldValue} mt={pendingMT} />
+          </div>
+
+          {/* RECEIVABLES AGING */}
+          <div className="mb-5">
+            <AgingCard buckets={aging} />
           </div>
 
           {/* MISC INVOICES — P1 standalone sales not linked to contracts */}
