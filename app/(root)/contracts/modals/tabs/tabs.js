@@ -5,7 +5,7 @@ import Invoice from '../invoiceDetails'
 import Contract from '../contractDetails';
 import Profit from './pnl';
 import Inventory from './inventory'
-import CertChecker from '@components/contracts/modals/CertChecker';
+import CertChecker from '../CertChecker';
 import { ContractsContext } from "@contexts/useContractsContext";
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { getTtl } from '@utils/languages';
