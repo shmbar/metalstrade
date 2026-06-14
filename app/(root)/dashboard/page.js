@@ -734,7 +734,9 @@ function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 
 
 const Dash = () => {
 
-  const { settings, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
+  const { settings, compData, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
+  // One standard company EUR→USD rate (Settings → General). 0 = not set → per-contract rate.
+  const companyRate = parseFloat(compData?.eurUsdRate) || 0;
   const { uidCollection } = UserAuth();
   const settingsLoaded = Object.keys(settings).length > 0;
   const clientCount = settings.Client?.Client?.length || 0;
@@ -843,8 +845,8 @@ const Dash = () => {
   const clearFilters = () => { setFSupplier(''); setFClient(''); setFMaterial(''); };
 
   // Aggregates — recomputed only when the filtered set (or settings) changes.
-  const conAgg = useMemo(() => calContracts(filteredContracts, settings), [filteredContracts, settings]);
-  const invAgg = useMemo(() => setMonthsInvoices(filteredContracts, settings), [filteredContracts, settings]);
+  const conAgg = useMemo(() => calContracts(filteredContracts, settings, companyRate), [filteredContracts, settings, companyRate]);
+  const invAgg = useMemo(() => setMonthsInvoices(filteredContracts, settings, companyRate), [filteredContracts, settings, companyRate]);
 
   const dataContracts = conAgg.accumulatedPmnt;
   const dataExpenses = conAgg.accumulatedExp;

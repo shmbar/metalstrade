@@ -146,18 +146,19 @@ const TotalInvoicePayments = (data, mult, settings) => {
 }
 
 /*************************** */
-export const setMonthsInvoices = (data, settings) => {
+export const setMonthsInvoices = (data, settings, companyRate = 0) => {
 
     let accumulatedPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedActualPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedTop5Cus = {}
- 
- 
+
+
     data.forEach(obj => {
 
-        // FX safety: never let a missing rate turn EUR revenue into NaN (see calContracts).
-        const rate = parseFloat(obj.euroToUSD)
-        const mult = rate > 0 ? rate : 1
+        // One standard company EUR→USD rate when set; otherwise the contract's own rate,
+        // else 1:1 (NaN-safe). Keeps combined USD totals on a single rate.
+        const contractRate = parseFloat(obj.euroToUSD)
+        const mult = companyRate > 0 ? companyRate : (contractRate > 0 ? contractRate : 1)
         let totalInvoices = Total(obj.invoicesData, 'totalAmount', mult, settings);
         let month = !obj.final ? dateFormat(obj.dateRange.startDate, 'm') * 1 : dateFormat(obj.date, 'm') * 1
         accumulatedPmnt[month] += parseFloat(totalInvoices);
@@ -183,7 +184,7 @@ export const setMonthsInvoices = (data, settings) => {
     return { accumulatedPmnt, pieArrClnts /*, accumulatedActualPmnt */}
 }
 
-export const calContracts = (data, settings) => {
+export const calContracts = (data, settings, companyRate = 0) => {
 
     let accumulatedPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedExp = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
@@ -208,12 +209,12 @@ export const calContracts = (data, settings) => {
     const expLabel = (id) => settings.Expenses?.Expenses?.find(e => e.id === id)?.expType || 'Unspecified'
 
     data.forEach((x) => {
-        // FX safety: a blank/invalid euroToUSD on an EUR contract must NOT become NaN and
-        // poison the whole total (NaN propagates through every sum). Fall back to 1:1 and
-        // flag it so the data gap is visible rather than silently zeroing the figures.
-        const rate = parseFloat(x.euroToUSD)
-        const mult = rate > 0 ? rate : 1
-        if (x.cur !== 'us' && !(rate > 0)) missingRate++
+        // One standard company EUR→USD rate when set; otherwise the contract's own rate,
+        // else 1:1 (NaN-safe — a missing rate must never poison the totals). When no
+        // company rate is set AND a EUR contract has no rate, flag it so the gap is visible.
+        const contractRate = parseFloat(x.euroToUSD)
+        const mult = companyRate > 0 ? companyRate : (contractRate > 0 ? contractRate : 1)
+        if (x.cur !== 'us' && !(companyRate > 0) && !(contractRate > 0)) missingRate++
         const mltTmp = x.cur === 'us' ? 1 : mult
         const month = dateFormat(x.dateRange.startDate, 'm') * 1
         //contracts — total purchase value (this is NOT the profit cost; see cogs below)
