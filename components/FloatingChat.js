@@ -3,7 +3,8 @@ import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { SettingsContext } from "../contexts/useSettingsContext";
 import { UserAuth } from "../contexts/useAuthContext";
-import { loadData, loadMarginsRange, loadAllStockData, loadCompanyExpenses, resolveDueDate, resolveInvoiceDate, groupInvoicesByNumber } from '../utils/utils';
+import { loadData, loadMarginsRange, loadAllStockData, loadCompanyExpenses, resolveInvoiceDate, groupInvoicesByNumber } from '../utils/utils';
+import { effectiveDueDate } from '../utils/finance';
 import { authedFetch } from '../utils/aiClient';
 import { X, Send, Loader2, Trash2, RefreshCw, ExternalLink, Receipt, FileText, Wallet } from 'lucide-react';
 import { BsRobot, BsPerson } from "react-icons/bs";
@@ -52,7 +53,7 @@ function getNavButtons(content) {
 
 const FloatingChat = () => {
     const router = useRouter();
-    const { settings, dateSelect } = useContext(SettingsContext);
+    const { settings, compData, dateSelect } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
 
     const [chatOpen, setChatOpen] = useState(false);
@@ -317,6 +318,11 @@ const FloatingChat = () => {
         const resolveCurrency = (f) =>
             f?.cur ? f.cur : currencyList.find(c => c.id === f)?.cur || f || '';
 
+        // Default payment term (Settings → General) so the assistant flags overdue the
+        // same way the dashboard/alerts do — an invoice with no due date is due termDays
+        // after its date.
+        const termDays = parseInt(compData?.defaultTermDays, 10) > 0 ? parseInt(compData.defaultTermDays, 10) : 30;
+
         return {
             contracts: contractsData.map(con => ({
                 id: con.id,
@@ -367,7 +373,7 @@ const FloatingChat = () => {
                     amountPaid: totalPaid,
                     balanceDue: balanceDue > 0 ? balanceDue : 0,
                     currency: resolveCurrency(inv.cur),
-                    dueDate: resolveDueDate(inv),
+                    dueDate: effectiveDueDate(inv, termDays),
                     canceled: isCanceled,
                     isFinal: isIssued,
                     etd: inv.shipData?.etd?.startDate || null,
