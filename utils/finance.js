@@ -133,7 +133,7 @@ export const invoiceRevenue = (list, { base = 'us', rateOf } = {}) => {
 
 // Outstanding receivables: deduped, issued-only, kept PER CURRENCY (never summed
 // across currencies). Splits both due/balance (by due date) and finalized/provisional.
-export const receivables = (list, { asOf = new Date() } = {}) => {
+export const receivables = (list, { asOf = new Date(), termDays = DEFAULT_TERM_DAYS } = {}) => {
   const byCur = {};
   const slot = (c) => (byCur[c] || (byCur[c] = {
     due: 0, balance: 0, finalized: 0, provisional: 0,
@@ -143,7 +143,7 @@ export const receivables = (list, { asOf = new Date() } = {}) => {
     const bal = invoiceBalance(inv);
     if (bal <= 0.01) return;
     const s = slot(resolveCur(inv));
-    if (isOverdue(inv, asOf)) { s.due += bal; s.dueCount++; }
+    if (isOverdue(inv, asOf, termDays)) { s.due += bal; s.dueCount++; }
     else { s.balance += bal; s.balanceCount++; }
     if (isFinalized(inv)) { s.finalized += bal; s.finalizedCount++; }
     else { s.provisional += bal; s.provisionalCount++; }

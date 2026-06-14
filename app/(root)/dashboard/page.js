@@ -737,6 +737,8 @@ const Dash = () => {
   const { settings, compData, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
   // One standard company EUR→USD rate (Settings → General). 0 = not set → per-contract rate.
   const companyRate = parseFloat(compData?.eurUsdRate) || 0;
+  // Default payment term in days (Settings → General) — used to flag overdue invoices.
+  const termDays = parseInt(compData?.defaultTermDays, 10) > 0 ? parseInt(compData.defaultTermDays, 10) : 30;
   const { uidCollection } = UserAuth();
   const settingsLoaded = Object.keys(settings).length > 0;
   const clientCount = settings.Client?.Client?.length || 0;
@@ -887,9 +889,9 @@ const Dash = () => {
     const list = fClient
       ? rawRecvInvoices.filter(inv => resolveClientName(inv.client) === fClient)
       : rawRecvInvoices;
-    return financeReceivables(list, { asOf: new Date() });
+    return financeReceivables(list, { asOf: new Date(), termDays });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawRecvInvoices, fClient, settings]);
+  }, [rawRecvInvoices, fClient, settings, termDays]);
 
   // Receivables aging buckets (0–30 / 31–60 / 61–90 / 90+), same source as receivables.
   const aging = useMemo(() => {

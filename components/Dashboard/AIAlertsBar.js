@@ -42,7 +42,8 @@ function AlertPill({ icon: Icon, label, count, severity, onClick }) {
 
 const AIAlertsBar = () => {
     const router = useRouter();
-    const { settings, dateSelect } = useContext(SettingsContext);
+    const { settings, compData, dateSelect } = useContext(SettingsContext);
+    const termDays = parseInt(compData?.defaultTermDays, 10) > 0 ? parseInt(compData.defaultTermDays, 10) : 30;
     const { uidCollection } = UserAuth();
 
     const [counts, setCounts] = useState({ balance: 0, due: 0, marginAlerts: 0, recentReminders: 0 });
@@ -73,14 +74,14 @@ const AIAlertsBar = () => {
                 // Credit/Final note count ONCE, payments combined), balance = total − payments
                 // (same rule the Cashflow page uses), draft/canceled excluded. `due` = overdue
                 // (past due date); `balance` = owed but not yet due.
-                const recv = financeReceivables(invoices, { asOf: today });
+                const recv = financeReceivables(invoices, { asOf: today, termDays });
                 let due = 0;
                 let balance = 0;
                 Object.values(recv.byCur).forEach(s => { due += s.dueCount; balance += s.balanceCount; });
 
                 // Overdue invoices (for the bell notifications) — same canonical rule.
                 const overdueInvs = groupInvoices(invoices)
-                    .filter(inv => isOverdue(inv, today))
+                    .filter(inv => isOverdue(inv, today, termDays))
                     .map(inv => ({ ...inv, _balanceDue: invoiceBalance(inv), _dueDate: resolveDueDate(inv) }));
 
                 // Reminders sent in the last 7 days.
@@ -136,7 +137,7 @@ const AIAlertsBar = () => {
         };
         load();
         return () => { cancelled = true; };
-    }, [uidCollection, dateSelect, settings]);
+    }, [uidCollection, dateSelect, settings, termDays]);
 
     if (loading) {
         return (

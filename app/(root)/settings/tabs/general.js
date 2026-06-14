@@ -379,20 +379,33 @@ const General = () => {
                     </div>
 
                     <div className='border border-[#b8ddf8] p-4 rounded-2xl mt-5 w-full'>
-                        <p className='responsiveText font-medium text-[0.825rem] mb-3 text-[var(--chathams-blue)]'>Currency</p>
-                        <div className='flex gap-4 items-center'>
-                            <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[180px] text-[var(--chathams-blue)]'>Standard EUR &rarr; USD rate:</p>
-                            <input
-                                type='number'
-                                step='0.0001'
-                                placeholder='e.g. 1.08'
-                                className="flex-1 max-w-[180px] h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
-                                value={compData?.eurUsdRate ?? ''}
-                                onChange={e => setCompData({ ...(compData || {}), eurUsdRate: e.target.value })}
-                            />
+                        <p className='responsiveText font-medium text-[0.825rem] mb-3 text-[var(--chathams-blue)]'>Currency &amp; Terms</p>
+                        <div className='flex flex-col gap-3'>
+                            <div className='flex gap-4 items-center'>
+                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[200px] text-[var(--chathams-blue)]'>Standard EUR &rarr; USD rate:</p>
+                                <input
+                                    type='number'
+                                    step='0.0001'
+                                    placeholder='e.g. 1.08'
+                                    className="flex-1 max-w-[180px] h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    value={compData?.eurUsdRate ?? ''}
+                                    onChange={e => setCompData({ ...(compData || {}), eurUsdRate: e.target.value })}
+                                />
+                            </div>
+                            <div className='flex gap-4 items-center'>
+                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[200px] text-[var(--chathams-blue)]'>Default payment term (days):</p>
+                                <input
+                                    type='number'
+                                    step='1'
+                                    placeholder='30'
+                                    className="flex-1 max-w-[180px] h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    value={compData?.defaultTermDays ?? ''}
+                                    onChange={e => setCompData({ ...(compData || {}), defaultTermDays: e.target.value })}
+                                />
+                            </div>
                         </div>
                         <p className='responsiveTextTable text-[var(--regent-gray)] mt-2'>
-                            Used to convert EUR to USD for combined dashboard totals (one company rate). Leave blank to use each contract&apos;s own rate.
+                            EUR&rarr;USD rate converts EUR to USD for combined dashboard totals (leave blank to use each contract&apos;s rate). Payment term: an invoice with no due date is treated as due this many days after its date (default 30) — drives the overdue alert.
                         </p>
                     </div>
 
