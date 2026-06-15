@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Clock } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from "recharts";
+import { Sparkline, Donut } from "./MiniCharts";
 import { Button } from "@components/ui/button";
 
 // Mock Data for Charts
@@ -67,24 +67,7 @@ export function PlatformCard2() {
             <p className="text-[10px] opacity-70">Total platform revenue increased by 46%</p>
           </div>
           <div className="h-32 relative flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  innerRadius={38}
-                  outerRadius={48}
-                  paddingAngle={0}
-                  dataKey="value"
-                  startAngle={90}
-                  endAngle={-270}
-                  stroke="none"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
+            <Donut segments={pieData} innerRadius={38} outerRadius={48} />
             <div className="absolute inset-0 flex flex-col items-center justify-center mt-2">
               <span className="text-[10px] font-light opacity-70">Facebook</span>
               <span className="text-xl font-bold">36%</span>
@@ -94,29 +77,15 @@ export function PlatformCard2() {
 
         {/* Main Line Chart */}
         <div className="h-full w-full pt-4">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={lineData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--endeavour)" stopOpacity={0.05}/>
-                  <stop offset="95%" stopColor="var(--endeavour)" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <Tooltip 
-                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="value" 
-                stroke="var(--endeavour)" 
-                strokeWidth={3} 
-                fillOpacity={1} 
-                fill="url(#colorValue)" 
-                dot={{ r: 4, fill: "var(--endeavour)", strokeWidth: 2, stroke: "white" }}
-                activeDot={{ r: 6, strokeWidth: 0 }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <Sparkline
+            data={lineData}
+            stroke="var(--endeavour)"
+            strokeWidth={3}
+            fill={true}
+            gradientFrom="var(--endeavour)"
+            gradientFromOpacity={0.05}
+            gradientToOpacity={0}
+          />
         </div>
         
         {/* X Axis Labels */}

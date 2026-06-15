@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Lock, MoreHorizontal, Check } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer } from "recharts";
+import { Sparkline } from "./MiniCharts";
 import { Button } from "@components/ui/button";
 
 // Mock Data for Charts
@@ -49,40 +49,22 @@ export function PlatformCard3() {
           <div className="flex justify-between items-end">
             <h3 className="text-4xl font-bold tracking-tight">$25,215</h3>
             <div className="h-10 w-20 pb-1">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={creditBalanceData}>
-                   <Area 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke="white" 
-                    strokeWidth={2} 
-                    fill="transparent" 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <Sparkline data={creditBalanceData} stroke="white" strokeWidth={2} fill={false} />
             </div>
           </div>
         </div>
 
         {/* Background Chart Elements */}
         <div className="absolute top-32 left-0 right-0 h-48 w-full z-0 pointer-events-none">
-           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={lineData}>
-              <defs>
-                <linearGradient id="grad2" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#F0F4FF" stopOpacity={0.8}/>
-                  <stop offset="100%" stopColor="#F8F9FB" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <Area 
-                type="natural" 
-                dataKey="value" 
-                stroke="var(--endeavour)" 
-                strokeWidth={3} 
-                fill="url(#grad2)" 
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+           <Sparkline
+            data={lineData}
+            stroke="var(--endeavour)"
+            strokeWidth={3}
+            fill={true}
+            gradientFrom="#F0F4FF"
+            gradientFromOpacity={0.8}
+            gradientToOpacity={0}
+          />
         </div>
 
         {/* Shield Icon Overlay */}

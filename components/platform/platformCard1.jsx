@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from "framer-motion";
-import { Area, AreaChart, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { Sparkline, Donut } from "./MiniCharts";
 
 // Mock Data
 const salesTrendData = [
@@ -11,6 +11,10 @@ const salesTrendData = [
   { name: 'Apr', blue: 60, yellow: 30 },
   { name: 'May', blue: 55, yellow: 40 },
   { name: 'Jun', blue: 45, yellow: 35 },
+];
+const salesTrendSeries = [
+  { data: salesTrendData.map(d => d.blue), stroke: '#0056D2', strokeWidth: 2.5, fill: true, gradientFrom: '#0056D2', gradientFromOpacity: 0.2, gradientToOpacity: 0 },
+  { data: salesTrendData.map(d => d.yellow), stroke: '#FFC107', strokeWidth: 2.5, fill: false },
 ];
 
 const pieData = [
@@ -58,30 +62,7 @@ export function PlatformCard1() {
               <h3 className="text-3xl font-bold text-[var(--port-gore)]">68%</h3>
             </div>
             <div className="h-24 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={salesTrendData}>
-                  <defs>
-                    <linearGradient id="gradBlue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#0056D2" stopOpacity={0.2}/>
-                      <stop offset="100%" stopColor="#0056D2" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <Area 
-                    type="monotone" 
-                    dataKey="blue" 
-                    stroke="#0056D2" 
-                    strokeWidth={2.5} 
-                    fill="url(#gradBlue)" 
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="yellow" 
-                    stroke="#FFC107" 
-                    strokeWidth={2.5} 
-                    fill="transparent" 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <Sparkline series={salesTrendSeries} />
             </div>
             {/* Fake lines to match design look */}
             <div className="space-y-2 pt-2">
@@ -93,21 +74,7 @@ export function PlatformCard1() {
           {/* Pie Chart Column */}
           <div className="flex flex-col items-center justify-end pb-2">
             <div className="h-24 w-24 relative mb-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    innerRadius={0}
-                    outerRadius={40}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
+              <Donut segments={pieData} innerRadius={0} outerRadius={40} />
             </div>
             
             <div className="flex space-x-6 w-full justify-center">
