@@ -122,31 +122,21 @@ export const FinalSummaryBadge = ({ finalized = 0, total = 0 }) => {
     if (!total) return null;
     const allDone = finalized === total;
     const noneDone = finalized === 0;
-    // Refined status-indicator palette: soft tint background, crisp 1px inset
-    // ring, and a matching status dot — reads as a modern dashboard chip rather
-    // than a flat block of colour.
-    const tone = allDone
-        ? { dot: '#10b981', text: '#047857', bg: '#ecfdf5', ring: '#a7f3d0' }   // emerald — all finalized
-        : noneDone
-            ? { dot: '#f59e0b', text: '#b45309', bg: '#fffbeb', ring: '#fde68a' } // amber — provisional
-            : { dot: '#3b82f6', text: '#1d4ed8', bg: '#eff6ff', ring: '#bfdbfe' }; // blue — partial
-    const label = allDone ? 'Finalized' : noneDone ? 'Provisional' : `${finalized}/${total} final`;
+    // Just a colour-coded status dot next to the name — the per-row "Final"
+    // column already spells out Yes/No, so a word here would be redundant.
+    // emerald = all finalized · amber = none yet (provisional) · blue = partial.
+    // Full meaning stays in the hover tooltip.
+    const dot = allDone ? '#10b981' : noneDone ? '#f59e0b' : '#3b82f6';
+    const ring = allDone ? '#a7f3d0' : noneDone ? '#fde68a' : '#bfdbfe';
+    const label = allDone ? 'All finalized — final invoice issued'
+        : noneDone ? 'Not finalized yet — before final invoice'
+            : `${finalized} of ${total} finalized`;
     return (
-        <Tltip direction='top' tltpText={`${finalized} of ${total} balance line(s) have the final invoice issued`}>
+        <Tltip direction='top' tltpText={label}>
             <span
-                className="inline-flex items-center gap-1 shrink-0 rounded-full font-semibold leading-none cursor-default whitespace-nowrap"
-                style={{
-                    color: tone.text,
-                    backgroundColor: tone.bg,
-                    boxShadow: `inset 0 0 0 1px ${tone.ring}`,
-                    fontSize: '0.55rem',
-                    letterSpacing: '0.02em',
-                    padding: '3px 7px',
-                }}
-            >
-                <span className="rounded-full shrink-0" style={{ width: 5, height: 5, backgroundColor: tone.dot }} />
-                {label}
-            </span>
+                className="inline-block shrink-0 rounded-full cursor-default"
+                style={{ width: 9, height: 9, backgroundColor: dot, boxShadow: `0 0 0 2px ${ring}` }}
+            />
         </Tltip>
     );
 };
