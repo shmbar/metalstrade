@@ -117,45 +117,45 @@ thead th {
 }
 
 @layer app {
-  /* Standard body / cell text */
+  /* Standard body / cell text — px-aligned: 11 / 12 / 13 / 14 */
   .responsiveText {
-    @apply text-[0.59375rem] xl:text-[0.6875rem] 2xl:text-[0.7375rem] 3xl:text-[0.8125rem]
+    @apply text-[0.6875rem] xl:text-[0.75rem] 2xl:text-[0.8125rem] 3xl:text-[0.875rem]
            break-words min-w-0 whitespace-normal;
   }
 
-  /* Dense table cell text */
+  /* Dense table cell text — 10 / 11 / 12 / 13 */
   .responsiveTextTable {
-    @apply text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem]
+    @apply text-[0.625rem] xl:text-[0.6875rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
            break-words min-w-0 whitespace-normal;
   }
 
-  /* Summary table card title — 1px smaller than responsiveTextTable */
+  /* Summary table card title — 1px smaller than responsiveTextTable: 9 / 10 / 11 / 12 */
   .responsiveTextTableTitle {
-    @apply text-[0.5rem] xl:text-[0.594rem] 2xl:text-[0.625rem] 3xl:text-[0.6875rem]
+    @apply text-[0.5625rem] xl:text-[0.625rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem]
            break-words min-w-0 whitespace-normal;
   }
 
   /* Same as responsiveTextTable — kept separate for targeted overrides */
   .responsiveTextTable1 {
-    @apply text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem]
+    @apply text-[0.625rem] xl:text-[0.6875rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
            break-words min-w-0 whitespace-normal;
   }
 
   /* Totals row — same size as body but bold */
   .responsiveTextTotal {
-    @apply text-[0.59375rem] xl:text-[0.6875rem] 2xl:text-[0.7375rem] 3xl:text-[0.8125rem]
+    @apply text-[0.6875rem] xl:text-[0.75rem] 2xl:text-[0.8125rem] 3xl:text-[0.875rem]
            font-medium break-words min-w-0 whitespace-normal;
   }
 
-  /* Pill/inline inputs */
+  /* Pill/inline inputs — 12 / 13 / 14 / 15 */
   .responsiveTextInput {
-    @apply text-[0.65625rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]
+    @apply text-[0.75rem] xl:text-[0.8125rem] 2xl:text-[0.875rem] 3xl:text-[0.9375rem]
            break-words min-w-0 whitespace-normal;
   }
 
-  /* Section headings / column headers */
+  /* Section headings / column headers — 13 / 14 / 15 / 16 */
   .responsiveTextTitle {
-    @apply text-[0.71875rem] xl:text-[0.8125rem] 2xl:text-[0.875rem] 3xl:text-[0.9375rem]
+    @apply text-[0.8125rem] xl:text-[0.875rem] 2xl:text-[0.9375rem] 3xl:text-[1rem]
            break-words min-w-0 whitespace-normal;
   }
 
