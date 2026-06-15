@@ -541,6 +541,39 @@ export const getInvoices = async (uidCollection, path, arrTmp) => {
   return arr;
 }
 
+// Batched sibling of getInvoices: instead of one query per contract, take the UNION
+// of every contract's referenced invoice numbers grouped by year and load them all
+// at once. Firestore caps `in` at 30 values, so each year's number set is chunked
+// into ≤30-value queries that run in parallel. Returns { [year]: invoiceData[] } so
+// the caller can index by year+invoice number and hand each contract its own slice —
+// turning N (one-per-contract) round-trips into ~(distinct invoices / 30) per year.
+export const getInvoicesBatched = async (uidCollection, path, needByYear) => {
+  const CHUNK = 30;
+  const entries = [];
+  for (const [yr, numbers] of Object.entries(needByYear || {})) {
+    const uniq = [...new Set(numbers)].filter(n => n != null);
+    for (let i = 0; i < uniq.length; i += CHUNK) {
+      const chunk = uniq.slice(i, i + CHUNK);
+      if (chunk.length) entries.push({ yr, chunk });
+    }
+  }
+
+  const snaps = await Promise.all(entries.map(e =>
+    getDocs(query(
+      collection(db, uidCollection, 'data', path + '_' + e.yr),
+      where('invoice', 'in', e.chunk)
+    ))
+  ));
+
+  const byYear = {};
+  snaps.forEach((snap, idx) => {
+    const yr = entries[idx].yr;
+    (byYear[yr] ||= []);
+    snap.docs.forEach(d => { if (!d.empty) byYear[yr].push(d.data()); });
+  });
+  return byYear;
+};
+
 export const getExpenses = async (uidCollection, path, arrTmp) => {
 
   let arr = []
