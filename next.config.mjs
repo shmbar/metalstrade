@@ -15,6 +15,13 @@ const nextConfig = {
     '/api/ai/document-reader': ['./node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'],
     '/api/ai/cert-checker': ['./node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'],
   },
+  experimental: {
+    // Tree-shake heavy barrel-export packages so a single named import doesn't pull
+    // in the whole library. Next 15 already does this by default for lucide-react,
+    // @radix-ui/* and date-fns; react-icons and framer-motion are the big ones it
+    // doesn't cover out of the box.
+    optimizePackageImports: ['react-icons', 'framer-motion', 'lucide-react', 'date-fns'],
+  },
 };
 
 export default nextConfig;
