@@ -9,10 +9,10 @@ import Toast from '../../../components/toast.js'
 import { ExpensesContext } from "../../../contexts/useExpensesContext";
 import { InvoiceContext } from "../../../contexts/useInvoiceContext";
 
-import { loadData, loadInvoice, getD } from '../../../utils/utils'
+import { loadData, getD, loadDocsByIdBatched } from '../../../utils/utils'
 import Spinner from '../../../components/spinner';
 import { UserAuth } from "../../../contexts/useAuthContext"
-import { getInvoices, groupedArrayInvoice, getExpenses } from '../../../utils/utils'
+import { getExpenses } from '../../../utils/utils'
 import Spin from '../../../components/spinTable';
 import { Numcur, SumValuesSupplier } from '../ContractsReview&Statement/funcs'
 import { OutTurn, Finalizing, relStts } from '../../../components/const'
@@ -167,13 +167,6 @@ const setInvoicesDTStatement = async (con, invArr) => {
   return arr;
 }
 
-const loadContractsStatement = async (uidCollection, invoice) => {
-  let obj = invoice[0][0].poSupplier
-
-  let con = await loadInvoice(uidCollection, 'contracts', obj)
-  return con;
-}
-
 const Shipments = () => {
 
   const { settings, dateSelect, setLoading, loading, setDateYr, ln } = useContext(SettingsContext);
@@ -230,13 +223,6 @@ const Shipments = () => {
   }
 
 
-  const loadContracts = async (uidCollection, invoice) => {
-    let obj = invoice[0].poSupplier
-
-    let con = await loadInvoice(uidCollection, 'contracts', obj)
-    return con;
-  }
-
   useEffect(() => {
 
     const Load = async () => {
@@ -260,15 +246,10 @@ const Shipments = () => {
       let dt = makeGroup(invoicesData)
       dt = Object.values(dt)
 
-      dt = await Promise.all(
-        dt.map(async (x) => {
-          const con = await loadContracts(uidCollection, x)
-          return {
-            ...con,
-            invoicesData: x,
-          };
-        })
-      );
+      // Batch the per-group contract loads into one pass (was loadInvoice() per group).
+      const conRefs = dt.map(x => x[0]?.poSupplier).filter(r => r?.id && r?.date)
+      const conIndex = await loadDocsByIdBatched(uidCollection, 'contracts', conRefs)
+      dt = dt.map(x => ({ ...(conIndex[x[0]?.poSupplier?.id] || {}), invoicesData: x }));
 
 
       setContractsData(dt.map(data => {
@@ -341,11 +322,15 @@ const Shipments = () => {
 
       let dt = Object.values(makeGroupStatement(invDataStatement))
 
+      // Batch the per-group contract loads into one pass (was loadInvoice() per group).
+      const conRefs = dt.map(innerObj => innerObj?.[0]?.[0]?.poSupplier).filter(r => r?.id && r?.date)
+      const conIndex = await loadDocsByIdBatched(uidCollection, 'contracts', conRefs)
+
       let newArr = []
       let consArr = []
       const promises = dt.map(async innerObj => {
 
-        const con = await loadContractsStatement(uidCollection, innerObj)
+        const con = conIndex[innerObj?.[0]?.[0]?.poSupplier?.id] || {}
         consArr = [...consArr, con]
 
         let invArr = innerObj.flatMap(dt => dt.map(item => item.invoice,))

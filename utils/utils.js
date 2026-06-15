@@ -606,6 +606,36 @@ export const contractInvoicesFromIndex = (con, index, grouped = true) => {
   return grouped ? groupedArrayInvoice(collected) : collected;
 };
 
+// Batched sibling of loadInvoice(): given a list of { id, date } refs, load all the
+// referenced docs in one chunked pass (≤30-id `in` queries per year) and return an
+// { [id]: data } index. Drop-in for code that does loadInvoice() once per row (e.g.
+// loading each invoice-group's contract). Missing ids simply have no entry — callers
+// should fall back to {} exactly like loadInvoice does.
+export const loadDocsByIdBatched = async (uidCollection, path, refs) => {
+  const CHUNK = 30;
+  const byYear = {};
+  (refs || []).forEach(r => {
+    if (r?.id && r?.date) (byYear[r.date.substring(0, 4)] ||= new Set()).add(r.id);
+  });
+  const entries = [];
+  for (const [yr, ids] of Object.entries(byYear)) {
+    const arr = [...ids];
+    for (let i = 0; i < arr.length; i += CHUNK) {
+      const chunk = arr.slice(i, i + CHUNK);
+      if (chunk.length) entries.push({ yr, chunk });
+    }
+  }
+  const snaps = await Promise.all(entries.map(e =>
+    getDocs(query(
+      collection(db, uidCollection, 'data', path + '_' + e.yr),
+      where('id', 'in', e.chunk)
+    ))
+  ));
+  const index = {};
+  snaps.forEach(snap => snap.docs.forEach(d => { if (!d.empty) { const data = d.data(); index[data.id] = data; } }));
+  return index;
+};
+
 export const getExpenses = async (uidCollection, path, arrTmp) => {
 
   let arr = []
