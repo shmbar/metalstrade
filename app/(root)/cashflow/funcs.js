@@ -122,12 +122,11 @@ export const FinalSummaryBadge = ({ finalized = 0, total = 0 }) => {
     if (!total) return null;
     const allDone = finalized === total;
     const noneDone = finalized === 0;
-    // Just a colour-coded status dot next to the name — the per-row "Final"
-    // column already spells out Yes/No, so a word here would be redundant.
-    // emerald = all finalized · amber = none yet (provisional) · blue = partial.
-    // Full meaning stays in the hover tooltip.
+    // Just a small colour-coded status dot next to the name — the per-row
+    // "Final" column already spells out Yes/No, so a word here would be
+    // redundant. Same dot colours as the table chips: emerald = all finalized ·
+    // amber = none yet (provisional) · blue = partial. Meaning is in the tooltip.
     const dot = allDone ? '#10b981' : noneDone ? '#f59e0b' : '#3b82f6';
-    const ring = allDone ? '#a7f3d0' : noneDone ? '#fde68a' : '#bfdbfe';
     const label = allDone ? 'All finalized — final invoice issued'
         : noneDone ? 'Not finalized yet — before final invoice'
             : `${finalized} of ${total} finalized`;
@@ -135,7 +134,7 @@ export const FinalSummaryBadge = ({ finalized = 0, total = 0 }) => {
         <Tltip direction='top' tltpText={label}>
             <span
                 className="inline-block shrink-0 rounded-full cursor-default"
-                style={{ width: 9, height: 9, backgroundColor: dot, boxShadow: `0 0 0 2px ${ring}` }}
+                style={{ width: 6, height: 6, backgroundColor: dot }}
             />
         </Tltip>
     );
