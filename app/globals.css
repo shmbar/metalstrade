@@ -9,6 +9,36 @@
   --chathams-blue: #103a7a;
   --regent-gray: #838ca7;
   --radius: 0.75rem;
+
+  /* shadcn/Radix design tokens — referenced by tailwind.config.js (hsl(var(--x)))
+     and the components/ui/* primitives. Mapped to the brand palette so bg-primary,
+     text-muted-foreground, border-input, ring-ring, hover:bg-accent, etc. resolve
+     correctly instead of computing hsl(var(--undefined)) and rendering broken.
+     Light theme only (no dark mode in use). Values are HSL channels (no hsl()). */
+  --background: 0 0% 100%;
+  --foreground: 222 84% 5%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 84% 5%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 84% 5%;
+  --primary: 205 96% 35%;            /* #0366ae endeavour */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 207 100% 93%;            /* #dbeeff app accent */
+  --accent-foreground: 216 77% 27%;  /* #103a7a chathams-blue */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 205 96% 35%;               /* brand-blue focus ring */
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
 }
 
 /* Example usage:
