@@ -7,7 +7,7 @@ import VideoLoader from '@components/videoLoader';
 import { UserAuth } from "@contexts/useAuthContext"
 import { SettingsContext } from "@contexts/useSettingsContext";
 import Toast from '@components/toast.js'
-import { loadData, groupedArrayInvoice, getInvoicesBatched, loadCompanyExpenses } from '@utils/utils'
+import { loadData, buildInvoiceIndex, contractInvoicesFromIndex, loadCompanyExpenses } from '@utils/utils'
 import { receivables as financeReceivables, agingBuckets } from '@utils/finance'
 import { setMonthsInvoices, calContracts } from './funcs'
 import { getTtl } from '@utils/languages';
@@ -59,20 +59,6 @@ const fmtAutoKM = (n, decimals = 2) => {
   }
 
   return `$${fmtMoney(num, decimals)}`;
-};
-
-// Reconstruct one contract's grouped invoice set from the pre-loaded, batched index
-// (year → invoice number → docs[]). Same output as the old per-contract query, but
-// with zero extra round-trips.
-const contractInvoicesFromIndex = (con, invIndex) => {
-  const refs = con.invoices || [];
-  const yrs = [...new Set(refs.map(x => x.date.substring(0, 4)))];
-  const collected = [];
-  yrs.forEach(yr => {
-    const nums = [...new Set(refs.filter(x => x.date.substring(0, 4) === yr).map(y => y.invoice))];
-    nums.forEach(n => (invIndex[yr]?.[n] || []).forEach(d => collected.push({ ...d })));
-  });
-  return groupedArrayInvoice(collected);
 };
 
 const sumObj = (obj) => Object.values(obj || {}).reduce((a, v) => a + (Number(v) || 0), 0);
@@ -767,23 +753,8 @@ const Dash = () => {
       });
 
       // Batch ALL contracts' invoice lookups into one pass instead of one query per
-      // contract (the old N+1). Build the union of referenced invoice numbers per year,
-      // load them once (chunked), index by year+number, then slice per contract in memory.
-      const needByYear = {};
-      dtContracts.forEach(con => {
-        (con.invoices || []).forEach(ref => {
-          if (!ref?.date || ref.invoice == null) return;
-          (needByYear[ref.date.substring(0, 4)] ||= []).push(ref.invoice);
-        });
-      });
-
-      const invByYear = await getInvoicesBatched(uidCollection, 'invoices', needByYear);
-      const invIndex = {}; // { [year]: { [invoiceNumber]: docs[] } }
-      Object.entries(invByYear).forEach(([yr, docs]) => {
-        const m = (invIndex[yr] = {});
-        docs.forEach(d => (m[d.invoice] ||= []).push(d));
-      });
-
+      // contract (the old N+1): load the union once, then slice per contract in memory.
+      const invIndex = await buildInvoiceIndex(uidCollection, dtContracts);
       let dtConTmp = dtContracts.map(x => ({ ...x, invoicesData: contractInvoicesFromIndex(x, invIndex) }));
       setRawContracts(dtConTmp);
 

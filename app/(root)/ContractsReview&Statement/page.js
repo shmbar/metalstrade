@@ -15,7 +15,7 @@ import TableTotals from '../contractsstatement/totals/tableTotals';
 import { loadData, sortArr, loadStockData } from '../../../utils/utils'
 import Spinner from '../../../components/spinner';
 import { UserAuth } from "../../../contexts/useAuthContext"
-import { getInvoices, groupedArrayInvoice, getD } from '../../../utils/utils'
+import { buildInvoiceIndex, contractInvoicesFromIndex, getD } from '../../../utils/utils'
 import Spin from '../../../components/spinTable';
 import { ContractsValue, SumAllPayments, SumAllExp } from './funcs'
 import Tltip from '../../../components/tlTip'
@@ -154,38 +154,6 @@ const Total = (data, name, val, mult, settings) => {
 }
 
 
-const loadInvoices = async (uidCollection, con) => {
-
-    let yrs = [...new Set((con.invoices || []).map(x => x.date.substring(0, 4)))]
-    let arrTmp = [];
-    for (let i = 0; i < yrs.length; i++) {
-        let yr = yrs[i]
-        let tmpDt = [...new Set(con.invoices.filter(x => x.date.substring(0, 4) === yr).map(y => y.invoice))]
-        let obj = { yr: yr, arrInv: tmpDt }
-        arrTmp.push(obj)
-    }
-
-    let tmpInv = await getInvoices(uidCollection, 'invoices', arrTmp)
-    return groupedArrayInvoice(tmpInv)
-
-}
-
-const loadInvoicesStatement = async (uidCollection, con) => {
-
-    let yrs = [...new Set(con.invoices.map(x => x.date.substring(0, 4)))]
-    let arrTmp = [];
-    for (let i = 0; i < yrs.length; i++) {
-        let yr = yrs[i]
-        let tmpDt = [...new Set(con.invoices.filter(x => x.date.substring(0, 4) === yr).map(y => y.invoice))]
-        let obj = { yr: yr, arrInv: tmpDt }
-        arrTmp.push(obj)
-    }
-
-    let tmpInv = await getInvoices(uidCollection, 'invoices', arrTmp)
-    return tmpInv
-
-}
-
 const getInvArray = (obj) => {
     let invArr = []
     for (let i = 0; i < obj.invoices.length; i++) {
@@ -274,16 +242,12 @@ const ContractsMerged = () => {
     useEffect(() => {
 
         const loadInv = async () => {
-            let dt = [...contractsData]
-            dt = await Promise.all(
-                dt.map(async (x) => {
-                    const Invoices = await loadInvoices(uidCollection, x)
-                    return {
-                        ...x,
-                        invoicesData: Invoices,
-                    };
-                })
-            );
+            // Batch all contracts' invoices in one pass (was one query per contract).
+            const invIndex = await buildInvoiceIndex(uidCollection, contractsData)
+            let dt = contractsData.map(x => ({
+                ...x,
+                invoicesData: contractInvoicesFromIndex(x, invIndex, true),
+            }))
 
             dt = setCurFilterData(dt)
             setDataTable(dt)
@@ -298,15 +262,16 @@ const ContractsMerged = () => {
     useEffect(() => {
 
         const loadInvStatement = async () => {
-            let dt = [...contractsData]
-            dt = await Promise.all(
-                dt.map(async (x) => {
-                    const Invoices = await loadInvoicesStatement(uidCollection, x)
+            // Batch all contracts' invoices in one pass (was one query per contract);
+            // stock still loads per contract (separate collection).
+            const invIndex = await buildInvoiceIndex(uidCollection, contractsData)
+            let dt = await Promise.all(
+                contractsData.map(async (x) => {
                     const Stock = await loadStockData(uidCollection, 'id', x.stock)
 
                     return {
                         ...x,
-                        invoicesData: Invoices,
+                        invoicesData: contractInvoicesFromIndex(x, invIndex, false),
                         stcokData: Stock,
                     };
                 })

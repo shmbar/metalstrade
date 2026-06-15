@@ -574,6 +574,38 @@ export const getInvoicesBatched = async (uidCollection, path, needByYear) => {
   return byYear;
 };
 
+// Load every contract's invoices in ONE batched pass and return a
+// year → invoiceNumber → docs[] index. Pair with contractInvoicesFromIndex() to
+// hand each contract its own invoice set in memory — the drop-in replacement for
+// the per-contract loadInvoices()/getInvoices() N+1 (dashboard, review pages).
+export const buildInvoiceIndex = async (uidCollection, contracts) => {
+  const needByYear = {};
+  (contracts || []).forEach(con => (con.invoices || []).forEach(ref => {
+    if (ref?.date && ref.invoice != null) (needByYear[ref.date.substring(0, 4)] ||= []).push(ref.invoice);
+  }));
+  const invByYear = await getInvoicesBatched(uidCollection, 'invoices', needByYear);
+  const index = {};
+  Object.entries(invByYear).forEach(([yr, docs]) => {
+    const m = (index[yr] = {});
+    docs.forEach(d => (m[d.invoice] ||= []).push(d));
+  });
+  return index;
+};
+
+// One contract's invoice docs pulled from a buildInvoiceIndex() result, in memory.
+// grouped=true (default) returns groupedArrayInvoice() output; false returns the flat
+// list. Identical to what the old per-contract query produced for that contract.
+export const contractInvoicesFromIndex = (con, index, grouped = true) => {
+  const refs = con?.invoices || [];
+  const yrs = [...new Set(refs.map(x => x.date.substring(0, 4)))];
+  const collected = [];
+  yrs.forEach(yr => {
+    const nums = [...new Set(refs.filter(x => x.date.substring(0, 4) === yr).map(y => y.invoice))];
+    nums.forEach(n => (index[yr]?.[n] || []).forEach(d => collected.push({ ...d })));
+  });
+  return grouped ? groupedArrayInvoice(collected) : collected;
+};
+
 export const getExpenses = async (uidCollection, path, arrTmp) => {
 
   let arr = []
