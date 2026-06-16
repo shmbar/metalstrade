@@ -212,22 +212,41 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
         const ownLots = (con.stock || []).map(id => inLotById.get(id)).filter(Boolean);
         const contractFullySold = ownLots.length > 0 && ownLots.every(lotIsSold);
         if (contractFullySold) return [];
-        return (con.productsData || [])
-            .filter(prod => {
-                if (prod.import) return false;
-                const prodLots = ownLots.filter(l => l.description === prod.id || l.descriptionId === prod.id);
-                const prodFullySold = prodLots.length > 0 && prodLots.every(lotIsSold);
-                return !prodFullySold;
-            })
-            .map(prod => ({
+        const rows = [];
+        for (const prod of (con.productsData || [])) {
+            if (prod.import) continue;
+            const prodLots = ownLots.filter(l => l.description === prod.id || l.descriptionId === prod.id);
+            // Fully-sold product line drops off.
+            if (prodLots.length > 0 && prodLots.every(lotIsSold)) continue;
+            // When the material has been received into stock (Materials Breakdown lots), show
+            // the actual UNSOLD weight & value from those lots, so the figures match the
+            // inventory tables rather than the contracted quantity. When nothing is in stock
+            // yet, fall back to the contract quantity (bought-but-unsold, not yet received).
+            const unsoldLots = prodLots.filter(l => !lotIsSold(l));
+            const qnty = prodLots.length > 0
+                ? unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0)
+                : (Number(prod.qnty) || 0);
+            const total = prodLots.length > 0
+                ? unsoldLots.reduce((s, l) => s + (Number(l.total) || 0), 0)
+                : (Number(prod.qnty) || 0) * (Number(prod.unitPrc) || 0);
+            // Warehouse(s) the unsold material physically sits in (from its lots).
+            const stockName = [...new Set(unsoldLots
+                .map(l => { const s = settings?.Stocks?.Stocks?.find(k => k.id === l.stock); return s?.stock || s?.nname; })
+                .filter(Boolean))].join(', ');
+            rows.push({
                 ...prod,
                 order: con.order,
                 supplier: con.supplier,
                 originSupplier: con.originSupplier,
-                total: prod.qnty * prod.unitPrc,
+                stockName,
+                qnty,
+                unitPrc: qnty > 0 ? total / qnty : (Number(prod.unitPrc) || 0),
+                total,
                 cur: con.cur,
                 orderData: { date: con.date, id: con.id },
-            }));
+            });
+        }
+        return rows;
     });
 
     const unSoldArrTitles = Object.values(
@@ -471,7 +490,8 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
 
     const base = stockDataAll
         .filter(z => z.stock === stock)
-        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        // Group rows by contract number (PO#), matching the Unsold Stocks ordering.
+        .sort((a, b) => String(a.order ?? '').localeCompare(String(b.order ?? ''), undefined, { numeric: true }))
         .map(z => ({ ...z, _supplierName: settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || '' }));
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
 
@@ -588,7 +608,9 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
     setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
 
-    const base = stockDataAllArray.filter(z => z.supplier === supplier);
+    const base = stockDataAllArray.filter(z => z.supplier === supplier)
+        // Group rows by contract number (PO#) so both stock tables read consistently.
+        .sort((a, b) => String(a.order ?? '').localeCompare(String(b.order ?? ''), undefined, { numeric: true }));
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
     const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd');
 
@@ -608,6 +630,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                         <SumTh />
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
                         <SortTh colKey="description" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
+                        <SortTh colKey="stockName" label="Stock" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
                         <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
                         <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
                         <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
@@ -626,6 +649,9 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                     <Tltip direction='top' tltpText={[z.order, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate">{z.order}</span></Tltip></td>
                                 <td className="text-left w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.description || ''}><span className="block truncate cursor-default">{z.description}</span></Tltip>
+                                </td>
+                                <td className="text-left w-20">
+                                    <Tltip direction='top' tltpText={z.stockName || ''}><span className="block truncate cursor-default">{z.stockName}</span></Tltip>
                                 </td>
                                 <td className="text-left">{
                                     <NumericFormat
@@ -670,6 +696,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                         <th className="text-left">
                             Total
                         </th>
+                        <th></th>
                         <th></th>
                         <th className="text-left">
                             {
