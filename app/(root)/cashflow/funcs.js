@@ -226,9 +226,11 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
             const qnty = prodLots.length > 0
                 ? unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0)
                 : (Number(prod.qnty) || 0);
-            const total = prodLots.length > 0
-                ? unsoldLots.reduce((s, l) => s + (Number(l.total) || 0), 0)
-                : (Number(prod.qnty) || 0) * (Number(prod.unitPrc) || 0);
+            // Value mirrors the inventory tables: quantity × the line's unit price. Summing
+            // raw lot totals would fold in zero-quantity settlement/adjustment lots, which
+            // distorts both the value and the displayed unit price.
+            const unitPrc = Number(prod.unitPrc) || 0;
+            const total = qnty * unitPrc;
             // Warehouse(s) the unsold material physically sits in (from its lots).
             const stockName = [...new Set(unsoldLots
                 .map(l => { const s = settings?.Stocks?.Stocks?.find(k => k.id === l.stock); return s?.stock || s?.nname; })
@@ -240,7 +242,7 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
                 originSupplier: con.originSupplier,
                 stockName,
                 qnty,
-                unitPrc: qnty > 0 ? total / qnty : (Number(prod.unitPrc) || 0),
+                unitPrc,
                 total,
                 cur: con.cur,
                 orderData: { date: con.date, id: con.id },
