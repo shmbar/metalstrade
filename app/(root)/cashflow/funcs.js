@@ -1210,6 +1210,18 @@ export const runSupPayments = async (uidCollection, settings, yr, contractsData 
         dt = [].concat(...dt);
     }
 
+    // ETD/ETA for supplier balances mirror the Shipment page: the contract's own
+    // shipmentEtd/Eta, falling back to the linked client invoice's shipData. The client
+    // balances table reads the same invoice shipData, so both sides show the same date.
+    const invShip = {};
+    const invByYear = await Promise.all(
+        yr.map(year => loadData(uidCollection, 'invoices', { start: `${year}-01-01`, end: `${year}-12-31` }))
+    );
+    for (const inv of [].concat(...invByYear)) {
+        const cid = inv.poSupplier?.id;
+        if (cid && !invShip[cid]) invShip[cid] = { etd: inv.shipData?.etd?.startDate || '', eta: inv.shipData?.eta?.startDate || '' };
+    }
+
     let arr = []
 
     dt.forEach(contract => {
@@ -1220,6 +1232,8 @@ export const runSupPayments = async (uidCollection, settings, yr, contractsData 
                 order: contract.order, cur: contract.cur, invoice: inv.inv, euroToUSD: contract.euroToUSD,
                 orderData: { date: contract.date, id: contract.id },
                 id: inv.id,
+                shipmentEtd: contract.shipmentEtd || invShip[contract.id]?.etd || '',
+                shipmentEta: contract.shipmentEta || invShip[contract.id]?.eta || '',
                 contractData: {
                     productsData: contract.productsData || [],
                     shpType: contract.shpType, origin: contract.origin,
@@ -1314,6 +1328,8 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <SortTh colKey="invValue" label="Value" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                         <SortTh colKey="pmnt" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                         <SortTh colKey="blnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <th className="text-left">ETD</th>
+                        <th className="text-left">ETA</th>
                         <FinalTh />
                         <th className="text-left">Pmn</th>
                         <th className="text-left py-0">
@@ -1373,6 +1389,8 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         fixedDecimalScale
                                     />
                                 }</td>
+                                <td className="text-left">{z.shipmentEtd ? dateFormat(z.shipmentEtd, 'dd.mm.yy') : ''}</td>
+                                <td className="text-left">{z.shipmentEta ? dateFormat(z.shipmentEta, 'dd.mm.yy') : ''}</td>
                                 <td className="text-left"><FinalBadge fnlzing={z.fnlzing} /></td>
                                 <td className="text-left !py-1">
                                     <Tltip direction='right' tltpText='Partial Payment'>
@@ -1407,6 +1425,8 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <th className="text-left">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.blnc * 1, 0), 'usd')}
                         </th>
+                        <th></th>
+                        <th></th>
                         <th></th>
                         <th></th>
                         <th className="text-left">
