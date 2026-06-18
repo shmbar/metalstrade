@@ -7,7 +7,10 @@ import MonthSelect from '../../../components/monthSelect';
 import Toast from '../../../components/toast.js'
 import { ExpensesContext } from "../../../contexts/useExpensesContext";
 import { TbLayoutGridAdd } from 'react-icons/tb';
-import { loadCompanyExpenses, loadData, loadDataInvoices } from '../../../utils/utils'
+import { loadCompanyExpenses, loadData, loadDataInvoices, updateCompanyExpenseField, ensureSplitNotification } from '../../../utils/utils'
+import SplitControl from '../../../components/SplitControl';
+import { splitStatusOf } from '../../../utils/splitUtils';
+import { Split } from 'lucide-react';
 
 import Spinner from '../../../components/spinner';
 import VideoLoader from '../../../components/videoLoader';
@@ -28,10 +31,24 @@ const Expenses = () => {
 
     const { settings, dateSelect, loading, setLoading, ln } = useContext(SettingsContext);
     const { expensesData, setValueExp, setExpensesData, isOpen, setIsOpen, valueExp } = useContext(ExpensesContext);
-    const { uidCollection } = UserAuth();
+    const { uidCollection, currentUser, logActivity } = UserAuth();
     const [filteredId, setFilteredId] = useState([])
     const [totals, setTotals] = useState([])
     const [totalsAll, setTotalsAll] = useState([])
+    const [onlyUnsplit, setOnlyUnsplit] = useState(false)
+
+    // Persist a split change on one company-expense row: optimistic local update +
+    // Firestore patch (flat companyExpenses collection), reverting on failure.
+    const persistSplit = async (row, split) => {
+        const prev = expensesData;
+        setExpensesData(prev.map(x => x.id === row.id ? { ...x, split: split || null } : x));
+        try {
+            await updateCompanyExpenseField(uidCollection, row.id, { split: split || null });
+        } catch (e) {
+            console.error(e);
+            setExpensesData(prev);
+        }
+    };
 
     useEffect(() => {
 
@@ -44,6 +61,15 @@ const Expenses = () => {
             setExpensesData(dt)
             setFilteredId(dt.map(x => x.id))
             setLoading(false)
+
+            // Re-raise standing "needs IMS/GIS split" alerts (idempotent — never duplicates).
+            dt.filter(z => z.split?.status === 'pending').slice(0, 50).forEach(z => {
+                ensureSplitNotification(uidCollection, {
+                    entityType: 'companyexpense', entityId: z.id,
+                    entityLabel: `Company expense ${z.expense ? '#' + z.expense : ''}`.trim(),
+                    amount: Number(z.amount) || 0, currency: z.cur,
+                });
+            });
         }
 
         if (!uidCollection) return;
@@ -142,6 +168,30 @@ const Expenses = () => {
             filterFn: caseInsensitiveEquals,
         },
         { accessorKey: 'comments', header: getTtl('Comments', ln) },
+        {
+            id: 'split',
+            header: 'IMS / GIS',
+            enableColumnFilter: false,
+            enableSorting: false,
+            meta: { excludeFromQuickSum: true },
+            size: 170,
+            cell: (props) => {
+                const r = props.row.original;
+                return (
+                    <SplitControl
+                        row={r}
+                        entityType='companyexpense'
+                        entityLabel={`Company expense ${r.expense ? '#' + r.expense : ''}`.trim()}
+                        amount={Number(r.amount) || 0}
+                        currency={r.cur}
+                        uidCollection={uidCollection}
+                        currentUser={currentUser}
+                        logActivity={logActivity}
+                        onPersist={(split) => persistSplit(r, split)}
+                    />
+                );
+            },
+        },
 
     ];
 
@@ -222,17 +272,34 @@ const Expenses = () => {
                                 <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                                     {getTtl('Company Expenses', ln)}
                                 </h1>
-                                {/* <div className='flex items-center gap-2 group'>
-                                    <div className="relative">
-                                        <DateRangePicker />
-                                    </div>
-                                    <Tooltip txt='Select Dates Range' />
-                                </div> */}
+                                {(() => {
+                                    const pendingCount = expensesData.filter(x => splitStatusOf(x) === 'pending').length;
+                                    return (
+                                        <button
+                                            type='button'
+                                            onClick={() => setOnlyUnsplit(v => !v)}
+                                            title='Show only expenses not yet split between IMS & GIS'
+                                            className='inline-flex items-center gap-1.5 rounded-full transition-colors'
+                                            style={{
+                                                fontSize: '0.66rem', padding: '4px 12px',
+                                                color: onlyUnsplit ? 'white' : 'var(--chathams-blue)',
+                                                background: onlyUnsplit ? 'var(--endeavour)' : '#f8fbff',
+                                                border: '1px solid #b8ddf8',
+                                            }}
+                                        >
+                                            <Split className='w-3.5 h-3.5' />
+                                            Needs IMS/GIS split
+                                            <span className='rounded-full px-1.5' style={{ fontSize: '0.6rem', background: onlyUnsplit ? 'rgba(255,255,255,0.25)' : '#dbeeff', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
+                                                {pendingCount}
+                                            </span>
+                                        </button>
+                                    );
+                                })()}
                             </div>
 
                             {/* Table Component */}
                             <Customtable
-                                data={getFormatted(expensesData)}
+                                data={getFormatted(expensesData).filter(x => !onlyUnsplit || splitStatusOf(x) === 'pending')}
                                 columns={propDefaults}
                                 SelectRow={SelectRow}
                                 excellReport={EXD(expensesData.filter(x => filteredId.includes(x.id)), settings, getTtl('Company Expenses', ln), ln)}

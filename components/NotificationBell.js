@@ -8,8 +8,9 @@ import {
 
 const ENTITY = {
     contract: { icon: FileText, color: '#0366ae', bg: '#dbeeff', route: (id) => `/contracts?openId=${id}` },
-    invoice: { icon: Receipt, color: '#15803d', bg: '#f0fdf4', route: (id) => `/invoices?focus=${id}` },
-    expense: { icon: Banknote, color: '#b45309', bg: '#fffbeb', route: (id) => `/expenses?focus=${id}` },
+    invoice: { icon: Receipt, color: '#15803d', bg: '#f0fdf4', route: (id) => `/invoices?openId=${id}` },
+    expense: { icon: Banknote, color: '#b45309', bg: '#fffbeb', route: (id) => `/expenses?openId=${id}` },
+    companyexpense: { icon: Banknote, color: '#b45309', bg: '#fffbeb', route: () => `/companyexpenses` },
     stock: { icon: Package, color: '#7c3aed', bg: '#f5f3ff', route: () => `/stocks` },
     settings: { icon: SettingsIcon, color: '#475569', bg: '#f1f5f9', route: () => `/settings` },
 };
@@ -20,6 +21,9 @@ const SEVERITY_DOT = { success: '#16a34a', warning: '#d97706', error: '#dc2626',
 
 // Group notifications by subject so the stream stays organized rather than mixed.
 const CATEGORIES = [
+    // Must precede 'invoices'/'contracts' — 'invoice.splitPending' would otherwise be
+    // grabbed by the startsWith('invoice') rule. First match wins in categoryOf().
+    { key: 'splits', label: 'IMS/GIS Split', match: (n) => /\.splitPending$/.test(n.type || '') },
     { key: 'warehouse', label: 'Warehouse', match: (n) => (n.type || '').startsWith('stock') || n.entityType === 'stock' },
     { key: 'payments', label: 'Payments', match: (n) => /^(payment|settlement)/.test(n.type || '') },
     { key: 'shipments', label: 'Shipments', match: (n) => (n.type || '').startsWith('shipment') },

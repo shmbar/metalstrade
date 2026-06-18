@@ -25,11 +25,13 @@ import useInlineEdit from '../../../hooks/useInlineEdit';
 import { useRouter, useSearchParams } from 'next/navigation';
 import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
-import { updateInvoiceField } from '../../../utils/utils';
+import { updateInvoiceField, ensureSplitNotification } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 import ReminderModal from '../../../components/invoices/ReminderModal';
 import StatusBadge from '../../../components/StatusBadge';
-import { Bell } from 'lucide-react';
+import { Bell, Split } from 'lucide-react';
+import SplitControl from '../../../components/SplitControl';
+import { splitStatusOf } from '../../../utils/splitUtils';
 
 
 const Invoices = () => {
@@ -37,7 +39,7 @@ const Invoices = () => {
 	const { invoicesData, setValueInv, valueInv, isOpen, setIsOpen, setInvoicesData } = useContext(InvoiceContext);
 	const { settings, dateSelect, setDateYr, setLoading, loading, ln, compData } = useContext(SettingsContext);
 	const { blankExpense } = useContext(ExpensesContext);
-	const { uidCollection } = UserAuth();
+	const { uidCollection, currentUser, logActivity } = UserAuth();
 	const { setValueCon } = useContext(ContractsContext);
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -48,6 +50,20 @@ const Invoices = () => {
 	const { upsertSourceItems } = useGlobalSearch();
 	const [isEditMode, setIsEditMode] = useState(false);
 	const [reminderInvoice, setReminderInvoice] = useState(null);
+	const [onlyUnsplit, setOnlyUnsplit] = useState(false);
+
+	// Persist a split change on one invoice: optimistic local update + Firestore
+	// patch, reverting the local state if the write fails.
+	const persistSplit = useCallback(async (row, split) => {
+		const prev = invoicesData;
+		setInvoicesData(prev.map(x => x.id === row.id ? { ...x, split: split || null } : x));
+		try {
+			await updateInvoiceField(uidCollection, row.id, row.dateRange?.startDate ?? row.date, { split: split || null });
+		} catch (e) {
+			console.error(e);
+			setInvoicesData(prev);
+		}
+	}, [invoicesData, uidCollection, setInvoicesData]);
 
 	const gQ = (z, y, x) => settings?.[y]?.[y]?.find(q => q.id === z)?.[x] || '';
 
@@ -119,6 +135,15 @@ const Invoices = () => {
 			setOpenAlert(true)
 			setAlertArr(invArr)
 			setLoading(false)
+
+			// Re-raise standing "needs IMS/GIS split" alerts (idempotent — never duplicates).
+			dt.filter(z => z.split?.status === 'pending').slice(0, 50).forEach(z => {
+				ensureSplitNotification(uidCollection, {
+					entityType: 'invoice', entityId: z.id,
+					entityLabel: `Invoice #${String(z.invoice ?? '').padStart(4, '0')}`,
+					amount: Number(z.totalAmount) || 0, currency: z.cur,
+				});
+			});
 		}
 
 		if (!uidCollection) return;
@@ -453,6 +478,30 @@ const Invoices = () => {
 			size: 100
 		},
 		{
+			id: 'split',
+			header: 'IMS / GIS',
+			enableColumnFilter: false,
+			enableSorting: false,
+			meta: { excludeFromQuickSum: true },
+			size: 170,
+			cell: (props) => {
+				const r = props.row.original;
+				return (
+					<SplitControl
+						row={r}
+						entityType='invoice'
+						entityLabel={`Invoice #${String(r.invoice ?? '').padStart(4, '0')}`}
+						amount={Number(r.totalAmount) || 0}
+						currency={r.cur}
+						uidCollection={uidCollection}
+						currentUser={currentUser}
+						logActivity={logActivity}
+						onPersist={(split) => persistSplit(r, split)}
+					/>
+				);
+			},
+		},
+		{
 			id: 'reminder',
 			header: '',
 			enableColumnFilter: false,
@@ -659,17 +708,34 @@ const Invoices = () => {
 								<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
 									{getTtl('Invoices', ln)}
 								</h1>
-								{/* <div className='flex items-center gap-2 group'>
-									<div className="relative">
-										<DateRangePicker />
-									</div>
-									<Tooltip txt='Select Dates Range' />
-								</div> */}
+								{(() => {
+									const pendingCount = invoicesData.filter(x => splitStatusOf(x) === 'pending').length;
+									return (
+										<button
+											type='button'
+											onClick={() => setOnlyUnsplit(v => !v)}
+											title='Show only invoices not yet split between IMS & GIS'
+											className='inline-flex items-center gap-1.5 rounded-full transition-colors'
+											style={{
+												fontSize: '0.66rem', padding: '4px 12px',
+												color: onlyUnsplit ? 'white' : 'var(--chathams-blue)',
+												background: onlyUnsplit ? 'var(--endeavour)' : '#f8fbff',
+												border: '1px solid #b8ddf8',
+											}}
+										>
+											<Split className='w-3.5 h-3.5' />
+											Needs IMS/GIS split
+											<span className='rounded-full px-1.5' style={{ fontSize: '0.6rem', background: onlyUnsplit ? 'rgba(255,255,255,0.25)' : '#dbeeff', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
+												{pendingCount}
+											</span>
+										</button>
+									);
+								})()}
 							</div>
 
 							{/* Table Component */}
 							<Customtable
-								data={sortArr(getFormatted(invoicesData), 'invoice')}
+								data={sortArr(getFormatted(invoicesData), 'invoice').filter(x => !onlyUnsplit || splitStatusOf(x) === 'pending')}
 								columns={propDefaults}
 								SelectRow={SelectRow}
 								invisible={invisible}

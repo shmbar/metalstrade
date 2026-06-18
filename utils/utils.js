@@ -6,6 +6,7 @@ import {
 
 import { getStorage, ref, uploadBytes, listAll, getDownloadURL, deleteObject } from "firebase/storage";
 import { getTtl } from './languages';
+import { splitNotifId } from './splitUtils';
 
 // Pure date / invoice-grouping helpers live in pureHelpers.js so they can be
 // unit-tested without booting Firebase. We re-export them here for backward
@@ -312,6 +313,40 @@ export const ensureNotification = async (uidCollection, id, payload = {}) => {
       ...payload,
     });
   } catch (e) { console.warn('ensureNotification failed:', e?.message || e); }
+}
+
+// Hard-delete a notification — used to clear a derived/standing alert once it's
+// resolved (e.g. an IMS/GIS split that's been calculated). Best-effort; the
+// append-only activity log entry (if any) is intentionally left intact.
+export const deleteNotification = async (uidCollection, id) => {
+  if (!uidCollection || !id) return;
+  try { await deleteDoc(doc(db, uidCollection, 'data', 'notifications', id)); }
+  catch (e) { console.warn('deleteNotification failed:', e?.message || e); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IMS/GIS expense split (#) — "put an invoice under control" workflow.
+// A pending split raises a standing, idempotent notification (same stable id on the
+// action AND the page-load rescan, so it never duplicates and keeps the user's
+// read/snooze state). Calculating the split clears it.
+// ─────────────────────────────────────────────────────────────────────────────
+export const ensureSplitNotification = async (uidCollection, evt = {}) => {
+  const { entityType = 'expense', entityId, entityLabel, amount, currency, actorUid, actorName } = evt;
+  if (!uidCollection || !entityId) return;
+  const noun = entityType === 'invoice' ? 'Invoice' : 'Expense';
+  await ensureNotification(uidCollection, splitNotifId(entityType, entityId), {
+    type: `${entityType}.splitPending`,
+    entityType, entityId, entityLabel: entityLabel || '',
+    action: 'splitPending', severity: 'warning', notify: true,
+    actorUid: actorUid || 'system', actorName: actorName || 'System',
+    message: `${entityLabel || noun} — awaiting IMS/GIS split`,
+    meta: { amount: amount ?? null, currency: currency || '' },
+  });
+}
+
+export const clearSplitNotification = async (uidCollection, entityType, entityId) => {
+  if (!uidCollection || !entityId) return;
+  await deleteNotification(uidCollection, splitNotifId(entityType, entityId));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1177,6 +1212,12 @@ export const updateExpenseField = async (
   const year = expenseDate.substring(0, 4);
   const ref = doc(db, uidCollection, "data", "expenses_" + year, expenseId);
   await updateDoc(ref, patch);
+};
+
+// Company expenses live in a flat (non year-bucketed) `companyExpenses` collection,
+// so patching one needs only the id — no date → year resolution.
+export const updateCompanyExpenseField = async (uidCollection, id, patch) => {
+  await updateDoc(doc(db, uidCollection, "data", "companyExpenses", id), patch);
 };
 
 

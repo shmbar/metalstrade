@@ -26,6 +26,10 @@ import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
 import { updateExpenseField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
+import SplitControl from '../../../components/SplitControl';
+import { splitStatusOf } from '../../../utils/splitUtils';
+import { ensureSplitNotification } from '../../../utils/utils';
+import { Split } from 'lucide-react';
 
 
 
@@ -34,7 +38,7 @@ const Expenses = () => {
 
 	const { settings, dateSelect, setDateYr, loading, setLoading, ln } = useContext(SettingsContext);
 	const { expensesData, valueExp, setValueExp, setIsOpen, isOpen, setExpensesData } = useContext(ExpensesContext);
-	const { uidCollection } = UserAuth();
+	const { uidCollection, currentUser, logActivity } = UserAuth();
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const [totals, setTotals] = useState([])
@@ -43,6 +47,20 @@ const Expenses = () => {
 	const [highlightId, setHighlightId] = useState(null)
 	const { upsertSourceItems } = useGlobalSearch();
 	const [isEditMode, setIsEditMode] = useState(false);
+	const [onlyUnsplit, setOnlyUnsplit] = useState(false);
+
+	// Persist a split change on one row: optimistic local update + Firestore patch,
+	// reverting the local state if the write fails.
+	const persistSplit = useCallback(async (row, split) => {
+		const prev = expensesData;
+		setExpensesData(prev.map(x => x.id === row.id ? { ...x, split: split || null } : x));
+		try {
+			await updateExpenseField(uidCollection, row.id, row.date, { split: split || null });
+		} catch (e) {
+			console.error(e);
+			setExpensesData(prev);
+		}
+	}, [expensesData, uidCollection, setExpensesData]);
 
 	// Inline editing hook
 	const { updateField } = useInlineEdit('expenses', setExpensesData);
@@ -80,6 +98,15 @@ const Expenses = () => {
 			setExpensesData(dt)
 			setFilteredId(dt.map(x => x.id))
 			setLoading(false)
+
+			// Re-raise standing "needs IMS/GIS split" alerts (idempotent — never duplicates).
+			dt.filter(z => z.split?.status === 'pending').slice(0, 50).forEach(z => {
+				ensureSplitNotification(uidCollection, {
+					entityType: 'expense', entityId: z.id,
+					entityLabel: `Expense ${z.expense ? '#' + z.expense : ''}`.trim(),
+					amount: Number(z.amount) || 0, currency: z.cur,
+				});
+			});
 		}
 
 		if (!uidCollection) return;
@@ -251,6 +278,30 @@ const Expenses = () => {
 		},
 
 		{ accessorKey: 'comments', header: getTtl('Comments', ln), cell: EditableCell },
+		{
+			id: 'split',
+			header: 'IMS / GIS',
+			enableColumnFilter: false,
+			enableSorting: false,
+			meta: { excludeFromQuickSum: true },
+			size: 170,
+			cell: (props) => {
+				const r = props.row.original;
+				return (
+					<SplitControl
+						row={r}
+						entityType='expense'
+						entityLabel={`Expense ${r.expense ? '#' + r.expense : ''}`.trim()}
+						amount={Number(r.amount) || 0}
+						currency={r.cur}
+						uidCollection={uidCollection}
+						currentUser={currentUser}
+						logActivity={logActivity}
+						onPersist={(split) => persistSplit(r, split)}
+					/>
+				);
+			},
+		},
 
 	];
 
@@ -330,17 +381,34 @@ const Expenses = () => {
 								<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
 									{getTtl('Expenses', ln)}
 								</h1>
-								{/* <div className='flex items-center gap-2 group'>
-									<div className="relative">
-										<DateRangePicker />
-									</div>
-									<Tooltip txt='Select Dates Range' />
-								</div> */}
+								{(() => {
+									const pendingCount = expensesData.filter(x => splitStatusOf(x) === 'pending').length;
+									return (
+										<button
+											type='button'
+											onClick={() => setOnlyUnsplit(v => !v)}
+											title='Show only invoices not yet split between IMS & GIS'
+											className='inline-flex items-center gap-1.5 rounded-full transition-colors'
+											style={{
+												fontSize: '0.66rem', padding: '4px 12px',
+												color: onlyUnsplit ? 'white' : 'var(--chathams-blue)',
+												background: onlyUnsplit ? 'var(--endeavour)' : '#f8fbff',
+												border: '1px solid #b8ddf8',
+											}}
+										>
+											<Split className='w-3.5 h-3.5' />
+											Needs IMS/GIS split
+											<span className='rounded-full px-1.5' style={{ fontSize: '0.6rem', background: onlyUnsplit ? 'rgba(255,255,255,0.25)' : '#dbeeff', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
+												{pendingCount}
+											</span>
+										</button>
+									);
+								})()}
 							</div>
 
 							{/* Table Component */}
 							<Customtable
-								data={expensesData.map(x => ({ ...x, poSupplierOrder: x.poSupplier?.order }))}
+								data={expensesData.map(x => ({ ...x, poSupplierOrder: x.poSupplier?.order })).filter(x => !onlyUnsplit || splitStatusOf(x) === 'pending')}
 								columns={propDefaults}
 								SelectRow={SelectRow}
 								invisible={invisible}
