@@ -3,7 +3,7 @@ import { useContext, useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
-import { loadData, updateContractField, ensureNotification } from '../../../utils/utils';
+import { loadData, updateContractField, ensureNotification, loadActivity } from '../../../utils/utils';
 import VideoLoader from '../../../components/videoLoader';
 import Toast from '../../../components/toast.js';
 import DateRangePicker from '../../../components/dateRangePicker';
@@ -27,7 +27,7 @@ import { SHIPMENT_STATUSES, SHIPMENT_STATUS_STYLES, normalizeStatus } from '../c
 const STATUSES = SHIPMENT_STATUSES;
 const STATUS_STYLES = SHIPMENT_STATUS_STYLES;
 
-function NotesCell({ value, contractId, contractDate, uidCollection, onChange }) {
+function NotesCell({ value, contractId, contractDate, uidCollection, onChange, onCommit }) {
     const [local, setLocal] = useState(value || '');
     const timerRef = useRef(null);
 
@@ -39,7 +39,9 @@ function NotesCell({ value, contractId, contractDate, uidCollection, onChange })
         onChange(v);
         clearTimeout(timerRef.current);
         timerRef.current = setTimeout(() => {
-            updateContractField(uidCollection, contractId, contractDate, { shipmentNotes: v });
+            const ts = Date.now();
+            updateContractField(uidCollection, contractId, contractDate, { shipmentNotes: v, shipmentUpdatedAt: ts });
+            onCommit?.(ts);
         }, 800);
     };
 
@@ -65,9 +67,19 @@ const fmtDate = (d) => {
     } catch { return null; }
 };
 
-function DateCell({ rawDate, onOpen, onClear }) {
+function DateCell({ rawDate, onOpen, onClear, urgency }) {
     const ref = useRef(null);
     const display = fmtDate(rawDate);
+
+    // Arrival cells tint when cargo is overdue (red) or due within 7 days (amber).
+    const tint = urgency === 'overdue'
+        ? { backgroundColor: '#fee2e2', border: '1px solid #fecaca' }
+        : urgency === 'soon'
+        ? { backgroundColor: '#fef9c3', border: '1px solid #fde68a' }
+        : { backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' };
+    const textColor = urgency === 'overdue' ? '#991b1b'
+        : urgency === 'soon' ? '#78350f'
+        : (display ? 'var(--port-gore)' : 'var(--regent-gray)');
 
     const handleClick = (e) => {
         e.stopPropagation();
@@ -88,10 +100,10 @@ function DateCell({ rawDate, onOpen, onClear }) {
         <div
             ref={ref}
             className="h-7 responsiveTextTable flex items-center justify-center px-2 rounded-lg cursor-pointer select-none w-full relative"
-            style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', minWidth: '72px' }}
+            style={{ ...tint, minWidth: '72px' }}
             onClick={handleClick}
         >
-            <span className={display ? 'text-[var(--port-gore)]' : 'text-[var(--regent-gray)]'}>
+            <span style={{ color: textColor }}>
                 {display || '—'}
             </span>
             {display && (
@@ -236,11 +248,12 @@ const ShipmentPage = () => {
     const [showFilters, setShowFilters] = useState(true);
     const [pageIndex, setPageIndex] = useState(0);
     const [pageSize, setPageSize] = useState(25);
-    const [sortCol, setSortCol] = useState(null);
-    const [sortDir, setSortDir] = useState('asc');
+    const [sortCol, setSortCol] = useState('updated');
+    const [sortDir, setSortDir] = useState('desc');
     const [supplierFilter, setSupplierFilter] = useState('');
     const [clientFilter, setClientFilter] = useState('');
     const [shipTypeFilter, setShipTypeFilter] = useState('');
+    const [urgencyFilter, setUrgencyFilter] = useState('');
 
     // Shared floating datepicker (always mounted, repositioned on cell click)
     const [floatingPicker, setFloatingPicker] = useState(null);
@@ -266,9 +279,28 @@ const ShipmentPage = () => {
             try {
                 const contractsData = await loadData(uidCollection, 'contracts', dateSelect);
 
-                const sortedContracts = (contractsData || []).filter(Boolean)
+                const baseContracts = (contractsData || []).filter(Boolean)
                     .map(c => ({ ...c, shipmentStatus: normalizeStatus(c.shipmentStatus) }))
                     .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+                // Seed "last update" from the activity feed so the Recently-Updated sort is
+                // useful immediately — status/ETD/ETA edits are logged with ms timestamps even
+                // for contracts touched before the shipmentUpdatedAt field existed. Best-effort.
+                const actMap = {};
+                try {
+                    const acts = await loadActivity(uidCollection, { entityType: 'contract', max: 5000 });
+                    acts.forEach(r => {
+                        if (typeof r.type === 'string' && r.type.startsWith('shipment.') && r.entityId && r.createdAtMs
+                            && (!actMap[r.entityId] || r.createdAtMs > actMap[r.entityId])) {
+                            actMap[r.entityId] = r.createdAtMs;
+                        }
+                    });
+                } catch { /* activity feed is optional; fall back to stored timestamps only */ }
+
+                const sortedContracts = baseContracts.map(c => {
+                    const eff = Math.max(c.shipmentUpdatedAt || 0, actMap[c.id] || 0);
+                    return eff ? { ...c, shipmentUpdatedAt: eff } : c;
+                });
                 setContracts(sortedContracts);
 
                 // Load invoices spanning all years found in contract invoice dates
@@ -333,6 +365,41 @@ const ShipmentPage = () => {
     const getRawETD = (contract) => contract.shipmentEtd || invoiceMap[contract.id]?.etd || '';
     const getRawETA = (contract) => contract.shipmentEta || invoiceMap[contract.id]?.eta || '';
 
+    // Stamp the "last update" clock locally (Firestore is written alongside by each
+    // caller). Drives the Recently-Updated sort + the Last Update column.
+    const touchContract = (contractId, ts) =>
+        setContracts(prev => prev.map(c => c.id === contractId ? { ...c, shipmentUpdatedAt: ts } : c));
+
+    const relTime = (ms) => {
+        if (!ms) return '—';
+        const diff = Date.now() - ms;
+        const min = Math.floor(diff / 60000);
+        if (min < 1) return 'just now';
+        if (min < 60) return `${min}m ago`;
+        const hr = Math.floor(min / 60);
+        if (hr < 24) return `${hr}h ago`;
+        const day = Math.floor(hr / 24);
+        if (day < 30) return `${day}d ago`;
+        const mo = Math.floor(day / 30);
+        if (mo < 12) return `${mo}mo ago`;
+        return `${Math.floor(mo / 12)}y ago`;
+    };
+    const isRecent = (ms) => !!ms && (Date.now() - ms) < 48 * 3600 * 1000;
+
+    // Arrival urgency for at-a-glance triage (mirrors the bell reminders): cargo past
+    // its ETA is "overdue"; due within the next 7 days is "soon". Completed cargo is calm.
+    const getUrgency = (contract) => {
+        if ((contract.shipmentStatus || '') === 'Completed') return null;
+        const etaStr = getRawETA(contract);
+        if (!etaStr) return null;
+        const eta = new Date(etaStr);
+        if (isNaN(eta.getTime())) return null;
+        const days = Math.floor((Date.now() - eta.getTime()) / 86400000);
+        if (days > 0) return 'overdue';
+        if (days >= -7) return 'soon';
+        return null;
+    };
+
     const handleDateFieldChange = (contractId, field, value) => {
         setContracts(prev => prev.map(c => c.id === contractId ? { ...c, [field]: value } : c));
     };
@@ -356,8 +423,10 @@ const ShipmentPage = () => {
     const handleFloatingPickerChange = (val) => {
         const d = val?.startDate || '';
         if (floatingPicker) {
+            const ts = Date.now();
             handleDateFieldChange(floatingPicker.contractId, floatingPicker.field, d);
-            updateContractField(uidCollection, floatingPicker.contractId, floatingPicker.contractDate, { [floatingPicker.field]: d });
+            touchContract(floatingPicker.contractId, ts);
+            updateContractField(uidCollection, floatingPicker.contractId, floatingPicker.contractDate, { [floatingPicker.field]: d, shipmentUpdatedAt: ts });
             // Track who set ETD/ETA + when in the activity log (no bell ping — the
             // proactive date-reached reminders below are the notifications).
             if (d) {
@@ -411,10 +480,11 @@ const ShipmentPage = () => {
     };
 
     const handleStatusChange = async (contract, status) => {
+        const ts = Date.now();
         setContracts(prev =>
-            prev.map(c => c.id === contract.id ? { ...c, shipmentStatus: status } : c)
+            prev.map(c => c.id === contract.id ? { ...c, shipmentStatus: status, shipmentUpdatedAt: ts } : c)
         );
-        await updateContractField(uidCollection, contract.id, contract.date, { shipmentStatus: status });
+        await updateContractField(uidCollection, contract.id, contract.date, { shipmentStatus: status, shipmentUpdatedAt: ts });
         // Notify the team when cargo moves through the pipeline (skip when cleared).
         if (status) {
             logActivity?.({
@@ -495,6 +565,11 @@ const ShipmentPage = () => {
     const uniqueClientIds = [...new Set(contracts.map(c => invoiceMap[c.id]?.client).filter(Boolean))];
     const uniqueShipTypeIds = [...new Set(contracts.map(c => invoiceMap[c.id]?.shpType || c.shpType).filter(Boolean))];
 
+    // Triage counts for the attention strip (computed over everything loaded, like the status chips)
+    const overdueCount = contracts.filter(c => getUrgency(c) === 'overdue').length;
+    const soonCount = contracts.filter(c => getUrgency(c) === 'soon').length;
+    const inTransitCount = contracts.filter(c => (c.shipmentStatus || '') === 'In Transit').length;
+
     // Filter contracts by search + status + supplier + client + ship type
     const filtered = contracts.filter(c => {
         const matchStatus = statusFilter === '' || (c.shipmentStatus || '') === statusFilter;
@@ -505,6 +580,7 @@ const ShipmentPage = () => {
         if (!matchClient) return false;
         const matchShipType = shipTypeFilter === '' || (invoiceMap[c.id]?.shpType || c.shpType) === shipTypeFilter;
         if (!matchShipType) return false;
+        if (urgencyFilter !== '' && getUrgency(c) !== urgencyFilter) return false;
         if (!search.trim()) return true;
         const q = search.toLowerCase();
         const inv = getMainInvoice(c);
@@ -529,6 +605,7 @@ const ShipmentPage = () => {
             case 'pod':          return getPOD(c).toLowerCase();
             case 'shpType':      return getShpType(c).toLowerCase();
             case 'status':       return (c.shipmentStatus || '').toLowerCase();
+            case 'updated':      return c.shipmentUpdatedAt || 0;
             default:             return '';
         }
     };
@@ -543,7 +620,7 @@ const ShipmentPage = () => {
         : filtered;
 
     // Reset to first page when filters change
-    useEffect(() => { setPageIndex(0); }, [search, statusFilter, supplierFilter, clientFilter, shipTypeFilter]);
+    useEffect(() => { setPageIndex(0); }, [search, statusFilter, supplierFilter, clientFilter, shipTypeFilter, urgencyFilter]);
 
     const pageCount = Math.max(1, Math.ceil(sortedFiltered.length / pageSize));
     const safePageIndex = Math.min(pageIndex, pageCount - 1);
@@ -576,10 +653,11 @@ const ShipmentPage = () => {
             { header: 'POD',           key: 'pod',            width: 16 },
             { header: 'Ship Type',     key: 'shpType',        width: 14 },
             { header: 'Status',        key: 'status',         width: 14 },
+            { header: 'Last Update',   key: 'lastUpdate',     width: 20 },
             { header: 'Notes',         key: 'notes',          width: 40 },
         ];
         sheet.getRow(1).font = { bold: true };
-        filtered.forEach(c => {
+        sortedFiltered.forEach(c => {
             const inv = getMainInvoice(c);
             sheet.addRow({
                 order:        c.order || '',
@@ -592,6 +670,7 @@ const ShipmentPage = () => {
                 pod:          getPOD(c),
                 shpType:      getShpType(c),
                 status:       c.shipmentStatus || '',
+                lastUpdate:   c.shipmentUpdatedAt ? new Date(c.shipmentUpdatedAt).toLocaleString('en-GB') : '',
                 notes:        c.shipmentNotes || '',
             });
         });
@@ -797,24 +876,64 @@ const ShipmentPage = () => {
                         </div>
                     </div>
 
+                    {/* Attention strip — fastest path to what needs action; chips filter the table */}
+                    {(overdueCount + soonCount + inTransitCount) > 0 && (
+                        <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap" style={{ background: '#ffffff', borderBottom: '1px solid #eef4fb' }}>
+                            <span className="responsiveTextTable font-semibold tracking-wider" style={{ color: 'var(--regent-gray)' }}>NEEDS ATTENTION</span>
+                            {overdueCount > 0 && (
+                                <button
+                                    onClick={() => setUrgencyFilter(prev => prev === 'overdue' ? '' : 'overdue')}
+                                    className="font-medium px-2.5 py-0.5 rounded-full transition-all"
+                                    style={{ fontSize: '0.68rem', backgroundColor: '#fee2e2', border: '1px solid #fecaca', color: '#991b1b', outline: urgencyFilter === 'overdue' ? '2px solid #991b1b' : 'none', outlineOffset: '1px' }}
+                                >
+                                    {overdueCount} overdue
+                                </button>
+                            )}
+                            {soonCount > 0 && (
+                                <button
+                                    onClick={() => setUrgencyFilter(prev => prev === 'soon' ? '' : 'soon')}
+                                    className="font-medium px-2.5 py-0.5 rounded-full transition-all"
+                                    style={{ fontSize: '0.68rem', backgroundColor: '#fef9c3', border: '1px solid #fde68a', color: '#78350f', outline: urgencyFilter === 'soon' ? '2px solid #78350f' : 'none', outlineOffset: '1px' }}
+                                >
+                                    {soonCount} arriving ≤7d
+                                </button>
+                            )}
+                            {inTransitCount > 0 && (
+                                <button
+                                    onClick={() => setStatusFilter(prev => prev === 'In Transit' ? '' : 'In Transit')}
+                                    className="font-medium px-2.5 py-0.5 rounded-full transition-all"
+                                    style={{ fontSize: '0.68rem', ...STATUS_STYLES['In Transit'], outline: statusFilter === 'In Transit' ? `2px solid ${STATUS_STYLES['In Transit'].color}` : 'none', outlineOffset: '1px' }}
+                                >
+                                    {inTransitCount} in transit
+                                </button>
+                            )}
+                            {urgencyFilter !== '' && (
+                                <button onClick={() => setUrgencyFilter('')} className="responsiveTextTable underline" style={{ color: 'var(--endeavour)' }}>
+                                    clear
+                                </button>
+                            )}
+                        </div>
+                    )}
+
                     {/* Table — Desktop */}
                     <div className="custom-table hidden md:block flex-1 overflow-x-auto">
                     <div>
-                        <table className="w-full" style={{ minWidth: '1200px', tableLayout: 'fixed' }}>
+                        <table className="w-full" style={{ minWidth: '1300px', tableLayout: 'fixed' }}>
                             <thead>
                                 <tr>
                                     {[
-                                        { label: 'Contract #',    width: '8%',  col: 'order'    },
-                                        { label: 'Supplier',      width: '9%',  col: 'supplier' },
-                                        { label: 'Invoice #',     width: '7%',  col: 'invoice'  },
-                                        { label: 'Client',        width: '9%',  col: 'client'   },
-                                        { label: 'Shipment Date', width: '9%',  col: 'etd'      },
-                                        { label: 'Arrival Date',  width: '9%',  col: 'eta'      },
-                                        { label: 'POL',           width: '8%',  col: 'pol'      },
-                                        { label: 'POD',           width: '8%',  col: 'pod'      },
-                                        { label: 'Ship Type',     width: '8%',  col: 'shpType'  },
+                                        { label: 'Contract #',    width: '7%',  col: 'order'    },
+                                        { label: 'Supplier',      width: '8%',  col: 'supplier' },
+                                        { label: 'Invoice #',     width: '6%',  col: 'invoice'  },
+                                        { label: 'Client',        width: '8%',  col: 'client'   },
+                                        { label: 'Shipment Date', width: '8%',  col: 'etd'      },
+                                        { label: 'Arrival Date',  width: '8%',  col: 'eta'      },
+                                        { label: 'POL',           width: '7%',  col: 'pol'      },
+                                        { label: 'POD',           width: '7%',  col: 'pod'      },
+                                        { label: 'Ship Type',     width: '7%',  col: 'shpType'  },
                                         { label: 'Status',        width: '9%',  col: 'status'   },
-                                        { label: 'Notes',         width: '16%', col: null       },
+                                        { label: 'Last Update',   width: '8%',  col: 'updated'  },
+                                        { label: 'Notes',         width: '17%', col: null       },
                                     ].map(({ label, width, col }) => (
                                         <th key={label} className="font-poppins responsiveTextTable font-medium py-2"
                                             onClick={col ? () => handleSort(col) : undefined}
@@ -831,7 +950,7 @@ const ShipmentPage = () => {
                             <tbody>
                                 {filtered.length === 0 && !loading && (
                                     <tr>
-                                        <td colSpan={11} style={{ textAlign: 'center', padding: '32px', color: 'var(--regent-gray)' }}>
+                                        <td colSpan={12} style={{ textAlign: 'center', padding: '32px', color: 'var(--regent-gray)' }}>
                                             No shipments found.
                                         </td>
                                     </tr>
@@ -880,7 +999,7 @@ const ShipmentPage = () => {
                                                     <DateCell
                                                         rawDate={getRawETD(contract)}
                                                         onOpen={(pos) => openFloatingPicker(pos, contract, 'shipmentEtd')}
-                                                        onClear={() => { handleDateFieldChange(contract.id, 'shipmentEtd', ''); updateContractField(uidCollection, contract.id, contract.date, { shipmentEtd: '' }); }}
+                                                        onClear={() => { const ts = Date.now(); handleDateFieldChange(contract.id, 'shipmentEtd', ''); touchContract(contract.id, ts); updateContractField(uidCollection, contract.id, contract.date, { shipmentEtd: '', shipmentUpdatedAt: ts }); }}
                                                     />
                                                 </div>
                                             </td>
@@ -888,8 +1007,9 @@ const ShipmentPage = () => {
                                                 <div className="flex justify-center">
                                                     <DateCell
                                                         rawDate={getRawETA(contract)}
+                                                        urgency={getUrgency(contract)}
                                                         onOpen={(pos) => openFloatingPicker(pos, contract, 'shipmentEta')}
-                                                        onClear={() => { handleDateFieldChange(contract.id, 'shipmentEta', ''); updateContractField(uidCollection, contract.id, contract.date, { shipmentEta: '' }); }}
+                                                        onClear={() => { const ts = Date.now(); handleDateFieldChange(contract.id, 'shipmentEta', ''); touchContract(contract.id, ts); updateContractField(uidCollection, contract.id, contract.date, { shipmentEta: '', shipmentUpdatedAt: ts }); }}
                                                     />
                                                 </div>
                                             </td>
@@ -922,6 +1042,25 @@ const ShipmentPage = () => {
                                                     />
                                                 </div>
                                             </td>
+                                            <td>
+                                                <div className="flex justify-center">
+                                                    {(() => {
+                                                        const ts = contract.shipmentUpdatedAt;
+                                                        const recent = isRecent(ts);
+                                                        return (
+                                                            <div
+                                                                className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap inline-flex items-center gap-1"
+                                                                style={recent
+                                                                    ? { backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#14532d' }
+                                                                    : { backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', color: ts ? 'var(--port-gore)' : 'var(--regent-gray)' }}
+                                                            >
+                                                                {recent && <span style={{ width: 6, height: 6, borderRadius: 9999, backgroundColor: '#22c55e', display: 'inline-block' }} />}
+                                                                {relTime(ts)}
+                                                            </div>
+                                                        );
+                                                    })()}
+                                                </div>
+                                            </td>
                                             <td style={{ overflow: 'visible' }}>
                                                 <NotesCell
                                                     value={contract.shipmentNotes}
@@ -929,6 +1068,7 @@ const ShipmentPage = () => {
                                                     contractDate={contract.date}
                                                     uidCollection={uidCollection}
                                                     onChange={(v) => handleNotesChange(contract.id, v)}
+                                                    onCommit={(ts) => touchContract(contract.id, ts)}
                                                 />
                                             </td>
                                         </tr>
@@ -961,12 +1101,26 @@ const ShipmentPage = () => {
                                         >
                                             {contract.order || '—'}
                                         </button>
-                                        <span
-                                            className="responsiveTextTable font-medium px-2.5 py-0.5 rounded-full"
-                                            style={status ? STATUS_STYLES[status] : { backgroundColor: '#f3f4f6', color: 'var(--regent-gray)', border: '1px solid #d1d5db' }}
-                                        >
-                                            {status || 'No Status'}
-                                        </span>
+                                        <div className="flex items-center gap-1.5">
+                                            {(() => {
+                                                const u = getUrgency(contract);
+                                                if (!u) return null;
+                                                const s = u === 'overdue'
+                                                    ? { backgroundColor: '#fee2e2', border: '1px solid #fecaca', color: '#991b1b', t: 'Overdue' }
+                                                    : { backgroundColor: '#fef9c3', border: '1px solid #fde68a', color: '#78350f', t: '≤7d' };
+                                                return (
+                                                    <span className="responsiveTextTable font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: s.backgroundColor, border: s.border, color: s.color }}>
+                                                        {s.t}
+                                                    </span>
+                                                );
+                                            })()}
+                                            <span
+                                                className="responsiveTextTable font-medium px-2.5 py-0.5 rounded-full"
+                                                style={status ? STATUS_STYLES[status] : { backgroundColor: '#f3f4f6', color: 'var(--regent-gray)', border: '1px solid #d1d5db' }}
+                                            >
+                                                {status || 'No Status'}
+                                            </span>
+                                        </div>
                                     </div>
 
                                     {/* Card body */}
@@ -980,6 +1134,7 @@ const ShipmentPage = () => {
                                             { label: 'POL',           value: getPOL(contract) },
                                             { label: 'POD',           value: getPOD(contract) },
                                             { label: 'Ship Type',     value: getShpType(contract) },
+                                            { label: 'Last Update',   value: relTime(contract.shipmentUpdatedAt) },
                                         ].map(({ label, value }) => (
                                             <div key={label} className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid #f0f4f8' }}>
                                                 <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">{label}</span>
@@ -1007,6 +1162,7 @@ const ShipmentPage = () => {
                                                 contractDate={contract.date}
                                                 uidCollection={uidCollection}
                                                 onChange={(v) => handleNotesChange(contract.id, v)}
+                                                onCommit={(ts) => touchContract(contract.id, ts)}
                                             />
                                         </div>
                                     </div>
