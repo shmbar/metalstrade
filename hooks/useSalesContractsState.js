@@ -7,21 +7,6 @@ import { SettingsContext } from "@contexts/useSettingsContext";
 import { getCur } from '@components/exchangeApi'
 import { getTtl } from '@utils/languages';
 
-// Auto contract number: ddmmyy-N-CLI (mirrors the supplier-contract buildAutoOrder,
-// but seeds the suffix from the client name instead of the supplier).
-const buildAutoContractNo = (salesContractsData, clientName) => {
-    const now = new Date();
-    const datePart = dateFormat(now, 'ddmmyy');
-    const usedNumbers = salesContractsData
-        .map(c => c.contractNo ?? '')
-        .filter(o => o.startsWith(datePart + '-'))
-        .map(o => parseInt(o.split('-')[1]))
-        .filter(n => !isNaN(n));
-    const nextN = usedNumbers.length > 0 ? Math.max(...usedNumbers) + 1 : 1;
-    const cliCode = clientName ? clientName.substring(0, 3).toUpperCase() : '';
-    return `${datePart}-${nextN}-${cliCode}`;
-};
-
 const newSalesContract = {
     id: '', opDate: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"), lstSaved: '', contractNo: '',
     dateRange: { startDate: null, endDate: null }, date: '', client: '',
@@ -46,7 +31,8 @@ const useSalesContractsState = () => {
         isButtonDisabled, setIsButtonDisabled,
         blankSalesContract: () => setValueSC(undefined),
         addSalesContract: async () => {
-            setValueSC({ ...newSalesContract, contractNo: buildAutoContractNo(salesContractsData, null) });
+            // Contract # is entered manually by the user — no auto-generated number.
+            setValueSC({ ...newSalesContract });
             setIsOpenSC(true);
         },
         delSalesContract: async (uidCollection) => {
@@ -113,7 +99,7 @@ const useSalesContractsState = () => {
             let newObj = {
                 ...valueSC, invoices: [], id: '',
                 lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"),
-                contractNo: buildAutoContractNo(salesContractsData, null),
+                contractNo: '',
                 productsData: valueSC.productsData.map(x => ({ ...x, id: uuidv4() }))
             };
             setValueSC(newObj);
