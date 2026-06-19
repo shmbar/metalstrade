@@ -376,6 +376,32 @@ const Invoices = () => {
 			size: 130
 		},
 		{
+			id: 'split',
+			accessorFn: (row) => row.split?.status || 'none',
+			header: 'IMS / GIS',
+			enableColumnFilter: false,
+			enableGlobalFilter: false,
+			enableSorting: false,
+			meta: { excludeFromQuickSum: true },
+			size: 170,
+			cell: (props) => {
+				const r = props.row.original;
+				return (
+					<SplitControl
+						row={r}
+						entityType='invoice'
+						entityLabel={`Invoice #${String(r.invoice ?? '').padStart(4, '0')}`}
+						amount={Number(r.totalAmount) || 0}
+						currency={r.cur}
+						uidCollection={uidCollection}
+						currentUser={currentUser}
+						logActivity={logActivity}
+						onPersist={(split) => persistSplit(r, split)}
+					/>
+				);
+			},
+		},
+		{
 			accessorKey: 'percentage',
 			header: getTtl('Prepayment', ln),
 			cell: (props) => <span className="whitespace-nowrap">{percent(props)}</span>,
@@ -476,30 +502,6 @@ const Invoices = () => {
 			},
 			enableColumnFilter: false,
 			size: 100
-		},
-		{
-			id: 'split',
-			header: 'IMS / GIS',
-			enableColumnFilter: false,
-			enableSorting: false,
-			meta: { excludeFromQuickSum: true },
-			size: 170,
-			cell: (props) => {
-				const r = props.row.original;
-				return (
-					<SplitControl
-						row={r}
-						entityType='invoice'
-						entityLabel={`Invoice #${String(r.invoice ?? '').padStart(4, '0')}`}
-						amount={Number(r.totalAmount) || 0}
-						currency={r.cur}
-						uidCollection={uidCollection}
-						currentUser={currentUser}
-						logActivity={logActivity}
-						onPersist={(split) => persistSplit(r, split)}
-					/>
-				);
-			},
 		},
 		{
 			id: 'reminder',

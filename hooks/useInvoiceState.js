@@ -16,6 +16,7 @@ const newInvoice = {
     ttlPackages: '',
     productsDataInvoice: [],
     invType: '1111', totalAmount: '', percentage: '', totalPrepayment: '', bankNname: '',
+    clientContractNo: '', salesContractId: '',
     final: false, canceled: false, balanceDue: '', expenses: [], poSupplier: { id: '', order: '', date: '' }, remarks: [],
     hs1: '', hs2: '', payments: [], shipData: {
         rcvd: '', outrnamnt: '', fnlzing: '2587', status: '', etd: '', eta: '',

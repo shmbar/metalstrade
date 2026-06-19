@@ -256,6 +256,32 @@ const Expenses = () => {
 			},
 			meta: { filterVariant: 'range' },
 		},
+		{
+			id: 'split',
+			accessorFn: (row) => row.split?.status || 'none',
+			header: 'IMS / GIS',
+			enableColumnFilter: false,
+			enableGlobalFilter: false,
+			enableSorting: false,
+			meta: { excludeFromQuickSum: true },
+			size: 170,
+			cell: (props) => {
+				const r = props.row.original;
+				return (
+					<SplitControl
+						row={r}
+						entityType='expense'
+						entityLabel={`Expense ${r.expense ? '#' + r.expense : ''}`.trim()}
+						amount={Number(r.amount) || 0}
+						currency={r.cur}
+						uidCollection={uidCollection}
+						currentUser={currentUser}
+						logActivity={logActivity}
+						onPersist={(split) => persistSplit(r, split)}
+					/>
+				);
+			},
+		},
 
 		{ accessorKey: 'expense', header: getTtl('Expense Invoice', ln) + '#', cell: EditableCell, meta: { excludeFromQuickSum: true } },
 		{
@@ -278,30 +304,6 @@ const Expenses = () => {
 		},
 
 		{ accessorKey: 'comments', header: getTtl('Comments', ln), cell: EditableCell },
-		{
-			id: 'split',
-			header: 'IMS / GIS',
-			enableColumnFilter: false,
-			enableSorting: false,
-			meta: { excludeFromQuickSum: true },
-			size: 170,
-			cell: (props) => {
-				const r = props.row.original;
-				return (
-					<SplitControl
-						row={r}
-						entityType='expense'
-						entityLabel={`Expense ${r.expense ? '#' + r.expense : ''}`.trim()}
-						amount={Number(r.amount) || 0}
-						currency={r.cur}
-						uidCollection={uidCollection}
-						currentUser={currentUser}
-						logActivity={logActivity}
-						onPersist={(split) => persistSplit(r, split)}
-					/>
-				);
-			},
-		},
 
 	];
 

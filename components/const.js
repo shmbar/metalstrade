@@ -1,6 +1,6 @@
 import { DiBrackets } from "react-icons/di";
 import { TbFileInvoice } from "react-icons/tb";
-import { FaFileContract } from "react-icons/fa";
+import { FaFileContract, FaFileSignature } from "react-icons/fa";
 import { TbShip } from "react-icons/tb";
 import { RiDashboardLine, RiApps2Line } from "react-icons/ri";
 import { BiBasket } from "react-icons/bi";
@@ -43,6 +43,7 @@ export const sideBar = (userTitle, gisAccount) => {
             ttl: 'Shipments',
             items: [
                 { item: 'Contracts', img: <FaFileContract className="scale-[0.8]" />, page: 'contracts' },
+                { item: 'Sales Contracts', img: <FaFileSignature className="scale-[0.8]" />, page: 'salescontracts' },
                 { item: 'Shipments Tracking', img: <TbShip />, page: 'shipment' },
                 { item: 'Invoices', img: <TbFileInvoice />, page: 'invoices' },
                 { item: 'Expenses', img: <DiBrackets />, page: 'expenses' },

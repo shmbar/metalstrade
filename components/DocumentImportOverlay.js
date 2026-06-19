@@ -182,9 +182,11 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             const sel = {};
             const allFields = documentType === 'contract'
                 ? ['order', 'supplier', 'date', 'currency', 'products', 'remarks']
-                : documentType === 'expense'
-                    ? ['vendorInvoiceNumber', 'supplier', 'buyerPoNumber', 'date', 'currency', 'amount', 'expenseType', 'comments']
-                    : ['invoice', 'client', 'date', 'currency', 'products', 'remarks'];
+                : documentType === 'salescontract'
+                    ? ['contractNo', 'client', 'date', 'currency', 'products', 'remarks']
+                    : documentType === 'expense'
+                        ? ['vendorInvoiceNumber', 'supplier', 'buyerPoNumber', 'date', 'currency', 'amount', 'expenseType', 'comments']
+                        : ['invoice', 'client', 'date', 'currency', 'products', 'remarks'];
             allFields.forEach(f => {
                 const conf = data.confidence?.[f] || data.confidence?.supplier || data.confidence?.client;
                 sel[f] = conf !== 'low';
@@ -217,6 +219,21 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             }
             // `remarks` is a structured ARRAY in this app — never overwrite it with a
             // freeform string. The AI's notes go to the plain-string `comments` field.
+            if (selected.remarks && result.remarks) out.comments = String(result.remarks);
+        } else if (documentType === 'salescontract') {
+            // Client sales contract: map onto the sales-contract shape (contractNo + client + productsData).
+            if (selected.contractNo && result.contractNo) out.contractNo = result.contractNo;
+            if (selected.client && result.clientId) out.client = result.clientId;
+            if (selected.date && result.date) {
+                out.dateRange = { startDate: result.date, endDate: result.date };
+                out.date = result.date;
+            }
+            if (selected.currency && result.currencyId) out.cur = result.currencyId;
+            if (selected.products && result.products?.length) {
+                out.productsData = result.products.map((p, i) => ({
+                    id: `doc-${i}`, description: p.description || '', qnty: p.qnty || '', unitPrc: p.unitPrc || ''
+                }));
+            }
             if (selected.remarks && result.remarks) out.comments = String(result.remarks);
         } else if (documentType === 'expense') {
             // Map supplier-invoice fields onto the project's Expense shape.
@@ -277,6 +294,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
     const toggle = (field) => setSelected(prev => ({ ...prev, [field]: !prev[field] }));
 
     const isContract = documentType === 'contract';
+    const isSalesContract = documentType === 'salescontract';
     const isExpense = documentType === 'expense';
 
     // Mount-gate so the portal only renders client-side (SSR safety).
@@ -298,7 +316,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                     <div className='flex items-center gap-2'>
                         <FileText className='w-4 h-4' style={{ color: 'var(--endeavour)' }} />
                         <span id='doc-import-title' className='font-semibold' style={{ fontSize: '0.75rem', color: 'var(--chathams-blue)' }}>
-                            {isContract ? 'Autofill contract from supplier proforma' : isExpense ? 'Autofill expense from supplier invoice' : 'Import from Document — Invoice'}
+                            {isContract ? 'Autofill contract from supplier proforma' : isSalesContract ? 'Autofill sales contract from client contract' : isExpense ? 'Autofill expense from supplier invoice' : 'Import from Document — Invoice'}
                         </span>
                     </div>
                     <button
@@ -389,6 +407,15 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                                     <FieldRow label='Date' value={result.date} confidence={result.confidence?.date} selected={selected.date} onToggle={() => toggle('date')} />
                                     <FieldRow label='Currency' value={result.currencyId ? result.currencyCode : result.currencyCode ? `${result.currencyCode} (no match)` : null} confidence={result.confidence?.currency} selected={selected.currency} onToggle={() => toggle('currency')} />
                                     <FieldRow label='Products' value={result.products} confidence={result.confidence?.products} selected={selected.products} onToggle={() => toggle('products')} />
+                                    <FieldRow label='Notes / comments' value={result.remarks} confidence='medium' selected={selected.remarks} onToggle={() => toggle('remarks')} />
+                                </>
+                            ) : isSalesContract ? (
+                                <>
+                                    <FieldRow label='Sales Contract #' value={result.contractNo} confidence={result.confidence?.contractNo} selected={selected.contractNo} onToggle={() => toggle('contractNo')} />
+                                    <FieldRow label='Client' value={result.clientId ? result.clientName : result.clientName ? `${result.clientName} (no match)` : null} confidence={result.confidence?.client} selected={selected.client} onToggle={() => toggle('client')} />
+                                    <FieldRow label='Date' value={result.date} confidence={result.confidence?.date} selected={selected.date} onToggle={() => toggle('date')} />
+                                    <FieldRow label='Currency' value={result.currencyId ? result.currencyCode : result.currencyCode ? `${result.currencyCode} (no match)` : null} confidence={result.confidence?.currency} selected={selected.currency} onToggle={() => toggle('currency')} />
+                                    <FieldRow label='Materials' value={result.products} confidence={result.confidence?.products} selected={selected.products} onToggle={() => toggle('products')} />
                                     <FieldRow label='Notes / comments' value={result.remarks} confidence='medium' selected={selected.remarks} onToggle={() => toggle('remarks')} />
                                 </>
                             ) : isExpense ? (

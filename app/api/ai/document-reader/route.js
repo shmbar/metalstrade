@@ -53,6 +53,8 @@ export async function POST(request) {
         let entityLists;
         if (documentType === 'contract') {
             entityLists = `Known suppliers: ${supplierList}\nKnown currencies: ${currencyList}`;
+        } else if (documentType === 'salescontract') {
+            entityLists = `Known clients: ${clientListStr}\nKnown currencies: ${currencyList}`;
         } else if (documentType === 'expense') {
             entityLists = `Known suppliers (vendors): ${supplierList}\nKnown currencies: ${currencyList}\nKnown expense categories: ${expenseTypeList}`;
         } else {
@@ -72,6 +74,21 @@ export async function POST(request) {
   "products": [{ "description": "string", "qnty": number_or_null, "unitPrc": number_or_null }],
   "remarks": "any notes or terms from the document",
   "confidence": { "order": "high|medium|low", "supplier": "high|medium|low", "date": "high|medium|low", "products": "high|medium|low" }
+}`;
+        } else if (documentType === 'salescontract') {
+            // A CLIENT sales contract: the document is a sales agreement issued to / signed with
+            // a buyer (client). The contract number is the client's sales-contract reference.
+            schemaGuide = `Return JSON for a client sales contract:
+{
+  "contractNo": "the sales contract number / reference string or null",
+  "clientName": "extracted client (buyer) name",
+  "clientId": "matched client id or null",
+  "date": "YYYY-MM-DD or null",
+  "currencyCode": "USD/EUR/etc or null",
+  "currencyId": "matched currency id or null",
+  "products": [{ "description": "string", "qnty": number_or_null, "unitPrc": number_or_null }],
+  "remarks": "any notes or terms from the document",
+  "confidence": { "contractNo": "high|medium|low", "client": "high|medium|low", "date": "high|medium|low", "products": "high|medium|low" }
 }`;
         } else if (documentType === 'expense') {
             // For supplier-invoice → expense flow. The document was sent BY the

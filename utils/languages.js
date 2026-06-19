@@ -30,6 +30,7 @@ const TitlesArr = [
     { Statements: ['Statements', 'Заявления'] },
     { Dashboard: ['Dashboard', 'Панель приборов'] },
     { Contracts: ['Contracts', 'Контракты'] },
+    { 'Sales Contracts': ['Sales Contracts', 'Контракты продаж'] },
     { Invoices: ['Invoices', 'Счета'] },
     { Expenses: ['Expenses', 'Затраты'] },
     { 'Contracts Review': ['Contracts Review', 'Обзор контрактов'] },

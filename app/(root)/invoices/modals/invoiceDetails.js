@@ -2,7 +2,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { InvoiceContext } from "../../../../contexts/useInvoiceContext";
-import { getD, reOrderTableInv } from '../../../../utils/utils.js';
+import { getD, reOrderTableInv, loadData } from '../../../../utils/utils.js';
 import Datepicker from "react-tailwindcss-datepicker";
 import { Pdf } from '../../contracts/modals/pdf/pdfInvoice.js';
 import { PdfFnlCncl } from '../../contracts/modals/pdfInvoiceFnlCncl.js';
@@ -49,6 +49,51 @@ const InvoiceModal = () => {
 	const [docsOpen, setDocsOpen] = useState(false);
 	const router = useRouter();
 	const { setValueCon, setIsOpenCon, valueCon } = useContext(ContractsContext);
+
+	// Client sales contracts available for linking. Loaded for the invoice's year (± a year)
+	// so contracts created a little before the invoice date are still selectable.
+	const [salesContracts, setSalesContracts] = useState([]);
+
+	useEffect(() => {
+		const load = async () => {
+			if (!uidCollection) return;
+			const yr = parseInt((valueInv.dateRange?.startDate || valueInv.date || '').substring(0, 4));
+			const y = isNaN(yr) ? new Date().getFullYear() : yr;
+			const dt = await loadData(uidCollection, 'salescontracts', { start: `${y - 1}-01-01`, end: `${y + 1}-12-31` });
+			setSalesContracts(dt);
+		};
+		load();
+	}, [uidCollection, valueInv.dateRange?.startDate, valueInv.date]);
+
+	// Normalize a contract number for tolerant matching (case / spacing / punctuation).
+	const normalizeNo = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+	// Sales contracts the dropdown offers — scoped to the invoice's client when one is set,
+	// shaped so the shared Selector shows `contractNo` as the label and stores the id.
+	const scOptions = salesContracts
+		.filter(sc => !valueInv.client || sc.client === valueInv.client)
+		.map(sc => ({ ...sc, contractNo: sc.contractNo || '(no number)' }));
+
+	// Auto-match the typed Client Contract # to a sales contract (prefer same client).
+	const autoMatchSalesContract = (typed) => {
+		const target = normalizeNo(typed);
+		if (!target) return '';
+		const pool = salesContracts.filter(sc => !valueInv.client || sc.client === valueInv.client);
+		const hit = pool.find(sc => normalizeNo(sc.contractNo) === target)
+			|| salesContracts.find(sc => normalizeNo(sc.contractNo) === target);
+		return hit?.id || '';
+	};
+
+	const handleClientContractNo = (e) => {
+		const v = e.target.value;
+		setValueInv(prev => ({ ...prev, clientContractNo: v, salesContractId: autoMatchSalesContract(v) }));
+	};
+
+	// Manual override from the dropdown — also backfills the typed contract number.
+	const handleSalesContractPick = (id) => {
+		const sc = salesContracts.find(x => x.id === id);
+		setValueInv(prev => ({ ...prev, salesContractId: id, clientContractNo: sc?.contractNo ?? prev.clientContractNo }));
+	};
 
 
 	const selectInvType = (e) => {
@@ -311,6 +356,37 @@ const InvoiceModal = () => {
 				</div>
 			</div>
 
+
+			{/* Client sales contract link — type the client's contract number (auto-matches a
+			    Sales Contract) or pick one from the dropdown. Stored as clientContractNo + salesContractId. */}
+			<div className='grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1'>
+				<div className='border border-[#b8ddf8] p-2 rounded-2xl flex items-center gap-2'>
+					<p className='responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>Client Contract #:</p>
+					{!fnl ?
+						<input className="input shadow-sm h-8 text-[0.75rem] w-full" name='clientContractNo'
+							value={valueInv.clientContractNo || ''} onChange={handleClientContractNo} />
+						:
+						<p className='pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.clientContractNo}</p>
+					}
+				</div>
+				<div className='border border-[#b8ddf8] p-2 rounded-2xl flex items-center gap-2'>
+					<p className='responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>Sales Contract:</p>
+					{!fnl ?
+						<div className='flex-1 min-w-0'>
+							<Selector arr={scOptions} value={valueInv}
+								onChange={handleSalesContractPick}
+								name='salesContractId' secondaryName='contractNo'
+								clear={clear} />
+							{valueInv.clientContractNo && !valueInv.salesContractId &&
+								<p className='responsiveText text-[var(--regent-gray)] pl-1 pt-0.5'>No matching sales contract — pick one or create it.</p>}
+						</div>
+						:
+						<p className='pl-1 responsiveText text-[var(--port-gore)]'>
+							{salesContracts.find(s => s.id === valueInv.salesContractId)?.contractNo || valueInv.clientContractNo}
+						</p>
+					}
+				</div>
+			</div>
 
 			<div className='grid grid-cols-1 md:grid-cols-3 gap-1.5 pt-1'>
 				<div className='border border-[#b8ddf8] p-2 rounded-2xl'>

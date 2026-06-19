@@ -159,19 +159,12 @@ const Expenses = () => {
                 filterVariant: 'range',
             },
         },
-        { accessorKey: 'expense', header: getTtl('Expense Invoice', ln) + '#', meta: { excludeFromQuickSum: true } },
-        { accessorKey: 'expType', header: getTtl('Expense Type', ln) },
-        {
-            accessorKey: 'paid', header: getTtl('Status', ln), meta: {
-                filterVariant: 'paidNotPaidExp',
-            },
-            filterFn: caseInsensitiveEquals,
-        },
-        { accessorKey: 'comments', header: getTtl('Comments', ln) },
         {
             id: 'split',
+            accessorFn: (row) => row.split?.status || 'none',
             header: 'IMS / GIS',
             enableColumnFilter: false,
+            enableGlobalFilter: false,
             enableSorting: false,
             meta: { excludeFromQuickSum: true },
             size: 170,
@@ -192,6 +185,15 @@ const Expenses = () => {
                 );
             },
         },
+        { accessorKey: 'expense', header: getTtl('Expense Invoice', ln) + '#', meta: { excludeFromQuickSum: true } },
+        { accessorKey: 'expType', header: getTtl('Expense Type', ln) },
+        {
+            accessorKey: 'paid', header: getTtl('Status', ln), meta: {
+                filterVariant: 'paidNotPaidExp',
+            },
+            filterFn: caseInsensitiveEquals,
+        },
+        { accessorKey: 'comments', header: getTtl('Comments', ln) },
 
     ];
 
