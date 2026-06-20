@@ -189,6 +189,7 @@ export const calContracts = (data, settings, companyRate = 0) => {
     let accumulatedPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedExp = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let cogsByMonth = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
+    let storageByMonth = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedTop5Sup = data.map(x => x.supplier).reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let totalMT = 0
     let shippedMT = 0
@@ -262,6 +263,7 @@ export const calContracts = (data, settings, companyRate = 0) => {
                 if (freightIds.has(obj.expType)) freightTotal += amt
                 const lbl = expLabel(obj.expType)
                 expByType[lbl] = (expByType[lbl] || 0) + amt
+                if (['storage', 'warehouse'].includes(String(lbl).toLowerCase())) storageByMonth[month] += amt
             }
         })
     })
@@ -275,7 +277,7 @@ export const calContracts = (data, settings, companyRate = 0) => {
 
     let pieArrSupps = setPieArrs(arrTmp)
 
-    return { accumulatedPmnt, accumulatedExp, pieArrSupps, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, materialSold };
+    return { accumulatedPmnt, accumulatedExp, pieArrSupps, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, materialSold, storageByMonth };
 }
 
 

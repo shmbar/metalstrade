@@ -581,62 +581,92 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
 function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
   const fmtCur = (cur, v) => `${cur === 'us' ? '$' : cur === 'eu' ? '€' : ''}${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
   const entries = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
-  const CAT_META = [{ id: 'personal', label: 'Personal' }, { id: 'random', label: 'Random' }, { id: 'shipments', label: 'Shipments' }, { id: 'uncategorized', label: 'Uncategorized' }];
-  const catRows = CAT_META.map(c => ({ ...c, byCur: byCat[c.id]?.byCur || {}, count: byCat[c.id]?.count || 0 })).filter(c => c.count > 0);
+
+  const CAT_META = [
+    { id: 'shipments', label: 'Shipments', bg: '#eff6ff', ring: '#bfdbfe', dot: '#2563eb', color: '#1d4ed8' },
+    { id: 'personal', label: 'Personal', bg: '#f5f3ff', ring: '#ddd6fe', dot: '#7c3aed', color: '#6d28d9' },
+    { id: 'random', label: 'Random', bg: '#fffbeb', ring: '#fde68a', dot: '#d97706', color: '#b45309' },
+    { id: 'uncategorized', label: 'Uncategorized', bg: '#f1f5f9', ring: '#cbd5e1', dot: '#64748b', color: '#475569' },
+  ];
+  const catRows = CAT_META
+    .map(c => ({ ...c, byCur: byCat[c.id]?.byCur || {}, count: byCat[c.id]?.count || 0 }))
+    .filter(c => c.count > 0)
+    .map(c => ({ ...c, sharePct: count > 0 ? (c.count / count) * 100 : 0 }));
+
+  // Average ticket size only makes sense when every misc invoice this period
+  // shares one currency — mixing $/€ into a single average would be meaningless.
+  const single = entries.length === 1 ? entries[0] : null;
+  const avgPerInvoice = single && count > 0 ? single[1] / count : null;
+
   return (
     <m.div
-      className="relative rounded-xl bg-white border border-[#e6eef8] shadow-sm overflow-hidden"
+      className="relative rounded-xl bg-white border border-[#e6eef8] shadow-sm overflow-hidden h-full flex flex-col"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
       whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
     >
-      <div className="p-4 flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: '#db27771A', color: '#db2777', width: 30, height: 30 }}>
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M7 3h10l3 4v14H4V7l3-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M8 11h8M8 15h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-          </span>
-          <div className="min-w-0">
-            <div className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Misc Invoices · not linked to contracts</div>
-            <div className="text-[var(--regent-gray)] leading-tight" style={{ fontSize: '0.6rem' }}>{count} invoice{count === 1 ? '' : 's'} in period</div>
+      <div className="p-4 flex flex-col gap-3 flex-1">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: '#db27771A', color: '#db2777', width: 30, height: 30 }}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M7 3h10l3 4v14H4V7l3-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M8 11h8M8 15h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+            </span>
+            <div className="min-w-0">
+              <div className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Misc Invoices · not linked to contracts</div>
+              <div className="text-[var(--regent-gray)] leading-tight" style={{ fontSize: '0.6rem' }}>{count} invoice{count === 1 ? '' : 's'} in period</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {entries.length === 0
+              ? <span className="responsiveTextTable text-[var(--regent-gray)]">None in this period</span>
+              : entries.map(([cur, v]) => (
+                <span key={cur} className="rounded-full px-3 py-1 font-semibold"
+                  style={{ background: '#fdf2f8', boxShadow: 'inset 0 0 0 1px #fbcfe8', color: '#9d174d', fontSize: '0.82rem' }}>
+                  {fmtCur(cur, v)}
+                </span>
+              ))}
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          {entries.length === 0
-            ? <span className="responsiveTextTable text-[var(--regent-gray)]">None in this period</span>
-            : entries.map(([cur, v]) => (
-              <span key={cur} className="rounded-full px-3 py-1 font-semibold"
-                style={{ background: '#fdf2f8', boxShadow: 'inset 0 0 0 1px #fbcfe8', color: '#9d174d', fontSize: '0.82rem' }}>
-                {fmtCur(cur, v)}
-              </span>
-            ))}
-        </div>
+
+        {catRows.length > 0 ? (
+          <>
+            {/* Category mix — share of invoice count per category */}
+            <div className="w-full h-2 rounded-full overflow-hidden flex" style={{ backgroundColor: '#f1f5f9' }}>
+              {catRows.map(c => (
+                <div key={c.id} style={{ width: `${c.sharePct}%`, backgroundColor: c.dot }} title={`${c.label} · ${c.sharePct.toFixed(0)}%`} />
+              ))}
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {catRows.map(c => {
+                const ents = Object.entries(c.byCur).filter(([, v]) => Math.abs(v) > 0.005);
+                return (
+                  <div key={c.id} className="rounded-lg p-2.5" style={{ backgroundColor: c.bg, boxShadow: `inset 0 0 0 1px ${c.ring}` }}>
+                    <div className="flex items-center gap-1.5">
+                      <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: c.dot }} />
+                      <span className="text-[0.6rem] font-semibold tracking-wide truncate" style={{ color: c.color }}>{c.label.toUpperCase()}</span>
+                    </div>
+                    <div className="font-semibold mt-1 leading-none truncate" style={{ color: c.color, fontSize: 'clamp(0.8rem, 0.65rem + 0.4vw, 1rem)' }}>
+                      {ents.length === 0 ? '—' : ents.map(([cur, v]) => fmtCur(cur, v)).join(' / ')}
+                    </div>
+                    <div className="leading-none mt-1" style={{ fontSize: '0.58rem', color: 'var(--regent-gray)' }}>{c.count} inv · {c.sharePct.toFixed(0)}%</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {avgPerInvoice != null && (
+              <div className="flex items-center justify-between border-t border-[#eef5fc] pt-2 mt-auto">
+                <span className="responsiveTextTable text-[var(--regent-gray)]">Avg / invoice</span>
+                <span className="responsiveTextTable font-semibold" style={{ color: 'var(--port-gore)' }}>{fmtCur(single[0], avgPerInvoice)}</span>
+              </div>
+            )}
+          </>
+        ) : (
+          <span className="responsiveTextTable text-[var(--regent-gray)]">None in this period</span>
+        )}
       </div>
-      {catRows.length > 0 && (
-        <div className="px-4 pb-4 -mt-1">
-          <div className="border-t border-[#eef5fc] pt-2 flex flex-col gap-1">
-            {catRows.map(c => {
-              const ents = Object.entries(c.byCur).filter(([, v]) => Math.abs(v) > 0.005);
-              return (
-                <div key={c.id} className="flex items-center justify-between gap-2">
-                  <span className="responsiveTextTable text-[var(--port-gore)] flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: c.id === 'uncategorized' ? '#cbd5e1' : '#db2777' }} />
-                    {c.label}
-                    <span className="text-[var(--regent-gray)]" style={{ fontSize: '0.6rem' }}>· {c.count}</span>
-                  </span>
-                  <span className="flex items-center gap-1.5 flex-wrap justify-end">
-                    {ents.length === 0
-                      ? <span className="text-[var(--regent-gray)] responsiveTextTable">—</span>
-                      : ents.map(([cur, v]) => (
-                        <span key={cur} className="responsiveTextTable font-semibold" style={{ color: '#9d174d' }}>{fmtCur(cur, v)}</span>
-                      ))}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </m.div>
   );
 }
@@ -880,6 +910,7 @@ const Dash = () => {
   // Storage + warehouse spend (the storage-cost buckets), for the dashboard tile.
   const storageSpend = Object.entries(expByType).reduce((s, [lbl, v]) =>
     ['storage', 'warehouse'].includes(String(lbl).toLowerCase()) ? s + v : s, 0);
+  const storageByMonth = conAgg.storageByMonth || {};
 
   // SOLD-BASIS monthly profit = revenue (sold) − cost-of-sold − expenses. Unsold material
   // is stock, not a cost, so it never drags profit negative the way the old "all purchases"
@@ -1162,7 +1193,7 @@ const Dash = () => {
           )}
 
           {/* KPI ROW */}
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 mb-5">
             <StatKpiCard
               title="Net Profit · sold"
               value={fmtAutoKM(totalPL)}
@@ -1203,6 +1234,7 @@ const Dash = () => {
             <StatKpiCard
               title="Storage Spend"
               value={fmtAutoKM(storageSpend)}
+              chartData={storageByMonth}
               accent="#0ea5e9"
               goodWhenUp={false}
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 10l9-5 9 5v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M9 21v-6h6v6" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>}
@@ -1223,13 +1255,9 @@ const Dash = () => {
             <UnsoldStockCard value={unsoldValue} mt={pendingMT} />
           </div>
 
-          {/* RECEIVABLES AGING */}
-          <div className="mb-5">
+          {/* RECEIVABLES AGING + MISC INVOICES */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
             <AgingCard buckets={aging} />
-          </div>
-
-          {/* MISC INVOICES — P1 standalone sales not linked to contracts */}
-          <div className="mb-5">
             <MiscInvoicesCard byCur={miscInvoices.byCur} byCat={miscInvoices.byCat} count={miscInvoices.count} />
           </div>
 
