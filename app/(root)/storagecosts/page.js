@@ -76,10 +76,14 @@ const StorageCosts = () => {
     const factor = UNIT.find(u => u.key === unit).factor;
     const rateStr = (monthlyRate) => monthlyRate == null ? '—' : `${fmtUsd(monthlyRate * factor)}/MT`;
 
-    const draftOf = (e) => edits[e.id] || { storageWh: e.storageWh || '', storageMonth: e.storageMonth || ym(e.date) };
+    // Suggest a warehouse for an untagged invoice by reusing the one already chosen for
+    // another storage invoice from the same supplier (a terminal maps to one warehouse).
+    const suggestWh = (e) => expenses.find(x => x.id !== e.id && x.supplier && x.supplier === e.supplier && x.storageWh)?.storageWh || '';
+
+    const draftOf = (e) => edits[e.id] || { storageWh: e.storageWh || suggestWh(e), storageMonth: e.storageMonth || ym(e.date) };
     const setDraft = (id, patch) => setEdits(prev => {
         const e = expenses.find(x => x.id === id) || {};
-        const base = prev[id] || { storageWh: e.storageWh || '', storageMonth: e.storageMonth || ym(e.date) };
+        const base = prev[id] || { storageWh: e.storageWh || suggestWh(e), storageMonth: e.storageMonth || ym(e.date) };
         return { ...prev, [id]: { ...base, ...patch } };
     });
 
@@ -111,19 +115,22 @@ const StorageCosts = () => {
                             Average storage cost per MT. Tag each storage invoice to a warehouse + month below; the rate updates automatically.
                         </p>
                     </div>
-                    <div className="flex items-center gap-1">
-                        {UNIT.map(u => (
-                            <button key={u.key} type="button" onClick={() => setUnit(u.key)}
-                                className="rounded-full font-medium transition-colors"
-                                style={{
-                                    fontSize: '0.68rem', padding: '5px 12px',
-                                    background: unit === u.key ? 'var(--endeavour)' : 'white',
-                                    color: unit === u.key ? 'white' : 'var(--chathams-blue)',
-                                    border: `1px solid ${unit === u.key ? 'var(--endeavour)' : '#d8e8f5'}`,
-                                }}>
-                                {u.label}
-                            </button>
-                        ))}
+                    <div className="flex items-center gap-2">
+                        <span className="responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap hidden sm:inline">Show rate as:</span>
+                        <div className="flex items-center gap-1">
+                            {UNIT.map(u => (
+                                <button key={u.key} type="button" onClick={() => setUnit(u.key)}
+                                    className="rounded-full font-medium transition-colors"
+                                    style={{
+                                        fontSize: '0.68rem', padding: '5px 12px',
+                                        background: unit === u.key ? 'var(--endeavour)' : 'white',
+                                        color: unit === u.key ? 'white' : 'var(--chathams-blue)',
+                                        border: `1px solid ${unit === u.key ? 'var(--endeavour)' : '#d8e8f5'}`,
+                                    }}>
+                                    {u.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
