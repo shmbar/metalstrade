@@ -41,7 +41,14 @@ function MonthPickerPill({ value, onChange }) {
 
     const openPicker = () => {
         const r = btnRef.current?.getBoundingClientRect();
-        if (r) setPos({ top: r.bottom + 4, left: r.left });
+        if (r) {
+            const estH = 300, width = 224;
+            // Flip above the button when there isn't room below (keeps it on screen — a
+            // fixed-position popover can't be scrolled into view). Clamp horizontally too.
+            const top = (window.innerHeight - r.bottom >= estH + 8) ? r.bottom + 4 : Math.max(8, r.top - estH - 4);
+            const left = Math.max(8, Math.min(r.left, window.innerWidth - width - 8));
+            setPos({ top, left });
+        }
         setViewYear(selYear);
         setOpen(true);
     };
@@ -168,7 +175,7 @@ const StorageCosts = () => {
     }
 
     return (
-        <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]" style={{ background: '#f8fbff' }}>
+        <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-24 mt-[72px]" style={{ background: '#f8fbff' }}>
             <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
                 {/* Header + unit toggle */}
                 <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
