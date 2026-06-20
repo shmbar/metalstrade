@@ -16,12 +16,13 @@ import { useContext, useEffect, useMemo, useState } from 'react'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { loadData, loadAllStockData, updateExpenseField } from '../../../utils/utils';
-import { UNIT, ym, isStorageType, computeStorageMetric } from './storageUtils';
+import { UNIT, ym, toUsd, mtInWh, isStorageType, computeStorageMetric } from './storageUtils';
 import { NumericFormat } from 'react-number-format';
-import { Warehouse, Save, Boxes, AlertTriangle, Check } from 'lucide-react';
+import { Warehouse, Save, Boxes, AlertTriangle, Check, Receipt } from 'lucide-react';
 import VideoLoader from '../../../components/videoLoader';
 
 const fmtUsd = (v) => `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
+const fmtMt = (v) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0);
 
 const StorageCosts = () => {
     const { settings, dateSelect } = useContext(SettingsContext);
@@ -59,6 +60,18 @@ const StorageCosts = () => {
     // Aggregate tagged cost & MT per warehouse, plus an overall monthly $/MT rate.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const metric = useMemo(() => computeStorageMetric({ tagged, lots, whName }), [tagged, lots, warehouses]);
+
+    // Real actuals — straight from the loaded expenses & stock, no tagging required:
+    // total storage spend this period and the MT physically in each warehouse right now.
+    const actuals = useMemo(() => {
+        const totalSpend = expenses.reduce((s, e) => s + toUsd(parseFloat(e.amount) || 0, e.cur), 0);
+        const whMt = warehouses
+            .map(w => ({ id: w.id, name: whName(w.id), mt: mtInWh(lots, w.id, '') }))
+            .filter(x => x.mt > 0.01)
+            .sort((a, b) => b.mt - a.mt);
+        const totalMt = whMt.reduce((s, x) => s + x.mt, 0);
+        return { totalSpend, count: expenses.length, taggedCount: tagged.length, whMt, totalMt };
+    }, [expenses, lots, warehouses, tagged]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const factor = UNIT.find(u => u.key === unit).factor;
     const rateStr = (monthlyRate) => monthlyRate == null ? '—' : `${fmtUsd(monthlyRate * factor)}/MT`;
@@ -114,7 +127,36 @@ const StorageCosts = () => {
                     </div>
                 </div>
 
-                {/* Overall + per-warehouse rate cards */}
+                {/* Real actuals — exact figures from your expenses & stock, shown even before tagging */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-3">
+                    <div className="rounded-2xl p-4 bg-white border border-[#b8ddf8] shadow-sm">
+                        <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: '0.62rem' }}><Receipt className="w-3.5 h-3.5" /> Storage spend · this period</div>
+                        <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: '1.35rem' }}>{fmtUsd(actuals.totalSpend)}</div>
+                        <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: '0.6rem' }}>
+                            {actuals.count} invoice{actuals.count === 1 ? '' : 's'} · {actuals.taggedCount} tagged · {actuals.count - actuals.taggedCount} to tag
+                        </div>
+                    </div>
+                    <div className="rounded-2xl p-4 bg-white border border-[#b8ddf8] shadow-sm">
+                        <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: '0.62rem' }}><Boxes className="w-3.5 h-3.5" /> In storage now</div>
+                        <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: '1.35rem' }}>{fmtMt(actuals.totalMt)} MT</div>
+                        <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: '0.6rem' }}>{actuals.whMt.length} warehouse{actuals.whMt.length === 1 ? '' : 's'} with stock</div>
+                    </div>
+                    <div className="rounded-2xl p-4 bg-white border border-[#b8ddf8] shadow-sm">
+                        <div className="flex items-center gap-1.5 text-[var(--regent-gray)] mb-1" style={{ fontSize: '0.62rem' }}><Warehouse className="w-3.5 h-3.5" /> By warehouse (MT now)</div>
+                        <div className="flex flex-col gap-0.5 max-h-[4.5rem] overflow-y-auto pr-1">
+                            {actuals.whMt.length === 0
+                                ? <span className="responsiveTextTable text-[var(--regent-gray)]">No stock on hand</span>
+                                : actuals.whMt.map(w => (
+                                    <div key={w.id} className="flex items-center justify-between" style={{ fontSize: '0.66rem' }}>
+                                        <span className="text-[var(--port-gore)] truncate pr-2">{w.name || '—'}</span>
+                                        <span className="font-medium text-[var(--chathams-blue)] whitespace-nowrap">{fmtMt(w.mt)} MT</span>
+                                    </div>
+                                ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Overall + per-warehouse rate cards (require warehouse+month tagging) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
                     <div className="rounded-2xl p-4 text-white" style={{ background: 'linear-gradient(135deg, var(--endeavour), var(--chathams-blue))' }}>
                         <div className="flex items-center gap-1.5 opacity-90" style={{ fontSize: '0.62rem' }}><Boxes className="w-3.5 h-3.5" /> Avg storage cost {UNIT.find(u => u.key === unit).label}</div>
