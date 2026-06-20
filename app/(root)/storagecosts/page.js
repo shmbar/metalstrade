@@ -21,6 +21,7 @@ import { UNIT, ym, toUsd, mtInWh, isStorageType, computeStorageMetric } from './
 import { NumericFormat } from 'react-number-format';
 import { Warehouse, Save, Boxes, AlertTriangle, Check, Receipt, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import VideoLoader from '../../../components/videoLoader';
+import { Selector } from '../../../components/selectors/selectShad';
 
 const fmtUsd = (v) => `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
 const fmtMt = (v) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0);
@@ -113,6 +114,8 @@ const StorageCosts = () => {
     const expTypes = settings?.Expenses?.Expenses || [];
     const warehouses = settings?.Stocks?.Stocks || [];
     const whName = (id) => { const w = warehouses.find(k => k.id === id); return w?.stock || w?.nname || ''; };
+    // Warehouse options for the app-styled Selector (uniform display label = stock || nname).
+    const whOptions = useMemo(() => warehouses.map(w => ({ ...w, _label: w.stock || w.nname || '' })), [warehouses]);
 
     useEffect(() => {
         const Load = async () => {
@@ -312,12 +315,14 @@ const StorageCosts = () => {
                                                     <NumericFormat value={parseFloat(e.amount) || 0} displayType="text" thousandSeparator prefix={e.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale />
                                                 </td>
                                                 <td className="px-3 py-2">
-                                                    <select value={d.storageWh} onChange={ev => setDraft(e.id, { storageWh: ev.target.value })}
-                                                        className="rounded-lg bg-[#f8fbff] border border-[#d8e8f5] px-2 h-7 outline-none focus:border-[var(--endeavour)]"
-                                                        style={{ fontSize: '0.7rem', fontFamily: 'inherit' }}>
-                                                        <option value="">Select…</option>
-                                                        {warehouses.map(w => <option key={w.id} value={w.id}>{w.stock || w.nname}</option>)}
-                                                    </select>
+                                                    <Selector
+                                                        arr={whOptions}
+                                                        value={{ storageWh: d.storageWh }}
+                                                        onChange={(id) => setDraft(e.id, { storageWh: id })}
+                                                        name='storageWh'
+                                                        secondaryName='_label'
+                                                        clear={() => setDraft(e.id, { storageWh: '' })}
+                                                    />
                                                 </td>
                                                 <td className="px-3 py-2">
                                                     <MonthPickerPill value={d.storageMonth} onChange={(v) => setDraft(e.id, { storageMonth: v })} />
