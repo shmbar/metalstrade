@@ -42,12 +42,15 @@ function MonthPickerPill({ value, onChange }) {
     const openPicker = () => {
         const r = btnRef.current?.getBoundingClientRect();
         if (r) {
-            const estH = 300, width = 224;
-            // Flip above the button when there isn't room below (keeps it on screen — a
-            // fixed-position popover can't be scrolled into view). Clamp horizontally too.
-            const top = (window.innerHeight - r.bottom >= estH + 8) ? r.bottom + 4 : Math.max(8, r.top - estH - 4);
+            const estH = 290, width = 224;
             const left = Math.max(8, Math.min(r.left, window.innerWidth - width - 8));
-            setPos({ top, left });
+            // Open below when there's room; otherwise anchor the popover's BOTTOM just above
+            // the field so it grows upward with no gap (a fixed popover can't be scrolled to).
+            if (window.innerHeight - r.bottom >= estH + 8) {
+                setPos({ left, top: r.bottom + 4, bottom: undefined });
+            } else {
+                setPos({ left, top: undefined, bottom: window.innerHeight - r.top + 4 });
+            }
         }
         setViewYear(selYear);
         setOpen(true);
@@ -66,7 +69,7 @@ function MonthPickerPill({ value, onChange }) {
             {open && typeof document !== 'undefined' && createPortal(
                 <>
                     <div className="fixed inset-0 z-[9998]" onClick={() => setOpen(false)} />
-                    <div className="fixed z-[9999] rounded-2xl shadow-xl bg-white border border-[#dbeeff] overflow-hidden" style={{ top: pos.top, left: pos.left, width: 224 }}>
+                    <div className="fixed z-[9999] rounded-2xl shadow-xl bg-white border border-[#dbeeff] overflow-hidden" style={{ top: pos.top, bottom: pos.bottom, left: pos.left, width: 224 }}>
                         <div className="flex items-center justify-between py-1.5 px-2" style={{ background: '#dbeeff' }}>
                             <button type="button" onClick={() => setViewYear(y => y - 1)} className="p-1 rounded hover:bg-white/60"><ChevronLeft className="w-4 h-4 text-[var(--endeavour)]" /></button>
                             <span className="font-semibold" style={{ fontSize: '0.8rem', color: 'var(--chathams-blue)' }}>{viewYear}</span>
