@@ -12,17 +12,82 @@
 //    dates aren't reliably tracked yet, so this uses current sold status as a proxy — an
 //    honest v1 that improves once out-dates are captured.
 //  • The week/month/year toggle just re-expresses the monthly rate (×1, ÷4.345, ×12).
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { loadData, loadAllStockData, updateExpenseField } from '../../../utils/utils';
 import { UNIT, ym, toUsd, mtInWh, isStorageType, computeStorageMetric } from './storageUtils';
 import { NumericFormat } from 'react-number-format';
-import { Warehouse, Save, Boxes, AlertTriangle, Check, Receipt } from 'lucide-react';
+import { Warehouse, Save, Boxes, AlertTriangle, Check, Receipt, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import VideoLoader from '../../../components/videoLoader';
 
 const fmtUsd = (v) => `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
 const fmtMt = (v) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0);
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTHS_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+// App-styled month picker (no native browser picker). value: 'YYYY-MM' | '' ; onChange('YYYY-MM').
+// Rendered through a portal so the triage table's horizontal scroll container can't clip it.
+function MonthPickerPill({ value, onChange }) {
+    const btnRef = useRef(null);
+    const [open, setOpen] = useState(false);
+    const [pos, setPos] = useState({ top: 0, left: 0 });
+    const now = new Date();
+    const selYear = value ? parseInt(value.slice(0, 4), 10) : now.getFullYear();
+    const selMonth = value ? parseInt(value.slice(5, 7), 10) : null; // 1-12
+    const [viewYear, setViewYear] = useState(selYear);
+
+    const openPicker = () => {
+        const r = btnRef.current?.getBoundingClientRect();
+        if (r) setPos({ top: r.bottom + 4, left: r.left });
+        setViewYear(selYear);
+        setOpen(true);
+    };
+    const pick = (mIdx) => { onChange(`${viewYear}-${String(mIdx + 1).padStart(2, '0')}`); setOpen(false); };
+    const thisMonth = () => { const d = new Date(); onChange(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`); setOpen(false); };
+
+    return (
+        <>
+            <button ref={btnRef} type="button" onClick={openPicker}
+                className="flex items-center gap-2 rounded-lg bg-[#f8fbff] border border-[#d8e8f5] px-2 h-7 hover:border-[var(--endeavour)] transition-colors"
+                style={{ fontSize: '0.7rem', color: value ? 'var(--chathams-blue)' : 'var(--regent-gray)', minWidth: 140 }}>
+                <Calendar className="w-3.5 h-3.5 text-[var(--endeavour)] shrink-0" />
+                <span className="flex-1 text-left whitespace-nowrap">{value ? `${MONTHS_FULL[selMonth - 1]} ${selYear}` : 'Pick month'}</span>
+            </button>
+            {open && typeof document !== 'undefined' && createPortal(
+                <>
+                    <div className="fixed inset-0 z-[9998]" onClick={() => setOpen(false)} />
+                    <div className="fixed z-[9999] rounded-2xl shadow-xl bg-white border border-[#dbeeff] overflow-hidden" style={{ top: pos.top, left: pos.left, width: 224 }}>
+                        <div className="flex items-center justify-between py-1.5 px-2" style={{ background: '#dbeeff' }}>
+                            <button type="button" onClick={() => setViewYear(y => y - 1)} className="p-1 rounded hover:bg-white/60"><ChevronLeft className="w-4 h-4 text-[var(--endeavour)]" /></button>
+                            <span className="font-semibold" style={{ fontSize: '0.8rem', color: 'var(--chathams-blue)' }}>{viewYear}</span>
+                            <button type="button" onClick={() => setViewYear(y => y + 1)} className="p-1 rounded hover:bg-white/60"><ChevronRight className="w-4 h-4 text-[var(--endeavour)]" /></button>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1 p-2">
+                            {MONTHS.map((m, i) => {
+                                const isSel = selMonth === i + 1 && selYear === viewYear;
+                                return (
+                                    <button key={m} type="button" onClick={() => pick(i)}
+                                        className={`rounded-lg py-1.5 font-medium transition-colors ${isSel ? '' : 'hover:bg-[#ebf2fc]'}`}
+                                        style={{ fontSize: '0.72rem', background: isSel ? 'var(--endeavour)' : 'transparent', color: isSel ? 'white' : 'var(--chathams-blue)' }}>
+                                        {m}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        <div className="flex items-center justify-between px-2 py-1.5 border-t border-[#dbeeff]">
+                            <button type="button" onClick={() => { onChange(''); setOpen(false); }} className="hover:underline" style={{ fontSize: '0.66rem', color: 'var(--regent-gray)' }}>Clear</button>
+                            <button type="button" onClick={thisMonth} className="font-medium hover:underline" style={{ fontSize: '0.66rem', color: 'var(--endeavour)' }}>This month</button>
+                        </div>
+                    </div>
+                </>,
+                document.body
+            )}
+        </>
+    );
+}
 
 const StorageCosts = () => {
     const { settings, dateSelect } = useContext(SettingsContext);
@@ -245,9 +310,7 @@ const StorageCosts = () => {
                                                     </select>
                                                 </td>
                                                 <td className="px-3 py-2">
-                                                    <input type="month" value={d.storageMonth} onChange={ev => setDraft(e.id, { storageMonth: ev.target.value })}
-                                                        className="rounded-lg bg-[#f8fbff] border border-[#d8e8f5] px-2 h-7 outline-none focus:border-[var(--endeavour)]"
-                                                        style={{ fontSize: '0.7rem', fontFamily: 'inherit' }} />
+                                                    <MonthPickerPill value={d.storageMonth} onChange={(v) => setDraft(e.id, { storageMonth: v })} />
                                                 </td>
                                                 <td className="px-3 py-2">
                                                     <button type="button" disabled={!ready || savingId === e.id} onClick={() => saveTag(e)}
