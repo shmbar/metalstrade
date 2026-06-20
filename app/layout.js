@@ -19,6 +19,11 @@ export const metadata = {
 	},
 };
 
+// Every page is auth-gated and renders live, per-user Firebase data — there is no static
+// HTML to gain, and statically prerendering client pages that call useSearchParams() (e.g.
+// /contracts, /invoices, /expenses) breaks `next build`. Render the app dynamically.
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({ children }) {
 
 

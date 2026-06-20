@@ -28,6 +28,8 @@ const TitlesArr = [
     { Review: ['Review', 'Обзор'] },
     { 'IMS Summary': ['IMS Summary', 'IMS Обзор'] },
     { Statements: ['Statements', 'Заявления'] },
+    { Incoterms: ['Incoterms', 'Инкотермс'] },
+    { 'Storage Costs': ['Storage Costs', 'Стоимость хранения'] },
     { Dashboard: ['Dashboard', 'Панель приборов'] },
     { Contracts: ['Contracts', 'Контракты'] },
     { 'Sales Contracts': ['Sales Contracts', 'Контракты продаж'] },

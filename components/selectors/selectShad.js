@@ -52,7 +52,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                     {sortArr(arr.filter(x => !x.deleted), secondaryName || name).map(k => {
                         return (
                             <SelectItem key={k.id} value={k.id}
-                                className={cn('text-[0.75rem] rounded-xl', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks') ?
+                                className={cn('text-[0.75rem] rounded-xl', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks' || k.id === 'EditTextTermPmnt') ?
                                     'font-semibold italic text-purple-900' : 'text-[var(--chathams-blue)]')} >
                                 {secondaryName ? k[secondaryName] : k[name]}
                             </SelectItem>

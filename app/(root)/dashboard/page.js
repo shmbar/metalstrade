@@ -578,9 +578,11 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
 }
 
 // Annual total of P1 "Misc Invoices" — standalone sales not tied to a contract.
-function MiscInvoicesCard({ byCur = {}, count = 0 }) {
+function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
   const fmtCur = (cur, v) => `${cur === 'us' ? '$' : cur === 'eu' ? '€' : ''}${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
   const entries = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
+  const CAT_META = [{ id: 'personal', label: 'Personal' }, { id: 'random', label: 'Random' }, { id: 'shipments', label: 'Shipments' }, { id: 'uncategorized', label: 'Uncategorized' }];
+  const catRows = CAT_META.map(c => ({ ...c, byCur: byCat[c.id]?.byCur || {}, count: byCat[c.id]?.count || 0 })).filter(c => c.count > 0);
   return (
     <m.div
       className="relative rounded-xl bg-white border border-[#e6eef8] shadow-sm overflow-hidden"
@@ -610,6 +612,31 @@ function MiscInvoicesCard({ byCur = {}, count = 0 }) {
             ))}
         </div>
       </div>
+      {catRows.length > 0 && (
+        <div className="px-4 pb-4 -mt-1">
+          <div className="border-t border-[#eef5fc] pt-2 flex flex-col gap-1">
+            {catRows.map(c => {
+              const ents = Object.entries(c.byCur).filter(([, v]) => Math.abs(v) > 0.005);
+              return (
+                <div key={c.id} className="flex items-center justify-between gap-2">
+                  <span className="responsiveTextTable text-[var(--port-gore)] flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: c.id === 'uncategorized' ? '#cbd5e1' : '#db2777' }} />
+                    {c.label}
+                    <span className="text-[var(--regent-gray)]" style={{ fontSize: '0.6rem' }}>· {c.count}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 flex-wrap justify-end">
+                    {ents.length === 0
+                      ? <span className="text-[var(--regent-gray)] responsiveTextTable">—</span>
+                      : ents.map(([cur, v]) => (
+                        <span key={cur} className="responsiveTextTable font-semibold" style={{ color: '#9d174d' }}>{fmtCur(cur, v)}</span>
+                      ))}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </m.div>
   );
 }
@@ -886,14 +913,20 @@ const Dash = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawRecvInvoices, fClient, settings]);
 
-  // P1 misc invoices total by currency (annual summary — independent of the contract filters).
+  // P1 misc invoices total by currency (annual summary — independent of the contract filters),
+  // plus a breakdown by the manual category tag (Personal / Random / Shipments / Uncategorized).
   const miscInvoices = useMemo(() => {
     const byCur = {};
+    const byCat = { personal: { byCur: {}, count: 0 }, random: { byCur: {}, count: 0 }, shipments: { byCur: {}, count: 0 }, uncategorized: { byCur: {}, count: 0 } };
     rawMiscInvoices.forEach(r => {
       const cur = r.cur || 'us';
-      byCur[cur] = (byCur[cur] || 0) + (parseFloat(r.total) || 0);
+      const amt = parseFloat(r.total) || 0;
+      byCur[cur] = (byCur[cur] || 0) + amt;
+      const cat = ['personal', 'random', 'shipments'].includes(r.category) ? r.category : 'uncategorized';
+      byCat[cat].byCur[cur] = (byCat[cat].byCur[cur] || 0) + amt;
+      byCat[cat].count += 1;
     });
-    return { byCur, count: rawMiscInvoices.length };
+    return { byCur, byCat, count: rawMiscInvoices.length };
   }, [rawMiscInvoices]);
 
   const totalPL = useMemo(() => dataPL.reduce((a, v) => a + (Number(v) || 0), 0), [dataPL]);
@@ -1187,7 +1220,7 @@ const Dash = () => {
 
           {/* MISC INVOICES — P1 standalone sales not linked to contracts */}
           <div className="mb-5">
-            <MiscInvoicesCard byCur={miscInvoices.byCur} count={miscInvoices.count} />
+            <MiscInvoicesCard byCur={miscInvoices.byCur} byCat={miscInvoices.byCat} count={miscInvoices.count} />
           </div>
 
           {/* MAIN ROW — hero trend + capital breakdown */}

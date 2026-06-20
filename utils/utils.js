@@ -969,7 +969,9 @@ export const speciaInvoices = async (uidCollection, data) => {
 
   for (let i = 0; i < data.length; i++) {
     let ref = doc(db, uidCollection, 'data', 'specialInvoices', data[i].id);
-    batch.set(ref, data[i]);
+    // Merge (not overwrite) so the manual IMS category tag set on the Misc Invoices
+    // page survives every time the source contract is re-saved and the row is re-derived.
+    batch.set(ref, data[i], { merge: true });
   }
 
   return await batch.commit().then(() => {
@@ -977,6 +979,13 @@ export const speciaInvoices = async (uidCollection, data) => {
   });
 
 }
+
+// Update individual fields on a Misc Invoice (specialInvoices) doc — used for the
+// manual category tag (Personal / Random / Shipments) without touching derived fields.
+export const updateSpecialInvoiceField = async (uidCollection, id, fields) => {
+  await setDoc(doc(db, uidCollection, 'data', 'specialInvoices', id), fields, { merge: true });
+  return true;
+};
 
 // Keep Misc Invoices (`specialInvoices`) paidNotPaid in sync with the contract's
 // poInvoices payments. Status is otherwise only written on full contract save,

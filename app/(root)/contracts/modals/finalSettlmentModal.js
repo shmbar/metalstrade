@@ -38,6 +38,12 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     const [checkedItems, setCheckedItems] = useState([]);
     const [data, setData] = useState([]);
     const [errors, setErrors] = useState([])
+    // Final-settlement draft. When ON, the edits are stashed in each lot's `fsDraftData`
+    // and the live fields (finalqnty/unitPrcFinal/finaltotal) stay at their last-confirmed
+    // values — so cashflow & stocks ignore the in-progress settlement until it's confirmed.
+    // `confirmedMap` keeps those confirmed values by lot id so a draft save can restore them.
+    const [isDraft, setIsDraft] = useState(false)
+    const [confirmedMap, setConfirmedMap] = useState({})
 
 
     useEffect(() => {
@@ -46,14 +52,26 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
             let stockData = valueCon.stock.length > 0 ? await loadStockData(uidCollection, 'id', valueCon.stock) : []
 
-            stockData = stockData.map(z => z.finalqnty == null ? {
-                ...z, finalqnty: z.qnty,
-                finaltotal: z.total,
-                descriptionText: z.descriptionText ?? z.productsData.find(k => k.id === z.description)?.description,
-                unitPrcFinal: z.unitPrcFinal ?? z.unitPrc,
-                remark: ''
-            } : z)
+            const confirmed = {}
+            stockData = stockData.map(z => {
+                // Last-confirmed (live) values — what cashflow/stocks currently read. Same
+                // defaulting as before: an unsettled lot falls back to its received qnty/total.
+                const base = {
+                    finalqnty: z.finalqnty ?? z.qnty,
+                    finaltotal: z.finaltotal ?? z.total,
+                    unitPrc: z.unitPrc,
+                    unitPrcFinal: z.unitPrcFinal ?? z.unitPrc,
+                    descriptionText: z.descriptionText ?? z.productsData.find(k => k.id === z.description)?.description,
+                    remark: z.remark ?? ''
+                }
+                confirmed[z.id] = base
+                // Values shown in the form: the held draft edits if present, else confirmed.
+                const working = (z.fsDraft && z.fsDraftData) ? { ...base, ...z.fsDraftData } : base
+                return { ...z, ...working }
+            })
 
+            setConfirmedMap(confirmed)
+            setIsDraft(stockData.some(z => z.fsDraft))
             setData(stockData)
         }
 
@@ -113,14 +131,39 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
 
     const saveD = () => {
-        saveData_stocks(uidCollection, data)
-
+        const payload = data.map(x => {
+            const base = confirmedMap[x.id] || {}
+            if (isDraft) {
+                // Hold the edits aside; keep the live fields at their confirmed values so the
+                // settlement stays out of cashflow & stocks until Draft is turned off.
+                return {
+                    ...x,
+                    finalqnty: base.finalqnty, finaltotal: base.finaltotal,
+                    unitPrc: base.unitPrc, unitPrcFinal: base.unitPrcFinal,
+                    descriptionText: base.descriptionText, remark: base.remark,
+                    fsDraft: true,
+                    fsDraftData: {
+                        finalqnty: x.finalqnty, finaltotal: x.finaltotal,
+                        unitPrc: x.unitPrc, unitPrcFinal: x.unitPrcFinal,
+                        descriptionText: x.descriptionText, remark: x.remark
+                    }
+                }
+            }
+            // Confirm ("make it original"): the edited values become live; clear the draft.
+            return { ...x, fsDraft: false, fsDraftData: null }
+        })
+        saveData_stocks(uidCollection, payload)
     }
 
 
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('FinalSettlmnt', ln)} w='max-w-6xl'>
             <div className='flex flex-col p-1 justify-between gap-4 max-h-[50rem] overflow-y-auto'>
+                {isDraft &&
+                    <div className='rounded-xl px-3 py-2 responsiveTextTable font-medium' style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#b45309' }}>
+                        Draft mode — these settlement figures are held back and won’t affect cashflow or stocks until you turn off Draft and save.
+                    </div>
+                }
                 {data.map((x, i) => {
                     return (
                         <div className='grid grid-cols-12 p-1 gap-2 border border-[#b8ddf8] rounded-2xl bg-[#f4f9ff]' key={i}>
@@ -203,15 +246,25 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
             </div>
 
 
-            <div className="px-3 flex gap-4 flex-wrap justify-start">
-                <div className='flex gap-4 p-2'>
-                    <Tltip direction='top' tltpText='Save/Update data'>
+            <div className="px-3 flex gap-4 flex-wrap items-center justify-start">
+                <div className='flex gap-3 items-center p-2'>
+                    <Tltip direction='top' tltpText={isDraft
+                        ? 'Draft ON — saving keeps this settlement out of cashflow & stocks until you turn Draft off and save.'
+                        : 'Draft OFF — saving applies this settlement to cashflow & stocks (original).'}>
+                        <div className='flex items-center gap-2 px-3 h-8 rounded-full border cursor-pointer'
+                            style={{ background: isDraft ? '#fffbeb' : '#f8fbff', borderColor: isDraft ? '#fde68a' : '#d8e8f5' }}
+                            onClick={() => setIsDraft(!isDraft)}>
+                            <ChkBox checked={isDraft} size='h-5 w-5' onChange={() => setIsDraft(!isDraft)} />
+                            <span className='responsiveTextTable font-medium' style={{ color: isDraft ? '#b45309' : 'var(--chathams-blue)' }}>Draft</span>
+                        </div>
+                    </Tltip>
+                    <Tltip direction='top' tltpText={isDraft ? 'Save as draft (held back)' : 'Save & apply (original)'}>
                         <Button
                             className='h-8 px-3'
                             onClick={saveD}
                         >
                             <Save />
-                            {getTtl('save', ln)}
+                            {isDraft ? 'Save as Draft' : getTtl('save', ln)}
                         </Button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Create PDF document'>

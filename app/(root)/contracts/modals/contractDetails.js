@@ -121,6 +121,10 @@ const ContractModal = () => {
 		setValueCon({ ...valueCon, 'isDeltimeText': false, 'deltime': '' })
 	}
 
+	const caneclEditTextPmnt = () => {
+		setValueCon({ ...valueCon, 'isTermPmntText': false, 'termPmnt': '' })
+	}
+
 	const autoOrderPattern = /^\d{6}-\d+-\w*$/;
 
 	const handleChange = (e, name) => {
@@ -146,6 +150,11 @@ const ContractModal = () => {
 			if (name === 'deltime' && e === 'EditTextDelTime') {
 				updated.deltime = ''
 				updated.isDeltimeText = true
+			}
+
+			if (name === 'termPmnt' && e === 'EditTextTermPmnt') {
+				updated.termPmnt = ''
+				updated.isTermPmntText = true
 			}
 
 
@@ -502,10 +511,21 @@ const ContractModal = () => {
 			<div className='mt-2 w-full border border-[#b8ddf8] p-2 rounded-2xl'>
 				<p className='flex items-center responsiveText font-medium text-[var(--chathams-blue)]'>{getTtl('Payment Terms', ln)}:</p>
 				<div className='w-full '>
-					<Selector arr={settings['Payment Terms']['Payment Terms']} value={valueCon}
-						onChange={(e) => handleChange(e, 'termPmnt')}
-						name='termPmnt'
-						clear={clear} />
+					{!valueCon.isTermPmntText ?
+						<Selector arr={[...settings['Payment Terms']['Payment Terms'], { termPmnt: '..Edit Text', id: 'EditTextTermPmnt' }]}
+							value={valueCon}
+							onChange={(e) => handleChange(e, 'termPmnt')}
+							name='termPmnt'
+							clear={clear} />
+						:
+						<div className='flex relative w-full responsiveText'>
+							<textarea rows="2" className="input p-1 !rounded-lg resize-none w-full pr-7" style={{ fontFamily: 'inherit' }} name='termPmnt'
+								value={valueCon.termPmnt} onChange={handleValue} />
+							<button type='button' className='absolute right-2 top-2' onClick={caneclEditTextPmnt}>
+								<X className="size-4 text-[var(--regent-gray)]" />
+							</button>
+						</div>
+					}
 				</div>
 			</div>
 

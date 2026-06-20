@@ -7,12 +7,34 @@ import { UserAuth } from "../../../contexts/useAuthContext"
 import { EXD } from './excel'
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
-import { getD, loadCompanyExpenses, loadDataInvoices } from '../../../utils/utils';
+import { getD, loadCompanyExpenses, loadDataInvoices, updateSpecialInvoiceField } from '../../../utils/utils';
 import DateRangePicker from '../../../components/dateRangePicker';
 import Tooltip from '../../../components/tooltip';
 import Customtable from './newTable';
 import TableTotals from './totals/tableTotals';
 import VideoLoader from '../../../components/videoLoader';
+
+// Manual IMS category buckets for Misc Invoices (client request: personal / random / shipments).
+const MISC_CATS = [
+    { id: 'personal', label: 'Personal' },
+    { id: 'random', label: 'Random' },
+    { id: 'shipments', label: 'Shipments' },
+];
+
+// Inline dropdown used in the Category column. stopPropagation keeps row click/select
+// handlers from firing while choosing. '' (unset) shows as “—”.
+const CategorySelect = ({ id, value, onChange }) => (
+    <select
+        value={value || 'none'}
+        onClick={(e) => e.stopPropagation()}
+        onChange={(e) => { e.stopPropagation(); onChange(id, e.target.value === 'none' ? '' : e.target.value); }}
+        className="bg-transparent outline-none cursor-pointer responsiveTextTable"
+        style={{ color: 'var(--port-gore)', fontFamily: 'inherit' }}
+    >
+        <option value="none">—</option>
+        {MISC_CATS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+    </select>
+);
 
 const SpecialInvoices = () => {
     const { settings, dateSelect, setDateYr, setLoading, loading, ln } = useContext(SettingsContext);
@@ -97,6 +119,12 @@ const SpecialInvoices = () => {
 
     const SelectRow = () => { }
 
+    // Persist the manual category tag and reflect it immediately in the table.
+    const handleCategoryChange = async (id, category) => {
+        setData(prev => prev.map(r => r.id === id ? { ...r, category } : r));
+        await updateSpecialInvoiceField(uidCollection, id, { category });
+    };
+
     const exactMatchFilter = (row, columnId, filterValue) => {
         const cellValue = row.getValue(columnId);
         return cellValue === filterValue || filterValue === '';
@@ -144,6 +172,13 @@ const SpecialInvoices = () => {
                 filterVariant: 'paidNotPaid',
             },
             filterFn: exactMatchFilter,
+        },
+        {
+            id: 'category', header: 'Category',
+            accessorFn: (row) => row.category || 'none',
+            cell: (props) => <CategorySelect id={props.row.original.id} value={props.row.original.category} onChange={handleCategoryChange} />,
+            meta: { excludeFromQuickSum: true },
+            enableColumnFilter: false,
         },
     ];
 

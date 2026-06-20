@@ -57,7 +57,8 @@ export const sideBar = (userTitle, gisAccount) => {
             ttl: 'Statements',
             items: [
                 { item: 'Account Statement', img: <TbReportMoney className="scale-[1]" />, page: 'accstatement' },
-                { item: 'Stocks', img: <MdOutlineWarehouse />, page: 'stocks' }
+                { item: 'Stocks', img: <MdOutlineWarehouse />, page: 'stocks' },
+                { item: 'Storage Costs', img: <HiOutlineDocumentChartBar />, page: 'storagecosts' }
             ]
         },
         {
@@ -66,6 +67,7 @@ export const sideBar = (userTitle, gisAccount) => {
                 { item: 'Misc Invoices', img: <TbFileInvoice />, page: 'specialinvoices' },
                 { item: 'Company Expenses', img: <DiBrackets />, page: 'companyexpenses' },
                 { item: 'Material Tables', img: <FaTableList className="scale-[0.8] text-slate-500" />, page: 'materialtables' },
+                { item: 'Incoterms', img: <IoNewspaperOutline />, page: 'incoterms' },
                 { item: 'Activity Log', img: <TbHistory />, page: 'activity' },
             ]
         },

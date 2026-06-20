@@ -267,7 +267,7 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
     doc.setFont('PoppinsB', 'bold');
     doc.text('Payment Terms:', 10, 115);
     doc.setFont('Poppins', 'normal');
-    const tmp1 = doc.splitTextToSize(getD(settings['Payment Terms']['Payment Terms'], valueCon, 'termPmnt'), 155, {})
+    const tmp1 = doc.splitTextToSize(valueCon.isTermPmntText ? (valueCon.termPmnt || '') : getD(settings['Payment Terms']['Payment Terms'], valueCon, 'termPmnt'), 155, {})
     doc.text(tmp1, 37, 115);
 
     console.error = () => { };
