@@ -877,6 +877,9 @@ const Dash = () => {
   const cogsByMonth = conAgg.cogsByMonth || {};
   const expByType = conAgg.expByType || {};
   const materialSold = conAgg.materialSold || {};
+  // Storage + warehouse spend (the storage-cost buckets), for the dashboard tile.
+  const storageSpend = Object.entries(expByType).reduce((s, [lbl, v]) =>
+    ['storage', 'warehouse'].includes(String(lbl).toLowerCase()) ? s + v : s, 0);
 
   // SOLD-BASIS monthly profit = revenue (sold) − cost-of-sold − expenses. Unsold material
   // is stock, not a cost, so it never drags profit negative the way the old "all purchases"
@@ -1196,6 +1199,13 @@ const Dash = () => {
               accent="#db2777"
               goodWhenUp={false}
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" /><path d="M12 8v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /><path d="M12 12l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
+            />
+            <StatKpiCard
+              title="Storage Spend"
+              value={fmtAutoKM(storageSpend)}
+              accent="#0ea5e9"
+              goodWhenUp={false}
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 10l9-5 9 5v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M9 21v-6h6v6" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>}
             />
             <StatKpiCard
               title="Avg Profit / MT"

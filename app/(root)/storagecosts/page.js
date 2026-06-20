@@ -189,6 +189,14 @@ const StorageCosts = () => {
                         <span className="rounded-full px-2 py-0.5 font-semibold" style={{ fontSize: '0.6rem', background: untagged.length ? '#fffbeb' : '#f0fdf4', color: untagged.length ? '#b45309' : '#15803d', boxShadow: `inset 0 0 0 1px ${untagged.length ? '#fde68a' : '#bbf7d0'}` }}>
                             {untagged.length}
                         </span>
+                        {actuals.count > 0 && (
+                            <div className="ml-auto flex items-center gap-2 flex-1 justify-end">
+                                <div className="h-1.5 rounded-full overflow-hidden bg-white/70 w-full" style={{ boxShadow: 'inset 0 0 0 1px #b8ddf8', maxWidth: 160 }}>
+                                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.round((actuals.taggedCount / actuals.count) * 100)}%`, background: '#15803d' }} />
+                                </div>
+                                <span className="whitespace-nowrap font-medium" style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>{actuals.taggedCount}/{actuals.count} tagged</span>
+                            </div>
+                        )}
                     </div>
 
                     {untagged.length === 0 ? (
