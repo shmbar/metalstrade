@@ -123,9 +123,9 @@ const Row = ({ label, value }) => {
     const who = /^Seller/.test(value) ? 'seller' : /^Buyer/.test(value) ? 'buyer' : 'none'
     const color = who === 'seller' ? 'var(--endeavour)' : who === 'buyer' ? '#b45309' : 'var(--port-gore)'
     return (
-        <div className="flex items-start justify-between gap-3 py-1 border-b border-[#eef5fc] last:border-0">
-            <span className="responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap">{label}</span>
-            <span className="responsiveTextTable text-right font-medium" style={{ color }}>{value}</span>
+        <div className="grid items-start gap-x-3 py-1 border-b border-[#eef5fc] last:border-0" style={{ gridTemplateColumns: 'minmax(74px, 42%) 1fr' }}>
+            <span className="responsiveTextTable text-[var(--regent-gray)] break-words">{label}</span>
+            <span className="responsiveTextTable text-right font-medium break-words min-w-0" style={{ color }}>{value}</span>
         </div>
     )
 }
@@ -138,7 +138,7 @@ const IncotermCard = ({ t }) => (
                 {t.code}
             </span>
             <div className="min-w-0">
-                <div className="responsiveText font-semibold text-[var(--chathams-blue)] leading-tight truncate">{t.name}</div>
+                <div className="responsiveText font-semibold text-[var(--chathams-blue)] leading-tight break-words">{t.name}</div>
                 <div className="mt-0.5"><ModeTag mode={t.mode} /></div>
             </div>
         </div>
