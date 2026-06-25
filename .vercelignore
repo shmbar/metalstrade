@@ -1,0 +1,3 @@
+# The React Native app lives in /mobile but is not part of the web deployment.
+mobile
+tasks

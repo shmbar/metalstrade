@@ -1,0 +1,144 @@
+import { create } from 'zustand';
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut as fbSignOut,
+  User,
+} from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+
+// The GIS account's uidCollection — same sentinel the web app uses to flip
+// "Sharon Admin" ↔ "Gis Admin" and a handful of GIS-specific behaviors.
+const GIS_UID_COLLECTION = 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS';
+
+export interface CurrentUser {
+  uid: string;
+  name: string;
+  email: string;
+}
+
+interface AuthState {
+  user: User | null;
+  initializing: boolean;
+  uidCollection: string | null;
+  userTitle: string | null; // 'Admin' | 'accounting' | other
+  gisAccount: boolean;
+  currentUser: CurrentUser;
+  error: string | null;
+  signIn: (email: string, password: string) => Promise<boolean>;
+  signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ ok: boolean; message: string }>;
+  init: () => () => void;
+}
+
+// Derive a readable name from an email local-part ("anna.smith@x" → "Anna Smith"),
+// matching the web app's currentUser fallback used for activity attribution.
+const nameFromEmail = (email?: string | null): string => {
+  if (!email) return '';
+  return String(email)
+    .split('@')[0]
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join(' ');
+};
+
+const buildCurrentUser = (user: User | null): CurrentUser => ({
+  uid: user?.uid || '',
+  name: user?.displayName?.trim() || nameFromEmail(user?.email) || 'Unknown',
+  email: user?.email || '',
+});
+
+export const useAuth = create<AuthState>((set) => ({
+  user: null,
+  initializing: true,
+  uidCollection: null,
+  userTitle: null,
+  gisAccount: false,
+  currentUser: buildCurrentUser(null),
+  error: null,
+
+  signIn: async (email, password) => {
+    set({ error: null });
+    try {
+      await signInWithEmailAndPassword(auth, email.trim(), password);
+      return true;
+    } catch (e: any) {
+      const code = e?.code || '';
+      const msg =
+        code === 'auth/invalid-email'
+          ? 'Enter your full email address (e.g. name@company.com), not just a username.'
+          : code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found'
+            ? 'Incorrect email or password.'
+            : code === 'auth/too-many-requests'
+              ? 'Too many attempts. Try again later.'
+              : e?.message || 'Sign-in failed.';
+      set({ error: msg });
+      return false;
+    }
+  },
+
+  signOut: async () => {
+    await fbSignOut(auth).catch(() => {});
+  },
+
+  // Send a Firebase password-reset email — parity with the web "Forgot password".
+  resetPassword: async (email) => {
+    const e = email.trim();
+    if (!e) return { ok: false, message: 'Enter your email address first.' };
+    try {
+      await sendPasswordResetEmail(auth, e);
+      return { ok: true, message: `Reset link sent to ${e}. Check your inbox.` };
+    } catch (err: any) {
+      const code = err?.code || '';
+      const message =
+        code === 'auth/invalid-email'
+          ? 'Enter a valid email address.'
+          : code === 'auth/user-not-found'
+            ? 'No account found for that email.'
+            : err?.message || 'Could not send reset email.';
+      return { ok: false, message };
+    }
+  },
+
+  // Subscribes to Firebase auth; resolves the per-account namespace + role from
+  // the user's custom claims (identical model to the web app's AuthContext).
+  init: () => {
+    return onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        set({
+          user: null,
+          uidCollection: null,
+          userTitle: null,
+          gisAccount: false,
+          currentUser: buildCurrentUser(null),
+          initializing: false,
+        });
+        return;
+      }
+      try {
+        const token = await user.getIdTokenResult();
+        const uidCollection = (token.claims.uidCollection as string) || null;
+        const userTitle = (token.claims.title as string) || null;
+        set({
+          user,
+          uidCollection,
+          userTitle,
+          gisAccount: uidCollection === GIS_UID_COLLECTION,
+          currentUser: buildCurrentUser(user),
+          initializing: false,
+        });
+      } catch {
+        set({
+          user,
+          uidCollection: null,
+          userTitle: null,
+          gisAccount: false,
+          currentUser: buildCurrentUser(user),
+          initializing: false,
+        });
+      }
+    });
+  },
+}));
