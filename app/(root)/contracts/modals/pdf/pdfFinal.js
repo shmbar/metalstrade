@@ -188,6 +188,15 @@ export const Pdf = async (valueCon, arrTable, settings, compData, data, gisAccou
     let margin = (pageWidth - wantedTableWidth) / 2;
 
 
+    // Index of the first summary row (kept stable so the underlines below don't shift when
+    // custom calculation lines are appended).
+    const summaryStartIdx = arrTable.length;
+    const fmtCur = (n) => new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: valueCon.cur !== '' ? getD(settings.Currency.Currency, valueCon, 'cur') : 'USD',
+        minimumFractionDigits: 2,
+    }).format(Number(n) || 0);
+
     if (data.length > 0) {
         const formattedNumber1 = new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 3
@@ -286,6 +295,19 @@ export const Pdf = async (valueCon, arrTable, settings, compData, data, gisAccou
         arrTable.push(newRow3);
         arrTable.push(newRow4);
         arrTable.push(newRow5);
+
+        // Custom calculation lines (splits / adjustments) entered on the Final Settlement page.
+        const calcLines = (valueCon.fsCalcs || []).filter(c => (c.label && c.label.trim()) || Number(c.amount));
+        if (calcLines.length > 0) {
+            const itemsTotal = data.reduce((sum, item) => sum + Number(item.finaltotal), 0);
+            let calcsTotal = 0;
+            calcLines.forEach(c => {
+                const amt = Number(c.amount) || 0;
+                calcsTotal += amt;
+                arrTable.push([, c.label || 'Calculation', , , , , fmtCur(amt)]);
+            });
+            arrTable.push([, 'Settlement Total:', , , , , fmtCur(itemsTotal + calcsTotal)]);
+        }
     }
 
     autoTable(doc, {
@@ -333,7 +355,7 @@ export const Pdf = async (valueCon, arrTable, settings, compData, data, gisAccou
         willDrawCell: (data) => {
             let arr = [1, 2, 3, 4, 5, 6]
             if (arr.includes(data.column.index) &&
-                data.row.section === 'body' && data.row.index === arrTable.length - 5) {
+                data.row.section === 'body' && data.row.index === summaryStartIdx) {
                 doc.setLineWidth(0.1)
                 doc.setDrawColor(0, 0, 0); // draw red lines
                 doc.line(data.cell.x, data.cell.y, data.cell.x + data.column.width, data.cell.y);
