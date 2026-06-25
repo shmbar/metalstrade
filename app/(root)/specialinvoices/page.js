@@ -13,6 +13,7 @@ import Tooltip from '../../../components/tooltip';
 import Customtable from './newTable';
 import TableTotals from './totals/tableTotals';
 import VideoLoader from '../../../components/videoLoader';
+import Modal from '../../../components/modal';
 
 // Manual IMS category buckets for Misc Invoices (client request: personal / random / shipments).
 const MISC_CATS = [
@@ -117,7 +118,8 @@ const SpecialInvoices = () => {
         }).format(x.getValue())
     }
 
-    const SelectRow = () => { }
+    const [detail, setDetail] = useState(null);
+    const SelectRow = (row) => setDetail(row);
 
     // Persist the manual category tag and reflect it immediately in the table.
     const handleCategoryChange = async (id, category) => {
@@ -283,6 +285,32 @@ const SpecialInvoices = () => {
                                 </div>
                             </div>
                         </div>
+                        {detail && (
+                            <Modal isOpen={!!detail} setIsOpen={() => setDetail(null)} title='Misc Invoice' w='max-w-lg'>
+                                <div className='p-4 grid grid-cols-2 gap-x-4 gap-y-2.5'>
+                                    {[
+                                        ['Company', detail.compName],
+                                        ['Date', detail.date ? dateFormat(detail.date, 'dd.mm.yy') : ''],
+                                        ['Supplier', detail.supplier],
+                                        ['Original supplier', detail.originSupplier],
+                                        ['PO #', detail.order],
+                                        ['Sales Invoice', detail.salesInvoice],
+                                        ['Invoice', detail.invoice],
+                                        ['Description', detail.description],
+                                        ['Weight', setDecimals(detail.qnty)],
+                                        ['Price', new Intl.NumberFormat('en-US', { style: 'currency', currency: gQ(detail.cur, 'Currency', 'cur') || 'USD', minimumFractionDigits: 2 }).format(Number(detail.unitPrc) || 0)],
+                                        ['Total', new Intl.NumberFormat('en-US', { style: 'currency', currency: gQ(detail.cur, 'Currency', 'cur') || 'USD', minimumFractionDigits: 2 }).format(Number(detail.total) || 0)],
+                                        ['Status', detail.paidNotPaid],
+                                        ['Category', (MISC_CATS.find(c => c.id === detail.category) || {}).label || 'Uncategorized'],
+                                    ].map(([k, v]) => (
+                                        <div key={k} className='flex flex-col'>
+                                            <span className='uppercase tracking-wide text-[var(--regent-gray)]' style={{ fontSize: '0.58rem' }}>{k}</span>
+                                            <span className='text-[var(--port-gore)] font-medium break-words responsiveTextTable'>{(v === 0 ? '0' : v) || '—'}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Modal>
+                        )}
                     </>
                 }
             </div>
