@@ -7,7 +7,10 @@ import { UserAuth } from "../../../contexts/useAuthContext"
 import { EXD } from './excel'
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
-import { getD, loadCompanyExpenses, loadDataInvoices, updateSpecialInvoiceField } from '../../../utils/utils';
+import { getD, loadCompanyExpenses, loadDataInvoices, updateSpecialInvoiceField, loadInvoice, loadStockData } from '../../../utils/utils';
+import ContractModal from '../contracts/modals/dataModal';
+import { ContractsContext } from '../../../contexts/useContractsContext';
+import { InvoiceContext } from '../../../contexts/useInvoiceContext';
 import DateRangePicker from '../../../components/dateRangePicker';
 import Tooltip from '../../../components/tooltip';
 import Customtable from './newTable';
@@ -40,6 +43,8 @@ const CategorySelect = ({ id, value, onChange }) => (
 const SpecialInvoices = () => {
     const { settings, dateSelect, setDateYr, setLoading, loading, ln } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
+    const { valueCon, setValueCon, isOpenCon, setIsOpenCon } = useContext(ContractsContext);
+    const { blankInvoice } = useContext(InvoiceContext);
     const [data, setData] = useState([]);
     const [totals, setTotals] = useState([])
     const [totalsAll, setTotalsAll] = useState([])
@@ -119,7 +124,25 @@ const SpecialInvoices = () => {
     }
 
     const [detail, setDetail] = useState(null);
-    const SelectRow = (row) => setDetail(row);
+    // Open the originating contract in its editable modal so corrections can be made there
+    // (they re-flow to this misc invoice on save). Fall back to a read-only detail popup if
+    // the source contract can't be resolved (e.g. older rows without a stock link).
+    const SelectRow = async (row) => {
+        try {
+            const stock = await loadStockData(uidCollection, 'id', [row.id]);
+            const cd = stock?.[0]?.contractData;
+            if (cd?.id) {
+                const contract = await loadInvoice(uidCollection, 'contracts', { id: cd.id, date: cd.date });
+                if (contract && Object.keys(contract).length > 0) {
+                    setValueCon(contract);
+                    blankInvoice();
+                    setIsOpenCon(true);
+                    return;
+                }
+            }
+        } catch (e) { console.error(e); }
+        setDetail(row);
+    };
 
     // Persist the manual category tag and reflect it immediately in the table.
     const handleCategoryChange = async (id, category) => {
@@ -311,6 +334,7 @@ const SpecialInvoices = () => {
                                 </div>
                             </Modal>
                         )}
+                        {valueCon && <ContractModal isOpen={isOpenCon} setIsOpen={setIsOpenCon} />}
                     </>
                 }
             </div>
