@@ -9,7 +9,7 @@ import { getD, loadStockData, validate, reOrderTableFinal } from '@utils/utils'
 import { getTtl } from '@utils/languages';
 import FinalSetRemarks from './finalSettlmentRemarks.js';
 import Tltip from '@components/tlTip.js';
-import { Save,FileText, } from "lucide-react"
+import { Save, FileText, Plus, X } from "lucide-react"
 import { Button } from '@components/ui/button.jsx';
 
 function countDecimalDigits(inputString) {
@@ -155,6 +155,19 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
         saveData_stocks(uidCollection, payload)
     }
 
+    // ---- Live settlement summary + custom calculation lines (persisted on the contract) ----
+    const numv = (v) => parseFloat(String(v ?? '').replace(/[^0-9.\-]/g, '')) || 0;
+    const calcs = valueCon.fsCalcs || [];
+    const setCalcs = (next) => setValueCon({ ...valueCon, fsCalcs: next });
+    const newId = () => 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const addCalc = () => setCalcs([...calcs, { id: newId(), label: '', amount: '' }]);
+    const updateCalc = (id, field, val) => setCalcs(calcs.map(c => c.id === id ? { ...c, [field]: field === 'amount' ? removeNonNumeric(val) : val } : c));
+    const removeCalc = (id) => setCalcs(calcs.filter(c => c.id !== id));
+    const sumQty = data.reduce((s, r) => s + numv(r.finalqnty), 0);
+    const sumTotal = data.reduce((s, r) => s + numv(r.finaltotal), 0);
+    const calcsTotal = calcs.reduce((s, c) => s + numv(c.amount), 0);
+    const grandTotal = sumTotal + calcsTotal;
+    const money = (n) => addComma((Math.round((Number(n) || 0) * 100) / 100).toFixed(2), true);
 
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('FinalSettlmnt', ln)} w='max-w-6xl'>
@@ -242,6 +255,42 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
                 <div className='pt-3 '>
                     <FinalSetRemarks value={valueCon} setValue={setValueCon} />
+                </div>
+
+                {/* Live settlement summary — totals update as you edit; add custom lines for splits/adjustments */}
+                <div className='border border-[#b8ddf8] rounded-2xl bg-white p-3'>
+                    <div className='flex items-center justify-between mb-2'>
+                        <span className='responsiveText font-semibold text-[var(--chathams-blue)]'>Settlement summary</span>
+                        <button type='button' onClick={addCalc} className='flex items-center gap-1 rounded-full px-3 h-7 text-white hover:opacity-90' style={{ fontSize: '0.66rem', background: 'var(--endeavour)' }}>
+                            <Plus className='w-3 h-3' /> Add calculation
+                        </button>
+                    </div>
+                    <div className='flex flex-col gap-1.5'>
+                        <div className='flex items-center justify-between responsiveTextTable'>
+                            <span className='text-[var(--regent-gray)]'>Total final quantity</span>
+                            <span className='font-medium text-[var(--chathams-blue)]'>{addComma(sumQty.toFixed(3), false)} {getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')}</span>
+                        </div>
+                        <div className='flex items-center justify-between responsiveTextTable'>
+                            <span className='text-[var(--regent-gray)]'>Items total ({data.length})</span>
+                            <span className='font-medium text-[var(--chathams-blue)]'>{money(sumTotal)}</span>
+                        </div>
+                        {calcs.map(c => (
+                            <div key={c.id} className='flex items-center gap-2'>
+                                <input type='text' placeholder='Label (e.g. Half balance)' value={c.label} onChange={e => updateCalc(c.id, 'label', e.target.value)}
+                                    className='input h-7 responsiveTextTable border-slate-300 flex-1 shadow-sm' style={{ fontFamily: 'inherit' }} />
+                                <Tltip direction='top' tltpText='Set to half of the items total'>
+                                    <button type='button' onClick={() => updateCalc(c.id, 'amount', (sumTotal / 2).toFixed(2))} className='rounded-md px-2 h-7 border border-[#d8e8f5] text-[var(--endeavour)] font-medium hover:bg-[#dbeeff]' style={{ fontSize: '0.7rem' }}>½</button>
+                                </Tltip>
+                                <input type='text' placeholder='Amount' value={c.amount} onChange={e => updateCalc(c.id, 'amount', e.target.value)}
+                                    className='input h-7 responsiveTextTable border-slate-300 w-28 text-right shadow-sm' style={{ fontFamily: 'inherit' }} />
+                                <button type='button' onClick={() => removeCalc(c.id)} className='text-[var(--regent-gray)] hover:text-red-500'><X className='w-3.5 h-3.5' /></button>
+                            </div>
+                        ))}
+                        <div className='flex items-center justify-between border-t border-[#dbeeff] pt-2 mt-1'>
+                            <span className='responsiveText font-semibold text-[var(--chathams-blue)]'>Settlement total</span>
+                            <span className='responsiveText font-bold text-[var(--endeavour)]'>{money(grandTotal)}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
