@@ -174,7 +174,13 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 if (tmp.spInv) {
                     tmp = { ...tmp, indDate: tmp?.indDate?.startDate ?? null }
                 }
-                errs[i] = validate(tmp, ['description', 'qnty', 'unitPrc', 'poInvoice', 'indDate', 'stock'])
+                // A purchase invoice link is only mandatory for special-invoice lines. Regular
+                // stock can be added without one (e.g. material received, invoice not in yet) —
+                // the poInvoice field stays and can be filled later.
+                const required = tmp.spInv
+                    ? ['description', 'qnty', 'unitPrc', 'poInvoice', 'indDate', 'stock']
+                    : ['description', 'qnty', 'unitPrc', 'indDate', 'stock']
+                errs[i] = validate(tmp, required)
                 isNotFilled = Object.values(errs[i]).includes(true); //all filled
             }
 
