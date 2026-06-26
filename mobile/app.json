@@ -2,7 +2,7 @@
   "expo": {
     "name": "IMS",
     "slug": "ims-mobile",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "ims",
@@ -17,10 +17,8 @@
     "android": {
       "package": "com.zakarehman.imsmobile",
       "adaptiveIcon": {
-        "backgroundColor": "#0366ae",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./assets/adaptive-icon.png"
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
@@ -37,7 +35,14 @@
       "expo-secure-store",
       "expo-local-authentication",
       "expo-font",
-      "expo-splash-screen",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
       "@react-native-community/datetimepicker",
       "expo-sharing"
     ],

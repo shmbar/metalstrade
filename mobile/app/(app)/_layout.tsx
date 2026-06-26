@@ -8,6 +8,8 @@ import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow } from '@/theme/tokens';
 
+export { AppErrorBoundary as ErrorBoundary } from '@/components/AppErrorBoundary';
+
 // Premium tab icon: fills on focus + a small active dot underneath.
 function tabIcon(base: string, activeColor: string) {
   return ({ focused, color, size }: { focused: boolean; color: any; size: number }) => (
@@ -91,7 +93,9 @@ export default function AppLayout() {
       <Tabs.Screen name="margins" options={{ href: null }} />
       <Tabs.Screen name="formulas" options={{ href: null }} />
       <Tabs.Screen name="settings-entity" options={{ href: null }} />
+      <Tabs.Screen name="config-editor" options={{ href: null }} />
       <Tabs.Screen name="analysis" options={{ href: null }} />
+      <Tabs.Screen name="stock-audit" options={{ href: null }} />
       <Tabs.Screen
         name="more"
         options={{

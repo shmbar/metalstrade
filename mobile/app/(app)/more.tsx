@@ -185,6 +185,7 @@ export default function More() {
           { label: 'Accounting', sub: 'Sales invoices ↔ purchases & expenses', icon: 'calculator-outline', href: '/(app)/accounting' },
           { label: 'Account Statement', sub: 'Per-client mid/end-month statement', icon: 'reader-outline', href: '/(app)/acc-statement' },
           { label: 'Analysis', sub: 'Shipped weight by material & client', icon: 'bar-chart-outline', href: '/(app)/analysis' },
+          { label: 'Stock Audit', sub: 'Data-integrity report on stock records', icon: 'shield-checkmark-outline', href: '/(app)/stock-audit' },
         ].map((row, i) => (
           <Pressable
             key={row.href}

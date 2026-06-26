@@ -15,3 +15,4 @@ export { SectionHeader } from './SectionHeader';
 export { Skeleton, SkeletonCard, SkeletonList } from './Skeleton';
 export { FadeInItem } from './Motion';
 export { AreaChart } from './AreaChart';
+export { BarChart } from './BarChart';

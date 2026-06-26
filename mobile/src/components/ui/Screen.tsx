@@ -9,6 +9,10 @@ interface ScreenProps extends ScrollViewProps {
   refreshing?: boolean;
   onRefresh?: () => void;
   edges?: boolean;
+  // For screens whose child is itself scrollable (e.g. a FlatList): drop the
+  // outer bottom padding so the list reaches the bottom of the screen instead of
+  // leaving a dead band above the tab bar. The child manages its own bottom inset.
+  flush?: boolean;
 }
 
 // Standard screen container: themed background, safe-area aware, optional
@@ -19,6 +23,7 @@ export function Screen({
   refreshing,
   onRefresh,
   edges = true,
+  flush = false,
   contentContainerStyle,
   ...rest
 }: ScreenProps) {
@@ -27,7 +32,7 @@ export function Screen({
 
   const pad = {
     paddingTop: edges ? insets.top + spacing.sm : spacing.sm,
-    paddingBottom: insets.bottom + 96,
+    paddingBottom: flush ? 0 : insets.bottom + 96,
     paddingHorizontal: spacing.lg,
   };
 

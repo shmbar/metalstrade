@@ -35,7 +35,7 @@ export default function ContractsList() {
 
   return (
     <View style={{ flex: 1 }}>
-    <Screen scroll={false}>
+    <Screen scroll={false} flush>
       <ScreenHeader
         subtitle="Purchase orders"
         title="Contracts"
@@ -107,7 +107,7 @@ export default function ContractsList() {
             </FadeInItem>
           )}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
           onRefresh={refetch}
           refreshing={isLoading}
         />

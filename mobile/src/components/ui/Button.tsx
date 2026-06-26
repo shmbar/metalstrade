@@ -30,16 +30,18 @@ export function Button({
   const { colors, scheme } = useTheme();
   const isDisabled = disabled || loading;
 
+  // Explicit fallbacks so a missing/undefined theme token can never collapse the
+  // background to transparent (which previously rendered buttons invisible).
   const bg: Record<Variant, string> = {
-    primary: colors.primary,
-    secondary: scheme === 'dark' ? colors.surfaceAlt : '#dbeeff',
+    primary: colors.primary || '#0366ae',
+    secondary: scheme === 'dark' ? colors.surfaceAlt || '#1c2942' : '#dbeeff',
     ghost: 'transparent',
-    danger: colors.negative,
+    danger: colors.negative || '#dc2626',
   };
   const fg: Record<Variant, string> = {
-    primary: colors.primaryText,
-    secondary: colors.primary,
-    ghost: colors.primary,
+    primary: colors.primaryText || '#ffffff',
+    secondary: colors.primary || '#0366ae',
+    ghost: colors.primary || '#0366ae',
     danger: '#ffffff',
   };
 
@@ -47,12 +49,13 @@ export function Button({
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
-      style={({ pressed }) => [
+      style={[
         {
           backgroundColor: bg[variant],
           borderRadius: radius.md,
           paddingVertical: 13,
           paddingHorizontal: spacing.lg,
+          minHeight: 50,
           alignItems: 'center',
           justifyContent: 'center',
           flexDirection: 'row',
@@ -60,7 +63,7 @@ export function Button({
           width: fullWidth ? '100%' : undefined,
           borderWidth: variant === 'ghost' ? 1 : 0,
           borderColor: colors.border,
-          opacity: isDisabled ? 0.55 : pressed ? 0.9 : 1,
+          opacity: isDisabled ? 0.55 : 1,
         },
         style,
       ]}

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, FlatList, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Text, TextField, Badge, SkeletonList, FadeInItem, ErrorState, EmptyState } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useStocks } from './useStocks';
@@ -10,6 +11,7 @@ const fmtQty = (n: number) => new Intl.NumberFormat('en-US', { minimumFractionDi
 
 export function InventoryView() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { data, isLoading, isError, error, refetch } = useStocks();
   const [search, setSearch] = useState('');
 
@@ -95,7 +97,7 @@ export function InventoryView() {
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 160 }}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={({ item, index }) => (

@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { View, Pressable, Alert } from 'react-native';
+import { useMemo, useState } from 'react';
+import { View, Pressable, Alert, Modal } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Card, Text, Badge, Button, ProgressBar, SectionHeader, EmptyState } from '@/components/ui';
@@ -15,6 +15,7 @@ import { groupInvoices, invoiceBalance, num, resolveCur, isFinalized } from '@sh
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { exportPdf } from '@/lib/export';
 import { contractPoHtml } from '@/lib/pdfTemplates';
+import { annexViiHtml, isfHtml } from '@/lib/customsDocs';
 
 export default function ContractDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -25,6 +26,26 @@ export default function ContractDetail() {
   const save = useSaveContract();
 
   const contract = useMemo(() => contracts?.find((c) => c.id === id), [contracts, id]);
+
+  // Customs document export with optional saved-template merge (web Documents tab).
+  const [docPicker, setDocPicker] = useState<'annex' | 'isf' | null>(null);
+  const annexTemplates = (settings as any)?.['Annex VII']?.['Annex VII']?.filter((t: any) => !t.deleted) || [];
+  const isfTemplates = (settings as any)?.ISF?.ISF?.filter((t: any) => !t.deleted) || [];
+
+  const exportDoc = (kind: 'annex' | 'isf', template?: any) => {
+    setDocPicker(null);
+    if (!contract) return;
+    const key = kind === 'annex' ? 'annexVII' : 'isf';
+    const merged = { ...contract, [key]: { ...((contract as any)[key] || {}), ...(template || {}) } };
+    if (kind === 'annex') exportPdf(annexViiHtml(merged, compData, settings), `AnnexVII-${contract.order || contract.id}`);
+    else exportPdf(isfHtml(merged, compData, settings), `ISF-${contract.order || contract.id}`);
+  };
+
+  const onDocPress = (kind: 'annex' | 'isf') => {
+    const templates = kind === 'annex' ? annexTemplates : isfTemplates;
+    if (templates.length === 0) exportDoc(kind);
+    else setDocPicker(kind);
+  };
 
   // Duplicate — clones core fields with fresh ids; clears invoices/stock/payments
   // and assigns a new auto PO number (parity with the web duplicate()).
@@ -72,14 +93,17 @@ export default function ContractDetail() {
 
   const v = deriveContract(contract, settings);
 
+  const productsData = Array.isArray(contract.productsData) ? contract.productsData : [];
+  const poInvoices = Array.isArray(contract.poInvoices) ? contract.poInvoices : [];
+
   // Payments recorded against the PO (purchase side).
-  const poPaid = (contract.poInvoices || []).reduce((s, p) => s + num(p.pmnt), 0);
-  const poCount = (contract.poInvoices || []).length;
+  const poPaid = poInvoices.reduce((s, p) => s + num(p.pmnt), 0);
+  const poCount = poInvoices.length;
 
   // Linked sales invoices, deduped to canonical entries (finance.groupInvoices)
   // so an invoice + its credit/final note count once, with combined payments.
-  const invoiceRows = ((contract.invoicesData as Invoice[][]) || [])
-    .flatMap((group) => groupInvoices(group))
+  const invoiceRows = (Array.isArray(contract.invoicesData) ? (contract.invoicesData as Invoice[][]) : [])
+    .flatMap((group) => groupInvoices(Array.isArray(group) ? group : []))
     .map((inv) => ({
       number: inv.invoice,
       cur: resolveCur(inv),
@@ -139,13 +163,13 @@ export default function ContractDetail() {
 
       {/* Products */}
       <Card style={{ marginBottom: 14 }}>
-        <SectionHeader title="Products" subtitle={`${(contract.productsData || []).length} line item(s)`} />
-        {(contract.productsData || []).length === 0 ? (
+        <SectionHeader title="Products" subtitle={`${productsData.length} line item(s)`} />
+        {productsData.length === 0 ? (
           <Text variant="body" tone="muted">
             No products on this contract.
           </Text>
         ) : (
-          (contract.productsData || []).map((p, i) => (
+          productsData.map((p, i) => (
             <View
               key={p.id || i}
               style={{
@@ -273,6 +297,50 @@ export default function ContractDetail() {
         leftIcon={<Ionicons name="folder-outline" size={18} color={colors.primary} />}
         onPress={() => router.push(`/(app)/contracts/files?id=${contract.id}`)}
       />
+      <Button
+        title="Cert Checker"
+        variant="ghost"
+        style={{ marginTop: 10 }}
+        leftIcon={<Ionicons name="shield-checkmark-outline" size={18} color={colors.primary} />}
+        onPress={() => router.push(`/(app)/contracts/cert-checker?id=${contract.id}`)}
+      />
+      <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+        <View style={{ flex: 1 }}>
+          <Button
+            title="Annex VII"
+            variant="ghost"
+            leftIcon={<Ionicons name="document-text-outline" size={18} color={colors.primary} />}
+            onPress={() => onDocPress('annex')}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button
+            title="ISF"
+            variant="ghost"
+            leftIcon={<Ionicons name="document-text-outline" size={18} color={colors.primary} />}
+            onPress={() => onDocPress('isf')}
+          />
+        </View>
+      </View>
+
+      {/* Template picker for customs doc export */}
+      <Modal visible={!!docPicker} transparent animationType="slide" onRequestClose={() => setDocPicker(null)}>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setDocPicker(null)} />
+        <View style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: insets.bottom + 20, gap: 6, maxHeight: '70%' }}>
+          <Text variant="h2" style={{ marginBottom: 4 }}>{docPicker === 'annex' ? 'Annex VII' : 'ISF'} template</Text>
+          <Text variant="caption" tone="muted" style={{ marginBottom: 8 }}>Pick a saved template to fill the document, or use the contract data as-is.</Text>
+          <Pressable onPress={() => docPicker && exportDoc(docPicker)} style={{ paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: colors.border, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name="document-outline" size={18} color={colors.textMuted} />
+            <Text variant="bodyMedium">No template (contract data)</Text>
+          </Pressable>
+          {(docPicker === 'annex' ? annexTemplates : isfTemplates).map((t: any) => (
+            <Pressable key={t.id} onPress={() => docPicker && exportDoc(docPicker, t)} style={{ paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: colors.border, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Ionicons name="sparkles-outline" size={18} color={colors.primary} />
+              <Text variant="bodyMedium" tone="primary">{t.name || '(unnamed)'}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </Modal>
       {(contract.stock?.length || 0) > 0 && (
         <Button
           title="Final Settlement"

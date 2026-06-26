@@ -17,6 +17,9 @@ import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { queryClient } from '@/query/client';
 import { useAuth } from '@/store/auth';
 
+// Root error boundary — catches any render crash and shows a recovery screen.
+export { AppErrorBoundary as ErrorBoundary } from '@/components/AppErrorBoundary';
+
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function RootNavigator() {

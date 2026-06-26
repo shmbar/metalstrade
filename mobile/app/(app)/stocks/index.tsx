@@ -5,16 +5,23 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { InventoryView } from '@/features/stocks/InventoryView';
 import { StorageView } from '@/features/stocks/StorageView';
+import { AgingView } from '@/features/stocks/AgingView';
 
-type Tab = 'inventory' | 'storage';
+type Tab = 'inventory' | 'storage' | 'aging';
+
+const SUBTITLE: Record<Tab, string> = {
+  inventory: 'On-hand inventory',
+  storage: 'Storage costs',
+  aging: 'Storage aging by terminal',
+};
 
 export default function StocksScreen() {
   const [tab, setTab] = useState<Tab>('inventory');
 
   return (
-    <Screen scroll={false}>
+    <Screen scroll={false} flush>
       <ScreenHeader
-        subtitle={tab === 'inventory' ? 'On-hand inventory' : 'Storage costs'}
+        subtitle={SUBTITLE[tab]}
         title="Stocks"
         right={tab === 'storage' ? <PeriodSelector /> : undefined}
       />
@@ -25,12 +32,13 @@ export default function StocksScreen() {
           onChange={setTab}
           options={[
             { value: 'inventory', label: 'Inventory' },
-            { value: 'storage', label: 'Storage Costs' },
+            { value: 'storage', label: 'Storage' },
+            { value: 'aging', label: 'Aging' },
           ]}
         />
       </View>
 
-      {tab === 'inventory' ? <InventoryView /> : <StorageView />}
+      {tab === 'inventory' ? <InventoryView /> : tab === 'storage' ? <StorageView /> : <AgingView />}
     </Screen>
   );
 }

@@ -23,6 +23,31 @@ function filteredArray(arr: Lot[]): Lot[] {
 }
 
 const f = (v: any) => parseFloat(v);
+
+// Normalize a date field (string or { startDate }) to a string, mirroring web agingUtils.dStr.
+const dStr = (d: any): string | null => {
+  if (!d) return null;
+  if (typeof d === 'string') return d;
+  if (typeof d === 'object') return d.startDate || d.endDate || null;
+  return null;
+};
+
+// Earliest arrival of a cargo group: min indDate among 'in' records, else contract date.
+function arrivalIsoOf(group: Lot[]): string | null {
+  const inDates = group
+    .filter((r) => r.type === 'in' || !r.type)
+    .map((r) => dStr(r.indDate))
+    .filter(Boolean)
+    .map((s) => new Date(s as string))
+    .filter((d) => !isNaN(d.getTime()));
+  if (inDates.length) return new Date(Math.min(...inDates.map((d) => d.getTime()))).toISOString();
+  const cd = group.map((r) => r.contractData?.date).find(Boolean);
+  if (cd) {
+    const d = new Date(cd);
+    if (!isNaN(d.getTime())) return d.toISOString();
+  }
+  return null;
+}
 const fmtDateDDMMYY = (iso?: string) => {
   if (!iso || typeof iso !== 'string') return '';
   const d = new Date(iso);
@@ -57,6 +82,7 @@ export interface InventoryRow {
   cur: string; // raw id ('us'/'eu')
   sType: string;
   date: string;
+  arrivalIso: string | null; // earliest arrival (for storage aging)
 }
 
 export interface InventoryTotal {
@@ -133,6 +159,7 @@ export function computeInventory(
         ? totalObj.unitPrc
         : f(totalObj.qnty) * f(totalObj.unitPrc);
     totalObj.date = fmtDateDDMMYY(group.find((z) => z.contractData)?.contractData?.date);
+    totalObj.arrivalIso = arrivalIsoOf(group);
     totalObj.cur = group[0]?.cur;
     totalObj.sType = settings?.Stocks?.Stocks?.find((x: any) => x.id === totalObj.stock)?.sType || '';
     totalObj.qnty = totalObj.qnty === 0 ? 0 : f(parseFloat(totalObj.qnty).toFixed(3));

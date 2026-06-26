@@ -42,7 +42,7 @@ export default function Activity() {
   });
 
   return (
-    <Screen scroll={false} contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
+    <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="chevron-back" size={24} color={colors.primary} />
@@ -68,7 +68,7 @@ export default function Activity() {
           data={data}
           keyExtractor={(r, i) => r.id || String(i)}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={({ item }) => (

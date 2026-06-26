@@ -3,11 +3,20 @@ import { View, Pressable, FlatList } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, TextField, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, TextField, BarChart, SectionHeader, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAccounting, AccountingGroup } from '@/features/accounting/useAccounting';
 import { curSymbol, fmtMoney } from '@/lib/format';
+
+const DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+const dayIdx = (iso?: string) => {
+  if (!iso) return -1;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return -1;
+  const day = d.getDay(); // 0=Sun … 6=Sat
+  return day === 6 ? 0 : day + 1; // Sat→0, Sun→1 … Fri→6
+};
 
 export default function Accounting() {
   const { colors } = useTheme();
@@ -24,8 +33,23 @@ export default function Accounting() {
     );
   }, [data, search]);
 
+  // Debit (costs) vs Credit (sales) by weekday — parity with the web accounting chart.
+  const chart = useMemo(() => {
+    const debit = new Array(7).fill(0);
+    const credit = new Array(7).fill(0);
+    (data || []).forEach((g) => {
+      const ci = dayIdx(g.dateInv);
+      if (ci >= 0) credit[ci] += g.amountInv || 0;
+      g.lines.forEach((l) => {
+        const di = dayIdx(l.dateExp);
+        if (di >= 0) debit[di] += l.amountExp || 0;
+      });
+    });
+    return { debit, credit, hasData: debit.some((v) => v) || credit.some((v) => v) };
+  }, [data]);
+
   return (
-    <Screen scroll={false} contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
+    <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
           <Ionicons name="chevron-back" size={22} color={colors.primary} />
@@ -55,9 +79,23 @@ export default function Accounting() {
           data={groups}
           keyExtractor={(g) => g.invoice}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
           onRefresh={refetch}
           refreshing={isLoading}
+          ListHeaderComponent={
+            chart.hasData ? (
+              <Card style={{ marginBottom: 12 }}>
+                <SectionHeader title="Debit vs Credit" subtitle="By weekday" />
+                <BarChart
+                  labels={DAYS}
+                  series={[
+                    { name: 'Debit', color: '#103a7a', data: chart.debit },
+                    { name: 'Credit', color: '#9fb8d4', data: chart.credit },
+                  ]}
+                />
+              </Card>
+            ) : null
+          }
           renderItem={({ item }) => {
             const symS = curSymbol(item.curINV);
             const costs = item.lines.reduce((s, l) => s + l.amountExp, 0);

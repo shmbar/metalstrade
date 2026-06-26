@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router';
 import { useTheme } from '@/theme/ThemeProvider';
 
+export { AppErrorBoundary as ErrorBoundary } from '@/components/AppErrorBoundary';
+
 export default function ContractsLayout() {
   const { colors } = useTheme();
   return (
@@ -17,6 +19,7 @@ export default function ContractsLayout() {
       <Stack.Screen name="stock-in" options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="new-invoice" options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="files" options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="cert-checker" options={{ animation: 'slide_from_right' }} />
     </Stack>
   );
 }

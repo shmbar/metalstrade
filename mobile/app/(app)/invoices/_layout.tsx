@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router';
 import { useTheme } from '@/theme/ThemeProvider';
 
+export { AppErrorBoundary as ErrorBoundary } from '@/components/AppErrorBoundary';
+
 export default function InvoicesLayout() {
   const { colors } = useTheme();
   return (

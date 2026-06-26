@@ -67,7 +67,7 @@ export function StorageView() {
   return (
     <ScrollView
       style={{ flex: 1 }}
-      contentContainerStyle={{ paddingBottom: 160 }}
+      contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
       showsVerticalScrollIndicator={false}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={colors.primary} />}
     >

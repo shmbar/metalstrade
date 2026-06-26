@@ -44,7 +44,7 @@ export default function InvoicesReview() {
   }, [rows, search]);
 
   return (
-    <Screen scroll={false} contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
+    <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
           <Ionicons name="chevron-back" size={22} color={colors.primary} />
@@ -84,7 +84,7 @@ export default function InvoicesReview() {
             data={filtered}
             keyExtractor={(r) => r.id}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 120 }}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
             onRefresh={refetch}
             refreshing={isLoading}
             renderItem={({ item }) => <InvoiceCard inv={item} onPress={() => router.push(`/(app)/invoices/${item.id}`)} />}
@@ -95,7 +95,7 @@ export default function InvoicesReview() {
           data={[0]}
           keyExtractor={() => 'statement'}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={() => (

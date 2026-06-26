@@ -10,6 +10,12 @@ import { useSettings, selectCompanyRate, selectTermDays } from '@/store/settings
 import { useSettingsEdit } from '@/features/settings/useSettingsEdit';
 import { radius, spacing } from '@/theme/tokens';
 
+// Company profile presets — port of web settings/tabs/logos.js (the two IMS entities).
+const PROFILES: Record<string, any> = {
+  old: { logolink: '/logo/imsLogo.png', logoSignatureLink: '/logo/imsSignature.png', street: 'Narva Mnt 13a', reg: '14976408', eori: 'EE14976408', name: 'IMS Stainless and Alloys OU', email: 'sbashan@ims-stainless.com', website: 'www.ims-stainless.com' },
+  new: { logolink: '/logo/logoNew.png', logoSignatureLink: '/logo/imsSignatureNew.png', street: 'Jõe tn 4C', reg: '17031890', eori: 'EE17031890', name: 'IMS Metals & Alloys OU', email: 'sbashan@ims-metals.com', website: 'www.ims-metals.com' },
+};
+
 function NavRow({ title, count, icon, onPress }: { title: string; count: number; icon: keyof typeof Ionicons.glyphMap; onPress: () => void }) {
   const { colors } = useTheme();
   return (
@@ -57,13 +63,24 @@ export default function SettingsScreen() {
       setBusy(false);
     }
   };
+  // Switch the company legal identity / logo (web logos.js parity).
+  const applyProfile = async (which: 'old' | 'new') => {
+    setBusy(true);
+    try {
+      await saveCompany(PROFILES[which]);
+    } catch (e: any) {
+      Alert.alert('Save failed', e?.message || 'Could not switch profile.');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const count = (key: string) => (settings?.[key]?.[key] || []).filter((x: any) => !x.deleted).length;
   const configCounts = [
     ['Currency', 'Currencies'], ['Shipment', 'Shipment types'], ['Origin', 'Origins'], ['Delivery Terms', 'Delivery terms'],
     ['POL', 'POL'], ['POD', 'POD'], ['Packing', 'Packing'], ['Container Type', 'Container types'],
     ['Quantity', 'Quantity units'], ['Payment Terms', 'Payment terms'], ['Stocks', 'Warehouses'], ['Expenses', 'Expense types'],
-  ].map(([key, label]) => ({ label, count: count(key) }));
+  ].map(([key, label]) => ({ key, label, count: count(key) }));
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
@@ -109,13 +126,43 @@ export default function SettingsScreen() {
         </Card>
       )}
 
+      <NavRow title="Bank Accounts" count={count('Bank Account')} icon="card-outline" onPress={() => router.push('/(app)/settings-entity?type=Bank%20Account')} />
+
+      <Card style={{ marginBottom: 14 }}>
+        <SectionHeader title="Document Templates" subtitle="Annex VII / ISF / Carriers" />
+        {[
+          { type: 'Annex VII', label: 'Annex VII templates' },
+          { type: 'ISF', label: 'ISF templates' },
+          { type: 'Carrier', label: 'Carriers' },
+        ].map((d, i) => (
+          <Pressable
+            key={d.type}
+            onPress={() => router.push(`/(app)/settings-entity?type=${encodeURIComponent(d.type)}`)}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 9, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}
+          >
+            <Text variant="body" tone="muted">{d.label}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Text variant="bodyMedium">{count(d.type)}</Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.textFaint} />
+            </View>
+          </Pressable>
+        ))}
+      </Card>
+
       <Card>
-        <SectionHeader title="Configuration" />
+        <SectionHeader title="Configuration" subtitle="Tap to edit a list" />
         {configCounts.map((c, i) => (
-          <View key={c.label} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 7, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}>
+          <Pressable
+            key={c.label}
+            onPress={() => router.push(`/(app)/config-editor?cat=${encodeURIComponent(c.key)}&title=${encodeURIComponent(c.label)}`)}
+            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 9, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}
+          >
             <Text variant="body" tone="muted">{c.label}</Text>
-            <Text variant="bodyMedium">{c.count}</Text>
-          </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Text variant="bodyMedium">{c.count}</Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.textFaint} />
+            </View>
+          </Pressable>
         ))}
       </Card>
 
@@ -126,6 +173,24 @@ export default function SettingsScreen() {
           <Text variant="h2">Company settings</Text>
           <TextField label="EUR → USD rate (blank = per-contract)" value={rateInput} onChangeText={setRateInput} keyboardType="decimal-pad" placeholder="e.g. 1.08" />
           <TextField label="Default payment term (days)" value={termInput} onChangeText={setTermInput} keyboardType="number-pad" placeholder="30" />
+
+          <Text variant="label" tone="muted" style={{ marginTop: 4 }}>Company profile (logo & legal identity)</Text>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {(['old', 'new'] as const).map((k) => {
+              const active = (compData as any)?.logolink === PROFILES[k].logolink;
+              return (
+                <Pressable
+                  key={k}
+                  onPress={() => applyProfile(k)}
+                  style={{ flex: 1, borderWidth: 1.5, borderColor: active ? colors.primary : colors.border, backgroundColor: active ? colors.primary + '14' : 'transparent', borderRadius: radius.md, padding: 12 }}
+                >
+                  <Text variant="bodyMedium" tone={active ? 'primary' : 'default'}>{PROFILES[k].name}</Text>
+                  <Text variant="caption" tone="faint" numberOfLines={1}>{PROFILES[k].website}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
           <Button title="Save" loading={busy} onPress={saveCompanyEdit} />
         </View>
       </Modal>

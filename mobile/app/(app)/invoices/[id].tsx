@@ -54,8 +54,8 @@ export default function InvoiceDetail() {
   }
 
   const sym = curSymbol(view.cur);
-  const products = view.raw.productsDataInvoice || [];
-  const payments = view.raw.payments || [];
+  const products = Array.isArray(view.raw.productsDataInvoice) ? view.raw.productsDataInvoice : [];
+  const payments = Array.isArray(view.raw.payments) ? view.raw.payments : [];
 
   const submitPayment = async () => {
     const amt = parseFloat(amount);

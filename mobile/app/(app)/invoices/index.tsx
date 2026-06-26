@@ -12,12 +12,14 @@ import { InvoiceCard } from '@/features/invoices/InvoiceCard';
 import { radius } from '@/theme/tokens';
 import { fmtCurKM } from '@/lib/format';
 import { exportCsv } from '@/lib/export';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Filter = 'All' | 'Unpaid' | 'Partial' | 'Paid';
 const FILTERS: Filter[] = ['All', 'Unpaid', 'Partial', 'Paid'];
 
 export default function InvoicesList() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { settings } = useSettings();
   const { data: invoices, isLoading, isError, error, refetch } = useInvoices();
   const [search, setSearch] = useState('');
@@ -49,7 +51,7 @@ export default function InvoicesList() {
   }, [filtered]);
 
   return (
-    <Screen scroll={false}>
+    <Screen scroll={false} flush>
       <ScreenHeader
         subtitle="Client sales"
         title="Invoices"
@@ -148,7 +150,7 @@ export default function InvoicesList() {
             </FadeInItem>
           )}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
           onRefresh={refetch}
           refreshing={isLoading}
         />

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { View, KeyboardAvoidingView, Platform, Pressable, ScrollView, Alert, useWindowDimensions } from 'react-native';
+import { View, KeyboardAvoidingView, Platform, Pressable, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text, TextField, Button } from '@/components/ui';
+import { Text, TextField } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { spacing, radius, getShadow } from '@/theme/tokens';
@@ -14,7 +14,6 @@ import { isBiometricAvailable, authenticateBiometric, biometricLabel } from '@/l
 export default function SignIn() {
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
-  const { height } = useWindowDimensions();
   const { user, signIn, error, resetPassword } = useAuth();
 
   const [email, setEmail] = useState('');
@@ -63,53 +62,57 @@ export default function SignIn() {
     Alert.alert(res.ok ? 'Email sent' : 'Reset password', res.message);
   };
 
-  const heroH = Math.min(Math.max(height * 0.42, 300), 420);
-
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      {/* Brand hero with gradient */}
-      <LinearGradient
-        colors={scheme === 'dark' ? ['#0b3b73', '#0a1322'] : ['#0a6fc2', '#0366ae', '#0b3b73']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          height: heroH,
-          paddingTop: insets.top + 24,
-          paddingHorizontal: spacing.xl,
-          borderBottomLeftRadius: 36,
-          borderBottomRightRadius: 36,
-          justifyContent: 'center',
-        }}
-      >
-        <View
-          style={{
-            width: 64, height: 64, borderRadius: 20,
-            backgroundColor: 'rgba(255,255,255,0.16)',
-            borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)',
-            alignItems: 'center', justifyContent: 'center', marginBottom: spacing.lg,
-          }}
-        >
-          <Ionicons name="cube" size={34} color="#fff" />
-        </View>
-        <Text variant="display" color="#ffffff" style={{ fontSize: 34, lineHeight: 40 }}>IMS</Text>
-        <Text variant="body" color="rgba(255,255,255,0.82)" style={{ marginTop: 4 }}>
-          Inventory & Trading Management
-        </Text>
-        <Text variant="caption" color="rgba(255,255,255,0.6)" style={{ marginTop: 14 }}>
-          Welcome back — sign in to continue
-        </Text>
-      </LinearGradient>
-
-      {/* Floating form card overlapping the hero */}
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: insets.bottom + 24 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom + 24 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          {/* Brand hero with gradient — extra bottom padding leaves room for the
+              card to overlap into empty space (not over the fields). */}
+          <LinearGradient
+            colors={scheme === 'dark' ? ['#0b3b73', '#0a1322'] : ['#0a6fc2', '#0366ae', '#0b3b73']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              paddingTop: insets.top + 36,
+              paddingHorizontal: spacing.xl,
+              paddingBottom: 84,
+              borderBottomLeftRadius: 36,
+              borderBottomRightRadius: 36,
+            }}
+          >
+            <View
+              style={{
+                width: 64, height: 64, borderRadius: 20,
+                backgroundColor: 'rgba(255,255,255,0.16)',
+                borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)',
+                alignItems: 'center', justifyContent: 'center', marginBottom: spacing.lg,
+              }}
+            >
+              <Ionicons name="cube" size={34} color="#fff" />
+            </View>
+            <Text variant="display" color="#ffffff" style={{ fontSize: 34, lineHeight: 40 }}>IMS</Text>
+            <Text variant="body" color="rgba(255,255,255,0.82)" style={{ marginTop: 4 }}>
+              Inventory & Trading Management
+            </Text>
+            <Text variant="caption" color="rgba(255,255,255,0.6)" style={{ marginTop: 14 }}>
+              Welcome back — sign in to continue
+            </Text>
+          </LinearGradient>
+
+          {/* Floating form card overlapping the hero's bottom padding */}
           <View
             style={{
               backgroundColor: colors.card,
               borderRadius: radius['2xl'],
               borderWidth: 1, borderColor: colors.border,
               padding: spacing.xl,
-              marginTop: -56,
+              marginHorizontal: spacing.xl,
+              marginTop: -48,
               gap: spacing.lg,
               ...getShadow(scheme, 'lg'),
             }}
@@ -150,19 +153,57 @@ export default function SignIn() {
               </View>
             ) : null}
 
-            <Button title="Sign in" loading={busy} disabled={!email || !password} onPress={() => doSignIn(email.trim(), password)} />
+            {/* Self-contained sign-in button — explicit bg/height so it always
+                renders regardless of the shared Button component's theming. */}
+            <Pressable
+              onPress={() => { if (email && password && !busy) doSignIn(email.trim(), password); }}
+              disabled={busy}
+              style={{
+                backgroundColor: colors.primary,
+                borderRadius: radius.md,
+                minHeight: 52,
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'row',
+                gap: 8,
+                opacity: !email || !password ? 0.5 : busy ? 0.8 : 1,
+                ...getShadow(scheme, 'sm'),
+              }}
+            >
+              {busy ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text variant="bodyMedium" color="#ffffff" style={{ fontFamily: 'Poppins_600SemiBold', fontSize: 16 }}>
+                  Sign in
+                </Text>
+              )}
+            </Pressable>
 
             {bioReady && (
-              <Button
-                title={`Sign in with ${bioName}`}
-                variant="secondary"
-                leftIcon={<Ionicons name="finger-print" size={18} color={colors.primary} />}
+              <Pressable
                 onPress={onBiometric}
-              />
+                style={{
+                  backgroundColor: scheme === 'dark' ? colors.surfaceAlt : '#dbeeff',
+                  borderRadius: radius.md,
+                  minHeight: 50,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'row',
+                  gap: 8,
+                }}
+              >
+                <Ionicons name="finger-print" size={18} color={colors.primary} />
+                <Text variant="bodyMedium" tone="primary" style={{ fontFamily: 'Poppins_600SemiBold' }}>
+                  Sign in with {bioName}
+                </Text>
+              </Pressable>
             )}
           </View>
 
-          <Text variant="caption" tone="faint" style={{ textAlign: 'center', marginTop: spacing.xl }}>
+          {/* Spacer pushes the footer to the bottom so the screen fills fully */}
+          <View style={{ flex: 1, minHeight: spacing.xl }} />
+
+          <Text variant="caption" tone="faint" style={{ textAlign: 'center', marginTop: spacing.lg, paddingHorizontal: spacing.xl }}>
             🔒 Secure access · same account as the web CRM
           </Text>
         </ScrollView>
