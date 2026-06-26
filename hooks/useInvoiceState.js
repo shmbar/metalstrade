@@ -443,10 +443,50 @@ const useInvoiceState = () => {
         },
         paste_Invoice: async (uidCollection, valueCon, setValueCon, contractsData, setContractsData) => {
 
+            // If this source invoice was already copied into this contract, UPDATE that copy in
+            // place (keep its number) instead of creating a new, duplicate invoice. The link is
+            // `copiedFromId` = the source invoice's id, stamped on the copy below.
+            const existing = (valueCon.invoices || []).find(x => x.copiedFromId && x.copiedFromId === copyInvValue.id)
+
+            if (existing) {
+                const prev = await loadInvoice(uidCollection, 'invoices', { id: existing.id, date: existing.date })
+                const updated = {
+                    ...copyInvValue,                       // refresh the header from the source (GIS) invoice
+                    id: existing.id,                       // keep the IMS invoice's own id + number
+                    invoice: existing.invoice,
+                    copiedFromId: copyInvValue.id,
+                    lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"),
+                    // keep everything the IMS side owns / has already entered
+                    poSupplier: prev?.poSupplier ?? { id: valueCon.id, order: valueCon.order, date: valueCon.dateRange.startDate },
+                    expenses: prev?.expenses ?? [],
+                    productsDataInvoice: prev?.productsDataInvoice ?? [],
+                    totalAmount: prev?.totalAmount ?? '',
+                    totalPrepayment: prev?.totalPrepayment ?? '',
+                    payments: prev?.payments ?? [],
+                    percentage: prev?.percentage ?? '',
+                }
+
+                const tmpArr = valueCon.invoices.map(x => x.id === existing.id
+                    ? { ...x, date: updated.dateRange.startDate, invType: updated.invType, copiedFromId: copyInvValue.id }
+                    : x)
+                const tmpObj = { ...valueCon, invoices: tmpArr }
+                setValueCon(tmpObj)
+                await saveData(uidCollection, 'contracts', tmpObj)
+                setContractsData(contractsData.map((k) => (k.id === tmpObj.id ? tmpObj : k)))
+                setInvoicesData(invoicesData.map(z => z.id === updated.id ? updated : z))
+
+                let okUpd = await saveData(uidCollection, 'invoices', updated)
+                okUpd && setToast({ show: true, text: getTtl('Invoice successfully updated!', ln), clr: 'success' })
+                setCopyInvValue('')
+                setCopyInvoice(false)
+                return;
+            }
+
             let tempNum = await loadDataSettings(uidCollection, 'invoiceNum')
 
             let newValueInvObj = {
                 ...copyInvValue, id: uuidv4(), invoice: tempNum.num + 1,
+                copiedFromId: copyInvValue.id,
                 lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"), expenses: [],
                 poSupplier: { id: valueCon.id, order: valueCon.order, date: valueCon.dateRange.startDate },
                 productsDataInvoice: [], totalAmount: '', totalPrepayment: '', payments: [], percentage: ''
@@ -456,7 +496,8 @@ const useInvoiceState = () => {
 
             let tmpArr = [...valueCon.invoices, {
                 id: newValueInvObj.id, invoice: newValueInvObj.invoice,
-                date: newValueInvObj.dateRange.startDate, invType: newValueInvObj.invType
+                date: newValueInvObj.dateRange.startDate, invType: newValueInvObj.invType,
+                copiedFromId: copyInvValue.id
             }]
             let tmpObj = { ...valueCon, invoices: tmpArr }
             setValueCon(tmpObj)
