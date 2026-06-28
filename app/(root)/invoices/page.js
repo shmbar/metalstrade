@@ -111,29 +111,9 @@ const Invoices = () => {
 			setInvoicesData(dt)
 			setFilteredData(dt)
 
-			let invArr = []
-			let tmpArr = dt.filter(z => z.invType === '1111' && !z.cnORfl)
-			tmpArr.forEach(z => {
-
-				let date1 = z.shipData?.eta?.endDate;
-				if (!date1) return;
-
-				const date = new Date(date1);
-
-				date.setDate(date.getDate() + 14);
-				const today = new Date();
-
-				// Compare if the new date is greater than today
-				if (date < today) {
-					if (z.alert !== undefined && z.alert) {
-						invArr.push(z);
-					} else if (z.alert === undefined) {
-						invArr.push({ ...z, alert: true });
-					}
-				}
-			})
-			setOpenAlert(true)
-			setAlertArr(invArr)
+			// "Notification for delayed response" (invoices) turned off per request — no longer
+			// surfaced, so it can't pop up. (Re-enable by rebuilding alertArr from overdue ETAs.)
+			setAlertArr([])
 			setLoading(false)
 
 			// Re-raise standing "needs IMS/GIS split" alerts (idempotent — never duplicates).
