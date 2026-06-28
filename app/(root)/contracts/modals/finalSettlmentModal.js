@@ -152,6 +152,25 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
             // Confirm ("make it original"): the edited values become live; clear the draft.
             return { ...x, fsDraft: false, fsDraftData: null }
         })
+
+        if (!isDraft) {
+            // Roll the settled line totals up to each supplier (purchase) invoice they belong to,
+            // and set that invoice's value so its balance reflects the final settlement automatically.
+            const settledByInv = {}
+            data.forEach(x => {
+                if (!x.poInvoice) return
+                settledByInv[x.poInvoice] = (settledByInv[x.poInvoice] || 0) + (parseFloat(x.finaltotal) || 0)
+            })
+            const newPoInvoices = (valueCon.poInvoices || []).map(pi => {
+                if (settledByInv[pi.id] == null) return pi
+                const invValue = Math.round(settledByInv[pi.id] * 100) / 100
+                const pmnt = parseFloat(pi.pmnt) || 0
+                return { ...pi, invValue, blnc: Math.round((invValue - pmnt) * 100) / 100 }
+            })
+            saveData_stocks(uidCollection, payload, newPoInvoices)
+            return
+        }
+
         saveData_stocks(uidCollection, payload)
     }
 

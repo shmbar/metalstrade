@@ -217,8 +217,12 @@ const useContractsState = (props) => {
             let success = await updateDocumentContract(uidCollection, 'contracts', 'poInvoices', newValCon, newValCon.poInvoices)
             success && setToast({ show: true, text: getTtl('Payments successfully saved!', ln), clr: 'success' })
         },
-        saveData_stocks: async (uidCollection, data) => {
+        saveData_stocks: async (uidCollection, data, poInvoicesOverride = null) => {
             if (data.length === 0 && valueCon.stock.length === 0) return;
+
+            // A confirmed final settlement passes recomputed supplier-invoice values
+            // (poInvoicesOverride); for any other save the contract's existing ones are kept.
+            const finalPoInvoices = poInvoicesOverride ?? valueCon.poInvoices;
 
             //check if item deleted
             let delItems = valueCon.stock.filter((item) => !data.map(x => x.id).includes(item));
@@ -229,7 +233,7 @@ const useContractsState = (props) => {
 
             let tmpdata = data.map(x => ({
                 ...x, supplier: valueCon.supplier, productsData: valueCon.productsData,
-                order: valueCon.order, cur: valueCon.cur, poInvoices: valueCon.poInvoices,
+                order: valueCon.order, cur: valueCon.cur, poInvoices: finalPoInvoices,
                 qTypeTable: valueCon.qTypeTable,
                 contractData: { id: valueCon.id, date: valueCon.dateRange.startDate }, type: 'in',
                 originSupplier: valueCon.originSupplier || null
@@ -239,7 +243,7 @@ const useContractsState = (props) => {
             //    await saveStockIn(uidCollection, tmpdata.filter(z => z.qnty !== '0'))
             await saveStockIn(uidCollection, tmpdata)
 
-            let tmp = { ...valueCon, stock: data.map(x => x.id) }
+            let tmp = { ...valueCon, stock: data.map(x => x.id), poInvoices: finalPoInvoices }
             setValueCon(tmp)
             setContractsData(contractsData.map((k) => (k.id === tmp.id ? tmp : k)))
 
