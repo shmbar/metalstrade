@@ -2,7 +2,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import Customtable from './newTable';
 import CustomtableStatement from '../contractsstatement/newTable';
-import CustomtableStatement1 from '../contractsstatement/newTable1';
 import MyDetailsModal from '../contracts/modals/dataModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { ContractsContext } from "../../../contexts/useContractsContext";
@@ -914,23 +913,20 @@ const ContractsMerged = () => {
                             {/* Statement Tab Content */}
                             {activeTab === 'statement' && (
                                 <div className='mt-2'>
-                                    {enabledSwitch ?
-                                        <CustomtableStatement data={loading ? [] : groupedArrayInvoiceStatement(getFormattedStatement(dataTableStatement))} columns={propDefaultsStatement}
-                                            excellReport={EXDStatement(dataTableStatement.filter(x => (selectedIdsStatement.length ? selectedIdsStatement : filteredDataStatement.map(z => z.id)).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
-                                            invisible={invisibleStatement} ln={ln}
-                                            setFilteredData={setFilteredDataStatement}
-                                            onSelectionChange={setSelectedIdsStatement}
-                                            tableModes={<TableModes />} type='contractStatementTableModes'
-                                        />
-                                        :
-                                        <CustomtableStatement1 data={loading ? [] : (getFormattedStatement(dataTableStatement))} columns={propDefaultsStatement.slice(1)}
-                                            excellReport={EXDStatement(dataTableStatement.filter(x => (selectedIdsStatement.length ? selectedIdsStatement : filteredDataStatement.map(z => z.id)).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
-                                            invisible={invisibleStatement} ln={ln}
-                                            setFilteredData={setFilteredDataStatement}
-                                            onSelectionChange={setSelectedIdsStatement}
-                                            tableModes={<TableModes />} type='contractStatementTableModes'
-                                        />
-                                    }
+                                    {/* Both modes are the SAME Customtable — only data/columns differ. Rendering one
+                                        instance (switching props) keeps it mounted across the Table <-> Expanded toggle,
+                                        so the search/filter you typed is preserved instead of being wiped on a remount. */}
+                                    <CustomtableStatement
+                                        data={loading ? [] : (enabledSwitch
+                                            ? groupedArrayInvoiceStatement(getFormattedStatement(dataTableStatement))
+                                            : getFormattedStatement(dataTableStatement))}
+                                        columns={enabledSwitch ? propDefaultsStatement : propDefaultsStatement.slice(1)}
+                                        excellReport={EXDStatement(dataTableStatement.filter(x => (selectedIdsStatement.length ? selectedIdsStatement : filteredDataStatement.map(z => z.id)).includes(x.id)), settings, getTtl('Contracts Statement', ln), ln)}
+                                        invisible={invisibleStatement} ln={ln}
+                                        setFilteredData={setFilteredDataStatement}
+                                        onSelectionChange={setSelectedIdsStatement}
+                                        tableModes={<TableModes />} type='contractStatementTableModes'
+                                    />
 
                                     <div className='pt-8'>
                                         <TableTotals data={sortArr(totalsStatement.map(z => ({ ...z, spName: gQ(z.supplier, 'Supplier', 'nname') })), 'spName')} columns={colsTotals} expensesData={dataTableStatement}
