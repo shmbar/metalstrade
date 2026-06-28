@@ -78,10 +78,16 @@ export async function POST(request) {
         } else if (documentType === 'salescontract') {
             // A CLIENT sales contract: the document is a sales agreement issued to / signed with
             // a buyer (client). The contract number is the client's sales-contract reference.
-            schemaGuide = `Return JSON for a client sales contract:
+            schemaGuide = `Return JSON for a client sales contract.
+
+CRITICAL EXTRACTION RULES:
+- clientName = the BUYER / CUSTOMER the goods are sold TO (the consignee / "Buyer" / "Consignee" / "Sold to" / "Bill to" party). It is NEVER our own company "IMS Metals & Alloys" or "GIS Metals" — those are US, the SELLER on this contract. Choose the OTHER party (the customer), and return its COMPANY NAME (e.g. "Estma Ltd", "Exotech") — not just a street address. If you can only find an address with no company name, leave clientName null rather than returning the address.
+- clientId = the id of the closest match in the Known clients list (match by company name, tolerant of spacing/punctuation). If no client clearly matches, return null — do NOT guess or pick our own company.
+- contractNo = the client's sales-contract number / reference.
+
 {
   "contractNo": "the sales contract number / reference string or null",
-  "clientName": "extracted client (buyer) name",
+  "clientName": "the buyer/customer company name (never IMS/GIS) or null",
   "clientId": "matched client id or null",
   "date": "YYYY-MM-DD or null",
   "currencyCode": "USD/EUR/etc or null",
