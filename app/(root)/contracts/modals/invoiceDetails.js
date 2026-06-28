@@ -13,7 +13,7 @@ import ModalToDelete from '@components/modalToProceed';
 import InvoiceType from './invoiceType.js'
 import {
 	validate, ErrDiv, reOrderTableInv, loadDataSettings, loadStockDataPerDescription,
-	getD, loadInvoice, filteredArray
+	getD, loadInvoice, filteredArray, loadData
 } from '@utils/utils'
 import Expenses from './expenses'
 import Payments from './payments.js'
@@ -260,6 +260,43 @@ const ContractModal = () => {
 		}))
 	}
 
+	// ── Sales-contract link ──────────────────────────────────────────────────
+	// Linking an invoice to a client's Sales Contract (clientContractNo → salesContractId)
+	// is what marks that sales contract as shipped. The same control exists on the standalone
+	// Invoices page; mirrored here so invoices made from the PO also update the sales contract.
+	const [salesContracts, setSalesContracts] = useState([]);
+	useEffect(() => {
+		const load = async () => {
+			if (!uidCollection) return;
+			const yr = parseInt((valueInv.dateRange?.startDate || valueInv.date || '').substring(0, 4));
+			const y = isNaN(yr) ? new Date().getFullYear() : yr;
+			setSalesContracts(await loadData(uidCollection, 'salescontracts', { start: `${y - 1}-01-01`, end: `${y + 1}-12-31` }));
+		};
+		load();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [uidCollection, valueInv.id]);
+
+	const normalizeNo = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+	const scOptions = salesContracts
+		.filter(sc => !valueInv.client || sc.client === valueInv.client)
+		.map(sc => ({ ...sc, contractNo: sc.contractNo || '(no number)' }));
+	const autoMatchSalesContract = (typed) => {
+		const target = normalizeNo(typed);
+		if (!target) return '';
+		const pool = salesContracts.filter(sc => !valueInv.client || sc.client === valueInv.client);
+		const hit = pool.find(sc => normalizeNo(sc.contractNo) === target)
+			|| salesContracts.find(sc => normalizeNo(sc.contractNo) === target);
+		return hit?.id || '';
+	};
+	const handleClientContractNo = (e) => {
+		const v = e.target.value;
+		setValueInv(prev => ({ ...prev, clientContractNo: v, salesContractId: autoMatchSalesContract(v) }));
+	};
+	const handleSalesContractPick = (id) => {
+		const sc = salesContracts.find(x => x.id === id);
+		setValueInv(prev => ({ ...prev, salesContractId: id, clientContractNo: sc?.contractNo ?? prev.clientContractNo }));
+	};
+
 	return (
 		<div className="overflow-x-auto">
 			<div className="px-1 min-w-[900px]">
@@ -323,6 +360,26 @@ const ContractModal = () => {
 								<p className='pt-2 pl-1 responsiveText'>{client.other1}</p>
 							</>
 						)}
+						{/* Sales-contract link — sets salesContractId so the client's Sales Contract registers this as shipped. */}
+						{!fnl ?
+							<div className='mt-2 flex flex-col gap-1.5'>
+								<div>
+									<p className='responsiveText text-[var(--port-gore)] font-medium'>Client Contract #:</p>
+									<input className="input shadow-sm h-8 text-[0.75rem] w-full mt-0.5" name='clientContractNo'
+										value={valueInv.clientContractNo || ''} onChange={handleClientContractNo} />
+								</div>
+								<div>
+									<Selector arr={scOptions} value={valueInv}
+										onChange={handleSalesContractPick}
+										name='salesContractId' secondaryName='contractNo'
+										clear={clear} />
+									{valueInv.clientContractNo && !valueInv.salesContractId &&
+										<p className='responsiveText text-[var(--regent-gray)] pl-1 pt-0.5'>No matching sales contract — pick one or create it.</p>}
+								</div>
+							</div>
+							:
+							<p className='mt-2 pl-1 responsiveText text-[var(--port-gore)]'>Client Contract #: {salesContracts.find(s => s.id === valueInv.salesContractId)?.contractNo || valueInv.clientContractNo || '—'}</p>
+						}
 						{fnl && (
 							<>
 								<p className='pt-2 pl-1 responsiveText'>{valueInv.client.street}</p>
