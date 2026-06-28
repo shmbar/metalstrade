@@ -5,7 +5,7 @@ import { Dialog, Transition, TransitionChild, DialogPanel, DialogTitle } from '@
 import { UserAuth } from "../contexts/useAuthContext";
 import { useRouter } from "next/navigation";
 
-const timeout = 10800_000 //3 hours
+const timeout = 7200_000 //2 hours — matches the session cap in useAuthContext
 const promptBeforeIdle = 30_000
 
 export default function App() {

@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react'
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth'
 import { auth } from '../utils/firebase'
 import { loadDataSettings, logEvent } from '../utils/utils'
 
@@ -10,6 +10,10 @@ import { SettingsContext } from "../contexts/useSettingsContext";
 import BackToLoginPage from '../components/backToLoginPage'
 
 const AuthContext = createContext()
+
+// Hard session cap: even a "remembered" login expires this long after the last activity,
+// so a left-open or cookie-persisted session can't stay logged in indefinitely.
+const SESSION_MAX_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 
 const AuthContextProvider = ({ children }) => {
@@ -51,10 +55,16 @@ const AuthContextProvider = ({ children }) => {
     return logEvent(uidCollection, { ...evt, actorUid: currentUser.uid, actorName: currentUser.name })
   }, [uidCollection, currentUser])
 
-  const SignIn = async (email, password) => {
+  const SignIn = async (email, password, remember = false) => {
     try {
+      // "Remember me": keep the session across browser close (local) vs clear it on close
+      // (session) — so an unchecked login can't auto-resume from cookie memory later.
+      try {
+        await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+      } catch { /* persistence not supported — fall back to default, don't block login */ }
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       sessionStorage.setItem('isLogged', true);
+      localStorage.setItem('lastSeen', String(Date.now())); // starts the 2h inactivity window
       setUser(userCredential.user);
       // Only redirect if authenticated
       router.push("/contracts");
@@ -113,11 +123,48 @@ const AuthContextProvider = ({ children }) => {
 
   // Only set loadingPage to false after both Firebase user and uidCollection are loaded
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      // Enforce the 2h cap on load: if a persisted session has been idle longer than the
+      // window, sign it out and require a fresh login (password) instead of auto-resuming.
+      if (currentUser) {
+        const last = parseInt(localStorage.getItem('lastSeen') || '0', 10);
+        if (last && Date.now() - last > SESSION_MAX_MS) {
+          localStorage.removeItem('lastSeen');
+          await signOut(auth).catch(() => {});
+          setUser(null);
+          return;
+        }
+      }
       setUser(currentUser);
     });
     return () => unsubscribe();
   }, []);
+
+  // Keep the "last activity" stamp fresh while logged in (heartbeat + on tab close), so the
+  // 2h cap measures time since the user was last actually using the app.
+  useEffect(() => {
+    if (!user) return;
+    const bump = () => localStorage.setItem('lastSeen', String(Date.now()));
+    bump();
+    const id = setInterval(bump, 60_000);
+    window.addEventListener('beforeunload', bump);
+    return () => { clearInterval(id); window.removeEventListener('beforeunload', bump); };
+  }, [user]);
+
+  // Safety net against a stuck login spinner: if loading hasn't finished after 12s (e.g. the
+  // uidCollection token claim never resolved), stop loading — and if there's a "user" with no
+  // usable account claim, sign out cleanly so they can log in again instead of being frozen.
+  useEffect(() => {
+    if (!loadingPage) return;
+    const id = setTimeout(() => {
+      if (auth.currentUser && !uidCollection) {
+        signOut(auth).catch(() => {});
+        setUser(null);
+      }
+      setLoadingPage(false);
+    }, 12000);
+    return () => clearTimeout(id);
+  }, [loadingPage, uidCollection]);
 
   useEffect(() => {
     // If user is checked and uidCollection is set (or user is null), stop loading

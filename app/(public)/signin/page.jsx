@@ -37,7 +37,7 @@ export default function SignInPage() {
     try {
       setDisabled(true);
       const tmpEmail = completeUserEmail(email);
-      await SignIn(tmpEmail, password);
+      await SignIn(tmpEmail, password, remember);
       if (remember) localStorage.setItem("email", email);
       else localStorage.removeItem("email");
     } catch (error) {
