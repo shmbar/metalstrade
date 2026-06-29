@@ -591,7 +591,7 @@ const InvoiceModal = () => {
 						<ProductsTable value={valueInv} setValue={setValueInv}
 							currency={settings.Currency.Currency} uidCollection={uidCollection}
 							settings={settings} setDeleteProducts={setDeleteProducts}
-							materialsArr={valueInv.productsData.map(x => ({ id: x.id, description: x.description }))}
+							materialsArr={(valueInv.productsData || []).map(x => ({ id: x.id, description: x.description }))}
 						/>
 					</div>
 				</div>
@@ -671,7 +671,7 @@ const InvoiceModal = () => {
 										const number1 = values[4];
 										const number2 = values[5];
 										let tmpObj = valueInv.productsDataInvoice[index]
-										let description = tmpObj.mtrlStatus === 'select' ? valueInv.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
+										let description = tmpObj.mtrlStatus === 'select' ? (valueInv.productsData || []).find(x => x.id === tmpObj.descriptionId)?.['description'] :
 											tmpObj.descriptionText
 
 										const formattedNumber = number === 's' ? 'Service' : new Intl.NumberFormat('en-US', {
@@ -703,7 +703,7 @@ const InvoiceModal = () => {
 											const number1 = values[4];
 											const number2 = values[5];
 											let tmpObj = valueInv.productsDataInvoice[index]
-											let description = tmpObj.mtrlStatus === 'select' ? valueInv.productsData.find(x => x.id === tmpObj.descriptionId)?.['description'] :
+											let description = tmpObj.mtrlStatus === 'select' ? (valueInv.productsData || []).find(x => x.id === tmpObj.descriptionId)?.['description'] :
 												tmpObj.descriptionText
 
 											const formattedNumber = new Intl.NumberFormat('en-US', {
