@@ -20,8 +20,10 @@ export function AppErrorBoundary({ error, retry }: ErrorBoundaryProps) {
       <Text variant="body" tone="muted" style={{ textAlign: 'center' }}>
         This screen hit an unexpected error. Your data is safe — try again or go back.
       </Text>
-      {__DEV__ && error?.message ? (
-        <Text variant="caption" tone="faint" style={{ textAlign: 'center' }}>{error.message}</Text>
+      {error?.message ? (
+        <Text variant="caption" tone="faint" selectable style={{ textAlign: 'center' }}>
+          {String(error.message).slice(0, 300)}
+        </Text>
       ) : null}
       <View style={{ width: '100%', gap: spacing.sm, marginTop: spacing.sm }}>
         <Button title="Try again" onPress={retry} />

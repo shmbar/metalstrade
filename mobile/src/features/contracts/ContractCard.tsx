@@ -23,8 +23,8 @@ export function ContractCard({
 
   return (
     <Card onPress={onPress} style={{ marginBottom: 12, overflow: 'hidden' }}>
-      {/* Status accent stripe */}
-      <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 4, backgroundColor: accent }} />
+      {/* Status accent — short rounded bar per card (not a full-height edge) */}
+      <View style={{ position: 'absolute', left: 0, top: 14, bottom: 14, width: 3.5, borderTopRightRadius: 4, borderBottomRightRadius: 4, backgroundColor: accent }} />
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, paddingLeft: 6 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>

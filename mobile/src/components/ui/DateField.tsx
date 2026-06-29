@@ -84,8 +84,8 @@ export function DateField({ label, value, onChange, required, error }: DateField
         />
       )}
 
-      {Platform.OS === 'ios' && (
-        <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
+      {Platform.OS === 'ios' && open && (
+        <Modal visible transparent animationType="slide" onRequestClose={() => setOpen(false)}>
           <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setOpen(false)} />
           <View
             style={{

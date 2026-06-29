@@ -37,8 +37,10 @@ export function Screen({
   };
 
   if (!scroll) {
+    // Apply contentContainerStyle here too so non-scroll screens honour their
+    // paddingTop override (otherwise headers render under the status bar).
     return (
-      <View style={[{ flex: 1, backgroundColor: colors.bg }, pad]}>{children}</View>
+      <View style={[{ flex: 1, backgroundColor: colors.bg }, pad, contentContainerStyle as any]}>{children}</View>
     );
   }
 

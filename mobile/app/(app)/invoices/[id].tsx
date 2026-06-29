@@ -265,34 +265,39 @@ export default function InvoiceDetail() {
         </View>
       </Modal>
 
-      {/* Add payment sheet */}
+      {/* Add payment sheet — content rendered only while open so the native date
+          picker isn't mounted behind a hidden modal. */}
       <Modal visible={showAdd} transparent animationType="slide" onRequestClose={() => setShowAdd(false)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setShowAdd(false)} />
-        <View
-          style={{
-            backgroundColor: colors.bgElevated,
-            borderTopLeftRadius: radius['2xl'],
-            borderTopRightRadius: radius['2xl'],
-            padding: spacing.lg,
-            paddingBottom: insets.bottom + spacing.lg,
-            gap: spacing.lg,
-          }}
-        >
-          <Text variant="h2">Record payment</Text>
-          <Text variant="caption" tone="muted">
-            Invoice #{view.number} · balance {view.balanceLabel}
-          </Text>
-          <TextField
-            label={`Amount (${sym.trim() || view.cur})`}
-            value={amount}
-            onChangeText={setAmount}
-            placeholder="0.00"
-            keyboardType="decimal-pad"
-            autoFocus
-          />
-          <DateField label="Payment date" value={payDate} onChange={setPayDate} />
-          <Button title="Save payment" loading={addPayment.isPending} onPress={submitPayment} />
-        </View>
+        {showAdd && (
+          <>
+            <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setShowAdd(false)} />
+            <View
+              style={{
+                backgroundColor: colors.bgElevated,
+                borderTopLeftRadius: radius['2xl'],
+                borderTopRightRadius: radius['2xl'],
+                padding: spacing.lg,
+                paddingBottom: insets.bottom + spacing.lg,
+                gap: spacing.lg,
+              }}
+            >
+              <Text variant="h2">Record payment</Text>
+              <Text variant="caption" tone="muted">
+                Invoice #{view.number} · balance {view.balanceLabel}
+              </Text>
+              <TextField
+                label={`Amount (${sym.trim() || view.cur})`}
+                value={amount}
+                onChangeText={setAmount}
+                placeholder="0.00"
+                keyboardType="decimal-pad"
+                autoFocus
+              />
+              <DateField label="Payment date" value={payDate} onChange={setPayDate} />
+              <Button title="Save payment" loading={addPayment.isPending} onPress={submitPayment} />
+            </View>
+          </>
+        )}
       </Modal>
     </Screen>
   );
