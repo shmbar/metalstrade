@@ -12,6 +12,22 @@ import { auth } from '@/lib/firebase';
 // "Sharon Admin" ↔ "Gis Admin" and a handful of GIS-specific behaviors.
 const GIS_UID_COLLECTION = 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS';
 
+// Username → email, ported VERBATIM from the web app (actions/validations.js
+// completeUserEmail) so the same login works on both. Users type a bare username
+// (e.g. "sharonims") and we resolve it to the Firebase email Firebase expects.
+const completeUserEmail = (userName: string): string => {
+  const u = (userName || '').trim();
+  return u.includes('@')
+    ? u
+    : u === 'isims'
+      ? 'isims@is.is'
+      : u === 'isgis'
+        ? 'isgis@is.is'
+        : u.slice(-3) === 'ims'
+          ? u + '@ims-metals.com'
+          : u + '@gismetals.com';
+};
+
 export interface CurrentUser {
   uid: string;
   name: string;
@@ -62,13 +78,13 @@ export const useAuth = create<AuthState>((set) => ({
   signIn: async (email, password) => {
     set({ error: null });
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      await signInWithEmailAndPassword(auth, completeUserEmail(email), password);
       return true;
     } catch (e: any) {
       const code = e?.code || '';
       const msg =
         code === 'auth/invalid-email'
-          ? 'Enter your full email address (e.g. name@company.com), not just a username.'
+          ? 'Enter your username or email.'
           : code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found'
             ? 'Incorrect email or password.'
             : code === 'auth/too-many-requests'
@@ -85,8 +101,8 @@ export const useAuth = create<AuthState>((set) => ({
 
   // Send a Firebase password-reset email — parity with the web "Forgot password".
   resetPassword: async (email) => {
-    const e = email.trim();
-    if (!e) return { ok: false, message: 'Enter your email address first.' };
+    if (!email.trim()) return { ok: false, message: 'Enter your username or email first.' };
+    const e = completeUserEmail(email);
     try {
       await sendPasswordResetEmail(auth, e);
       return { ok: true, message: `Reset link sent to ${e}. Check your inbox.` };

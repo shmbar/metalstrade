@@ -118,14 +118,15 @@ export default function SignIn() {
             }}
           >
             <TextField
-              label="Email"
+              label="Username or email"
               value={email}
               onChangeText={setEmail}
-              placeholder="you@company.com"
+              placeholder="e.g. sharonims"
               autoCapitalize="none"
-              keyboardType="email-address"
-              autoComplete="email"
-              textContentType="emailAddress"
+              autoCorrect={false}
+              keyboardType="default"
+              autoComplete="username"
+              textContentType="username"
             />
             <TextField
               label="Password"
