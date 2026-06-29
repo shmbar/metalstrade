@@ -1542,6 +1542,11 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
         .map(z => ({ ...z, _order: z.poSupplier?.order ?? 'Comp. Exp.' }));
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
 
+    // When every expense is in a single currency, the other (converted) total is redundant —
+    // show only that currency's total. Mixed currencies still show both $ and €.
+    const allUsd = filteredArr.length > 0 && filteredArr.every(z => z.cur === 'us');
+    const allEur = filteredArr.length > 0 && filteredArr.every(z => z.cur === 'eu');
+
     return (
         <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
@@ -1614,24 +1619,24 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                     <tr className="bg-[#dbeeff]">
                         <th></th>
                         <th className="text-left">
-                            <div>Total $</div>
-                            <div className="pt-0.5">Total €</div>
+                            {!allEur && <div>Total $</div>}
+                            {!allUsd && <div className={!allEur ? 'pt-0.5' : ''}>Total €</div>}
                         </th>
                         <th></th>
                         <th></th>
                         <th className="text-left">
-                            <div>{
+                            {!allEur && <div>{
                                 showAmount(filteredArr.reduce((sum, item) => {
                                     const amt = parseFloat(item.amount) || 0;
                                     return sum + (item.cur === 'us' ? amt : amt * 1.08);
                                 }, 0), 'usd')
-                            }</div>
-                            <div className="pt-0.5">{
+                            }</div>}
+                            {!allUsd && <div className={!allEur ? 'pt-0.5' : ''}>{
                                 showAmount(filteredArr.reduce((sum, item) => {
                                     const amt = parseFloat(item.amount) || 0;
                                     return sum + (item.cur === 'eu' ? amt : amt / 1.08);
                                 }, 0), 'eur')
-                            }</div>
+                            }</div>}
                         </th>
                         <th></th>
                         <th></th>
