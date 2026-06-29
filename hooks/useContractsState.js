@@ -8,6 +8,7 @@ import {
     speciaInvoices,
     syncSpecialInvoicesPaidStatus,
     loadStockData,
+    updateStockProductsData,
 } from '@utils/utils'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { getCur } from '@components/exchangeApi'
@@ -151,6 +152,12 @@ const useContractsState = (props) => {
             setValueCon(tmpValue)
 
             let success = await saveData(uidCollection, 'contracts', tmpValue)
+
+            // Keep the stock docs' denormalized materials list in sync, so editing a material
+            // description here also updates what the stock/warehouse view shows for this contract.
+            if (success) {
+                await updateStockProductsData(uidCollection, tmpValue.stock, tmpValue.productsData)
+            }
 
             //   setIsOpenCon(false)
             setLoading(false)

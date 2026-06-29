@@ -501,6 +501,24 @@ export const updatePoSupplierExp = async (uidCollection, val, exps) => {
 
 }
 
+// Stock docs keep a denormalized copy of the contract's materials list (`productsData`),
+// and the stock/warehouse view resolves each row's name from that copy. So when a contract's
+// material descriptions are edited, push the updated list onto the contract's stock docs —
+// otherwise they keep showing the pre-edit description. Merge-set so a missing id can't fail
+// the batch, and chunk to stay under Firestore's 500-write limit.
+export const updateStockProductsData = async (uidCollection, stockIds, productsData) => {
+  const ids = (Array.isArray(stockIds) ? stockIds : []).filter(Boolean);
+  if (ids.length === 0 || !Array.isArray(productsData) || productsData.length === 0) return;
+
+  for (let i = 0; i < ids.length; i += 450) {
+    const batch = writeBatch(db);
+    ids.slice(i, i + 450).forEach(id =>
+      batch.set(doc(db, uidCollection, 'data', 'stocks', id), { productsData }, { merge: true })
+    );
+    await batch.commit();
+  }
+}
+
 export const updateExpenseInContracts = async (uidCollection, valalExp, poData) => {
 
   const y = poData.date.substring(0, 4)
