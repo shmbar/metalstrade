@@ -70,8 +70,10 @@ const InvoiceModal = () => {
 
 	// Sales contracts the dropdown offers — scoped to the invoice's client when one is set,
 	// shaped so the shared Selector shows `contractNo` as the label and stores the id.
-	const scOptions = salesContracts
-		.filter(sc => !valueInv.client || sc.client === valueInv.client)
+	// Guard: only real, non-empty ids — a Radix <Select.Item value=""> throws and white-screens
+	// the whole app, which can happen if a sales contract is malformed/half-deleted.
+	const scOptions = (Array.isArray(salesContracts) ? salesContracts : [])
+		.filter(sc => sc && sc.id && (!valueInv.client || sc.client === valueInv.client))
 		.map(sc => ({ ...sc, contractNo: sc.contractNo || '(no number)' }));
 
 	// Auto-match the typed Client Contract # to a sales contract (prefer same client).

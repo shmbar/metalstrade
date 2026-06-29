@@ -268,7 +268,7 @@ const ContractModal = () => {
 	useEffect(() => {
 		const load = async () => {
 			if (!uidCollection) return;
-			const yr = parseInt((valueInv.dateRange?.startDate || valueInv.date || '').substring(0, 4));
+			const yr = parseInt(String(valueInv.dateRange?.startDate || valueInv.date || '').substring(0, 4));
 			const y = isNaN(yr) ? new Date().getFullYear() : yr;
 			setSalesContracts(await loadData(uidCollection, 'salescontracts', { start: `${y - 1}-01-01`, end: `${y + 1}-12-31` }));
 		};
@@ -277,8 +277,10 @@ const ContractModal = () => {
 	}, [uidCollection, valueInv.id]);
 
 	const normalizeNo = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-	const scOptions = salesContracts
-		.filter(sc => !valueInv.client || sc.client === valueInv.client)
+	// Guard: only real, non-empty ids — a Radix <Select.Item value=""> throws and white-screens
+	// the whole app, which can happen if a sales contract is malformed/half-deleted.
+	const scOptions = (Array.isArray(salesContracts) ? salesContracts : [])
+		.filter(sc => sc && sc.id && (!valueInv.client || sc.client === valueInv.client))
 		.map(sc => ({ ...sc, contractNo: sc.contractNo || '(no number)' }));
 	const autoMatchSalesContract = (typed) => {
 		const target = normalizeNo(typed);
@@ -378,7 +380,7 @@ const ContractModal = () => {
 								</div>
 							</div>
 							:
-							<p className='mt-2 pl-1 responsiveText text-[var(--port-gore)]'>Client Contract #: {salesContracts.find(s => s.id === valueInv.salesContractId)?.contractNo || valueInv.clientContractNo || '—'}</p>
+							<p className='mt-2 pl-1 responsiveText text-[var(--port-gore)]'>Client Contract #: {(Array.isArray(salesContracts) ? salesContracts : []).find(s => s.id === valueInv.salesContractId)?.contractNo || valueInv.clientContractNo || '—'}</p>
 						}
 						{fnl && (
 							<>
