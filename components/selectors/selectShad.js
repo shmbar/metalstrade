@@ -49,7 +49,9 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
             </SelectTrigger>
             <SelectContent className="z-[9999] rounded-xl border border-[#dbeeff] shadow-md text-[0.75rem] text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
                 <SelectGroup>
-                    {sortArr(arr.filter(x => !x.deleted), secondaryName || name).map(k => {
+                    {/* Drop blank-id options: Radix mounts <SelectItem> even while the menu is
+                        closed and throws on an empty-string value, which white-screens the page. */}
+                    {sortArr(arr.filter(x => !x.deleted && x.id !== '' && x.id != null), secondaryName || name).map(k => {
                         return (
                             <SelectItem key={k.id} value={k.id}
                                 className={cn('text-[0.75rem] rounded-xl', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks' || k.id === 'EditTextTermPmnt') ?
