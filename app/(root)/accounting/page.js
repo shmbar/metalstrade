@@ -242,7 +242,7 @@ const Accounting = () => {
           clientExp: l.supplier,
           amountExp: l.amount,
           expType: l.expType,
-          invoice: l.salesInv.replace(/\D/g, ''),
+          invoice: String(l.salesInv || '').replace(/\D/g, ''),
           curEX: gQ(l.cur, 'Currency', 'cur'),
           expenseId: l.id,
           expenseDate: l.dateRange?.startDate ?? l.date
