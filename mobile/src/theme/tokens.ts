@@ -108,11 +108,11 @@ export const getShadow = (scheme: 'light' | 'dark', level: Elevation = 'md') => 
     return { shadowColor: '#000000', shadowOpacity: map.o, shadowRadius: map.r, shadowOffset: { width: 0, height: map.h }, elevation: map.e };
   }
   const map = {
-    sm: { o: 0.05, r: 10, h: 3, e: 1 },
-    md: { o: 0.07, r: 20, h: 10, e: 3 },
-    lg: { o: 0.1, r: 32, h: 18, e: 6 },
+    sm: { o: 0.07, r: 8, h: 2, e: 1 },
+    md: { o: 0.1, r: 16, h: 6, e: 3 },
+    lg: { o: 0.14, r: 28, h: 14, e: 7 },
   }[level];
-  return { shadowColor: '#0f1b35', shadowOpacity: map.o, shadowRadius: map.r, shadowOffset: { width: 0, height: map.h }, elevation: map.e };
+  return { shadowColor: '#1b2a4a', shadowOpacity: map.o, shadowRadius: map.r, shadowOffset: { width: 0, height: map.h }, elevation: map.e };
 };
 
 // 4pt spacing grid.
