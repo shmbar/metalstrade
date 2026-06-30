@@ -138,7 +138,8 @@ const StorageCosts = () => {
     }, [uidCollection, settings]);
 
     // The year a storage invoice belongs to = its covered month if tagged, else its date.
-    const expYear = (e) => (e.storageMonth || ym(e.date) || '').slice(0, 4);
+    // (storageMonth/date are string-safe here; ym already coerces non-strings.)
+    const expYear = (e) => ((typeof e?.storageMonth === 'string' ? e.storageMonth : '') || ym(e?.date) || '').slice(0, 4);
 
     // Years present in the data (newest first) for the period selector + summary table.
     const years = useMemo(
@@ -395,7 +396,7 @@ const StorageCosts = () => {
                                         const ready = d.storageWh && d.storageMonth;
                                         return (
                                             <tr key={e.id} className="border-t border-[#eef5fc]">
-                                                <td className="px-3 py-2 whitespace-nowrap text-[var(--port-gore)]">{(e.date || '').substring(0, 10)}</td>
+                                                <td className="px-3 py-2 whitespace-nowrap text-[var(--port-gore)]">{(typeof e.date === 'string' ? e.date : '').substring(0, 10)}</td>
                                                 <td className="px-3 py-2 text-[var(--port-gore)] max-w-[12rem] truncate">{e.expense || '—'}</td>
                                                 <td className="px-3 py-2 text-[var(--port-gore)]">{settings.Supplier?.Supplier?.find(s => s.id === e.supplier)?.nname || '—'}</td>
                                                 <td className="px-3 py-2 text-right whitespace-nowrap text-[var(--port-gore)]">

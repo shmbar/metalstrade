@@ -14,14 +14,19 @@ export const UNIT = [
 ];
 
 export const toUsd = (amt, cur) => (cur === 'us' || cur === 'USD' ? amt : (Number(amt) || 0) * EUR_USD);
-export const ym = (s) => (s || '').substring(0, 7); // YYYY-MM
+// YYYY-MM — non-string-safe (a date can come through as a number/Timestamp/object, which would
+// otherwise blow up on .substring and white-screen the page).
+export const ym = (s) => (typeof s === 'string' ? s : '').substring(0, 7);
 
-// Arrival date string for a lot (mirrors agingUtils): indDate, else contract date.
+// Arrival date string for a lot (mirrors agingUtils): indDate, else contract date. Always
+// returns a string — a non-string date (Timestamp/number/object) collapses to '' rather than
+// flowing into ym() and crashing.
 export const arrivalStr = (lot) => {
+    const str = (v) => (typeof v === 'string' ? v : '');
     const d = lot?.indDate;
     if (typeof d === 'string' && d) return d;
-    if (d && typeof d === 'object') return d.startDate || d.endDate || lot?.contractData?.date || '';
-    return lot?.contractData?.date || '';
+    if (d && typeof d === 'object') return str(d.startDate) || str(d.endDate) || str(lot?.contractData?.date);
+    return str(lot?.contractData?.date);
 };
 
 // Whether an expense is a storage/warehouse type, resolved via the settings list.

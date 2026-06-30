@@ -23,6 +23,11 @@ describe('ym', () => {
         expect(ym(undefined)).toBe('');
         expect(ym('')).toBe('');
     });
+    it('is non-string-safe (number / object / Timestamp would crash .substring)', () => {
+        expect(ym(20260621)).toBe('');
+        expect(ym({ startDate: '2026-01-01' })).toBe('');
+        expect(ym({ seconds: 1, nanoseconds: 0 })).toBe('');
+    });
 });
 
 describe('arrivalStr', () => {
@@ -33,6 +38,11 @@ describe('arrivalStr', () => {
     it('falls back to contractData.date when indDate object is empty', () =>
         expect(arrivalStr({ indDate: {}, contractData: { date: '2026-05-01' } })).toBe('2026-05-01'));
     it('returns empty string when nothing usable', () => expect(arrivalStr({})).toBe(''));
+    it('returns empty string for non-string dates (Timestamp/number/object)', () => {
+        expect(arrivalStr({ indDate: 1700000000000 })).toBe('');
+        expect(arrivalStr({ indDate: { startDate: { seconds: 1 } } })).toBe('');
+        expect(arrivalStr({ contractData: { date: 12345 } })).toBe('');
+    });
 });
 
 describe('isStorageType', () => {
