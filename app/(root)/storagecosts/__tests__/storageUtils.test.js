@@ -61,22 +61,24 @@ describe('isStorageType', () => {
 
 describe('mtInWh', () => {
     const lots = [
-        { stock: 'WH1', type: 'in', qnty: 100, indDate: '2026-01-10' },                 // unsold, Jan
-        { stock: 'WH1', type: 'in', qnty: 50, indDate: '2026-03-10' },                  // unsold, Mar
-        { stock: 'WH1', type: 'in', qnty: 30, indDate: '2026-01-05', status: 'sold' },  // sold → excluded
-        { stock: 'WH1', type: 'in', qnty: 20, indDate: '2026-01-05', client: 'C1' },    // allocated → sold → excluded
+        { stock: 'WH1', type: 'in', qnty: 100, indDate: '2026-01-10' },                 // Jan
+        { stock: 'WH1', type: 'in', qnty: 50, indDate: '2026-03-10' },                  // Mar
+        { stock: 'WH1', type: 'in', qnty: 30, indDate: '2026-01-05', status: 'sold' },  // sold but on hand → still counts
+        { stock: 'WH1', type: 'in', qnty: 20, indDate: '2026-01-05', client: 'C1' },    // allocated but on hand → still counts
         { stock: 'WH2', type: 'in', qnty: 999, indDate: '2026-01-01' },                 // other warehouse
-        { stock: 'WH1', type: 'out', qnty: 10, indDate: '2026-01-01' },                 // out record → excluded
+        { stock: 'WH1', type: 'out', qnty: 10, indDate: '2026-01-01' },                 // shipped/transferred → subtracts
         { stock: 'WH1', qnty: 5, indDate: '2026-01-01' },                               // no type → counts as in
     ];
-    it('sums unsold inbound lots up to the given month', () =>
-        expect(mtInWh(lots, 'WH1', '2026-01')).toBe(105));   // 100 + 5 (Mar lot not yet arrived)
+    it('nets inbound minus out up to the given month (sold still on hand, out subtracted)', () =>
+        expect(mtInWh(lots, 'WH1', '2026-01')).toBe(145));   // 100+30+20+5 − 10 (Mar lot not yet arrived)
     it('includes later arrivals as the month advances', () =>
-        expect(mtInWh(lots, 'WH1', '2026-03')).toBe(155));   // 100 + 50 + 5
-    it('isolates by warehouse and excludes out-records & sold lots', () =>
+        expect(mtInWh(lots, 'WH1', '2026-03')).toBe(195));   // 145 + 50
+    it('isolates by warehouse', () =>
         expect(mtInWh(lots, 'WH2', '2026-12')).toBe(999));
-    it('with no month, counts all unsold inbound regardless of arrival', () =>
-        expect(mtInWh(lots, 'WH1', '')).toBe(155));
+    it('with no month, nets all in/out regardless of arrival', () =>
+        expect(mtInWh(lots, 'WH1', '')).toBe(195));          // 100+50+30+20+5 − 10
+    it('never goes below zero', () =>
+        expect(mtInWh([{ stock: 'WH1', type: 'out', qnty: 10 }], 'WH1', '')).toBe(0));
     it('returns 0 for empty lots', () => expect(mtInWh([], 'WH1', '2026-01')).toBe(0));
 });
 

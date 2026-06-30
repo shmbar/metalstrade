@@ -101,13 +101,14 @@ function MonthPickerPill({ value, onChange }) {
 }
 
 const StorageCosts = () => {
-    const { settings, dateSelect } = useContext(SettingsContext);
+    const { settings } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
 
-    const [expenses, setExpenses] = useState([]);   // storage-type expenses in the period
+    const [allExpenses, setAllExpenses] = useState([]); // storage-type expenses across recent years
     const [lots, setLots] = useState([]);           // all stock lots
     const [loading, setLoading] = useState(true);
     const [unit, setUnit] = useState('month');
+    const [year, setYear] = useState('all');        // 'all' or 'YYYY' — page-local period filter
     const [edits, setEdits] = useState({});         // id -> { storageWh, storageMonth } (triage drafts)
     const [savingId, setSavingId] = useState(null);
 
@@ -117,20 +118,53 @@ const StorageCosts = () => {
     // Warehouse options for the app-styled Selector (uniform display label = stock || nname).
     const whOptions = useMemo(() => warehouses.map(w => ({ ...w, _label: w.stock || w.nname || '' })), [warehouses]);
 
+    // Load storage expenses across recent years (this page has its own year filter, independent of
+    // the global date range) plus all stock, so we can show per-year figures and a summary table.
     useEffect(() => {
         const Load = async () => {
             if (!uidCollection || Object.keys(settings).length === 0) return;
             setLoading(true);
+            const thisYr = new Date().getFullYear();
             const [exp, allLots] = await Promise.all([
-                loadData(uidCollection, 'expenses', dateSelect),
+                loadData(uidCollection, 'expenses', { start: `${thisYr - 9}-01-01`, end: `${thisYr}-12-31` }),
                 loadAllStockData(uidCollection),
             ]);
-            setExpenses((exp || []).filter(e => isStorageType(e, expTypes)));
+            setAllExpenses((exp || []).filter(e => isStorageType(e, expTypes)));
             setLots((allLots || []).filter(Boolean));
             setLoading(false);
         };
         Load();
-    }, [uidCollection, dateSelect, settings]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [uidCollection, settings]);
+
+    // The year a storage invoice belongs to = its covered month if tagged, else its date.
+    const expYear = (e) => (e.storageMonth || ym(e.date) || '').slice(0, 4);
+
+    // Years present in the data (newest first) for the period selector + summary table.
+    const years = useMemo(
+        () => [...new Set(allExpenses.map(expYear).filter(Boolean))].sort((a, b) => b.localeCompare(a)),
+        [allExpenses]
+    );
+
+    // Expenses scoped to the chosen year ('all' = every year loaded).
+    const expenses = useMemo(
+        () => (year === 'all' ? allExpenses : allExpenses.filter(e => expYear(e) === year)),
+        [allExpenses, year]
+    );
+
+    // Per-year roll-up: storage spend, MT-months and the average $/MT rate for each year.
+    const perYear = useMemo(() => {
+        const map = {};
+        allExpenses.forEach(e => { const y = expYear(e); if (y) (map[y] ??= []).push(e); });
+        return Object.entries(map)
+            .sort((a, b) => b[0].localeCompare(a[0]))
+            .map(([y, list]) => {
+                const taggedY = list.filter(e => e.storageWh && e.storageMonth);
+                const m = computeStorageMetric({ tagged: taggedY, lots, whName });
+                const spend = list.reduce((s, e) => s + toUsd(parseFloat(e.amount) || 0, e.cur), 0);
+                return { year: y, spend, count: list.length, taggedCount: taggedY.length, mtMonths: m.totalMt, rate: m.overall };
+            });
+    }, [allExpenses, lots, warehouses]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const tagged = useMemo(() => expenses.filter(e => e.storageWh && e.storageMonth), [expenses]);
     const untagged = useMemo(() => expenses.filter(e => !(e.storageWh && e.storageMonth)), [expenses]);
@@ -171,7 +205,7 @@ const StorageCosts = () => {
         setSavingId(e.id);
         try {
             await updateExpenseField(uidCollection, e.id, e.date, { storageWh: d.storageWh, storageMonth: d.storageMonth });
-            setExpenses(prev => prev.map(x => x.id === e.id ? { ...x, storageWh: d.storageWh, storageMonth: d.storageMonth } : x));
+            setAllExpenses(prev => prev.map(x => x.id === e.id ? { ...x, storageWh: d.storageWh, storageMonth: d.storageMonth } : x));
             setEdits(prev => { const n = { ...prev }; delete n[e.id]; return n; });
         } finally { setSavingId(null); }
     };
@@ -193,7 +227,20 @@ const StorageCosts = () => {
                             Average storage cost per MT. Tag each storage invoice to a warehouse + month below; the rate updates automatically.
                         </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <div className="flex items-center gap-2">
+                            <span className="responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap hidden sm:inline">Year:</span>
+                            <div style={{ minWidth: 132 }}>
+                                <Selector
+                                    arr={[{ id: 'all', _label: 'All years' }, ...years.map(y => ({ id: y, _label: y }))]}
+                                    value={{ year }}
+                                    onChange={(v) => setYear(v || 'all')}
+                                    name='year'
+                                    secondaryName='_label'
+                                />
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
                         <span className="responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap hidden sm:inline">Show rate as:</span>
                         <div className="flex items-center gap-1">
                             {UNIT.map(u => (
@@ -209,13 +256,14 @@ const StorageCosts = () => {
                                 </button>
                             ))}
                         </div>
+                        </div>
                     </div>
                 </div>
 
                 {/* Real actuals — exact figures from your expenses & stock, shown even before tagging */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-3">
                     <div className="rounded-2xl p-4 bg-white border border-[#b8ddf8] shadow-sm">
-                        <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: '0.62rem' }}><Receipt className="w-3.5 h-3.5" /> Storage spend · this period</div>
+                        <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: '0.62rem' }}><Receipt className="w-3.5 h-3.5" /> Storage spend · {year === 'all' ? 'all years' : year}</div>
                         <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: '1.35rem' }}>{fmtUsd(actuals.totalSpend)}</div>
                         <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: '0.6rem' }}>
                             {actuals.count} invoice{actuals.count === 1 ? '' : 's'} · {actuals.taggedCount} tagged · {actuals.count - actuals.taggedCount} to tag
@@ -260,6 +308,45 @@ const StorageCosts = () => {
                     {metric.rows.length === 0 && (
                         <div className="sm:col-span-2 xl:col-span-3 rounded-2xl p-4 bg-white border border-dashed border-[#b8ddf8] flex items-center text-[var(--regent-gray)] responsiveTextTable">
                             No storage invoices tagged yet for this period — tag some below to see the rate.
+                        </div>
+                    )}
+                </div>
+
+                {/* Per-year summary — storage spend, MT-months and the average rate for each year */}
+                <div className="rounded-2xl border border-[#b8ddf8] bg-white overflow-hidden mb-5">
+                    <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: '#dbeeff' }}>
+                        <Calendar className="w-4 h-4 text-[var(--endeavour)]" />
+                        <span className="responsiveText font-semibold text-[var(--chathams-blue)]">Per-year summary</span>
+                        <span className="responsiveTextTable text-[var(--regent-gray)] ml-1 hidden sm:inline">— click a year to filter</span>
+                    </div>
+                    {perYear.length === 0 ? (
+                        <div className="px-4 py-6 text-center responsiveTextTable text-[var(--regent-gray)]">No storage invoices yet.</div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full" style={{ fontSize: '0.7rem' }}>
+                                <thead>
+                                    <tr className="text-left text-[var(--regent-gray)]" style={{ background: '#f8fbff' }}>
+                                        <th className="px-3 py-2 font-medium">Year</th>
+                                        <th className="px-3 py-2 font-medium text-right">Storage spend</th>
+                                        <th className="px-3 py-2 font-medium text-right">MT-months</th>
+                                        <th className="px-3 py-2 font-medium text-right">Avg storage cost {UNIT.find(u => u.key === unit).label}</th>
+                                        <th className="px-3 py-2 font-medium text-right">Invoices (tagged)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {perYear.map(r => (
+                                        <tr key={r.year}
+                                            onClick={() => setYear(year === r.year ? 'all' : r.year)}
+                                            className={`border-t border-[#eef5fc] cursor-pointer transition-colors ${year === r.year ? 'bg-[#eef5fc]' : 'hover:bg-[#f8fbff]'}`}>
+                                            <td className="px-3 py-2 font-medium text-[var(--chathams-blue)]">{r.year}</td>
+                                            <td className="px-3 py-2 text-right text-[var(--port-gore)]">{fmtUsd(r.spend)}</td>
+                                            <td className="px-3 py-2 text-right text-[var(--port-gore)]">{new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(r.mtMonths)}</td>
+                                            <td className="px-3 py-2 text-right font-medium text-[var(--chathams-blue)]">{rateStr(r.rate)}</td>
+                                            <td className="px-3 py-2 text-right text-[var(--port-gore)]">{r.count} ({r.taggedCount})</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     )}
                 </div>
