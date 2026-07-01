@@ -494,6 +494,20 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 }
 /* ========== End Global Always-Visible Scrollbar ========== */
 
+/* ========== Table scroll boxes fit short viewports ==========
+   The table bodies cap their scroll height at a fixed 700px. On short screens
+   (small laptops, 13" MacBooks, the 600px Nest Hub preview) that 700px box is
+   taller than the viewport, so the table runs off the bottom of the screen and
+   can't be scrolled to cleanly — the "pages won't scroll" report. On short
+   viewports, cap the box to the visible area so the table fits and scrolls
+   inside it. Taller screens keep the existing 700px behaviour. */
+@media (max-height: 820px) {
+  .dashboard-scroll {
+    max-height: calc(100vh - 210px) !important;
+  }
+}
+/* ========== End Table scroll boxes ========== */
+
 /* ========== Radix Tooltip: no scroll, no max-width ========== */
 [data-radix-popper-content-wrapper] {
   max-width: none !important;
