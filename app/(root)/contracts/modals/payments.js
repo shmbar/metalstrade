@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { VscArchive } from 'react-icons/vsc';
 import { usePathname } from 'next/navigation';
 import { getTtl } from '@utils/languages';
+import { deleteNotification } from '@utils/utils';
 import Tltip from '@components/tlTip';
 
 function countDecimalDigits(inputString) {
@@ -129,6 +130,13 @@ const Payments = ({ showPayments }) => {
             message: `Payment recorded on Invoice #${valueInv?.invoice ?? ''}`,
             notify: true, severity: 'success',
         })
+        // Resolve the standing High-priority alerts once the invoice is fully paid,
+        // so they disappear from the bell (mirrors the create scan in AIAlertsBar).
+        const bal = (Number(valueInv?.totalAmount) || 0) - (valueInv?.payments || []).reduce((s, p) => s + (Number(p?.pmnt) || 0), 0)
+        if (valueInv?.id && bal <= 0.01) {
+            deleteNotification(uidCollection, `unpaid:invoice:${valueInv.id}`)
+            deleteNotification(uidCollection, `overdue:invoice:${valueInv.id}`)
+        }
         if (pathName === '/contractsreview' || pathName === '/invoicesreview') { //only for contractsreview table
             let tmpValue = { ...valueCon, lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM") }
             let tmpArr = contractsData.map((k) => (k.id === valueCon.id ? tmpValue : k));

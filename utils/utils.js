@@ -7,6 +7,7 @@ import {
 import { getStorage, ref, uploadBytes, listAll, getDownloadURL, deleteObject } from "firebase/storage";
 import { getTtl } from './languages';
 import { splitNotifId } from './splitUtils';
+import { priorityOf } from './notificationPriority';
 
 // Pure date / invoice-grouping helpers live in pureHelpers.js so they can be
 // unit-tested without booting Firebase. We re-export them here for backward
@@ -213,7 +214,9 @@ export const logEvent = async (uidCollection, evt = {}) => {
     // which carries per-user read state + snooze. Same id links the two.
     if (evt.notify) {
       await setDoc(doc(db, uidCollection, 'data', 'notifications', id), {
-        ...record, severity: evt.severity || 'info', readBy: [], readReceipts: {}, snoozedBy: {},
+        ...record, severity: evt.severity || 'info',
+        priority: evt.priority || priorityOf(record),   // High / Medium / Low (see notificationPriority.js)
+        readBy: [], readReceipts: {}, snoozedBy: {},
       });
     }
     return record;
@@ -310,6 +313,7 @@ export const ensureNotification = async (uidCollection, id, payload = {}) => {
       id, createdAt: now.toISOString(), createdAtMs: now.getTime(),
       actorUid: 'system', actorName: 'System', audience: 'all',
       readBy: [], readReceipts: {}, snoozedBy: {}, severity: 'info', notify: true,
+      priority: priorityOf(payload),   // derived from type; an explicit payload.priority overrides below
       ...payload,
     });
   } catch (e) { console.warn('ensureNotification failed:', e?.message || e); }

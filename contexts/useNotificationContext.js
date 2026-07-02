@@ -4,6 +4,7 @@ import { UserAuth } from './useAuthContext';
 import {
     subscribeNotifications, markNotificationRead, markAllNotificationsRead, snoozeNotification,
 } from '../utils/utils';
+import { sortByPriority } from '../utils/notificationPriority';
 
 const NotificationContext = createContext();
 const MUTE_KEY = 'ims_notif_muted';
@@ -74,15 +75,17 @@ const NotificationProvider = ({ children }) => {
         return () => clearInterval(t);
     }, []);
 
-    // Visible = addressed to me (audience) and not currently snoozed by me.
+    // Visible = addressed to me (audience) and not currently snoozed by me,
+    // ordered by priority (High → Medium → Low) then newest first.
     const notifications = useMemo(() => {
         const now = Date.now();
-        return all.filter(n => {
+        const mine = all.filter(n => {
             if (Array.isArray(n.audience) && uid && !n.audience.includes(uid)) return false;
             const until = n.snoozedBy?.[uid];
             if (until && until > now) return false;
             return true;
         });
+        return sortByPriority(mine);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [all, uid]);
 

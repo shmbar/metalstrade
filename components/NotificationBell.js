@@ -2,8 +2,10 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNotifications } from '../contexts/useNotificationContext';
+import { PRIORITY, PRIORITY_ORDER, priorityOf } from '../utils/notificationPriority';
 import {
     Bell, BellOff, Check, CheckCheck, Clock, Activity, FileText, Receipt, Banknote, Package, Settings as SettingsIcon,
+    AlertTriangle, ArrowUp, Minus,
 } from 'lucide-react';
 
 const ENTITY = {
@@ -18,6 +20,7 @@ const FALLBACK = { icon: Activity, color: '#475569', bg: '#f1f5f9', route: () =>
 const metaFor = (t) => ENTITY[t] || FALLBACK;
 
 const SEVERITY_DOT = { success: '#16a34a', warning: '#d97706', error: '#dc2626', info: 'var(--endeavour)' };
+const PRIORITY_ICON = { high: AlertTriangle, medium: ArrowUp, low: Minus };
 
 // Group notifications by subject so the stream stays organized rather than mixed.
 const CATEGORIES = [
@@ -110,17 +113,20 @@ const NotificationBell = () => {
         ? notifications
         : notifications.filter(n => categoryOf(n) === catFilter);
 
-    // Grouped sections (only for the "All" view).
+    // "All" view is grouped into High / Medium / Low sections (each already newest-first
+    // from the context sort). Category chips above still filter by subject.
     const groups = useMemo(() => {
         if (catFilter !== 'all') return [];
-        const map = {};
-        notifications.forEach(n => { (map[categoryOf(n)] = map[categoryOf(n)] || []).push(n); });
-        return CATEGORY_ORDER.filter(k => map[k]).map(k => [k, map[k]]);
+        const map = { high: [], medium: [], low: [] };
+        notifications.forEach(n => { map[priorityOf(n)].push(n); });
+        return PRIORITY_ORDER.filter(k => map[k].length).map(k => [k, map[k]]);
     }, [notifications, catFilter]);
 
     const renderRow = (n) => {
         const meta = metaFor(n.entityType);
         const Icon = meta.icon;
+        const pr = PRIORITY[priorityOf(n)] || PRIORITY.medium;
+        const PriIcon = PRIORITY_ICON[pr.key];
         const unreadFlag = unreadIds.has(n.id);
         const receipts = Object.values(n.readReceipts || {}); // [{ name, at }]
         const seenTitle = receipts.map(r => `${r.name} — ${relativeTime(new Date(r.at).getTime())}`).join('\n');
@@ -129,7 +135,7 @@ const NotificationBell = () => {
             <div
                 key={n.id}
                 className='relative flex items-start gap-2.5 px-3 py-2.5 border-b border-[#eef5fc] hover:bg-[#f8fbff] transition-colors'
-                style={{ background: unreadFlag ? '#f8fbff' : 'white' }}
+                style={{ background: unreadFlag ? '#f8fbff' : 'white', borderLeft: `3px solid ${pr.color}` }}
             >
                 <span className='inline-flex items-center justify-center rounded-full flex-shrink-0 mt-0.5' style={{ width: 26, height: 26, background: meta.bg }}>
                     <Icon className='w-3.5 h-3.5' style={{ color: meta.color }} />
@@ -138,7 +144,11 @@ const NotificationBell = () => {
                     <p className='break-words' style={{ fontSize: '0.72rem', color: 'var(--port-gore)' }}>
                         {n.message || `${n.entityType || 'Item'} ${n.action || 'updated'}`}
                     </p>
-                    <div className='flex flex-wrap items-center gap-x-2 mt-0.5' style={{ fontSize: '0.6rem', color: 'var(--regent-gray)' }}>
+                    <div className='flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5' style={{ fontSize: '0.6rem', color: 'var(--regent-gray)' }}>
+                        <span className='inline-flex items-center gap-0.5 px-1.5 rounded-full font-semibold'
+                            style={{ fontSize: '0.52rem', color: pr.color, background: pr.bg, border: `1px solid ${pr.border}` }}>
+                            <PriIcon className='w-2 h-2' /> {pr.label}
+                        </span>
                         <span style={{ color: SEVERITY_DOT[n.severity] || 'var(--regent-gray)' }}>●</span>
                         <span>{n.actorName || 'Unknown'}</span>
                         <span>·</span>
@@ -231,18 +241,22 @@ const NotificationBell = () => {
                                 <span style={{ fontSize: '0.7rem', color: 'var(--regent-gray)' }}>You&apos;re all caught up.</span>
                             </div>
                         ) : catFilter === 'all' ? (
-                            groups.map(([key, items]) => (
-                                <div key={key}>
-                                    <div
-                                        className='sticky top-0 flex items-center justify-between px-3 py-1'
-                                        style={{ background: '#f8fbff', borderBottom: '1px solid #eef5fc', fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.04em', color: 'var(--regent-gray)', textTransform: 'uppercase', zIndex: 5 }}
-                                    >
-                                        <span>{categoryLabel(key)}</span>
-                                        <span>{items.length}</span>
+                            groups.map(([key, items]) => {
+                                const pr = PRIORITY[key];
+                                const PriIcon = PRIORITY_ICON[key];
+                                return (
+                                    <div key={key}>
+                                        <div
+                                            className='sticky top-0 flex items-center justify-between px-3 py-1'
+                                            style={{ background: pr.bg, borderBottom: `1px solid ${pr.border}`, fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.04em', color: pr.color, textTransform: 'uppercase', zIndex: 5 }}
+                                        >
+                                            <span className='inline-flex items-center gap-1'><PriIcon className='w-2.5 h-2.5' /> {pr.label} priority</span>
+                                            <span>{items.length}</span>
+                                        </div>
+                                        {items.map(renderRow)}
                                     </div>
-                                    {items.map(renderRow)}
-                                </div>
-                            ))
+                                );
+                            })
                         ) : (
                             visible.map(renderRow)
                         )}

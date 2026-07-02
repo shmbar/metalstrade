@@ -3,7 +3,7 @@ import { useContext, useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
-import { loadData, updateContractField, ensureNotification, loadActivity } from '../../../utils/utils';
+import { loadData, updateContractField, ensureNotification, deleteNotification, loadActivity } from '../../../utils/utils';
 import VideoLoader from '../../../components/videoLoader';
 import Toast from '../../../components/toast.js';
 import DateRangePicker from '../../../components/dateRangePicker';
@@ -507,10 +507,15 @@ const ShipmentPage = () => {
         const now = Date.now();
         contracts.forEach(c => {
             const status = c.shipmentStatus || '';
-            if (status === 'Completed') return;
             const order = c.order ?? '';
             const etaStr = c.shipmentEta || invoiceMap[c.id]?.eta;
             const etdStr = c.shipmentEtd || invoiceMap[c.id]?.etd;
+            // Cleared/arrived cargo: drop any standing ETA/ETD reminders so they leave the bell.
+            if (status === 'Completed') {
+                if (etaStr) { deleteNotification(uidCollection, `eta14:${c.id}:${etaStr}`); deleteNotification(uidCollection, `etadue:${c.id}:${etaStr}`); }
+                if (etdStr) deleteNotification(uidCollection, `etddue:${c.id}:${etdStr}`);
+                return;
+            }
             const eta = etaStr ? new Date(etaStr) : null;
             if (eta && !isNaN(eta.getTime())) {
                 const days = Math.floor((now - eta.getTime()) / 86400000);

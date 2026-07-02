@@ -5,7 +5,7 @@ import { AlertTriangle, FileWarning, TrendingDown, Bell, Loader2 } from 'lucide-
 import { SettingsContext } from '@contexts/useSettingsContext';
 import { UserAuth } from '@contexts/useAuthContext';
 import { loadData, loadMarginsRange, resolveDueDate, ensureNotification } from '@utils/utils';
-import { receivables as financeReceivables, groupInvoices, isOverdue, invoiceBalance } from '@utils/finance';
+import { receivables as financeReceivables, groupInvoices, isOverdue, invoiceBalance, isIssued, resolveInvoiceDate } from '@utils/finance';
 
 // Compact pill button used for each alert chip
 function AlertPill({ icon: Icon, label, count, severity, onClick }) {
@@ -103,8 +103,27 @@ const AIAlertsBar = () => {
                     const cur = settings?.Currency?.Currency?.find(c => c.id === inv.cur)?.cur || '';
                     ensureNotification(uidCollection, `overdue:invoice:${inv.id}`, {
                         type: 'settlement.overdue', entityType: 'invoice', entityId: inv.id || '',
-                        entityLabel: `Invoice #${inv.invoice ?? ''}`, action: 'overdue', severity: 'warning',
+                        entityLabel: `Invoice #${inv.invoice ?? ''}`, action: 'overdue', severity: 'warning', priority: 'high',
                         message: `Invoice #${inv.invoice ?? ''} overdue ${days}d — ${cur} ${Number(inv._balanceDue || 0).toFixed(2)} (${clientName})`,
+                    });
+                });
+
+                // Customer invoices unpaid 3+ days after their ISSUE date → High-priority
+                // bell alert, kept active until the balance is cleared (the payment that
+                // zeroes it removes this + the overdue alert — see payments.js saveD).
+                // Earlier & more aggressive than the term-based "overdue" above.
+                groupInvoices(invoices).filter(isIssued).slice(0, 80).forEach(inv => {
+                    const bal = invoiceBalance(inv);
+                    const invDate = resolveInvoiceDate(inv);
+                    if (bal <= 0.01 || !invDate) return;
+                    const ageDays = Math.floor((today.getTime() - new Date(invDate).getTime()) / 86400000);
+                    if (ageDays < 3) return;
+                    const clientName = settings?.Client?.Client?.find(c => c.id === inv.client)?.nname || 'client';
+                    const cur = settings?.Currency?.Currency?.find(c => c.id === inv.cur)?.cur || '';
+                    ensureNotification(uidCollection, `unpaid:invoice:${inv.id}`, {
+                        type: 'invoice.unpaid', entityType: 'invoice', entityId: inv.id || '',
+                        entityLabel: `Invoice #${inv.invoice ?? ''}`, action: 'unpaid', severity: 'warning', priority: 'high',
+                        message: `Invoice #${inv.invoice ?? ''} unpaid ${ageDays}d after issue — ${cur} ${bal.toFixed(2)} (${clientName})`,
                     });
                 });
 
