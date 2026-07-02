@@ -219,7 +219,15 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             }
             // `remarks` is a structured ARRAY in this app — never overwrite it with a
             // freeform string. The AI's notes go to the plain-string `comments` field.
-            if (selected.remarks && result.remarks) out.comments = String(result.remarks);
+            // Chemistry (element analysis) + scale pricing have no structured field yet, so
+            // fold them into comments so the extracted detail isn't lost.
+            {
+                const extra = [];
+                if (selected.remarks && result.remarks) extra.push(String(result.remarks));
+                (result.products || []).forEach(p => { if (p.analysis) extra.push(`${p.description || 'Material'} — analysis: ${p.analysis}`); });
+                if (result.scalePricing) extra.push(`Scale prices: ${result.scalePricing}`);
+                if (extra.length) out.comments = extra.join('\n');
+            }
         } else if (documentType === 'salescontract') {
             // Client sales contract: map onto the sales-contract shape (contractNo + client + productsData).
             if (selected.contractNo && result.contractNo) out.contractNo = result.contractNo;

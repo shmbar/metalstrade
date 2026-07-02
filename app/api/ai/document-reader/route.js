@@ -63,18 +63,30 @@ export async function POST(request) {
 
         let schemaGuide;
         if (documentType === 'contract') {
-            schemaGuide = `Return JSON for a contract/purchase order:
+            schemaGuide = `Return JSON for a purchase contract / purchase confirmation:
 {
-  "order": "PO number string or null",
-  "supplierName": "extracted supplier name",
+  "order": "the supplier's Contract No. / reference (e.g. 'PB062970') or null",
+  "supplierName": "the issuer/seller company name (e.g. 'Oryx Stainless BV')",
   "supplierId": "matched supplier id or null",
   "date": "YYYY-MM-DD or null",
   "currencyCode": "USD/EUR/etc or null",
   "currencyId": "matched currency id or null",
-  "products": [{ "description": "string", "qnty": number_or_null, "unitPrc": number_or_null }],
-  "remarks": "any notes or terms from the document",
+  "products": [{
+    "description": "material name, e.g. 'Cr Ni Mo Turnings'",
+    "qnty": number_or_null,
+    "unitPrc": number_or_null,
+    "analysis": "the element/chemistry spec as written, or null"
+  }],
+  "scalePricing": "the 'Scale prices' block (per-MT content prices), or null",
+  "remarks": "delivery term, payment term and other notes",
   "confidence": { "order": "high|medium|low", "supplier": "high|medium|low", "date": "high|medium|low", "products": "high|medium|low" }
-}`;
+}
+
+EXTRACTION NOTES:
+- order = the document's own "Contract No." (e.g. PB062970) — the reference for this purchase. Ignore "Your ref." if blank.
+- qnty = the QUANTITY in MT (e.g. 76 from "76.000 MT (+/- 5%)"); unitPrc = the Base price per MT (e.g. 6700 from "6,700.00 USD/MT"). Both plain numbers.
+- analysis = the ELEMENT table for that material as a compact string, e.g. "Ni min 42%, Cr min 12%, Mo min 3.5%; Cu max 0.5%, P max 0.03%, Co max 6%, Nb max 2.5%, Ti max 8%". Include every element shown (Nickel/Chrome/Molybdenum minimums and Copper/Phosphor/Cobalt/Niobium/Titan/Tungsten maximums).
+- scalePricing = the "Scale prices:" block, e.g. "Ni USD 12,800/MT Ni content; Cr USD 1,850/MT Cr content; Mo USD 30,000/MT Mo content".`;
         } else if (documentType === 'salescontract') {
             // A CLIENT sales contract: the document is a sales agreement issued to / signed with
             // a buyer (client). The contract number is the client's sales-contract reference.
@@ -138,9 +150,14 @@ CRITICAL EXTRACTION RULES:
 }`;
         }
 
+        // European suppliers (Oryx, etc.) write dates day-month-year, which was being
+        // misread — force day-first parsing and ISO output for every document type.
+        const dateRule = `DATES: European suppliers usually write day-month-year — "10-6-2026" = 10 June 2026, "11-6-2026" = 11 June 2026 (NOT month-day). Read the day first, then the month, then the year, and ALWAYS output the "date" field as ISO YYYY-MM-DD.`;
+
         const systemTextPrompt = `You are a document parsing assistant for a metals trading IMS.
 Extract structured data from the document text.
 ${entityLists}
+${dateRule}
 Match names to known entities (fuzzy match — "Jinchuan Group" matches "Jinchuan Group Co Ltd").
 ${schemaGuide}
 Return ONLY the JSON object, no extra text.`;
@@ -148,6 +165,7 @@ Return ONLY the JSON object, no extra text.`;
         const systemVisionPrompt = `You are a document parsing assistant for a metals trading IMS.
 Extract structured data from the document (image or scanned PDF).
 ${entityLists}
+${dateRule}
 Match names to known entities (fuzzy match).
 ${schemaGuide}
 Return ONLY the JSON object, no extra text.`;
