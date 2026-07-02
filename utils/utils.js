@@ -843,6 +843,21 @@ export const loadAllStockData = async (uidCollection) => {
   });
 }
 
+// ── Shared Stock (IMS + GIS) ──────────────────────────────────────────────────
+// Jointly-held inventory lives in a fixed cross-account namespace that BOTH the IMS
+// and GIS accounts read/write (the same cross-account access CopyIMSGIS already uses).
+// So shared stock needs no fake contract, invoice or selling price to exist, and each
+// account's OWN stock stays private to its own namespace (never exposed to the other).
+// A shared lot carries { shared: true, owners: ['IMS','GIS'], sharedByAccount } metadata.
+export const SHARED_STOCK_UID = 'SHARED_STOCK';
+export const loadSharedStock = async () => loadAllStockData(SHARED_STOCK_UID);
+export const saveSharedStock = async (stockArr) => saveStockIn(SHARED_STOCK_UID, stockArr);
+export const deleteSharedStock = async (id) => {
+  if (!id) return;
+  try { await deleteDoc(doc(db, SHARED_STOCK_UID, 'data', 'stocks', id)); }
+  catch (e) { console.warn('deleteSharedStock failed:', e?.message || e); }
+}
+
 export const loadStockDataPerDescription = async (uidCollection, stock, description) => {
 
   const q = query(

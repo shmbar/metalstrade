@@ -1,6 +1,7 @@
 'use client';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import Customtable from './newTable';
+import SharedStock from './SharedStock';
 import MyDetailsModal from './whModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { ContractsContext } from "../../../contexts/useContractsContext";
@@ -50,6 +51,7 @@ const Stocks = () => {
   const { isOpenCon, setIsOpenCon } = useContext(ContractsContext);
   const { uidCollection } = UserAuth();
   const [selectedStock, setSelectedStock] = useState({ stock: 'allStocks', id: 'allStocks', nname: '..All Stocks' })
+  const [activeTab, setActiveTab] = useState('mine') // 'mine' = this account's stock, 'shared' = IMS+GIS shared pool
   // const [selectedOpt, setSelectOpt] = useState({ opt: 4 })
   const [data, setData] = useState([])
   const [sumData, setSumData] = useState([])
@@ -356,6 +358,26 @@ const Stocks = () => {
                 </button>
               </div>
 
+              {/* Tabs: this account's stock vs the IMS+GIS shared pool */}
+              <div className='flex items-center gap-1.5 mt-3'>
+                {[['mine', 'My Stock'], ['shared', 'Shared (IMS + GIS)']].map(([key, label]) => (
+                  <button key={key} type='button' onClick={() => setActiveTab(key)}
+                    className='rounded-full font-medium transition-colors'
+                    style={{
+                      fontSize: '0.72rem', padding: '5px 14px',
+                      background: activeTab === key ? 'var(--endeavour)' : 'white',
+                      color: activeTab === key ? 'white' : 'var(--chathams-blue)',
+                      border: `1px solid ${activeTab === key ? 'var(--endeavour)' : '#d8e8f5'}`,
+                    }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {activeTab === 'shared' ? (
+                <div className='mt-3'><SharedStock /></div>
+              ) : (
+                <>
               {/* Table Component */}
               <div className='mt-2'>
                 <Customtable
@@ -397,6 +419,8 @@ const Stocks = () => {
 
               {/* Warehouse / terminal storage-aging monitor (#11) */}
               <StorageAging data={data} />
+                </>
+              )}
             </div>
 
             {/* Modal */}
