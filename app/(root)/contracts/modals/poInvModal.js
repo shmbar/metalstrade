@@ -197,6 +197,14 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
         }
     };
 
+    // Draft = keep this purchase invoice off the Cashflow (it's still saved on the contract).
+    const toggleDraft = (x) => {
+        setValueCon(prev => ({
+            ...prev,
+            poInvoices: prev.poInvoices.map(item => item.id === x.id ? { ...item, draft: !item.draft } : item)
+        }));
+    };
+
 
 
     const addInvoice = () => {
@@ -349,6 +357,13 @@ console.log(valueCon.poInvoices)
                                                         {getTtl('Stocks', ln)}</span>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div className=''>
+                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]'>Draft:</p>
+                                            <label className='flex items-center gap-1.5 h-7 cursor-pointer' title='Draft — keep this purchase invoice off the Cashflow'>
+                                                <input type='checkbox' checked={!!x.draft} onChange={() => toggleDraft(x)} className='w-4 h-4 accent-[var(--endeavour)]' />
+                                                <span className='responsiveTextTable' style={{ color: x.draft ? '#b45309' : 'var(--regent-gray)' }}>{x.draft ? 'Hidden from Cashflow' : 'On Cashflow'}</span>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>

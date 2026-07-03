@@ -1265,6 +1265,7 @@ export const runSupPayments = async (uidCollection, settings, yr, contractsData 
 
     dt.forEach(contract => {
         contract.poInvoices.forEach(inv => {
+            if (inv.draft) return; // draft purchase invoices are excluded from the Cashflow
             let obj = {
                 invValue: inv.invValue, pmnt: inv.pmnt, blnc: inv.blnc, supplier: contract.supplier,
                 originSupplier: contract.originSupplier,
