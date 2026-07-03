@@ -375,12 +375,24 @@ const InvoiceModal = () => {
 					<p className='responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>Sales Contract:</p>
 					{!fnl ?
 						<div className='flex-1 min-w-0'>
-							<Selector arr={scOptions} value={valueInv}
-								onChange={handleSalesContractPick}
-								name='salesContractId' secondaryName='contractNo'
-								clear={clear} />
-							{valueInv.clientContractNo && !valueInv.salesContractId &&
-								<p className='responsiveText text-[var(--regent-gray)] pl-1 pt-0.5'>No matching sales contract — pick one or create it.</p>}
+							{valueInv.salesContractId ?
+								// Auto-matched from the Client Contract # — a compact confirmation, so the same
+								// number isn't shown twice (the "PO shown 4×" the client flagged). Shows the
+								// sales-contract number only when it actually differs from what was typed.
+								<span className='responsiveText font-medium flex items-center gap-1.5' style={{ color: '#15803d' }}>
+									✓ Linked{(() => { const n = salesContracts.find(s => s.id === valueInv.salesContractId)?.contractNo; return n && n !== valueInv.clientContractNo ? ` · ${n}` : ''; })()}
+									<button type='button' onClick={() => clear('salesContractId')} title='Unlink' className='text-[var(--regent-gray)] hover:text-red-500'>✕</button>
+								</span>
+								:
+								<>
+									<Selector arr={scOptions} value={valueInv}
+										onChange={handleSalesContractPick}
+										name='salesContractId' secondaryName='contractNo'
+										clear={clear} />
+									{valueInv.clientContractNo &&
+										<p className='responsiveText text-[var(--regent-gray)] pl-1 pt-0.5'>No auto-match — pick one or create it.</p>}
+								</>
+							}
 						</div>
 						:
 						<p className='pl-1 responsiveText text-[var(--port-gore)]'>
