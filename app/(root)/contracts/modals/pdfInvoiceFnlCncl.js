@@ -1,6 +1,13 @@
 'use client'
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable'
+// jsPDF + autotable load on demand so they stay out of the page's first-load
+// bundle (same pattern as the exceljs excel exporters).
+let jsPDF, autoTable;
+const ensurePdfLibs = async () => {
+    if (jsPDF) return;
+    const [jspdfMod, autoTableMod] = await Promise.all([import('jspdf'), import('jspdf-autotable')]);
+    jsPDF = jspdfMod.jsPDF;
+    autoTable = autoTableMod.default;
+};
 
 const showRemarks = (doc, startRemarksRow, valueCon) => {
     if (valueCon.remarks.length > 0) {
@@ -20,6 +27,7 @@ const getprefixInv = (x) => {
 }
 
 export const PdfFnlCncl = async (value, arrTable, settings, compData) => {
+    await ensurePdfLibs();
 
     var doc = new jsPDF();
     doc.addFont("/fonts/Poppins.ttf", "Poppins", "normal");

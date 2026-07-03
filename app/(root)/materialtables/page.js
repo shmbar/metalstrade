@@ -83,15 +83,20 @@ const MaterialTables = () => {
         { accessorKey: 'del', header: '', cell: () => null },
     ]
 
-    // Auto-update ni price across all tables when live Ni LME price arrives
+    // Auto-update ni price across all tables when live Ni LME price arrives.
+    // The poll fires every 60s with a fresh metalPrices object even when the rounded
+    // price is unchanged — bail out with the previous state references in that case
+    // so tables aren't rewritten (and totals not recomputed) for a no-op.
     useEffect(() => {
         if (metalPrices?.['LME-NI']?.price != null && !loading) {
             const liveNi = String(Math.round(metalPrices['LME-NI'].price));
-            setNilmePrice(liveNi);
-            setData(prev => prev.map(t => ({
-                ...t,
-                prices: { ...t.prices, ni: liveNi },
-            })));
+            setNilmePrice(prev => (prev === liveNi ? prev : liveNi));
+            setData(prev => prev.every(t => t.prices?.ni === liveNi)
+                ? prev
+                : prev.map(t => t.prices?.ni === liveNi ? t : {
+                    ...t,
+                    prices: { ...t.prices, ni: liveNi },
+                }));
         }
     }, [metalPrices, loading]);
 
@@ -332,7 +337,10 @@ const MaterialTables = () => {
             result[el.key] = valid.length > 0 ? (sum / valid.length).toFixed(2) : '0.00'
         })
         setTotals(result)
-    }, [JSON.stringify(data)])
+        // Identity dep: every mutation goes through setData(prev => prev.map(...)),
+        // so a new array reference accompanies every change — no need to serialize
+        // the whole dataset on each render just to build a comparison key.
+    }, [data])
 
     return (
         <div className="w-full">

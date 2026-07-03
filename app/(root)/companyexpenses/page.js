@@ -1,5 +1,5 @@
 'use client';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import Customtable from './newTable';
 import MyDetailsModal from './modals/dataModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -7,7 +7,7 @@ import MonthSelect from '../../../components/monthSelect';
 import Toast from '../../../components/toast.js'
 import { ExpensesContext } from "../../../contexts/useExpensesContext";
 import { TbLayoutGridAdd } from 'react-icons/tb';
-import { loadCompanyExpenses, loadData, loadDataInvoices, updateCompanyExpenseField, ensureSplitNotification } from '../../../utils/utils'
+import { loadCompanyExpenses, loadData, loadDataInvoices, updateCompanyExpenseField, ensureSplitNotificationsBatch } from '../../../utils/utils'
 import SplitControl from '../../../components/SplitControl';
 import { splitStatusOf } from '../../../utils/splitUtils';
 import { Split } from 'lucide-react';
@@ -39,7 +39,9 @@ const Expenses = () => {
 
     // Persist a split change on one company-expense row: optimistic local update +
     // Firestore patch (flat companyExpenses collection), reverting on failure.
-    const persistSplit = async (row, split) => {
+    // useCallback so the memoized column defs below can list it as a dep and always
+    // capture a version that reads the CURRENT rows.
+    const persistSplit = useCallback(async (row, split) => {
         const prev = expensesData;
         setExpensesData(prev.map(x => x.id === row.id ? { ...x, split: split || null } : x));
         try {
@@ -48,7 +50,7 @@ const Expenses = () => {
             console.error(e);
             setExpensesData(prev);
         }
-    };
+    }, [expensesData, uidCollection, setExpensesData]);
 
     useEffect(() => {
 
@@ -63,13 +65,13 @@ const Expenses = () => {
             setLoading(false)
 
             // Re-raise standing "needs IMS/GIS split" alerts (idempotent — never duplicates).
-            dt.filter(z => z.split?.status === 'pending').slice(0, 50).forEach(z => {
-                ensureSplitNotification(uidCollection, {
+            // Batched: one existence query pass instead of one getDoc per pending expense.
+            ensureSplitNotificationsBatch(uidCollection,
+                dt.filter(z => z.split?.status === 'pending').slice(0, 50).map(z => ({
                     entityType: 'companyexpense', entityId: z.id,
                     entityLabel: `Company expense ${z.expense ? '#' + z.expense : ''}`.trim(),
                     amount: Number(z.amount) || 0, currency: z.cur,
-                });
-            });
+                })));
         }
 
         if (!uidCollection) return;
@@ -138,7 +140,10 @@ const Expenses = () => {
     const caseInsensitiveEquals = (row, columnId, filterValue) =>
         row.getValue(columnId).toLowerCase() === filterValue.toLowerCase();
 
-    let propDefaults = Object.keys(settings).length === 0 ? [] : [
+    // Memoized: the split cell's persistSplit closes over expensesData (dep, so the
+    // optimistic update/revert always sees current rows); other cells read only
+    // settings/ln/uid/user/logActivity.
+    const propDefaults = useMemo(() => Object.keys(settings).length === 0 ? [] : [
         { accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
         {
             accessorKey: 'supplier', header: getTtl('Vendor', ln), meta: {
@@ -195,7 +200,7 @@ const Expenses = () => {
         },
         { accessorKey: 'comments', header: getTtl('Comments', ln) },
 
-    ];
+    ], [settings, ln, uidCollection, currentUser, logActivity, persistSplit]);
 
 
     let invisible = ['lstSaved', 'cur',].reduce((acc, key) => {
@@ -260,6 +265,23 @@ const Expenses = () => {
         setIsOpen(true);
     };
 
+    // Stable table data + prebuilt Excel report — getFormatted only reads `settings`.
+    // Settings guard: the old inline expression sat behind the page's
+    // `Object.keys(settings).length === 0` ternary and never ran pre-settings; this
+    // memo runs in the component body, so it must carry the same guard (expenses can
+    // finish loading before settings on a hard page load).
+    const tableData = useMemo(
+        () => Object.keys(settings).length === 0 ? [] :
+            getFormatted(expensesData).filter(x => !onlyUnsplit || splitStatusOf(x) === 'pending'),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [expensesData, settings, onlyUnsplit]
+    );
+
+    const excelReport = useMemo(() => {
+        const ids = new Set(filteredId);
+        return EXD(expensesData.filter(x => ids.has(x.id)), settings, getTtl('Company Expenses', ln), ln);
+    }, [expensesData, filteredId, settings, ln]);
+
     return (
         <div className="w-full " style={{ background: "#f8fbff" }}>
             <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
@@ -301,10 +323,10 @@ const Expenses = () => {
 
                             {/* Table Component */}
                             <Customtable
-                                data={getFormatted(expensesData).filter(x => !onlyUnsplit || splitStatusOf(x) === 'pending')}
+                                data={tableData}
                                 columns={propDefaults}
                                 SelectRow={SelectRow}
-                                excellReport={EXD(expensesData.filter(x => filteredId.includes(x.id)), settings, getTtl('Company Expenses', ln), ln)}
+                                excellReport={excelReport}
                                 setFilteredData={(rows) => setFilteredId(rows.map(x => x.id))}
                                 invisible={invisible}
                             />

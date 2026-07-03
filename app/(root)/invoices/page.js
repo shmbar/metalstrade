@@ -1,5 +1,5 @@
 'use client';
-import { useContext, useEffect, useState, useCallback } from 'react';
+import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import Customtable from '../contracts/newTable';
 import MyDetailsModal from './modals/dataModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -25,9 +25,12 @@ import useInlineEdit from '../../../hooks/useInlineEdit';
 import { useRouter, useSearchParams } from 'next/navigation';
 import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
-import { updateInvoiceField, ensureSplitNotification } from '../../../utils/utils';
+import { updateInvoiceField, ensureSplitNotificationsBatch } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
-import ReminderModal from '../../../components/invoices/ReminderModal';
+import dynamic from 'next/dynamic';
+// Loaded on demand: ReminderModal statically imports jsPDF, which otherwise lands in
+// this page's first-load bundle. It only renders when the user opens a reminder.
+const ReminderModal = dynamic(() => import('../../../components/invoices/ReminderModal'), { ssr: false });
 import StatusBadge from '../../../components/StatusBadge';
 import { Bell, Split } from 'lucide-react';
 import SplitControl from '../../../components/SplitControl';
@@ -117,13 +120,13 @@ const Invoices = () => {
 			setLoading(false)
 
 			// Re-raise standing "needs IMS/GIS split" alerts (idempotent — never duplicates).
-			dt.filter(z => z.split?.status === 'pending').slice(0, 50).forEach(z => {
-				ensureSplitNotification(uidCollection, {
+			// Batched: one existence query pass instead of one getDoc per pending invoice.
+			ensureSplitNotificationsBatch(uidCollection,
+				dt.filter(z => z.split?.status === 'pending').slice(0, 50).map(z => ({
 					entityType: 'invoice', entityId: z.id,
 					entityLabel: `Invoice #${String(z.invoice ?? '').padStart(4, '0')}`,
 					amount: Number(z.totalAmount) || 0, currency: z.cur,
-				});
-			});
+				})));
 		}
 
 		if (!uidCollection) return;
@@ -179,7 +182,7 @@ const Invoices = () => {
 		return (q.invType !== '1111' && q.invType !== "Invoice") ? '-' : x.getValue() === '' ? '' : x.getValue() + '%'
 	}
 
-	let showAmount = (x) => {
+	const showAmount = useCallback((x) => {
 		const isoCurrency =
 			settings.Currency?.Currency?.find(c => c.id === x.row.original.cur)?.cur
 			|| 'USD'; // safe fallback
@@ -189,9 +192,13 @@ const Invoices = () => {
 			currency: isoCurrency,
 			minimumFractionDigits: 2
 		}).format(x.getValue());
-	};
+	}, [settings]);
 
-	let propDefaults = Object.keys(settings).length === 0 ? [] : [
+	// Memoized: deps list every piece of state the cells read — settings/ln (labels,
+	// options), invoicesData (the reminder cell looks up the raw invoice by id),
+	// uidCollection/currentUser/logActivity/persistSplit (split + reminder cells) and
+	// the settings-derived showAmount. setInvStatus/getprefixInv/percent read no state.
+	const propDefaults = useMemo(() => Object.keys(settings).length === 0 ? [] : [
 		{
 			accessorKey: 'opDate',
 			header: getTtl('Operation Time', ln),
@@ -577,7 +584,7 @@ const Invoices = () => {
 				);
 			},
 		},
-	];
+	], [settings, ln, invoicesData, uidCollection, currentUser, logActivity, persistSplit, showAmount]);
 
 	let invisible = ['lstSaved', 'shpType', 'invType',
 		'percentage', 'totalPrepayment', 'balanceDue', 'container'].reduce((acc, key) => {
@@ -650,6 +657,24 @@ const Invoices = () => {
 		setLoading(false)
 	};
 
+	// Stable table data + prebuilt Excel report: same formatting, sort and export rows
+	// as before, recomputed only when their inputs change instead of on every render.
+	// Settings guard: getFormatted reads settings.Client/etc, and invoices can finish
+	// loading before settings on a hard page load — the old inline expression sat
+	// behind the page's settings ternary and never ran that early.
+	const tableData = useMemo(
+		() => Object.keys(settings).length === 0 ? [] :
+			sortArr(getFormatted(invoicesData), 'invoice').filter(x => !onlyUnsplit || splitStatusOf(x) === 'pending'),
+		// getFormatted only reads `settings`, covered below
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[invoicesData, settings, onlyUnsplit]
+	);
+
+	const excelReport = useMemo(() => {
+		const ids = new Set(filteredData.map(z => z.id));
+		return EXD(invoicesData.filter(x => ids.has(x.id)), settings, getTtl('Invoices', ln), ln);
+	}, [invoicesData, filteredData, settings, ln]);
+
 	const onCellUpdate = async ({ rowIndex, columnId, value }) => {
 		const row = invoicesData[rowIndex];
 		if (!row?.id) return;
@@ -717,13 +742,12 @@ const Invoices = () => {
 
 							{/* Table Component */}
 							<Customtable
-								data={sortArr(getFormatted(invoicesData), 'invoice').filter(x => !onlyUnsplit || splitStatusOf(x) === 'pending')}
+								data={tableData}
 								columns={propDefaults}
 								SelectRow={SelectRow}
 								invisible={invisible}
 								onCellUpdate={onCellUpdate}
-								excellReport={EXD(invoicesData.filter(x => filteredData.map(z => z.id).includes(x.id)),
-									settings, getTtl('Invoices', ln), ln)}
+								excellReport={excelReport}
 								setFilteredData={setFilteredData}
 								highlightId={highlightId}
 							/>

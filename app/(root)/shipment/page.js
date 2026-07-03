@@ -3,7 +3,7 @@ import { useContext, useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
-import { loadData, updateContractField, ensureNotification, deleteNotification, loadActivity } from '../../../utils/utils';
+import { loadData, updateContractField, ensureNotificationsBatch, deleteNotification, loadActivityByTypePrefix } from '../../../utils/utils';
 import VideoLoader from '../../../components/videoLoader';
 import Toast from '../../../components/toast.js';
 import DateRangePicker from '../../../components/dateRangePicker';
@@ -15,7 +15,8 @@ import { HiMiniChevronUpDown } from 'react-icons/hi2';
 import Image from 'next/image';
 import Tltip from '../../../components/tlTip';
 import { FileSpreadsheet } from 'lucide-react';
-import { Workbook } from 'exceljs';
+// exceljs is imported dynamically inside exportExcel so it stays off the
+// first-load bundle (same pattern as the other excel exporters).
 import { saveAs } from 'file-saver';
 import { Menu, Transition, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { Fragment } from 'react';
@@ -288,9 +289,13 @@ const ShipmentPage = () => {
                 // for contracts touched before the shipmentUpdatedAt field existed. Best-effort.
                 const actMap = {};
                 try {
-                    const acts = await loadActivity(uidCollection, { entityType: 'contract', max: 5000 });
+                    // Server-side type-prefix query fetches only 'shipment.*' events instead of
+                    // the whole activity log. The explicit entityType check below keeps the old
+                    // pipeline's contract-only filter (e.g. 'shipment.updated' invoice events
+                    // from the PnL tab were excluded before and stay excluded).
+                    const acts = await loadActivityByTypePrefix(uidCollection, 'shipment.', { max: 5000 });
                     acts.forEach(r => {
-                        if (typeof r.type === 'string' && r.type.startsWith('shipment.') && r.entityId && r.createdAtMs
+                        if (r.entityType === 'contract' && typeof r.type === 'string' && r.type.startsWith('shipment.') && r.entityId && r.createdAtMs
                             && (!actMap[r.entityId] || r.createdAtMs > actMap[r.entityId])) {
                             actMap[r.entityId] = r.createdAtMs;
                         }
@@ -505,6 +510,9 @@ const ShipmentPage = () => {
         if (!uidCollection || shipScanRef.current || !contracts.length) return;
         shipScanRef.current = true;
         const now = Date.now();
+        // Collected per contract, then created in ONE batched existence-check +
+        // create-only write pass — instead of one getDoc per reminder per visit.
+        const reminders = [];
         contracts.forEach(c => {
             const status = c.shipmentStatus || '';
             const order = c.order ?? '';
@@ -520,31 +528,41 @@ const ShipmentPage = () => {
             if (eta && !isNaN(eta.getTime())) {
                 const days = Math.floor((now - eta.getTime()) / 86400000);
                 if (days >= 14) {
-                    ensureNotification(uidCollection, `eta14:${c.id}:${etaStr}`, {
-                        type: 'shipment.eta14', entityType: 'contract', entityId: c.id || '',
-                        entityLabel: `PO ${order}`, action: 'reminder', severity: 'warning',
-                        message: `PO ${order}: ${days} days since ETA (${etaStr})${status ? ` — "${status}"` : ''}, follow up`,
+                    reminders.push({
+                        id: `eta14:${c.id}:${etaStr}`,
+                        payload: {
+                            type: 'shipment.eta14', entityType: 'contract', entityId: c.id || '',
+                            entityLabel: `PO ${order}`, action: 'reminder', severity: 'warning',
+                            message: `PO ${order}: ${days} days since ETA (${etaStr})${status ? ` — "${status}"` : ''}, follow up`,
+                        },
                     });
                     return;
                 }
                 if (days >= 0) {
-                    ensureNotification(uidCollection, `etadue:${c.id}:${etaStr}`, {
-                        type: 'shipment.eta', entityType: 'contract', entityId: c.id || '',
-                        entityLabel: `PO ${order}`, action: 'reminder', severity: 'info',
-                        message: `PO ${order}: arrival due (ETA ${etaStr})${status ? ` — "${status}"` : ''}`,
+                    reminders.push({
+                        id: `etadue:${c.id}:${etaStr}`,
+                        payload: {
+                            type: 'shipment.eta', entityType: 'contract', entityId: c.id || '',
+                            entityLabel: `PO ${order}`, action: 'reminder', severity: 'info',
+                            message: `PO ${order}: arrival due (ETA ${etaStr})${status ? ` — "${status}"` : ''}`,
+                        },
                     });
                     return;
                 }
             }
             const etd = etdStr ? new Date(etdStr) : null;
             if (etd && !isNaN(etd.getTime()) && now >= etd.getTime() && (!status || status === 'Pending')) {
-                ensureNotification(uidCollection, `etddue:${c.id}:${etdStr}`, {
-                    type: 'shipment.etd', entityType: 'contract', entityId: c.id || '',
-                    entityLabel: `PO ${order}`, action: 'reminder', severity: 'info',
-                    message: `PO ${order}: departure due (ETD ${etdStr})`,
+                reminders.push({
+                    id: `etddue:${c.id}:${etdStr}`,
+                    payload: {
+                        type: 'shipment.etd', entityType: 'contract', entityId: c.id || '',
+                        entityLabel: `PO ${order}`, action: 'reminder', severity: 'info',
+                        message: `PO ${order}: departure due (ETD ${etdStr})`,
+                    },
                 });
             }
         });
+        ensureNotificationsBatch(uidCollection, reminders);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [contracts, uidCollection]);
 
@@ -644,6 +662,7 @@ const ShipmentPage = () => {
     };
 
     const exportExcel = async () => {
+        const { Workbook } = await import('exceljs');
         const wb = new Workbook();
         wb.creator = 'IMS';
         const sheet = wb.addWorksheet('Shipments Tracking');

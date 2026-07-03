@@ -12,7 +12,7 @@ import VideoLoader from '../../../components/videoLoader';
 import { UserAuth } from "../../../contexts/useAuthContext"
 import {
   loadData, sortArr, loadExpensesForAccounting, loadAdditionalCNFN,
-  loadInvoice
+  loadDocsByIdBatched
 } from '../../../utils/utils'
 import Spin from '../../../components/spinTable';
 import { EXD } from './excel'
@@ -195,9 +195,11 @@ const Accounting = () => {
         ))
       );
 
-      const arrContracts = await Promise.all(
-        arr1.map(obj => loadInvoice(uidCollection, 'contracts', obj))
-      );
+      // Batched: one ≤30-id `in` query per year instead of one getDoc per contract.
+      // Mapping the index back over arr1 keeps the old order; missing refs fall back
+      // to {} exactly like loadInvoice did (the forEach below then skips them).
+      const contractsById = await loadDocsByIdBatched(uidCollection, 'contracts', arr1);
+      const arrContracts = arr1.map(obj => contractsById[obj.id] ?? {});
 
 
       let consArr = []

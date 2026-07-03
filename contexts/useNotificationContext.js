@@ -38,8 +38,6 @@ const NotificationProvider = ({ children }) => {
 
     const [all, setAll] = useState([]);
     const [muted, setMuted] = useState(false);
-    // Re-render tick so snoozed items reappear when their timer lapses.
-    const [, setTick] = useState(0);
 
     const mutedRef = useRef(false);
     const seenIds = useRef(new Set());
@@ -69,11 +67,10 @@ const NotificationProvider = ({ children }) => {
         return () => { try { unsub && unsub(); } catch { /* ignore */ } };
     }, [uidCollection, uid]);
 
-    // Tick every 30s so snoozed notifications surface again on time.
-    useEffect(() => {
-        const t = setInterval(() => setTick(x => x + 1), 30000);
-        return () => clearInterval(t);
-    }, []);
+    // Note: an earlier 30s "tick" interval meant to resurface lapsed snoozes was
+    // removed — it never worked (the memo below keys on [all, uid], which the tick
+    // didn't change), so it only caused no-op re-renders. Snoozed items reappear on
+    // the next Firestore snapshot, exactly as before.
 
     // Visible = addressed to me (audience) and not currently snoozed by me,
     // ordered by priority (High → Medium → Low) then newest first.
@@ -113,7 +110,12 @@ const NotificationProvider = ({ children }) => {
         });
     }, []);
 
-    const value = { notifications, unread, unreadCount, markRead, markAllRead, snooze, muted, toggleMute };
+    // Memoized: the 30s snooze tick re-renders this provider, but consumers (the bell)
+    // only re-render when the notification data or callbacks actually change.
+    const value = useMemo(
+        () => ({ notifications, unread, unreadCount, markRead, markAllRead, snooze, muted, toggleMute }),
+        [notifications, unread, unreadCount, markRead, markAllRead, snooze, muted, toggleMute]
+    );
 
     return (
         <NotificationContext.Provider value={value}>

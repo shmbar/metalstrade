@@ -1,7 +1,7 @@
 import { db } from '../utils/firebase'
 import {
   setDoc, doc, getDoc, collection, getDocs, query, where, deleteDoc, writeBatch, updateDoc,
-  arrayUnion, arrayRemove, increment, or, and, deleteField, onSnapshot, orderBy, limit
+  arrayUnion, arrayRemove, increment, or, and, deleteField, onSnapshot, orderBy, limit, documentId
 } from "firebase/firestore";
 
 import { getStorage, ref, uploadBytes, listAll, getDownloadURL, deleteObject } from "firebase/storage";
@@ -244,6 +244,26 @@ export const loadActivity = async (uidCollection, { entityType, entityId, max = 
   }
 }
 
+// Bounded sibling of loadActivity for type-prefixed scans (e.g. all 'shipment.*'
+// events): a single-field range on `type` runs server-side with Firestore's
+// automatic index — no composite index, and no downloading the whole activity log.
+export const loadActivityByTypePrefix = async (uidCollection, prefix, { max = 5000 } = {}) => {
+  if (!uidCollection || !prefix) return [];
+  try {
+    const snap = await getDocs(query(
+      collection(db, uidCollection, 'data', 'activity'),
+      where('type', '>=', prefix),
+      where('type', '<=', prefix + '\uf8ff')
+    ));
+    let rows = snap.docs.map(d => d.data());
+    rows.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
+    return rows.slice(0, max);
+  } catch (e) {
+    console.warn('loadActivityByTypePrefix failed:', e?.message || e);
+    return [];
+  }
+}
+
 // Per-user read state + snooze for notifications (the mutable companion to the
 // append-only activity feed). All best-effort — never throw to the caller.
 // `readBy` stays for the fast unread check; `readReceipts` is the tracking history —
@@ -319,6 +339,49 @@ export const ensureNotification = async (uidCollection, id, payload = {}) => {
   } catch (e) { console.warn('ensureNotification failed:', e?.message || e); }
 }
 
+// Batched sibling of ensureNotification for page-load rescans that used to fire one
+// getDoc per record: one documentId()-in query per ≤30 ids finds which notifications
+// already exist, then a single write batch creates ONLY the missing ones. Existing
+// docs are never written, so read/snooze state is preserved exactly like the
+// one-at-a-time version. documentId() (not the `id` field) so a legacy doc missing
+// that field can never be misread as absent and overwritten. Best-effort, never throws.
+export const ensureNotificationsBatch = async (uidCollection, items = []) => {
+  if (!uidCollection || !items.length) return;
+  try {
+    // Dedupe by id — last payload wins, matching sequential ensureNotification calls.
+    const byId = new Map();
+    items.forEach(it => { if (it?.id) byId.set(it.id, it.payload || {}); });
+    const ids = [...byId.keys()];
+    if (!ids.length) return;
+
+    const CHUNK = 30;
+    const chunks = [];
+    for (let i = 0; i < ids.length; i += CHUNK) chunks.push(ids.slice(i, i + CHUNK));
+    const snaps = await Promise.all(chunks.map(c =>
+      getDocs(query(collection(db, uidCollection, 'data', 'notifications'), where(documentId(), 'in', c)))
+    ));
+    const existing = new Set();
+    snaps.forEach(s => s.docs.forEach(d => existing.add(d.id)));
+
+    const missing = ids.filter(id => !existing.has(id));
+    for (let i = 0; i < missing.length; i += 450) {
+      const batch = writeBatch(db);
+      missing.slice(i, i + 450).forEach(id => {
+        const payload = byId.get(id);
+        const now = new Date();
+        batch.set(doc(db, uidCollection, 'data', 'notifications', id), {
+          id, createdAt: now.toISOString(), createdAtMs: now.getTime(),
+          actorUid: 'system', actorName: 'System', audience: 'all',
+          readBy: [], readReceipts: {}, snoozedBy: {}, severity: 'info', notify: true,
+          priority: priorityOf(payload),   // same defaults + override order as ensureNotification
+          ...payload,
+        });
+      });
+      await batch.commit();
+    }
+  } catch (e) { console.warn('ensureNotificationsBatch failed:', e?.message || e); }
+}
+
 // Hard-delete a notification — used to clear a derived/standing alert once it's
 // resolved (e.g. an IMS/GIS split that's been calculated). Best-effort; the
 // append-only activity log entry (if any) is intentionally left intact.
@@ -346,6 +409,28 @@ export const ensureSplitNotification = async (uidCollection, evt = {}) => {
     message: `${entityLabel || noun} — awaiting IMS/GIS split`,
     meta: { amount: amount ?? null, currency: currency || '' },
   });
+}
+
+// Batched sibling of ensureSplitNotification for the page-load rescans (invoices,
+// expenses, companyexpenses): identical payload per event, one existence query pass
+// + one create-only write batch via ensureNotificationsBatch.
+export const ensureSplitNotificationsBatch = async (uidCollection, evts = []) => {
+  const items = (evts || []).filter(e => e?.entityId).map(e => {
+    const { entityType = 'expense', entityId, entityLabel, amount, currency, actorUid, actorName } = e;
+    const noun = entityType === 'invoice' ? 'Invoice' : 'Expense';
+    return {
+      id: splitNotifId(entityType, entityId),
+      payload: {
+        type: `${entityType}.splitPending`,
+        entityType, entityId, entityLabel: entityLabel || '',
+        action: 'splitPending', severity: 'warning', notify: true,
+        actorUid: actorUid || 'system', actorName: actorName || 'System',
+        message: `${entityLabel || noun} — awaiting IMS/GIS split`,
+        meta: { amount: amount ?? null, currency: currency || '' },
+      },
+    };
+  });
+  await ensureNotificationsBatch(uidCollection, items);
 }
 
 export const clearSplitNotification = async (uidCollection, entityType, entityId) => {

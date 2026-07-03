@@ -1,8 +1,15 @@
 'use client'
-import { jsPDF } from 'jspdf';
+// jsPDF loads on demand so it stays out of the page's first-load bundle
+// (same pattern as the exceljs excel exporters).
+let jsPDF;
+const ensurePdfLibs = async () => {
+    if (jsPDF) return;
+    jsPDF = (await import('jspdf')).jsPDF;
+};
 import dateFormat from 'dateformat';
 
 export const PdfAnnexVII = async (valueInv, compData, settings) => {
+    await ensurePdfLibs();
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     doc.addFont('/fonts/Calibri.ttf', 'Cal', 'normal');
     doc.addFont('/fonts/Calibri-bold.ttf', 'CalB', 'bold');

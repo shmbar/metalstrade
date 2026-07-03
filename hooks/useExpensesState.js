@@ -1,5 +1,5 @@
 'use client'
-import { useState, useContext } from 'react';
+import { useState, useContext, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import dateFormat from "dateformat";
 import { SettingsContext } from '../contexts/useSettingsContext'
@@ -32,7 +32,10 @@ const useSettingsState = (props) => {
     const [errorsExp, setErrorsExp] = useState({})
     const [isOpen, setIsOpen] = useState(false)
 
-    return {
+    // Memoized: identity changes only when exposed/captured state changes (see
+    // useContractsState for the rationale). Closures read valueExp, expensesData,
+    // settings, dateYr, ln — all deps below.
+    return useMemo(() => ({
         valueExp, setValueExp,
         expensesData, setExpensesData,
         errorsExp, setErrorsExp,
@@ -340,7 +343,7 @@ const useSettingsState = (props) => {
             await speciaInvoices(uidCollection, [miscObj])
             setToast({ show: true, text: 'Expense is successfully copied!', clr: 'success' })
         }
-    };
+    }), [valueExp, expensesData, errorsExp, isOpen, settings, dateYr, ln, setToast]);
 };
 
 

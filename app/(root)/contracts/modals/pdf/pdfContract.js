@@ -1,7 +1,14 @@
 'use client'
-import { jsPDF } from 'jspdf';
+// jsPDF + autotable load on demand so they stay out of the page's first-load
+// bundle (same pattern as the exceljs excel exporters).
+let jsPDF, autoTable;
+const ensurePdfLibs = async () => {
+    if (jsPDF) return;
+    const [jspdfMod, autoTableMod] = await Promise.all([import('jspdf'), import('jspdf-autotable')]);
+    jsPDF = jspdfMod.jsPDF;
+    autoTable = autoTableMod.default;
+};
 import { getD } from '@utils/utils.js';
-import autoTable from 'jspdf-autotable'
 import dateFormat from "dateformat";
 
 
@@ -63,6 +70,7 @@ const Signatiure = (doc, compData, gisAccount) => {
 }
 
 export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mode = 'save') => {
+    await ensurePdfLibs();
 
 
     const sups = settings.Supplier.Supplier;

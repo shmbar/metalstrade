@@ -75,7 +75,10 @@ const Cashflow = () => {
     const clientCount = settings.Client?.Client?.length || 0;
     const supplierCount = settings.Supplier?.Supplier?.length || 0;
     const stockCount = settings.Stocks?.Stocks?.length || 0;
-    const [yr, setYr] = useState([currentYear - 1])
+    // Starts at its final value (last year + this year). It used to start as
+    // [currentYear - 1] with a mount effect appending currentYear — which ran the
+    // whole Firestore load cascade twice (first pass with the wrong single year).
+    const [yr, setYr] = useState([currentYear - 1, currentYear])
     const [incoming, setIncoming] = useState();
     const { uidCollection, userTitle, gisAccount } = UserAuth();
     const [initialData, setInitialData] = useState([]);
@@ -176,34 +179,45 @@ const Cashflow = () => {
 
 
     useEffect(() => {
-        setYr([...yr, currentYear])
-    }, [])
-
-    useEffect(() => {
 
         const Load = async () => {
             setLoading(true)
 
-            const marginsPerYear = await Promise.all(yr.map(year => loadMargins(uidCollection, year)));
+            // All independent Firestore reads start in parallel; each processing step
+            // below awaits only what it needs. Raw invoices are loaded ONCE and shared
+            // by runInvoices + runSupPayments (each used to download them separately).
+            const marginsPromise = Promise.all(yr.map(year => loadMargins(uidCollection, year)));
+            const contractsPromise = Promise.all(
+                yr.map(year =>
+                    loadData(uidCollection, 'contracts', {
+                        start: `${year}-01-01`,
+                        end: `${year}-12-31`,
+                    })
+                )
+            ).then(perYear => perYear.flat());
+            const rawInvoicesPromise = Promise.all(
+                yr.map(year =>
+                    loadData(uidCollection, 'invoices', {
+                        start: `${year}-01-01`,
+                        end: `${year}-12-31`,
+                    })
+                )
+            ).then(perYear => [].concat(...perYear));
+            const expensesPromise = runExpenses(uidCollection, settings, yr);
+            const stocksPromise = contractsPromise.then(cd => runStocks(uidCollection, settings, yr, cd));
+
+            const marginsPerYear = await marginsPromise;
             const tmp = marginsPerYear.reduce((total, dt) =>
                 total + dt.filter(item => !isNaN(item.remaining))
                     .reduce((acc, item) => acc + (parseFloat(item.remaining) || 0), 0)
             , 0);
             setIncoming(tmp);
 
-            let contractsData = (
-                await Promise.all(
-                    yr.map(year =>
-                        loadData(uidCollection, 'contracts', {
-                            start: `${year}-01-01`,
-                            end: `${year}-12-31`,
-                        })
-                    )
-                )
-            ).flat();
+            let contractsData = await contractsPromise;
+            const rawInvoices = await rawInvoicesPromise;
 
             //load stocks
-            let dataStock = await runStocks(uidCollection, settings, yr, contractsData)
+            let dataStock = await stocksPromise
             dataStock.result = dataStock.result.map(z => ({ ...z, stockName: settings.Stocks.Stocks.find(k => k.id === z.stock)?.stock }))
             dataStock.result1 = dataStock.result1.map(z => ({ ...z, stockName: settings.Stocks.Stocks.find(k => k.id === z.stock)?.stock }))
             setStockData1(dataStock.result.sort((a, b) => b.total - a.total))
@@ -213,8 +227,8 @@ const Cashflow = () => {
             setStockDataNoSold(dataStock.unSoldArrTitles)
             setStockDataAllArray(dataStock.unSoldAll)
 
-            //load invoices
-            let invoices = await runInvoices(uidCollection, settings, yr)
+            //load invoices (from the shared raw rows — no second download)
+            let invoices = await runInvoices(uidCollection, settings, yr, rawInvoices)
             invoices = invoices.map(z => ({ ...z, clientName: settings.Client.Client.find(k => k.id === z.client)?.nname, checked: false }))
             setClientsData(invoices)
             setClientInvoices1(getTotals(invoices.filter(z => z.payments.length > 0)))
@@ -234,16 +248,16 @@ const Cashflow = () => {
                 }
             }
 
-            //load payments to Suppliers
-            let supPayments = await runSupPayments(uidCollection, settings, yr, contractsData)
+            //load payments to Suppliers (same shared raw invoices for the ETD/ETA map)
+            let supPayments = await runSupPayments(uidCollection, settings, yr, contractsData, rawInvoices)
             supPayments = supPayments.map(z => ({ ...z, suplierName: settings.Supplier.Supplier.find(a => a.id === z.supplier)?.nname, checked: false, fnlzing: fnlzingByContract[z.orderData?.id] }))
             setsupPaymentsData(supPayments)
             setSupPayments1(getTotalsSupPayments(supPayments.filter(z => z.pmnt * 1 > 0)))
             setSupPayments2(getTotalsSupPayments(supPayments.filter(z => parseFloat(z.pmnt) === 0)))
 
 
-            //Expenses
-            let expenses = await runExpenses(uidCollection, settings, yr)
+            //Expenses (already loading since the top of Load)
+            let expenses = await expensesPromise
             expenses.totalBySupplier = expenses.totalBySupplier.map(z => ({
                 ...z, suplierName: settings.Supplier.Supplier.find(a => a.id === z.supplier)?.nname
             }))

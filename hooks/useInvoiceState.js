@@ -1,5 +1,5 @@
 'use client'
-import { useState, useContext } from 'react';
+import { useState, useContext, useMemo } from 'react';
 import dateFormat from "dateformat";
 import { v4 as uuidv4 } from 'uuid';
 import { getD, setNewInvoiceNum, loadDataSettings, updatePnl, updateDocument, delField, loadInvoice } from '@utils/utils.js';
@@ -53,7 +53,10 @@ const useInvoiceState = () => {
     const [isInvCreationCNFL, setIsInvCreationCNFL] = useState(false)
     const [deleteProdcuts, setDeleteProducts] = useState([])
 
-    return {
+    // Memoized: value identity changes only when exposed/captured state changes, so
+    // unrelated provider re-renders (toast/loading churn) stop cascading to consumers.
+    // All state read inside the closures below is listed as a dep — no stale saves.
+    return useMemo(() => ({
         valueInv, setValueInv,
         invoicesData, setInvoicesData,
         isOpen, setIsOpen,
@@ -532,7 +535,9 @@ const useInvoiceState = () => {
 
             success && setToast({ show: true, text: getTtl('Data successfully saved!', ln), clr: 'success' })
         }
-    }
+    }), [valueInv, invoicesData, invoicesAccData, isOpen, errors,
+        copyInvoice, copyInvValue, invNum, isInvCreationCNFL, deleteProdcuts,
+        dateYr, ln, setToast, setDateYr]);
 };
 
 

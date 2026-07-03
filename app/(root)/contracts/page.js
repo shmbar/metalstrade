@@ -1,5 +1,5 @@
 'use client';
-import { useContext, useEffect, useState, useCallback } from 'react';
+import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import Customtable from './newTable';
 import { TbLayoutGridAdd } from 'react-icons/tb';
 import { IoAnalyticsOutline } from "react-icons/io5";
@@ -12,7 +12,7 @@ import MonthSelect from '../../../components/monthSelect';
 import Toast from '../../../components/toast.js'
 import ModalCopyInvoice from '../../../components/modalCopyInvoice';
 import useInlineEdit from '../../../hooks/useInlineEdit';
-import { loadData, sortArr, getD, saveDataSettings, ensureNotification } from '../../../utils/utils'
+import { loadData, sortArr, getD, saveDataSettings, ensureNotificationsBatch } from '../../../utils/utils'
 import Spinner from '../../../components/spinner';
 import VideoLoader from '../../../components/videoLoader';
 import { UserAuth } from "../../../contexts/useAuthContext"
@@ -104,13 +104,16 @@ const Contracts = () => {
 
 			// Surface delayed-response alerts in the notification center (idempotent —
 			// create-if-absent keeps repeated loads from duplicating or resetting state).
-			invArr.slice(0, 50).forEach(z => {
-				ensureNotification(uidCollection, `delayed:contract:${z.id}`, {
+			// Batched: one existence query pass + create-only writes, instead of one
+			// getDoc per alert on every page load.
+			ensureNotificationsBatch(uidCollection, invArr.slice(0, 50).map(z => ({
+				id: `delayed:contract:${z.id}`,
+				payload: {
 					type: 'contract.delayed', entityType: 'contract', entityId: z.id || '',
 					entityLabel: `PO ${z.order ?? ''}`, action: 'delayed', severity: 'warning',
 					message: `PO ${z.order ?? ''} — no purchase invoice 14+ days after delivery`,
-				});
-			});
+				},
+			})));
 
 			setLoading(false)
 		}
@@ -146,16 +149,19 @@ const Contracts = () => {
 		upsertSourceItems('contracts', items);
 	}, [contractsData, settings]);
 
-	const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
+	const gQ = useCallback((z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || '', [settings])
 
-	const showQTY = (x) => {
+	const showQTY = useCallback((x) => {
 		return x.row.original.productsData.length !== 0 ? new Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 1
 		}).format(x.row.original.productsData.reduce((sum, item) => sum + parseInt(item.qnty, 10), 0)) +
 			' ' + gQ(x.row.original.qTypeTable, 'Quantity', 'qTypeTable') : '-'
-	}
+	}, [gQ])
 
-	let propDefaults = Object.keys(settings).length === 0 ? [] : [
+	// Memoized: stable identity keeps TanStack from rebuilding its column/row models
+	// on unrelated re-renders (modal typing, toasts). Deps cover everything the cells
+	// read: settings/ln directly, plus the settings-derived gQ/showQTY helpers.
+	const propDefaults = useMemo(() => Object.keys(settings).length === 0 ? [] : [
 		{ accessorKey: 'opDate', header: getTtl('Operation Time', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy - HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
 		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
 		{ accessorKey: 'order', header: getTtl('PO', ln) + '#', meta: { excludeFromQuickSum: true } },
@@ -273,7 +279,7 @@ const Contracts = () => {
 			/>}</span>,
 			enableColumnFilter: false
 		},
-	];
+	], [settings, ln, gQ, showQTY]);
 
 	let invisible = ['opDate', 'lstSaved', 'shpType', 'originSupplier',
 		'size', 'qTypeTable', 'cur'].reduce((acc, key) => {
@@ -297,6 +303,18 @@ const Contracts = () => {
 		addContract()
 		blankInvoice()
 	}
+
+	// Stable table data + prebuilt Excel report: recomputed only when their inputs
+	// change, not on every page re-render. Same values, same sort, same export rows.
+	const tableData = useMemo(
+		() => contractsData.slice().sort((a, b) => (b.order || '').localeCompare(a.order || '', undefined, { numeric: true })),
+		[contractsData]
+	);
+
+	const excelReport = useMemo(() => {
+		const ids = new Set(filteredData.map(z => z.id));
+		return EXD(contractsData.filter(x => ids.has(x.id)), settings, getTtl('Contracts', ln), ln);
+	}, [contractsData, filteredData, settings, ln]);
 
 	const onCellUpdate = async ({ rowIndex, columnId, value }) => {
 		const row = contractsData[rowIndex];
@@ -352,12 +370,11 @@ const Contracts = () => {
 							{/* Table Component */}
 
 							<Customtable
-								data={contractsData.slice().sort((a, b) => (b.order || '').localeCompare(a.order || '', undefined, { numeric: true }))}
+								data={tableData}
 								columns={propDefaults}
 								SelectRow={SelectRow}
 								invisible={invisible}
-								excellReport={EXD(contractsData.filter(x => filteredData.map(z => z.id).includes(x.id)),
-									settings, getTtl('Contracts', ln), ln)}
+								excellReport={excelReport}
 								setFilteredData={setFilteredData}
 								highlightId={highlightId}
 								onCellUpdate={onCellUpdate}

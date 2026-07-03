@@ -55,7 +55,7 @@ const AuthContextProvider = ({ children }) => {
     return logEvent(uidCollection, { ...evt, actorUid: currentUser.uid, actorName: currentUser.name })
   }, [uidCollection, currentUser])
 
-  const SignIn = async (email, password, remember = false) => {
+  const SignIn = useCallback(async (email, password, remember = false) => {
     try {
       // "Remember me": keep the session across browser close (local) vs clear it on close
       // (session) — so an unchecked login can't auto-resume from cookie memory later.
@@ -71,7 +71,7 @@ const AuthContextProvider = ({ children }) => {
     } catch (error) {
       setErr(error.message);
     }
-  }
+  }, [router])
   // On mount or route change, if not authenticated, redirect to sign-in
     // Robust: Only redirect after Firebase auth state is loaded
     useEffect(() => {
@@ -111,7 +111,7 @@ const AuthContextProvider = ({ children }) => {
   }
 */
 
-  const SignOut = async () => {
+  const SignOut = useCallback(async () => {
     sessionStorage.clear();
     localStorage.clear();
     setUser(null);
@@ -119,7 +119,7 @@ const AuthContextProvider = ({ children }) => {
     await signOut(auth).catch(() => {});
     // Force reload to clear any cached state and ensure full session expiry
     window.location.replace("/");
-  }
+  }, [])
 
   // Only set loadingPage to false after both Firebase user and uidCollection are loaded
   useEffect(() => {
@@ -217,8 +217,15 @@ const AuthContextProvider = ({ children }) => {
   }, [user]);
 
 
+  // Memoized: consumers (every page + layout) re-render only when auth state truly
+  // changes, not whenever this provider re-renders from Settings churn.
+  const value = useMemo(
+    () => ({ user, SignIn, err, SignOut, loadingPage, uidCollection, gisAccount, userTitle, currentUser, logActivity }),
+    [user, SignIn, err, SignOut, loadingPage, uidCollection, gisAccount, userTitle, currentUser, logActivity]
+  )
+
   return (
-    <AuthContext.Provider value={{ user, SignIn, err, SignOut, loadingPage, uidCollection, gisAccount, userTitle, currentUser, logActivity }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )

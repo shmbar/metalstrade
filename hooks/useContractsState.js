@@ -1,5 +1,5 @@
 'use client'
-import { useState, useContext } from 'react';
+import { useState, useContext, useMemo } from 'react';
 import dateFormat from "dateformat";
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -46,7 +46,11 @@ const useContractsState = (props) => {
     const { setToast, setLastAction, dateYr, setLoading, ln, settings } = useContext(SettingsContext);
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
-    return {
+    // Memoized so the context value only changes when state this object exposes (or
+    // its closures read) actually changes — unrelated Settings churn (toast, loading)
+    // no longer re-renders every consumer. Every value the closures capture MUST be a
+    // dep, or saves would write stale data.
+    return useMemo(() => ({
         valueCon, setValueCon,
         contractsData, setContractsData,
         isOpenCon, setIsOpenCon,
@@ -287,7 +291,8 @@ const useContractsState = (props) => {
             let success = await saveStockIn(uidCollection, tmp)
             success && setToast({ show: true, text: getTtl('Stock successfully saved!', ln), clr: 'success' })
         }
-    };
+    }), [valueCon, contractsData, isOpenCon, errors, isButtonDisabled,
+        settings, dateYr, ln, setToast, setLoading]);
 };
 
 

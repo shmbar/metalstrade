@@ -1,5 +1,5 @@
 'use client';
-import { useContext, useEffect, useState, useCallback } from 'react';
+import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import Customtable from './newTable';
 import TableTotals from './totals/tableTotals';
 import MyDetailsModal from './modals/dataModal.js'
@@ -28,7 +28,7 @@ import { updateExpenseField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 import SplitControl from '../../../components/SplitControl';
 import { splitStatusOf } from '../../../utils/splitUtils';
-import { ensureSplitNotification } from '../../../utils/utils';
+import { ensureSplitNotificationsBatch } from '../../../utils/utils';
 import { Split } from 'lucide-react';
 
 
@@ -100,13 +100,13 @@ const Expenses = () => {
 			setLoading(false)
 
 			// Re-raise standing "needs IMS/GIS split" alerts (idempotent — never duplicates).
-			dt.filter(z => z.split?.status === 'pending').slice(0, 50).forEach(z => {
-				ensureSplitNotification(uidCollection, {
+			// Batched: one existence query pass instead of one getDoc per pending expense.
+			ensureSplitNotificationsBatch(uidCollection,
+				dt.filter(z => z.split?.status === 'pending').slice(0, 50).map(z => ({
 					entityType: 'expense', entityId: z.id,
 					entityLabel: `Expense ${z.expense ? '#' + z.expense : ''}`.trim(),
 					amount: Number(z.amount) || 0, currency: z.cur,
-				});
-			});
+				})));
 		}
 
 		if (!uidCollection) return;
@@ -204,21 +204,24 @@ const Expenses = () => {
 		}).format(x.getValue())
 	}
 
-	const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
+	const gQ = useCallback((z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || '', [settings])
 
-	let showAmount1 = (x) => {
+	const showAmount1 = useCallback((x) => {
 		const cur = gQ(x.row.original.cur, 'Currency', 'cur') || 'USD';
 		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
 			currency: cur,
 			minimumFractionDigits: 2
 		}).format(x.getValue())
-	}
+	}, [gQ])
 
 	const caseInsensitiveEquals = (row, columnId, filterValue) =>
 		row.getValue(columnId).toLowerCase() === filterValue.toLowerCase();
 
-	let propDefaults = Object.keys(settings).length === 0 ? [] : [
+	// Memoized: cells read settings/ln (labels, options), the settings-derived
+	// showAmount1, and the split cell reads uidCollection/currentUser/logActivity/
+	// persistSplit — all deps below.
+	const propDefaults = useMemo(() => Object.keys(settings).length === 0 ? [] : [
 		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p className="whitespace-nowrap">{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
 		{
 			accessorKey: 'supplier',
@@ -305,7 +308,7 @@ const Expenses = () => {
 
 		{ accessorKey: 'comments', header: getTtl('Comments', ln), cell: EditableCell },
 
-	];
+	], [settings, ln, uidCollection, currentUser, logActivity, persistSplit, showAmount1]);
 
 	let invisible = ['lstSaved', 'comments'].reduce((acc, key) => {
 		acc[key] = false;
@@ -348,6 +351,19 @@ const Expenses = () => {
 		setDateYr(row.dateRange?.startDate?.substring(0, 4));
 		setIsOpen(true);
 	};
+	// Stable table data + prebuilt Excel report: identical rows/export, recomputed
+	// only when their inputs change instead of on every render.
+	const tableData = useMemo(
+		() => expensesData.map(x => ({ ...x, poSupplierOrder: x.poSupplier?.order })).filter(x => !onlyUnsplit || splitStatusOf(x) === 'pending'),
+		[expensesData, onlyUnsplit]
+	);
+
+	const excelReport = useMemo(() => {
+		const ids = new Set(filteredId);
+		return EXD(expensesData.filter(x => ids.has(x.id)).map(x => ({ ...x, poSupplierOrder: x.poSupplier?.order })),
+			settings, getTtl('Expenses', ln), ln);
+	}, [expensesData, filteredId, settings, ln]);
+
 	const onCellUpdate = async ({ rowIndex, columnId, value }) => {
 		const row = expensesData[rowIndex];
 		if (!row?.id) return;
@@ -410,12 +426,11 @@ const Expenses = () => {
 
 							{/* Table Component */}
 							<Customtable
-								data={expensesData.map(x => ({ ...x, poSupplierOrder: x.poSupplier?.order })).filter(x => !onlyUnsplit || splitStatusOf(x) === 'pending')}
+								data={tableData}
 								columns={propDefaults}
 								SelectRow={SelectRow}
 								invisible={invisible}
-								excellReport={EXD(expensesData.filter(x => filteredId.includes(x.id)).map(x => ({ ...x, poSupplierOrder: x.poSupplier?.order })),
-									settings, getTtl('Expenses', ln), ln)}
+								excellReport={excelReport}
 								setFilteredId={setFilteredId}
 								highlightId={highlightId}
 								onCellUpdate={onCellUpdate}

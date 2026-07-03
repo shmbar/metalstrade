@@ -740,17 +740,22 @@ const makeGroup = (arr) => {
     return groupedByPoSupplierId;
 }
 
-export const runInvoices = async (uidCollection, settings, yr) => {
+export const runInvoices = async (uidCollection, settings, yr, invoicesData = null) => {
 
-    let dt = await Promise.all(
-        yr.map(year =>
-            loadData(uidCollection, 'invoices', {
-                start: `${year}-01-01`,
-                end: `${year}-12-31`
-            })
-        )
-    );
-    dt = [].concat(...dt);
+    // Optional preloaded raw invoices (the cashflow page loads them once and shares
+    // them with runSupPayments) — identical rows to what the yearly queries return.
+    let dt = invoicesData;
+    if (!Array.isArray(dt)) {
+        dt = await Promise.all(
+            yr.map(year =>
+                loadData(uidCollection, 'invoices', {
+                    start: `${year}-01-01`,
+                    end: `${year}-12-31`
+                })
+            )
+        );
+        dt = [].concat(...dt);
+    }
 
     dt = makeGroup(dt)
     dt = Object.values(dt)
@@ -1222,7 +1227,7 @@ export const addComma = (nStr) => {
 
 // Suppliers
 
-export const runSupPayments = async (uidCollection, settings, yr, contractsData = null) => {
+export const runSupPayments = async (uidCollection, settings, yr, contractsData = null, invoicesData = null) => {
 
 
     let dt = contractsData;
@@ -1242,11 +1247,16 @@ export const runSupPayments = async (uidCollection, settings, yr, contractsData 
     // ETD/ETA for supplier balances mirror the Shipment page: the contract's own
     // shipmentEtd/Eta, falling back to the linked client invoice's shipData. The client
     // balances table reads the same invoice shipData, so both sides show the same date.
+    // Accepts the page's preloaded raw invoices so they aren't downloaded twice.
     const invShip = {};
-    const invByYear = await Promise.all(
-        yr.map(year => loadData(uidCollection, 'invoices', { start: `${year}-01-01`, end: `${year}-12-31` }))
-    );
-    for (const inv of [].concat(...invByYear)) {
+    let invAll = invoicesData;
+    if (!Array.isArray(invAll)) {
+        const invByYear = await Promise.all(
+            yr.map(year => loadData(uidCollection, 'invoices', { start: `${year}-01-01`, end: `${year}-12-31` }))
+        );
+        invAll = [].concat(...invByYear);
+    }
+    for (const inv of invAll) {
         const cid = inv.poSupplier?.id;
         if (cid && !invShip[cid]) invShip[cid] = { etd: inv.shipData?.etd?.startDate || '', eta: inv.shipData?.eta?.startDate || '' };
     }

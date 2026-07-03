@@ -1,5 +1,5 @@
 'use client'
-import { useState, useContext } from 'react';
+import { useState, useContext, useMemo } from 'react';
 import dateFormat from "dateformat";
 import { v4 as uuidv4 } from 'uuid';
 import { validate, saveData, delDoc } from '@utils/utils'
@@ -23,7 +23,9 @@ const useSalesContractsState = () => {
     const { setToast, dateYr, setLoading, ln } = useContext(SettingsContext);
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
-    return {
+    // Memoized: identity changes only when exposed/captured state changes (see
+    // useContractsState for the rationale).
+    return useMemo(() => ({
         valueSC, setValueSC,
         salesContractsData, setSalesContractsData,
         isOpenSC, setIsOpenSC,
@@ -104,7 +106,8 @@ const useSalesContractsState = () => {
             };
             setValueSC(newObj);
         },
-    };
+    }), [valueSC, salesContractsData, isOpenSC, errors, isButtonDisabled,
+        dateYr, ln, setToast, setLoading]);
 };
 
 export default useSalesContractsState;

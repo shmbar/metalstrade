@@ -12,6 +12,31 @@ import Tltip from '../../../components/tlTip'
 import { Selector } from '@components/selectors/selectShad';
 import NotificationBell from '@components/NotificationBell';
 
+// Self-contained clock: owns the 1-second interval so only this tiny component
+// re-renders each second — previously the state lived in MainNav and re-rendered
+// the whole nav (selector, search, bell) every second on every page.
+const Clock = () => {
+  const [now, setNow] = useState(null)
+
+  useEffect(() => {
+    setNow(new Date())
+    const timer = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  if (!now) return null
+  return (
+    <div className='flex flex-col items-end leading-tight select-none pointer-events-none pl-4 border-l border-[#b8ddf8]'>
+      <span style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)', fontWeight: 500, opacity: 0.8 }}>
+        {now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
+      </span>
+      <span style={{ fontSize: '0.85rem', color: 'var(--chathams-blue)', fontWeight: 600, letterSpacing: '0.05em' }}>
+        {now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+      </span>
+    </div>
+  )
+}
+
 export const MainNav = () => {
   const { SignOut, user, gisAccount } = UserAuth();
   const { compData, accounts, uidCollection, setUidCollection } = useContext(SettingsContext)
@@ -24,15 +49,6 @@ export const MainNav = () => {
 
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
-
-  const [now, setNow] = useState(null)
-
-
-  useEffect(() => {
-    setNow(new Date())
-    const timer = setInterval(() => setNow(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   const LogOut = async () => {
     await SignOut()
@@ -247,16 +263,7 @@ export const MainNav = () => {
           </div>
         </div>
         {/* Date / Time Widget — far right */}
-        {now && (
-          <div className='flex flex-col items-end leading-tight select-none pointer-events-none pl-4 border-l border-[#b8ddf8]'>
-            <span style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)', fontWeight: 500, opacity: 0.8 }}>
-              {now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
-            </span>
-            <span style={{ fontSize: '0.85rem', color: 'var(--chathams-blue)', fontWeight: 600, letterSpacing: '0.05em' }}>
-              {now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </span>
-          </div>
-        )}
+        <Clock />
       </div>
     </div>
   )

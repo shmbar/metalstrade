@@ -81,7 +81,9 @@ const Stocks = () => {
     setSelectedStock({ stock: 'allStocks', id: 'allStocks', nname: '..All Stocks' })
   }, [])
 
-  let propDefaults = [
+  // Memoized: cells read nothing stateful beyond ln (headers); showWeight/showAmount
+  // format row values only. Stable identity avoids TanStack model rebuilds per render.
+  const propDefaults = useMemo(() => [
     { accessorKey: 'order', header: getTtl('PO', ln) + '#' },
     {
       accessorKey: 'date', header: getTtl('Date', ln),
@@ -119,7 +121,7 @@ const Stocks = () => {
       },
       filterFn: 'equals',
     },
-  ];
+  ], [ln]);
 
   useEffect(() => {
     const loadtStocks = async () => {
@@ -325,6 +327,10 @@ const Stocks = () => {
 
   const stockSelector = useMemo(() => CB(settings, handleSelectStock, selectedStock), [settings, selectedStock]);
 
+  // Stable table data — getFormatted only reads `settings` (covered by deps).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const tableData = useMemo(() => getFormatted(data), [data, settings]);
+
   // Rows currently visible after the table's filters (supplier, item, warehouse, etc.).
   // Used for both the "Avg Cost Price per Grade" table and the Excel export so they
   // follow whatever the user filters on.
@@ -381,7 +387,7 @@ const Stocks = () => {
               {/* Table Component */}
               <div className='mt-2'>
                 <Customtable
-                  data={getFormatted(data)}
+                  data={tableData}
                   columns={propDefaults}
                   SelectRow={SelectRow}
                   cb={stockSelector}
