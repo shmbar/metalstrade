@@ -117,7 +117,9 @@ CRITICAL EXTRACTION RULES:
 - supplierName = the SELLER / issuer of the invoice (the company whose letterhead/logo is at the top, e.g. "ELG Utica Alloys", "Exotech", "Thormet Europe GmbH", "Triart Capital"). It is NEVER the buyer ("IMS Metals & Alloys" or "GIS Metals" — those are us, the bill-to party).
 - buyerPoNumber = the purchase-order reference, which appears under MANY different labels: "P.O. No", "PO No", "Cust PO #", "Purchase No", "Your PO", "PO#". Extract whatever value follows any of these (e.g. "280426-4", "0904-26", "PO210426-1", "280426"). If several invoices/POs appear, use the FIRST.
 - amount = the TOTAL invoice value owed (grand total / total USD / total amount). If the invoice shows a prepayment and a smaller "balance to pay", still return the FULL total, not the balance.
-- NUMBER FORMATS: documents may use European format where "." is the thousands separator and "," is the decimal (e.g. "273.429,00" means 273429.00). Also strip currency symbols and thousands commas (e.g. "$489,876.93" means 489876.93). ALWAYS return amount as a plain JSON number.
+- NUMBER FORMATS: documents may use European format where "." is the thousands separator and "," is the decimal (e.g. "273.429,00" means 273429.00). European docs may also use a SPACE or apostrophe as the thousands separator with "," as decimal (e.g. "19 014,25" means 19014.25, "2 165 120,00" means 2165120.00). Also strip currency symbols and US thousands commas (e.g. "$489,876.93" means 489876.93). ALWAYS return amount as a plain JSON number.
+- amount = the invoice's FULL value, not a prompt/partial-payment figure. If it shows e.g. "190.500,00 final amount x 80% prompt payment = 152.400,00", return the FULL 190500, not 152400.
+- CREDIT NOTE / CORRECTION (labels: "credit note", "Gutschrift", "Korekta faktury", "correction"): return the corrected FINAL total if the document shows one; if it only states a negative adjustment, return that adjustment as a NEGATIVE number.
 - multipleInvoices = true if the document clearly contains MORE THAN ONE separate invoice (different invoice numbers / PO numbers / totals on different pages). Otherwise false. When true, extract only the FIRST invoice's data.
 
 {
@@ -150,9 +152,15 @@ CRITICAL EXTRACTION RULES:
 }`;
         }
 
-        // European suppliers (Oryx, etc.) write dates day-month-year, which was being
-        // misread — force day-first parsing and ISO output for every document type.
-        const dateRule = `DATES: European suppliers usually write day-month-year — "10-6-2026" = 10 June 2026, "11-6-2026" = 11 June 2026 (NOT month-day). Read the day first, then the month, then the year, and ALWAYS output the "date" field as ISO YYYY-MM-DD.`;
+        // Dates are locale-dependent: European suppliers write day-month-year, US/Canadian
+        // ones month-day-year. Infer the order from the supplier's country/layout (and any
+        // part >12), so we don't misread either — and always output ISO.
+        const dateRule = `DATES: infer the format from the issuer's country/layout, do NOT assume one order.
+- European suppliers (Germany, Poland, France, Estonia, Netherlands, etc.) write DAY-month-year: "31.03.2026" = 31 March 2026, "10-6-2026" = 10 June 2026, "26.06.2026" = 26 June 2026.
+- US / Canadian suppliers write MONTH-day-year: "12/23/2025" = 23 December 2025, "05/20/2025" = 20 May 2025.
+- If any component is greater than 12 it fixes the order; ISO dates like "2026-06-08" are already year-month-day.
+- Prefer the invoice/issue date over any sales date, delivery date or due date.
+ALWAYS output the "date" field as ISO YYYY-MM-DD.`;
 
         const systemTextPrompt = `You are a document parsing assistant for a metals trading IMS.
 Extract structured data from the document text.
