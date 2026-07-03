@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useContext } from 'react';
+import { useEffect, useContext, useRef } from 'react';
 import { useGlobalSearch } from '../../contexts/useGlobalSearchContext';
 import { UserAuth } from '../../contexts/useAuthContext';
 import { loadData } from '../../utils/utils';
@@ -11,6 +11,11 @@ export default function GlobalSearchLoader() {
   const { upsertSourceItems } = useGlobalSearch();
   const { settings, dateSelect } = useContext(SettingsContext);
 
+  // Fetched rows cached per account + date range. A settings-only change (e.g. a
+  // supplier renamed, margin threshold saved) re-runs the label mapping below over
+  // these cached rows instead of re-downloading all three collections.
+  const cacheRef = useRef({ key: null, rows: null });
+
   // helper: map IDs -> display labels
   const gQ = (z, y, x) => settings?.[y]?.[y]?.find(q => q.id === z)?.[x] || '';
 
@@ -19,8 +24,21 @@ export default function GlobalSearchLoader() {
 
     const loadSearchData = async () => {
       try {
+        /* ---------- FETCH (parallel, cached) ---------- */
+        const cacheKey = `${uidCollection}|${dateSelect?.start || ''}|${dateSelect?.end || ''}`;
+        let rows = cacheRef.current.key === cacheKey ? cacheRef.current.rows : null;
+        if (!rows) {
+          const [expenses, invoices, contracts] = await Promise.all([
+            loadData(uidCollection, 'expenses', dateSelect),
+            loadData(uidCollection, 'invoices', dateSelect),
+            loadData(uidCollection, 'contracts', dateSelect),
+          ]);
+          rows = { expenses, invoices, contracts };
+          cacheRef.current = { key: cacheKey, rows };
+        }
+        const { expenses, invoices, contracts } = rows;
+
         /* ---------- EXPENSES ---------- */
-        const expenses = await loadData(uidCollection, 'expenses', dateSelect);
 
         upsertSourceItems(
           'expenses',
@@ -50,8 +68,6 @@ export default function GlobalSearchLoader() {
         );
 
         /* ---------- INVOICES ---------- */
-        const invoices = await loadData(uidCollection, 'invoices', dateSelect);
-
         upsertSourceItems(
           'invoices',
           (invoices || []).filter(Boolean).map(inv => {
@@ -87,8 +103,6 @@ export default function GlobalSearchLoader() {
         );
 
         /* ---------- CONTRACTS ---------- */
-        const contracts = await loadData(uidCollection, 'contracts', dateSelect);
-
         upsertSourceItems(
           'contracts',
           (contracts || []).filter(Boolean).map(c => {

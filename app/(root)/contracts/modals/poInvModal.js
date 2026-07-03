@@ -10,7 +10,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { getTtl } from '@utils/languages';
 import Datepicker from "react-tailwindcss-datepicker";
 import { Button } from '@components/ui/button.jsx';
-import { Save, CirclePlus, CircleMinus, Trash, ArrowBigRight } from "lucide-react";
+import { Save, CirclePlus, CircleMinus, Trash, ArrowBigRight, FileText } from "lucide-react";
+import DocumentImportOverlay from '@components/DocumentImportOverlay';
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -36,6 +37,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
     const { uidCollection } = UserAuth();
     const [checkedItems, setCheckedItems] = useState([]);
     const [expand, setExpand] = useState(false)
+    const [showDocImport, setShowDocImport] = useState(false)
 
     useEffect(() => {
         if (!valueCon?.poInvoices?.length) return;
@@ -207,6 +209,25 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
         let pmntArr = [...valueCon.poInvoices, newPmnt]
         setValueCon({ ...valueCon, poInvoices: pmntArr })
 
+    }
+
+    // Create a new purchase-invoice row from a supplier invoice/proforma PDF the AI read.
+    // Reuses the 'expense' document reader (vendor invoice number + amount) and maps its
+    // output onto this modal's poInvoice shape (inv# + value); payments start empty.
+    const addInvoiceFromDoc = (out) => {
+        const val = out?.amount != null && out.amount !== '' ? String(out.amount) : '';
+        const newInv = {
+            id: uuidv4(),
+            inv: out?.expense || '',
+            invValue: val,
+            pmnt: '0',
+            blnc: val,
+            invRef: [],
+            payments: [{ pmntId: uuidv4(), pmntDate: null, pmntPerc: '', pmnt: '' }],
+        };
+        setValueCon(prev => ({ ...prev, poInvoices: [...(prev.poInvoices || []), newInv] }));
+        setShowDocImport(false);
+        setToast({ show: true, text: 'Purchase invoice read from PDF — review the values and Save', clr: 'success' });
     }
 
     const deleteItems = () => {
@@ -424,6 +445,15 @@ console.log(valueCon.poInvoices)
                     Add Invoice
                 </Button>
 
+                <Button
+                    className="h-8 px-3"
+                    variant='outline'
+                    onClick={() => setShowDocImport(true)}
+                    title='Drop a supplier invoice/proforma PDF — AI reads the invoice number and value.'
+                >
+                    <FileText />
+                    Autofill from PDF
+                </Button>
 
                 <Button
                     className="h-8 px-3"
@@ -434,6 +464,18 @@ console.log(valueCon.poInvoices)
                     Delete Invoice
                 </Button>
             </div>
+
+            {showDocImport && (
+                <DocumentImportOverlay
+                    documentType='expense'
+                    suppliers={settings?.Supplier?.Supplier || []}
+                    clients={[]}
+                    currencies={settings?.Currency?.Currency || []}
+                    expenseTypes={settings?.Expenses?.Expenses || []}
+                    onApply={addInvoiceFromDoc}
+                    onClose={() => setShowDocImport(false)}
+                />
+            )}
         </Modal>
     )
 }
