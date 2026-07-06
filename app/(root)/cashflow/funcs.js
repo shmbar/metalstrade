@@ -1,5 +1,6 @@
 
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { TbSortAscending, TbSortDescending } from 'react-icons/tb';
 import CheckBox from "../../../components/checkbox";
 import Tltip from "../../../components/tlTip";
@@ -426,7 +427,7 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
 
 
 const moveToContracts = async (z, ent, uidCollection, setDateSelect,
-    setValue, setIsOpen, blankInvoice, router) => {
+    setValue, setIsOpen, blankInvoice, router, setToast) => {
 
 
     let dt = ent === 'stock' ? z.data.find(z => z.contractData)?.contractData :
@@ -469,7 +470,9 @@ const moveToContracts = async (z, ent, uidCollection, setDateSelect,
         contract = await loadInvoice(uidCollection, 'contracts', dt)
 
         if (Object.keys(contract).length === 0) {
-            setToast({ show: true, text: 'Contract can not be accessed!', clr: 'fail' })
+            // setToast is threaded in from the calling component's SettingsContext —
+            // this line used to reference an undefined name and crash the click.
+            setToast && setToast({ show: true, text: 'Contract can not be accessed!', clr: 'fail' })
             return;
         }
 
@@ -489,6 +492,7 @@ const moveToContracts = async (z, ent, uidCollection, setDateSelect,
 export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
+    const { setToast } = useContext(SettingsContext);
 
     const base = stockDataAll
         .filter(z => z.stock === stock)
@@ -527,7 +531,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 </td>
                                 <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
-                                        setValueCon, setIsOpenCon, blankInvoice, router)}>
+                                        setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
                                 <td className="text-left w-16"><Tltip direction='top' tltpText={[settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></Tltip></td>
                                 <td className="text-left w-28 max-w-28">
@@ -609,6 +613,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
 export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
+    const { setToast } = useContext(SettingsContext);
 
     const base = stockDataAllArray.filter(z => z.supplier === supplier)
         // Group rows by contract number (PO#) so both stock tables read consistently.
@@ -647,7 +652,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                 </td>
                                 <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
-                                        setValueCon, setIsOpenCon, blankInvoice, router)}>
+                                        setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={[z.order, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate">{z.order}</span></Tltip></td>
                                 <td className="text-left w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.description || ''}><span className="block truncate cursor-default">{z.description}</span></Tltip>
@@ -876,6 +881,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
     toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal,
     sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
+    const { setToast } = useContext(SettingsContext);
 
     const buildSumItem = (z) => ({
         key: sumKey('client', z.id), id: z.id, kind: 'client',
@@ -934,7 +940,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                         </td>
                                         <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-14 2xl:max-w-24 truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
-                                                setValueCon, setIsOpenCon, blankInvoice, router)}>
+                                                setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
                                         <td className="text-left w-10 cursor-pointer text-[var(--endeavour)] hover:underline" onClick={() => openInvModal && openInvModal(z, 'client')}><Tltip direction='top' tltpText='Click to preview invoice'><span className="block truncate">{z.invoice}{z.invType ? getprefixInv(z) : ''}</span></Tltip></td>
                                         <td className="text-left">{
@@ -1066,7 +1072,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                         </td>
                                         <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-14 2xl:max-w-24 truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
-                                                setValueCon, setIsOpenCon, blankInvoice, router)}>
+                                                setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
                                         <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline" onClick={() => openInvModal && openInvModal(z, 'client')}><Tltip direction='top' tltpText='Click to preview invoice'><span className="block truncate">{z.invoice}{z.invType ? getprefixInv(z) : ''}</span></Tltip></td>
                                         <td className="text-left">{
@@ -1342,6 +1348,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal,
     sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
+    const { setToast } = useContext(SettingsContext);
 
     const base = data.filter(z => z.supplier === supplier && z.blnc * 1 !== 0);
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
@@ -1393,7 +1400,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                 </td>
                                 <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'supplier', uidCollection, setDateSelect,
-                                        setValueCon, setIsOpenCon, blankInvoice, router)}
+                                        setValueCon, setIsOpenCon, blankInvoice, router, setToast)}
                                 ><Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
                                 <td className="text-left 2xl:max-w-24 truncate cursor-pointer text-[var(--endeavour)] hover:underline" onClick={() => openInvModal && openInvModal(z, 'supplier')}><Tltip direction='top' tltpText='Click to preview invoice'><span className="block truncate">{z.invoice}</span></Tltip></td>
                                 <td className="text-left">{
@@ -1541,6 +1548,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
     setValueExp, setIsOpen, blankInvoice, router, toggleCheckExp, toggleCheckExpAll,
     toggleExp, savePmntExp, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
+    const { setToast } = useContext(SettingsContext);
 
     const buildSumItem = (z) => ({
         key: sumKey('expense', z.id), id: z.id, kind: 'expense',
@@ -1592,7 +1600,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                                 </td>
                                 <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, z.poSupplier ? 'expense' : 'compexpense', uidCollection, setDateSelect,
-                                        setValueExp, setIsOpen, blankInvoice, router)}>
+                                        setValueExp, setIsOpen, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={z.poSupplier?.order ?? 'Comp. Exp.'}><span className="block truncate">{z.poSupplier?.order ?? 'Comp. Exp.'}</span></Tltip></td>
                                 <td className="text-left"><Tltip direction='top' tltpText={z.expense || ''}><span className="block truncate max-w-20">{z.expense}</span></Tltip></td>
                                 <td className="text-left"><Tltip direction='top' tltpText={settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType || ''}><span className="block truncate max-w-20">{settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType}</span></Tltip></td>
