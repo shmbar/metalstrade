@@ -444,9 +444,11 @@ function executeTool(name, args, data) {
             const limit = args?.limit || 10;
             const list = contracts.slice(0, limit);
             if (!list.length) return 'No contracts found.';
-            return `Recent ${list.length} contract(s):\n${list.map(con =>
+            const text = `Recent ${list.length} contract(s):\n${list.map(con =>
                 `• PO ${con.order} — ${con.supplier} — ${con.date} — ${con.status}`
             ).join('\n')}`;
+            const sources = list.filter(c => c.id).slice(0, CITATIONS_MAX).map(srcContract);
+            return { text, sources };
         }
 
         case 'get_expense_summary': {
@@ -508,11 +510,13 @@ function executeTool(name, args, data) {
 
         case 'get_profit_info': {
             if (margins.length > 0) {
+                // Sums the same stored month totalMargin the Margins page totals —
+                // GIS half-splits are already baked into that field on save.
                 const totalMargin = margins.reduce((sum, m) => sum + (parseFloat(m.totalMargin) || 0), 0);
                 const monthsWithData = margins.filter(m => parseFloat(m.totalMargin) > 0).length;
-                return `Profit/Margin summary (current year):\n• Total margin: ${totalMargin.toFixed(2)}\n• Months with data: ${monthsWithData} of ${margins.length}\nFor full details visit the Margins page (/margins).`;
+                return `Profit/Margin summary (loaded date range):\n• Total margin: ${totalMargin.toFixed(2)}\n• Months with data: ${monthsWithData} of ${margins.length}\nFor full details visit the Margins page (/margins).`;
             }
-            return 'No margin data found for this year. Visit the Margins page (/margins) to record and view profit analysis.';
+            return 'No margin data found in the loaded date range. Visit the Margins page (/margins) to record and view profit analysis.';
         }
 
         case 'get_stock_summary': {
@@ -534,7 +538,7 @@ function executeTool(name, args, data) {
                 .slice(0, 15)
                 .map(([desc, d]) => `• ${desc}: ${d.qty.toFixed(2)} ${d.unit || '(unit not set)'}`)
                 .join('\n');
-            return `Current NET stock on hand (received − sold; quantities are already in the unit shown — do NOT convert):\n${lines}`;
+            return `Current NET stock on hand (received − sold; quantities are already in the unit shown — do NOT convert):\n${lines}\n(Stock is the all-time net on hand — it is NOT limited by the app's date filter.)`;
         }
 
         case 'get_shipment_status': {
@@ -546,16 +550,20 @@ function executeTool(name, args, data) {
                     const db = b.etd ? new Date(b.etd) : new Date(9999, 0);
                     return da - db;
                 });
-                return `${sorted.length} shipment(s) tracked:\n${sorted.slice(0, 15).map(inv =>
+                const text = `${sorted.length} shipment(s) tracked:\n${sorted.slice(0, 15).map(inv =>
                     `• Invoice #${inv.invoice} — ${inv.client} — ETD: ${inv.etd || 'N/A'} — ETA: ${inv.eta || 'N/A'} — ${inv.currency} ${inv.totalAmount.toFixed(2)} — ${inv.paymentStatus}`
                 ).join('\n')}`;
+                const sources = sorted.filter(inv => inv.id).slice(0, CITATIONS_MAX).map(srcInvoice);
+                return { text, sources };
             }
             // Fall back to contract-level shipment fields
             const conShipments = contracts.filter(c => c.shipmentEtd || c.shipmentEta || c.shipmentStatus);
             if (!conShipments.length) return 'No shipment data found. Add ETD/ETA from the Shipment page or invoice details.';
-            return `${conShipments.length} contract(s) with shipment info:\n${conShipments.slice(0, 15).map(c =>
+            const text = `${conShipments.length} contract(s) with shipment info:\n${conShipments.slice(0, 15).map(c =>
                 `• PO ${c.order} — ${c.supplier} — ETD: ${c.shipmentEtd || 'N/A'} — ETA: ${c.shipmentEta || 'N/A'} — ${c.shipmentStatus || 'No status'}`
             ).join('\n')}`;
+            const sources = conShipments.filter(c => c.id).slice(0, CITATIONS_MAX).map(srcContract);
+            return { text, sources };
         }
 
         case 'get_monthly_sales': {
@@ -922,6 +930,15 @@ export async function POST(request) {
             // Tools may return either a plain string (legacy) OR { text, sources }.
             // We normalise both here: `text` is what the model sees, `sources`
             // is what the UI renders as clickable citation chips.
+            // Scope honesty: range-dependent answers state the loaded date window so
+            // neither the user nor the model mistakes a filtered slice for all-time
+            // truth. Lookup-by-id and all-time tools are excluded (stock summary
+            // carries its own "all-time" note).
+            const NO_RANGE_NOTE = new Set(['get_record_by_number', 'get_stock_summary']);
+            const rangeNote = dateRange?.startDate && dateRange?.endDate
+                ? `\n\n(Data range: ${dateRange.startDate} → ${dateRange.endDate} — change the date filter in the app header to widen it.)`
+                : '';
+
             const allSources = [];
             const toolResults = toolMessage.tool_calls.map(tc => {
                 const raw = executeTool(
@@ -933,7 +950,10 @@ export async function POST(request) {
                     ? { text: raw, sources: [] }
                     : raw;
                 if (Array.isArray(sources)) allSources.push(...sources);
-                return { tool_call_id: tc.id, role: 'tool', content: text };
+                const content = NO_RANGE_NOTE.has(tc.function.name) || !rangeNote
+                    ? text
+                    : text + rangeNote;
+                return { tool_call_id: tc.id, role: 'tool', content };
             });
 
             // Dedupe by `${type}:${id}` so two tools citing the same invoice
