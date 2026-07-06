@@ -67,13 +67,25 @@ const NotificationProvider = ({ children }) => {
         return () => { try { unsub && unsub(); } catch { /* ignore */ } };
     }, [uidCollection, uid]);
 
-    // Note: an earlier 30s "tick" interval meant to resurface lapsed snoozes was
-    // removed — it never worked (the memo below keys on [all, uid], which the tick
-    // didn't change), so it only caused no-op re-renders. Snoozed items reappear on
-    // the next Firestore snapshot, exactly as before.
+    // Targeted snooze wake-up: one timer aimed exactly at the EARLIEST snooze
+    // expiry among my snoozed items, bumping snoozeTick so the memo below
+    // recomputes and the lapsed item reappears on time. (Replaces an old blanket
+    // 30s tick that never worked — it didn't change the memo's deps at all.)
+    const [snoozeTick, setSnoozeTick] = useState(0);
+    useEffect(() => {
+        const now = Date.now();
+        const next = all.reduce((min, n) => {
+            const until = n.snoozedBy?.[uid];
+            return until && until > now ? Math.min(min, until) : min;
+        }, Infinity);
+        if (!isFinite(next)) return;
+        const t = setTimeout(() => setSnoozeTick(x => x + 1), Math.max(250, next - now + 50));
+        return () => clearTimeout(t);
+    }, [all, uid, snoozeTick]);
 
     // Visible = addressed to me (audience) and not currently snoozed by me,
     // ordered by priority (High → Medium → Low) then newest first.
+    // snoozeTick re-evaluates the Date.now() comparison when a snooze lapses.
     const notifications = useMemo(() => {
         const now = Date.now();
         const mine = all.filter(n => {
@@ -84,7 +96,7 @@ const NotificationProvider = ({ children }) => {
         });
         return sortByPriority(mine);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [all, uid]);
+    }, [all, uid, snoozeTick]);
 
     const unread = useMemo(
         () => notifications.filter(n => !(n.readBy || []).includes(uid)),
