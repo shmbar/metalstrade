@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList, Pressable } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Text, TextField, SkeletonList, FadeInItem, ErrorState, EmptyState } from '@/components/ui';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -13,17 +13,30 @@ import { radius } from '@/theme/tokens';
 import { fmtCurKM } from '@/lib/format';
 import { exportCsv } from '@/lib/export';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SwipeRow } from '@/components/SwipeRow';
 
 type Filter = 'All' | 'Unpaid' | 'Partial' | 'Paid';
 const FILTERS: Filter[] = ['All', 'Unpaid', 'Partial', 'Paid'];
+
+type SortKey = 'date' | 'total' | 'balance';
+const SORTS: { key: SortKey; label: string }[] = [
+  { key: 'date', label: 'Date' },
+  { key: 'total', label: 'Total' },
+  { key: 'balance', label: 'Due' },
+];
 
 export default function InvoicesList() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings } = useSettings();
   const { data: invoices, isLoading, isError, error, refetch } = useInvoices();
+  // Dashboard tiles deep-link here with ?filter=Unpaid (drill-through).
+  const { filter: filterParam } = useLocalSearchParams<{ filter?: string }>();
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<Filter>('All');
+  const [filter, setFilter] = useState<Filter>(
+    FILTERS.includes(filterParam as Filter) ? (filterParam as Filter) : 'All'
+  );
+  const [sort, setSort] = useState<SortKey>('date');
 
   const views: InvoiceView[] = useMemo(
     () => (invoices || []).map((inv) => deriveInvoice(inv, settings)),
@@ -32,14 +45,17 @@ export default function InvoicesList() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return views.filter((v) => {
+    const list = views.filter((v) => {
       if (filter === 'Unpaid' && v.status !== 'Unpaid') return false;
       if (filter === 'Partial' && v.status !== 'Partial') return false;
       if (filter === 'Paid' && v.status !== 'Paid') return false;
       if (!q) return true;
       return String(v.number ?? '').includes(q) || v.clientName.toLowerCase().includes(q);
     });
-  }, [views, search, filter]);
+    if (sort === 'total') return [...list].sort((a, b) => b.total - a.total);
+    if (sort === 'balance') return [...list].sort((a, b) => b.balance - a.balance);
+    return [...list].sort((a, b) => (b.dateIso || '').localeCompare(a.dateIso || ''));
+  }, [views, search, filter, sort]);
 
   // Per-currency outstanding across the filtered set (never summed across $/€).
   const outstanding = useMemo(() => {
@@ -108,7 +124,7 @@ export default function InvoicesList() {
                 backgroundColor: active ? colors.primary + '14' : 'transparent',
               }}
             >
-              <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'Poppins_600SemiBold' }}>
+              <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'Inter_600SemiBold' }}>
                 {f}
               </Text>
             </Pressable>
@@ -117,11 +133,42 @@ export default function InvoicesList() {
       </View>
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, marginBottom: 8 }}>
-        <Text variant="caption" tone="muted">
-          {filtered.length} invoice{filtered.length === 1 ? '' : 's'}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1 }}>
+          <Text variant="caption" tone="muted">
+            {filtered.length} invoice{filtered.length === 1 ? '' : 's'}
+          </Text>
+          {/* Sort chips */}
+          <View style={{ flexDirection: 'row', gap: 6 }}>
+            {SORTS.map((s) => {
+              const active = sort === s.key;
+              return (
+                <Pressable
+                  key={s.key}
+                  onPress={() => setSort(s.key)}
+                  hitSlop={4}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 3,
+                    paddingHorizontal: 9,
+                    paddingVertical: 3,
+                    borderRadius: radius.pill,
+                    borderWidth: 1.5,
+                    borderColor: active ? colors.primary : colors.border,
+                    backgroundColor: active ? colors.primary + '14' : 'transparent',
+                  }}
+                >
+                  {active && <Ionicons name="arrow-down" size={11} color={colors.primary} />}
+                  <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'Inter_600SemiBold' }}>
+                    {s.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
         {Object.keys(outstanding).length > 0 && (
-          <Text variant="caption" tone="negative" style={{ fontFamily: 'Poppins_600SemiBold' }}>
+          <Text variant="caption" tone="negative" style={{ fontFamily: 'Inter_600SemiBold' }} numberOfLines={1}>
             {Object.entries(outstanding)
               .map(([c, v]) => fmtCurKM(c, v))
               .join('  ')}{' '}
@@ -137,8 +184,10 @@ export default function InvoicesList() {
       ) : filtered.length === 0 ? (
         <EmptyState
           title={search || filter !== 'All' ? 'No matches' : 'No invoices'}
-          message={search || filter !== 'All' ? 'Try a different search or filter.' : 'No invoices in the selected period.'}
+          message={search || filter !== 'All' ? 'Try a different search or filter.' : 'Invoices are created from a contract.'}
           icon={<Ionicons name="receipt-outline" size={40} color={colors.textFaint} />}
+          actionLabel={search || filter !== 'All' ? undefined : 'Open contracts'}
+          onAction={search || filter !== 'All' ? undefined : () => router.push('/(app)/contracts')}
         />
       ) : (
         <FlatList
@@ -146,7 +195,18 @@ export default function InvoicesList() {
           keyExtractor={(v) => v.id}
           renderItem={({ item, index }) => (
             <FadeInItem index={index}>
-              <InvoiceCard inv={item} onPress={() => router.push(`/(app)/invoices/${item.id}`)} />
+              {item.balance > 0.01 ? (
+                <SwipeRow
+                  actionLabel="Payment"
+                  actionIcon="cash-outline"
+                  actionColor="#178a4c"
+                  onAction={() => router.push(`/(app)/invoices/${item.id}?pay=1`)}
+                >
+                  <InvoiceCard inv={item} onPress={() => router.push(`/(app)/invoices/${item.id}`)} />
+                </SwipeRow>
+              ) : (
+                <InvoiceCard inv={item} onPress={() => router.push(`/(app)/invoices/${item.id}`)} />
+              )}
             </FadeInItem>
           )}
           showsVerticalScrollIndicator={false}

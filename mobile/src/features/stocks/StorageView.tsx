@@ -7,7 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useStorage, useTagStorage, suggestWh, defaultMonth } from './useStorage';
 import { UNIT } from '@shared/storageUtils';
-import { fmtMoney } from '@/lib/format';
+import { fmtMoney, dateLabel } from '@/lib/format';
 import { radius, spacing } from '@/theme/tokens';
 
 const fmtUsd = (v: number) => `$${fmtMoney(v || 0)}`;
@@ -173,7 +173,7 @@ export function StorageView() {
                   {settings?.Supplier?.Supplier?.find((s: any) => s.id === e.supplier)?.nname || 'Expense'}
                 </Text>
                 <Text variant="caption" tone="faint">
-                  {e.date} · {fmtUsd(parseFloat(e.amount) || 0)}
+                  {dateLabel(e.date)} · {fmtUsd(parseFloat(e.amount) || 0)}
                 </Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>

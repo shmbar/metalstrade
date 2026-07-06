@@ -34,7 +34,7 @@ export function Button({
   // background to transparent (which previously rendered buttons invisible).
   const bg: Record<Variant, string> = {
     primary: colors.primary || '#0366ae',
-    secondary: scheme === 'dark' ? colors.surfaceAlt || '#1c2942' : '#dbeeff',
+    secondary: scheme === 'dark' ? colors.surfaceAlt || '#1c2942' : '#eef0f3',
     ghost: 'transparent',
     danger: colors.negative || '#dc2626',
   };
@@ -73,7 +73,7 @@ export function Button({
       ) : (
         <>
           {leftIcon && <View>{leftIcon}</View>}
-          <Text variant="bodyMedium" color={fg[variant]} style={{ fontFamily: 'Poppins_600SemiBold' }}>
+          <Text variant="bodyMedium" color={fg[variant]} style={{ fontFamily: 'Inter_600SemiBold' }}>
             {title}
           </Text>
         </>

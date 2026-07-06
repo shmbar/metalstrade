@@ -21,10 +21,14 @@ export function EmptyState({
   title,
   message,
   icon,
+  actionLabel,
+  onAction,
 }: {
   title: string;
   message?: string;
   icon?: React.ReactNode;
+  actionLabel?: string;
+  onAction?: () => void;
 }) {
   return (
     <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: spacing['3xl'], gap: 8 }}>
@@ -34,6 +38,9 @@ export function EmptyState({
         <Text variant="body" tone="muted" style={{ textAlign: 'center', maxWidth: 280 }}>
           {message}
         </Text>
+      )}
+      {actionLabel && onAction && (
+        <Button title={actionLabel} variant="secondary" fullWidth={false} onPress={onAction} style={{ marginTop: 8 }} />
       )}
     </View>
   );

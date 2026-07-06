@@ -13,11 +13,12 @@ import { apiConfigured } from '@/lib/api';
 import { exportPdf } from '@/lib/export';
 import { invoiceHtml } from '@/lib/pdfTemplates';
 import { num } from '@shared/finance';
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { curSymbol, fmtMoney, fmtCurKM, dateLabel } from '@/lib/format';
+import { hapticSuccess } from '@/lib/haptics';
 import { radius, spacing } from '@/theme/tokens';
 
 export default function InvoiceDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, pay } = useLocalSearchParams<{ id: string; pay?: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings, compData } = useSettings();
@@ -36,7 +37,8 @@ export default function InvoiceDetail() {
     return inv ? deriveInvoice(inv, settings) : null;
   }, [invoices, id, settings]);
 
-  const [showAdd, setShowAdd] = useState(false);
+  // Opened from the list's swipe "Payment" action → land with the sheet open.
+  const [showAdd, setShowAdd] = useState(pay === '1');
   const [amount, setAmount] = useState('');
   const [payDate, setPayDate] = useState<string>(new Date().toISOString().slice(0, 10));
 
@@ -69,6 +71,7 @@ export default function InvoiceDetail() {
         year: view.year,
         payment: { pmnt: amt, date: payDate },
       });
+      hapticSuccess();
       setShowAdd(false);
       setAmount('');
     } catch (e: any) {
@@ -143,21 +146,32 @@ export default function InvoiceDetail() {
         </View>
       </View>
 
-      {/* Money summary */}
+      {/* Money summary — compact figure large, exact amount beneath */}
       <View style={{ flexDirection: 'row', gap: 12, marginBottom: 14 }}>
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">Total</Text>
-          <Text variant="h2" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>{view.totalLabel}</Text>
+          <Text variant="h2" style={{ marginTop: 6, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+            {fmtCurKM(view.cur, view.total)}
+          </Text>
+          <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
+            {view.totalLabel}
+          </Text>
         </Card>
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">Paid</Text>
-          <Text variant="h2" tone="positive" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>
+          <Text variant="h2" tone="positive" style={{ marginTop: 6, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+            {fmtCurKM(view.cur, view.paid)}
+          </Text>
+          <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
             {sym}{fmtMoney(view.paid)}
           </Text>
         </Card>
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">Balance</Text>
-          <Text variant="h2" tone={view.balance > 0.01 ? 'negative' : 'positive'} style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>
+          <Text variant="h2" tone={view.balance > 0.01 ? 'negative' : 'positive'} style={{ marginTop: 6, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+            {fmtCurKM(view.cur, view.balance)}
+          </Text>
+          <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
             {view.balanceLabel}
           </Text>
         </Card>
@@ -182,13 +196,13 @@ export default function InvoiceDetail() {
               }}
             >
               <View style={{ flex: 1, minWidth: 0 }}>
-                <Text variant="bodyMedium" numberOfLines={1}>{p.description || '—'}</Text>
+                <Text variant="bodyMedium" numberOfLines={1}>{p.description || (p.qnty === 's' ? 'Settlement' : '—')}</Text>
                 <Text variant="caption" tone="faint">
-                  {fmtMoney(num(p.qnty), 0)} × {sym}{fmtMoney(num(p.unitPrc))}
+                  {p.qnty === 's' ? 'Lump-sum amount' : `${fmtMoney(num(p.qnty), 0)} × ${sym}${fmtMoney(num(p.unitPrc))}`}
                 </Text>
               </View>
-              <Text variant="bodyMedium" tone="primary">
-                {sym}{fmtMoney(num(p.total) || num(p.qnty) * num(p.unitPrc))}
+              <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>
+                {sym}{fmtMoney(p.qnty === 's' ? num(p.unitPrc) : num(p.total) || num(p.qnty) * num(p.unitPrc))}
               </Text>
             </View>
           ))
@@ -222,7 +236,7 @@ export default function InvoiceDetail() {
                 borderTopColor: colors.border,
               }}
             >
-              <Text variant="body" tone="muted">{p.date || p.pmntDate || '—'}</Text>
+              <Text variant="body" tone="muted">{dateLabel(p.date || p.pmntDate)}</Text>
               <Text variant="bodyMedium" tone="positive">{sym}{fmtMoney(num(p.pmnt))}</Text>
             </View>
           ))

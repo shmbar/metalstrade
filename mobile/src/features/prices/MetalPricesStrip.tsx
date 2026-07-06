@@ -26,7 +26,7 @@ export function MetalPricesStrip() {
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Text variant="caption" tone="muted">{p.symbol}</Text>
                     {p.change != null && (
-                      <Text variant="caption" color={up ? colors.positive : colors.negative} style={{ fontFamily: 'Poppins_600SemiBold' }}>
+                      <Text variant="caption" color={up ? colors.positive : colors.negative} style={{ fontFamily: 'Inter_600SemiBold' }}>
                         {up ? '▲' : '▼'} {Math.abs(p.change).toFixed(1)}%
                       </Text>
                     )}

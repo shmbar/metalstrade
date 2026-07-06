@@ -11,7 +11,16 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.zakarehman.imsmobile",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeName": "PDF Document",
+            "CFBundleTypeRole": "Viewer",
+            "LSHandlerRank": "Alternate",
+            "LSItemContentTypes": ["com.adobe.pdf"]
+          }
+        ],
+        "LSSupportsOpeningDocumentsInPlace": false
       }
     },
     "android": {
@@ -24,6 +33,13 @@
       "permissions": [
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "category": ["DEFAULT"],
+          "data": [{ "mimeType": "application/pdf" }]
+        }
       ]
     },
     "web": {
@@ -44,7 +60,15 @@
         }
       ],
       "@react-native-community/datetimepicker",
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#0366ae"
+        }
+      ],
+      "expo-quick-actions"
     ],
     "experiments": {
       "typedRoutes": true

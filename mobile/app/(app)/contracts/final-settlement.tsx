@@ -117,7 +117,7 @@ export default function FinalSettlement() {
             marginBottom: 14,
           }}
         >
-          <Text variant="caption" color={colors.warn} style={{ fontFamily: 'Poppins_600SemiBold' }}>
+          <Text variant="caption" color={colors.warn} style={{ fontFamily: 'Inter_600SemiBold' }}>
             Draft mode — these figures are held back and won’t affect cashflow or stocks until you turn off Draft and save.
           </Text>
         </View>

@@ -11,6 +11,7 @@ import { useEditInvoice } from '@/features/invoices/useEditInvoice';
 import { newId } from '@/data/writes';
 import { num } from '@shared/finance';
 import { curSymbol, fmtMoney } from '@/lib/format';
+import { hapticSuccess } from '@/lib/haptics';
 
 export default function InvoiceEdit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -75,6 +76,7 @@ export default function InvoiceEdit() {
           totalAmount: total,
         },
       });
+      hapticSuccess();
       router.back();
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save the invoice.');
@@ -120,10 +122,23 @@ export default function InvoiceEdit() {
             </Pressable>
           </Card>
 
-          <Button title="Save changes" loading={edit.isPending} onPress={onSave} />
           <Text variant="caption" tone="faint" style={{ textAlign: 'center' }}>Invoice date & number are unchanged.</Text>
         </View>
       </Screen>
+
+      {/* Sticky save bar */}
+      <View
+        style={{
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
+          backgroundColor: colors.bgElevated,
+          paddingHorizontal: 16,
+          paddingTop: 10,
+          paddingBottom: insets.bottom + 10,
+        }}
+      >
+        <Button title="Save changes" loading={edit.isPending} onPress={onSave} />
+      </View>
     </KeyboardAvoidingView>
   );
 }

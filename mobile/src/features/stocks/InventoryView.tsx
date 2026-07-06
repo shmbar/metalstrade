@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, FlatList, Pressable } from 'react-native';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Text, TextField, Badge, SkeletonList, FadeInItem, ErrorState, EmptyState } from '@/components/ui';
@@ -89,8 +90,10 @@ export function InventoryView() {
       {rows.length === 0 ? (
         <EmptyState
           title={search ? 'No matches' : 'No stock on hand'}
-          message={search ? 'Try a different search.' : 'No current inventory.'}
+          message={search ? 'Try a different search.' : 'Stock arrives via Warehouse Stock-In on a contract.'}
           icon={<Ionicons name="cube-outline" size={40} color={colors.textFaint} />}
+          actionLabel={search ? undefined : 'Open contracts'}
+          onAction={search ? undefined : () => router.push('/(app)/contracts')}
         />
       ) : (
         <FlatList

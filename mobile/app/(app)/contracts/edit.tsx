@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Pressable, Switch, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,7 +26,8 @@ import {
   validateContract,
   hasErrors,
 } from '@/features/contracts/form';
-import { pickAndExtractContract } from '@/features/contracts/docImport';
+import { pickAndExtractContract, scanAndExtractContract, extractFromUri } from '@/features/contracts/docImport';
+import { hapticSuccess } from '@/lib/haptics';
 import { apiConfigured } from '@/lib/api';
 import { Contract, Product } from '@/data/types';
 import { spacing } from '@/theme/tokens';
@@ -35,7 +36,7 @@ const fieldByKey = Object.fromEntries(SELECT_FIELDS.map((f) => [f.key, f]));
 const autoOrderPattern = /^\d{6}-\d+-\w*$/;
 
 export default function ContractEdit() {
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, importUri } = useLocalSearchParams<{ id?: string; importUri?: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings } = useSettings();
@@ -52,16 +53,39 @@ export default function ContractEdit() {
       : { ...blankContract(), order: buildAutoOrder(contracts || [], null) }
   );
   const [errors, setErrors] = useState<Record<string, boolean>>({});
+  const [submitted, setSubmitted] = useState(false);
   const [customTerms, setCustomTerms] = useState<boolean>(!!existing?.isTermPmntText);
 
-  const set = (patch: Partial<Contract>) => setValue((v) => ({ ...v, ...patch }));
+  // After the first save attempt, re-validate on every change so error marks
+  // clear the moment a field is filled (inline validation).
+  const set = (patch: Partial<Contract>) =>
+    setValue((v) => {
+      const next = { ...v, ...patch };
+      if (submitted) setErrors(validateContract(next));
+      return next;
+    });
   const [importing, setImporting] = useState(false);
 
-  // Autofill the form from a supplier proforma PDF (web parity: document-reader).
-  const autofill = async () => {
+  // A PDF shared into the app ("Open in IMS") arrives as importUri — run the
+  // same AI autofill on it once the form and settings are ready.
+  const importedRef = useRef(false);
+  useEffect(() => {
+    if (importUri && isNew && apiConfigured() && !importedRef.current && settings?.Supplier) {
+      importedRef.current = true;
+      autofill('uri', String(importUri));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [importUri, settings?.Supplier]);
+
+  // Autofill the form from a supplier proforma — PDF file, camera photo, or a
+  // file handed to the app (all go through the web document-reader).
+  const autofill = async (source: 'pdf' | 'camera' | 'uri' = 'pdf', uri?: string) => {
     setImporting(true);
     try {
-      const res = await pickAndExtractContract(settings);
+      const res =
+        source === 'camera' ? await scanAndExtractContract(settings)
+        : source === 'uri' && uri ? await extractFromUri(uri, settings)
+        : await pickAndExtractContract(settings);
       if (!res) return;
       const f = res.fields || {};
       if (f.date) f.dateRange = { startDate: f.date, endDate: f.date };
@@ -87,19 +111,20 @@ export default function ContractEdit() {
         const supCode = sup ? String(sup.supplier || sup.nname || '').substring(0, 3).toUpperCase() : '';
         updated.order = `${prefix}-${supCode}`;
       }
+      if (submitted) setErrors(validateContract(updated));
       return updated;
     });
   };
 
   const onSave = async () => {
+    setSubmitted(true);
     const errs = validateContract(value);
     setErrors(errs);
-    if (hasErrors(errs)) {
-      Alert.alert('Missing fields', 'Please fill Supplier, Currency, PO number, Shipment, and Date.');
-      return;
-    }
+    if (hasErrors(errs)) return; // sticky bar shows what's missing inline
+
     try {
       const res = await save.mutateAsync({ value, existing });
+      hapticSuccess();
       router.replace(`/(app)/contracts/${res.contract.id}`);
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save the contract.');
@@ -155,13 +180,26 @@ export default function ContractEdit() {
 
         <View style={{ gap: 14 }}>
           {isNew && apiConfigured() && (
-            <Button
-              title="Autofill from supplier PDF"
-              variant="secondary"
-              loading={importing}
-              leftIcon={<Ionicons name="sparkles" size={18} color={colors.primary} />}
-              onPress={autofill}
-            />
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <View style={{ flex: 1 }}>
+                <Button
+                  title="Autofill from PDF"
+                  variant="secondary"
+                  loading={importing}
+                  leftIcon={<Ionicons name="sparkles" size={18} color={colors.primary} />}
+                  onPress={() => autofill('pdf')}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Button
+                  title="Scan with camera"
+                  variant="secondary"
+                  loading={importing}
+                  leftIcon={<Ionicons name="camera-outline" size={18} color={colors.primary} />}
+                  onPress={() => autofill('camera')}
+                />
+              </View>
+            </View>
           )}
 
           {/* Identity */}
@@ -270,8 +308,7 @@ export default function ContractEdit() {
             </View>
           </Card>
 
-          {/* Actions */}
-          <Button title={isNew ? 'Create contract' : 'Save changes'} loading={save.isPending} onPress={onSave} />
+          {/* Secondary actions (primary Save lives in the sticky bar below) */}
           {!isNew && (
             <Button
               title="Delete contract"
@@ -287,6 +324,30 @@ export default function ContractEdit() {
           </Text>
         </View>
       </Screen>
+
+      {/* Sticky save bar — always reachable, shows what's missing after a save attempt */}
+      <View
+        style={{
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
+          backgroundColor: colors.bgElevated,
+          paddingHorizontal: spacing.lg,
+          paddingTop: 10,
+          paddingBottom: insets.bottom + 10,
+          gap: 8,
+        }}
+      >
+        {submitted && hasErrors(errors) && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Ionicons name="alert-circle" size={15} color={colors.negative} />
+            <Text variant="caption" tone="negative">
+              {Object.values(errors).filter(Boolean).length} required field
+              {Object.values(errors).filter(Boolean).length === 1 ? '' : 's'} missing — marked in red above
+            </Text>
+          </View>
+        )}
+        <Button title={isNew ? 'Create contract' : 'Save changes'} loading={save.isPending} onPress={onSave} />
+      </View>
     </KeyboardAvoidingView>
   );
 }

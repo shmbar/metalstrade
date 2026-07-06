@@ -4,6 +4,7 @@ import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadData } from '@/data/firestore';
 import { num } from '@shared/finance';
+import { arr } from '@/lib/guard';
 
 // Sales contracts (sell-side) from the `salescontracts` collection, with shipped
 // quantity derived from linked invoices (inv.salesContractId). Mirrors the web page.
@@ -26,7 +27,7 @@ export function useSalesContracts() {
         invoices
           .filter((inv) => inv.salesContractId && !inv.canceled)
           .forEach((inv) => {
-            const q = (inv.productsDataInvoice || []).reduce(
+            const q = arr<any>(inv.productsDataInvoice).reduce(
               (s: number, r: any) => s + (r.qnty === 's' ? 0 : num(r.qnty)),
               0
             );
@@ -42,13 +43,13 @@ export function useSalesContracts() {
     const { contracts, shipped } = query.data;
     return contracts
       .map((c: any) => {
-        const contractedQty = (c.productsData || []).reduce((s: number, r: any) => s + num(r.qnty), 0);
+        const contractedQty = arr<any>(c.productsData).reduce((s: number, r: any) => s + num(r.qnty), 0);
         const shippedQty = shipped[c.id] || 0;
         const clientName =
           (c.client && typeof c.client === 'object' ? c.client.nname : null) ||
           settings?.Client?.Client?.find((x: any) => x.id === c.client)?.nname ||
           '—';
-        const products = [...new Set((c.productsData || []).map((p: any) => p.description).filter(Boolean))] as string[];
+        const products = [...new Set(arr<any>(c.productsData).map((p: any) => p.description).filter(Boolean))] as string[];
         return {
           id: c.id,
           contractNo: c.contractNo || c.order || '—',

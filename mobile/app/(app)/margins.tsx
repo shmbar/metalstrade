@@ -125,17 +125,17 @@ export default function Margins() {
             ) : (
               <>
                 <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>
-                  <Text variant="caption" tone="muted" style={{ width: 44, fontFamily: 'Poppins_600SemiBold' }}>Mon</Text>
-                  <Text variant="caption" tone="muted" style={{ flex: 1, textAlign: 'right', fontFamily: 'Poppins_600SemiBold' }}>Qty</Text>
-                  <Text variant="caption" tone="muted" style={{ flex: 1, textAlign: 'right', fontFamily: 'Poppins_600SemiBold' }}>Shipped</Text>
-                  <Text variant="caption" tone="muted" style={{ flex: 1.2, textAlign: 'right', fontFamily: 'Poppins_600SemiBold' }}>Profit</Text>
+                  <Text variant="caption" tone="muted" style={{ width: 44, fontFamily: 'Inter_600SemiBold' }}>Mon</Text>
+                  <Text variant="caption" tone="muted" style={{ flex: 1, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>Qty</Text>
+                  <Text variant="caption" tone="muted" style={{ flex: 1, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>Shipped</Text>
+                  <Text variant="caption" tone="muted" style={{ flex: 1.2, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>Profit</Text>
                 </View>
                 {rows.map((r, i) => (
                   <View key={r.month + i} style={{ flexDirection: 'row', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border }}>
                     <Text variant="caption" style={{ width: 44 }}>{r.monthLabel}</Text>
                     <Text variant="caption" style={{ flex: 1, textAlign: 'right' }}>{fmtMoney(r.purchase, 0)}</Text>
                     <Text variant="caption" style={{ flex: 1, textAlign: 'right' }}>{fmtMoney(r.shipped, 0)}</Text>
-                    <Text variant="caption" tone={r.totalMargin >= 0 ? 'positive' : 'negative'} style={{ flex: 1.2, textAlign: 'right', fontFamily: 'Poppins_500Medium' }}>
+                    <Text variant="caption" tone={r.totalMargin >= 0 ? 'positive' : 'negative'} style={{ flex: 1.2, textAlign: 'right', fontFamily: 'Inter_500Medium' }}>
                       {fmtAutoKM(r.totalMargin)}
                     </Text>
                   </View>

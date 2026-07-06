@@ -32,7 +32,7 @@ export function ContractCard({
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11, flex: 1, minWidth: 0 }}>
             <View style={{ width: 42, height: 42, borderRadius: radius.md, backgroundColor: accent + '1c', alignItems: 'center', justifyContent: 'center' }}>
-              <Text variant="label" color={accent} style={{ fontFamily: 'Poppins_700Bold' }}>{initials(v.supplierName)}</Text>
+              <Text variant="label" color={accent} style={{ fontFamily: 'Inter_700Bold' }}>{initials(v.supplierName)}</Text>
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text variant="h3" numberOfLines={1}>{contract.order || 'Untitled PO'}</Text>
@@ -40,8 +40,8 @@ export function ContractCard({
             </View>
           </View>
           <View style={{ alignItems: 'flex-end', flexShrink: 0 }}>
-            <Text variant="h3" tone="primary" numberOfLines={1}>{v.valueLabel}</Text>
-            <Text variant="caption" tone="faint" style={{ marginTop: 1 }}>{v.mtLabel}</Text>
+            <Text variant="h3" tone="primary" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>{v.valueLabel}</Text>
+            <Text variant="caption" tone="faint" style={{ marginTop: 1, fontVariant: ['tabular-nums'] }}>{v.mtLabel}</Text>
           </View>
         </View>
 

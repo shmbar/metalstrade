@@ -6,6 +6,7 @@ import { loadData } from '@/data/firestore';
 import { Invoice } from '@/data/types';
 import { groupInvoices, isIssued, num } from '@shared/finance';
 import { resolveClientName } from '@/features/invoices/useInvoices';
+import { arr } from '@/lib/guard';
 
 export interface AnalysisRow {
   name: string;
@@ -14,7 +15,7 @@ export interface AnalysisRow {
 }
 
 const invoiceWeight = (inv: any) =>
-  (inv.productsDataInvoice || []).reduce((s: number, r: any) => s + (r.qnty === 's' ? 0 : num(r.qnty)), 0);
+  arr<any>(inv.productsDataInvoice).reduce((s: number, r: any) => s + (r.qnty === 's' ? 0 : num(r.qnty)), 0);
 
 // Weight analysis (parity with the web Analysis page): shipped weight grouped by
 // material and by client across the period's issued invoices.

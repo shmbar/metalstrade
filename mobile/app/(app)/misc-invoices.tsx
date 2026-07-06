@@ -131,7 +131,7 @@ export default function MiscInvoices() {
             {apiConfigured() && editing && (
               <Pressable onPress={() => suggestCategory(editing)} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 {aiBusy ? <ActivityIndicator size="small" color={colors.primary} /> : <Ionicons name="sparkles" size={16} color={colors.primary} />}
-                <Text variant="caption" tone="primary" style={{ fontFamily: 'Poppins_600SemiBold' }}>AI suggest</Text>
+                <Text variant="caption" tone="primary" style={{ fontFamily: 'Inter_600SemiBold' }}>AI suggest</Text>
               </Pressable>
             )}
           </View>

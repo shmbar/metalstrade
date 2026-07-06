@@ -6,29 +6,36 @@ import { radius } from '@/theme/tokens';
 
 type BadgeTone = 'neutral' | 'positive' | 'negative' | 'warn' | 'info';
 
+// Status chip, modern-fintech style: a small colored dot + quiet text on a
+// neutral wash — state reads at a glance without pastel-pill noise.
 export function Badge({ label, tone = 'neutral' }: { label: string; tone?: BadgeTone }) {
   const { colors, scheme } = useTheme();
 
-  const map: Record<BadgeTone, { bg: string; fg: string }> = {
-    neutral: { bg: scheme === 'dark' ? '#1f2c47' : '#eef3f9', fg: colors.textMuted },
-    positive: { bg: scheme === 'dark' ? '#10331f' : '#dcfce7', fg: colors.positive },
-    negative: { bg: scheme === 'dark' ? '#3a1414' : '#fee2e2', fg: colors.negative },
-    warn: { bg: scheme === 'dark' ? '#3a2c0f' : '#fef3c7', fg: colors.warn },
-    info: { bg: scheme === 'dark' ? '#13294a' : '#dbeafe', fg: colors.info },
+  const dot: Record<BadgeTone, string> = {
+    neutral: colors.textFaint,
+    positive: colors.positive,
+    negative: colors.negative,
+    warn: colors.warn,
+    info: colors.info,
   };
-  const c = map[tone];
 
   return (
     <View
       style={{
         alignSelf: 'flex-start',
-        backgroundColor: c.bg,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        backgroundColor: scheme === 'dark' ? '#ffffff10' : '#11182708',
+        borderWidth: 1,
+        borderColor: colors.border,
         borderRadius: radius.pill,
         paddingHorizontal: 8,
-        paddingVertical: 3,
+        paddingVertical: 2.5,
       }}
     >
-      <Text variant="caption" color={c.fg} style={{ fontFamily: 'Poppins_600SemiBold' }}>
+      <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: dot[tone] }} />
+      <Text variant="caption" tone="muted" style={{ fontFamily: 'Inter_500Medium' }}>
         {label}
       </Text>
     </View>

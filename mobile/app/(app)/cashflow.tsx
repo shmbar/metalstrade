@@ -9,7 +9,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useCashflow, Counterparty } from '@/features/cashflow/useCashflow';
 import { useCashflowActions } from '@/features/cashflow/useCashflowActions';
 import { ForecastCard } from '@/features/cashflow/ForecastCard';
-import { fmtAutoKM, fmtCurKM, curSymbol, fmtMoney } from '@/lib/format';
+import { fmtAutoKM, fmtCurKM, curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { radius, spacing } from '@/theme/tokens';
 
 type Kind = 'client' | 'supplier' | 'expense';
@@ -32,7 +32,7 @@ function CounterpartyList({ rows, accent, onSelect }: { rows: Counterparty[]; ac
             <Text variant="caption" numberOfLines={1} style={{ marginBottom: 3 }}>{r.name}</Text>
             <ProgressBar pct={(r.usd / max) * 100} color={accent} height={10} />
           </View>
-          <Text variant="caption" style={{ fontFamily: 'Poppins_600SemiBold', width: 70, textAlign: 'right', color: colors.text }}>{curLine(r.byCur)}</Text>
+          <Text variant="caption" style={{ fontFamily: 'Inter_600SemiBold', width: 70, textAlign: 'right', color: colors.text }}>{curLine(r.byCur)}</Text>
           <Ionicons name="chevron-forward" size={14} color={colors.textFaint} />
         </Pressable>
       ))}
@@ -202,7 +202,7 @@ export default function Cashflow() {
                   <Text variant="bodyMedium" numberOfLines={1}>
                     {item.kind === 'invoice' ? `Invoice #${item.number}` : item.kind === 'poInvoice' ? `Purchase inv ${item.inv ?? ''}` : (item.expense || 'Expense')}
                   </Text>
-                  <Text variant="caption" tone="faint">{curSymbol(item.cur)}{fmtMoney(item.balance ?? item.amount ?? 0)}{item.date ? ` · ${item.date}` : ''}</Text>
+                  <Text variant="caption" tone="faint">{curSymbol(item.cur)}{fmtMoney(item.balance ?? item.amount ?? 0)}{item.date ? ` · ${dateLabel(item.date)}` : ''}</Text>
                 </View>
                 <Button
                   title={item.kind === 'invoice' ? 'View' : item.kind === 'poInvoice' ? 'Pay' : 'Mark paid'}
@@ -235,7 +235,7 @@ export default function Cashflow() {
                 onPress={() => payItem && setAmount(((payItem.balance * p) / 100).toFixed(2))}
                 style={{ flex: 1, paddingVertical: 8, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center' }}
               >
-                <Text variant="caption" tone="primary" style={{ fontFamily: 'Poppins_600SemiBold' }}>{p}%</Text>
+                <Text variant="caption" tone="primary" style={{ fontFamily: 'Inter_600SemiBold' }}>{p}%</Text>
               </Pressable>
             ))}
           </View>

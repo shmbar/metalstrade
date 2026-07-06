@@ -145,7 +145,7 @@ export default function Assistant() {
                 placeholder="Ask anything…"
                 placeholderTextColor={colors.textFaint}
                 multiline
-                style={{ paddingVertical: 10, color: colors.text, fontFamily: 'Poppins_400Regular', fontSize: 15 }}
+                style={{ paddingVertical: 10, color: colors.text, fontFamily: 'Inter_400Regular', fontSize: 15 }}
               />
             </View>
             <Pressable

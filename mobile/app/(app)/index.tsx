@@ -1,5 +1,5 @@
 import { View, ScrollView, RefreshControl, Pressable } from 'react-native';
-import { router } from 'expo-router';
+import { router, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,7 +10,8 @@ import { useAuth } from '@/store/auth';
 import { useDashboard } from '@/features/dashboard/useDashboard';
 import { ReceivablesCard, AgingCard, RankingCard } from '@/features/dashboard/components';
 import { MetalPricesStrip } from '@/features/prices/MetalPricesStrip';
-import { fmtCurKM, fmtMT } from '@/lib/format';
+import { BriefingCard } from '@/features/briefing/BriefingCard';
+import { fmtCurKM, fmtMT, fmtAutoKM } from '@/lib/format';
 import { spacing, radius } from '@/theme/tokens';
 
 const QUICK = [
@@ -23,8 +24,11 @@ const QUICK = [
 export default function Dashboard() {
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
-  const { currentUser } = useAuth();
+  const { currentUser, userTitle } = useAuth();
   const { data, isLoading, isError, error, refetch } = useDashboard();
+
+  // Web parity: 'accounting' users are restricted to the accounting view.
+  if (userTitle === 'accounting') return <Redirect href="/(app)/accounting" />;
 
   const curLine = (byCur: Record<string, number>) => {
     const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
@@ -36,6 +40,13 @@ export default function Dashboard() {
   if (data) Object.entries(data.receivables).forEach(([c, s]) => (outstanding[c] = s.due + s.balance));
 
   const firstName = currentUser.name.split(' ')[0] || 'there';
+
+  // Month-over-month delta on invoiced revenue (current vs previous calendar month).
+  const m = new Date().getMonth();
+  const curM = data?.revenueByMonth[m] ?? 0;
+  const prevM = m > 0 ? data?.revenueByMonth[m - 1] ?? 0 : 0;
+  const deltaPct = prevM > 0 ? ((curM - prevM) / prevM) * 100 : null;
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -59,27 +70,40 @@ export default function Dashboard() {
             <PeriodSelector />
           </View>
 
-          <View style={{ marginTop: 20 }}>
+          <Pressable onPress={() => router.push('/(app)/invoices')} style={{ marginTop: 20 }}>
             <Text variant="caption" color="rgba(255,255,255,0.7)">Revenue · this period</Text>
-            <Text variant="display" color="#ffffff" style={{ fontSize: 36, lineHeight: 42, marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>
+            <Text variant="display" color="#ffffff" style={{ fontSize: 36, lineHeight: 42, marginTop: 2, fontVariant: ['tabular-nums'] }} numberOfLines={1} adjustsFontSizeToFit>
               {data ? curLine(data.revenueByCur) : '—'}
             </Text>
-          </View>
+            {deltaPct != null && Math.abs(deltaPct) >= 0.5 && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6, alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 }}>
+                <Ionicons name={deltaPct >= 0 ? 'trending-up' : 'trending-down'} size={13} color={deltaPct >= 0 ? '#7ce3a8' : '#ffb3ab'} />
+                <Text variant="caption" color={deltaPct >= 0 ? '#7ce3a8' : '#ffb3ab'} style={{ fontFamily: 'Inter_600SemiBold' }}>
+                  {deltaPct >= 0 ? '+' : ''}{deltaPct.toFixed(0)}% {MONTHS[m]} vs {MONTHS[m - 1]}
+                </Text>
+              </View>
+            )}
+          </Pressable>
 
-          {/* Glass stat chips */}
+          {/* Glass stat chips — each drills into its report */}
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 18 }}>
             {[
-              { k: 'Contracts', v: data ? String(data.contractCount) : '—' },
-              { k: 'Outstanding', v: data ? curLine(outstanding) : '—' },
-              { k: 'Tonnage', v: data ? fmtMT(data.totalMT) : '—' },
+              { k: 'Contracts', v: data ? String(data.contractCount) : '—', href: '/(app)/contracts' },
+              { k: 'Outstanding', v: data ? curLine(outstanding) : '—', href: '/(app)/invoices?filter=Unpaid' },
+              { k: 'Tonnage', v: data ? fmtMT(data.totalMT) : '—', href: '/(app)/stocks' },
             ].map((c) => (
-              <View key={c.k} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.14)', borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', padding: 10 }}>
+              <Pressable key={c.k} onPress={() => router.push(c.href as any)} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.14)', borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', padding: 10 }}>
                 <Text variant="caption" color="rgba(255,255,255,0.7)" numberOfLines={1}>{c.k}</Text>
-                <Text variant="bodyMedium" color="#ffffff" numberOfLines={1} adjustsFontSizeToFit style={{ marginTop: 2, fontFamily: 'Poppins_600SemiBold' }}>{c.v}</Text>
-              </View>
+                <Text variant="bodyMedium" color="#ffffff" numberOfLines={1} adjustsFontSizeToFit style={{ marginTop: 2, fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>{c.v}</Text>
+              </Pressable>
             ))}
           </View>
         </LinearGradient>
+
+        {/* AI morning briefing */}
+        <View style={{ paddingHorizontal: spacing.lg, marginTop: 14 }}>
+          <BriefingCard />
+        </View>
 
         {/* Quick actions */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg, marginTop: 18 }}>
@@ -108,33 +132,35 @@ export default function Dashboard() {
             <View style={{ gap: 14 }}>
               {/* Revenue trend chart */}
               {data.revenueByMonth.some((v) => v > 0) && (
-                <Card>
+                <Card onPress={() => router.push('/(app)/invoices')}>
                   <SectionHeader title="Revenue trend" subtitle="Invoiced by month" />
                   <AreaChart
                     data={data.revenueByMonth}
                     labels={['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']}
+                    tooltipLabels={MONTHS}
                     color={colors.primary}
+                    formatY={(v) => fmtAutoKM(v, 1)}
                   />
                 </Card>
               )}
 
               <View style={{ flexDirection: 'row', gap: 14 }}>
                 <View style={{ flex: 1 }}>
-                  <StatCard label="Purchase Value" value={curLine(data.purchaseByCur)} accent={colors.primary} icon={<Ionicons name="cart" size={16} color={colors.primary} />} sub="contracts" />
+                  <StatCard label="Purchase Value" value={curLine(data.purchaseByCur)} accent={colors.primary} icon={<Ionicons name="cart" size={16} color={colors.primary} />} sub="contracts" onPress={() => router.push('/(app)/contracts')} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <StatCard label="Tonnage" value={fmtMT(data.totalMT)} accent={colors.warn} icon={<Ionicons name="cube" size={16} color={colors.warn} />} sub="purchased" />
+                  <StatCard label="Tonnage" value={fmtMT(data.totalMT)} accent={colors.warn} icon={<Ionicons name="cube" size={16} color={colors.warn} />} sub="purchased" onPress={() => router.push('/(app)/stocks')} />
                 </View>
               </View>
 
-              <ReceivablesCard byCur={data.receivables} />
-              <AgingCard buckets={data.aging} />
+              <ReceivablesCard byCur={data.receivables} onPress={() => router.push('/(app)/invoices?filter=Unpaid' as any)} />
+              <AgingCard buckets={data.aging} onPress={() => router.push('/(app)/invoices?filter=Unpaid' as any)} />
 
               {Object.keys(data.miscByCur).length > 0 && (
-                <StatCard label="Misc Invoices · not linked to contracts" value={curLine(data.miscByCur)} accent="#db2777" icon={<Ionicons name="receipt" size={16} color="#db2777" />} sub={`${data.miscCount} invoice${data.miscCount === 1 ? '' : 's'} in period`} />
+                <StatCard label="Misc Invoices · not linked to contracts" value={curLine(data.miscByCur)} accent="#db2777" icon={<Ionicons name="receipt" size={16} color="#db2777" />} sub={`${data.miscCount} invoice${data.miscCount === 1 ? '' : 's'} in period`} onPress={() => router.push('/(app)/misc-invoices')} />
               )}
 
-              <RankingCard title="Top Suppliers" subtitle="By purchase value (USD basis)" rows={data.topSuppliers} />
+              <RankingCard title="Top Suppliers" subtitle="By purchase value (USD basis)" rows={data.topSuppliers} onPress={() => router.push('/(app)/contracts')} />
             </View>
           ) : null}
         </View>

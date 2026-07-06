@@ -51,21 +51,21 @@ export interface ThemeColors {
 // Premium light mode — layered cool-gray canvas with white cards (Stripe / Linear /
 // Vercel feel). Never flat pure-white; surfaces are stacked with soft shadows.
 export const lightColors: ThemeColors = {
-  bg: '#f4f6fb',          // soft cool canvas (not pure white)
+  bg: '#f5f6f8',          // calm neutral canvas (not pure white)
   bgElevated: '#ffffff',
   surface: '#ffffff',
-  surfaceAlt: '#eef2f8',  // input / inset fills
+  surfaceAlt: '#f0f1f4',  // input / inset fills
   card: '#ffffff',
-  border: '#e7ecf3',      // hairline
-  borderStrong: '#d6deea',
-  text: '#0f1b35',        // deep ink
-  textMuted: '#5a6a85',
-  textFaint: '#97a3b8',
+  border: '#e6e8ed',      // hairline
+  borderStrong: '#d5d9e0',
+  text: '#111827',        // neutral ink
+  textMuted: '#5b6472',
+  textFaint: '#98a1b2',
   primary: palette.endeavour,
   primaryText: '#ffffff',
   tabBar: '#ffffff',
   tabActive: palette.endeavour,
-  tabInactive: '#a6b2c6',
+  tabInactive: '#9aa4b5',
   positive: '#0f9d58',
   negative: '#dc2626',
   warn: '#e08600',
@@ -108,9 +108,9 @@ export const getShadow = (scheme: 'light' | 'dark', level: Elevation = 'md') => 
     return { shadowColor: '#000000', shadowOpacity: map.o, shadowRadius: map.r, shadowOffset: { width: 0, height: map.h }, elevation: map.e };
   }
   const map = {
-    sm: { o: 0.07, r: 8, h: 2, e: 1 },
-    md: { o: 0.1, r: 16, h: 6, e: 3 },
-    lg: { o: 0.14, r: 28, h: 14, e: 7 },
+    sm: { o: 0.04, r: 6, h: 1, e: 1 },
+    md: { o: 0.05, r: 10, h: 3, e: 1 },
+    lg: { o: 0.14, r: 26, h: 12, e: 7 },
   }[level];
   return { shadowColor: '#1b2a4a', shadowOpacity: map.o, shadowRadius: map.r, shadowOffset: { width: 0, height: map.h }, elevation: map.e };
 };
@@ -130,21 +130,21 @@ export const radius = {
   sm: 8,
   md: 12,
   lg: 16,
-  xl: 20,
-  '2xl': 24,
+  xl: 16,
+  '2xl': 22,
   pill: 999,
 } as const;
 
 export const typography = {
-  display: { fontFamily: 'Poppins_700Bold', fontSize: 28, lineHeight: 34 },
-  h1: { fontFamily: 'Poppins_600SemiBold', fontSize: 22, lineHeight: 28 },
-  h2: { fontFamily: 'Poppins_600SemiBold', fontSize: 18, lineHeight: 24 },
-  h3: { fontFamily: 'Poppins_600SemiBold', fontSize: 15, lineHeight: 20 },
-  body: { fontFamily: 'Poppins_400Regular', fontSize: 14, lineHeight: 20 },
-  bodyMedium: { fontFamily: 'Poppins_500Medium', fontSize: 14, lineHeight: 20 },
-  label: { fontFamily: 'Poppins_500Medium', fontSize: 12, lineHeight: 16 },
-  caption: { fontFamily: 'Poppins_400Regular', fontSize: 11, lineHeight: 14 },
-  mono: { fontFamily: 'Poppins_600SemiBold', fontSize: 20, lineHeight: 24 },
+  display: { fontFamily: 'Inter_700Bold', fontSize: 28, lineHeight: 34, letterSpacing: -0.6 },
+  h1: { fontFamily: 'Inter_600SemiBold', fontSize: 22, lineHeight: 28, letterSpacing: -0.4 },
+  h2: { fontFamily: 'Inter_600SemiBold', fontSize: 18, lineHeight: 24, letterSpacing: -0.3 },
+  h3: { fontFamily: 'Inter_600SemiBold', fontSize: 15, lineHeight: 20, letterSpacing: -0.15 },
+  body: { fontFamily: 'Inter_400Regular', fontSize: 14, lineHeight: 20 },
+  bodyMedium: { fontFamily: 'Inter_500Medium', fontSize: 14, lineHeight: 20 },
+  label: { fontFamily: 'Inter_500Medium', fontSize: 12, lineHeight: 16, letterSpacing: 0.2 },
+  caption: { fontFamily: 'Inter_400Regular', fontSize: 11, lineHeight: 14 },
+  mono: { fontFamily: 'Inter_600SemiBold', fontSize: 20, lineHeight: 24 },
 } as const;
 
 export type ColorSchemeName = 'light' | 'dark';

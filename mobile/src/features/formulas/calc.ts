@@ -1,12 +1,15 @@
 // Pricing-formula math — transcribed VERBATIM from the web app's formulas tabs
-// (fenicr.js / stainless.js / supperalloys.js). The expressions are copied exactly
-// so results match; `fe` uses the computed remainder (100 − Σ elements). Marked
-// Beta in the UI until verified number-for-number against the web with live inputs.
+// (fenicr.js:899, stainless.js:588, supperalloys.js:638 — the live blocks, not the
+// commented legacy ones). Verified expression-by-expression 2026-07-06.
 
 const n = (v: any) => {
   const x = parseFloat(v);
   return Number.isFinite(x) ? x : 0;
 };
+
+// The web rounds Fe to 2dp via toFixed(2) BEFORE using it in the price math —
+// match that exactly so results agree to the cent even on >2dp inputs.
+const feOf = (rest: number) => Number((100 - rest).toFixed(2));
 
 export interface Field {
   key: string;
@@ -20,7 +23,7 @@ export function computeFenicr(value: any) {
   const f = value?.fenicr || {};
   const g = value?.general || {};
   const ni = n(f.ni), cr = n(f.cr), mo = n(f.mo);
-  const fe = 100 - ni - cr - mo;
+  const fe = feOf(ni + cr + mo);
 
   const cost =
     (ni * n(g.nilme) * n(f.formulaNiCost)) / 10000 +
@@ -51,7 +54,7 @@ export function computeStainless(value: any) {
   const s = value?.stainless || {};
   const g = value?.general || {};
   const ni = n(s.ni), cr = n(s.cr), mo = n(s.mo);
-  const fe = 100 - ni - cr - mo;
+  const fe = feOf(ni + cr + mo);
 
   const cost =
     (ni * n(g.nilme) * n(s.formulaNiCost)) / 10000 +
@@ -77,17 +80,17 @@ export function computeStainless(value: any) {
   };
 }
 
-// ── SuperAlloys (more elements; single Cost section) ──────────────────────────
+// ── SuperAlloys — base solids price × Ints formulas (cost + sales sections) ────
 const SA_ELEMENTS = ['ni', 'cr', 'mo', 'nb', 'co', 'w', 'hf', 'ta'] as const;
 export function computeSuperalloys(value: any) {
   const s = value?.supperalloys || {};
   const g = value?.general || {};
   const el: Record<string, number> = {};
   SA_ELEMENTS.forEach((e) => (el[e] = n(s[e])));
-  const fe = 100 - SA_ELEMENTS.reduce((sum, e) => sum + el[e], 0);
+  const fe = feOf(SA_ELEMENTS.reduce((sum, e) => sum + el[e], 0));
 
   const mt = n(g.mt);
-  const cost =
+  const base =
     (el.ni * (mt ? n(g.nilme) / mt : 0)) / 100 +
     (el.cr * n(s.crPrice)) / 100 +
     (el.mo * n(s.moPrice)) / 100 +
@@ -97,8 +100,20 @@ export function computeSuperalloys(value: any) {
     (el.hf * n(s.hfPrice)) / 100 +
     (el.ta * n(s.taPrice)) / 100;
 
+  // Web derives both sections from the base: × formulaIntsCost / formulaIntsPrice.
   const euro = n(g.euroRate);
-  return { fe, cost, costEuro: euro ? cost / euro : 0 };
+  const cost = (base * n(s.formulaIntsCost)) / 100;
+  const price = (base * n(s.formulaIntsPrice)) / 100;
+  return {
+    fe,
+    base,
+    cost,
+    costPerMT: cost * mt,
+    costEuro: euro ? cost / euro : 0,
+    price,
+    pricePerMT: price * mt,
+    priceEuro: euro ? price / euro : 0,
+  };
 }
 
 // ── field definitions per tab ─────────────────────────────────────────────────
@@ -143,6 +158,8 @@ export const SUPERALLOYS_FIELDS: Field[] = [
   { key: 'wPrice', label: 'W price', scope: 'tab' },
   { key: 'hfPrice', label: 'Hf price', scope: 'tab' },
   { key: 'taPrice', label: 'Ta price', scope: 'tab' },
+  { key: 'formulaIntsCost', label: 'Formula Ints (cost) %', scope: 'tab' },
+  { key: 'formulaIntsPrice', label: 'Formula Ints (sales) %', scope: 'tab' },
 ];
 
 export type FormulaTab = 'fenicr' | 'stainless' | 'supperalloys';

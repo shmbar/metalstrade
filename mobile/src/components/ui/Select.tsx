@@ -140,7 +140,7 @@ export function Select({
                   placeholder="Search…"
                   placeholderTextColor={colors.textFaint}
                   autoCapitalize="none"
-                  style={{ flex: 1, paddingVertical: 10, marginLeft: 6, color: colors.text, fontFamily: 'Poppins_400Regular' }}
+                  style={{ flex: 1, paddingVertical: 10, marginLeft: 6, color: colors.text, fontFamily: 'Inter_400Regular' }}
                 />
               </View>
             </View>

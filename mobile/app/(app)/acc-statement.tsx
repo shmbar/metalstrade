@@ -82,7 +82,7 @@ export default function AccStatement() {
               {/* Header */}
               <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>
                 {COLS.map((c) => (
-                  <Text key={c.key} variant="caption" tone="muted" style={{ width: c.w, textAlign: c.money ? 'right' : 'left', fontFamily: 'Poppins_600SemiBold' }}>
+                  <Text key={c.key} variant="caption" tone="muted" style={{ width: c.w, textAlign: c.money ? 'right' : 'left', fontFamily: 'Inter_600SemiBold' }}>
                     {c.label}
                   </Text>
                 ))}
@@ -99,9 +99,9 @@ export default function AccStatement() {
               ))}
               {/* Totals */}
               <View style={{ flexDirection: 'row', paddingVertical: 8 }}>
-                <Text variant="caption" tone="primary" style={{ width: COLS[0].w + COLS[1].w, fontFamily: 'Poppins_600SemiBold' }}>Total</Text>
+                <Text variant="caption" tone="primary" style={{ width: COLS[0].w + COLS[1].w, fontFamily: 'Inter_600SemiBold' }}>Total</Text>
                 {(['amount', 'due', 'paid', 'notPaid'] as const).map((k) => (
-                  <Text key={k} variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Poppins_600SemiBold' }}>
+                  <Text key={k} variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
                     {sym}{fmtMoney(totals[k])}
                   </Text>
                 ))}

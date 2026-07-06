@@ -7,12 +7,10 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '@/store/settings';
 import { useContracts, deriveContract } from '@/features/contracts/useContracts';
-import { useSaveContract } from '@/features/contracts/useSaveContract';
-import { buildAutoOrder } from '@/features/contracts/form';
-import { newId } from '@/data/writes';
-import { Invoice, Contract } from '@/data/types';
+import { useDuplicateContract } from '@/features/contracts/useDuplicateContract';
+import { Invoice } from '@/data/types';
 import { groupInvoices, invoiceBalance, num, resolveCur, isFinalized } from '@shared/finance';
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { curSymbol, fmtMoney, fmtCurKM } from '@/lib/format';
 import { exportPdf } from '@/lib/export';
 import { contractPoHtml } from '@/lib/pdfTemplates';
 import { annexViiHtml, isfHtml } from '@/lib/customsDocs';
@@ -23,7 +21,6 @@ export default function ContractDetail() {
   const insets = useSafeAreaInsets();
   const { settings, compData } = useSettings();
   const { data: contracts } = useContracts();
-  const save = useSaveContract();
 
   const contract = useMemo(() => contracts?.find((c) => c.id === id), [contracts, id]);
 
@@ -47,36 +44,9 @@ export default function ContractDetail() {
     else setDocPicker(kind);
   };
 
-  // Duplicate — clones core fields with fresh ids; clears invoices/stock/payments
-  // and assigns a new auto PO number (parity with the web duplicate()).
-  const onDuplicate = () => {
-    if (!contract) return;
-    Alert.alert('Duplicate contract?', 'Creates a new draft with the same products and terms.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Duplicate',
-        onPress: async () => {
-          const supName = settings?.Supplier?.Supplier?.find((s: any) => s.id === contract.supplier)?.supplier || null;
-          const dup: Contract = {
-            ...contract,
-            id: '',
-            invoices: [],
-            poInvoices: [],
-            stock: [],
-            expenses: [],
-            order: buildAutoOrder(contracts || [], supName),
-            productsData: (contract.productsData || []).map((p) => ({ ...p, id: newId() })),
-          };
-          try {
-            const res = await save.mutateAsync({ value: dup, existing: undefined });
-            router.replace(`/(app)/contracts/${res.contract.id}`);
-          } catch (e: any) {
-            Alert.alert('Failed', e?.message || 'Could not duplicate.');
-          }
-        },
-      },
-    ]);
-  };
+  // Duplicate — shared with the contracts-list swipe action (web parity).
+  const { duplicate, isPending: duplicating } = useDuplicateContract();
+  const onDuplicate = () => contract && duplicate(contract);
 
   if (!contract) {
     return (
@@ -147,7 +117,10 @@ export default function ContractDetail() {
           <Text variant="label" tone="muted">
             Purchase Value
           </Text>
-          <Text variant="h1" tone="primary" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>
+          <Text variant="h1" tone="primary" style={{ marginTop: 6, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+            {fmtCurKM(v.currency, v.totalValue)}
+          </Text>
+          <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
             {v.valueLabel}
           </Text>
         </Card>
@@ -155,7 +128,7 @@ export default function ContractDetail() {
           <Text variant="label" tone="muted">
             Tonnage
           </Text>
-          <Text variant="h1" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>
+          <Text variant="h1" style={{ marginTop: 6, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
             {v.mtLabel}
           </Text>
         </Card>
@@ -278,7 +251,7 @@ export default function ContractDetail() {
       <Button
         title="Duplicate contract"
         variant="ghost"
-        loading={save.isPending}
+        loading={duplicating}
         style={{ marginTop: 10 }}
         leftIcon={<Ionicons name="copy-outline" size={18} color={colors.primary} />}
         onPress={onDuplicate}

@@ -43,7 +43,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
               elevation: active ? 1 : 0,
             }}
           >
-            <Text variant="label" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'Poppins_600SemiBold' }}>
+            <Text variant="label" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'Inter_600SemiBold' }}>
               {o.label}
             </Text>
           </Pressable>

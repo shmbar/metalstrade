@@ -144,7 +144,7 @@ export default function SignIn() {
             />
 
             <Pressable onPress={onForgot} hitSlop={6} style={{ alignSelf: 'flex-end', marginTop: -6 }}>
-              <Text variant="caption" tone="primary" style={{ fontFamily: 'Poppins_500Medium' }}>Forgot password?</Text>
+              <Text variant="caption" tone="primary" style={{ fontFamily: 'Inter_500Medium' }}>Forgot password?</Text>
             </Pressable>
 
             {error ? (
@@ -174,7 +174,7 @@ export default function SignIn() {
               {busy ? (
                 <ActivityIndicator color="#ffffff" />
               ) : (
-                <Text variant="bodyMedium" color="#ffffff" style={{ fontFamily: 'Poppins_600SemiBold', fontSize: 16 }}>
+                <Text variant="bodyMedium" color="#ffffff" style={{ fontFamily: 'Inter_600SemiBold', fontSize: 16 }}>
                   Sign in
                 </Text>
               )}
@@ -184,7 +184,7 @@ export default function SignIn() {
               <Pressable
                 onPress={onBiometric}
                 style={{
-                  backgroundColor: scheme === 'dark' ? colors.surfaceAlt : '#dbeeff',
+                  backgroundColor: scheme === 'dark' ? colors.surfaceAlt : '#eef0f3',
                   borderRadius: radius.md,
                   minHeight: 50,
                   alignItems: 'center',
@@ -194,7 +194,7 @@ export default function SignIn() {
                 }}
               >
                 <Ionicons name="finger-print" size={18} color={colors.primary} />
-                <Text variant="bodyMedium" tone="primary" style={{ fontFamily: 'Poppins_600SemiBold' }}>
+                <Text variant="bodyMedium" tone="primary" style={{ fontFamily: 'Inter_600SemiBold' }}>
                   Sign in with {bioName}
                 </Text>
               </Pressable>

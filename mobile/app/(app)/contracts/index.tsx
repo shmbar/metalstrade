@@ -10,28 +10,47 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useContracts, deriveContract } from '@/features/contracts/useContracts';
 import { ContractCard } from '@/features/contracts/ContractCard';
+import { useDuplicateContract } from '@/features/contracts/useDuplicateContract';
+import { SwipeRow } from '@/components/SwipeRow';
 import { exportCsv } from '@/lib/export';
+import { radius } from '@/theme/tokens';
+
+type SortKey = 'date' | 'value' | 'mt';
+const SORTS: { key: SortKey; label: string }[] = [
+  { key: 'date', label: 'Date' },
+  { key: 'value', label: 'Value' },
+  { key: 'mt', label: 'MT' },
+];
 
 export default function ContractsList() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings } = useSettings();
   const { data: contracts, isLoading, isError, error, refetch } = useContracts();
+  const { duplicate } = useDuplicateContract();
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<SortKey>('date');
 
   const filtered = useMemo(() => {
     if (!contracts) return [];
     const q = search.trim().toLowerCase();
-    if (!q) return contracts;
-    return contracts.filter((c) => {
-      const v = deriveContract(c, settings);
-      return (
-        (c.order || '').toLowerCase().includes(q) ||
-        v.supplierName.toLowerCase().includes(q) ||
-        v.productNames.some((p) => p.toLowerCase().includes(q))
-      );
+    const list = !q
+      ? [...contracts]
+      : contracts.filter((c) => {
+          const v = deriveContract(c, settings);
+          return (
+            (c.order || '').toLowerCase().includes(q) ||
+            v.supplierName.toLowerCase().includes(q) ||
+            v.productNames.some((p) => p.toLowerCase().includes(q))
+          );
+        });
+    if (sort === 'date') return list.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    return list.sort((a, b) => {
+      const va = deriveContract(a, settings);
+      const vb = deriveContract(b, settings);
+      return sort === 'value' ? vb.totalValue - va.totalValue : vb.totalMT - va.totalMT;
     });
-  }, [contracts, search, settings]);
+  }, [contracts, search, settings, sort]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -77,10 +96,39 @@ export default function ContractsList() {
         }
       />
 
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, marginBottom: 8 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, marginBottom: 8 }}>
         <Text variant="caption" tone="muted">
           {filtered.length} contract{filtered.length === 1 ? '' : 's'}
         </Text>
+        {/* Sort chips */}
+        <View style={{ flexDirection: 'row', gap: 6 }}>
+          {SORTS.map((s) => {
+            const active = sort === s.key;
+            return (
+              <Pressable
+                key={s.key}
+                onPress={() => setSort(s.key)}
+                hitSlop={4}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 3,
+                  paddingHorizontal: 10,
+                  paddingVertical: 4,
+                  borderRadius: radius.pill,
+                  borderWidth: 1.5,
+                  borderColor: active ? colors.primary : colors.border,
+                  backgroundColor: active ? colors.primary + '14' : 'transparent',
+                }}
+              >
+                {active && <Ionicons name="arrow-down" size={11} color={colors.primary} />}
+                <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'Inter_600SemiBold' }}>
+                  {s.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
 
       {isLoading ? (
@@ -92,6 +140,8 @@ export default function ContractsList() {
           title={search ? 'No matches' : 'No contracts'}
           message={search ? 'Try a different search.' : 'No contracts in the selected period.'}
           icon={<Ionicons name="document-text-outline" size={40} color={colors.textFaint} />}
+          actionLabel={search ? undefined : 'Create contract'}
+          onAction={search ? undefined : () => router.push('/(app)/contracts/edit')}
         />
       ) : (
         <FlatList
@@ -99,11 +149,13 @@ export default function ContractsList() {
           keyExtractor={(c) => c.id}
           renderItem={({ item, index }) => (
             <FadeInItem index={index}>
-              <ContractCard
-                contract={item}
-                settings={settings}
-                onPress={() => router.push(`/(app)/contracts/${item.id}`)}
-              />
+              <SwipeRow actionLabel="Duplicate" actionIcon="copy-outline" actionColor={colors.primary} onAction={() => duplicate(item)}>
+                <ContractCard
+                  contract={item}
+                  settings={settings}
+                  onPress={() => router.push(`/(app)/contracts/${item.id}`)}
+                />
+              </SwipeRow>
             </FadeInItem>
           )}
           showsVerticalScrollIndicator={false}

@@ -41,6 +41,19 @@ export const fmtCurKM = (cur: string, n: number): string => {
 export const fmtMT = (n: number): string =>
   `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
 
+// Dates are stored inconsistently across legacy records: plain ISO strings OR
+// datepicker objects {startDate, endDate}. Rendering the object crashes React
+// ("Objects are not valid as a React child") — always display through this.
+export const dateLabel = (d: any): string => {
+  if (!d) return '—';
+  if (typeof d === 'string') return d.substring(0, 10);
+  if (typeof d === 'object') {
+    const s = d.startDate || d.endDate;
+    return typeof s === 'string' ? s.substring(0, 10) : '—';
+  }
+  return '—';
+};
+
 export const initials = (name = ''): string =>
   name
     .toString()

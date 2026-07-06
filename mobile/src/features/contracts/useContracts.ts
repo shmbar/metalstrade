@@ -6,6 +6,7 @@ import { Contract, Invoice } from '@/data/types';
 import { qk } from '@/query/client';
 import { contractPurchaseValue, toMT, num } from '@shared/finance';
 import { curSymbol, fmtMoney, fmtMT } from '@/lib/format';
+import { arr } from '@/lib/guard';
 
 // All contracts in the active period, enriched with their linked invoices.
 export function useContracts() {
@@ -45,8 +46,8 @@ export function deriveContract(c: Contract, settings: any): ContractView {
   const cur = c.cur === 'eu' ? 'eu' : 'us';
   const pv = contractPurchaseValue(c, { base: 'us' });
   const totalValue = pv.byCur[cur] || 0;
-  const totalMT = (c.productsData || []).reduce((s, p) => s + toMT(num(p.qnty), c, settings), 0);
-  const productNames = [...new Set((c.productsData || []).map((p) => p.description).filter(Boolean))] as string[];
+  const totalMT = arr<any>(c.productsData).reduce((s, p) => s + toMT(num(p.qnty), c, settings), 0);
+  const productNames = [...new Set(arr<any>(c.productsData).map((p) => p.description).filter(Boolean))] as string[];
   const invoiceCount = (c.invoicesData || []).length;
 
   return {

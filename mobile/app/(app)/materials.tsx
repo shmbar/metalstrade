@@ -69,10 +69,10 @@ export default function Materials() {
                   <View>
                     {/* Header */}
                     <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>
-                      <Text variant="caption" tone="muted" style={{ width: 130, fontFamily: 'Poppins_600SemiBold' }}>Material</Text>
-                      <Text variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'Poppins_600SemiBold' }}>{unit}</Text>
+                      <Text variant="caption" tone="muted" style={{ width: 130, fontFamily: 'Inter_600SemiBold' }}>Material</Text>
+                      <Text variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>{unit}</Text>
                       {elements.map((el) => (
-                        <Text key={el.key} variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'Poppins_600SemiBold' }}>{el.label}</Text>
+                        <Text key={el.key} variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>{el.label}</Text>
                       ))}
                     </View>
                     {/* Rows */}
@@ -88,10 +88,10 @@ export default function Materials() {
                     {/* Weighted-average totals */}
                     {rows.length > 0 && (
                       <View style={{ flexDirection: 'row', paddingVertical: 6 }}>
-                        <Text variant="caption" tone="primary" style={{ width: 130, fontFamily: 'Poppins_600SemiBold' }}>Weighted avg</Text>
-                        <Text variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'Poppins_600SemiBold' }}>{fmt(totalKgs)}</Text>
+                        <Text variant="caption" tone="primary" style={{ width: 130, fontFamily: 'Inter_600SemiBold' }}>Weighted avg</Text>
+                        <Text variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>{fmt(totalKgs)}</Text>
                         {elements.map((el) => (
-                          <Text key={el.key} variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'Poppins_600SemiBold' }}>
+                          <Text key={el.key} variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
                             {fmt(weighted(el.key))}
                           </Text>
                         ))}

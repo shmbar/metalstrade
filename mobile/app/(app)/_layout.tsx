@@ -5,6 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
+import { OfflineBanner } from '@/components/OfflineBanner';
+import { registerPush, listenPushTaps } from '@/features/push/registerPush';
+import { useLiveSync } from '@/features/live/useLiveSync';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow } from '@/theme/tokens';
 
@@ -26,10 +29,12 @@ function tabIcon(base: string, activeColor: string) {
 }
 
 export default function AppLayout() {
-  const { user, initializing, uidCollection } = useAuth();
+  const { user, initializing, uidCollection, userTitle, currentUser } = useAuth();
   const loadSettings = useSettings((s) => s.load);
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
+  // Web parity: 'accounting' users are restricted to the accounting view only.
+  const accountingOnly = userTitle === 'accounting';
 
   // Load account settings (suppliers/clients/quantity + company data) once we
   // know the tenant namespace — every screen derives names/rates from these.
@@ -37,10 +42,24 @@ export default function AppLayout() {
     if (uidCollection) loadSettings(uidCollection);
   }, [uidCollection, loadSettings]);
 
+  // Register this device for push alerts (overdue-invoice digest). Silent no-op
+  // if the user declines or the device can't receive push.
+  useEffect(() => {
+    if (uidCollection) registerPush(uidCollection, currentUser.email);
+  }, [uidCollection, currentUser.email]);
+
+  // Tapping a push deep-links into the relevant screen.
+  useEffect(() => listenPushTaps(), []);
+
+  // Live multi-user sync: teammate writes refresh this device in real time.
+  useLiveSync(uidCollection);
+
   if (initializing) return null;
   if (!user) return <Redirect href="/sign-in" />;
 
   return (
+    <View style={{ flex: 1 }}>
+    <OfflineBanner />
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -55,24 +74,24 @@ export default function AppLayout() {
           paddingTop: 8,
           ...getShadow(scheme, 'lg'),
         },
-        tabBarLabelStyle: { fontFamily: 'Poppins_600SemiBold', fontSize: 10.5, marginTop: -2 },
+        tabBarLabelStyle: { fontFamily: 'Inter_600SemiBold', fontSize: 10.5, marginTop: -2 },
       }}
     >
       <Tabs.Screen
         name="index"
-        options={{ title: 'Dashboard', tabBarIcon: tabIcon('grid', colors.tabActive) }}
+        options={{ title: 'Dashboard', tabBarIcon: tabIcon('grid', colors.tabActive), href: accountingOnly ? null : undefined }}
       />
       <Tabs.Screen
         name="contracts"
-        options={{ title: 'Contracts', tabBarIcon: tabIcon('document-text', colors.tabActive) }}
+        options={{ title: 'Contracts', tabBarIcon: tabIcon('document-text', colors.tabActive), href: accountingOnly ? null : undefined }}
       />
       <Tabs.Screen
         name="invoices"
-        options={{ title: 'Invoices', tabBarIcon: tabIcon('receipt', colors.tabActive) }}
+        options={{ title: 'Invoices', tabBarIcon: tabIcon('receipt', colors.tabActive), href: accountingOnly ? null : undefined }}
       />
       <Tabs.Screen
         name="stocks"
-        options={{ title: 'Stocks', tabBarIcon: tabIcon('cube', colors.tabActive) }}
+        options={{ title: 'Stocks', tabBarIcon: tabIcon('cube', colors.tabActive), href: accountingOnly ? null : undefined }}
       />
       {/* Routable but not shown in the tab bar (opened from More). */}
       <Tabs.Screen name="cashflow" options={{ href: null }} />
@@ -87,7 +106,14 @@ export default function AppLayout() {
       <Tabs.Screen name="notifications" options={{ href: null }} />
       <Tabs.Screen name="acc-statement" options={{ href: null }} />
       <Tabs.Screen name="assistant" options={{ href: null }} />
-      <Tabs.Screen name="accounting" options={{ href: null }} />
+      <Tabs.Screen
+        name="accounting"
+        options={
+          accountingOnly
+            ? { title: 'Accounting', tabBarIcon: tabIcon('reader', colors.tabActive) }
+            : { href: null }
+        }
+      />
       <Tabs.Screen name="contracts-review" options={{ href: null }} />
       <Tabs.Screen name="invoices-review" options={{ href: null }} />
       <Tabs.Screen name="margins" options={{ href: null }} />
@@ -99,6 +125,7 @@ export default function AppLayout() {
       <Tabs.Screen
         name="more"
         options={{
+          href: accountingOnly ? null : undefined,
           title: 'More',
           tabBarIcon: ({ focused, color, size }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center', width: 44 }}>
@@ -109,5 +136,6 @@ export default function AppLayout() {
         }}
       />
     </Tabs>
+    </View>
   );
 }

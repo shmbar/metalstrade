@@ -18,9 +18,9 @@ export function InvoiceCard({ inv, onPress }: { inv: InvoiceView; onPress: () =>
           </Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <Text variant="h3">{inv.totalLabel}</Text>
+          <Text variant="h3" style={{ fontVariant: ['tabular-nums'] }}>{inv.totalLabel}</Text>
           {inv.balance > 0.01 ? (
-            <Text variant="caption" tone="negative">
+            <Text variant="caption" tone="negative" style={{ fontVariant: ['tabular-nums'] }}>
               {inv.balanceLabel} due
             </Text>
           ) : (

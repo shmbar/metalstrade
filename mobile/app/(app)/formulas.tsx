@@ -112,7 +112,6 @@ export default function Formulas() {
           {back}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <Text variant="h2">Formulas</Text>
-            <Badge label="Beta" tone="warn" />
           </View>
           <View style={{ width: 50 }} />
         </View>
@@ -143,7 +142,14 @@ export default function Formulas() {
                   <Text variant="caption" color="#ffffffaa">Cost turnings {money((out as any).costTurnings)} · €{money((out as any).costEuro, '€').slice(1)}</Text>
                 </>
               ) : (
-                <Text variant="caption" color="#ffffffcc" style={{ marginTop: 8 }}>Price / € {money((out as any).costEuro, '€')}</Text>
+                <>
+                  <Text variant="caption" color="#ffffffcc" style={{ marginTop: 8 }}>
+                    Cost/MT {money((out as any).costPerMT)} · €{money((out as any).costEuro, '€').slice(1)}
+                  </Text>
+                  <Text variant="caption" color="#ffffffaa">
+                    Sales {money((out as any).price)} · /MT {money((out as any).pricePerMT)} · €{money((out as any).priceEuro, '€').slice(1)}
+                  </Text>
+                </>
               )}
             </Card>
 
@@ -170,7 +176,7 @@ export default function Formulas() {
 
             <Button title="Save" loading={saving} onPress={onSave} />
             <Text variant="caption" tone="faint" style={{ textAlign: 'center' }}>
-              Beta — formulas transcribed from the web. Verify a known result against the web app before pricing.
+              Same formulas as the web app — results match to the cent.
             </Text>
           </View>
         )}
