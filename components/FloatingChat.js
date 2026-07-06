@@ -3,7 +3,7 @@ import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { SettingsContext } from "../contexts/useSettingsContext";
 import { UserAuth } from "../contexts/useAuthContext";
-import { loadData, loadMarginsRange, loadAllStockData, loadCompanyExpenses, resolveInvoiceDate, groupInvoicesByNumber } from '../utils/utils';
+import { loadData, loadMarginsRange, loadAllStockData, loadCompanyExpenses, resolveInvoiceDate, groupInvoicesByNumber, computeStockNetSummary } from '../utils/utils';
 import { effectiveDueDate } from '../utils/finance';
 import { authedFetch } from '../utils/aiClient';
 import { X, Send, Loader2, Trash2, RefreshCw, ExternalLink, Receipt, FileText, Wallet } from 'lucide-react';
@@ -399,23 +399,11 @@ const FloatingChat = () => {
                     isPaid,
                 };
             }),
-            stocks: stocksData.map(s => {
-                const resolvedDesc =
-                    s.type === 'in' && s.description
-                        ? s.productsData?.find(y => y.id === s.description)?.description
-                        : s.mtrlStatus === 'select' || s.isSelection
-                            ? s.productsData?.find(y => y.id === s.descriptionId)?.description
-                            : s.type === 'out' && s.moveType === 'out'
-                                ? s.descriptionName
-                                : s.descriptionText;
-                return {
-                    description: resolvedDesc || s.descriptionName || s.description || 'Unknown',
-                    qnty: parseFloat(s.qnty) || 0,
-                    unit: s.qTypeTable || '',
-                    warehouse: s.stock || '',
-                    date: s.date || '',
-                };
-            }),
+            // NET in-stock rows (received − sold, final-settlement corrections, and
+            // original-vs-final dedup) with resolved MT/unit labels — the same numbers
+            // the Stocks page shows. Raw lot rows made the AI count sold material as
+            // still in stock and guess at units.
+            stocks: computeStockNetSummary(stocksData, settings),
             margins: marginsData.map(m => ({
                 month: m.month,
                 totalMargin: parseFloat(m.totalMargin) || 0,

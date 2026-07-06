@@ -3,6 +3,73 @@ import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadData, loadAllStockData } from '@/data/firestore';
 import { groupInvoices, resolveInvoiceDate, effectiveDueDate, num } from '@shared/finance';
+import { arr } from '@/lib/guard';
+
+// Net in-stock summary per warehouse+material — TS port of the web helper
+// utils/pureHelpers.computeStockNetSummary (same math as the Stocks page):
+// 'in' lots add |qnty| with final-settlement corrections, 'out' lots subtract,
+// original-vs-final invoice rows dedup per invoice number, resolved unit labels.
+function computeStockNetSummary(stockDocs: any[], settings: any) {
+  const lots = (Array.isArray(stockDocs) ? stockDocs : []).filter(Boolean)
+    .filter((s: any) => s.stock);
+
+  const dedupeFinals = (group: any[]) => {
+    const byInvoice: Record<string, any[]> = {};
+    group.forEach(l => { (byInvoice[l.invoice] ||= []).push(l); });
+    return Object.values(byInvoice).flatMap(g => {
+      const distinct = new Set(g.map(l => parseInt(l.invType, 10)));
+      if (distinct.size <= 1) return g;
+      const maxType = Math.max(...distinct);
+      return g.filter(l => parseInt(l.invType, 10) === maxType);
+    });
+  };
+
+  const quantityList = settings?.Quantity?.Quantity || [];
+  const warehouseList = settings?.Stocks?.Stocks || [];
+
+  const groups: Record<string, any[]> = {};
+  lots.forEach((s: any) => {
+    const matKey = s.description || s.descriptionId;
+    if (!matKey) return;
+    (groups[`${s.stock}|${matKey}`] ||= []).push(s);
+  });
+
+  const rows: any[] = [];
+  Object.values(groups).forEach(groupLots => {
+    const filtered = dedupeFinals(groupLots);
+    let qty = 0;
+    filtered.forEach((l: any) => {
+      const q = parseFloat(l.qnty) || 0;
+      if (l.type === 'in') {
+        qty += Math.abs(q) +
+          ((l.finalqnty && l.finalqnty * 1 !== l.qnty * 1) ? (l.qnty * 1 - l.finalqnty * 1) * -1 : 0);
+      } else {
+        qty -= q;
+      }
+    });
+    if (qty <= 0.1) return;
+
+    const first: any = filtered[0] || groupLots[0];
+    const resolvedDesc =
+      (first.type === 'in' && first.description
+        ? first.productsData?.find((y: any) => y.id === first.description)?.description
+        : (first.mtrlStatus === 'select' || first.isSelection)
+          ? first.productsData?.find((y: any) => y.id === first.descriptionId)?.description
+          : (first.type === 'out' && first.moveType === 'out')
+            ? first.descriptionName
+            : first.descriptionText) || first.descriptionName || 'Unknown';
+
+    rows.push({
+      description: resolvedDesc,
+      qnty: Math.round(qty * 1000) / 1000,
+      unit: quantityList.find((u: any) => u.id === first.qTypeTable)?.qTypeTable || '',
+      warehouse: warehouseList.find((w: any) => w.id === first.stock)?.nname
+        || warehouseList.find((w: any) => w.id === first.stock)?.stock || '',
+    });
+  });
+
+  return rows.sort((a, b) => b.qnty - a.qnty);
+}
 
 // Builds the SAME slim, enriched context the web Assistant sends (FloatingChat
 // getCurrentDataContext). Two reasons this projection matters:
@@ -49,7 +116,7 @@ function buildContext(raw: any, settings: any, compData: any) {
     const isIssuedInv = !isDraft && !isCanceled;
     const invoiceStatus = isCanceled ? 'Canceled' : isDraft ? 'Draft' : 'Issued';
     const totalAmt = num(inv.totalAmount);
-    const totalPaid = (inv.payments || []).reduce((s: number, p: any) => s + num(p.pmnt), 0);
+    const totalPaid = arr<any>(inv.payments).reduce((s: number, p: any) => s + num(p.pmnt), 0);
     const balanceDue = inv.debtBlnc != null ? num(inv.debtBlnc) : totalAmt - totalPaid;
     const paymentStatus = balanceDue <= 0 ? 'Paid' : totalPaid > 0 ? 'Partially Paid' : 'Unpaid';
     return {
@@ -90,23 +157,11 @@ function buildContext(raw: any, settings: any, compData: any) {
     };
   });
 
-  const stocks = (raw.stocks || []).map((s: any) => {
-    const resolvedDesc =
-      s.type === 'in' && s.description
-        ? s.productsData?.find((y: any) => y.id === s.description)?.description
-        : s.mtrlStatus === 'select' || s.isSelection
-          ? s.productsData?.find((y: any) => y.id === s.descriptionId)?.description
-          : s.type === 'out' && s.moveType === 'out'
-            ? s.descriptionName
-            : s.descriptionText;
-    return {
-      description: resolvedDesc || s.descriptionName || s.description || 'Unknown',
-      qnty: num(s.qnty),
-      unit: s.qTypeTable || '',
-      warehouse: s.stock || '',
-      date: s.date || '',
-    };
-  });
+  // NET in-stock rows — mirrors utils/pureHelpers.computeStockNetSummary on web
+  // (copied verbatim per the mobile convention): received − sold, final-settlement
+  // quantity corrections, original-vs-final invoice dedup, resolved MT/unit labels.
+  // Raw lot rows made the AI count sold material as still in stock and guess units.
+  const stocks = computeStockNetSummary(raw.stocks || [], settings);
 
   return {
     contracts,

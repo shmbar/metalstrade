@@ -57,7 +57,9 @@ This IMS manages: Contracts (purchase orders), Invoices (sales), Expenses, Stock
 5. Under 300 words when possible
 6. Always use tools for data questions — never invent numbers
 7. PRESERVE key tool data verbatim: when a tool returns a line containing "Nd overdue" (days overdue counter), keep that exact "Nd overdue" annotation in every bullet you show — do NOT drop or rephrase it. Same rule for explicit currency amounts and invoice numbers.
-8. If a tool returns multiple sections (e.g. "🔴 DUE INVOICES" and "🟡 BALANCE INVOICES"), keep the section headers and their per-section totals. Don't merge them into one list.`;
+8. If a tool returns multiple sections (e.g. "🔴 DUE INVOICES" and "🟡 BALANCE INVOICES"), keep the section headers and their per-section totals. Don't merge them into one list.
+9. UNITS ARE FIXED: stock quantities are already recorded in the unit shown next to them (usually MT / metric tons). NEVER convert a quantity to another unit, divide by 1000, or invent a conversion factor. If the user asks "in MT" (or any unit) and the data is already in that unit, restate the SAME number and say it is already recorded in that unit. If the stored unit differs from what they asked for, say you cannot convert and name the stored unit.
+10. For ANY follow-up question that involves data (totals, quantities, conversions, "and last year?"), call the appropriate tool again — never do arithmetic on numbers remembered from earlier in the conversation.`;
 
 // OpenAI tool definitions
 const TOOLS = [
@@ -515,18 +517,24 @@ function executeTool(name, args, data) {
 
         case 'get_stock_summary': {
             if (!stocks.length) return 'No stock data available.';
+            // Rows arrive pre-netted from the client (received − sold, final-settlement
+            // corrections, per warehouse+material) with a resolved unit label — the same
+            // numbers the Stocks page shows. Summing per description across warehouses
+            // is therefore correct. (Old clients sending raw lots still work — same
+            // arithmetic they always got.)
             const stockGroups = {};
             stocks.forEach(s => {
                 const desc = s.description || 'Unknown';
                 if (!stockGroups[desc]) stockGroups[desc] = { qty: 0, unit: s.unit || '' };
                 stockGroups[desc].qty += parseFloat(s.qnty) || 0;
+                if (!stockGroups[desc].unit && s.unit) stockGroups[desc].unit = s.unit;
             });
             const lines = Object.entries(stockGroups)
                 .sort((a, b) => b[1].qty - a[1].qty)
-                .slice(0, 10)
-                .map(([desc, d]) => `• ${desc}: ${d.qty.toFixed(2)} ${d.unit}`)
+                .slice(0, 15)
+                .map(([desc, d]) => `• ${desc}: ${d.qty.toFixed(2)} ${d.unit || '(unit not set)'}`)
                 .join('\n');
-            return `Stock summary (${stocks.length} records):\n${lines}`;
+            return `Current NET stock on hand (received − sold; quantities are already in the unit shown — do NOT convert):\n${lines}`;
         }
 
         case 'get_shipment_status': {

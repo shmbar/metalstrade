@@ -85,3 +85,82 @@ export const groupInvoicesByNumber = (invoices) => {
     }];
   });
 };
+
+/**
+ * Net in-stock summary per warehouse+material — the SAME aggregation the Stocks
+ * page performs (app/(root)/stocks/page.js), so AI features report the numbers
+ * the user sees on screen instead of a raw sum of every lot row:
+ *   • 'in' lots add |qnty| (with the final-invoice quantity correction),
+ *     'out' lots subtract — a raw sum counts SOLD material as still in stock.
+ *   • Original-vs-final invoice rows are deduplicated per invoice number
+ *     (highest invType wins), exactly like utils.filteredArray.
+ *   • Rows with net qty ≤ 0.1 are dropped (same threshold the page uses).
+ * Returns [{ description, qnty, unit, warehouse }] with RESOLVED labels —
+ * unit is the human label from settings.Quantity (usually 'MT'), never the id.
+ */
+export const computeStockNetSummary = (stockDocs, settings) => {
+  const lots = (Array.isArray(stockDocs) ? stockDocs : []).filter(Boolean)
+    .filter(s => s.stock); // only lots assigned to a warehouse (page does the same)
+
+  // Same dedup rule as utils.filteredArray: within one invoice number, if invTypes
+  // differ keep only the highest (final/credit supersedes the original invoice).
+  const dedupeFinals = (arr) => {
+    const byInvoice = {};
+    arr.forEach(l => { (byInvoice[l.invoice] ||= []).push(l); });
+    return Object.values(byInvoice).flatMap(group => {
+      const distinct = new Set(group.map(l => parseInt(l.invType, 10)));
+      if (distinct.size <= 1) return group;
+      const maxType = Math.max(...distinct);
+      return group.filter(l => parseInt(l.invType, 10) === maxType);
+    });
+  };
+
+  const quantityList = settings?.Quantity?.Quantity || [];
+  const warehouseList = settings?.Stocks?.Stocks || [];
+
+  // Group by warehouse + material id — same keys the Stocks page groups on.
+  const groups = {};
+  lots.forEach(s => {
+    const matKey = s.description || s.descriptionId;
+    if (!matKey) return;
+    (groups[`${s.stock}|${matKey}`] ||= []).push(s);
+  });
+
+  const rows = [];
+  Object.values(groups).forEach(groupLots => {
+    const filtered = dedupeFinals(groupLots);
+    let qty = 0;
+    filtered.forEach(l => {
+      const q = parseFloat(l.qnty) || 0;
+      if (l.type === 'in') {
+        // |qnty| in, corrected when a final settlement changed the quantity —
+        // identical arithmetic to the Stocks page accumulation.
+        qty += Math.abs(q) +
+          ((l.finalqnty && l.finalqnty * 1 !== l.qnty * 1) ? (l.qnty * 1 - l.finalqnty * 1) * -1 : 0);
+      } else {
+        qty -= q;
+      }
+    });
+    if (qty <= 0.1) return; // page hides empty/near-empty rows the same way
+
+    const first = filtered[0] || groupLots[0];
+    const resolvedDesc =
+      (first.type === 'in' && first.description
+        ? first.productsData?.find(y => y.id === first.description)?.description
+        : (first.mtrlStatus === 'select' || first.isSelection)
+          ? first.productsData?.find(y => y.id === first.descriptionId)?.description
+          : (first.type === 'out' && first.moveType === 'out')
+            ? first.descriptionName
+            : first.descriptionText) || first.descriptionName || 'Unknown';
+
+    rows.push({
+      description: resolvedDesc,
+      qnty: Math.round(qty * 1000) / 1000,
+      unit: quantityList.find(u => u.id === first.qTypeTable)?.qTypeTable || '',
+      warehouse: warehouseList.find(w => w.id === first.stock)?.nname
+        || warehouseList.find(w => w.id === first.stock)?.stock || '',
+    });
+  });
+
+  return rows.sort((a, b) => b.qnty - a.qnty);
+};

@@ -13,7 +13,7 @@ import { priorityOf } from './notificationPriority';
 // unit-tested without booting Firebase. We re-export them here for backward
 // compatibility — every `import { resolveDueDate } from '../utils/utils'`
 // across the app keeps working unchanged.
-export { resolveDueDate, resolveInvoiceDate, groupInvoicesByNumber } from './pureHelpers';
+export { resolveDueDate, resolveInvoiceDate, groupInvoicesByNumber, computeStockNetSummary } from './pureHelpers';
 
 const storage = getStorage();
 
