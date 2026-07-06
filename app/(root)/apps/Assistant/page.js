@@ -347,27 +347,29 @@ const AssistantChat = () => {
                         <Toast />
                         <div className="border border-[#b8ddf8] rounded-xl shadow-sm bg-white mt-4 flex flex-col flex-1 overflow-hidden">
 
-                            {/* Top Bar */}
-                            <div className="px-4 py-2.5 border-b border-[#b8ddf8] flex items-center justify-between bg-[#dbeeff]">
-                                <div className="flex items-center gap-2">
+                            {/* Top Bar — flex-wrap + nowrap pills: on narrow screens the chip
+                                row drops WHOLE onto its own line under the title instead of
+                                breaking words mid-pill ("Contract / s") and colliding with it. */}
+                            <div className="px-3 md:px-4 py-2.5 border-b border-[#b8ddf8] flex flex-wrap items-center justify-between gap-y-2 gap-x-3 bg-[#dbeeff]">
+                                <div className="flex items-center gap-2 shrink-0">
                                     <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
                                     <span className="responsiveTextTitle font-medium text-[var(--port-gore)]">Assistant</span>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center justify-end gap-1.5 md:gap-2">
                                     {dataLoading ? (
-                                        <span className="responsiveTextTable text-[var(--regent-gray)]">Loading data...</span>
+                                        <span className="responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap">Loading data...</span>
                                     ) : (
                                         <>
-                                            <span className="px-3 py-1 rounded-full responsiveTextTable font-medium" style={{ backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}>
+                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}>
                                                 {contractsData.length} Contracts
                                             </span>
-                                            <span className="px-3 py-1 rounded-full responsiveTextTable font-medium" style={{ backgroundColor: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
+                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
                                                 {invoicesData.length} Invoices
                                             </span>
-                                            <span className="px-3 py-1 rounded-full responsiveTextTable font-medium" style={{ backgroundColor: '#ede9fe', color: '#5b21b6', border: '1px solid #c4b5fd' }}>
+                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: '#ede9fe', color: '#5b21b6', border: '1px solid #c4b5fd' }}>
                                                 {expensesData.length} Expenses
                                             </span>
-                                            <span className="px-3 py-1 rounded-full responsiveTextTable font-medium" style={{ backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}>
+                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}>
                                                 {stocksData.length} Stocks
                                             </span>
                                         </>
@@ -375,14 +377,14 @@ const AssistantChat = () => {
                                     <button
                                         onClick={() => loadAllData(true)}
                                         disabled={dataLoading}
-                                        className="p-1.5 rounded-full transition-colors hover:bg-[#b8ddf8]/50 disabled:opacity-40"
+                                        className="p-1.5 rounded-full transition-colors hover:bg-[#b8ddf8]/50 disabled:opacity-40 shrink-0"
                                         title="Refresh data"
                                     >
                                         <FiRefreshCw className={`w-3.5 h-3.5 text-[var(--endeavour)] ${dataLoading ? 'animate-spin' : ''}`} />
                                     </button>
                                     <button
                                         onClick={handleClearChat}
-                                        className="flex items-center gap-1.5 px-3 py-1 rounded-full font-medium transition-colors"
+                                        className="flex items-center gap-1.5 px-2 py-0.5 md:px-3 md:py-1 rounded-full font-medium transition-colors whitespace-nowrap shrink-0"
                                         style={{ backgroundColor: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', fontSize: '0.62rem' }}
                                         title="Reset conversation"
                                     >
