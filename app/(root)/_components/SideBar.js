@@ -25,8 +25,10 @@ export default function Sidebar() {
       Invoices: "excel.svg",
       Expenses: "expenses.svg",
       Accounting: "accounting.svg",
-      "Contracts Review": "Contracts Review & Statement.svg",
-      "Invoices Review": "Invoices Review & Statement.svg",
+      // Renamed from "… Review & Statement.svg" — the raw "&" in the URL path
+      // 404'd on every page load (needs %26 encoding; a safe filename is simpler).
+      "Contracts Review": "contracts-review.svg",
+      "Invoices Review": "invoices-review.svg",
       "Account Statement": "accounting.svg",
       Stocks: "Stocks.svg",
       "Misc Invoices": "edit.svg",

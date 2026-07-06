@@ -24,7 +24,7 @@ taskkill //F //PID <PID>       # kill it
 
 ## Architecture Overview
 
-**Next.js 14 App Router** with all pages under `app/(root)/`. The app is an Inventory Management System for metals/alloys trading.
+**Next.js 15 App Router** with all pages under `app/(root)/`. The app is an Inventory Management System for metals/alloys trading.
 
 ### Page Structure (`app/(root)/`)
 | Page | Purpose |
@@ -48,7 +48,7 @@ taskkill //F //PID <PID>       # kill it
 - **Firestore** for all data (`utils/firebase.js` exports `db`, `auth`, `storage`)
 - All Firestore reads/writes go through `utils/utils.js` (loadData, saveData, etc.)
 - Data is namespaced per user via `uidCollection` from `useAuthContext`
-- Firebase config comes entirely from `.env.local` (`NEXT_PUBLIC_*` vars)
+- Firebase config comes entirely from `.env` (`NEXT_PUBLIC_*` vars)
 
 ### Context / State Architecture
 All global state lives in `app/providers.js` which wraps the app in this order:
