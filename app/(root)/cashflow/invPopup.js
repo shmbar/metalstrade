@@ -67,11 +67,22 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
     const primaryFile = files.find(f => isPdf(f.name)) || files.find(f => isImage(f.name)) || files[0] || null;
 
     const [uploading, setUploading] = useState(false);
+    const [uploadErr, setUploadErr] = useState('');
     const handleUpload = async (file) => {
-        if (!file || !contractId) return;
+        setUploadErr('');
+        if (!file) return;
+        if (!contractId) { setUploadErr('Cannot attach — this invoice has no contract reference.'); return; }
         setUploading(true);
         try {
             await uploadFile(contractId, file, setFiles);
+            // Re-list from storage so what's shown matches what actually persisted — a failed
+            // write must not leave the popup claiming "no invoice" after a drop, and a real
+            // file must survive a reopen.
+            const arr = await getAllfiles(contractId);
+            setFiles(Array.isArray(arr) ? arr : []);
+        } catch (e) {
+            console.error('invoice upload failed:', e);
+            setUploadErr('Upload failed — ' + (e?.message || 'please try again.'));
         } finally {
             setUploading(false);
         }
@@ -234,6 +245,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                     <FileUploader handleChange={handleUpload} name="file" types={['PDF', 'PNG', 'JPG', 'JPEG']} disabled={uploading || !contractId} />
                                 </div>
                                 {uploading && <p style={{ marginTop: '8px', textAlign: 'center', fontSize: '10px', color: 'var(--endeavour)' }}>Uploading…</p>}
+                                {uploadErr && <p style={{ marginTop: '8px', textAlign: 'center', fontSize: '10px', color: '#dc2626' }}>{uploadErr}</p>}
                             </div>
                         )}
 
