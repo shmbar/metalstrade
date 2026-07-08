@@ -1236,19 +1236,14 @@ export const addComma = (nStr) => {
 export const runSupPayments = async (uidCollection, settings, yr, contractsData = null, invoicesData = null) => {
 
 
-    let dt = contractsData;
-    if (!Array.isArray(dt)) {
-        dt = await Promise.all(
-            yr.map(year =>
-                loadData(uidCollection, 'contracts', {
-                    start: `${year}-01-01`,
-                    end: `${year}-12-31`
-                })
-            )
-        );
-
-        dt = [].concat(...dt);
-    }
+    // Supplier payables are OUTSTANDING balances = a running total, not a single-year flow:
+    // an unpaid purchase invoice on an older contract is still money owed today. So load a
+    // multi-year window here (independent of the viewed Cashflow period, and ignoring the
+    // period-scoped contractsData the page passes) — mirroring how receivables are treated —
+    // so a payable never "disappears" just because you switch the Cashflow year.
+    const supCurYr = new Date().getFullYear();
+    let dt = await loadData(uidCollection, 'contracts', { start: `${supCurYr - 3}-01-01`, end: `${supCurYr}-12-31` });
+    if (!Array.isArray(dt)) dt = [];
 
     // ETD/ETA for supplier balances mirror the Shipment page: the contract's own
     // shipmentEtd/Eta, falling back to the linked client invoice's shipData. The client
