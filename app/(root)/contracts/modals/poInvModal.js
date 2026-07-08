@@ -263,9 +263,10 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
         setCheckedItems([]);
     }
 
-    const checkIfAlllowed = () => {
-        return (contractsData.find(x => x.id === valueCon.id).poInvoices).length > 0 ? true : false
-    }
+    // Use the CURRENT contract's purchase invoices (incl. ones added but not yet re-saved),
+    // and never crash if the contract isn't in the persisted list — the old version read
+    // contractsData.find(...).poInvoices, which threw / blocked, so the → arrow "didn't work".
+    const checkIfAlllowed = () => (valueCon?.poInvoices?.length || 0) > 0
 
     const switchToStocks = () => {
 

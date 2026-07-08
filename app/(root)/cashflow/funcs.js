@@ -747,20 +747,15 @@ const makeGroup = (arr) => {
 
 export const runInvoices = async (uidCollection, settings, yr, invoicesData = null) => {
 
-    // Optional preloaded raw invoices (the cashflow page loads them once and shares
-    // them with runSupPayments) — identical rows to what the yearly queries return.
-    let dt = invoicesData;
-    if (!Array.isArray(dt)) {
-        dt = await Promise.all(
-            yr.map(year =>
-                loadData(uidCollection, 'invoices', {
-                    start: `${year}-01-01`,
-                    end: `${year}-12-31`
-                })
-            )
-        );
-        dt = [].concat(...dt);
-    }
+    // Client receivables are OUTSTANDING balances = a running total, not a single-year flow:
+    // an unpaid invoice from an earlier year is still money owed to us today. So load a
+    // multi-year window (independent of the viewed period, and ignoring the period-scoped rows
+    // the page passes) — same as supplier payables — so a receivable never "disappears" just
+    // because you switch the Cashflow year. Fully-paid invoices are dropped by the debtBlnc
+    // filter further down, so this stays exactly "what is still owed".
+    const invCurYr = new Date().getFullYear();
+    let dt = await loadData(uidCollection, 'invoices', { start: `${invCurYr - 3}-01-01`, end: `${invCurYr}-12-31` });
+    if (!Array.isArray(dt)) dt = [];
 
     dt = makeGroup(dt)
     dt = Object.values(dt)
