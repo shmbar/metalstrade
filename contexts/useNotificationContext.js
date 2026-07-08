@@ -5,6 +5,7 @@ import {
     subscribeNotifications, markNotificationRead, markAllNotificationsRead, snoozeNotification,
 } from '../utils/utils';
 import { sortByPriority } from '../utils/notificationPriority';
+import NotificationPopups from '../components/NotificationPopups';
 
 const NotificationContext = createContext();
 const MUTE_KEY = 'ims_notif_muted';
@@ -38,10 +39,13 @@ const NotificationProvider = ({ children }) => {
 
     const [all, setAll] = useState([]);
     const [muted, setMuted] = useState(false);
+    // Arrival pop-up cards (visual sibling of the chime). Capped stack, newest first.
+    const [popups, setPopups] = useState([]);
 
     const mutedRef = useRef(false);
     const seenIds = useRef(new Set());
     const primed = useRef(false);
+    const popupSeq = useRef(0);
 
     // Load mute preference once.
     useEffect(() => {
@@ -54,11 +58,19 @@ const NotificationProvider = ({ children }) => {
         primed.current = false;
         if (!uidCollection) { setAll([]); return; }
         const unsub = subscribeNotifications(uidCollection, (rows) => {
-            // Chime on genuinely new notifications — not on the initial load, and
-            // never for actions the current user performed themselves.
-            if (primed.current && !mutedRef.current) {
-                const fresh = rows.filter(r => !seenIds.current.has(r.id) && r.actorUid !== uid);
-                if (fresh.length) chime();
+            // Genuinely new notifications — not the initial load, never the current
+            // user's own actions, and only ones addressed to me. Chime + pop-up card.
+            if (primed.current) {
+                const fresh = rows.filter(r =>
+                    !seenIds.current.has(r.id) && r.actorUid !== uid &&
+                    (!Array.isArray(r.audience) || !uid || r.audience.includes(uid)));
+                if (fresh.length) {
+                    if (!mutedRef.current) chime();
+                    setPopups(prev => [
+                        ...fresh.map(r => ({ ...r, popupId: `${r.id}:${++popupSeq.current}` })),
+                        ...prev,
+                    ].slice(0, 4)); // keep at most 4 cards on screen
+                }
             }
             rows.forEach(r => seenIds.current.add(r.id));
             primed.current = true;
@@ -122,8 +134,12 @@ const NotificationProvider = ({ children }) => {
         });
     }, []);
 
-    // Memoized: the 30s snooze tick re-renders this provider, but consumers (the bell)
-    // only re-render when the notification data or callbacks actually change.
+    const dismissPopup = useCallback((popupId) => {
+        setPopups(prev => prev.filter(p => p.popupId !== popupId));
+    }, []);
+
+    // Memoized: consumers (the bell) only re-render when the notification data or
+    // callbacks actually change.
     const value = useMemo(
         () => ({ notifications, unread, unreadCount, markRead, markAllRead, snooze, muted, toggleMute }),
         [notifications, unread, unreadCount, markRead, markAllRead, snooze, muted, toggleMute]
@@ -132,6 +148,8 @@ const NotificationProvider = ({ children }) => {
     return (
         <NotificationContext.Provider value={value}>
             {children}
+            {/* Arrival pop-ups render globally (top-right) alongside whatever page is open */}
+            <NotificationPopups popups={popups} dismissPopup={dismissPopup} markRead={markRead} />
         </NotificationContext.Provider>
     );
 };
