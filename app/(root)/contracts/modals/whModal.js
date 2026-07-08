@@ -12,7 +12,8 @@ import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad.js';
 import { Button } from '@components/ui/button.jsx';
-import { Save, CirclePlus, ScrollText, Trash, } from "lucide-react";
+import { Save, CirclePlus, ScrollText, Trash, FileText } from "lucide-react";
+import DocumentImportOverlay from '@components/DocumentImportOverlay';
 
 
 
@@ -42,6 +43,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     const [checkedItems, setCheckedItems] = useState([]);
     const [data, setData] = useState([]);
     const [errors, setErrors] = useState([])
+    const [showDocImport, setShowDocImport] = useState(false)
 
     const handleValue = (e, i) => {
         let itm = valueCon.poInvoices[i]
@@ -150,6 +152,40 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     let newStock = {
         id: uuidv4(), description: '', qnty: '', unitPrc: '', total: '', poInvoice: '', indDate: null, stock: '',
         spInv: false, compName: '', status: '', client: ''
+    }
+
+    // Autofill breakdown lines from the SUPPLIER INVOICE PDF (AI-read). Uses the invoice's
+    // ACTUAL material + net weight — the point of reading the invoice rather than the contract
+    // — matching each material name to a contract product so the picker resolves; unmatched
+    // lines still carry the weight and just need the material chosen.
+    const normalizeName = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const addFromDoc = (out) => {
+        const products = valueCon.productsData || []
+        const lines = (out?.productsData || []).map(p => {
+            const target = normalizeName(p.description)
+            const match = (target && (
+                products.find(x => normalizeName(x.description) === target)
+                || products.find(x => normalizeName(x.description).includes(target) || target.includes(normalizeName(x.description)))
+            )) || null
+            const unitPrc = match?.unitPrc ?? p.unitPrc ?? ''
+            return {
+                ...newStock, id: uuidv4(),
+                description: match?.id || '',
+                qnty: p.qnty ?? '',
+                unitPrc,
+                total: ((parseFloat(p.qnty) || 0) * (parseFloat(unitPrc) || 0)) || '',
+            }
+        })
+        if (lines.length) setData(prev => [...prev, ...lines])
+        setShowDocImport(false)
+        const anyUnmatched = lines.some(l => !l.description)
+        setToast({
+            show: true,
+            text: lines.length === 0 ? 'No material lines found on that document'
+                : anyUnmatched ? 'Read from invoice — pick the material for any unmatched line'
+                    : 'Material & weight read from the supplier invoice',
+            clr: lines.length === 0 || anyUnmatched ? 'fail' : 'success',
+        })
     }
 
     const addItem = () => {
@@ -435,6 +471,16 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 <Button
                     className="h-8 px-3"
                     variant='outline'
+                    onClick={() => setShowDocImport(true)}
+                    title='Read the supplier invoice PDF — fills the material and actual weight.'
+                >
+                    <FileText />
+                    Autofill from PDF
+                </Button>
+
+                <Button
+                    className="h-8 px-3"
+                    variant='outline'
                     onClick={deleteItems}
                 >
                     <Trash />
@@ -449,6 +495,18 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                     {getTtl('Invoices', ln)}
                 </Button>
             </div>
+
+            {showDocImport && (
+                <DocumentImportOverlay
+                    documentType='contract'
+                    suppliers={settings?.Supplier?.Supplier || []}
+                    clients={[]}
+                    currencies={settings?.Currency?.Currency || []}
+                    expenseTypes={settings?.Expenses?.Expenses || []}
+                    onApply={addFromDoc}
+                    onClose={() => setShowDocImport(false)}
+                />
+            )}
         </Modal>
     )
 }
