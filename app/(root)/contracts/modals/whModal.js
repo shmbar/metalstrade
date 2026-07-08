@@ -153,7 +153,20 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     }
 
     const addItem = () => {
-        setData([...data, newStock])
+        // Prefill the material, weight (and unit price) from the contract's products — the next
+        // product not already placed on a line, so repeated "Add" fills each in turn. This is
+        // the "read the material and weight from the invoice" the breakdown gets for free from
+        // the contract's own product list. Falls back to the first product, else a blank line.
+        const products = valueCon.productsData || []
+        const usedIds = data.map(d => d.description).filter(Boolean)
+        const p = products.find(x => !usedIds.includes(x.id)) || products[0] || null
+        const seed = p ? {
+            description: p.id,
+            qnty: p.qnty ?? '',
+            unitPrc: p.unitPrc ?? '',
+            total: ((parseFloat(p.qnty) || 0) * (parseFloat(p.unitPrc) || 0)) || '',
+        } : {}
+        setData([...data, { ...newStock, id: uuidv4(), ...seed }])
     }
 
     const deleteItems = () => {
