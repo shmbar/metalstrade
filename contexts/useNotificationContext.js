@@ -121,6 +121,11 @@ const NotificationProvider = ({ children }) => {
         () => markAllNotificationsRead(uidCollection, unread.map(n => n.id), uid, name),
         [uidCollection, unread, uid, name]
     );
+    // Bulk-read for the bell's selection mode ("select like WhatsApp, then read").
+    const markManyRead = useCallback(
+        (ids) => markAllNotificationsRead(uidCollection, ids, uid, name),
+        [uidCollection, uid, name]
+    );
     const snooze = useCallback(
         (id, ms) => snoozeNotification(uidCollection, id, uid, Date.now() + ms),
         [uidCollection, uid]
@@ -141,8 +146,8 @@ const NotificationProvider = ({ children }) => {
     // Memoized: consumers (the bell) only re-render when the notification data or
     // callbacks actually change.
     const value = useMemo(
-        () => ({ notifications, unread, unreadCount, markRead, markAllRead, snooze, muted, toggleMute }),
-        [notifications, unread, unreadCount, markRead, markAllRead, snooze, muted, toggleMute]
+        () => ({ notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute }),
+        [notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute]
     );
 
     return (

@@ -5,7 +5,7 @@ import { useNotifications } from '../contexts/useNotificationContext';
 import { PRIORITY, PRIORITY_ORDER, priorityOf } from '../utils/notificationPriority';
 import {
     Bell, BellOff, Check, CheckCheck, Clock, Activity, FileText, Receipt, Banknote, Package, Settings as SettingsIcon,
-    AlertTriangle, ArrowUp, Minus,
+    AlertTriangle, ArrowUp, Minus, Circle, CheckCircle2, ChevronLeft, ExternalLink,
 } from 'lucide-react';
 
 const ENTITY = {
@@ -77,24 +77,56 @@ function Chip({ active, onClick, label, count, unread }) {
 const NotificationBell = () => {
     const router = useRouter();
     const ctx = useNotifications() || {};
-    const { notifications = [], unread = [], unreadCount = 0, markRead, markAllRead, snooze, muted, toggleMute } = ctx;
+    const { notifications = [], unread = [], unreadCount = 0, markRead, markAllRead, markManyRead, snooze, muted, toggleMute } = ctx;
     const unreadIds = useMemo(() => new Set(unread.map(n => n.id)), [unread]);
     const [open, setOpen] = useState(false);
     const [snoozeFor, setSnoozeFor] = useState(null);
     const [catFilter, setCatFilter] = useState('all');
+    // WhatsApp-style selection mode + the in-panel detail view for a clicked item.
+    const [selectMode, setSelectMode] = useState(false);
+    const [selected, setSelected] = useState(() => new Set());
+    const [detail, setDetail] = useState(null);
     const ref = useRef(null);
 
     useEffect(() => {
-        const onDown = (e) => { if (ref.current && !ref.current.contains(e.target)) { setOpen(false); setSnoozeFor(null); } };
+        const onDown = (e) => {
+            if (ref.current && !ref.current.contains(e.target)) {
+                setOpen(false); setSnoozeFor(null); setDetail(null);
+                setSelectMode(false); setSelected(new Set());
+            }
+        };
         document.addEventListener('mousedown', onDown);
         return () => document.removeEventListener('mousedown', onDown);
     }, []);
 
+    // Clicking an item opens its detail pop-up and — like reading a chat message —
+    // marks it read, so working through notifications drains the badge to zero.
+    // In select mode this is a no-op: the ROW's own onClick handles the toggle
+    // (handling it here too would double-toggle via event bubbling).
     const onOpenItem = (n) => {
-        markRead?.(n.id);
-        setOpen(false);
+        if (selectMode) return;
+        if (unreadIds.has(n.id)) markRead?.(n.id);
+        setDetail(n);
+    };
+
+    const openRecord = (n) => {
+        setOpen(false); setDetail(null);
         const route = metaFor(n.entityType).route(n.entityId);
         if (route) router.push(route);
+    };
+
+    const toggleSelect = (id) => {
+        setSelected(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id); else next.add(id);
+            return next;
+        });
+    };
+
+    const readSelected = () => {
+        const ids = [...selected];
+        if (ids.length) markManyRead?.(ids);
+        setSelectMode(false); setSelected(new Set());
     };
 
     // Per-category counts (total + unread) for the filter chips.
@@ -131,12 +163,25 @@ const NotificationBell = () => {
         const receipts = Object.values(n.readReceipts || {}); // [{ name, at }]
         const seenTitle = receipts.map(r => `${r.name} — ${relativeTime(new Date(r.at).getTime())}`).join('\n');
         const seenSummary = receipts.length === 1 ? receipts[0].name : `${receipts[0]?.name} +${receipts.length - 1}`;
+        const isSelected = selected.has(n.id);
         return (
             <div
                 key={n.id}
                 className='relative flex items-start gap-2.5 px-3 py-2.5 border-b border-[#eef5fc] hover:bg-[#f8fbff] transition-colors'
-                style={{ background: unreadFlag ? '#f8fbff' : 'white', borderLeft: `3px solid ${pr.color}` }}
+                style={{
+                    background: isSelected ? '#dbeeff' : unreadFlag ? '#f8fbff' : 'white',
+                    borderLeft: `3px solid ${pr.color}`,
+                    cursor: selectMode ? 'pointer' : undefined,
+                }}
+                onClick={selectMode ? () => toggleSelect(n.id) : undefined}
             >
+                {selectMode && (
+                    <span className='flex-shrink-0 mt-1'>
+                        {isSelected
+                            ? <CheckCircle2 className='w-4 h-4' style={{ color: 'var(--endeavour)' }} />
+                            : <Circle className='w-4 h-4' style={{ color: '#b8ddf8' }} />}
+                    </span>
+                )}
                 <span className='inline-flex items-center justify-center rounded-full flex-shrink-0 mt-0.5' style={{ width: 26, height: 26, background: meta.bg }}>
                     <Icon className='w-3.5 h-3.5' style={{ color: meta.color }} />
                 </span>
@@ -160,14 +205,16 @@ const NotificationBell = () => {
                         </div>
                     )}
                 </button>
-                <div className='flex flex-col items-center gap-1 flex-shrink-0'>
-                    <button onClick={() => markRead?.(n.id)} title='Mark as read' className='p-0.5 rounded hover:bg-[#dbeeff]'>
-                        <Check className='w-3.5 h-3.5' style={{ color: 'var(--endeavour)' }} />
-                    </button>
-                    <button onClick={() => setSnoozeFor(snoozeFor === n.id ? null : n.id)} title='Snooze' className='p-0.5 rounded hover:bg-[#dbeeff]'>
-                        <Clock className='w-3.5 h-3.5' style={{ color: 'var(--regent-gray)' }} />
-                    </button>
-                </div>
+                {!selectMode && (
+                    <div className='flex flex-col items-center gap-1 flex-shrink-0'>
+                        <button onClick={() => markRead?.(n.id)} title='Mark as read' className='p-0.5 rounded hover:bg-[#dbeeff]'>
+                            <Check className='w-3.5 h-3.5' style={{ color: 'var(--endeavour)' }} />
+                        </button>
+                        <button onClick={() => setSnoozeFor(snoozeFor === n.id ? null : n.id)} title='Snooze' className='p-0.5 rounded hover:bg-[#dbeeff]'>
+                            <Clock className='w-3.5 h-3.5' style={{ color: 'var(--regent-gray)' }} />
+                        </button>
+                    </div>
+                )}
                 {snoozeFor === n.id && (
                     <div className='absolute right-2 top-9 z-10 bg-white rounded-lg shadow-lg border border-[var(--selago)] py-1'>
                         {SNOOZE_OPTS.map(opt => (
@@ -217,14 +264,98 @@ const NotificationBell = () => {
                                     ? <BellOff className='w-3.5 h-3.5' style={{ color: 'var(--regent-gray)' }} />
                                     : <Bell className='w-3.5 h-3.5' style={{ color: 'var(--chathams-blue)' }} />}
                             </button>
-                            <button onClick={() => markAllRead?.()} disabled={unreadCount === 0} title='Mark all as read' className='p-1 rounded-full hover:bg-white/60 disabled:opacity-40'>
-                                <CheckCheck className='w-3.5 h-3.5' style={{ color: 'var(--endeavour)' }} />
+                            <button
+                                onClick={() => { setSelectMode(v => !v); setSelected(new Set()); setDetail(null); }}
+                                className='px-2 py-0.5 rounded-full font-medium transition-colors'
+                                style={{
+                                    fontSize: '0.6rem',
+                                    background: selectMode ? 'var(--chathams-blue)' : 'white',
+                                    color: selectMode ? 'white' : 'var(--chathams-blue)',
+                                    border: '1px solid #b8ddf8',
+                                }}
+                            >
+                                {selectMode ? 'Cancel' : 'Select'}
+                            </button>
+                            <button
+                                onClick={() => markAllRead?.()}
+                                disabled={unreadCount === 0}
+                                title='Mark every notification as read'
+                                className='flex items-center gap-1 px-2 py-0.5 rounded-full font-medium disabled:opacity-40 transition-colors hover:opacity-90'
+                                style={{ fontSize: '0.6rem', background: 'var(--endeavour)', color: 'white' }}
+                            >
+                                <CheckCheck className='w-3 h-3' /> Read all
                             </button>
                         </div>
                     </div>
 
+                    {/* Detail pop-up for a clicked notification — full message, no truncation */}
+                    {detail && (() => {
+                        const meta = metaFor(detail.entityType);
+                        const DIcon = meta.icon;
+                        const pr = PRIORITY[priorityOf(detail)] || PRIORITY.medium;
+                        const receipts = Object.values(detail.readReceipts || {});
+                        return (
+                            <div>
+                                <div className='flex items-center gap-1.5 px-2 py-1.5' style={{ borderBottom: '1px solid #eef5fc' }}>
+                                    <button onClick={() => setDetail(null)} className='p-1 rounded-full hover:bg-[#dbeeff]' aria-label='Back to list'>
+                                        <ChevronLeft className='w-4 h-4' style={{ color: 'var(--chathams-blue)' }} />
+                                    </button>
+                                    <span style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--chathams-blue)' }}>Notification</span>
+                                </div>
+                                <div className='p-4'>
+                                    <div className='flex items-center gap-2.5'>
+                                        <span className='inline-flex items-center justify-center rounded-xl flex-shrink-0' style={{ width: 36, height: 36, background: meta.bg }}>
+                                            <DIcon className='w-4.5 h-4.5 w-[18px] h-[18px]' style={{ color: meta.color }} />
+                                        </span>
+                                        <div className='min-w-0'>
+                                            <p className='font-semibold truncate' style={{ fontSize: '0.78rem', color: 'var(--chathams-blue)' }}>
+                                                {detail.entityLabel || detail.entityType || 'Notification'}
+                                            </p>
+                                            <span className='inline-flex items-center gap-1 px-1.5 rounded-full font-semibold mt-0.5'
+                                                style={{ fontSize: '0.54rem', color: pr.color, background: pr.bg, border: `1px solid ${pr.border}` }}>
+                                                {pr.label} priority
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p className='mt-3 break-words' style={{ fontSize: '0.74rem', color: 'var(--port-gore)', lineHeight: 1.55 }}>
+                                        {detail.message || `${detail.entityType || 'Item'} ${detail.action || 'updated'}`}
+                                    </p>
+                                    <div className='mt-3 rounded-xl p-2.5' style={{ background: '#f8fbff', border: '1px solid #eef5fc' }}>
+                                        <p style={{ fontSize: '0.62rem', color: 'var(--regent-gray)' }}>
+                                            From: <span style={{ color: 'var(--port-gore)' }}>{detail.actorName || 'System'}</span>
+                                        </p>
+                                        <p className='mt-0.5' style={{ fontSize: '0.62rem', color: 'var(--regent-gray)' }}>
+                                            When: <span style={{ color: 'var(--port-gore)' }}>{detail.createdAtMs ? new Date(detail.createdAtMs).toLocaleString() : detail.createdAt || '—'}</span>
+                                        </p>
+                                        {receipts.length > 0 && (
+                                            <p className='mt-0.5 flex items-center gap-1' style={{ fontSize: '0.62rem', color: '#16a34a' }}>
+                                                <CheckCheck className='w-3 h-3' /> Seen by {receipts.map(r => r.name).join(', ')}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className='flex gap-2 mt-4'>
+                                        <button
+                                            onClick={() => openRecord(detail)}
+                                            className='flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full font-medium text-white hover:opacity-90 transition-opacity'
+                                            style={{ fontSize: '0.68rem', background: 'var(--endeavour)' }}
+                                        >
+                                            <ExternalLink className='w-3.5 h-3.5' /> Open record
+                                        </button>
+                                        <button
+                                            onClick={() => setDetail(null)}
+                                            className='px-4 py-1.5 rounded-full font-medium transition-colors hover:bg-[#dbeeff]'
+                                            style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}
+                                        >
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()}
+
                     {/* Subject filter chips */}
-                    {chips.length > 1 && (
+                    {!detail && chips.length > 1 && (
                         <div className='flex gap-1 px-2 py-1.5 overflow-x-auto' style={{ borderBottom: '1px solid #eef5fc' }}>
                             <Chip active={catFilter === 'all'} onClick={() => setCatFilter('all')} label='All' count={notifications.length} unread={unreadCount} />
                             {chips.map(c => (
@@ -234,6 +365,7 @@ const NotificationBell = () => {
                     )}
 
                     {/* List */}
+                    {!detail && (
                     <div className='max-h-[60vh] overflow-y-auto'>
                         {visible.length === 0 ? (
                             <div className='flex flex-col items-center justify-center py-8 gap-1'>
@@ -261,15 +393,32 @@ const NotificationBell = () => {
                             visible.map(renderRow)
                         )}
                     </div>
+                    )}
 
-                    {/* Footer */}
-                    <button
-                        onClick={() => { setOpen(false); router.push('/activity'); }}
-                        className='w-full flex items-center justify-center gap-1.5 py-2 hover:bg-[var(--selago)] transition-colors'
-                        style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)', borderTop: '1px solid #eef5fc' }}
-                    >
-                        <Activity className='w-3.5 h-3.5' /> View all activity
-                    </button>
+                    {/* Footer: selection action bar while selecting, otherwise activity link */}
+                    {!detail && (selectMode ? (
+                        <div className='flex items-center justify-between px-3 py-2' style={{ borderTop: '1px solid #eef5fc', background: '#f8fbff' }}>
+                            <span style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--chathams-blue)' }}>
+                                {selected.size} selected
+                            </span>
+                            <button
+                                onClick={readSelected}
+                                disabled={selected.size === 0}
+                                className='flex items-center gap-1.5 px-3 py-1 rounded-full font-medium text-white disabled:opacity-40 hover:opacity-90 transition-opacity'
+                                style={{ fontSize: '0.66rem', background: 'var(--endeavour)' }}
+                            >
+                                <CheckCheck className='w-3.5 h-3.5' /> Mark {selected.size > 0 ? selected.size + ' ' : ''}as read
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => { setOpen(false); router.push('/activity'); }}
+                            className='w-full flex items-center justify-center gap-1.5 py-2 hover:bg-[var(--selago)] transition-colors'
+                            style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)', borderTop: '1px solid #eef5fc' }}
+                        >
+                            <Activity className='w-3.5 h-3.5' /> View all activity
+                        </button>
+                    ))}
                 </div>
             )}
         </div>
