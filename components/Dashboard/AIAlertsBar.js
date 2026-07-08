@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation';
 import { AlertTriangle, FileWarning, TrendingDown, Bell, Loader2 } from 'lucide-react';
 import { SettingsContext } from '@contexts/useSettingsContext';
 import { UserAuth } from '@contexts/useAuthContext';
-import { loadData, loadMarginsRange, resolveDueDate, ensureNotification } from '@utils/utils';
-import { receivables as financeReceivables, groupInvoices, isOverdue, invoiceBalance, isIssued, resolveInvoiceDate } from '@utils/finance';
+import { loadData, loadMarginsRange, ensureNotificationsBatch, reconcileSystemNotifications } from '@utils/utils';
+import { receivables as financeReceivables, groupInvoices, isOverdue, invoiceBalance, isIssued, resolveInvoiceDate, effectiveDueDate } from '@utils/finance';
 
 // Compact pill button used for each alert chip
 function AlertPill({ icon: Icon, label, count, severity, onClick }) {
@@ -80,9 +80,12 @@ const AIAlertsBar = () => {
                 Object.values(recv.byCur).forEach(s => { due += s.dueCount; balance += s.balanceCount; });
 
                 // Overdue invoices (for the bell notifications) — same canonical rule.
+                // _dueDate uses effectiveDueDate (the SAME term-based fallback isOverdue
+                // uses) — resolveDueDate returns null when no explicit due date is set,
+                // and new Date(null) is Jan-1970, which produced "overdue 20640d".
                 const overdueInvs = groupInvoices(invoices)
                     .filter(inv => isOverdue(inv, today, termDays))
-                    .map(inv => ({ ...inv, _balanceDue: invoiceBalance(inv), _dueDate: resolveDueDate(inv) }));
+                    .map(inv => ({ ...inv, _balanceDue: invoiceBalance(inv), _dueDate: effectiveDueDate(inv, termDays) }));
 
                 // Reminders sent in the last 7 days.
                 let recentReminders = 0;
@@ -94,24 +97,26 @@ const AIAlertsBar = () => {
                 });
 
                 // Turn overdue receivables into real (idempotent) notifications so they
-                // surface in the bell, not just as a count. ensureNotification is
-                // create-if-absent — repeated dashboard loads neither duplicate nor
-                // reset read/snooze. Capped to avoid a burst of reads.
+                // surface in the bell. ONE batched pass (existence check + create-only
+                // writes + self-heal of stale message/priority) instead of ~130 getDocs.
+                const bellItems = [];
                 overdueInvs.slice(0, 50).forEach(inv => {
-                    const days = Math.max(0, Math.ceil((today.getTime() - new Date(inv._dueDate).getTime()) / 86400000));
+                    const dueMs = inv._dueDate ? new Date(inv._dueDate).getTime() : NaN;
+                    const days = isNaN(dueMs) ? null : Math.max(0, Math.ceil((today.getTime() - dueMs) / 86400000));
                     const clientName = settings?.Client?.Client?.find(c => c.id === inv.client)?.nname || 'client';
                     const cur = settings?.Currency?.Currency?.find(c => c.id === inv.cur)?.cur || '';
-                    ensureNotification(uidCollection, `overdue:invoice:${inv.id}`, {
-                        type: 'settlement.overdue', entityType: 'invoice', entityId: inv.id || '',
-                        entityLabel: `Invoice #${inv.invoice ?? ''}`, action: 'overdue', severity: 'warning', priority: 'high',
-                        message: `Invoice #${inv.invoice ?? ''} overdue ${days}d — ${cur} ${Number(inv._balanceDue || 0).toFixed(2)} (${clientName})`,
+                    bellItems.push({
+                        id: `overdue:invoice:${inv.id}`,
+                        payload: {
+                            type: 'settlement.overdue', entityType: 'invoice', entityId: inv.id || '',
+                            entityLabel: `Invoice #${inv.invoice ?? ''}`, action: 'overdue', severity: 'warning', priority: 'high',
+                            message: `Invoice #${inv.invoice ?? ''} overdue${days != null ? ` ${days}d` : ''} — ${cur} ${Number(inv._balanceDue || 0).toFixed(2)} (${clientName})`,
+                        },
                     });
                 });
 
-                // Customer invoices unpaid 3+ days after their ISSUE date → High-priority
-                // bell alert, kept active until the balance is cleared (the payment that
-                // zeroes it removes this + the overdue alert — see payments.js saveD).
-                // Earlier & more aggressive than the term-based "overdue" above.
+                // Customer invoices unpaid 3+ days after their ISSUE date — an early nag
+                // (Medium via priorityOf), kept active until the balance is cleared.
                 groupInvoices(invoices).filter(isIssued).slice(0, 80).forEach(inv => {
                     const bal = invoiceBalance(inv);
                     const invDate = resolveInvoiceDate(inv);
@@ -120,12 +125,22 @@ const AIAlertsBar = () => {
                     if (ageDays < 3) return;
                     const clientName = settings?.Client?.Client?.find(c => c.id === inv.client)?.nname || 'client';
                     const cur = settings?.Currency?.Currency?.find(c => c.id === inv.cur)?.cur || '';
-                    ensureNotification(uidCollection, `unpaid:invoice:${inv.id}`, {
-                        type: 'invoice.unpaid', entityType: 'invoice', entityId: inv.id || '',
-                        entityLabel: `Invoice #${inv.invoice ?? ''}`, action: 'unpaid', severity: 'warning', priority: 'high',
-                        message: `Invoice #${inv.invoice ?? ''} unpaid ${ageDays}d after issue — ${cur} ${bal.toFixed(2)} (${clientName})`,
+                    bellItems.push({
+                        id: `unpaid:invoice:${inv.id}`,
+                        payload: {
+                            type: 'invoice.unpaid', entityType: 'invoice', entityId: inv.id || '',
+                            entityLabel: `Invoice #${inv.invoice ?? ''}`, action: 'unpaid', severity: 'warning',
+                            message: `Invoice #${inv.invoice ?? ''} unpaid ${ageDays}d after issue — ${cur} ${bal.toFixed(2)} (${clientName})`,
+                        },
                     });
                 });
+                ensureNotificationsBatch(uidCollection, bellItems);
+                // Remove alerts whose condition no longer holds (invoice paid / no
+                // longer overdue) — otherwise they linger in the bell forever.
+                reconcileSystemNotifications(uidCollection, 'overdue:invoice:',
+                    bellItems.filter(x => x.id.startsWith('overdue:')).map(x => x.id));
+                reconcileSystemNotifications(uidCollection, 'unpaid:invoice:',
+                    bellItems.filter(x => x.id.startsWith('unpaid:')).map(x => x.id));
 
                 // Margin alerts: only REAL risks — margin was entered and total profit
                 // is ≤ threshold. Rows with no margin entered are data gaps, not alerts.

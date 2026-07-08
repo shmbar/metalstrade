@@ -360,26 +360,74 @@ export const ensureNotificationsBatch = async (uidCollection, items = []) => {
     const snaps = await Promise.all(chunks.map(c =>
       getDocs(query(collection(db, uidCollection, 'data', 'notifications'), where(documentId(), 'in', c)))
     ));
-    const existing = new Set();
-    snaps.forEach(s => s.docs.forEach(d => existing.add(d.id)));
+    const existing = new Map(); // id -> stored { message, priority }
+    snaps.forEach(s => s.docs.forEach(d => existing.set(d.id, d.data())));
 
-    const missing = ids.filter(id => !existing.has(id));
-    for (let i = 0; i < missing.length; i += 450) {
-      const batch = writeBatch(db);
-      missing.slice(i, i + 450).forEach(id => {
-        const payload = byId.get(id);
-        const now = new Date();
-        batch.set(doc(db, uidCollection, 'data', 'notifications', id), {
+    const ops = [];
+
+    // Self-heal existing docs: these are SYSTEM notifications whose text/priority we
+    // own — refresh them when the freshly computed values differ (day counters move
+    // daily, bugs in old messages get corrected, priority recalibrations apply).
+    // read/snooze state is never touched.
+    ids.forEach(id => {
+      const stored = existing.get(id);
+      if (!stored) return;
+      const payload = byId.get(id);
+      const nextPriority = payload.priority || priorityOf(payload);
+      const update = {};
+      if (payload.message && payload.message !== stored.message) update.message = payload.message;
+      if (nextPriority && nextPriority !== stored.priority) update.priority = nextPriority;
+      if (Object.keys(update).length) ops.push({ kind: 'update', id, data: update });
+    });
+
+    // Create the genuinely missing ones.
+    ids.filter(id => !existing.has(id)).forEach(id => {
+      const payload = byId.get(id);
+      const now = new Date();
+      ops.push({
+        kind: 'set', id,
+        data: {
           id, createdAt: now.toISOString(), createdAtMs: now.getTime(),
           actorUid: 'system', actorName: 'System', audience: 'all',
           readBy: [], readReceipts: {}, snoozedBy: {}, severity: 'info', notify: true,
           priority: priorityOf(payload),   // same defaults + override order as ensureNotification
           ...payload,
-        });
+        },
+      });
+    });
+
+    for (let i = 0; i < ops.length; i += 450) {   // Firestore batch limit is 500
+      const batch = writeBatch(db);
+      ops.slice(i, i + 450).forEach(op => {
+        const ref = doc(db, uidCollection, 'data', 'notifications', op.id);
+        if (op.kind === 'update') batch.update(ref, op.data); else batch.set(ref, op.data);
       });
       await batch.commit();
     }
   } catch (e) { console.warn('ensureNotificationsBatch failed:', e?.message || e); }
+}
+
+// Reconcile a family of derived/system notifications against the CURRENTLY valid
+// set: any doc whose id starts with `prefix` but is no longer in `validIds` gets
+// deleted (its condition no longer holds — invoice paid, shipment arrived, ...).
+// Without this, stale alerts linger in the bell forever. documentId() range =
+// same prefix trick as loadActivityByTypePrefix; best-effort, never throws.
+export const reconcileSystemNotifications = async (uidCollection, prefix, validIds = []) => {
+  if (!uidCollection || !prefix) return;
+  try {
+    const valid = new Set(validIds);
+    const snap = await getDocs(query(
+      collection(db, uidCollection, 'data', 'notifications'),
+      where(documentId(), '>=', prefix),
+      where(documentId(), '<=', prefix + '\uf8ff')
+    ));
+    const stale = snap.docs.filter(d => !valid.has(d.id));
+    for (let i = 0; i < stale.length; i += 450) {
+      const batch = writeBatch(db);
+      stale.slice(i, i + 450).forEach(d => batch.delete(d.ref));
+      await batch.commit();
+    }
+  } catch (e) { console.warn('reconcileSystemNotifications failed:', e?.message || e); }
 }
 
 // Hard-delete a notification — used to clear a derived/standing alert once it's

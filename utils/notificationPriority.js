@@ -23,11 +23,17 @@ export const priorityOf = (n = {}) => {
     const t = String(n.type || '');
     const et = String(n.entityType || '');
 
-    // ── High: money owed / at risk, contract readiness, overdue shipment follow-up ──
-    if (/^(payment|settlement)/.test(t)) return 'high';   // payment.recorded, settlement.overdue
-    if (t === 'invoice.unpaid') return 'high';            // customer invoice unpaid 3+ days after issue
+    // ── High: money at risk / needs action now ──
+    if (t.startsWith('settlement')) return 'high';        // settlement.overdue — past its due date
     if (t === 'contract.delayed') return 'high';          // 14 days after delivery, no purchase invoice
     if (t === 'shipment.eta14') return 'high';            // 14 days after ETA — follow up
+
+    // ── Medium: worth attention, not an alarm ──
+    // payment.recorded is money IN (good news) and invoice.unpaid is an early nag
+    // (3 days after issue) — both were High, which made ~90% of the stream scream
+    // red and buried the real fires.
+    if (/^payment/.test(t)) return 'medium';
+    if (t === 'invoice.unpaid') return 'medium';
 
     // ── Low: created records, warehouse/storage, purely informational ──
     if (t === 'contract.created') return 'low';

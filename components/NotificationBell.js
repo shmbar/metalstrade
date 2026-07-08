@@ -158,7 +158,6 @@ const NotificationBell = () => {
         const meta = metaFor(n.entityType);
         const Icon = meta.icon;
         const pr = PRIORITY[priorityOf(n)] || PRIORITY.medium;
-        const PriIcon = PRIORITY_ICON[pr.key];
         const unreadFlag = unreadIds.has(n.id);
         const receipts = Object.values(n.readReceipts || {}); // [{ name, at }]
         const seenTitle = receipts.map(r => `${r.name} — ${relativeTime(new Date(r.at).getTime())}`).join('\n');
@@ -167,7 +166,7 @@ const NotificationBell = () => {
         return (
             <div
                 key={n.id}
-                className='relative flex items-start gap-2.5 px-3 py-2.5 border-b border-[#eef5fc] hover:bg-[#f8fbff] transition-colors'
+                className='group relative flex items-start gap-2.5 px-3 py-2.5 border-b border-[#eef5fc] hover:bg-[#f8fbff] transition-colors'
                 style={{
                     background: isSelected ? '#dbeeff' : unreadFlag ? '#f8fbff' : 'white',
                     borderLeft: `3px solid ${pr.color}`,
@@ -189,15 +188,14 @@ const NotificationBell = () => {
                     <p className='break-words' style={{ fontSize: '0.72rem', color: 'var(--port-gore)' }}>
                         {n.message || `${n.entityType || 'Item'} ${n.action || 'updated'}`}
                     </p>
-                    <div className='flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5' style={{ fontSize: '0.6rem', color: 'var(--regent-gray)' }}>
-                        <span className='inline-flex items-center gap-0.5 px-1.5 rounded-full font-semibold'
-                            style={{ fontSize: '0.52rem', color: pr.color, background: pr.bg, border: `1px solid ${pr.border}` }}>
-                            <PriIcon className='w-2 h-2' /> {pr.label}
-                        </span>
-                        <span style={{ color: SEVERITY_DOT[n.severity] || 'var(--regent-gray)' }}>●</span>
-                        <span>{n.actorName || 'Unknown'}</span>
+                    {/* Calm meta line — priority is already carried by the section header
+                        and the row's left accent; repeating a red pill on every row made
+                        the whole panel read as one long alarm. */}
+                    <div className='flex items-center gap-1.5 mt-0.5' style={{ fontSize: '0.6rem', color: 'var(--regent-gray)' }}>
+                        <span className='rounded-full shrink-0' style={{ width: 5, height: 5, background: SEVERITY_DOT[n.severity] || '#cbd5e1' }} />
+                        <span className='truncate'>{n.actorName || 'System'}</span>
                         <span>·</span>
-                        <span title={n.createdAt}>{relativeTime(n.createdAtMs)}</span>
+                        <span className='whitespace-nowrap' title={n.createdAt}>{relativeTime(n.createdAtMs)}</span>
                     </div>
                     {receipts.length > 0 && (
                         <div className='flex items-center gap-1 mt-0.5' style={{ fontSize: '0.55rem', color: '#16a34a' }} title={seenTitle}>
@@ -206,7 +204,9 @@ const NotificationBell = () => {
                     )}
                 </button>
                 {!selectMode && (
-                    <div className='flex flex-col items-center gap-1 flex-shrink-0'>
+                    /* Actions reveal on hover (always visible on touch screens) — keeps
+                       rows clean without hiding functionality. */
+                    <div className='flex flex-col items-center gap-1 flex-shrink-0 md:opacity-0 md:group-hover:opacity-100 transition-opacity'>
                         <button onClick={() => markRead?.(n.id)} title='Mark as read' className='p-0.5 rounded hover:bg-[#dbeeff]'>
                             <Check className='w-3.5 h-3.5' style={{ color: 'var(--endeavour)' }} />
                         </button>
@@ -379,8 +379,8 @@ const NotificationBell = () => {
                                 return (
                                     <div key={key}>
                                         <div
-                                            className='sticky top-0 flex items-center justify-between px-3 py-1'
-                                            style={{ background: pr.bg, borderBottom: `1px solid ${pr.border}`, fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.04em', color: pr.color, textTransform: 'uppercase', zIndex: 5 }}
+                                            className='sticky top-0 flex items-center justify-between px-3 py-0.5'
+                                            style={{ background: pr.bg, borderBottom: `1px solid ${pr.border}`, fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.05em', color: pr.color, textTransform: 'uppercase', zIndex: 5 }}
                                         >
                                             <span className='inline-flex items-center gap-1'><PriIcon className='w-2.5 h-2.5' /> {pr.label} priority</span>
                                             <span>{items.length}</span>

@@ -2,14 +2,16 @@ import { describe, it, expect } from 'vitest';
 import { PRIORITY, PRIORITY_ORDER, priorityOf, sortByPriority } from '../notificationPriority.js';
 
 describe('priorityOf', () => {
-    it('classifies payment-related as High', () => {
-        expect(priorityOf({ type: 'payment.recorded' })).toBe('high');
+    it('classifies past-due settlements as High', () => {
         expect(priorityOf({ type: 'settlement.overdue' })).toBe('high');
-        expect(priorityOf({ type: 'invoice.unpaid' })).toBe('high');
     });
     it('classifies contract readiness + ETA follow-up as High', () => {
         expect(priorityOf({ type: 'contract.delayed' })).toBe('high');
         expect(priorityOf({ type: 'shipment.eta14' })).toBe('high');
+    });
+    it('classifies money-in and early unpaid nags as Medium (not alarms)', () => {
+        expect(priorityOf({ type: 'payment.recorded' })).toBe('medium');
+        expect(priorityOf({ type: 'invoice.unpaid' })).toBe('medium');
     });
     it('classifies created records, warehouse/storage and comments as Low', () => {
         expect(priorityOf({ type: 'contract.created' })).toBe('low');
@@ -46,11 +48,11 @@ describe('priorityRank / PRIORITY', () => {
 describe('sortByPriority', () => {
     it('sorts by priority (High→Low) then newest first', () => {
         const rows = [
-            { id: 'a', type: 'contract.created', createdAtMs: 100 },   // low, old
-            { id: 'b', type: 'payment.recorded', createdAtMs: 200 },   // high, older
-            { id: 'c', type: 'payment.recorded', createdAtMs: 300 },   // high, newer
-            { id: 'd', type: 'invoice.finalized', createdAtMs: 250 },  // medium
-            { id: 'e', type: 'stock.stale', createdAtMs: 400 },        // low, newest
+            { id: 'a', type: 'contract.created', createdAtMs: 100 },    // low, old
+            { id: 'b', type: 'settlement.overdue', createdAtMs: 200 },  // high, older
+            { id: 'c', type: 'settlement.overdue', createdAtMs: 300 },  // high, newer
+            { id: 'd', type: 'invoice.finalized', createdAtMs: 250 },   // medium
+            { id: 'e', type: 'stock.stale', createdAtMs: 400 },         // low, newest
         ];
         expect(sortByPriority(rows).map(r => r.id)).toEqual(['c', 'b', 'd', 'e', 'a']);
     });
