@@ -1068,7 +1068,7 @@ const Dash = () => {
   // ── Revenue breakdown donut (Cost of Sold / Expenses / Profit = Revenue) ──
   const profitForArc = Math.max(Number(totalPL) || 0, 0);
   const donutData = {
-    labels: ['Cost of Sold', 'Other Expenses', 'Net Profit'],
+    labels: ['Cost of Goods Sold', 'Other Expenses', 'Net Profit'],
     datasets: [{
       data: [cogs, totalExpenses, profitForArc],
       backgroundColor: ['#2563eb', '#db2777', '#16a34a'],
@@ -1098,7 +1098,7 @@ const Dash = () => {
   };
 
   const donutLegend = [
-    { label: 'Cost of Sold', value: cogs, color: '#2563eb' },
+    { label: 'Cost of Goods Sold', value: cogs, color: '#2563eb' },
     { label: 'Other Expenses', value: totalExpenses, color: '#db2777' },
     { label: 'Net Profit', value: totalPL, color: '#16a34a' },
   ];
@@ -1195,7 +1195,7 @@ const Dash = () => {
           {/* KPI ROW */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 mb-5">
             <StatKpiCard
-              title="Net Profit · sold"
+              title="Net Profit (Sold)"
               value={fmtAutoKM(totalPL)}
               chartData={dataPL}
               accent="#6366F1"
@@ -1209,7 +1209,7 @@ const Dash = () => {
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" strokeWidth="2" /><path d="M8 10h8M8 14h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
             />
             <StatKpiCard
-              title="Cost of Sold"
+              title="Cost of Goods Sold"
               value={fmtAutoKM(cogs)}
               chartData={cogsByMonth}
               accent="#dc2626"
