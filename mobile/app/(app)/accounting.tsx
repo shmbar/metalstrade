@@ -7,7 +7,7 @@ import { Screen, Card, Text, Badge, TextField, BarChart, SectionHeader, Skeleton
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAccounting, AccountingGroup } from '@/features/accounting/useAccounting';
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { curSymbol, fmtMoney, fmtCurKM } from '@/lib/format';
 
 const DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const dayIdx = (iso?: string) => {
@@ -32,6 +32,20 @@ export default function Accounting() {
       (g) => g.saleInvoice.toLowerCase().includes(q) || g.clientInvName.toLowerCase().includes(q) || g.invoice.includes(q)
     );
   }, [data, search]);
+
+  // Financial summary — web accounting tiles (totalIncome/expense/balance/margin).
+  const summary = useMemo(() => {
+    const groups = data || [];
+    const income = groups.reduce((s, g) => s + (g.amountInv || 0), 0);
+    const expense = groups.reduce((s, g) => s + g.lines.reduce((t, l) => t + (l.amountExp || 0), 0), 0);
+    const balance = income - expense;
+    return {
+      income,
+      expense,
+      balance,
+      marginPct: income > 0 ? (balance / income) * 100 : 0,
+    };
+  }, [data]);
 
   // Debit (costs) vs Credit (sales) by weekday — parity with the web accounting chart.
   const chart = useMemo(() => {
@@ -83,18 +97,36 @@ export default function Accounting() {
           onRefresh={refetch}
           refreshing={isLoading}
           ListHeaderComponent={
-            chart.hasData ? (
-              <Card style={{ marginBottom: 12 }}>
-                <SectionHeader title="Debit vs Credit" subtitle="By weekday" />
-                <BarChart
-                  labels={DAYS}
-                  series={[
-                    { name: 'Debit', color: '#103a7a', data: chart.debit },
-                    { name: 'Credit', color: '#9fb8d4', data: chart.credit },
-                  ]}
-                />
-              </Card>
-            ) : null
+            <View>
+              {/* Financial summary tiles (web parity) */}
+              <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
+                {[
+                  { k: 'Income', v: fmtCurKM('us', summary.income), tone: 'positive' as const },
+                  { k: 'Costs', v: fmtCurKM('us', summary.expense), tone: 'negative' as const },
+                  { k: 'Net', v: fmtCurKM('us', summary.balance), tone: summary.balance >= 0 ? ('positive' as const) : ('negative' as const) },
+                  { k: 'Margin', v: `${summary.marginPct.toFixed(1)}%`, tone: 'default' as const },
+                ].map((t) => (
+                  <Card key={t.k} style={{ flex: 1 }}>
+                    <Text variant="caption" tone="muted">{t.k}</Text>
+                    <Text variant="bodyMedium" tone={t.tone} numberOfLines={1} style={{ marginTop: 2, fontVariant: ['tabular-nums'] }}>
+                      {t.v}
+                    </Text>
+                  </Card>
+                ))}
+              </View>
+              {chart.hasData ? (
+                <Card style={{ marginBottom: 12 }}>
+                  <SectionHeader title="Debit vs Credit" subtitle="By weekday" />
+                  <BarChart
+                    labels={DAYS}
+                    series={[
+                      { name: 'Debit', color: '#103a7a', data: chart.debit },
+                      { name: 'Credit', color: '#9fb8d4', data: chart.credit },
+                    ]}
+                  />
+                </Card>
+              ) : null}
+            </View>
           }
           renderItem={({ item }) => {
             const symS = curSymbol(item.curINV);

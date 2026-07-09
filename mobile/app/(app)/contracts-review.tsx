@@ -9,7 +9,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useContractsReview, statusTone } from '@/features/review/useContractsReview';
 import { fmtMoney } from '@/lib/format';
 
-const wt = (n: number) => `${fmtMoney(n, 2)}`;
+const wt = (n: number) => `${fmtMoney(n, 3)}`; // web shows MT to 3 decimals
 
 export default function ContractsReview() {
   const { colors } = useTheme();

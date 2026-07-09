@@ -29,14 +29,24 @@ export function useShipment() {
     queryKey: ['shipment', uidCollection, dateSelect.start, dateSelect.end],
     queryFn: async () => {
       const uid = uidCollection as string;
-      const [contracts, invoices] = await Promise.all([
-        loadData<Contract>(uid, 'contracts', dateSelect),
-        loadData<Invoice>(uid, 'invoices', dateSelect),
-      ]);
+      const contracts = await loadData<Contract>(uid, 'contracts', dateSelect);
+
+      // Web parity: invoices are loaded across the FULL year-span of every
+      // contract's linked invoice dates (shipment/page.js:313-326), so ETD/ETA
+      // still resolve when the sales invoice sits outside the selected period.
+      const yrs = contracts
+        .flatMap((c: any) => (c.invoices || []).map((i: any) => parseInt(String(i.date || '').substring(0, 4), 10)))
+        .filter((y) => y > 2000);
+      const invRange = yrs.length
+        ? { start: `${Math.min(...yrs)}-01-01`, end: `${Math.max(...yrs)}-12-31` }
+        : dateSelect;
+      const invoices = await loadData<Invoice>(uid, 'invoices', invRange);
+
       const invMap: Record<string, { etd: string; eta: string }> = {};
       invoices.forEach((inv) => {
         const cid = inv.poSupplier?.id;
-        if (cid && !invMap[cid]) {
+        // Web parity: fall back only to the first ORIGINAL sales invoice ('1111').
+        if (cid && inv.invType === '1111' && !invMap[cid]) {
           invMap[cid] = {
             etd: (inv.shipData?.etd as any)?.startDate || '',
             eta: (inv.shipData?.eta as any)?.startDate || '',

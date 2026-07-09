@@ -6,6 +6,7 @@ import { loadData, loadFlatByDate } from '@/data/firestore';
 import { num } from '@shared/finance';
 
 export interface ExpenseRow {
+  unpaid: boolean;
   id: string;
   supplierName: string;
   cur: string;
@@ -25,6 +26,7 @@ function mapRows(list: any[], settings: any): ExpenseRow[] {
     cur: z.cur || 'us',
     amount: num(z.amount),
     paid: z.paid === '111',
+    unpaid: z.paid === '222', // web sentinel: ONLY '222' counts as unpaid in totals
     expTypeLabel: expTypes.find((e: any) => e.id === z.expType)?.expType || '',
     invoice: z.expense,
     order: z.poSupplier?.order,
@@ -35,7 +37,7 @@ function mapRows(list: any[], settings: any): ExpenseRow[] {
 const totalsByCur = (rows: ExpenseRow[], onlyUnpaid = false) => {
   const m: Record<string, number> = {};
   rows.forEach((r) => {
-    if (onlyUnpaid && r.paid) return;
+    if (onlyUnpaid && !r.unpaid) return; // web parity: unpaid total = paid === '222'
     m[r.cur] = (m[r.cur] || 0) + r.amount;
   });
   return m;

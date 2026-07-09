@@ -7,7 +7,7 @@ import { Screen, Card, Text, Badge, TextField, ProgressBar, SkeletonList, ErrorS
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSalesContracts } from '@/features/salescontracts/useSalesContracts';
-import { fmtMoney } from '@/lib/format';
+import { fmtMoney, curSymbol } from '@/lib/format';
 
 export default function SalesContracts() {
   const { colors } = useTheme();
@@ -68,8 +68,10 @@ export default function SalesContracts() {
                   <Text variant="caption" tone="muted" numberOfLines={1}>{item.clientName}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text variant="bodyMedium">{fmtMoney(item.contractedQty, 0)} MT</Text>
-                  <Text variant="caption" tone="faint">contracted</Text>
+                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>
+                    {curSymbol(item.cur)}{fmtMoney(item.totalAmount)}
+                  </Text>
+                  <Text variant="caption" tone="faint">{fmtMoney(item.contractedQty, 0)} MT contracted</Text>
                 </View>
               </View>
 
@@ -82,9 +84,20 @@ export default function SalesContracts() {
               <View style={{ marginTop: 10, gap: 4 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text variant="caption" tone="faint">Shipped {fmtMoney(item.shippedQty, 0)} / {fmtMoney(item.contractedQty, 0)} MT</Text>
-                  <Text variant="caption" tone={item.pct >= 99.9 ? 'positive' : 'muted'}>{item.pct.toFixed(0)}%</Text>
+                  <Text variant="caption" tone={item.remaining < -0.0001 ? 'warn' : item.status === 'Fully shipped' ? 'positive' : 'muted'}>
+                    {item.remaining < -0.0001
+                      ? `Over-shipped ${fmtMoney(Math.abs(item.remaining), 1)} MT`
+                      : `${fmtMoney(item.remaining, 1)} MT left`}
+                  </Text>
                 </View>
                 <ProgressBar pct={item.pct} color={item.pct >= 99.9 ? colors.positive : colors.primary} height={8} />
+              </View>
+
+              <View style={{ marginTop: 10 }}>
+                <Badge
+                  label={item.status}
+                  tone={item.status === 'Fully shipped' ? 'positive' : item.status === 'Partial' ? 'info' : 'warn'}
+                />
               </View>
             </Card>
           )}

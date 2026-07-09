@@ -17,7 +17,7 @@ export default function Margins() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { userTitle, gisAccount } = useAuth();
-  const { rows, totals, alertedItems, isLoading, isError, error, refetch } = useMargins();
+  const { rows, totals, alertedItems, threshold, isLoading, isError, error, refetch } = useMargins();
   const [aiText, setAiText] = useState('');
   const [aiBusy, setAiBusy] = useState(false);
 
@@ -25,7 +25,7 @@ export default function Margins() {
     setAiText('');
     setAiBusy(true);
     try {
-      await streamSse('/api/ai/margin-alert', { alertedItems, threshold: 0 }, (d) => setAiText((t) => t + d));
+      await streamSse('/api/ai/margin-alert', { alertedItems, threshold }, (d) => setAiText((t) => t + d));
     } catch (e: any) {
       setAiText(`⚠️ ${e?.message || 'Analysis failed.'}`);
     } finally {
@@ -85,6 +85,20 @@ export default function Margins() {
             <Card style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text variant="label" tone="muted">GIS profit</Text>
               <Text variant="h3" tone="positive">{fmtAutoKM(totals.profitGIS)}</Text>
+              <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
+                <View style={{ flex: 1 }}>
+                  <Text variant="caption" tone="muted">Purchased</Text>
+                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtMoney(totals.purchaseGIS, 1)} MT</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text variant="caption" tone="muted">Outstanding ship</Text>
+                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtMoney(totals.openShipGIS, 1)} MT</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text variant="caption" tone="muted">Remaining</Text>
+                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(totals.remainingGIS)}</Text>
+                </View>
+              </View>
             </Card>
           )}
 
@@ -93,7 +107,7 @@ export default function Margins() {
             <Card>
               <SectionHeader
                 title="AI Margin Analysis"
-                subtitle={`${alertedItems.length} item(s) at or below break-even`}
+                subtitle={`${alertedItems.length} item(s) at or below the ${threshold ? `${threshold}` : 'break-even'} threshold`}
                 right={<Ionicons name="sparkles" size={18} color={colors.primary} />}
               />
               {aiText ? (

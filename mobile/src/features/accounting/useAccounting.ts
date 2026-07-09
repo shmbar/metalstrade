@@ -125,6 +125,8 @@ export function useAccounting() {
       const allLines = [...expArr, ...consArr];
 
       // Group sales invoices by number, attaching their purchase/expense lines.
+      // Credit/Final notes share the original's invoice NUMBER — their amounts must
+      // ACCUMULATE into the group (web sums every row), not be dropped.
       const byInvoice: Record<string, AccountingGroup> = {};
       invArr.forEach((s: any) => {
         const key = String(s.invoice);
@@ -139,6 +141,8 @@ export function useAccounting() {
             invType: s.invType,
             lines: [],
           };
+        } else {
+          byInvoice[key].amountInv += s.amountInv; // net CN/FN into the group
         }
       });
       allLines.forEach((e) => {

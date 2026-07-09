@@ -50,57 +50,73 @@ export function InventoryView() {
         }
       />
 
-      {/* Per-warehouse totals */}
-      {(data?.totals.length || 0) > 0 && (
-        <Card style={{ marginTop: 12 }}>
-          <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>
-            On-hand totals
-          </Text>
-          {data!.totals.map((t, i) => (
-            <View
-              key={i}
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingVertical: 6,
-                borderTopWidth: i === 0 ? 0 : 1,
-                borderTopColor: colors.border,
-              }}
-            >
-              <Text variant="body" numberOfLines={1} style={{ flex: 1 }}>
-                {t.warehouseName}
-              </Text>
-              <Text variant="bodyMedium" style={{ marginHorizontal: 10 }}>
-                {fmtQty(t.qnty)} {t.qTypeLabel || 'MT'}
-              </Text>
-              <Text variant="bodyMedium" tone="primary">
-                {curSymbol(t.cur)}
-                {fmtMoney(t.total)}
-              </Text>
-            </View>
-          ))}
-        </Card>
-      )}
+      {/* Totals + count scroll WITH the list (header), so the whole tab scrolls
+          as one — a fixed totals card was swallowing the screen at 10+ warehouses. */}
+      {(() => {
+        const header = (
+          <View>
+            {(data?.totals.length || 0) > 0 && (
+              <Card style={{ marginTop: 12 }}>
+                <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>
+                  On-hand totals
+                </Text>
+                {data!.totals.map((t, i) => (
+                  <View
+                    key={i}
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      paddingVertical: 6,
+                      borderTopWidth: i === 0 ? 0 : 1,
+                      borderTopColor: colors.border,
+                    }}
+                  >
+                    <Text variant="body" numberOfLines={1} style={{ flex: 1 }}>
+                      {t.warehouseName}
+                    </Text>
+                    <Text variant="bodyMedium" style={{ marginHorizontal: 10, fontVariant: ['tabular-nums'] }}>
+                      {fmtQty(t.qnty)} {t.qTypeLabel || 'MT'}
+                    </Text>
+                    <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>
+                      {curSymbol(t.cur)}
+                      {fmtMoney(t.total)}
+                    </Text>
+                  </View>
+                ))}
+              </Card>
+            )}
+            <Text variant="caption" tone="muted" style={{ marginTop: 12, marginBottom: 8 }}>
+              {rows.length} item{rows.length === 1 ? '' : 's'} on hand
+            </Text>
+          </View>
+        );
 
-      <Text variant="caption" tone="muted" style={{ marginTop: 12, marginBottom: 8 }}>
-        {rows.length} item{rows.length === 1 ? '' : 's'} on hand
-      </Text>
-
-      {rows.length === 0 ? (
-        <EmptyState
-          title={search ? 'No matches' : 'No stock on hand'}
-          message={search ? 'Try a different search.' : 'Stock arrives via Warehouse Stock-In on a contract.'}
-          icon={<Ionicons name="cube-outline" size={40} color={colors.textFaint} />}
-          actionLabel={search ? undefined : 'Open contracts'}
-          onAction={search ? undefined : () => router.push('/(app)/contracts')}
-        />
-      ) : (
+        return rows.length === 0 ? (
+          <FlatList
+            data={[]}
+            renderItem={null}
+            keyExtractor={() => 'x'}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+            ListHeaderComponent={header}
+            ListEmptyComponent={
+              <EmptyState
+                title={search ? 'No matches' : 'No stock on hand'}
+                message={search ? 'Try a different search.' : 'Stock arrives via Warehouse Stock-In on a contract.'}
+                icon={<Ionicons name="cube-outline" size={40} color={colors.textFaint} />}
+                actionLabel={search ? undefined : 'Open contracts'}
+                onAction={search ? undefined : () => router.push('/(app)/contracts')}
+              />
+            }
+          />
+        ) : (
         <FlatList
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          ListHeaderComponent={header}
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={({ item, index }) => (
@@ -136,7 +152,8 @@ export function InventoryView() {
             </FadeInItem>
           )}
         />
-      )}
+        );
+      })()}
     </View>
   );
 }

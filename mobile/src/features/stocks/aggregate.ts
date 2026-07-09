@@ -158,6 +158,7 @@ export function computeInventory(
       totalObj.qnty === 0 && !group.some((it) => 'finalqnty' in it && it.type === 'in')
         ? totalObj.unitPrc
         : f(totalObj.qnty) * f(totalObj.unitPrc);
+    totalObj.data = group; // web parity: kept for supplier-less description fallback
     totalObj.date = fmtDateDDMMYY(group.find((z) => z.contractData)?.contractData?.date);
     totalObj.arrivalIso = arrivalIsoOf(group);
     totalObj.cur = group[0]?.cur;

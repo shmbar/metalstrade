@@ -8,14 +8,14 @@ import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useAccStatement, periodsForYear } from '@/features/accstatement/useAccStatement';
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { num } from '@shared/finance';
 
 const COLS = [
   { key: 'invoice', label: 'Invoice', w: 90, money: false },
   { key: 'date', label: 'Date', w: 90, money: false },
   { key: 'amount', label: 'Amount', w: 90, money: true },
-  { key: 'due', label: 'Due', w: 90, money: true },
+  { key: 'due', label: 'Due', w: 90, money: false },
   { key: 'paid', label: 'Paid', w: 90, money: true },
   { key: 'notPaid', label: 'Not Paid', w: 90, money: true },
 ] as const;
@@ -37,18 +37,18 @@ export default function AccStatement() {
 
   const { data: rows, isLoading, isError, error, refetch } = useAccStatement(client, year, date1);
 
+  // Web parity (accstatement setTtl): totals are kept PER CURRENCY — never mixed.
   const totals = useMemo(() => {
-    const t = { amount: 0, due: 0, paid: 0, notPaid: 0 };
+    const mk = () => ({ amount: 0, paid: 0, notPaid: 0 });
+    const t: Record<'us' | 'eu', ReturnType<typeof mk>> = { us: mk(), eu: mk() };
     (rows || []).forEach((r) => {
-      t.amount += num(r.amount);
-      t.due += num(r.due);
-      t.paid += num(r.paid);
-      t.notPaid += num(r.notPaid);
+      const cur = r.cur === 'eu' ? 'eu' : 'us';
+      t[cur].amount += num(r.amount);
+      t[cur].paid += num(r.paid);
+      t[cur].notPaid += num(r.notPaid);
     });
     return t;
   }, [rows]);
-
-  const sym = curSymbol((rows && rows[0]?.cur) || 'us');
   const ready = client && date1;
 
   return (
@@ -92,20 +92,31 @@ export default function AccStatement() {
                 <View key={i} style={{ flexDirection: 'row', paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: colors.border }}>
                   {COLS.map((c) => (
                     <Text key={c.key} variant="caption" style={{ width: c.w, textAlign: c.money ? 'right' : 'left' }} numberOfLines={1}>
-                      {c.money ? `${sym}${fmtMoney(num((r as any)[c.key]))}` : String((r as any)[c.key] || '—')}
+                      {c.money ? `${curSymbol(r.cur)}${fmtMoney(num((r as any)[c.key]))}` : c.key === 'due' ? dateLabel((r as any).due) : String((r as any)[c.key] || '—')}
                     </Text>
                   ))}
                 </View>
               ))}
-              {/* Totals */}
-              <View style={{ flexDirection: 'row', paddingVertical: 8 }}>
-                <Text variant="caption" tone="primary" style={{ width: COLS[0].w + COLS[1].w, fontFamily: 'Inter_600SemiBold' }}>Total</Text>
-                {(['amount', 'due', 'paid', 'notPaid'] as const).map((k) => (
-                  <Text key={k} variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
-                    {sym}{fmtMoney(totals[k])}
-                  </Text>
+              {/* Totals — one row per currency (web keeps $ and € separate) */}
+              {(['us', 'eu'] as const)
+                .filter((cur) => totals[cur].amount || totals[cur].paid || totals[cur].notPaid)
+                .map((cur) => (
+                  <View key={cur} style={{ flexDirection: 'row', paddingVertical: 8 }}>
+                    <Text variant="caption" tone="primary" style={{ width: COLS[0].w + COLS[1].w, fontFamily: 'Inter_600SemiBold' }}>
+                      Total {cur === 'us' ? 'USD' : 'EUR'}
+                    </Text>
+                    <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>
+                      {curSymbol(cur)}{fmtMoney(totals[cur].amount)}
+                    </Text>
+                    <Text variant="caption" tone="faint" style={{ width: 90, textAlign: 'right' }}>—</Text>
+                    <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>
+                      {curSymbol(cur)}{fmtMoney(totals[cur].paid)}
+                    </Text>
+                    <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>
+                      {curSymbol(cur)}{fmtMoney(totals[cur].notPaid)}
+                    </Text>
+                  </View>
                 ))}
-              </View>
             </View>
           </ScrollView>
         </Card>
