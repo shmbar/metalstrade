@@ -7,8 +7,9 @@ import { UserAuth } from "@contexts/useAuthContext";
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad.js';
-import { Save, Eraser, Trash, Copy, Truck } from "lucide-react"
+import { Save, Eraser, Trash, Copy, Truck, FileText } from "lucide-react"
 import FindInvoiceModal from './findInvoiceModal';
+import DocumentImportOverlay from '@components/DocumentImportOverlay';
 
 const Expenses = ({setIsOpen}) => {
 
@@ -19,6 +20,7 @@ const Expenses = ({setIsOpen}) => {
     const [isPending, startTransition] = useTransition();
     const sups = settings.Supplier.Supplier;
     const [opendialogShipment, setDialogShipment] = useState(false)
+    const [showDocImport, setShowDocImport] = useState(false)
 
     const saveExpense = () => {
         startTransition(() => {
@@ -57,6 +59,33 @@ const Expenses = ({setIsOpen}) => {
 
     return (
         <div>
+            {/* AI invoice reading — extract vendor, amount, date, currency & category from a PDF */}
+            <div className='flex items-center justify-end gap-2 mx-2 mt-2'>
+                <Tltip direction='top' tltpText='Drop an invoice/proforma PDF — AI fills the vendor, amount, date, currency and category.'>
+                    <button
+                        type='button'
+                        onClick={() => setShowDocImport(true)}
+                        className='flex items-center gap-1 px-3 py-1 rounded-full text-white transition-all'
+                        style={{ fontSize: '0.62rem', background: 'var(--endeavour)' }}
+                    >
+                        <FileText className='w-3 h-3' />
+                        Autofill from PDF
+                    </button>
+                </Tltip>
+            </div>
+
+            {showDocImport && (
+                <DocumentImportOverlay
+                    documentType='expense'
+                    suppliers={settings?.Supplier?.Supplier || []}
+                    clients={[]}
+                    currencies={settings?.Currency?.Currency || []}
+                    expenseTypes={settings?.Expenses?.Expenses || []}
+                    onApply={(fields) => setValueExp(prev => ({ ...prev, ...fields }))}
+                    onClose={() => setShowDocImport(false)}
+                />
+            )}
+
             <div className='z-10 relative mt-2 rounded-2xl flex m-2 pb-4' style={{ border: '1px solid #b8ddf8', background: '#f4f9ff' }}>
 
                 <div className='grid grid-cols-1 md:grid-cols-12 gap-3 w-full p-2'>
