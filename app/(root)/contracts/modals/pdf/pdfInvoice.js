@@ -335,18 +335,20 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
             value.shpType === '565' ? 'Container pls' :
                 value.shpType === '787' ? 'Flight No' : ''
 
+    // Round to whole cents FIRST and format the rounded figures everywhere. Legacy
+    // invoices can carry half-cent artifacts (qty × price math from before rounding
+    // was added), and formatting the raw float here while the screen rounds its copy
+    // produced the reported 1-cent screen-vs-PDF mismatches.
+    const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+    const prepaidR = r2(value.totalPrepayment);
+    const balanceR = r2(r2(value.totalAmount) - prepaidR);
+
     const formattedNumber1 = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: value.cur !== '' ? getD(settings.Currency.Currency, value, 'cur') :
             'USD',
         minimumFractionDigits: 2
-    }).format(value.totalAmount);
-
-    // Round to whole cents and derive Balance Due as Total - Prepaid so the
-    // document always reconciles (and matches the cashflow / preview screens).
-    const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
-    const prepaidR = r2(value.totalPrepayment);
-    const balanceR = r2(r2(value.totalAmount) - prepaidR);
+    }).format(r2(value.totalAmount));
 
     const formattedNumber2 = new Intl.NumberFormat('en-US', {
         style: 'currency',

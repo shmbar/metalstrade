@@ -813,7 +813,10 @@ export const runInvoices = async (uidCollection, settings, yr, invoicesData = nu
         return obj;
     })
 
-    dt = dt.filter(z => Math.abs(z.debtBlnc) >= 0.01).filter(x => x.draft === undefined || x.draft === false);
+    // A balance of one cent or less is a rounding artifact (legacy invoices carry
+    // half-cent qty × price residues from before totals were rounded; the payment
+    // matched the rounded figure) — treat it as settled, not as a receivable.
+    dt = dt.filter(z => Math.abs(z.debtBlnc) > 0.011).filter(x => x.draft === undefined || x.draft === false);
 
     return dt
 }
@@ -1286,7 +1289,7 @@ export const runSupPayments = async (uidCollection, settings, yr, contractsData 
         })
     })
 
-    arr = arr.filter(z => z.blnc !== 0)
+    arr = arr.filter(z => Math.abs(parseFloat(z.blnc) || 0) > 0.011) // ≤1¢ = rounding artifact, treated as settled
 
     // let totalBySupplier = Object.entries(
     //     arr.reduce((acc, item) => {
