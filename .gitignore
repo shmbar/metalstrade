@@ -45,3 +45,4 @@ utils/skey.json
 # Firebase admin credentials (do not commit)
 service-account.json
 tests/artifacts/
+backups/

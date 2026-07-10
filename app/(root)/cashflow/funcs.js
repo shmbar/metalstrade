@@ -178,9 +178,11 @@ function isNumber(str) {
 }
 
 
-export const runStocks = async (uidCollection, settings, yr, contractsData = []) => {
+export const runStocks = async (uidCollection, settings, yr, contractsData = [], stocksPromise = null) => {
 
-    let stockData = await loadAllStockData(uidCollection)
+    // Accept a prefetched download so the (large) stocks read can run in parallel
+    // with the contracts load instead of starting only after it resolves.
+    let stockData = await (stocksPromise || loadAllStockData(uidCollection))
     stockData = stockData.filter(z => z.total !== 0).filter(x => x.draft === undefined || x.draft === false)
 
 

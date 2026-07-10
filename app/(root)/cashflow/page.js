@@ -8,7 +8,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
 import { CardsSkeleton } from "../../../components/skeletons";
-import { loadData, loadDataSettings, loadInvoice, loadMargins, loadStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments } from "../../../utils/utils";
+import { loadData, loadDataSettings, loadInvoice, loadMargins, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments } from "../../../utils/utils";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
 import { MdDeleteOutline } from "react-icons/md";
@@ -205,7 +205,10 @@ const Cashflow = () => {
                 )
             ).then(perYear => [].concat(...perYear));
             const expensesPromise = runExpenses(uidCollection, settings, yr);
-            const stocksPromise = contractsPromise.then(cd => runStocks(uidCollection, settings, yr, cd));
+            // Start the stocks download NOW (it does not depend on contracts) — only the
+            // netting inside runStocks needs the contract list.
+            const stocksDataPromise = loadAllStockData(uidCollection);
+            const stocksPromise = contractsPromise.then(cd => runStocks(uidCollection, settings, yr, cd, stocksDataPromise));
 
             const marginsPerYear = await marginsPromise;
             const tmp = marginsPerYear.reduce((total, dt) =>
