@@ -74,7 +74,9 @@ export async function POST(request) {
   "products": [{
     "description": "material name, e.g. 'Cr Ni Mo Turnings'",
     "qnty": number_or_null,
+    "unit": "the quantity unit AS PRINTED: 'MT' / 'KGS' / 'LB' or null",
     "unitPrc": number_or_null,
+    "lineTotal": number_or_null,
     "analysis": "the element/chemistry spec as written, or null"
   }],
   "scalePricing": "the 'Scale prices' block (per-MT content prices), or null",
@@ -84,7 +86,8 @@ export async function POST(request) {
 
 EXTRACTION NOTES:
 - order = the document's own "Contract No." (e.g. PB062970) — the reference for this purchase. Ignore "Your ref." if blank.
-- qnty = the QUANTITY in MT (e.g. 76 from "76.000 MT (+/- 5%)"); unitPrc = the Base price per MT (e.g. 6700 from "6,700.00 USD/MT"). Both plain numbers.
+- qnty = the quantity IN THE DOCUMENT'S OWN UNIT, with that unit in "unit" (e.g. 17399 + "LB", 76 + "MT"). Do NOT convert units — the app converts. unitPrc = the per-unit price as printed (e.g. 0.550 per LB, 6700 per MT). lineTotal = that line's money total (e.g. 9569.45).
+- Extract EVERY material line across ALL pages. A scanned bundle may contain SEVERAL invoices (one per page) — include each page's line(s) as separate products entries, not just the first page.
 - analysis = the ELEMENT table for that material as a compact string, e.g. "Ni min 42%, Cr min 12%, Mo min 3.5%; Cu max 0.5%, P max 0.03%, Co max 6%, Nb max 2.5%, Ti max 8%". Include every element shown (Nickel/Chrome/Molybdenum minimums and Copper/Phosphor/Cobalt/Niobium/Titan/Tungsten maximums).
 - scalePricing = the "Scale prices:" block, e.g. "Ni USD 12,800/MT Ni content; Cr USD 1,850/MT Cr content; Mo USD 30,000/MT Mo content".`;
         } else if (documentType === 'salescontract') {

@@ -155,26 +155,47 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     }
 
     // Autofill breakdown lines from the SUPPLIER INVOICE PDF (AI-read). Uses the invoice's
-    // ACTUAL material + net weight — the point of reading the invoice rather than the contract
-    // — matching each material name to a contract product so the picker resolves; unmatched
-    // lines still carry the weight and just need the material chosen.
-    const normalizeName = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    // ACTUAL material + weight; every page/invoice in the bundle becomes its own line.
+    //  • Weights convert to MT (LB × 0.45359237/1000, KGS ÷ 1000), rounded to 3 decimals.
+    //  • The per-MT price is derived from the line's invoice total so qty × price reproduces
+    //    the EXACT invoice amount (2-decimal price when that lands on the cent, else 3) —
+    //    no more manual price/weight fiddling. The stored total IS the invoice figure.
+    //  • Materials match the contract's products by word (prefix-tolerant, so
+    //    "30% NI REF TURNINGS" finds "30Ni Refinery Turnings"), not by picking the first line.
+    const LB_TO_MT = 0.45359237 / 1000, r2 = (n) => Math.round(n * 100) / 100, r3 = (n) => Math.round(n * 1000) / 1000;
+    const words = (s) => String(s || '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    const nameScore = (a, b) => {
+        const wa = words(a), wb = words(b);
+        if (!wa.length || !wb.length) return 0;
+        const hit = wa.filter(x => wb.some(y => y.startsWith(x) || x.startsWith(y))).length;
+        return hit / Math.max(wa.length, wb.length);
+    };
     const addFromDoc = (out) => {
         const products = valueCon.productsData || []
         const lines = (out?.productsData || []).map(p => {
-            const target = normalizeName(p.description)
-            const match = (target && (
-                products.find(x => normalizeName(x.description) === target)
-                || products.find(x => normalizeName(x.description).includes(target) || target.includes(normalizeName(x.description)))
-            )) || null
-            const unitPrc = match?.unitPrc ?? p.unitPrc ?? ''
-            return {
-                ...newStock, id: uuidv4(),
-                description: match?.id || '',
-                qnty: p.qnty ?? '',
-                unitPrc,
-                total: ((parseFloat(p.qnty) || 0) * (parseFloat(unitPrc) || 0)) || '',
+            // Best word-overlap match ≥ 0.5 — never silently defaults to the first PO line.
+            const match = products
+                .map(x => ({ x, s: nameScore(p.description, x.description) }))
+                .filter(m => m.s >= 0.5)
+                .sort((a, b) => b.s - a.s)[0]?.x || null
+
+            // Convert the document's unit to MT.
+            const u = String(p.unit || '').toUpperCase()
+            const factor = u.startsWith('LB') || u.startsWith('POUND') ? LB_TO_MT : u.startsWith('KG') ? 0.001 : 1
+            const qtyMT = r3((parseFloat(p.qnty) || 0) * factor)
+
+            // Derive the per-MT price from the line's exact money total.
+            const lineTotal = parseFloat(p.lineTotal)
+            let unitPrc = '', total = ''
+            if (qtyMT > 0 && Number.isFinite(lineTotal) && lineTotal !== 0) {
+                const p2 = r2(lineTotal / qtyMT)
+                unitPrc = r2(qtyMT * p2) === r2(lineTotal) ? p2 : r3(lineTotal / qtyMT)
+                total = r2(lineTotal)                       // the invoice amount, exactly
+            } else if (qtyMT > 0 && parseFloat(p.unitPrc)) {
+                unitPrc = r2(parseFloat(p.unitPrc) / factor) // per-LB/KG price → per MT
+                total = r2(qtyMT * unitPrc)
             }
+            return { ...newStock, id: uuidv4(), description: match?.id || '', qnty: qtyMT || '', unitPrc, total }
         })
         if (lines.length) setData(prev => [...prev, ...lines])
         setShowDocImport(false)
@@ -182,8 +203,8 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
         setToast({
             show: true,
             text: lines.length === 0 ? 'No material lines found on that document'
-                : anyUnmatched ? 'Read from invoice — pick the material for any unmatched line'
-                    : 'Material & weight read from the supplier invoice',
+                : anyUnmatched ? `${lines.length} line${lines.length > 1 ? 's' : ''} read — pick the material for the unmatched one(s)`
+                    : `${lines.length} line${lines.length > 1 ? 's' : ''} read from the invoice (weights in MT, totals exact)`,
             clr: lines.length === 0 || anyUnmatched ? 'fail' : 'success',
         })
     }

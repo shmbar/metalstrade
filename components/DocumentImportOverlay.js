@@ -214,7 +214,10 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             if (selected.currency && result.currencyId) out.cur = result.currencyId;
             if (selected.products && result.products?.length) {
                 out.productsData = result.products.map((p, i) => ({
-                    id: `doc-${i}`, description: p.description || '', qnty: p.qnty || '', unitPrc: p.unitPrc || ''
+                    id: `doc-${i}`, description: p.description || '', qnty: p.qnty || '', unitPrc: p.unitPrc || '',
+                    // unit + line total let the Materials Breakdown convert to MT and
+                    // reproduce the exact invoice amount (harmless extras elsewhere).
+                    unit: p.unit || '', lineTotal: p.lineTotal ?? '',
                 }));
             }
             // `remarks` is a structured ARRAY in this app — never overwrite it with a
