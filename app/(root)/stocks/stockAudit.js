@@ -108,7 +108,7 @@ const buildAudit = (stockData, settings) => {
     .sort((a, b) => (b.outQty - b.inQty) - (a.outQty - a.inQty))
 
   const orphan = groupRows
-    .filter(g => g.inRows === 0 && g.outRows > 0)
+    .filter(g => g.inRows === 0 && g.outRows > 0 && g.outQty > 0.001) // zero-qty outs are noise, not misdirected write-offs
     .sort((a, b) => b.outQty - a.outQty)
 
   // 4. Zero-qnty IN with non-zero unitPrc
