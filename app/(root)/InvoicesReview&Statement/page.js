@@ -25,7 +25,7 @@ import Tooltip from '../../../components/tooltip';
 import { sumClients, sumSuppliers } from '../invoicesstatement/sumtables/sumTablesFuncs';
 import SumTableSupplier from '../invoicesstatement/sumtables/sumTablesSuppliers'
 import SumTableClient from '../invoicesstatement/sumtables/sumTablesClients'
-import VideoLoader from '../../../components/videoLoader';
+import { TableSkeleton } from "../../../components/skeletons";
 import Tltip from '../../../components/tlTip';
 
 const TotalInvoicePayments = (data) => {
@@ -904,7 +904,7 @@ const Shipments = () => {
   return (
     <div className="w-full " style={{ background: "#f8fbff" }}>
       <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
-        {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
+        {Object.keys(settings).length === 0 ? <TableSkeleton /> :
           <>
             <Toast />
             {/* Main Card */}

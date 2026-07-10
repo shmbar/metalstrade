@@ -11,7 +11,7 @@ import { UserAuth } from "../../../contexts/useAuthContext";
 import { loadData } from '../../../utils/utils';
 import { getTtl } from '../../../utils/languages';
 import Toast from '../../../components/toast.js';
-import VideoLoader from '../../../components/videoLoader';
+import { TableSkeleton } from "../../../components/skeletons";
 import Tltip from '../../../components/tlTip';
 
 // Total contracted weight of a sales contract = sum of its product-line quantities.
@@ -142,7 +142,7 @@ const SalesContracts = () => {
     return (
         <div className="w-full" style={{ background: "#f8fbff" }}>
             <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
-                {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
+                {Object.keys(settings).length === 0 ? <TableSkeleton /> :
                     <>
                         <Toast />
                         <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
