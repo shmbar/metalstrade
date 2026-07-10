@@ -10,7 +10,8 @@
       "Bash(grep -nA7 \"useFonts\\\\|@expo-google-fonts\" app/_layout.tsx)",
       "Bash(grep -nA30 \"export const typography\" src/theme/tokens.ts)",
       "Bash(sed -i \"s/secondary: scheme === 'dark' ? colors.surfaceAlt || '#1c2942' : '#dbeeff',/secondary: scheme === 'dark' ? colors.surfaceAlt || '#1c2942' : '#eef0f3',/\" src/components/ui/Button.tsx)",
-      "Bash(sed -i \"s/backgroundColor: scheme === 'dark' ? colors.surfaceAlt : '#dbeeff',/backgroundColor: scheme === 'dark' ? colors.surfaceAlt : '#eef0f3',/\" app/sign-in.tsx)"
+      "Bash(sed -i \"s/backgroundColor: scheme === 'dark' ? colors.surfaceAlt : '#dbeeff',/backgroundColor: scheme === 'dark' ? colors.surfaceAlt : '#eef0f3',/\" app/sign-in.tsx)",
+      "Bash(node -e \"console.log\\(require\\('./package.json'\\).dependencies.firebase\\)\")"
     ]
   }
 }
