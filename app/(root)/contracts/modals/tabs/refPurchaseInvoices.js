@@ -4,6 +4,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@utils/firebase';
 import { UserAuth } from "@contexts/useAuthContext";
 import { getTtl } from '@utils/languages';
+import { bustLoadCache } from '@utils/loadCache';
 
 const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln }) => {
 
@@ -85,6 +86,7 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
         const year = startDate?.substring(0, 4);
         if (!year) return;
 
+        bustLoadCache(); // direct write (bypasses utils.js) — clear the page-load cache
         await updateDoc(
             doc(db, uidCollection, 'data', 'contracts_' + year, source.id),
             { poInvoices: newPoInvoices }

@@ -1,8 +1,32 @@
 import { db } from '../utils/firebase'
 import {
-  setDoc, doc, getDoc, collection, getDocs, query, where, deleteDoc, writeBatch, updateDoc,
+  setDoc as fsSetDoc, doc, getDoc, collection, getDocs, query, where,
+  deleteDoc as fsDeleteDoc, writeBatch as fsWriteBatch, updateDoc as fsUpdateDoc,
   arrayUnion, arrayRemove, increment, or, and, deleteField, onSnapshot, orderBy, limit, documentId
 } from "firebase/firestore";
+import { cachedLoad, cacheKey, bustLoadCache } from './loadCache';
+
+// Every Firestore write below goes through these shadows, which invalidate the
+// short-TTL page-load cache (loadCache.js) BEFORE writing — so no write path can
+// ever leave a page reading yesterday's list. Housekeeping collections that no
+// cached loader reads (notifications / activity / comments — written on almost
+// every page visit) are exempt, otherwise they would clear the cache constantly.
+const CACHE_NEUTRAL = /\/data\/(notifications|activity|comments)\//;
+const maybeBust = (ref) => {
+  const p = '/' + String(ref?.path || '') + '/';
+  if (!CACHE_NEUTRAL.test(p)) bustLoadCache();
+};
+const setDoc = (ref, ...rest) => { maybeBust(ref); return fsSetDoc(ref, ...rest); };
+const updateDoc = (ref, ...rest) => { maybeBust(ref); return fsUpdateDoc(ref, ...rest); };
+const deleteDoc = (ref, ...rest) => { maybeBust(ref); return fsDeleteDoc(ref, ...rest); };
+const writeBatch = (...args) => {
+  const batch = fsWriteBatch(...args);
+  ['set', 'update', 'delete'].forEach((m) => {
+    const orig = batch[m].bind(batch);
+    batch[m] = (ref, ...rest) => { maybeBust(ref); return orig(ref, ...rest); };
+  });
+  return batch;
+};
 
 import { getStorage, ref, uploadBytes, listAll, getDownloadURL, deleteObject } from "firebase/storage";
 import { getTtl } from './languages';
@@ -545,20 +569,22 @@ export const loadData = async (uidCollection, path, dateSelect) => {
   const endYr = parseInt(dateSelect.end?.substring(0, 4));
   if (!startYr || !endYr) return [];
 
-  const years = [];
-  for (let i = startYr; i <= endYr; i++) years.push(i);
+  return cachedLoad(cacheKey('loadData', uidCollection, path, dateSelect.start, dateSelect.end), async () => {
+    const years = [];
+    for (let i = startYr; i <= endYr; i++) years.push(i);
 
-  const snapshots = await Promise.all(years.map(yr =>
-    getDocs(query(
-      collection(db, uidCollection, 'data', path + '_' + yr),
-      where('date', '>=', dateSelect.start),
-      where('date', '<=', dateSelect.end)
-    ))
-  ));
+    const snapshots = await Promise.all(years.map(yr =>
+      getDocs(query(
+        collection(db, uidCollection, 'data', path + '_' + yr),
+        where('date', '>=', dateSelect.start),
+        where('date', '<=', dateSelect.end)
+      ))
+    ));
 
-  return snapshots.flatMap(snap =>
-    snap.docs.filter(doc => !doc.empty).map(doc => doc.data())
-  );
+    return snapshots.flatMap(snap =>
+      snap.docs.filter(doc => !doc.empty).map(doc => doc.data())
+    );
+  });
 }
 
 export const loadDataWeightAnalysis = async (uidCollection, path, dateSelect, entity, name) => {
@@ -966,15 +992,15 @@ export const loadStockData = async (uidCollection, key, stockArr) => {
     */
 }
 
-export const loadAllStockData = async (uidCollection) => {
+export const loadAllStockData = async (uidCollection) =>
+  cachedLoad(cacheKey('loadAllStockData', uidCollection), async () => {
+    const querySnapshot = await getDocs(collection(db, uidCollection, 'data', 'stocks'));
 
-  const querySnapshot = await getDocs(collection(db, uidCollection, 'data', 'stocks'));
-
-  return querySnapshot.docs.map((doc) => {
-    doc.empty && console.log('No matching documents');
-    return !doc.empty && doc.data();
+    return querySnapshot.docs.map((doc) => {
+      doc.empty && console.log('No matching documents');
+      return !doc.empty && doc.data();
+    });
   });
-}
 
 // ── Shared Stock (IMS + GIS) ──────────────────────────────────────────────────
 // Jointly-held inventory lives in a fixed cross-account namespace that BOTH the IMS
@@ -1102,18 +1128,18 @@ export const saveMargins = async (uidCollection, data, yr) => {
 }
 
 
-export const loadMargins = async (uidCollection, yr) => {
+export const loadMargins = async (uidCollection, yr) =>
+  cachedLoad(cacheKey('loadMargins', uidCollection, yr), async () => {
+    let arr = []
 
-  let arr = []
+    // Query a reference to a subcollection
+    const querySnapshot = await getDocs(collection(db, uidCollection, 'margins', String(yr)));
+    querySnapshot.forEach((doc) => {
+      arr.push(doc.data());
+    });
 
-  // Query a reference to a subcollection
-  const querySnapshot = await getDocs(collection(db, uidCollection, 'margins', String(yr)));
-  querySnapshot.forEach((doc) => {
-    arr.push(doc.data());
+    return arr;
   });
-
-  return arr;
-}
 
 // Loads margin months across EVERY year in a dateSelect range, not just the
 // current year. Used by the chat assistant + dashboard so profit/margin-alert
@@ -1214,14 +1240,42 @@ export const syncSpecialInvoicesPaidStatus = async (uidCollection, contract) => 
   if (hasUpdate) await batch.commit();
 };
 
-export const loadDataInvoices = async (uidCollection, path, dateSelect) => {
+export const loadDataInvoices = async (uidCollection, path, dateSelect) =>
+  cachedLoad(cacheKey('loadDataInvoices', uidCollection, path, dateSelect.start, dateSelect.end), async () => {
+    let arr = []
 
-  let arr = []
+    let startYr = dateSelect.start?.substring(0, 4)
+    let endYr = dateSelect.end?.substring(0, 4)
 
-  let startYr = dateSelect.start?.substring(0, 4)
-  let endYr = dateSelect.end?.substring(0, 4)
+    for (let i = startYr; i < endYr; i++) {
+      const q = query(
+        collection(db, uidCollection, 'data', path),
+        where('date', '>=', dateSelect.start),
+        where('date', '<=', dateSelect.end)
+      );
 
-  for (let i = startYr; i < endYr; i++) {
+      const querySnapshot = await getDocs(q);
+
+      let tmp = querySnapshot.docs.map((doc) => {
+        doc.empty && console.log('No matching documents');
+        return !doc.empty && doc.data();
+      });
+      arr = [...arr, ...tmp]
+    }
+
+    return arr;
+  });
+
+export const loadCompanyExpense = async (uidCollection, path, obj) => {
+
+  const y = obj.date.substring(0, 4)
+
+  const docSnap = await getDoc(doc(db, uidCollection, 'data', path, obj.id));
+  return docSnap.exists() ? docSnap.data() : {};
+}
+
+export const loadCompanyExpenses = async (uidCollection, path, dateSelect) =>
+  cachedLoad(cacheKey('loadCompanyExpenses', uidCollection, path, dateSelect.start, dateSelect.end), async () => {
     const q = query(
       collection(db, uidCollection, 'data', path),
       where('date', '>=', dateSelect.start),
@@ -1234,38 +1288,9 @@ export const loadDataInvoices = async (uidCollection, path, dateSelect) => {
       doc.empty && console.log('No matching documents');
       return !doc.empty && doc.data();
     });
-    arr = [...arr, ...tmp]
-  }
 
-  return arr;
-}
-
-export const loadCompanyExpense = async (uidCollection, path, obj) => {
-
-  const y = obj.date.substring(0, 4)
-
-  const docSnap = await getDoc(doc(db, uidCollection, 'data', path, obj.id));
-  return docSnap.exists() ? docSnap.data() : {};
-}
-
-export const loadCompanyExpenses = async (uidCollection, path, dateSelect) => {
-
-
-  const q = query(
-    collection(db, uidCollection, 'data', path),
-    where('date', '>=', dateSelect.start),
-    where('date', '<=', dateSelect.end)
-  );
-
-  const querySnapshot = await getDocs(q);
-
-  let tmp = querySnapshot.docs.map((doc) => {
-    doc.empty && console.log('No matching documents');
-    return !doc.empty && doc.data();
+    return tmp;
   });
-
-  return tmp;
-}
 
 export const saveCompanyExpense = async (uidCollection, obj) => {
   try {

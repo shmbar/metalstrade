@@ -5,6 +5,7 @@ import { UserAuth } from '../contexts/useAuthContext';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../utils/firebase';
 import { getTtl } from '../utils/languages';
+import { bustLoadCache } from '../utils/loadCache';
 
 const useInlineEdit = (dataType, setData) => {
     const { setToast, ln } = useContext(SettingsContext);
@@ -26,6 +27,7 @@ const useInlineEdit = (dataType, setData) => {
         try {
             // Update Firestore
             const docRef = doc(db, uidCollection, 'data', collectionPath, item.id);
+            bustLoadCache(); // direct write (bypasses utils.js) — clear the page-load cache
             await updateDoc(docRef, { [field]: newValue });
 
             // Update local state
