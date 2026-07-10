@@ -23,7 +23,7 @@ import { SettingsContext } from '@contexts/useSettingsContext';
 import { UserAuth } from '@contexts/useAuthContext';
 import { loadSharedStock, saveSharedStock, deleteSharedStock } from '@utils/utils';
 import { getTtl } from '@utils/languages';
-import VideoLoader from '@components/videoLoader';
+import { TableSkeleton } from "@components/skeletons";
 
 const OWNERS = ['IMS', 'GIS'];
 const blankLot = () => ({ id: '', descriptionText: '', qnty: '', unitPrc: '', stock: '', supplier: '', cur: 'us', status: '', owners: ['IMS', 'GIS'] });
@@ -143,7 +143,7 @@ const SharedStock = () => {
     const inputCls = 'w-full rounded-lg bg-[#f8fbff] border border-[#d8e8f5] px-2 h-8 text-xs text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]';
     const labelCls = 'text-[11px] font-medium text-[var(--chathams-blue)] mb-0.5 block';
 
-    if (loading) return <div className='p-6'><VideoLoader loading={true} fullScreen={false} /></div>;
+    if (loading) return <div className='p-6'><TableSkeleton rows={6} title={false} /></div>;
 
     return (
         <div>

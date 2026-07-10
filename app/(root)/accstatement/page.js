@@ -23,7 +23,7 @@ import Tltip from '../../../components/tlTip';
 import Datepicker from "react-tailwindcss-datepicker";
 
 import { disabledDates } from './disabledDates';
-import VideoLoader from '../../../components/videoLoader';
+import { TableSkeleton } from "../../../components/skeletons";
 import { Selector } from '@components/selectors/selectShad';
 
 const fieldOrder = [
@@ -341,7 +341,7 @@ const AccountStatement = () => {
   return (
     <div className="w-full " style={{ background: "#f8fbff" }}>
       <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
-        {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
+        {Object.keys(settings).length === 0 ? <TableSkeleton /> :
           <>
             <Toast />
             {/* Main Card */}

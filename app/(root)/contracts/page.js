@@ -14,7 +14,7 @@ import ModalCopyInvoice from '../../../components/modalCopyInvoice';
 import useInlineEdit from '../../../hooks/useInlineEdit';
 import { loadData, sortArr, getD, saveDataSettings, ensureNotificationsBatch } from '../../../utils/utils'
 import Spinner from '../../../components/spinner';
-import VideoLoader from '../../../components/videoLoader';
+import { TableSkeleton } from "../../../components/skeletons";
 import { UserAuth } from "../../../contexts/useAuthContext"
 import Spin from '../../../components/spinTable';
 import { EXD } from './excel'
@@ -345,7 +345,7 @@ const Contracts = () => {
 	return (
 		<div className="w-full " style={{ background: "#f8fbff" }}>
 			<div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
-				{Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
+				{Object.keys(settings).length === 0 ? <TableSkeleton /> :
 					<>
 						<Toast />
 						<ModalCopyInvoice />

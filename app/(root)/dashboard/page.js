@@ -4,6 +4,7 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
 import VideoLoader from '@components/videoLoader';
+import { CardsSkeleton } from "@components/skeletons";
 import { UserAuth } from "@contexts/useAuthContext"
 import { SettingsContext } from "@contexts/useSettingsContext";
 import Toast from '@components/toast.js'
@@ -1107,7 +1108,7 @@ const Dash = () => {
   const hbSupps = HorizontalBar(dataPieSupps || {});
   const hbClnts = HorizontalBar(dataPieClnts || {});
 
-  if (Object.keys(settings).length === 0) return <VideoLoader loading={true} fullScreen={true} />;
+  if (Object.keys(settings).length === 0) return <div className="mx-auto w-full max-w-full px-2 md:px-4 pb-4 mt-[72px]"><CardsSkeleton /></div>;
 
   return (
     <LazyMotion features={domAnimation}>

@@ -5,6 +5,7 @@ import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { loadData, updateContractField, ensureNotificationsBatch, deleteNotification, loadActivityByTypePrefix } from '../../../utils/utils';
 import VideoLoader from '../../../components/videoLoader';
+import { TableSkeleton } from "../../../components/skeletons";
 import Toast from '../../../components/toast.js';
 import DateRangePicker from '../../../components/dateRangePicker';
 import Datepicker from "react-tailwindcss-datepicker";
@@ -703,7 +704,7 @@ const ShipmentPage = () => {
     };
 
     if (Object.keys(settings).length === 0) {
-        return <VideoLoader loading={true} fullScreen={true} />;
+        return <div className="mx-auto w-full max-w-full px-2 md:px-4 pb-4 mt-[72px]"><TableSkeleton /></div>;
     }
 
     return (

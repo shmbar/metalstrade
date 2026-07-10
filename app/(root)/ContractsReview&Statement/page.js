@@ -32,6 +32,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { Switch } from "../../../components/ui/switch";
 import React from "react";
 import VideoLoader from '../../../components/videoLoader';
+import { TableSkeleton } from "../../../components/skeletons";
 
 // ── Statement roll-up indicators ───────────────────────────────────────────
 const fmtMT = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number(n) || 0);
@@ -852,7 +853,7 @@ const ContractsMerged = () => {
     return (
         <div className="w-full " style={{ background: "#f8fbff" }}>
             <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
-                {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
+                {Object.keys(settings).length === 0 ? <TableSkeleton /> :
                     <>
                         <Toast />
                         <VideoLoader loading={loading} fullScreen={true} />

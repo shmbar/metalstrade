@@ -7,6 +7,7 @@ import { getTtl } from "../../../utils/languages";
 import React, { useContext, useEffect, useState } from 'react'
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
+import { CardsSkeleton } from "../../../components/skeletons";
 import { loadData, loadDataSettings, loadInvoice, loadMargins, loadStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments } from "../../../utils/utils";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
@@ -897,7 +898,7 @@ const Cashflow = () => {
     return (
         <div className="w-full" style={{ background: "#f8fbff" }}>
             <div className="mx-auto max-w-full px-1 md:px-2 pb-4 mt-[72px]">
-                {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
+                {Object.keys(settings).length === 0 ? <CardsSkeleton /> :
                     <>
                         <Toast />
                         <VideoLoader loading={loading} fullScreen={true} />

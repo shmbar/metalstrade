@@ -8,6 +8,7 @@ import { ContractsContext } from "../../../contexts/useContractsContext";
 import Toast from '../../../components/toast.js'
 import Spinner from '../../../components/spinner';
 import VideoLoader from '../../../components/videoLoader';
+import { TableSkeleton } from "../../../components/skeletons";
 import { UserAuth } from "../../../contexts/useAuthContext"
 import { loadStockData, filteredArray, loadAllStockData } from '../../../utils/utils'
 import Spin from '../../../components/spinTable';
@@ -342,7 +343,7 @@ const Stocks = () => {
   return (
     <div className="w-full " style={{ background: "#f8fbff" }}>
       <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
-        {Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
+        {Object.keys(settings).length === 0 ? <TableSkeleton /> :
           <>
             <Toast />
             <VideoLoader loading={loading} fullScreen={true} />

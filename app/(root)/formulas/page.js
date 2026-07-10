@@ -5,6 +5,7 @@ import { SettingsContext } from "../../../contexts/useSettingsContext";
 import Toast from '../../../components/toast.js'
 import { loadDataSettings, saveDataSettings } from '../../../utils/utils'
 import VideoLoader from '../../../components/videoLoader';
+import { TableSkeleton } from "../../../components/skeletons";
 import { UserAuth } from "../../../contexts/useAuthContext"
 import { Tab, TabPanel, TabGroup, TabList, TabPanels } from '@headlessui/react'
 import Fenicr from './tabs/fenicr';
@@ -122,7 +123,7 @@ const Page = () => {
 
 	return (
 		<div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
-			{Object.keys(settings).length === 0 ? <VideoLoader loading={true} fullScreen={true} /> :
+			{Object.keys(settings).length === 0 ? <TableSkeleton /> :
 				<>
 					<Toast />
 					<VideoLoader loading={loading} fullScreen={true} />

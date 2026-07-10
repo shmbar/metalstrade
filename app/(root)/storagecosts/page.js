@@ -20,7 +20,7 @@ import { loadData, loadAllStockData, updateExpenseField } from '../../../utils/u
 import { UNIT, ym, toUsd, mtInWh, isStorageType, computeStorageMetric } from './storageUtils';
 import { NumericFormat } from 'react-number-format';
 import { Warehouse, Save, Boxes, AlertTriangle, Check, Receipt, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
-import VideoLoader from '../../../components/videoLoader';
+import { TableSkeleton } from "../../../components/skeletons";
 import { Selector } from '../../../components/selectors/selectShad';
 
 const fmtUsd = (v) => `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
@@ -212,7 +212,7 @@ const StorageCosts = () => {
     };
 
     if (loading || Object.keys(settings).length === 0) {
-        return <div className="mt-[72px] p-5"><VideoLoader loading={true} fullScreen={true} /></div>;
+        return <div className="mt-[72px] p-5"><TableSkeleton /></div>;
     }
 
     return (
