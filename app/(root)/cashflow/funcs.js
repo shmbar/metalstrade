@@ -224,8 +224,18 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
             // inventory tables rather than the contracted quantity. When nothing is in stock
             // yet, fall back to the contract quantity (bought-but-unsold, not yet received).
             const unsoldLots = prodLots.filter(l => !lotIsSold(l));
+            // Net out partial sales: 'out' write-offs (shipments/sales — NOT warehouse
+            // transfers, whose material is still owned and unsold) reduce what's left.
+            // Outs are attributed to sold-marked lots first, so a lot that is both marked
+            // sold and shipped isn't subtracted twice; only the excess hits the unsold
+            // balance. This is what kept e.g. Ta Discs at 2.790 when 0.250 had shipped.
+            const outQty = stockData
+                .filter(l => l.type === 'out' && l.moveType !== 'out'
+                    && (l.descriptionId === prod.id || l.description === prod.id))
+                .reduce((s, l) => s + Math.abs(Number(l.qnty) || 0), 0);
+            const soldQty = prodLots.filter(lotIsSold).reduce((s, l) => s + (Number(l.qnty) || 0), 0);
             const qnty = prodLots.length > 0
-                ? unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0)
+                ? Math.max(0, unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0) - Math.max(0, outQty - soldQty))
                 : (Number(prod.qnty) || 0);
             // Value mirrors the inventory tables: quantity × the line's unit price. Summing
             // raw lot totals would fold in zero-quantity settlement/adjustment lots, which
