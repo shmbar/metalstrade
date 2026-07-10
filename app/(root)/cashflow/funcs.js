@@ -229,10 +229,17 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [])
             // Outs are attributed to sold-marked lots first, so a lot that is both marked
             // sold and shipped isn't subtracted twice; only the excess hits the unsold
             // balance. This is what kept e.g. Ta Discs at 2.790 when 0.250 had shipped.
-            const outQty = stockData
+            const prodOuts = stockData
                 .filter(l => l.type === 'out' && l.moveType !== 'out'
-                    && (l.descriptionId === prod.id || l.description === prod.id))
-                .reduce((s, l) => s + Math.abs(Number(l.qnty) || 0), 0);
+                    && (l.descriptionId === prod.id || l.description === prod.id));
+            // An invoice and its Credit/Final note BOTH write off the same lines by design —
+            // count only the superseding doc per invoice number (same filteredArray rule every
+            // stock reader uses), or the pair would subtract twice.
+            const hasInv = (l) => l.invoice !== undefined && l.invoice !== null && l.invoice !== '';
+            const outQty = [
+                ...filteredArray(prodOuts.filter(hasInv)),
+                ...prodOuts.filter(l => !hasInv(l)),
+            ].reduce((s, l) => s + Math.abs(Number(l.qnty) || 0), 0);
             const soldQty = prodLots.filter(lotIsSold).reduce((s, l) => s + (Number(l.qnty) || 0), 0);
             const qnty = prodLots.length > 0
                 ? Math.max(0, unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0) - Math.max(0, outQty - soldQty))

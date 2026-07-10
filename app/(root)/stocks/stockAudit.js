@@ -5,6 +5,7 @@ import Modal from '@components/modal.js'
 import Tltip from '@components/tlTip'
 import { NumericFormat } from 'react-number-format'
 import dateFormat from 'dateformat'
+import { filteredArray } from '@utils/utils'
 
 const tabs = [
   { id: 'dupes', label: 'Duplicate OUT' },
@@ -31,7 +32,16 @@ const buildAudit = (stockData, settings) => {
   const stockName = (id) => settings?.Stocks?.Stocks?.find(s => s.id === id)?.nname || id || '(none)'
   const supplierName = (id) => settings?.Supplier?.Supplier?.find(s => s.id === id)?.nname || ''
 
-  const enriched = (stockData || []).filter(Boolean).map(r => ({
+  // An invoice and its Credit/Final note BOTH write off the same lines by design, and
+  // every stock reader keeps only the superseding doc per invoice number (filteredArray).
+  // Apply the same rule here, or those by-design pairs read as "duplicates" and their
+  // doubled outs as "over-shipped" — burying the real problems (this was inflating the
+  // tabs to 464/406 entries). Outs without an invoice reference pass through untouched.
+  const rows = (stockData || []).filter(Boolean)
+  const isInvOut = (r) => r.type === 'out' && r.invoice !== undefined && r.invoice !== null && r.invoice !== ''
+  const auditSource = [...rows.filter(r => !isInvOut(r)), ...filteredArray(rows.filter(isInvOut))]
+
+  const enriched = auditSource.map(r => ({
     raw: r,
     id: r.id,
     type: r.type,
