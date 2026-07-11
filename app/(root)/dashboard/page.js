@@ -805,31 +805,36 @@ const Dash = () => {
       const year = dateSelect?.start?.substring(0, 4) || new Date().getFullYear();
       setLoading(true);
 
-      let dtContracts = await loadData(uidCollection, 'contracts', {
+      // All three root downloads are independent — start them together. Only the
+      // invoice INDEX depends on contracts; the receivables window and misc
+      // invoices were needlessly queued behind it (same fix as cashflow).
+      const contractsPromise = loadData(uidCollection, 'contracts', {
+        start: dateSelect?.start || `${year}-01-01`,
+        end: dateSelect?.end || `${year}-12-31`,
+      });
+      // Outstanding receivables are a running total — load a multi-year window (last 4
+      // years) so the card reflects TRUE outstanding, not just invoices dated this period.
+      const curYr = new Date().getFullYear();
+      const invsForRecvPromise = loadData(uidCollection, 'invoices', {
+        start: `${curYr - 3}-01-01`,
+        end: `${curYr}-12-31`,
+      });
+      // P1 "Misc Invoices" — standalone sales not linked to any contract.
+      const miscPromise = loadCompanyExpenses(uidCollection, 'specialInvoices', {
         start: dateSelect?.start || `${year}-01-01`,
         end: dateSelect?.end || `${year}-12-31`,
       });
 
+      const dtContracts = await contractsPromise;
       // Batch ALL contracts' invoice lookups into one pass instead of one query per
       // contract (the old N+1): load the union once, then slice per contract in memory.
       const invIndex = await buildInvoiceIndex(uidCollection, dtContracts);
       let dtConTmp = dtContracts.map(x => ({ ...x, invoicesData: contractInvoicesFromIndex(x, invIndex) }));
       setRawContracts(dtConTmp);
 
-      // Outstanding receivables are a running total — load a multi-year window (last 4
-      // years) so the card reflects TRUE outstanding, not just invoices dated this period.
-      const curYr = new Date().getFullYear();
-      const invsForRecv = await loadData(uidCollection, 'invoices', {
-        start: `${curYr - 3}-01-01`,
-        end: `${curYr}-12-31`,
-      });
-      setRawRecvInvoices(invsForRecv);
+      setRawRecvInvoices(await invsForRecvPromise);
 
-      // P1 "Misc Invoices" — standalone sales not linked to any contract.
-      const misc = await loadCompanyExpenses(uidCollection, 'specialInvoices', {
-        start: dateSelect?.start || `${year}-01-01`,
-        end: dateSelect?.end || `${year}-12-31`,
-      });
+      const misc = await miscPromise;
       setRawMiscInvoices(Array.isArray(misc) ? misc.filter(Boolean) : []);
 
       setLoading(false);
