@@ -26,6 +26,7 @@ import { sumClients, sumSuppliers } from '../invoicesstatement/sumtables/sumTabl
 import SumTableSupplier from '../invoicesstatement/sumtables/sumTablesSuppliers'
 import SumTableClient from '../invoicesstatement/sumtables/sumTablesClients'
 import { TableSkeleton } from "../../../components/skeletons";
+import VideoLoader from '../../../components/videoLoader';
 import Tltip from '../../../components/tlTip';
 
 const TotalInvoicePayments = (data) => {
@@ -907,6 +908,9 @@ const Shipments = () => {
         {Object.keys(settings).length === 0 ? <TableSkeleton /> :
           <>
             <Toast />
+            {/* Blocking overlay while review/statement data loads — without it the
+                tables render empty (old "no data" video) for the whole load. */}
+            <VideoLoader loading={loading} fullScreen={true} />
             {/* Main Card */}
             <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8]  w-full bg-white">
               {/* Header Section */}

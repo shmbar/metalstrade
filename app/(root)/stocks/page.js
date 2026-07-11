@@ -11,7 +11,6 @@ import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
 import { UserAuth } from "../../../contexts/useAuthContext"
 import { loadStockData, filteredArray, loadAllStockData } from '../../../utils/utils'
-import Spin from '../../../components/spinTable';
 import { Selector } from '../../../components/selectors/selectShad.js'
 import { EXD } from './excel'
 import { getTtl } from '../../../utils/languages';
@@ -347,7 +346,9 @@ const Stocks = () => {
           <>
             <Toast />
             <VideoLoader loading={loading} fullScreen={true} />
-            {isLoadingStock && <Spin />}
+            {/* Warehouse fetches used the old bare gray spinner (Spin) — use the same
+                light overlay as every other loading state. */}
+            <VideoLoader loading={isLoadingStock} fullScreen={true} />
             {/* Main Card */}
             <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
               {/* Header Section */}
