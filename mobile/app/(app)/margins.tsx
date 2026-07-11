@@ -3,7 +3,7 @@ import { View, Pressable, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, StatCard, Button, SectionHeader, LoadingState, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, StatCard, Button, SectionHeader, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
@@ -58,7 +58,7 @@ export default function Margins() {
       </View>
 
       {isLoading ? (
-        <LoadingState label="Loading margins…" />
+        <SkeletonList count={6} />
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />
       ) : (

@@ -3,7 +3,7 @@ import { View, Pressable, Modal, FlatList, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Button, TextField, DateField, SectionHeader, ProgressBar, LoadingState, ErrorState } from '@/components/ui';
+import { Screen, Card, Text, Button, TextField, DateField, SectionHeader, ProgressBar, SkeletonList, ErrorState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useCashflow, Counterparty } from '@/features/cashflow/useCashflow';
@@ -128,7 +128,7 @@ export default function Cashflow() {
       </View>
 
       {isLoading && !data ? (
-        <LoadingState label="Crunching the books…" />
+        <SkeletonList count={6} />
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load cashflow.'} onRetry={refetch} />
       ) : data ? (

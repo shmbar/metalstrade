@@ -3,7 +3,7 @@ import { View, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Select, LoadingState, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Select, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
@@ -70,7 +70,7 @@ export default function AccStatement() {
       {!ready ? (
         <EmptyState title="Pick a client & period" message="Choose a client and a mid/end-month period to load the statement." icon={<Ionicons name="reader-outline" size={40} color={colors.textFaint} />} />
       ) : isLoading ? (
-        <LoadingState label="Loading statement…" />
+        <SkeletonList count={6} />
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />
       ) : !rows || rows.length === 0 ? (

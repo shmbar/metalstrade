@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { View, Pressable, Alert, Modal } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Card, Text, Badge, Button, ProgressBar, SectionHeader, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, Button, ProgressBar, SectionHeader, EmptyState, SkeletonList } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '@/store/settings';
@@ -20,7 +20,7 @@ export default function ContractDetail() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings, compData } = useSettings();
-  const { data: contracts } = useContracts();
+  const { data: contracts, isLoading: contractsLoading } = useContracts();
 
   const contract = useMemo(() => contracts?.find((c) => c.id === id), [contracts, id]);
 
@@ -47,6 +47,17 @@ export default function ContractDetail() {
   // Duplicate — shared with the contracts-list swipe action (web parity).
   const { duplicate, isPending: duplicating } = useDuplicateContract();
   const onDuplicate = () => contract && duplicate(contract);
+
+  // Deep links (push notifications) land here before the contracts list is cached —
+  // show a loading skeleton instead of flashing "not found" while the query runs.
+  if (!contract && contractsLoading) {
+    return (
+      <Screen>
+        <BackBar />
+        <SkeletonList count={4} />
+      </Screen>
+    );
+  }
 
   if (!contract) {
     return (

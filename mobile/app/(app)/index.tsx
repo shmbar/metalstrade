@@ -3,7 +3,7 @@ import { router, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StatCard, Text, Card, AreaChart, SectionHeader, LoadingState, ErrorState } from '@/components/ui';
+import { StatCard, Text, Card, AreaChart, SectionHeader, SkeletonList, ErrorState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
@@ -125,7 +125,7 @@ export default function Dashboard() {
         {/* Body */}
         <View style={{ paddingHorizontal: spacing.lg, marginTop: 18 }}>
           {isLoading && !data ? (
-            <LoadingState label="Loading your books…" />
+            <SkeletonList count={6} />
           ) : isError ? (
             <ErrorState message={(error as Error)?.message || 'Failed to load dashboard data.'} onRetry={refetch} />
           ) : data ? (

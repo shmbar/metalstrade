@@ -3,7 +3,7 @@ import { View, Pressable, Modal, Alert } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, Button, SectionHeader, TextField, DateField, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, Button, SectionHeader, TextField, DateField, EmptyState, SkeletonList } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useInvoices, deriveInvoice } from '@/features/invoices/useInvoices';
@@ -22,7 +22,7 @@ export default function InvoiceDetail() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings, compData } = useSettings();
-  const { data: invoices } = useInvoices();
+  const { data: invoices, isLoading: invoicesLoading } = useInvoices();
   const addPayment = useAddPayment();
   const genReminder = useGenerateReminder();
   const sendReminder = useSendReminder();
@@ -41,6 +41,17 @@ export default function InvoiceDetail() {
   const [showAdd, setShowAdd] = useState(pay === '1');
   const [amount, setAmount] = useState('');
   const [payDate, setPayDate] = useState<string>(new Date().toISOString().slice(0, 10));
+
+  // Deep links (push notifications) land here before the invoices list is cached —
+  // show a loading skeleton instead of flashing "not found" while the query runs.
+  if (!view && invoicesLoading) {
+    return (
+      <Screen>
+        <Back />
+        <SkeletonList count={4} />
+      </Screen>
+    );
+  }
 
   if (!view) {
     return (

@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, LoadingState, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { loadMaterials } from '@/data/firestore';
@@ -41,7 +41,7 @@ export default function Materials() {
       </View>
 
       {isLoading ? (
-        <LoadingState />
+        <SkeletonList count={5} />
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load materials.'} onRetry={refetch} />
       ) : !data || data.length === 0 ? (
