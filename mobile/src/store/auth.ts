@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { AppState } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -7,6 +9,17 @@ import {
   User,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+
+// Idle-expiry parity with the web app's AuthContext. A phone is inherently a
+// "Remember me" device (users expect to stay signed in), so mobile uses the web's
+// remembered tier: the session expires after 30 idle DAYS — a forgotten login on
+// an old device can't live forever — never the 2h no-remember cap.
+const IDLE_MAX_MS = 30 * 24 * 60 * 60 * 1000;
+const LAST_SEEN_KEY = 'ims:lastSeen';
+
+const bumpLastSeen = () => {
+  AsyncStorage.setItem(LAST_SEEN_KEY, String(Date.now())).catch(() => {});
+};
 
 // The GIS account's uidCollection — same sentinel the web app uses to flip
 // "Sharon Admin" ↔ "Gis Admin" and a handful of GIS-specific behaviors.
@@ -96,6 +109,7 @@ export const useAuth = create<AuthState>((set) => ({
   },
 
   signOut: async () => {
+    await AsyncStorage.removeItem(LAST_SEEN_KEY).catch(() => {});
     await fbSignOut(auth).catch(() => {});
   },
 
@@ -121,7 +135,24 @@ export const useAuth = create<AuthState>((set) => ({
   // Subscribes to Firebase auth; resolves the per-account namespace + role from
   // the user's custom claims (identical model to the web app's AuthContext).
   init: () => {
-    return onAuthStateChanged(auth, async (user) => {
+    // Keep the "last activity" stamp fresh while the app is used (foreground
+    // transitions are the natural mobile heartbeat), mirroring the web's bump.
+    const appStateSub = AppState.addEventListener('change', (next) => {
+      if (auth.currentUser && (next === 'active' || next === 'background')) bumpLastSeen();
+    });
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      // Enforce the idle cap on restore: a session untouched for 30+ days must
+      // re-authenticate instead of silently auto-resuming (web parity).
+      if (user) {
+        const raw = await AsyncStorage.getItem(LAST_SEEN_KEY).catch(() => null);
+        const last = parseInt(raw || '0', 10);
+        if (last && Date.now() - last > IDLE_MAX_MS) {
+          await AsyncStorage.removeItem(LAST_SEEN_KEY).catch(() => {});
+          await fbSignOut(auth).catch(() => {});
+          return; // onAuthStateChanged fires again with null and resets state
+        }
+        bumpLastSeen();
+      }
       if (!user) {
         set({
           user: null,
@@ -156,5 +187,9 @@ export const useAuth = create<AuthState>((set) => ({
         });
       }
     });
+    return () => {
+      appStateSub.remove();
+      unsubscribe();
+    };
   },
 }));
