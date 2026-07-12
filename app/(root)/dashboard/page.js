@@ -498,8 +498,14 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
 // for "no filter" since Radix Select can't use an empty-string value.)
 function FilterSelect({ label, icon, value, onChange, options }) {
   const active = !!value;
+  // Type-to-filter for long lists (client request: every list gets a search box).
+  const [q, setQ] = useState('');
+  const shown = q
+    ? options.filter(o => String(o.label).toLowerCase().includes(q.toLowerCase()))
+    : options;
   return (
-    <Select value={value || 'all'} onValueChange={(v) => onChange(v === 'all' ? '' : v)}>
+    <Select value={value || 'all'} onValueChange={(v) => { onChange(v === 'all' ? '' : v); setQ(''); }}
+      onOpenChange={(open) => { if (!open) setQ(''); }}>
       <SelectTrigger
         className="group h-8 w-auto min-w-[122px] max-w-[210px] gap-1.5 rounded-full pl-2.5 pr-1.5 shadow-sm focus:ring-0 focus:ring-offset-0"
         style={{
@@ -517,12 +523,28 @@ function FilterSelect({ label, icon, value, onChange, options }) {
         </span>
       </SelectTrigger>
       <SelectContent className="rounded-xl border border-[#dbeeff] shadow-md max-h-72 min-w-[var(--radix-select-trigger-width)]">
+        {options.length > 7 && (
+          <div className="sticky top-0 z-10 bg-white p-1.5 border-b border-[#eef5fc]">
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              onKeyDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              placeholder="Search…"
+              className="w-full h-7 px-2 rounded-lg border border-[#d8e8f5] bg-[#f8fbff] focus:outline-none focus:border-[var(--endeavour)]"
+              style={{ fontSize: '0.7rem', color: 'var(--chathams-blue)' }}
+            />
+          </div>
+        )}
         <SelectItem value="all" className="rounded-lg text-[var(--chathams-blue)]" style={{ fontSize: '0.7rem' }}>All</SelectItem>
-        {options.map((o) => (
+        {shown.map((o) => (
           <SelectItem key={o.value} value={o.value} className="rounded-lg text-[var(--chathams-blue)]" style={{ fontSize: '0.7rem' }}>
             {o.label}
           </SelectItem>
         ))}
+        {q && shown.length === 0 && (
+          <div className="px-3 py-2" style={{ fontSize: '0.7rem', color: 'var(--regent-gray)' }}>No matches</div>
+        )}
       </SelectContent>
     </Select>
   );
@@ -875,9 +897,17 @@ const Dash = () => {
     rawContracts.forEach(c => (c.invoicesData || []).forEach(group => group.forEach(inv => {
       const n = resolveClientName(inv.client); if (n) set.add(n);
     })));
+    // Also harvest from the period's raw invoices — the contract→invoice join can come
+    // back empty (unlinked/legacy refs), which left this dropdown showing only "All".
+    const start = dateSelect?.start, end = dateSelect?.end;
+    (rawRecvInvoices || []).forEach(inv => {
+      const d = !inv?.final ? inv?.dateRange?.startDate : inv?.date;
+      if (typeof d !== 'string' || (start && d < start) || (end && d > end)) return;
+      const n = resolveClientName(inv.client); if (n) set.add(n);
+    });
     return [...set].sort((a, b) => a.localeCompare(b));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawContracts, settings]);
+  }, [rawContracts, rawRecvInvoices, dateSelect, settings]);
 
   // Apply the active Supplier / Material / Client filters to the raw contracts.
   const filteredContracts = useMemo(() => {
@@ -930,10 +960,9 @@ const Dash = () => {
       if (inv.canceled || inv.draft === true) return;
       const isOriginal = ['1111', 'Invoice'].includes(inv.invType);
       if (!(g.length === 1 || !isOriginal)) return; // original superseded by its Credit/Final note
-      if (fClient) {
-        const cid = inv.final ? inv.client?.id : inv.client;
-        if (cid !== fClient) return;
-      }
+      // fClient holds a client NAME (that's what the filter options store) — match by
+      // resolved name for both draft (id) and finalized ({nname}) invoice shapes.
+      if (fClient && resolveClientName(inv.client) !== fClient) return;
       if (allowedPO && !allowedPO.has(inv.poSupplier?.id)) return;
       const amt = parseFloat(inv.totalAmount);
       if (isNaN(amt)) return;
