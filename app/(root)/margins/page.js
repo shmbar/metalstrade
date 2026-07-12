@@ -98,10 +98,43 @@ const Margins = () => {
     const [alertHistory, setAlertHistory] = useState([]); // [{ month, count, items }]
     const [historyOpen, setHistoryOpen] = useState(false);
     const [alertDismissed, setAlertDismissed] = useState(false);
-    // Edits (dates, rows, deleted months…) live only in local state until "Save" — leaving
-    // without saving silently lost them (the reported disappearing dates). Track dirtiness,
-    // show it next to Save, and warn before the tab closes.
+    // Edits (dates, rows, deleted months…) only lived in local state until "Save", so leaving
+    // silently lost them (the reported disappearing dates). Every mutation flips `dirty`, which
+    // now drives AUTOSAVE: a debounced save fires ~1.5s after the last change, an unmount flush
+    // catches in-app navigation inside that window, and beforeunload still warns on tab close.
     const [dirty, setDirty] = useState(false);
+    const [autoSaving, setAutoSaving] = useState(false);
+    const [savedFlash, setSavedFlash] = useState(false);
+    const dataRef = useRef(data); dataRef.current = data;
+    const dirtyRef = useRef(dirty); dirtyRef.current = dirty;
+    // The year the CURRENT data belongs to (set when a load completes) — autosave writes to
+    // this year, never to a freshly-picked year whose data hasn't loaded yet.
+    const dataYrRef = useRef(null);
+
+    useEffect(() => {
+        if (!dirty) return;
+        const t = setTimeout(async () => {
+            if (!uidCollection || dataYrRef.current == null) return;
+            setAutoSaving(true);
+            const ok = await saveMargins(uidCollection, dataRef.current, dataYrRef.current).catch(() => false);
+            setAutoSaving(false);
+            if (ok) {
+                setDirty(false);
+                setSavedFlash(true);
+                setTimeout(() => setSavedFlash(false), 2500);
+            }
+        }, 1500);
+        return () => clearTimeout(t);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data, dirty, uidCollection]);
+
+    // In-app navigation unmounts the page and would cancel a pending autosave — flush it.
+    useEffect(() => () => {
+        if (dirtyRef.current && uidCollection && dataYrRef.current != null) {
+            saveMargins(uidCollection, dataRef.current, dataYrRef.current).catch(() => { });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [uidCollection]);
 
     useEffect(() => {
         if (!dirty) return;
@@ -205,6 +238,7 @@ const Margins = () => {
             }));
 
             setData(dt)
+            dataYrRef.current = yr // autosave targets the year this data came from
             setDirty(false)
             setLoading(false)
         }
@@ -633,12 +667,22 @@ const Margins = () => {
                                         Add month
                                     </button>
 
-                                    {dirty && (
+                                    {autoSaving ? (
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
+                                            style={{ fontSize: '0.62rem', background: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
+                                            <Loader2 className="w-3 h-3 animate-spin" /> Saving…
+                                        </span>
+                                    ) : dirty ? (
                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
                                             style={{ fontSize: '0.62rem', background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a' }}>
-                                            <AlertTriangle className="w-3 h-3" /> Unsaved changes
+                                            <AlertTriangle className="w-3 h-3" /> Unsaved — autosaving…
                                         </span>
-                                    )}
+                                    ) : savedFlash ? (
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
+                                            style={{ fontSize: '0.62rem', background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>
+                                            ✓ Saved
+                                        </span>
+                                    ) : null}
                                     <button
                                         className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.68rem] rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                         onClick={saveData}
