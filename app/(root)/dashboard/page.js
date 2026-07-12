@@ -903,6 +903,52 @@ const Dash = () => {
   const dataInvoices = invAgg.accumulatedPmnt;
   const dataPieClnts = invAgg.pieArrClnts;
 
+  // ── Sales Revenue, invoice-dated ──────────────────────────────────────────
+  // Standard period revenue = every sales invoice DATED in the selected range,
+  // whatever year its PO was bought — the basis the Invoices Review uses. The
+  // contract-centric aggregation above (kept for the deal-basis P&L: Net Profit,
+  // COGS, hero chart) misses period sales of earlier-bought material, which was
+  // the reported dashboard-vs-Invoices-Review revenue gap. Reuses the already-
+  // loaded 4-year invoice window; same supersede rule as funcs.js Total().
+  const invoiceRevAgg = useMemo(() => {
+    const byMonth = Object.fromEntries(Array.from({ length: 12 }, (_, i) => [i + 1, 0]));
+    let total = 0;
+    const start = dateSelect?.start, end = dateSelect?.end;
+    if (!Array.isArray(rawRecvInvoices) || !settings?.Currency?.Currency || !start || !end) {
+      return { byMonth, total };
+    }
+    // Supplier/Material filters only resolve through a loaded contract; Client matches
+    // the invoice directly (same behaviour as the Receivables card).
+    const allowedPO = (fSupplier || fMaterial) ? new Set(filteredContracts.map(c => c.id)) : null;
+    const groups = {};
+    rawRecvInvoices.forEach(inv => {
+      const d = !inv?.final ? inv?.dateRange?.startDate : inv?.date;
+      if (typeof d !== 'string' || d < start || d > end) return;
+      if (inv.invoice != null) (groups[String(inv.invoice)] ||= []).push(inv);
+    });
+    Object.values(groups).forEach(g => g.forEach(inv => {
+      if (inv.canceled || inv.draft === true) return;
+      const isOriginal = ['1111', 'Invoice'].includes(inv.invType);
+      if (!(g.length === 1 || !isOriginal)) return; // original superseded by its Credit/Final note
+      if (fClient) {
+        const cid = inv.final ? inv.client?.id : inv.client;
+        if (cid !== fClient) return;
+      }
+      if (allowedPO && !allowedPO.has(inv.poSupplier?.id)) return;
+      const amt = parseFloat(inv.totalAmount);
+      if (isNaN(amt)) return;
+      const curId = !inv.final ? inv.cur : settings.Currency.Currency.find(x => x.cur === inv.cur?.cur)?.id;
+      const rate = parseFloat(inv.euroToUSD);
+      const mult = companyRate > 0 ? companyRate : (rate > 0 ? rate : 1);
+      const usd = curId === 'us' ? amt : amt * mult;
+      const d = !inv.final ? inv.dateRange.startDate : inv.date;
+      const m = Number(String(d).substring(5, 7));
+      if (m >= 1 && m <= 12) { byMonth[m] += usd; total += usd; }
+    }));
+    return { byMonth, total };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawRecvInvoices, settings, companyRate, dateSelect, fClient, fSupplier, fMaterial, filteredContracts]);
+
   const totalMT = conAgg.totalMT || 0;
   const shippedMT = Math.min(conAgg.shippedMT || 0, totalMT); // never exceed purchased
   const pendingMT = Math.max(0, totalMT - shippedMT);
@@ -1209,8 +1255,8 @@ const Dash = () => {
             />
             <StatKpiCard
               title="Sales Revenue"
-              value={fmtAutoKM(totalInvoices)}
-              chartData={dataInvoices}
+              value={fmtAutoKM(invoiceRevAgg.total)}
+              chartData={invoiceRevAgg.byMonth}
               accent="#16a34a"
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" strokeWidth="2" /><path d="M8 10h8M8 14h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
             />
