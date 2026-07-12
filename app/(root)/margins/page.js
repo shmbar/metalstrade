@@ -98,6 +98,17 @@ const Margins = () => {
     const [alertHistory, setAlertHistory] = useState([]); // [{ month, count, items }]
     const [historyOpen, setHistoryOpen] = useState(false);
     const [alertDismissed, setAlertDismissed] = useState(false);
+    // Edits (dates, rows, deleted months…) live only in local state until "Save" — leaving
+    // without saving silently lost them (the reported disappearing dates). Track dirtiness,
+    // show it next to Save, and warn before the tab closes.
+    const [dirty, setDirty] = useState(false);
+
+    useEffect(() => {
+        if (!dirty) return;
+        const warn = (e) => { e.preventDefault(); e.returnValue = ''; };
+        window.addEventListener('beforeunload', warn);
+        return () => window.removeEventListener('beforeunload', warn);
+    }, [dirty]);
     const [explainOpen, setExplainOpen] = useState(false);
     const [explaining, setExplaining] = useState(false);
     const [explanation, setExplanation] = useState('');
@@ -194,6 +205,7 @@ const Margins = () => {
             }));
 
             setData(dt)
+            setDirty(false)
             setLoading(false)
         }
 
@@ -291,6 +303,7 @@ const Margins = () => {
     }, [data, threshold])
 
     const handleChangeDate = useCallback((e, id, month) => {
+        setDirty(true);
         const dd = dateFormat(e, 'yyyy-mm-dd')
         setData(prev => prev.map(z => z.month === month ? {
             ...z, items: z.items.map(x => x.id === id ? {
@@ -300,6 +313,7 @@ const Margins = () => {
     }, [])
 
     const handleCancelDate = useCallback((e, id, month) => {
+        setDirty(true);
         setData(prev => prev.map(z => z.month === month ? {
             ...z, items: z.items.map(x => x.id === id ? {
                 ...x, date: { endDate: null, startDate: null }
@@ -310,6 +324,7 @@ const Margins = () => {
     const handleDragEnd = useCallback((event) => {
         const { active, over } = event;
         if (!active || !over || active.id === over.id) return;
+        setDirty(true);
         setData(prev => {
             const index = prev.findIndex(monthData =>
                 monthData.items.some(item => item.id === event.collisions[0].id)
@@ -333,6 +348,7 @@ const Margins = () => {
     );
 
     const addItem = useCallback((month) => {
+        setDirty(true);
         const newId = uuidv4();
         const newItem1 = { ...newItm, id: newId };
         setData(prev => prev.map(z => z.month === month
@@ -342,6 +358,7 @@ const Margins = () => {
     }, []);
 
     const deleteRow = useCallback((e, id, month) => {
+        setDirty(true);
         setData(prev => prev.map(z => z.month === month ? {
             ...z,
             items: z.items.filter(x => x.id !== id),
@@ -350,7 +367,7 @@ const Margins = () => {
     }, [])
 
     const addMonth = () => {
-
+        setDirty(true);
         const month = data.length + 1;
         const formattedMonth = String(month).padStart(2, '0');
 
@@ -365,6 +382,7 @@ const Margins = () => {
     const handleChange = useCallback((e, id, month) => {
         if (countDecimalDigits(e.target.value) > 3) return;
         const name = e.target.name;
+        setDirty(true);
         const value = name === 'description' ? e.target.value : removeNonNumeric(e.target.value);
 
         setData(prev => {
@@ -391,6 +409,7 @@ const Margins = () => {
     }, [])
 
     const handleChangeSelect = useCallback((e, id, month, name) => {
+        setDirty(true);
         setData((prevData) =>
             prevData.map((z) =>
                 z.month === month
@@ -406,6 +425,7 @@ const Margins = () => {
     }, [setData]); // Add `setData` as a dependency
 
     const handleCheckBox = useCallback((value, id, month) => {
+        setDirty(true);
         setData(prev => {
             let newArr = prev.map(z => z.month === month ? {
                 ...z, items: z.items.map(x => x.id === id ? { ...x, gis: value } : x)
@@ -422,10 +442,11 @@ const Margins = () => {
 
     const saveData = async () => {
         let result = await saveMargins(uidCollection, data, yr)
-        result && setToast({ show: true, text: 'Data successfully saved!', clr: 'success' })
+        if (result) { setDirty(false); setToast({ show: true, text: 'Data successfully saved!', clr: 'success' }) }
     }
 
     const deleteMonth = useCallback((month) => {
+        setDirty(true);
         setData(prev => prev.filter(z => z.month !== month));
     }, []);
 
@@ -612,6 +633,12 @@ const Margins = () => {
                                         Add month
                                     </button>
 
+                                    {dirty && (
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
+                                            style={{ fontSize: '0.62rem', background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a' }}>
+                                            <AlertTriangle className="w-3 h-3" /> Unsaved changes
+                                        </span>
+                                    )}
                                     <button
                                         className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.68rem] rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                         onClick={saveData}

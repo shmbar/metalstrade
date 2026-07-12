@@ -1121,6 +1121,15 @@ export const saveMargins = async (uidCollection, data, yr) => {
     batch.set(ref, data[i]);
   }
 
+  // Also DELETE the year's month docs that are no longer on screen — save only
+  // wrote the surviving months, so a deleted month's old doc stayed in Firestore
+  // and "jumped back" on every load.
+  const keep = new Set(data.map(m => String(m.month)));
+  const existing = await getDocs(collection(db, uidCollection, 'margins', String(yr)));
+  existing.docs.forEach(d => {
+    if (!keep.has(d.id)) batch.delete(doc(db, uidCollection, 'margins', String(yr), d.id));
+  });
+
   return await batch.commit().then(() => {
     return true;
   });
