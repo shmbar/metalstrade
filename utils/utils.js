@@ -796,8 +796,15 @@ export const getInvoicesBatched = async (uidCollection, path, needByYear) => {
 // the per-contract loadInvoices()/getInvoices() N+1 (dashboard, review pages).
 export const buildInvoiceIndex = async (uidCollection, contracts) => {
   const needByYear = {};
+  // Legacy contract refs are just { id, date } (no invoice number). The number-keyed
+  // batching silently dropped them, so every sale on such a contract vanished from the
+  // dashboard / Contracts Review while id-based readers (Invoices Review) still counted
+  // it — a five-figure-to-millions revenue mismatch. Load those by id instead.
+  const legacyRefs = [];
   (contracts || []).forEach(con => (con.invoices || []).forEach(ref => {
-    if (ref?.date && ref.invoice != null) (needByYear[ref.date.substring(0, 4)] ||= []).push(ref.invoice);
+    if (!ref?.date) return;
+    if (ref.invoice != null) (needByYear[ref.date.substring(0, 4)] ||= []).push(ref.invoice);
+    else if (ref.id) legacyRefs.push(ref);
   }));
   const invByYear = await getInvoicesBatched(uidCollection, 'invoices', needByYear);
   const index = {};
@@ -805,6 +812,9 @@ export const buildInvoiceIndex = async (uidCollection, contracts) => {
     const m = (index[yr] = {});
     docs.forEach(d => (m[d.invoice] ||= []).push(d));
   });
+  index.__byId = legacyRefs.length
+    ? await loadDocsByIdBatched(uidCollection, 'invoices', legacyRefs)
+    : {};
   return index;
 };
 
@@ -813,11 +823,13 @@ export const buildInvoiceIndex = async (uidCollection, contracts) => {
 // list. Identical to what the old per-contract query produced for that contract.
 export const contractInvoicesFromIndex = (con, index, grouped = true) => {
   const refs = con?.invoices || [];
-  const yrs = [...new Set(refs.map(x => x.date.substring(0, 4)))];
   const collected = [];
-  yrs.forEach(yr => {
-    const nums = [...new Set(refs.filter(x => x.date.substring(0, 4) === yr).map(y => y.invoice))];
-    nums.forEach(n => (index[yr]?.[n] || []).forEach(d => collected.push({ ...d })));
+  const seen = new Set();
+  const push = (d) => { if (d && !seen.has(d.id)) { seen.add(d.id); collected.push({ ...d }); } };
+  refs.forEach(ref => {
+    if (!ref?.date) return;
+    if (ref.invoice != null) (index[ref.date.substring(0, 4)]?.[ref.invoice] || []).forEach(push);
+    else if (ref.id) push(index.__byId?.[ref.id]); // legacy { id, date } ref
   });
   return grouped ? groupedArrayInvoice(collected) : collected;
 };
