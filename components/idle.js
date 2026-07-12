@@ -14,7 +14,16 @@ export default function App() {
     const router = useRouter()
     const { SignOut } = UserAuth();
   
+    // "Remember me" sessions are meant to stay logged in (Google-like) — the no-activity
+    // auto-logout applies only to non-remembered logins. This was the last path that still
+    // signed a remembered user out (an open/restored tab idling past 2h), and its SignOut
+    // wiped the remember flag itself — the reported "Remember me doesn't work".
+    const remembered = () => {
+        try { return localStorage.getItem('rememberMe') === '1'; } catch { return false; }
+    }
+
     const onIdle = () => {
+        if (remembered()) { activate(); return; }
         LogOut()
         closeModal(false)
     }
@@ -29,6 +38,7 @@ export default function App() {
     }
 
     const onPrompt = () => {
+        if (remembered()) { activate(); return; }
         openModal()
     }
 

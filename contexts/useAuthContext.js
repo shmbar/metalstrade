@@ -118,8 +118,12 @@ const AuthContextProvider = ({ children }) => {
 */
 
   const SignOut = useCallback(async () => {
+    // Keep the sign-in page's email prefill across logout — wiping it made every
+    // logout look like "Remember me forgot me".
+    const savedEmail = localStorage.getItem('email');
     sessionStorage.clear();
     localStorage.clear();
+    if (savedEmail) localStorage.setItem('email', savedEmail);
     setUser(null);
     if (window.__resetLogoutTimer) window.__resetLogoutTimer();
     await signOut(auth).catch(() => {});
