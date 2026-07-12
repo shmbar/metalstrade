@@ -14,8 +14,12 @@ const Total = (data, name, mult, settings) => {
             // (matches the dashboard Receivables rule, which skips drafts).
             let num = (obj.canceled || obj.draft === true) ? 0 : obj[name] * 1 * mltTmp
 
-                accumuLastInv += (innerArray.length === 1 && ['1111', 'Invoice'].includes(obj.invType) ||
-                    innerArray.length > 1 && !['1111', 'Invoice'].includes(obj.invType)) ?
+                // A group of ONE counts whatever it is: a lone Credit/Final note means the
+                // original was issued in a PREVIOUS period, so skipping it (the old
+                // `singleton must be an Invoice` rule) silently dropped every deal that
+                // finalized this year from revenue — the dashboard-vs-Invoices-Review gap.
+                accumuLastInv += (innerArray.length === 1 ||
+                    !['1111', 'Invoice'].includes(obj.invType)) ?
                     num : 0;
             }
         });
@@ -38,8 +42,10 @@ const TotalClients = (data, name, mult, settings) => {
             let num = (obj.canceled || obj.draft === true) ? 0 : obj[name] * 1 * mltTmp
 
 
-            accumuLastInv += (data.length === 1 && ['1111', 'Invoice'].includes(obj.invType) ||
-                data.length > 1 && !['1111', 'Invoice'].includes(obj.invType)) ?
+            // Same singleton rule as Total(): a lone Credit/Final note (original issued in
+            // a previous period) still counts toward its client.
+            accumuLastInv += (data.length === 1 ||
+                !['1111', 'Invoice'].includes(obj.invType)) ?
                 num : 0;
 
         }
@@ -98,7 +104,9 @@ const sumInvProductsMT = (invoicesData) => {
         innerArray.forEach(obj => {
             if (!obj || obj.canceled) return;
             const isInvoice = ['1111', 'Invoice'].includes(obj.invType);
-            const counts = (innerArray.length === 1 && isInvoice) || (innerArray.length > 1 && !isInvoice);
+            // Singleton groups count regardless of type (lone Final/Credit note = deal
+            // finalized this period) — keeps shipped MT aligned with the revenue rule.
+            const counts = innerArray.length === 1 || !isInvoice;
             if (!counts) return;
             (obj.productsDataInvoice || []).forEach(p => {
                 if (p && p.qnty !== 's' && p.qnty !== '' && !isNaN(parseFloat(p.qnty))) {
