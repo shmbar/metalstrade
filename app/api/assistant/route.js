@@ -265,6 +265,15 @@ const srcExpense = (exp) => ({ type: 'expense', id: exp.id, label: `${exp.vendor
 // is a "and N more" summary anyway, so chip parity stays honest.
 const CITATIONS_MAX = 25;
 
+// List capping that never produces a useless "…and 1 more.": everything up to
+// HARD_CAP lines is shown in full; only genuinely long lists get cut, and the
+// cut line tells the user HOW to see the rest.
+const LIST_SOFT_CAP = 40;
+const LIST_HARD_CAP = 60;
+const capLines = (lines, hint) => lines.length <= LIST_HARD_CAP
+    ? lines.join('\n')
+    : `${lines.slice(0, LIST_SOFT_CAP).join('\n')}\n…and ${lines.length - LIST_SOFT_CAP} more — ${hint}`;
+
 function executeTool(name, args, data) {
     const { contracts = [], invoices = [], expenses = [], stocks = [], margins = [], marginAlertThreshold } = data;
     const today = new Date();
@@ -319,21 +328,14 @@ function executeTool(name, args, data) {
             if (due.length) {
                 const list = due
                     .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-                    .slice(0, 15)
-                    .map(formatDueLine)
-                    .join('\n');
-                const more = due.length > 15 ? `\n…and ${due.length - 15} more.` : '';
-                sections.push(`🔴 DUE INVOICES — ${due.length} item(s) past due date · Total: ${sumByCur(due)}\n${list}${more}`);
+                    .map(formatDueLine);
+                sections.push(`🔴 DUE INVOICES — ${due.length} item(s) past due date · Total: ${sumByCur(due)}\n${capLines(list, "ask for a specific client (e.g. 'overdue invoices for SJM') to see the rest.")}`);
             }
 
             // Section 2: Balance invoices (final/issued with balance, not yet due)
             if (balance.length) {
-                const list = balance
-                    .slice(0, 15)
-                    .map(formatBalanceLine)
-                    .join('\n');
-                const more = balance.length > 15 ? `\n…and ${balance.length - 15} more.` : '';
-                sections.push(`🟡 BALANCE INVOICES — ${balance.length} final invoice(s) with outstanding balance · Total: ${sumByCur(balance)}\n${list}${more}`);
+                const list = balance.map(formatBalanceLine);
+                sections.push(`🟡 BALANCE INVOICES — ${balance.length} final invoice(s) with outstanding balance · Total: ${sumByCur(balance)}\n${capLines(list, "ask for a specific client to see the rest.")}`);
             }
 
             const grandTotal = sumByCur(unpaidIssued);
@@ -501,9 +503,11 @@ function executeTool(name, args, data) {
                 return acc;
             }, {});
             const kindStr = Object.entries(kindCounts).map(([k, n]) => `${n} ${k}`).join(' + ');
-            const text = `${unpaid.length} unpaid expense(s) of ${expenses.length} total (${kindStr}) — Total owed: ${totalStr}\n${sorted.slice(0, 25).map(exp =>
+            const lines = sorted.map(exp =>
                 `• [${exp.kind || 'Supplier'}] ${exp.vendor} — ${exp.currency} ${(exp.amount || 0).toFixed(2)} — ${exp.type} — ${exp.paid || 'no status'} — ${exp.date || 'no date'}`
-            ).join('\n')}${sorted.length > 25 ? `\n…and ${sorted.length - 25} more.` : ''}`;
+            );
+            const legend = `[Supplier] = linked to a purchase contract (Expenses page) · [Company] = company overhead (Company Expenses page)`;
+            const text = `${unpaid.length} unpaid expense(s) of ${expenses.length} total (${kindStr}) — Total owed: ${totalStr}\n${legend}\n${capLines(lines, "narrow the app's date range or ask for one vendor (e.g. 'unpaid expenses for Seagull') to see the rest.")}`;
             const sources = sorted.filter(exp => exp.id).slice(0, CITATIONS_MAX).map(srcExpense);
             return { text, sources };
         }
