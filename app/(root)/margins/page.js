@@ -12,6 +12,7 @@ import { UserAuth } from "../../../contexts/useAuthContext";
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
+import AutosavePill from "../../../components/AutosavePill";
 import Tooltip from "../../../components/tooltip";
 import FirstPart from "./firstpart";
 import ThirdPart from "./thirdpart";
@@ -502,6 +503,11 @@ const Margins = () => {
                 {Object.keys(settings).length === 0 ? <TableSkeleton /> :
                     <>
                         <Toast />
+                        {/* Floating autosave status — visible anywhere on the page, not just the top bar */}
+                        <AutosavePill
+                            mode={autoSaving ? 'saving' : dirty ? 'info' : savedFlash ? 'saved' : null}
+                            text={autoSaving ? 'Saving…' : savedFlash ? 'Saved' : 'Unsaved — autosaving…'}
+                        />
                         <VideoLoader loading={loading} fullScreen={true} />
 
                         {/* Main Card */}

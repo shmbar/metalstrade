@@ -4,7 +4,8 @@ import Toast from "../../../components/toast";
 import YearSelect from "./yearSelect";
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { getTtl } from "../../../utils/languages";
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import AutosavePill from "../../../components/AutosavePill";
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
 import { CardsSkeleton } from "../../../components/skeletons";
@@ -771,6 +772,65 @@ const Cashflow = () => {
 
     }
 
+    // ── Autosave for ticked payments (floating pill) ─────────────────────────
+    // Ticking a checkbox here marks money as PAID, so committing silently would be
+    // dangerous — instead, ticks auto-commit after a visible countdown with Cancel /
+    // Save now, shown in a floating pill that's visible anywhere on the page (the
+    // section save icons still work as before). Expenses and suppliers commit in one
+    // batch each; client groups commit one client per cycle (their save routine
+    // refreshes state per client), and the pill simply re-arms for the rest.
+    const [autoSaving, setAutoSaving] = useState(false);
+    const [savedFlash, setSavedFlash] = useState(false);
+    const [autoCancelled, setAutoCancelled] = useState(false);
+    const [countdown, setCountdown] = useState(6);
+
+    const pendingChecked = useMemo(() => {
+        const clients = clientsData.filter(x => x.checked);
+        const sups = supPaymentsData.filter(x => x.checked);
+        const exps = expensesAll.filter(x => x.checked);
+        return {
+            clients, sups, exps,
+            total: clients.length + sups.length + exps.length,
+            sig: [...clients.map(x => 'c' + x.id), ...sups.map(x => 's' + x.id), ...exps.map(x => 'e' + x.id)].sort().join('|'),
+        };
+    }, [clientsData, supPaymentsData, expensesAll]);
+
+    // Refreshed every render so the commit always uses the current save closures.
+    const commitRef = useRef(null);
+    commitRef.current = async () => {
+        if (autoSaving || pendingChecked.total === 0) return;
+        setAutoSaving(true);
+        try {
+            if (pendingChecked.exps.length) await savePmntExp(expensesAll);
+            if (pendingChecked.sups.length) await savePmntSupplier(supPaymentsData);
+            const clientIds = [...new Set(pendingChecked.clients.map(x => x.client))];
+            if (clientIds.length) await savePmntClient(clientIds[0]);
+        } finally {
+            setAutoSaving(false);
+            setSavedFlash(true);
+            setTimeout(() => setSavedFlash(false), 2500);
+        }
+    };
+
+    // Re-arm the countdown whenever the ticked set changes.
+    useEffect(() => {
+        setAutoCancelled(false);
+        if (pendingChecked.sig) setCountdown(6);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pendingChecked.sig]);
+
+    useEffect(() => {
+        if (!pendingChecked.sig || autoCancelled || autoSaving) return;
+        const t = setInterval(() => {
+            setCountdown(c => {
+                if (c <= 1) { clearInterval(t); commitRef.current?.(); return 0; }
+                return c - 1;
+            });
+        }, 1000);
+        return () => clearInterval(t);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pendingChecked.sig, autoCancelled, autoSaving]);
+
     const supplierPartialPayment = async (obj) => {
 
         let item = supPaymentsData.find(x => x.id === obj.id)
@@ -904,6 +964,13 @@ const Cashflow = () => {
                 {Object.keys(settings).length === 0 ? <CardsSkeleton /> :
                     <>
                         <Toast />
+                        <AutosavePill
+                            mode={autoSaving ? 'saving' : (pendingChecked.total > 0 && !autoCancelled) ? 'pending' : savedFlash ? 'saved' : null}
+                            text={autoSaving ? 'Saving payments…' : savedFlash ? 'Payments saved' : `Recording ${pendingChecked.total} payment${pendingChecked.total > 1 ? 's' : ''}`}
+                            countdown={countdown}
+                            onSaveNow={() => commitRef.current?.()}
+                            onCancel={() => setAutoCancelled(true)}
+                        />
                         <VideoLoader loading={loading} fullScreen={true} />
                         <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-lg w-full bg-white">
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
