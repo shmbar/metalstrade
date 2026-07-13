@@ -330,7 +330,11 @@ const FloatingChat = () => {
                 supplier: resolveSupplier(con.supplier),
                 date: con.date,
                 currency: resolveCurrency(con.cur),
-                status: con.conStatus || (con.completed ? 'Completed' : 'Open'),
+                // conStatus stores an ID (options defined in contracts/modals/tabs/pnl.js) —
+                // resolve it to its label so the assistant never shows raw codes like
+                // "E34656" (= Unsold) as if they were statuses.
+                status: ({ A1234: 'Shipped', B5678: 'Not Shipped', F7546: 'Partly Shipped', C6567: 'Finished', D8456: 'Closed', E34656: 'Unsold' })[con.conStatus]
+                    || con.conStatus || (con.completed ? 'Completed' : 'Open'),
                 products: con.productsData?.length || 0,
                 totalValue: (con.productsData || []).reduce((sum, p) => {
                     const price = parseFloat(p.unitPrc) || 0;
