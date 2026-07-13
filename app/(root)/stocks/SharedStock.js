@@ -21,19 +21,20 @@ import Modal from '@components/modal';
 import { Selector } from '@components/selectors/selectShad';
 import { SettingsContext } from '@contexts/useSettingsContext';
 import { UserAuth } from '@contexts/useAuthContext';
-import { loadSharedStock, saveSharedStock, deleteSharedStock } from '@utils/utils';
+import { loadSharedStock, saveSharedStock, deleteSharedStock, loadAllStockData, filteredArray } from '@utils/utils';
 import { getTtl } from '@utils/languages';
 import { TableSkeleton } from "@components/skeletons";
 
 const OWNERS = ['IMS', 'GIS'];
-const blankLot = () => ({ id: '', descriptionText: '', qnty: '', unitPrc: '', stock: '', supplier: '', cur: 'us', status: '', owners: ['IMS', 'GIS'] });
+const blankLot = () => ({ id: '', descriptionText: '', qnty: '', unitPrc: '', stock: '', supplier: '', cur: 'us', status: '', owners: ['IMS', 'GIS'], sourceId: '', sourceAccount: '', sourcePo: '' });
 
 const SharedStock = () => {
     const { settings, ln, setToast } = useContext(SettingsContext);
-    const { gisAccount } = UserAuth();
+    const { gisAccount, uidCollection } = UserAuth();
     const accountName = gisAccount ? 'GIS' : 'IMS';
 
     const [rows, setRows] = useState([]);
+    const [ownLots, setOwnLots] = useState([]);   // this account's raw stock ledger, for the picker
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
     const [lot, setLot] = useState(blankLot());
@@ -48,8 +49,12 @@ const SharedStock = () => {
 
     const load = async () => {
         setLoading(true);
-        const data = (await loadSharedStock() || []).filter(Boolean);
-        setRows(data.map(x => ({
+        const [data, mine] = await Promise.all([
+            loadSharedStock(),
+            uidCollection ? loadAllStockData(uidCollection) : Promise.resolve([]),
+        ]);
+        setOwnLots((mine || []).filter(Boolean));
+        setRows((data || []).filter(Boolean).map(x => ({
             ...x,
             descriptionName: x.descriptionText || x.description || '—',
             stockName: whName(x.stock),
@@ -58,7 +63,63 @@ const SharedStock = () => {
         })));
         setLoading(false);
     };
-    useEffect(() => { if (settings && Object.keys(settings).length) load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [settings]);
+    useEffect(() => { if (settings && Object.keys(settings).length) load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [settings, uidCollection]);
+
+    // The account's CURRENT stock (net in − out per material + warehouse, invoice
+    // supersede applied) — the client asked that shared lots be PICKED from this
+    // list instead of typed from scratch. One representative in-lot per group
+    // supplies the prefill (price / supplier / PO); the quantity is the net left.
+    const netRows = useMemo(() => {
+        const groups = {};
+        ownLots.filter(l => l && l.stock).forEach(l => {
+            const k = `${l.description || l.descriptionId || ''}|${l.stock}`;
+            (groups[k] ||= []).push(l);
+        });
+        const out = [];
+        Object.values(groups).forEach(g => {
+            const dedup = filteredArray(g); // an invoice superseded by its Credit/Final note counts once
+            let net = 0, firstIn = null;
+            dedup.forEach(l => {
+                const q = Math.abs(parseFloat(l.qnty) || 0);
+                if (l.type === 'out') net -= q;
+                else { net += q; if (!firstIn) firstIn = l; }
+            });
+            if (net > 0.0005 && firstIn) {
+                const name = (firstIn.type === 'in' && firstIn.description
+                    ? firstIn.productsData?.find(y => y.id === firstIn.description)?.description
+                    : firstIn.descriptionText || firstIn.descriptionName) || '(unnamed)';
+                out.push({
+                    id: firstIn.id, name, stock: firstIn.stock,
+                    net: Math.round(net * 10000) / 10000,
+                    unitPrc: firstIn.unitPrc, supplier: firstIn.supplier,
+                    cur: firstIn.cur || 'us', order: firstIn.order || '',
+                });
+            }
+        });
+        return out.sort((a, b) => a.name.localeCompare(b.name));
+    }, [ownLots]);
+
+    const pickOptions = useMemo(() => netRows.map(r => ({
+        id: r.id,
+        _label: `${r.name} · ${whName(r.stock)} · ${new Intl.NumberFormat('en-US', { maximumFractionDigits: 4 }).format(r.net)} MT${r.order ? ` · PO ${r.order}` : ''}`,
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    })), [netRows, warehouses]);
+
+    const pickFromStock = (id) => {
+        const r = netRows.find(x => x.id === id);
+        if (!r) return;
+        setLot(prev => ({
+            ...prev,
+            sourceId: r.id, sourceAccount: accountName, sourcePo: r.order,
+            descriptionText: r.name,
+            qnty: String(r.net),
+            unitPrc: String(r.unitPrc ?? ''),
+            total: (parseFloat(r.net) || 0) * (parseFloat(r.unitPrc) || 0),
+            stock: r.stock,
+            supplier: r.supplier || '',
+            cur: r.cur,
+        }));
+    };
 
     const columns = useMemo(() => [
         { accessorKey: 'descriptionName', header: getTtl('Description', ln) || 'Material' },
@@ -121,6 +182,11 @@ const SharedStock = () => {
             supplier: lot.supplier || '',
             cur: lot.cur || 'us',
             status: lot.status || '',
+            // Where the lot came from when picked from an account's own inventory —
+            // keeps the shared record traceable back to the real stock lot / PO.
+            sourceId: lot.sourceId || '',
+            sourceAccount: lot.sourceAccount || '',
+            sourcePo: lot.sourcePo || '',
             date: lot.date || dateFormat(now, 'dd-mmm-yyyy'),
             createdAtMs: lot.createdAtMs || now.getTime(),
         };
@@ -169,6 +235,20 @@ const SharedStock = () => {
             <Modal isOpen={open} setIsOpen={setOpen} title={lot.id ? 'Edit shared stock' : 'Add shared stock'} w='max-w-2xl'>
                 <div className='p-3'>
                     <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                        <div className='sm:col-span-2 rounded-xl border border-[#b8ddf8] bg-[#f4f9ff] p-2.5'>
+                            <label className={labelCls}>Pick from my current stock</label>
+                            <Selector
+                                arr={pickOptions}
+                                value={{ pick: lot.sourceId || '' }}
+                                onChange={pickFromStock}
+                                name='pick'
+                                secondaryName='_label'
+                                clear={() => setLot(prev => ({ ...prev, sourceId: '', sourceAccount: '', sourcePo: '' }))}
+                            />
+                            <p className='text-[10px] text-[var(--regent-gray)] mt-1'>
+                                Selecting a lot fills everything in from your inventory ({accountName}) — lower the quantity if you&apos;re sharing only part of it. The lot also stays in your own stock list.
+                            </p>
+                        </div>
                         <div className='sm:col-span-2'>
                             <label className={labelCls}>Material / description *</label>
                             <input className={inputCls} value={lot.descriptionText} onChange={e => setF('descriptionText', e.target.value)} placeholder='e.g. 56Ni 14Cr 13Co Turnings' />
