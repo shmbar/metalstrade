@@ -6,26 +6,26 @@ const features = [
   {
     icon: Activity,
     color: "bg-[#FF5555]",
-    title: "Quick Onboarding",
-    description: "Get started in minutes with our intuitive and easy-to-use setup."
+    title: "AI Autofill from PDF",
+    description: "Supplier invoices, purchase confirmations and sales contracts read automatically — dates, amounts, materials and weights, in any format."
   },
   {
     icon: Command,
     color: "bg-[var(--endeavour)]",
-    title: "Bank-Grade Security",
-    description: "Your data is fully encrypted and secured with industry-leading standards."
+    title: "Multi-Company, Multi-Currency",
+    description: "Run several trading entities side by side with shared stock visibility, cross-company copies and consistent USD/EUR conversion."
   },
   {
     icon: TrendingUp,
     color: "bg-[#F59E0B]",
-    title: "Advanced Analytics",
-    description: "Track performance, visualize trends, and make data-driven decisions."
+    title: "Figures That Reconcile",
+    description: "Dashboard, cashflow, reviews and statements all read the same records — from purchase order to final settlement, every number adds up."
   },
   {
     icon: MousePointer2,
     color: "bg-[#14B8A6]",
-    title: "Global Reach",
-    description: "Expand your operations with actionable insights from multiple locations."
+    title: "Secure Access",
+    description: "Per-user accounts with role restrictions, controlled sessions, and a full activity log of who changed what, when."
   }
 ];
 

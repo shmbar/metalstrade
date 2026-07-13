@@ -1,5 +1,9 @@
 'use client';
 
+import Link from 'next/link';
+
+const linkCls = "text-[var(--endeavour)] hover:text-[var(--chathams-blue)] transition-colors text-sm";
+
 export default function Footer() {
   return (
     <footer className="relative bg-[#e3f3ff] border-t border-[#b8ddf8] overflow-hidden">
@@ -12,7 +16,8 @@ export default function Footer() {
               <img src="/logo/logoNew.svg" alt="IMS Logo" className="h-24 w-auto -mt-[26px]" />
             </div>
             <p className="text-[var(--chathams-blue)] text-sm leading-relaxed max-w-xs opacity-80">
-              IMS provides innovative solutions for businesses worldwide, helping them grow with technology and expertise.
+              The operations platform for metals &amp; alloys trading — contracts, inventory,
+              cashflow and AI-assisted document handling in one place.
             </p>
           </div>
 
@@ -20,8 +25,8 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-[var(--chathams-blue)] mb-3 text-xs tracking-wide uppercase">Product</h4>
             <ul className="space-y-2">
-              <li><a href="/landing" className="text-[var(--endeavour)] hover:text-[var(--chathams-blue)] transition-colors text-sm">Landing Page</a></li>
-              <li><a href="/features" className="text-[var(--endeavour)] hover:text-[var(--chathams-blue)] transition-colors text-sm">Features</a></li>
+              <li><Link href="/features" className={linkCls}>Features</Link></li>
+              <li><Link href="/signin" className={linkCls}>Sign In</Link></li>
             </ul>
           </div>
 
@@ -29,9 +34,8 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-[var(--chathams-blue)] mb-3 text-xs tracking-wide uppercase">Company</h4>
             <ul className="space-y-2">
-              <li><a href="/about" className="text-[var(--endeavour)] hover:text-[var(--chathams-blue)] transition-colors text-sm">About IMS</a></li>
-              <li><a href="/contact" className="text-[var(--endeavour)] hover:text-[var(--chathams-blue)] transition-colors text-sm">Contact Us</a></li>
-              <li><a href="/blog" className="text-[var(--endeavour)] hover:text-[var(--chathams-blue)] transition-colors text-sm">Blog</a></li>
+              <li><Link href="/about" className={linkCls}>About IMS</Link></li>
+              <li><Link href="/blog" className={linkCls}>Blog</Link></li>
             </ul>
           </div>
 
@@ -39,8 +43,8 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-[var(--chathams-blue)] mb-3 text-xs tracking-wide uppercase">Legal</h4>
             <ul className="space-y-2">
-              <li><a href="/about" className="text-[var(--endeavour)] hover:text-[var(--chathams-blue)] transition-colors text-sm">Privacy Policy</a></li>
-              <li><a href="/about" className="text-[var(--endeavour)] hover:text-[var(--chathams-blue)] transition-colors text-sm">Terms of Service</a></li>
+              <li><Link href="/about" className={linkCls}>Privacy Policy</Link></li>
+              <li><Link href="/about" className={linkCls}>Terms of Service</Link></li>
             </ul>
           </div>
         </div>

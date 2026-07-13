@@ -1,20 +1,26 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Layers, PieChart, Grid3x3, TrendingUp, BarChart2, FileText } from 'lucide-react';
+import {
+  FileText, Receipt, Boxes, Wallet, Ship, Warehouse, TrendingUp, Layers, Handshake,
+} from 'lucide-react';
 
+// One card per REAL module of the app — wording matches what each page actually does.
 const features = [
-  { icon: Layers, title: "Accounting", description: "Manage invoices, track expenses, and streamline financial reporting with full transparency." },
-  { icon: FileText, title: "Contracts", description: "Create, track, and store contracts with ease, security, and real-time status updates." },
-  { icon: Grid3x3, title: "Invoices", description: "Generate and manage invoices efficiently — export, filter, and track payments instantly." },
-  { icon: TrendingUp, title: "Expenses", description: "Track expenses by category, date, and vendor to optimize your financial performance." },
-  { icon: BarChart2, title: "Analytics", description: "Visualize trends, margins, and KPIs across all your shipments and contracts." },
-  { icon: PieChart, title: "Statements", description: "Automated financial statements with drill-down reports for every business entity." },
+  { icon: FileText, title: "Contracts", description: "Purchase orders with materials, pricing formulas, payment terms and linked documents — the source of truth for every deal." },
+  { icon: Receipt, title: "Invoices", description: "Client invoices with credit & final notes, PDF export, payment tracking and automatic stock write-off on shipment." },
+  { icon: Boxes, title: "Stocks & Warehousing", description: "Live inventory per warehouse with materials breakdown, transfers, aging alerts and a built-in stock audit." },
+  { icon: Wallet, title: "Cashflow", description: "Outstanding client and supplier balances across all years — partial payments, settlements and final-invoice status at a glance." },
+  { icon: Ship, title: "Shipments Tracking", description: "ETD/ETA per cargo with status lifecycle, overdue reminders and follow-up alerts 14 days past arrival." },
+  { icon: Warehouse, title: "Storage Costs", description: "Average storage cost per MT by warehouse and month, with per-year summaries and untagged-invoice triage." },
+  { icon: TrendingUp, title: "Margins", description: "Per-month deal margins with autosave, GIS splits, loss alerts and an AI explanation of every flagged item." },
+  { icon: Layers, title: "Accounting", description: "Sales and purchase invoices reconciled side by side, with statements and Excel export for your accountant." },
+  { icon: Handshake, title: "Sales Contracts", description: "Client sales contracts with shipped quantity tracking — status moves Outstanding → Partial → Fully shipped on its own." },
 ];
 
 export default function FeatureSection() {
   return (
-    <section className="py-10 bg-white">
+    <section id="modules" className="py-14 bg-white scroll-mt-20">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
 
@@ -32,7 +38,8 @@ export default function FeatureSection() {
               Everything in One Platform
             </h2>
             <p className="text-slate-500 text-sm max-w-xl mx-auto">
-              Built specifically for metal traders — every module works together seamlessly.
+              Nine integrated modules built specifically for metals &amp; alloys traders —
+              one record of truth from purchase to settlement.
             </p>
           </motion.div>
 
@@ -43,8 +50,8 @@ export default function FeatureSection() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="group flex items-start gap-4 p-5 rounded-2xl border border-[#b8ddf8] bg-[#f8fbff] hover:bg-[#dbeeff] hover:border-[var(--endeavour)] transition-all cursor-pointer"
+                transition={{ duration: 0.4, delay: i * 0.06 }}
+                className="group flex items-start gap-4 p-5 rounded-2xl border border-[#b8ddf8] bg-[#f8fbff] hover:bg-[#dbeeff] hover:border-[var(--endeavour)] hover:shadow-md transition-all"
               >
                 <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[var(--endeavour)] flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                   <f.icon size={18} className="text-white" strokeWidth={2} />

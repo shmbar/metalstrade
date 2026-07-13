@@ -7,11 +7,11 @@ export default function CTA() {
     <section className="relative bg-white py-8 overflow-hidden">
       <div className="container mx-auto px-6 text-center relative z-10">
         <h2 className="text-3xl md:text-4xl font-bold text-[var(--chathams-blue)] mb-4">
-          Accelerate Your Business Growth
+          Run your whole trading operation in one place
         </h2>
         <p className="text-base text-[var(--endeavour)] mb-6 max-w-2xl mx-auto leading-relaxed opacity-80">
-          Manage contracts, invoices, and analytics seamlessly with our all-in-one SaaS platform.
-          Streamline your operations and make smarter decisions in real-time.
+          From the purchase confirmation to the final settlement — contracts, stock, shipments,
+          cashflow and margins that always agree with each other.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-4">
@@ -22,10 +22,10 @@ export default function CTA() {
             Sign In
           </Link>
           <a
-            href="mailto:contact@metalstrade.com"
-            className="border border-[#b8ddf8] text-[var(--chathams-blue)] px-8 py-3 rounded-xl font-bold hover:bg-[#b8ddf8] transition-all"
+            href="#modules"
+            className="border border-[#b8ddf8] text-[var(--chathams-blue)] px-8 py-3 rounded-xl font-bold hover:bg-[#dbeeff] transition-all"
           >
-            Contact Us
+            See the modules
           </a>
         </div>
       </div>

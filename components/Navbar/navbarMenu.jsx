@@ -14,7 +14,6 @@ export default function NavbarMenu({ isMenuOpen }) {
     { href: '/features', label: 'Features' },
     { href: '/blog', label: 'Blog' },
     { href: '/dashboard', label: 'Dashboard' },
-    { href: '/contact', label: 'Contact' },
   ];
 
   return (

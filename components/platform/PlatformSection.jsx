@@ -5,18 +5,18 @@ import { Clock, Lock, Monitor } from "lucide-react";
 const cards = [
   {
     icon: Clock,
-    title: "Real-Time Analytics",
-    description: "Monitor your platform performance and user engagement live. Gain actionable insights instantly to optimize growth and decision-making.",
-  },
-  {
-    icon: Lock,
-    title: "Secure & Reliable",
-    description: "Protect your financial data with industry-standard security protocols. Keep your transactions safe and maintain complete peace of mind.",
+    title: "AI Document Reading",
+    description: "Drop a supplier invoice or purchase confirmation PDF — the AI extracts vendor, amounts, dates, weights and even chemistry, converts units to MT, and fills the form for you.",
   },
   {
     icon: Monitor,
-    title: "Cross-Platform Reach",
-    description: "Connect and monitor your applications seamlessly across web, mobile, and desktop platforms with real-time analytics.",
+    title: "Live Market Data",
+    description: "LME metal prices and cross-currency FX rates on your dashboard, with EUR/USD conversion applied consistently across contracts, invoices and cashflow.",
+  },
+  {
+    icon: Lock,
+    title: "Priority Alerts",
+    description: "Overdue invoices, delayed shipments, storage risks and settlement deadlines — ranked High / Medium / Low so the real fires surface first, and cleared automatically when resolved.",
   },
 ];
 
@@ -35,13 +35,13 @@ export function PlatformSection() {
             className="text-center mb-10"
           >
             <span className="text-xs font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[#dbeeff] px-4 py-1.5 rounded-full border border-[#b8ddf8]">
-              Platform Features
+              Why It&apos;s Different
             </span>
             <h2 className="text-2xl md:text-4xl font-bold text-[var(--chathams-blue)] mt-4 mb-2">
               Built for Modern Metal Trading
             </h2>
             <p className="text-slate-500 text-sm max-w-xl mx-auto">
-              Real-time analytics, secure data, and cross-platform access — all in one place.
+              Not a generic ERP — the workflows, documents and market data of a metals trading desk, built in.
             </p>
           </motion.div>
 
