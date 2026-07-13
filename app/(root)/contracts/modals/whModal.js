@@ -179,10 +179,15 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 .filter(m => m.s >= 0.5)
                 .sort((a, b) => b.s - a.s)[0]?.x || null
 
-            // Convert the document's unit to MT.
+            // Convert the document's unit to MT. When the invoice is already in MT, keep its
+            // EXACT figure (0.9095 must not become 0.910 — the write-off against the sales
+            // invoice uses this weight). Converted LB/KG weights keep 4 decimals, enough for
+            // qty × price to reproduce the invoice total with the document's own unit price.
             const u = String(p.unit || '').toUpperCase()
             const factor = u.startsWith('LB') || u.startsWith('POUND') ? LB_TO_MT : u.startsWith('KG') ? 0.001 : 1
-            const qtyMT = r3((parseFloat(p.qnty) || 0) * factor)
+            const qtyMT = factor === 1
+                ? (parseFloat(p.qnty) || 0)
+                : Math.round((parseFloat(p.qnty) || 0) * factor * 10000) / 10000
 
             // Derive the per-MT price from the line's exact money total.
             const lineTotal = parseFloat(p.lineTotal)
@@ -524,6 +529,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                     clients={[]}
                     currencies={settings?.Currency?.Currency || []}
                     expenseTypes={settings?.Expenses?.Expenses || []}
+                    anchorId={valueCon?.id}
                     onApply={addFromDoc}
                     onClose={() => setShowDocImport(false)}
                 />

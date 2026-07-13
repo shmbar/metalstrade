@@ -488,6 +488,7 @@ console.log(valueCon.poInvoices)
                     clients={[]}
                     currencies={settings?.Currency?.Currency || []}
                     expenseTypes={settings?.Expenses?.Expenses || []}
+                    anchorId={valueCon?.id}
                     onApply={addInvoiceFromDoc}
                     onClose={() => setShowDocImport(false)}
                 />

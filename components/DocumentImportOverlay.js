@@ -126,7 +126,7 @@ function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
     );
 }
 
-const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, expenseTypes, contractIndex, onApply, onClose }) => {
+const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, expenseTypes, contractIndex, onApply, onClose, anchorId = null }) => {
     const [file, setFile] = useState(null);
     const [reading, setReading] = useState(false);
     const [result, setResult] = useState(null);
@@ -292,11 +292,12 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             if (selected.remarks && result.remarks) out.comments = String(result.remarks);
         }
         // Persist the original document so it appears on the related preview.
-        // A supplier invoice imported as an expense is anchored to the linked
-        // contract — the supplier-invoice preview reads attachments by contract id.
-        const anchorId = documentType === 'expense' ? result?.linkedContract?.id : null;
-        if (anchorId && file) {
-            uploadFile(anchorId, file, () => { }).catch(() => { });
+        // An explicit anchor (e.g. the contract id from the Materials Breakdown /
+        // Purchase Invoices autofill) wins; otherwise an expense import anchors to the
+        // AI-linked contract — the supplier-invoice preview reads attachments by contract id.
+        const finalAnchor = anchorId || (documentType === 'expense' ? result?.linkedContract?.id : null);
+        if (finalAnchor && file) {
+            uploadFile(finalAnchor, file, () => { }).catch(() => { });
         }
         onApply(out, file);
         onClose();
