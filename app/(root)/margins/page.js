@@ -243,8 +243,20 @@ const Margins = () => {
             setLoading(false)
         }
 
+        reloadRef.current = Load;
         Load();
     }, [yr, uidCollection])
+
+    // Stale sessions were the last way a deleted month could resurrect: an old tab that
+    // still held the month in memory would autosave the full list and re-create its doc.
+    // Refresh from the server whenever the tab regains focus (the page-load cache also
+    // busts on focus, so this reads fresh) — unless there are unsaved local edits.
+    const reloadRef = useRef(null);
+    useEffect(() => {
+        const onFocus = () => { if (!dirtyRef.current) reloadRef.current?.(); };
+        window.addEventListener('focus', onFocus);
+        return () => window.removeEventListener('focus', onFocus);
+    }, []);
 
     useEffect(() => {
         // Main totals
