@@ -377,9 +377,9 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                         Cert</th>}
                                     <th scope="col" className="w-[9%] py-1 px-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('PO', ln)}#</th>
-                                    <th scope="col" className="w-[26%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
+                                    <th scope="col" className="w-[32%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Description', ln)}</th>
-                                    <th scope="col" className="w-[14%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
+                                    <th scope="col" className="w-[11%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {contTitle}</th>
                                     <th scope="col" className="w-[8%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Quantity', ln)} MT</th>
@@ -389,7 +389,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         <div>{getTtl('Total', ln)} <span className='responsiveTextTable'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-[16%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)] border-l border-[#b8ddf8]">
+                                    <th scope="col" className="w-[13%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)] border-l border-[#b8ddf8]">
                                         {getTtl('Stock', ln)}</th>
                                     <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Available Quantity', ln)} (MT)</th>
