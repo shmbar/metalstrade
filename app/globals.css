@@ -316,6 +316,32 @@ input::-webkit-inner-spin-button {
 
 /******************************************/
 
+/* ── Cashflow: ONE middle text size page-wide ─────────────────────────────────
+   Client feedback: the big figures scaled up to 14px on large screens while the
+   pill inputs were fixed at 11.5px (.input) — "top too large, bottom too small".
+   Inside .cf-uniform everything textual lands on one middle size: 12px, stepping
+   to 13px only on very large screens. Unlayered rules, so they win over the
+   @layer utilities that responsiveText/.input apply. Inline-styled chips/badges
+   (intentionally tiny) are untouched. */
+.cf-uniform .responsiveText,
+.cf-uniform .responsiveTextTotal,
+.cf-uniform .responsiveTextTable,
+.cf-uniform .input,
+.cf-uniform .cashflow-detail-table th,
+.cf-uniform .cashflow-detail-table td {
+  font-size: 0.75rem; /* 12px */
+}
+@media (min-width: 1780px) {
+  .cf-uniform .responsiveText,
+  .cf-uniform .responsiveTextTotal,
+  .cf-uniform .responsiveTextTable,
+  .cf-uniform .input,
+  .cf-uniform .cashflow-detail-table th,
+  .cf-uniform .cashflow-detail-table td {
+    font-size: 0.8125rem; /* 13px */
+  }
+}
+
 .cashflow-detail-table {
   border-collapse: collapse;
   width: 100%;
