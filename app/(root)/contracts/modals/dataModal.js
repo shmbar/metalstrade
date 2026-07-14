@@ -8,7 +8,7 @@ const DataModal = ({ isOpen, setIsOpen, title }) => {
                 whole editor to 80% (≈30% less area) and the panel width shrinks to match.
                 Portalled popovers (selects, datepickers) position off visual rects, so
                 they stay aligned. */}
-            <div style={{ zoom: 0.8 }}>
+            <div style={{ zoom: 0.88 }}>
                 <Tabs />
             </div>
         </Modal>

@@ -6,7 +6,7 @@ const DataModal = ({ isOpen, setIsOpen, title }) => {
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={title} w='max-w-5xl'>
             {/* Client request: the invoice popup was too big — zoom scales the editor to
                 80% (≈30% less area) and the panel width shrinks to match. */}
-            <div style={{ zoom: 0.8 }}>
+            <div style={{ zoom: 0.88 }}>
                 <Invoice />
             </div>
         </Modal>
