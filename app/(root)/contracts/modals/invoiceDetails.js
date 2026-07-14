@@ -174,9 +174,6 @@ const ContractModal = () => {
 	}
 
 	let poArr = [...new Set(valueInv.productsDataInvoice.map(x => x.po).filter(x => x !== ''))]
-	// When no line carries a PO yet, the panel still shows the linked contract's PO —
-	// the invoice lives inside that contract, so its order number IS the linked PO.
-	if (!poArr.length && valueCon?.order) poArr = [valueCon.order]
 
 	useEffect(() => {
 		const getInvoiceNum = async (x) => {

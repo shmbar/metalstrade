@@ -165,9 +165,6 @@ const InvoiceModal = () => {
 	//Total Tarre WT Kgs:
 	const TotalTarre = (valueInv.ttlGross - NetWTKgsTmp).toLocaleString(locale, options);
 	let poArr = [...new Set(valueInv.productsDataInvoice.map(x => x.po).filter(x => x !== ''))]
-	// When no line carries a PO yet, fall back to the invoice's linked supplier PO so
-	// the PO# panel still prints the linked order instead of sitting empty.
-	if (!poArr.length && valueInv.poSupplier?.order) poArr = [valueInv.poSupplier.order]
 
 	const getprefixInv = (x) => {
 		return (x.invType === '1111' || x.invType === 'Invoice') ? '' :
