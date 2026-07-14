@@ -326,6 +326,7 @@ input::-webkit-inner-spin-button {
 .cf-uniform .responsiveText,
 .cf-uniform .responsiveTextTotal,
 .cf-uniform .responsiveTextTable,
+.cf-uniform .responsiveTextInput,
 .cf-uniform .input,
 .cf-uniform .cashflow-detail-table th,
 .cf-uniform .cashflow-detail-table td {
@@ -335,6 +336,7 @@ input::-webkit-inner-spin-button {
   .cf-uniform .responsiveText,
   .cf-uniform .responsiveTextTotal,
   .cf-uniform .responsiveTextTable,
+  .cf-uniform .responsiveTextInput,
   .cf-uniform .input,
   .cf-uniform .cashflow-detail-table th,
   .cf-uniform .cashflow-detail-table td {
