@@ -142,6 +142,65 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
         r.readAsDataURL(f);
     });
 
+    // Render PDF pages to high-resolution JPEGs in the browser. Scanned PDFs sent to the
+    // model as a raw file get rasterized by the provider at an uncontrollable (modest) DPI —
+    // which is where digit misreads like 2,983→2,948 come from. Rendering here at ~1700px
+    // width and sending images with detail:'high' lets the model actually SEE the digits.
+    // Best-effort: any failure returns null and the server falls back to the raw-file path.
+    // ALL-OR-NOTHING: the server prefers rendered pages over the raw file, so sending a
+    // subset of pages would hide the rest from the model. If the document doesn't fit
+    // (more than 3 pages, or fileBase64 + pages would blow the ~4.5MB serverless body
+    // cap), send nothing and keep the old full-document raw-file path.
+    const renderPdfPages = async (f) => {
+        // fileBase64 rides in the same JSON body; pages may only use what it leaves free.
+        let budget = 4_200_000 - Math.ceil(f.size / 3) * 4;
+        if (budget < 300_000) return null;
+        let loadingTask = null;
+        try {
+            const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+            // Worker is a version-pinned copy in public/ (Next's webpack can't emit the
+            // package's .mjs worker as an asset). Keep it in sync with pdfjs-dist.
+            pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+            const data = new Uint8Array(await f.arrayBuffer());
+            loadingTask = pdfjs.getDocument({ data });
+            const doc = await loadingTask.promise;
+            if (doc.numPages > 3) return null;
+            // Digital PDFs with a healthy text layer take the server's text path, which
+            // ignores rendered pages — probe the text first and skip the render (and the
+            // multi-MB payload) when the document clearly isn't a scan.
+            let textLen = 0;
+            for (let i = 1; i <= doc.numPages && textLen < 300; i++) {
+                const tc = await (await doc.getPage(i)).getTextContent();
+                textLen += tc.items.reduce((s, it) => s + (it.str ? it.str.length : 0), 0);
+            }
+            if (textLen >= 300) return null;
+            const pages = [];
+            for (let i = 1; i <= doc.numPages; i++) {
+                const page = await doc.getPage(i);
+                const base = page.getViewport({ scale: 1 });
+                const scale = Math.min(1700 / base.width, 3);
+                const viewport = page.getViewport({ scale });
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.ceil(viewport.width);
+                canvas.height = Math.ceil(viewport.height);
+                const ctx = canvas.getContext('2d');
+                await page.render({ canvasContext: ctx, canvas, viewport }).promise;
+                const b64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+                if (b64.length > budget) return null;
+                budget -= b64.length;
+                pages.push(b64);
+            }
+            return pages.length ? pages : null;
+        } catch (e) {
+            console.warn('PDF page rendering failed, falling back to raw file:', e?.message || e);
+            return null;
+        } finally {
+            // Terminates the per-upload web worker and frees the parsed document.
+            // destroy() may reject asynchronously after a failed load — swallow that too.
+            try { loadingTask?.destroy()?.catch?.(() => { }); } catch { /* already destroyed */ }
+        }
+    };
+
     const handleFile = async (f) => {
         if (!f) return;
         if (!ACCEPTED.includes(f.type)) { setError('Only PDF, JPG, and PNG files are supported.'); return; }
@@ -152,10 +211,12 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
         setReading(true);
         try {
             const b64 = await toBase64(f);
+            const pagesBase64 = f.type === 'application/pdf' ? await renderPdfPages(f) : null;
             const res = await authedFetch('/api/ai/document-reader', {
                 method: 'POST',
                 body: JSON.stringify({
                     fileBase64: b64,
+                    pagesBase64: pagesBase64 || [],
                     mimeType: f.type,
                     documentType,
                     suppliers: suppliers || [],
@@ -415,6 +476,16 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                                     Try another file
                                 </button>
                             </div>
+
+                            {/* Scanned-document warning — digits were read visually, not from a text layer */}
+                            {result.visionUsed && (
+                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: '#fff3cd', border: '1px solid #ffc107' }}>
+                                    <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: '#d97706' }} />
+                                    <span style={{ fontSize: '0.62rem', color: '#92400e' }}>
+                                        Scanned document — digits were read visually. Double-check quantities, prices and totals before applying.
+                                    </span>
+                                </div>
+                            )}
 
                             {/* Multi-invoice warning — this PDF holds more than one invoice */}
                             {isExpense && result.multipleInvoices && (

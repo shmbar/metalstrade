@@ -15,7 +15,7 @@ export async function POST(request) {
     if (guard.error) return Response.json({ error: guard.error }, { status: guard.status });
 
     try {
-        const { fileBase64, mimeType, documentType, suppliers, clients, currencies, expenseTypes, contractIndex } = await request.json();
+        const { fileBase64, pagesBase64, mimeType, documentType, suppliers, clients, currencies, expenseTypes, contractIndex } = await request.json();
 
         if (!fileBase64) {
             return Response.json({ error: 'No file provided' }, { status: 400 });
@@ -40,6 +40,15 @@ export async function POST(request) {
                 // can still see in the server console which path was taken.
                 console.warn('PDF extraction did not return text, falling back to vision:',
                     r.reason || 'unknown', r.message || '', r.attempted || '');
+                usePdfVision = true;
+            }
+
+            // A "successful" extraction that yields almost nothing is usually garbage
+            // OCR or a header-only text layer on an otherwise scanned document.
+            // When the client sent rendered page images, prefer reading those.
+            if (!usePdfVision && extractedText.trim().length < 200
+                && Array.isArray(pagesBase64) && pagesBase64.length) {
+                console.warn('PDF text layer too thin (' + extractedText.trim().length + ' chars), using rendered pages instead.');
                 usePdfVision = true;
             }
         }
@@ -84,25 +93,21 @@ export async function POST(request) {
   "confidence": { "order": "high|medium|low", "supplier": "high|medium|low", "date": "high|medium|low", "products": "high|medium|low" }
 }
 
-EXTRACTION NOTES:
-- order = the document's own "Contract No." (e.g. PB062970) — the reference for this purchase. Ignore "Your ref." if blank.
-- qnty = the quantity IN THE DOCUMENT'S OWN UNIT, with that unit in "unit" (e.g. 17399 + "LB", 76 + "MT"). Do NOT convert units — the app converts. unitPrc = the per-unit price as printed (e.g. 0.550 per LB, 6700 per MT). lineTotal = that line's money total (e.g. 9569.45).
+FIELD NOTES:
+- order = the document's own "Contract No." — the reference for this purchase. Ignore "Your ref." if blank.
+- qnty/unit/unitPrc/lineTotal = the line's quantity, unit, per-unit price and money total AS PRINTED (e.g. 17399 "LB" × 0.550 = 9569.45) — see UNITS rule, the app converts.
 - Extract EVERY material line across ALL pages. A scanned bundle may contain SEVERAL invoices (one per page) — include each page's line(s) as separate products entries, not just the first page.
 - analysis = the ELEMENT table for that material as a compact string, e.g. "Ni min 42%, Cr min 12%, Mo min 3.5%; Cu max 0.5%, P max 0.03%, Co max 6%, Nb max 2.5%, Ti max 8%". Include every element shown (Nickel/Chrome/Molybdenum minimums and Copper/Phosphor/Cobalt/Niobium/Titan/Tungsten maximums).
 - scalePricing = the "Scale prices:" block, e.g. "Ni USD 12,800/MT Ni content; Cr USD 1,850/MT Cr content; Mo USD 30,000/MT Mo content".`;
         } else if (documentType === 'salescontract') {
             // A CLIENT sales contract: the document is a sales agreement issued to / signed with
             // a buyer (client). The contract number is the client's sales-contract reference.
-            schemaGuide = `Return JSON for a client sales contract.
+            schemaGuide = `Return JSON for a client sales contract (we are the SELLER; the client is the buyer — see PARTIES rule).
 
-CRITICAL EXTRACTION RULES:
-- clientName = the BUYER / CUSTOMER the goods are sold TO (the consignee / "Buyer" / "Consignee" / "Sold to" / "Bill to" party). It is NEVER our own company "IMS Metals & Alloys" or "GIS Metals" — those are US, the SELLER on this contract. Choose the OTHER party (the customer), and return its COMPANY NAME (e.g. "Estma Ltd", "Exotech") — not just a street address. If you can only find an address with no company name, leave clientName null rather than returning the address.
-- clientId = the id of the closest match in the Known clients list (match by company name, tolerant of spacing/punctuation). If no client clearly matches, return null — do NOT guess or pick our own company.
-- PURCHASE-ORDER layouts INVERT the roles: when the document is titled "PURCHASE ORDER" and says something like "We confirm having purchased from you and you having sold to us" (e.g. SJM Alloys & Metals), the LETTERHEAD / issuing company is the BUYER — THAT is the client (SJM) — and the company in the address box (IMS Metals / GIS Metals) is US, the seller. Do NOT treat the addressee as the customer on such documents.
-- Sanity check before answering: if your clientName/clientId is any entry containing "IMS Metals" or "GIS Metals", you have mis-identified the parties — re-read the document and pick the OTHER company; if genuinely unsure return null, never our own company.
+FIELD NOTES:
+- clientName = the buyer/customer COMPANY NAME (e.g. "Estma Ltd", "Exotech") — never just a street address; if only an address is visible, return null.
 - contractNo = the client's sales-contract number / reference (on a purchase order: the issuer's "Order No", e.g. 3001284).
-- qnty = the quantity in METRIC TONS (MT). Convert when the document uses other units: "48,000.000 kgs" = 48 MT; "TN" (tonne) = MT; LB × 0.00045359237.
-- unitPrc = the price PER MT. Convert a per-kg price by ×1000 (e.g. 16.00/kg = 16000/MT) so qnty × unitPrc still equals the line amount (48 MT × 16,000 = 768,000).
+- qnty in MT and unitPrc per MT (see UNITS rule).
 
 {
   "contractNo": "the sales contract number / reference string or null",
@@ -120,17 +125,14 @@ CRITICAL EXTRACTION RULES:
             // supplier TO bill our company, so the SELLER is the vendor we want.
             schemaGuide = `Return JSON for a supplier invoice / proforma that will be recorded as an expense.
 
-CRITICAL EXTRACTION RULES:
-- supplierName = the SELLER / issuer of the invoice (the company whose letterhead/logo is at the top, e.g. "ELG Utica Alloys", "Exotech", "Thormet Europe GmbH", "Triart Capital"). It is NEVER the buyer ("IMS Metals & Alloys" or "GIS Metals" — those are us, the bill-to party).
-- buyerPoNumber = the purchase-order reference, which appears under MANY different labels: "P.O. No", "PO No", "Cust PO #", "Purchase No", "Your PO", "PO#". Extract whatever value follows any of these (e.g. "280426-4", "0904-26", "PO210426-1", "280426"). If several invoices/POs appear, use the FIRST.
-- amount = the TOTAL invoice value owed (grand total / total USD / total amount). If the invoice shows a prepayment and a smaller "balance to pay", still return the FULL total, not the balance.
-- NUMBER FORMATS: documents may use European format where "." is the thousands separator and "," is the decimal (e.g. "273.429,00" means 273429.00). European docs may also use a SPACE or apostrophe as the thousands separator with "," as decimal (e.g. "19 014,25" means 19014.25, "2 165 120,00" means 2165120.00). Also strip currency symbols and US thousands commas (e.g. "$489,876.93" means 489876.93). ALWAYS return amount as a plain JSON number.
-- amount = the invoice's FULL value, not a prompt/partial-payment figure. If it shows e.g. "190.500,00 final amount x 80% prompt payment = 152.400,00", return the FULL 190500, not 152400.
-- CREDIT NOTE / CORRECTION (labels: "credit note", "Gutschrift", "Korekta faktury", "correction"): return the corrected FINAL total if the document shows one; if it only states a negative adjustment, return that adjustment as a NEGATIVE number.
-- amount is MONEY, never a weight or rate. Metals invoices are full of large numbers that are NOT amounts: pounds/net-ton/KG/MT quantities (e.g. "222,254" POUND, "111.129" NET TON, "571.90" KG) and per-unit RATE/PRICE columns (e.g. "5.0500", "3 800.00" per KG). Match each value to its COLUMN HEADER and take only the AMOUNT / TOTAL column — e.g. an invoice listing 222,254 lbs at various rates with "INVOICE TOTAL: $654.63" has amount = 654.63.
-- Ignore footnote marks on totals: "654.63*" / "654.63**" means 654.63. Prefer the line explicitly labeled "INVOICE TOTAL" / "TOTAL USD" / "Total Amount".
-- Scanned/OCR invoices (typewriter-style storage/terminal invoices, e.g. S.H. Bell) may have misaligned columns — rely on the labeled total line, not column position. The invoice number may sit in a corner ("INVOICE NO: B1049514"). Monthly storage/terminal invoices are category storage/warehouse; their "YOUR ORDER NUMBER" is often blank → buyerPoNumber null.
-- multipleInvoices = true if the document clearly contains MORE THAN ONE separate invoice (different invoice numbers / PO numbers / totals on different pages). Otherwise false. When true, extract only the FIRST invoice's data.
+FIELD NOTES:
+- supplierName = the SELLER / issuer of the invoice (the company whose letterhead/logo is at the top, e.g. "ELG Utica Alloys", "Exotech", "Thormet Europe GmbH") — never the bill-to party (see PARTIES rule).
+- vendorInvoiceNumber = the number explicitly labeled Invoice No / Invoice # / Rechnung / Faktura. Some suppliers (e.g. ELG) print NO invoice number at all — then use the shipment/sales reference instead ("Sales No.", "Shipment No.", "Sales Order", e.g. "DSO2544"). NEVER assemble it from stray digits: barcodes, customer/account codes, phone, VAT or registration numbers are not invoice numbers. If nothing suitable exists, return null.
+- buyerPoNumber = the purchase-order reference, under ANY label: "P.O. No", "PO No", "Cust PO #", "Purchase No", "Your PO", "PO#" (e.g. "280426-4", "0904-26", "PO210426-1"). If several appear, use the FIRST. Monthly storage/terminal invoices often have a blank "YOUR ORDER NUMBER" → null.
+- amount = the FULL invoice total owed (grand total / "INVOICE TOTAL" / "Total USD"), as a plain JSON number. Not a prepayment balance, not a prompt-payment discount figure ("190.500,00 x 80% prompt = 152.400,00" → return 190500). Ignore footnote marks ("654.63*" = 654.63).
+- amount is MONEY, never a weight or rate: match each value to its COLUMN HEADER and take only the AMOUNT/TOTAL column — an invoice listing 222,254 lbs at rate 5.0500 with "INVOICE TOTAL: $654.63" has amount = 654.63. Prefer the labeled total line over column position (typewriter-style storage invoices misalign columns).
+- CREDIT NOTE / CORRECTION ("credit note", "Gutschrift", "Korekta faktury"): return the corrected FINAL total if shown; if only a negative adjustment is stated, return it as a NEGATIVE number.
+- multipleInvoices = true if the document clearly contains MORE THAN ONE separate invoice (different invoice numbers / totals on different pages); extract only the FIRST invoice's data.
 
 {
   "vendorInvoiceNumber": "supplier's own invoice number string or null",
@@ -162,95 +164,111 @@ CRITICAL EXTRACTION RULES:
 }`;
         }
 
-        // Dates are locale-dependent: European suppliers write day-month-year, US/Canadian
-        // ones month-day-year. Infer the order from the supplier's country/layout (and any
-        // part >12), so we don't misread either — and always output ISO.
-        // Number-format detection + column discipline, for every document type. Real failure
-        // cases: SJM (UK) "48,000.000 kgs" read as 48; Iberinox (EU) "1,00TN × 12.500,00"
-        // parsed with quantity and price swapped.
-        const numberRule = `NUMBERS: detect each document's number format BEFORE parsing values.
-- UK/US format (e.g. SJM): comma = thousands, dot = decimal — "48,000.000" = 48000, "768,000.00" = 768000. A dot followed by MORE or FEWER than 3 digits is ALWAYS a decimal point ("16.00000" = 16.00).
-- European format (e.g. Iberinox): dot = thousands, comma = decimal — "12.500,00" = 12500.00, "1,00" = 1.00.
-- The QUANTITY is the value carrying the unit (TN / MT / KGS / LB); the PRICE is the per-unit money column. NEVER swap them, whatever the column order.
-- SCRAMBLED TABLES: text extracted from a PDF often destroys the table layout — you may receive ALL prices as one block, then the descriptions, then the amounts, then the quantities, with unit tokens ("TN") detached at the end. Example of such a stream: "12.500,00 / 13.100,00 / … / descriptions / 12.500,00 / 131.000,00 / … / 1,00 / 10,00 / … / TN TN". DO NOT assign numbers by the order they appear. RECONSTRUCT each line by arithmetic: the amounts are the per-line totals, the quantities are the small counts (1, 10, 8.6…), and the price must satisfy quantity × price = amount. In the example: qty 1 × price 12,500 = 12,500 and qty 10 × price 13,100 = 131,000 — so 12.500,00 is the PRICE, 1,00 is the QUANTITY, never the reverse.
-- SELF-CHECK every product line before answering: quantity × unit price must equal the line amount (±1 unit of currency). A line like "qty 12.5 × price 1 = amount 12,500" FAILS this check (12.5 ≠ 12,500) and means you swapped the columns — fix it.
-- SCANNED documents misread easily (3↔8, 6↔9, 5↔6). Most invoices print the key figures TWICE — the line quantity reappears as "Total Weight Shipped" and the line amount as the bottom grand total. READ BOTH OCCURRENCES of each figure and make them agree; a misread that stays self-consistent (e.g. 2,948 × 2.000 = 5,896 when the document actually says 2,983 × 2.000 = 5,966) is only caught by checking the repeated totals. When occurrences disagree, look again at the clearer one before answering.`;
+        // One compact, priority-ordered rule block shared by every path. This replaced an
+        // accreted pile of per-case rules that had started to contradict each other —
+        // "read every figure twice", digit-swap priming (3↔8, 6↔9) and a ±1-currency
+        // self-check tolerance were making the model REWRITE correctly-read digits.
+        // Transcription comes first; arithmetic may only override a read when it fails
+        // by orders of magnitude. The scrambled-table rule applies ONLY to the
+        // text-extraction path (vision sees the real layout, so reshuffling there is harmful).
+        const buildRules = (textPath) => {
+            const lines = [
+                'TRANSCRIBE what is printed. Report each figure as it appears; change a read only when a rule below proves it wrong. If the document is legible and consistent, do not second-guess it.',
+                'NUMBER FORMAT — decide once per document, then apply throughout. EU style: dot/space/apostrophe = thousands, comma = decimal ("12.500,00" = 12500.00, "1,00" = 1.00). UK/US style: comma = thousands, dot = decimal ("48,000.000" = 48000). If ambiguous, pick the reading under which qty × price = amount.',
+                'QUANTITY vs PRICE: the quantity is the value tied to a unit (MT/TN/KGS/LB); the price is the per-unit money value. Check each line: qty × price ≈ line amount (allow normal rounding). Reassign ONLY if the check fails by orders of magnitude — that means swapped columns or a misparsed format; otherwise keep the printed values.',
+                ...(textPath ? ['SCRAMBLED TEXT: if the extracted text is visibly scrambled (whole columns arrive as separate blocks, unit tokens like "TN" detached at the end), reconstruct each line using the qty × price = amount identity. Never reshuffle a document whose layout reads normally.'] : []),
+                'UNITS — purchase contract: keep the document\'s own unit in "unit"; do NOT convert. Sales contract: convert qnty to MT ("48,000 kgs" = 48 MT; LB × 0.00045359237) and unitPrc to per-MT (per-kg price × 1000), so qty × price still equals the line amount.',
+                'DATES: European issuers write day-month-year, US/Canadian month-day-year; any component > 12 settles the order. Use the invoice/issue date, not a sales, delivery or due date. Always output ISO YYYY-MM-DD.',
+                'PARTIES: the client/vendor is the counterparty, NEVER our own "IMS Metals" or "GIS Metals" — those are us. On a document titled PURCHASE ORDER ("we confirm having purchased from you"), roles invert: the letterhead/issuing company is the BUYER (the client) and the addressee (IMS/GIS) is us, the seller. If the only candidate is IMS/GIS, return null.',
+                'Match names against the known-entity lists (fuzzy on spacing/punctuation — "Jinchuan Group" matches "Jinchuan Group Co Ltd"); return null rather than guess.',
+            ];
+            return 'RULES (priority order — when two rules conflict, the higher one wins):\n'
+                + lines.map((l, i) => `${i + 1}. ${l}`).join('\n');
+        };
 
-        const dateRule = `DATES: infer the format from the issuer's country/layout, do NOT assume one order.
-- European suppliers (Germany, Poland, France, Estonia, Netherlands, etc.) write DAY-month-year: "31.03.2026" = 31 March 2026, "10-6-2026" = 10 June 2026, "26.06.2026" = 26 June 2026.
-- US / Canadian suppliers write MONTH-day-year: "12/23/2025" = 23 December 2025, "05/20/2025" = 20 May 2025.
-- If any component is greater than 12 it fixes the order; ISO dates like "2026-06-08" are already year-month-day.
-- Prefer the invoice/issue date over any sales date, delivery date or due date.
-ALWAYS output the "date" field as ISO YYYY-MM-DD.`;
-
-        const systemTextPrompt = `You are a document parsing assistant for a metals trading IMS.
-Extract structured data from the document text.
+        const buildSystemPrompt = (textPath) => `You are a document parsing assistant for a metals trading IMS.
+Extract structured data from the ${textPath ? 'document text' : 'document image(s)'}.
 ${entityLists}
-${dateRule}
-${numberRule}
-Match names to known entities (fuzzy match — "Jinchuan Group" matches "Jinchuan Group Co Ltd").
+${buildRules(textPath)}
 ${schemaGuide}
 Return ONLY the JSON object, no extra text.`;
 
-        const systemVisionPrompt = `You are a document parsing assistant for a metals trading IMS.
-Extract structured data from the document (image or scanned PDF).
-${entityLists}
-${dateRule}
-${numberRule}
-Match names to known entities (fuzzy match).
-${schemaGuide}
-Return ONLY the JSON object, no extra text.`;
+        // gpt-4o (not mini) because supplier invoices have unpredictable layouts and
+        // label variants — the accuracy gap on extraction is worth the cost on small
+        // payloads. Overridable per-deploy without a code change.
+        const model = process.env.OPENAI_DOCREADER_MODEL || 'gpt-4o';
 
         let messages;
-        let model;
         if (mimeType === 'application/pdf' && !usePdfVision) {
-            // Digital PDF with a text layer. We use gpt-4o (not mini) because
-            // supplier invoices have unpredictable layouts and label variants
-            // ("Cust PO #", "Your PO", EU-format amounts like 273.429,00) — the
-            // accuracy gap on extraction is worth the ~10x cost on small payloads.
+            // Digital PDF with a usable text layer.
             messages = [
-                { role: 'system', content: systemTextPrompt },
+                { role: 'system', content: buildSystemPrompt(true) },
                 { role: 'user', content: extractedText || 'Could not extract text from PDF — return all fields as null.' },
             ];
-            model = 'gpt-4o';
         } else if (mimeType === 'application/pdf' && usePdfVision) {
-            // Scanned PDF / extraction failed — send the raw PDF to gpt-4o, which OCRs it
+            // Scanned PDF / extraction failed. Prefer the client-rendered page images:
+            // sent as image_url with detail:'high' they reach the model at full
+            // resolution, whereas a raw PDF file part is rasterized provider-side at a
+            // DPI we can't control — the source of digit misreads like 2,983→2,948.
+            const pages = Array.isArray(pagesBase64) ? pagesBase64.filter(p => typeof p === 'string' && p.length) : [];
+            const imageParts = pages.length
+                ? pages.map(p => ({ type: 'image_url', image_url: { url: `data:image/jpeg;base64,${p}`, detail: 'high' } }))
+                : [{ type: 'file', file: { filename: 'document.pdf', file_data: `data:application/pdf;base64,${fileBase64}` } }];
             messages = [
-                { role: 'system', content: systemVisionPrompt },
+                { role: 'system', content: buildSystemPrompt(false) },
                 {
                     role: 'user',
                     content: [
-                        { type: 'file', file: { filename: 'document.pdf', file_data: `data:application/pdf;base64,${fileBase64}` } },
-                        { type: 'text', text: `This is a scanned ${documentType} document. Read it and extract the data.` },
+                        ...imageParts,
+                        { type: 'text', text: `This is a scanned ${documentType} document${pages.length > 1 ? ` (${pages.length} pages)` : ''}. Read it and extract the data.` },
                     ],
                 },
             ];
-            model = 'gpt-4o';
         } else {
             // Image upload (JPG/PNG) — vision
             messages = [
-                { role: 'system', content: systemVisionPrompt },
+                { role: 'system', content: buildSystemPrompt(false) },
                 {
                     role: 'user',
                     content: [
-                        { type: 'image_url', image_url: { url: `data:${mimeType};base64,${fileBase64}` } },
+                        { type: 'image_url', image_url: { url: `data:${mimeType};base64,${fileBase64}`, detail: 'high' } },
                         { type: 'text', text: `Extract ${documentType} data from this document.` },
                     ],
                 },
             ];
-            model = 'gpt-4o';
         }
 
         const response = await getOpenAI().chat.completions.create({
             model,
             temperature: 0,
-            max_tokens: 1500,
+            max_tokens: 3000,
             response_format: { type: 'json_object' },
             messages,
         });
 
         guard.recordUsage(response.usage?.total_tokens);
         const result = JSON.parse(response.choices[0].message.content);
+
+        // Deterministic line check: when a product line carries qty, price AND total,
+        // they must multiply out. Legitimate rounding is bounded by the printed price
+        // precision (well under 0.5%), while a single misread digit lands anywhere from
+        // ~1% up (the ELG case: 2,948 × 2.000 vs total 5,966 is 1.2% off) — so flag at
+        // 0.5% with a 1-currency-unit floor and downgrade products confidence; the UI
+        // auto-deselects low-confidence fields, forcing a human look instead of a
+        // silent bad import.
+        if (Array.isArray(result.products)) {
+            const mismatch = result.products.some(p => {
+                const q = Number(p.qnty), pr = Number(p.unitPrc), t = Number(p.lineTotal);
+                // All three factors must be real non-zero numbers — Number(null) is 0,
+                // and a missing qty/price (lump-sum lines) proves nothing about digits.
+                if (!Number.isFinite(q) || !Number.isFinite(pr) || !Number.isFinite(t) || !q || !pr || !t) return false;
+                return Math.abs(q * pr - t) > Math.max(1, 0.005 * Math.abs(t));
+            });
+            if (mismatch) {
+                result.confidence = { ...(result.confidence || {}), products: 'low' };
+                result.lineCheckFailed = true;
+            }
+        }
 
         // Safety net: normalize `amount` if the model returned it as a string in a
         // tricky format. Handles "$489,876.93", "273.429,00" (EU), "1 234,56".
@@ -343,6 +361,9 @@ Return ONLY the JSON object, no extra text.`;
             rawText: extractedText.slice(0, 500),
             linkedContract,
             reconcile,
+            // true whenever digits were read visually (scanned PDF pages or an image
+            // upload) rather than from a text layer — the UI shows a caution note.
+            visionUsed: usePdfVision || mimeType !== 'application/pdf',
         });
 
     } catch (err) {
