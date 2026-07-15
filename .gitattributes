@@ -1,0 +1,3 @@
+# Version-pinned copy of node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs —
+# must stay byte-identical to the package build; never normalize line endings.
+public/pdf.worker.min.mjs -text
