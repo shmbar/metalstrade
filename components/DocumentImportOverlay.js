@@ -202,6 +202,20 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
     const handleApply = () => {
         if (!result) return;
         const out = {};
+        // Deterministic guard against the qty↔price swap (Iberinox-style scrambled PDFs):
+        // regardless of what the AI answered, a tonne-denominated line with a "price" of
+        // ≤ $50 next to a "quantity" of ≥ 1,000 is a swapped pair (their alloys never cost
+        // $1/MT, and no line is 12,500 MT). Swap it back before it reaches the form.
+        const fixQtyPriceSwap = (p) => {
+            const q = parseFloat(p.qnty), pr = parseFloat(p.unitPrc);
+            const unit = String(p.unit || '').toUpperCase();
+            const tonneBased = !unit || unit.startsWith('T') || unit.startsWith('MT');
+            if (tonneBased && Number.isFinite(q) && Number.isFinite(pr) && pr <= 50 && q >= 1000) {
+                return { ...p, qnty: pr, unitPrc: q };
+            }
+            return p;
+        };
+
         if (documentType === 'contract') {
             if (selected.order && result.order) out.order = result.order;
             if (selected.supplier) {
@@ -213,7 +227,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             }
             if (selected.currency && result.currencyId) out.cur = result.currencyId;
             if (selected.products && result.products?.length) {
-                out.productsData = result.products.map((p, i) => ({
+                out.productsData = result.products.map(fixQtyPriceSwap).map((p, i) => ({
                     id: `doc-${i}`, description: p.description || '', qnty: p.qnty || '', unitPrc: p.unitPrc || '',
                     // unit + line total let the Materials Breakdown convert to MT and
                     // reproduce the exact invoice amount (harmless extras elsewhere).
@@ -241,7 +255,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             }
             if (selected.currency && result.currencyId) out.cur = result.currencyId;
             if (selected.products && result.products?.length) {
-                out.productsData = result.products.map((p, i) => ({
+                out.productsData = result.products.map(fixQtyPriceSwap).map((p, i) => ({
                     id: `doc-${i}`, description: p.description || '', qnty: p.qnty || '', unitPrc: p.unitPrc || ''
                 }));
             }
