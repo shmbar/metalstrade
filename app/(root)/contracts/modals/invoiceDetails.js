@@ -279,9 +279,16 @@ const ContractModal = () => {
 	const normalizeNo = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 	// Guard: only real, non-empty ids — a Radix <Select.Item value=""> throws and white-screens
 	// the whole app, which can happen if a sales contract is malformed/half-deleted.
-	const scOptions = (Array.isArray(salesContracts) ? salesContracts : [])
-		.filter(sc => sc && sc.id && (!valueInv.client || sc.client === valueInv.client))
+	// Same-client contracts FIRST, but the rest stay pickable: hard-filtering by client id
+	// made a sales contract invisible whenever its client didn't exactly match the invoice's
+	// (duplicate client entries, or an AI import with no matched client).
+	const scAll = (Array.isArray(salesContracts) ? salesContracts : [])
+		.filter(sc => sc && sc.id)
 		.map(sc => ({ ...sc, contractNo: sc.contractNo || '(no number)' }));
+	const scOptions = !valueInv.client ? scAll : [
+		...scAll.filter(sc => sc.client === valueInv.client),
+		...scAll.filter(sc => sc.client !== valueInv.client),
+	];
 	const autoMatchSalesContract = (typed) => {
 		const target = normalizeNo(typed);
 		if (!target) return '';

@@ -68,13 +68,19 @@ const InvoiceModal = () => {
 	// Normalize a contract number for tolerant matching (case / spacing / punctuation).
 	const normalizeNo = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
-	// Sales contracts the dropdown offers — scoped to the invoice's client when one is set,
-	// shaped so the shared Selector shows `contractNo` as the label and stores the id.
+	// Sales contracts the dropdown offers — same-client contracts FIRST, but the rest stay
+	// pickable: hard-filtering by client id made a sales contract invisible here whenever its
+	// client didn't exactly match the invoice's (duplicate client entries, or an AI import
+	// with no matched client) — the reported "invoice does not see the sales PO".
 	// Guard: only real, non-empty ids — a Radix <Select.Item value=""> throws and white-screens
 	// the whole app, which can happen if a sales contract is malformed/half-deleted.
-	const scOptions = (Array.isArray(salesContracts) ? salesContracts : [])
-		.filter(sc => sc && sc.id && (!valueInv.client || sc.client === valueInv.client))
+	const scAll = (Array.isArray(salesContracts) ? salesContracts : [])
+		.filter(sc => sc && sc.id)
 		.map(sc => ({ ...sc, contractNo: sc.contractNo || '(no number)' }));
+	const scOptions = !valueInv.client ? scAll : [
+		...scAll.filter(sc => sc.client === valueInv.client),
+		...scAll.filter(sc => sc.client !== valueInv.client),
+	];
 
 	// Auto-match the typed Client Contract # to a sales contract (prefer same client).
 	const autoMatchSalesContract = (typed) => {
