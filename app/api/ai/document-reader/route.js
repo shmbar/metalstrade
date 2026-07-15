@@ -98,7 +98,9 @@ EXTRACTION NOTES:
 CRITICAL EXTRACTION RULES:
 - clientName = the BUYER / CUSTOMER the goods are sold TO (the consignee / "Buyer" / "Consignee" / "Sold to" / "Bill to" party). It is NEVER our own company "IMS Metals & Alloys" or "GIS Metals" — those are US, the SELLER on this contract. Choose the OTHER party (the customer), and return its COMPANY NAME (e.g. "Estma Ltd", "Exotech") — not just a street address. If you can only find an address with no company name, leave clientName null rather than returning the address.
 - clientId = the id of the closest match in the Known clients list (match by company name, tolerant of spacing/punctuation). If no client clearly matches, return null — do NOT guess or pick our own company.
-- contractNo = the client's sales-contract number / reference.
+- PURCHASE-ORDER layouts INVERT the roles: when the document is titled "PURCHASE ORDER" and says something like "We confirm having purchased from you and you having sold to us" (e.g. SJM Alloys & Metals), the LETTERHEAD / issuing company is the BUYER — THAT is the client (SJM) — and the company in the address box (IMS Metals / GIS Metals) is US, the seller. Do NOT treat the addressee as the customer on such documents.
+- Sanity check before answering: if your clientName/clientId is any entry containing "IMS Metals" or "GIS Metals", you have mis-identified the parties — re-read the document and pick the OTHER company; if genuinely unsure return null, never our own company.
+- contractNo = the client's sales-contract number / reference (on a purchase order: the issuer's "Order No", e.g. 3001284).
 - qnty = the quantity in METRIC TONS (MT). Convert when the document uses other units: "48,000.000 kgs" = 48 MT; "TN" (tonne) = MT; LB × 0.00045359237.
 - unitPrc = the price PER MT. Convert a per-kg price by ×1000 (e.g. 16.00/kg = 16000/MT) so qnty × unitPrc still equals the line amount (48 MT × 16,000 = 768,000).
 
