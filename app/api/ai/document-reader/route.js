@@ -99,6 +99,8 @@ CRITICAL EXTRACTION RULES:
 - clientName = the BUYER / CUSTOMER the goods are sold TO (the consignee / "Buyer" / "Consignee" / "Sold to" / "Bill to" party). It is NEVER our own company "IMS Metals & Alloys" or "GIS Metals" — those are US, the SELLER on this contract. Choose the OTHER party (the customer), and return its COMPANY NAME (e.g. "Estma Ltd", "Exotech") — not just a street address. If you can only find an address with no company name, leave clientName null rather than returning the address.
 - clientId = the id of the closest match in the Known clients list (match by company name, tolerant of spacing/punctuation). If no client clearly matches, return null — do NOT guess or pick our own company.
 - contractNo = the client's sales-contract number / reference.
+- qnty = the quantity in METRIC TONS (MT). Convert when the document uses other units: "48,000.000 kgs" = 48 MT; "TN" (tonne) = MT; LB × 0.00045359237.
+- unitPrc = the price PER MT. Convert a per-kg price by ×1000 (e.g. 16.00/kg = 16000/MT) so qnty × unitPrc still equals the line amount (48 MT × 16,000 = 768,000).
 
 {
   "contractNo": "the sales contract number / reference string or null",
@@ -161,6 +163,15 @@ CRITICAL EXTRACTION RULES:
         // Dates are locale-dependent: European suppliers write day-month-year, US/Canadian
         // ones month-day-year. Infer the order from the supplier's country/layout (and any
         // part >12), so we don't misread either — and always output ISO.
+        // Number-format detection + column discipline, for every document type. Real failure
+        // cases: SJM (UK) "48,000.000 kgs" read as 48; Iberinox (EU) "1,00TN × 12.500,00"
+        // parsed with quantity and price swapped.
+        const numberRule = `NUMBERS: detect each document's number format BEFORE parsing values.
+- UK/US format (e.g. SJM): comma = thousands, dot = decimal — "48,000.000" = 48000, "768,000.00" = 768000. A dot followed by MORE or FEWER than 3 digits is ALWAYS a decimal point ("16.00000" = 16.00).
+- European format (e.g. Iberinox): dot = thousands, comma = decimal — "12.500,00" = 12500.00, "1,00" = 1.00.
+- The QUANTITY is the value carrying the unit (TN / MT / KGS / LB); the PRICE is the per-unit money column. NEVER swap them, whatever the column order.
+- SELF-CHECK every product line: quantity × unit price must equal the line amount (±1 unit of currency). If it doesn't, you misassigned columns or misread the number format — re-read that line before answering.`;
+
         const dateRule = `DATES: infer the format from the issuer's country/layout, do NOT assume one order.
 - European suppliers (Germany, Poland, France, Estonia, Netherlands, etc.) write DAY-month-year: "31.03.2026" = 31 March 2026, "10-6-2026" = 10 June 2026, "26.06.2026" = 26 June 2026.
 - US / Canadian suppliers write MONTH-day-year: "12/23/2025" = 23 December 2025, "05/20/2025" = 20 May 2025.
@@ -172,6 +183,7 @@ ALWAYS output the "date" field as ISO YYYY-MM-DD.`;
 Extract structured data from the document text.
 ${entityLists}
 ${dateRule}
+${numberRule}
 Match names to known entities (fuzzy match — "Jinchuan Group" matches "Jinchuan Group Co Ltd").
 ${schemaGuide}
 Return ONLY the JSON object, no extra text.`;
@@ -180,6 +192,7 @@ Return ONLY the JSON object, no extra text.`;
 Extract structured data from the document (image or scanned PDF).
 ${entityLists}
 ${dateRule}
+${numberRule}
 Match names to known entities (fuzzy match).
 ${schemaGuide}
 Return ONLY the JSON object, no extra text.`;
