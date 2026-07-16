@@ -250,7 +250,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
             inv: out?.expense || '',
             invValue: val,
             pmnt: '0',
-            blnc: val,
+            blnc: parseFloat(val) || 0, // number, like every hand-edited row — string blnc broke supplier totals
             invRef: [],
             payments: [{ pmntId: uuidv4(), pmntDate: null, pmntPerc: '', pmnt: '' }],
         };
@@ -304,7 +304,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
             setToast({ show: true, text: `Invoice ${num} aligned to the ${counterpartName} figure — review and Save`, clr: 'success' });
         } else {
             const newInv = {
-                id: uuidv4(), inv: num, invValue: String(exact), pmnt: '0', blnc: String(exact), invRef: [],
+                id: uuidv4(), inv: num, invValue: String(exact), pmnt: '0', blnc: exact, invRef: [],
                 payments: [{ pmntId: uuidv4(), pmntDate: null, pmntPerc: '', pmnt: '' }],
                 mirrored: { from: counterpartName, invoiceId: inv.id || '', date: inv.date || '' },
             };

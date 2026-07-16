@@ -1338,10 +1338,12 @@ export const getTotalsSupPayments = (arr) => {
         const incTotal = item._finTotal != null ? item._finTotal : 1;
         const incFinal = item._finTotal != null ? (item._finCount || 0) : (item.fnlzing === '4568' ? 1 : 0);
         if (!acc[supplier]) {
-            // If the stock is not yet in the accumulator, initialize it
-            acc[supplier] = { ...item, _finCount: incFinal, _finTotal: incTotal };
+            // Seed with the PARSED, currency-converted balance — never the raw field.
+            // AI-imported purchase invoices store blnc as a string, and seeding the
+            // raw value made later `+=` STRING-CONCATENATE (a $31,500 + $12,345 pair
+            // displayed as $31,50012,345…) and skipped the EUR→USD conversion.
+            acc[supplier] = { ...item, blnc: blncValue, _finCount: incFinal, _finTotal: incTotal };
         } else {
-            // If the stock is already in the accumulator, sum up qnty and total
             acc[supplier].blnc += blncValue;
             acc[supplier]._finCount += incFinal;
             acc[supplier]._finTotal += incTotal;
