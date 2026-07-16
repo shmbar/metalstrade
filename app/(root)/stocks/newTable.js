@@ -117,7 +117,9 @@ const Customtable = ({
   });
 
   useEffect(() => {
-    setFilteredArray1(table.getFilteredRowModel().rows.map(r => r.original));
+    // Optional callback — callers like SharedStock render this table without it,
+    // and calling it unguarded white-screened the whole /stocks page.
+    setFilteredArray1?.(table.getFilteredRowModel().rows.map(r => r.original));
   }, [globalFilter, columnFilters]);
 
   const resetTable = () => table.resetColumnFilters();
