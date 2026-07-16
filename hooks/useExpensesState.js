@@ -8,7 +8,8 @@ import {
     updateExpenseInContracts, delExpenseInContracts, updateDocument,
     saveCompanyExpense,
     delCompExp,
-    speciaInvoices
+    speciaInvoices,
+    syncMiscInvoiceIfExists
 } from '../utils/utils'
 import { getTtl } from '../utils/languages';
 
@@ -22,6 +23,24 @@ const newExpense = {
 const getprefixInv = (x) => {
     return (x.invType === '1111' || x.invType === 'Invoice') ? '' :
         (x.invType === '2222' || x.invType === 'Credit Note') ? 'CN' : 'FN'
+}
+
+// The Misc Invoice (specialInvoices) snapshot derived from a company expense —
+// used both by "Copy to misc invoices" and by the save-time re-sync of an
+// existing copy, so the two can never drift apart.
+const buildMiscFromExpense = (v, settings) => {
+    const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
+    return {
+        compName: gQ(v.supplier, 'Supplier', 'nname'),
+        supplier: '-', order: '-',
+        invoice: v?.expense, id: v.id,
+        salesInvoice: '-',
+        description: gQ(v.expType, 'Expenses', 'expType'),
+        cur: v.cur,
+        qnty: '-', unitPrc: 0, total: v.amount,
+        paidNotPaid: v.paid === '111' ? 'Paid' : 'Not Paid',
+        date: v.dateRange.startDate,
+    }
 }
 
 
@@ -298,6 +317,11 @@ const useSettingsState = (props) => {
 
             let success = await saveCompanyExpense(uidCollection, newObj)
 
+            // If this expense was ever copied to Misc Invoices, refresh that copy so a
+            // later edit (e.g. replacing a "draft …" placeholder with the real invoice
+            // number) shows up there too instead of the stale snapshot.
+            await syncMiscInvoiceIfExists(uidCollection, buildMiscFromExpense(newObj, settings))
+
             success && setToast({ show: true, text: getTtl('Expense successfully saved!', ln), clr: 'success' })
             setValueExp({
                 id: '', lstSaved: '', supplier: '', dateRange: { startDate: null, endDate: null },
@@ -325,22 +349,7 @@ const useSettingsState = (props) => {
         copyTomisc: async (uidCollection) => {
             if (valueExp.id === '') return;
 
-            const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
-
-            let miscObj = {
-                compName: gQ(valueExp.supplier, 'Supplier', 'nname'),
-                supplier: '-', order: '-',
-                invoice: valueExp?.expense, id: valueExp.id,
-                salesInvoice: '-',
-                description: gQ(valueExp.expType, 'Expenses', 'expType'),
-                cur: valueExp.cur,
-                qnty: '-', unitPrc: 0, total: valueExp.amount,
-                paidNotPaid: valueExp.paid === '111' ? 'Paid' : 'Not Paid',
-                date: valueExp.dateRange.startDate,
-
-            }
-
-            await speciaInvoices(uidCollection, [miscObj])
+            await speciaInvoices(uidCollection, [buildMiscFromExpense(valueExp, settings)])
             setToast({ show: true, text: 'Expense is successfully copied!', clr: 'success' })
         }
     }), [valueExp, expensesData, errorsExp, isOpen, settings, dateYr, ln, setToast]);

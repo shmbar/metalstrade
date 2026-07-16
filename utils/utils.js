@@ -1197,6 +1197,20 @@ export const speciaInvoices = async (uidCollection, data) => {
 
 }
 
+// Keep a Misc Invoice copy in sync when its source company expense is edited.
+// The copy is a snapshot keyed by the expense's own id; without this, renaming
+// an expense (e.g. a placeholder "draft V Corp" → the real invoice number) left
+// the Misc Invoices page showing the stale value forever. No-op when the
+// expense was never copied to Misc Invoices.
+export const syncMiscInvoiceIfExists = async (uidCollection, miscObj) => {
+  if (!miscObj?.id) return;
+  try {
+    const ref = doc(db, uidCollection, 'data', 'specialInvoices', miscObj.id);
+    const snap = await getDoc(ref);
+    if (snap.exists()) await setDoc(ref, miscObj, { merge: true });
+  } catch (e) { console.warn('syncMiscInvoice failed:', e?.message || e); }
+}
+
 // Update individual fields on a Misc Invoice (specialInvoices) doc — used for the
 // manual category tag (Personal / Random / Shipments) without touching derived fields.
 export const updateSpecialInvoiceField = async (uidCollection, id, fields) => {
