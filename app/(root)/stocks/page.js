@@ -61,6 +61,7 @@ const Stocks = () => {
   const [isLoadingStock, setIsLoadingStock] = useState(false)
   const [rawStockData, setRawStockData] = useState([])
   const [auditOpen, setAuditOpen] = useState(false)
+  const [refreshTick, setRefreshTick] = useState(0) // bumped after audit write-offs to re-pull stock
 
 
   const handleSelectStock = (x) => {
@@ -245,7 +246,7 @@ const Stocks = () => {
     if (!uidCollection) return;
     Object.keys(settings).length !== 0 && loadtStocks()
 
-  }, [selectedStock, settings, uidCollection])
+  }, [selectedStock, settings, uidCollection, refreshTick])
 
   useEffect(() => {
 
@@ -450,7 +451,9 @@ const Stocks = () => {
                 setIsOpen={setAuditOpen}
                 stockData={rawStockData}
                 settings={settings}
+                onDataChanged={() => setRefreshTick(t => t + 1)}
               />
+
             )}
           </>
         }
