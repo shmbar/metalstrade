@@ -8,10 +8,18 @@ import { UserAuth } from "@contexts/useAuthContext";
 import ChkBox from '@components/checkbox';
 import { v4 as uuidv4 } from 'uuid';
 import { getTtl } from '@utils/languages';
+import { loadData } from '@utils/utils';
 import Datepicker from "react-tailwindcss-datepicker";
 import { Button } from '@components/ui/button.jsx';
-import { Save, CirclePlus, CircleMinus, Trash, ArrowBigRight, FileText } from "lucide-react";
+import { Save, CirclePlus, CircleMinus, Trash, ArrowBigRight, FileText, Download, X } from "lucide-react";
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
+
+// Mutual-invoice mirroring (IMS ↔ GIS). Same account uids and counterpart supplier
+// ids that CopyIMSGIS in contractDetails.js uses when copying contracts across.
+const IMS_UID = 'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2';
+const GIS_UID = 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS';
+const GIS_SUPPLIER_IN_IMS = 'f891ad09-aa67-4ba4-83f0-abe7040e0dd2';
+const IMS_SUPPLIER_IN_GIS = '0dfe23d3-3199-4556-a178-07ad52529e37';
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -34,10 +42,23 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
 
     const { valueCon, setValueCon, saveData_payments, contractsData } = useContext(ContractsContext);
     const { settings, setToast, ln } = useContext(SettingsContext);
-    const { uidCollection } = UserAuth();
+    const { uidCollection, gisAccount } = UserAuth();
     const [checkedItems, setCheckedItems] = useState([]);
     const [expand, setExpand] = useState(false)
     const [showDocImport, setShowDocImport] = useState(false)
+    const [showMirror, setShowMirror] = useState(false)
+    const [mirrorList, setMirrorList] = useState(null) // null = loading
+    const [mirrorQuery, setMirrorQuery] = useState('')
+
+    // The counterparty company for mutual (IMS ↔ GIS) trades, and whether this
+    // contract is such a trade — matched by the known supplier id, with a name
+    // fallback in case the supplier was re-created under a new id.
+    const counterpartName = gisAccount ? 'IMS' : 'GIS';
+    const counterpartUid = gisAccount ? IMS_UID : GIS_UID;
+    const supName = settings?.Supplier?.Supplier?.find(s => s.id === valueCon?.supplier)?.nname || '';
+    // Whole-word match so e.g. "XYZ Logistics" never matches GIS.
+    const isMutual = valueCon?.supplier === (gisAccount ? IMS_SUPPLIER_IN_GIS : GIS_SUPPLIER_IN_IMS)
+        || supName.toUpperCase().split(/[^A-Z]+/).includes(counterpartName);
 
     useEffect(() => {
         if (!valueCon?.poInvoices?.length) return;
@@ -238,6 +259,61 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
         setToast({ show: true, text: 'Purchase invoice read from PDF — review the values and Save', clr: 'success' });
     }
 
+    // ── Mirror mutual invoices (IMS ↔ GIS) ─────────────────────────────────────
+    // Both companies live in this system, so instead of retyping the counterparty's
+    // invoice (the source of 1-cent rounding drift like 3948.46 vs 3948.47), pull
+    // the EXACT issued figure straight from the other account. Read-only on the
+    // other account — the poInvoice row is created/updated in the current one.
+    const round2 = (n) => Math.round((parseFloat(n) || 0) * 100) / 100;
+
+    const invSuffix = (q) => (q.invType === '1111' || q.invType === 'Invoice' || !q.invType) ? '' :
+        (q.invType === '2222' || q.invType === 'Credit Note') ? ' CN' : ' FN';
+
+    const openMirror = async () => {
+        setShowMirror(true);
+        setMirrorQuery('');
+        setMirrorList(null);
+        try {
+            const yr = new Date().getFullYear();
+            const invs = await loadData(counterpartUid, 'invoices', { start: `${yr - 1}-01-01`, end: `${yr}-12-31` });
+            setMirrorList((invs || [])
+                .filter(z => z && z.invoice !== undefined && z.invoice !== '')
+                .sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))));
+        } catch (e) {
+            setMirrorList([]);
+            setToast({ show: true, text: `Could not load ${counterpartName} invoices: ${e?.message || e}`, clr: 'fail' });
+        }
+    };
+
+    const pickMirror = (inv) => {
+        const exact = round2(inv.totalAmount);
+        const num = String(inv.invoice).trim();
+        const existing = (valueCon.poInvoices || []).find(p => String(p.inv).trim() === num);
+        if (existing) {
+            // Align the recorded value to the issued one. Payments stay untouched
+            // (no percentage rescale — a cent alignment must not move payments);
+            // only the balance is recomputed.
+            setValueCon(prev => ({
+                ...prev,
+                poInvoices: prev.poInvoices.map(item => {
+                    if (item.id !== existing.id) return item;
+                    const paid = (item.payments || []).reduce((t, z) => t + (parseFloat(z.pmnt) || 0), 0);
+                    return { ...item, invValue: String(exact), pmnt: paid, blnc: round2(exact - paid) };
+                })
+            }));
+            setToast({ show: true, text: `Invoice ${num} aligned to the ${counterpartName} figure — review and Save`, clr: 'success' });
+        } else {
+            const newInv = {
+                id: uuidv4(), inv: num, invValue: String(exact), pmnt: '0', blnc: String(exact), invRef: [],
+                payments: [{ pmntId: uuidv4(), pmntDate: null, pmntPerc: '', pmnt: '' }],
+                mirrored: { from: counterpartName, invoiceId: inv.id || '', date: inv.date || '' },
+            };
+            setValueCon(prev => ({ ...prev, poInvoices: [...(prev.poInvoices || []), newInv] }));
+            setToast({ show: true, text: `Invoice ${num} pulled from ${counterpartName} — review and Save`, clr: 'success' });
+        }
+        setShowMirror(false);
+    };
+
     const deleteItems = () => {
 
         let isExit = false
@@ -309,7 +385,6 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
         });
         setValueCon({ ...valueCon, poInvoices: newArr });
     }
-console.log(valueCon.poInvoices)
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('POInvoices', ln)} w='max-w-5xl'>
             <div className='flex flex-col p-1 justify-between gap-2'>
@@ -471,6 +546,18 @@ console.log(valueCon.poInvoices)
                     Autofill from PDF
                 </Button>
 
+                {isMutual && (
+                    <Button
+                        className="h-8 px-3"
+                        variant='outline'
+                        onClick={openMirror}
+                        title={`Pull the exact invoice figure issued on the ${counterpartName} account — no retyping, no rounding differences.`}
+                    >
+                        <Download />
+                        Pull from {counterpartName}
+                    </Button>
+                )}
+
                 <Button
                     className="h-8 px-3"
                     variant='outline'
@@ -480,6 +567,62 @@ console.log(valueCon.poInvoices)
                     Delete Invoice
                 </Button>
             </div>
+
+            {showMirror && (
+                <div className='fixed inset-0 z-50 flex items-center justify-center' style={{ background: 'rgba(16,42,74,0.35)' }}
+                    onClick={() => setShowMirror(false)}>
+                    <div className='bg-white rounded-2xl shadow-2xl w-[560px] max-w-[94vw] p-4 flex flex-col gap-2'
+                        onClick={e => e.stopPropagation()}>
+                        <div className='flex items-center justify-between'>
+                            <p className='responsiveText font-semibold text-[var(--chathams-blue)]'>
+                                Invoices issued on {counterpartName}
+                            </p>
+                            <X className='w-4 h-4 cursor-pointer text-[var(--regent-gray)]' onClick={() => setShowMirror(false)} />
+                        </div>
+                        <p className='responsiveTextTable text-[var(--regent-gray)]'>
+                            Pick the {counterpartName} invoice for this contract — its exact figure is copied here, so both accounts match to the cent. Last 2 years shown.
+                        </p>
+                        <input type='text' className='input h-8 w-full responsiveTextTable' placeholder='Search invoice number…'
+                            value={mirrorQuery} onChange={e => setMirrorQuery(e.target.value)} autoFocus />
+                        <div className='max-h-[50vh] overflow-y-auto flex flex-col divide-y divide-[#d8e8f5] border border-[#d8e8f5] rounded-lg'>
+                            {mirrorList === null ? (
+                                <p className='p-3 responsiveTextTable text-[var(--regent-gray)]'>Loading {counterpartName} invoices…</p>
+                            ) : (() => {
+                                const q = mirrorQuery.trim().toLowerCase();
+                                const rows = mirrorList.filter(z => !q || String(z.invoice).toLowerCase().includes(q));
+                                if (!rows.length) return <p className='p-3 responsiveTextTable text-[var(--regent-gray)]'>No invoices found.</p>;
+                                return rows.map(z => {
+                                    const exact = round2(z.totalAmount);
+                                    const rec = (valueCon.poInvoices || []).find(p => String(p.inv).trim() === String(z.invoice).trim());
+                                    const recDiff = rec && round2(rec.invValue) !== exact;
+                                    return (
+                                        <button key={z.id || `${z.invoice}-${z.date}`} type='button'
+                                            className='flex items-center justify-between gap-3 px-3 py-2 text-left hover:bg-[#f8fbff] transition-colors'
+                                            onClick={() => pickMirror(z)}>
+                                            <span className='responsiveTextTable font-medium text-[var(--port-gore)] whitespace-nowrap'>
+                                                #{z.invoice}{invSuffix(z)}
+                                            </span>
+                                            <span className='responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap'>{z.date || ''}</span>
+                                            <span className='responsiveTextTable text-[var(--port-gore)] ml-auto whitespace-nowrap'>
+                                                {(z.cur === 'us' ? '$' : z.cur === 'eu' ? '€' : '') +
+                                                    new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(exact)}
+                                            </span>
+                                            {rec && (
+                                                <span className='responsiveTextTable px-2 py-0.5 rounded-full whitespace-nowrap'
+                                                    style={recDiff
+                                                        ? { background: '#fee2e2', color: '#b91c1c' }
+                                                        : { background: '#dcfce7', color: '#15803d' }}>
+                                                    {recDiff ? 'recorded — value differs' : 'recorded ✓'}
+                                                </span>
+                                            )}
+                                        </button>
+                                    );
+                                });
+                            })()}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {showDocImport && (
                 <DocumentImportOverlay
