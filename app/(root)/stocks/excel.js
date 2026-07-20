@@ -155,6 +155,7 @@ export const EXD = (dataTable, settings, name, ln, sumData, columnVisibility = {
                 { key: 'descriptionName', header: 'Description', width: 45, style: styles },
                 { key: 'totalQnty', header: 'Total Weight (MT)', width: 18, style: styles },
                 { key: 'avgPrice', header: 'Avg Cost /MT', width: 16, style: styles },
+                { key: 'totalValue', header: 'Total Value', width: 18, style: styles },
                 { key: 'cur', header: '$/€', width: 8, style: styles },
             ];
 
@@ -168,6 +169,7 @@ export const EXD = (dataTable, settings, name, ln, sumData, columnVisibility = {
                     descriptionName: r.descriptionName,
                     totalQnty: r.totalQnty,
                     avgPrice: r.avgPrice,
+                    totalValue: r.totalValue,
                     cur: r.isoCode === 'EUR' ? '€' : '$',
                 });
             });

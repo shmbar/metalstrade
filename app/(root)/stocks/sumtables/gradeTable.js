@@ -94,6 +94,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Description</th>
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Total Weight (MT)</th>
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Avg Cost /MT</th>
+                <th className="responsiveTextTable font-medium text-center" style={thStyle}>Total Value</th>
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>$/€</th>
               </tr>
             </thead>
@@ -117,6 +118,16 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                     <td className="responsiveTextTable" style={tdStyle}>
                       <NumericFormat
                         value={avgPrice}
+                        displayType="text"
+                        thousandSeparator
+                        prefix={isoCode === 'EUR' ? '€' : '$'}
+                        decimalScale={2}
+                        fixedDecimalScale
+                      />
+                    </td>
+                    <td className="responsiveTextTable" style={{ ...tdStyle, fontWeight: 600 }}>
+                      <NumericFormat
+                        value={r.totalValue}
                         displayType="text"
                         thousandSeparator
                         prefix={isoCode === 'EUR' ? '€' : '$'}

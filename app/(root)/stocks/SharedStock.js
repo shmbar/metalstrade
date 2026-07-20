@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 import dateFormat from 'dateformat';
 import { Plus, Share2, Save, Trash2 } from 'lucide-react';
 import Customtable from './newTable';
+import GradeTable from './sumtables/gradeTable';
 import Modal from '@components/modal';
 import { Selector } from '@components/selectors/selectShad';
 import { SettingsContext } from '@contexts/useSettingsContext';
@@ -206,6 +207,29 @@ const SharedStock = () => {
     };
 
     const totalMt = rows.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+
+    // Total stock value and how much each company is financing. A lot's value is
+    // split equally between its owners — owned by both means half to IMS, half to
+    // GIS; sole ownership carries the full value. Kept per currency.
+    const money = useMemo(() => {
+        const totals = {};
+        const fin = { IMS: {}, GIS: {} };
+        rows.forEach(r => {
+            const val = (parseFloat(r.qnty) || 0) * (parseFloat(r.unitPrc) || 0);
+            if (!val) return;
+            const cur = r.cur || 'us';
+            totals[cur] = (totals[cur] || 0) + val;
+            const owners = Array.isArray(r.owners) && r.owners.length ? r.owners : OWNERS;
+            owners.forEach(o => { if (fin[o]) fin[o][cur] = (fin[o][cur] || 0) + val / owners.length; });
+        });
+        return { totals, fin };
+    }, [rows]);
+
+    const fmtMoney = (obj) => {
+        const parts = Object.entries(obj)
+            .map(([cur, v]) => (curSym(cur) || '$') + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v));
+        return parts.length ? parts.join(' · ') : (curSym('us') || '$') + '0.00';
+    };
     const inputCls = 'w-full rounded-lg bg-[#f8fbff] border border-[#d8e8f5] px-2 h-8 text-xs text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]';
     const labelCls = 'text-[11px] font-medium text-[var(--chathams-blue)] mb-0.5 block';
 
@@ -229,7 +253,28 @@ const SharedStock = () => {
                     no contract or invoice needed. It appears here for both accounts.
                 </div>
             ) : (
-                <Customtable data={rows} columns={columns} invisible={{}} SelectRow={openEdit} type='sharedStock' ln={ln} />
+                <>
+                    <Customtable data={rows} columns={columns} invisible={{}} SelectRow={openEdit} type='sharedStock' ln={ln} />
+
+                    {/* Bottom summary: total value + who finances how much */}
+                    <div className='flex flex-wrap items-center gap-x-6 gap-y-1 mt-3 rounded-xl border border-[#b8ddf8] bg-[#f8fbff] px-4 py-2.5 responsiveTextTable'>
+                        <span style={{ color: 'var(--regent-gray)' }}>
+                            Total:&nbsp;<b style={{ color: 'var(--chathams-blue)' }}>
+                                {new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(totalMt)} MT</b>
+                            &nbsp;·&nbsp;<b style={{ color: 'var(--chathams-blue)' }}>{fmtMoney(money.totals)}</b>
+                        </span>
+                        <span style={{ color: 'var(--regent-gray)' }}>
+                            Financing —&nbsp;IMS:&nbsp;<b style={{ color: 'var(--chathams-blue)' }}>{fmtMoney(money.fin.IMS)}</b>
+                            &nbsp;·&nbsp;GIS:&nbsp;<b style={{ color: 'var(--chathams-blue)' }}>{fmtMoney(money.fin.GIS)}</b>
+                        </span>
+                        <span style={{ fontSize: '10px', color: 'var(--regent-gray)' }}>
+                            Lots owned by both companies count half to each.
+                        </span>
+                    </div>
+
+                    {/* Same per-grade summary the regular stock tab has */}
+                    <GradeTable dataTable={rows} loading={false} settings={settings} />
+                </>
             )}
 
             <Modal isOpen={open} setIsOpen={setOpen} title={lot.id ? 'Edit shared stock' : 'Add shared stock'} w='max-w-2xl'>
