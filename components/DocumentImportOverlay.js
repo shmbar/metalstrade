@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FileText, Upload, Loader2, X, CheckSquare, Square, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { authedFetch } from '../utils/aiClient';
-import { uploadFile } from '../utils/utils';
+import { uploadFile, fileToBase64 } from '../utils/utils';
 
 const ACCEPTED = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
 
@@ -135,12 +135,8 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
     const [selected, setSelected] = useState({});
     const inputRef = useRef(null);
 
-    const toBase64 = (f) => new Promise((res, rej) => {
-        const r = new FileReader();
-        r.onload = () => res(r.result.split(',')[1]);
-        r.onerror = rej;
-        r.readAsDataURL(f);
-    });
+    // Shared reader — works even where Lockdown Mode removes FileReader.
+    const toBase64 = fileToBase64;
 
     // Render PDF pages to high-resolution JPEGs in the browser. Scanned PDFs sent to the
     // model as a raw file get rasterized by the provider at an uncontrollable (modest) DPI —

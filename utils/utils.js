@@ -156,6 +156,48 @@ export const sortArr = (arr, name) => {
   });
 }
 
+// ── File readers that survive locked-down browsers ────────────────────────────
+// Hardened WebKit configurations (iOS/macOS Lockdown Mode) remove FileReader
+// entirely — every upload died with "Can't find variable: FileReader". Prefer
+// Blob.arrayBuffer() (universal in modern browsers, survives Lockdown Mode) and
+// keep FileReader only as the legacy fallback.
+const blobToBinaryString = async (blob) => {
+  const buf = new Uint8Array(await blob.arrayBuffer());
+  let bin = '';
+  for (let i = 0; i < buf.length; i += 0x8000) {
+    bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+  }
+  return bin;
+};
+
+export const fileToBase64 = async (file) => {
+  if (typeof file?.arrayBuffer === 'function') return btoa(await blobToBinaryString(file));
+  if (typeof FileReader !== 'undefined') {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(String(r.result).split(',')[1]);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+  throw new Error('This browser blocks file reading. If Lockdown Mode is enabled, allow this website in Safari settings (aA menu → Website Settings), or use Chrome/Edge.');
+};
+
+export const fileToDataUrl = async (file) => {
+  if (typeof file?.arrayBuffer === 'function') {
+    return `data:${file.type || 'application/octet-stream'};base64,${btoa(await blobToBinaryString(file))}`;
+  }
+  if (typeof FileReader !== 'undefined') {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onloadend = () => res(String(r.result));
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+  throw new Error('This browser blocks file reading. If Lockdown Mode is enabled, allow this website in Safari settings (aA menu → Website Settings), or use Chrome/Edge.');
+};
+
 export const filteredArray = (arr) => {
 
   const groupedByInvoice = arr.reduce((acc, obj) => {

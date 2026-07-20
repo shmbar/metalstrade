@@ -3,7 +3,7 @@ import { useState, useRef, useContext, useEffect } from 'react';
 import { Upload, Loader2, CheckCircle2, XCircle, FileText, X, AlertTriangle, Plus, Trash2, Save } from 'lucide-react';
 import { ContractsContext } from '@contexts/useContractsContext';
 import { UserAuth } from '@contexts/useAuthContext';
-import { updateContractField } from '@utils/utils';
+import { updateContractField, fileToBase64 } from '@utils/utils';
 import { authedFetch } from '@utils/aiClient';
 
 const ACCEPTED = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
@@ -54,12 +54,8 @@ const CertChecker = () => {
         }
     };
 
-    const toBase64 = (file) => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
+    // Shared reader — works even where Lockdown Mode removes FileReader.
+    const toBase64 = fileToBase64;
 
     const handleFile = (f) => {
         if (!f) return;

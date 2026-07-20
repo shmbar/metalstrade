@@ -8,7 +8,7 @@ const ensurePdfLibs = async () => {
     jsPDF = jspdfMod.jsPDF;
     autoTable = autoTableMod.default;
 };
-import { getD } from '@utils/utils.js';
+import { getD, fileToDataUrl } from '@utils/utils.js';
 import dateFormat from "dateformat";
 
 
@@ -91,11 +91,8 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
     const loadImageAsBase64 = async (url) => {
         const response = await fetch(url);
         const blob = await response.blob();
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.readAsDataURL(blob);
-        });
+        // Shared reader — works even where Lockdown Mode removes FileReader.
+        return fileToDataUrl(blob);
     };
 
     const header = async () => {
