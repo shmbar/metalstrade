@@ -198,7 +198,12 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                         ) : primaryFile ? (
                             <div>
                                 {isPdf(primaryFile.name) ? (
-                                    <iframe title={primaryFile.name} src={primaryFile.url}
+                                    // #navpanes=0 asks the browser's built-in PDF viewer (Chrome/Edge PDFium,
+                                    // Firefox pdf.js) to start with the thumbnail/outline sidebar collapsed,
+                                    // so the file fills the frame instead of opening with that panel pinned
+                                    // open. It's a viewer hint, not guaranteed on every browser, but covers
+                                    // the common ones and the user can still open the panel themselves.
+                                    <iframe title={primaryFile.name} src={`${primaryFile.url}#toolbar=1&navpanes=0`}
                                         style={{ width: '100%', height: '68vh', border: '1px solid #d8e8f5', borderRadius: '6px', background: '#fff' }} />
                                 ) : isImage(primaryFile.name) ? (
                                     <img src={primaryFile.url} alt={primaryFile.name}
