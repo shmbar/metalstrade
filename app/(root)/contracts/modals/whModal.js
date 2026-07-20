@@ -173,11 +173,16 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     const addFromDoc = (out) => {
         const products = valueCon.productsData || []
         const lines = (out?.productsData || []).map(p => {
-            // Best word-overlap match ≥ 0.5 — never silently defaults to the first PO line.
-            const match = products
+            // Best word-overlap match ≥ 0.5 — never silently defaults to the first PO line
+            // when there are several to choose between.
+            const scored = products
                 .map(x => ({ x, s: nameScore(p.description, x.description) }))
                 .filter(m => m.s >= 0.5)
                 .sort((a, b) => b.s - a.s)[0]?.x || null
+            // Mixed-container invoices (e.g. Donald McArthy) bill 20+ alloys against a
+            // single-line PO. With only one contract product there is nothing to
+            // disambiguate — attach every line to it rather than forcing 20 manual picks.
+            const match = scored || (products.length === 1 ? products[0] : null)
 
             // Convert the document's unit to MT. When the invoice is already in MT, keep its
             // EXACT figure (0.9095 must not become 0.910 — the write-off against the sales

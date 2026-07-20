@@ -241,7 +241,9 @@ Return ONLY the JSON object, no extra text.`;
         const response = await getOpenAI().chat.completions.create({
             model,
             temperature: 0,
-            max_tokens: 3000,
+            // Mixed-container invoices (Donald McArthy et al.) carry 20+ material lines;
+            // headroom so the JSON never truncates mid-array.
+            max_tokens: 4000,
             response_format: { type: 'json_object' },
             messages,
         });
