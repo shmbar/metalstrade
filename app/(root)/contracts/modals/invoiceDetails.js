@@ -265,12 +265,25 @@ const ContractModal = () => {
 	// is what marks that sales contract as shipped. The same control exists on the standalone
 	// Invoices page; mirrored here so invoices made from the PO also update the sales contract.
 	const [salesContracts, setSalesContracts] = useState([]);
+	// Invoiced (shipped) qty per sales-contract id, from other linked invoices —
+	// used to hide fully shipped POs from the link dropdown.
+	const [shippedBySc, setShippedBySc] = useState({});
 	useEffect(() => {
 		const load = async () => {
 			if (!uidCollection) return;
 			const yr = parseInt(String(valueInv.dateRange?.startDate || valueInv.date || '').substring(0, 4));
 			const y = isNaN(yr) ? new Date().getFullYear() : yr;
 			setSalesContracts(await loadData(uidCollection, 'salescontracts', { start: `${y - 1}-01-01`, end: `${y + 1}-12-31` }));
+
+			const invs = await loadData(uidCollection, 'invoices', { start: `${y - 1}-01-01`, end: `${y + 1}-12-31` });
+			const map = {};
+			(invs || [])
+				.filter(i => i && i.salesContractId && !i.canceled && i.id !== valueInv.id)
+				.forEach(i => {
+					map[i.salesContractId] = (map[i.salesContractId] || 0) + (i.productsDataInvoice || [])
+						.reduce((s, r) => s + (r.qnty === 's' ? 0 : (parseFloat(r.qnty) || 0)), 0);
+				});
+			setShippedBySc(map);
 		};
 		load();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -285,10 +298,21 @@ const ContractModal = () => {
 	const scAll = (Array.isArray(salesContracts) ? salesContracts : [])
 		.filter(sc => sc && sc.id)
 		.map(sc => ({ ...sc, contractNo: sc.contractNo || '(no number)' }));
-	const scOptions = !valueInv.client ? scAll : [
-		...scAll.filter(sc => sc.client === valueInv.client),
-		...scAll.filter(sc => sc.client !== valueInv.client),
-	];
+	// The dropdown hides fully shipped POs and other buyers' POs (the unfiltered
+	// list was growing into a mess) — with escape hatches so nothing needed is ever
+	// invisible: contracts with NO client recorded stay (AI imports), the currently
+	// linked contract always stays, and if the client filter would empty the list we
+	// fall back to every unshipped contract.
+	const scQty = (sc) => (sc.productsData || []).reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+	const fullyShipped = (sc) => { const q = scQty(sc); return q > 0 && (shippedBySc[sc.id] || 0) >= q - 0.0001; };
+	const notShipped = scAll.filter(sc => !fullyShipped(sc) || sc.id === valueInv.salesContractId);
+	let scOptions;
+	if (!valueInv.client) {
+		scOptions = notShipped;
+	} else {
+		const mine = notShipped.filter(sc => !sc.client || sc.client === valueInv.client || sc.id === valueInv.salesContractId);
+		scOptions = mine.length ? mine : notShipped;
+	}
 	const autoMatchSalesContract = (typed) => {
 		const target = normalizeNo(typed);
 		if (!target) return '';

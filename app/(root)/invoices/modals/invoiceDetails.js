@@ -53,6 +53,9 @@ const InvoiceModal = () => {
 	// Client sales contracts available for linking. Loaded for the invoice's year (± a year)
 	// so contracts created a little before the invoice date are still selectable.
 	const [salesContracts, setSalesContracts] = useState([]);
+	// Invoiced (shipped) qty per sales-contract id, from other linked invoices —
+	// used to hide fully shipped POs from the link dropdown.
+	const [shippedBySc, setShippedBySc] = useState({});
 
 	useEffect(() => {
 		const load = async () => {
@@ -61,9 +64,19 @@ const InvoiceModal = () => {
 			const y = isNaN(yr) ? new Date().getFullYear() : yr;
 			const dt = await loadData(uidCollection, 'salescontracts', { start: `${y - 1}-01-01`, end: `${y + 1}-12-31` });
 			setSalesContracts(dt);
+
+			const invs = await loadData(uidCollection, 'invoices', { start: `${y - 1}-01-01`, end: `${y + 1}-12-31` });
+			const map = {};
+			(invs || [])
+				.filter(i => i && i.salesContractId && !i.canceled && i.id !== valueInv.id)
+				.forEach(i => {
+					map[i.salesContractId] = (map[i.salesContractId] || 0) + (i.productsDataInvoice || [])
+						.reduce((s, r) => s + (r.qnty === 's' ? 0 : (parseFloat(r.qnty) || 0)), 0);
+				});
+			setShippedBySc(map);
 		};
 		load();
-	}, [uidCollection, valueInv.dateRange?.startDate, valueInv.date]);
+	}, [uidCollection, valueInv.dateRange?.startDate, valueInv.date, valueInv.id]);
 
 	// Normalize a contract number for tolerant matching (case / spacing / punctuation).
 	const normalizeNo = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -77,10 +90,21 @@ const InvoiceModal = () => {
 	const scAll = (Array.isArray(salesContracts) ? salesContracts : [])
 		.filter(sc => sc && sc.id)
 		.map(sc => ({ ...sc, contractNo: sc.contractNo || '(no number)' }));
-	const scOptions = !valueInv.client ? scAll : [
-		...scAll.filter(sc => sc.client === valueInv.client),
-		...scAll.filter(sc => sc.client !== valueInv.client),
-	];
+	// The dropdown hides fully shipped POs and other buyers' POs (the unfiltered
+	// list was growing into a mess) — with escape hatches so nothing needed is ever
+	// invisible: contracts with NO client recorded stay (AI imports), the currently
+	// linked contract always stays, and if the client filter would empty the list we
+	// fall back to every unshipped contract.
+	const scQty = (sc) => (sc.productsData || []).reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+	const fullyShipped = (sc) => { const q = scQty(sc); return q > 0 && (shippedBySc[sc.id] || 0) >= q - 0.0001; };
+	const notShipped = scAll.filter(sc => !fullyShipped(sc) || sc.id === valueInv.salesContractId);
+	let scOptions;
+	if (!valueInv.client) {
+		scOptions = notShipped;
+	} else {
+		const mine = notShipped.filter(sc => !sc.client || sc.client === valueInv.client || sc.id === valueInv.salesContractId);
+		scOptions = mine.length ? mine : notShipped;
+	}
 
 	// Auto-match the typed Client Contract # to a sales contract (prefer same client).
 	const autoMatchSalesContract = (typed) => {
