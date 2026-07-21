@@ -757,6 +757,56 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                     </tr>
                 </tfoot>
             </table>
+
+            {(() => {
+                // Per-material totals across POs — the same material often arrives on
+                // several contracts; this sums each material so the remaining unsold
+                // weight & value per material is visible at a glance.
+                const norm = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+                const groups = Object.values(base.reduce((acc, z) => {
+                    const k = `${norm(z.description)}|${z.cur}`;
+                    if (!acc[k]) acc[k] = { description: z.description || '(no name)', cur: z.cur, qnty: 0, total: 0, pos: new Set() };
+                    acc[k].qnty += parseFloat(z.qnty) || 0;
+                    acc[k].total += parseFloat(z.total) || 0;
+                    if (z.order) acc[k].pos.add(z.order);
+                    return acc;
+                }, {})).sort((a, b) => b.total - a.total);
+                if (base.length < 2 || groups.length === 0) return null;
+                return (
+                    <table className="cashflow-detail-table w-full table-auto" style={{ borderTop: '2px solid #b8ddf8' }}>
+                        <thead>
+                            <tr>
+                                <th className="text-left" colSpan={2}>Totals per material</th>
+                                <th className="text-left w-14">Quantity</th>
+                                <th className="text-left w-20">Avg Price</th>
+                                <th className="text-right w-20">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {groups.map((g, i) => (
+                                <tr key={i}>
+                                    <td className="text-left" colSpan={2}>
+                                        <Tltip direction='top' tltpText={`${g.description} — across ${g.pos.size} PO${g.pos.size !== 1 ? 's' : ''}`}>
+                                            <span className="block truncate">{g.description}{g.pos.size > 1 ? ` (${g.pos.size} POs)` : ''}</span>
+                                        </Tltip>
+                                    </td>
+                                    <td className="text-left">
+                                        <NumericFormat value={g.qnty} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
+                                    </td>
+                                    <td className="text-left">
+                                        <NumericFormat value={g.qnty > 0 ? g.total / g.qnty : 0} displayType="text" thousandSeparator
+                                            prefix={g.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
+                                    </td>
+                                    <td className="text-right">
+                                        <NumericFormat value={g.total} displayType="text" thousandSeparator
+                                            prefix={g.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                );
+            })()}
             </div>
         </div>
     )
