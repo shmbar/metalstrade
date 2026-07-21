@@ -172,6 +172,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     };
     const addFromDoc = (out) => {
         const products = valueCon.productsData || []
+        const newProducts = [] // per-alloy entries created for unmatched lines (single-line POs)
         const lines = (out?.productsData || []).map(p => {
             // Best word-overlap match ≥ 0.5 — never silently defaults to the first PO line
             // when there are several to choose between.
@@ -179,10 +180,6 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 .map(x => ({ x, s: nameScore(p.description, x.description) }))
                 .filter(m => m.s >= 0.5)
                 .sort((a, b) => b.s - a.s)[0]?.x || null
-            // Mixed-container invoices (e.g. Donald McArthy) bill 20+ alloys against a
-            // single-line PO. With only one contract product there is nothing to
-            // disambiguate — attach every line to it rather than forcing 20 manual picks.
-            const match = scored || (products.length === 1 ? products[0] : null)
 
             // Convert the document's unit to MT. When the invoice is already in MT, keep its
             // EXACT figure (0.9095 must not become 0.910 — the write-off against the sales
@@ -205,8 +202,28 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 unitPrc = r2(parseFloat(p.unitPrc) / factor) // per-LB/KG price → per MT
                 total = r2(qtyMT * unitPrc)
             }
+
+            // Mixed-container invoices (e.g. Donald McArthy) bill 20+ alloys against a
+            // single-line PO. Attaching them all to the PO line lost the alloy names —
+            // every row displayed the PO's generic description. Instead, each unmatched
+            // line becomes its own hidden product entry (import: true — the same pattern
+            // findContract4Materials uses; excluded from the PO table, PDF and totals) so
+            // the breakdown, stock and cashflow all show the invoice's real material name.
+            // Multi-line POs keep the old behavior: unmatched lines stay blank for a
+            // manual pick, since they're likelier a naming variant of an existing line.
+            let match = scored
+            if (!match && products.length === 1 && p.description) {
+                const prod = {
+                    id: uuidv4(), description: p.description,
+                    qnty: qtyMT || '', unitPrc: unitPrc || '', total: total || '',
+                    import: true, importedFrom: { doc: 'supplier-invoice' },
+                }
+                newProducts.push(prod)
+                match = prod
+            }
             return { ...newStock, id: uuidv4(), description: match?.id || '', qnty: qtyMT || '', unitPrc, total }
         })
+        if (newProducts.length) setValueCon(prev => ({ ...prev, productsData: [...(prev.productsData || []), ...newProducts] }))
         if (lines.length) setData(prev => [...prev, ...lines])
         setShowDocImport(false)
         const anyUnmatched = lines.some(l => !l.description)

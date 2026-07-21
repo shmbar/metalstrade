@@ -152,9 +152,12 @@ const Contracts = () => {
 	const gQ = useCallback((z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || '', [settings])
 
 	const showQTY = useCallback((x) => {
-		return x.row.original.productsData.length !== 0 ? new Intl.NumberFormat('en-US', {
+		// import-flagged products are breakdown/merge helpers, not PO lines — counting
+		// them would double the contract quantity.
+		const own = x.row.original.productsData.filter(p => !p.import)
+		return own.length !== 0 ? new Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 1
-		}).format(x.row.original.productsData.reduce((sum, item) => sum + parseInt(item.qnty, 10), 0)) +
+		}).format(own.reduce((sum, item) => sum + parseInt(item.qnty, 10), 0)) +
 			' ' + gQ(x.row.original.qTypeTable, 'Quantity', 'qTypeTable') : '-'
 	}, [gQ])
 

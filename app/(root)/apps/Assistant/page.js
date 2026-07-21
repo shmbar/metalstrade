@@ -110,8 +110,10 @@ const AssistantChat = () => {
                 date: con.date,
                 currency: resolveCurrency(con.cur),
                 status: con.conStatus || (con.completed ? 'Completed' : 'Open'),
-                products: con.productsData?.length || 0,
-                totalValue: (con.productsData || []).reduce((sum, p) => {
+                products: (con.productsData || []).filter(p => !p.import).length,
+                // import-flagged products are breakdown/merge helpers — counting them
+                // would double the contract value.
+                totalValue: (con.productsData || []).filter(p => !p.import).reduce((sum, p) => {
                     const price = parseFloat(p.unitPrc) || 0;
                     return sum + price * (parseFloat(p.qnty) || 0);
                 }, 0),

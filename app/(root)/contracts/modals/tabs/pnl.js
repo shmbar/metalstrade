@@ -155,7 +155,9 @@ const PNL = () => {
       .filter(e => String(e.expType || '').toLowerCase().includes('freight'))
       .map(e => e.id)
   )
-  const contractMT = (valueCon.productsData || []).reduce((s, p) => s + (parseFloat(p.qnty) || 0), 0)
+  // import-flagged products are breakdown/merge helpers, not PO lines — counting
+  // them would double the contract MT.
+  const contractMT = (valueCon.productsData || []).filter(p => !p.import).reduce((s, p) => s + (parseFloat(p.qnty) || 0), 0)
   const freightTotal = (valueCon.expenses || []).reduce((s, exp) => {
     if (!exp || !freightIds.has(exp.expType)) return s
     const amt = parseFloat(exp.amount)

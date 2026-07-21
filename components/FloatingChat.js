@@ -335,8 +335,10 @@ const FloatingChat = () => {
                 // "E34656" (= Unsold) as if they were statuses.
                 status: ({ A1234: 'Shipped', B5678: 'Not Shipped', F7546: 'Partly Shipped', C6567: 'Finished', D8456: 'Closed', E34656: 'Unsold' })[con.conStatus]
                     || con.conStatus || (con.completed ? 'Completed' : 'Open'),
-                products: con.productsData?.length || 0,
-                totalValue: (con.productsData || []).reduce((sum, p) => {
+                products: (con.productsData || []).filter(p => !p.import).length,
+                // import-flagged products are breakdown/merge helpers — counting them
+                // would double the contract value.
+                totalValue: (con.productsData || []).filter(p => !p.import).reduce((sum, p) => {
                     const price = parseFloat(p.unitPrc) || 0;
                     return sum + price * (parseFloat(p.qnty) || 0);
                 }, 0),

@@ -52,10 +52,11 @@ export const EXD = (dataTable, settings, name, ln) => {
         });
 
         const showQTY = (x) => {
-
-            return x.productsData.length !== 0 ? new Intl.NumberFormat('en-US', {
+            // import-flagged products are breakdown/merge helpers, not PO lines.
+            const own = x.productsData.filter(p => !p.import)
+            return own.length !== 0 ? new Intl.NumberFormat('en-US', {
                 minimumFractionDigits: 1
-            }).format(x.productsData.reduce((sum, item) => sum + parseInt(item.qnty, 10), 0)) +
+            }).format(own.reduce((sum, item) => sum + parseInt(item.qnty, 10), 0)) +
                 ' ' + (x.qTypeTable ? settings.Quantity.Quantity.find(q => q.id === x.qTypeTable)?.qTypeTable : '')
                 : '-'
         }
