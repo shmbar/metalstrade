@@ -220,9 +220,18 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
         const contractFullySold = ownLots.length > 0 && ownLots.every(lotIsSold);
         if (contractFullySold) return [];
         const rows = [];
-        for (const prod of (con.productsData || [])) {
-            if (prod.import) continue;
+        // import-flagged products (per-alloy breakdown lines created from a supplier
+        // invoice, or merged-contract materials) participate via their LOTS only —
+        // they have no contract-quantity of their own. And when a single-line PO's
+        // material was received under such per-alloy lines, the generic PO line must
+        // not ALSO show its full contract quantity — the alloys already represent it.
+        const prods = (con.productsData || []);
+        const importIds = new Set(prods.filter(p => p.import).map(p => p.id));
+        const hasImportLots = ownLots.some(l => importIds.has(l.description || l.descriptionId));
+        const singleOwnLine = prods.filter(p => !p.import).length === 1;
+        for (const prod of prods) {
             const prodLots = ownLots.filter(l => l.description === prod.id || l.descriptionId === prod.id);
+            if (prod.import && prodLots.length === 0) continue;
             // Fully-sold product line drops off.
             if (prodLots.length > 0 && prodLots.every(lotIsSold)) continue;
             // When the material has been received into stock (Materials Breakdown lots), show
@@ -249,7 +258,8 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
             const soldQty = prodLots.filter(lotIsSold).reduce((s, l) => s + (Number(l.qnty) || 0), 0);
             const qnty = prodLots.length > 0
                 ? Math.max(0, unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0) - Math.max(0, outQty - soldQty))
-                : (Number(prod.qnty) || 0);
+                : (singleOwnLine && !prod.import && hasImportLots ? 0 : (Number(prod.qnty) || 0));
+            if (qnty <= 0.0005) continue; // nothing left (or represented by the per-alloy lines)
             // Value mirrors the inventory tables: quantity × the line's unit price. Summing
             // raw lot totals would fold in zero-quantity settlement/adjustment lots, which
             // distorts both the value and the displayed unit price.

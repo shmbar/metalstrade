@@ -86,7 +86,7 @@ export async function POST(request) {
   "currencyCode": "USD/EUR/etc or null",
   "currencyId": "matched currency id or null",
   "products": [{
-    "description": "material name, e.g. 'Cr Ni Mo Turnings'",
+    "description": "the material line's FULL text as printed, including any chemistry/spec in brackets — 'IN 718 CHIPS (51Ni 21Cr)', never shortened to 'IN 718 CHIPS'; keep bracket content even when the closing bracket is cut off in the scan",
     "qnty": number_or_null,
     "unit": "the quantity unit AS PRINTED: 'MT' / 'KGS' / 'LB' or null",
     "unitPrc": number_or_null,
