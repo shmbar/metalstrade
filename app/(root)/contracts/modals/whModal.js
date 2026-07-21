@@ -12,7 +12,7 @@ import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad.js';
 import { Button } from '@components/ui/button.jsx';
-import { Save, CirclePlus, ScrollText, Trash, FileText } from "lucide-react";
+import { Save, CirclePlus, ScrollText, Trash, FileText, Copy } from "lucide-react";
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
 
 
@@ -173,6 +173,26 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     const addFromDoc = (out) => {
         const products = valueCon.productsData || []
         const newProducts = [] // per-alloy entries created for unmatched lines (single-line POs)
+
+        // Prefill the fields that are shared by every row of an import — otherwise a
+        // 20-line container invoice meant picking the same date / warehouse / status /
+        // purchase invoice 20 times over. Arrival date comes from the document's own
+        // date; the purchase invoice is matched by the document's number (or taken
+        // when the contract has exactly one); warehouse/status/consignee are
+        // inherited from the first existing row when there is one.
+        const firstRow = data[0] || null
+        const normNo = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+        const docNo = normNo(out?.order)
+        const poInvMatch = (docNo && (valueCon.poInvoices || []).find(pi => normNo(pi.inv) === docNo))
+            || ((valueCon.poInvoices || []).length === 1 ? valueCon.poInvoices[0] : null)
+        const sharedSeed = {
+            indDate: out?.date ? { startDate: out.date, endDate: out.date } : (firstRow?.indDate ?? null),
+            stock: firstRow?.stock || '',
+            status: firstRow?.status || '',
+            poInvoice: poInvMatch?.id || firstRow?.poInvoice || '',
+            salesPo: firstRow?.salesPo || '',
+            client: firstRow?.client || '',
+        }
         const lines = (out?.productsData || []).map(p => {
             // Best word-overlap match ≥ 0.5 — never silently defaults to the first PO line
             // when there are several to choose between.
@@ -221,7 +241,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 newProducts.push(prod)
                 match = prod
             }
-            return { ...newStock, id: uuidv4(), description: match?.id || '', qnty: qtyMT || '', unitPrc, total }
+            return { ...newStock, ...sharedSeed, id: uuidv4(), description: match?.id || '', qnty: qtyMT || '', unitPrc, total }
         })
         if (newProducts.length) setValueCon(prev => ({ ...prev, productsData: [...(prev.productsData || []), ...newProducts] }))
         if (lines.length) setData(prev => [...prev, ...lines])
@@ -302,6 +322,26 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     const openInvoicesModal = () => {
         setIsOpen(false)
         setShowPoInvModal(true)
+    }
+
+    // One click instead of ~80: fill the FIRST row's shared fields (arrival date,
+    // warehouse, status, purchase invoice, sales PO, consignee, draft) and copy
+    // them to every row below. A field left empty on the first row keeps each
+    // row's own value.
+    const copyFirstRowDown = () => {
+        if (data.length < 2) return;
+        const src = data[0];
+        setData(prev => prev.map((row, i) => i === 0 ? row : ({
+            ...row,
+            indDate: src.indDate ?? row.indDate,
+            stock: src.stock || row.stock,
+            status: src.status || row.status,
+            poInvoice: src.poInvoice || row.poInvoice,
+            salesPo: src.salesPo || row.salesPo,
+            client: src.client || row.client,
+            draft: src.draft ?? row.draft,
+        })));
+        setToast({ show: true, text: 'First row\'s date, stock, status and invoice copied to all rows below', clr: 'success' });
     }
 
     const statusArr = [{ id: 'sold', status: 'Sold' }, { id: 'unsold', status: 'Unsold' }]
@@ -525,6 +565,18 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                     <FileText />
                     Autofill from PDF
                 </Button>
+
+                {data.length > 1 && (
+                    <Button
+                        className="h-8 px-3"
+                        variant='outline'
+                        onClick={copyFirstRowDown}
+                        title="Copy the first row's arrival date, warehouse, status, purchase invoice, sales PO and consignee to every row below."
+                    >
+                        <Copy />
+                        Copy 1st row down
+                    </Button>
+                )}
 
                 <Button
                     className="h-8 px-3"
