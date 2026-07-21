@@ -79,14 +79,18 @@ const SumTh = () => (
 // BEFORE the final invoice. Used on client balances (read straight off the
 // invoice) and supplier balances (mirrored from the linked contract's sales
 // invoice via contract id, wired up in cashflow/page.js).
-const FinalBadge = ({ fnlzing }) => {
-    const yes = fnlzing === '4568';
+// A Final Note doc counts as finalized by itself — issuing the final note IS the
+// finalization; the manual Finalizing flag stays for shipments finalized without one.
+const isFN = (t) => t === '3333' || t === 'Final Note';
+const FinalBadge = ({ fnlzing, invType }) => {
+    const fn = isFN(invType);
+    const yes = fnlzing === '4568' || fn;
     // Matches FinalSummaryBadge: soft tint + inset ring + status dot.
     const tone = yes
         ? { dot: '#10b981', text: '#047857', bg: '#ecfdf5', ring: '#a7f3d0' }
         : { dot: '#f59e0b', text: '#b45309', bg: '#fffbeb', ring: '#fde68a' };
     return (
-        <Tltip direction='top' tltpText={yes ? 'Shipment finalized — final invoice issued' : 'Not finalized — balance is before the final invoice'}>
+        <Tltip direction='top' tltpText={fn ? 'Final Note issued — finalized' : yes ? 'Shipment finalized — final invoice issued' : 'Not finalized — balance is before the final invoice'}>
             <span
                 className="inline-flex items-center gap-1 rounded-full font-semibold leading-none cursor-default whitespace-nowrap"
                 style={{
@@ -851,7 +855,7 @@ export const getTotals = (arr) => {
         // (the sort handlers re-run getTotals on its own output); only fall back
         // to the raw shipData flag on the first pass over per-invoice rows.
         const incTotal = item._finTotal != null ? item._finTotal : 1;
-        const incFinal = item._finTotal != null ? (item._finCount || 0) : (item.shipData?.fnlzing === '4568' ? 1 : 0);
+        const incFinal = item._finTotal != null ? (item._finCount || 0) : ((item.shipData?.fnlzing === '4568' || isFN(item.invType)) ? 1 : 0);
         if (!acc.has(ent)) {
             acc.set(ent, { ...item, _finCount: incFinal, _finTotal: incTotal });
         } else {
@@ -995,7 +999,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 fixedDecimalScale
                                             />
                                         }</td>
-                                        <td className="text-left"><FinalBadge fnlzing={z.shipData?.fnlzing} /></td>
+                                        <td className="text-left"><FinalBadge fnlzing={z.shipData?.fnlzing} invType={z.invType} /></td>
                                         <td className="text-left">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
                                         <td className="text-left">{dateFormat(z.shipData?.eta?.startDate, 'dd.mm.yy')}</td>
                                         <td className="text-left !py-1">
@@ -1117,7 +1121,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 fixedDecimalScale
                                             />
                                         }</td>
-                                        <td className="text-left"><FinalBadge fnlzing={z.shipData?.fnlzing} /></td>
+                                        <td className="text-left"><FinalBadge fnlzing={z.shipData?.fnlzing} invType={z.invType} /></td>
                                         <td className="text-left">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
                                         <td className="text-left !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>

@@ -239,17 +239,22 @@ const Cashflow = () => {
             setClientInvoices1(getTotals(invoices.filter(z => z.payments.length > 0)))
             setClientInvoices2(getTotals(invoices.filter(z => z.payments.length === 0)))
 
-            // Shipment-finalized status (shipData.fnlzing) lives only on the sales
-            // invoice, but the supplier balances below need the same flag so both
-            // sides agree on whether a balance is before/after the final invoice.
-            // Map it per contract (invoice.poSupplier.id === contract.id); a 'Yes'
-            // ('4568') always wins if any linked invoice for the contract is finalized.
+            // Shipment-finalized status lives only on the sales invoice, but the
+            // supplier balances below need the same flag so both sides agree on
+            // whether a balance is before/after the final invoice. Finalized =
+            // manual Finalizing flag OR the invoice being a Final Note (issuing
+            // the final note IS the finalization). Map it per contract
+            // (invoice.poSupplier.id === contract.id); 'Yes' always wins if any
+            // linked invoice for the contract is finalized.
+            const finOf = (inv) => (inv.shipData?.fnlzing === '4568'
+                || inv.invType === '3333' || inv.invType === 'Final Note') ? '4568' : inv.shipData?.fnlzing;
             const fnlzingByContract = {};
             for (const inv of invoices) {
                 const cid = inv.poSupplier?.id;
                 if (!cid) continue;
-                if (inv.shipData?.fnlzing === '4568' || !(cid in fnlzingByContract)) {
-                    fnlzingByContract[cid] = inv.shipData?.fnlzing;
+                const f = finOf(inv);
+                if (f === '4568' || !(cid in fnlzingByContract)) {
+                    fnlzingByContract[cid] = f;
                 }
             }
 

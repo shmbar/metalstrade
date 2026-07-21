@@ -68,6 +68,13 @@ describe('isIssued / isFinalized', () => {
     expect(isFinalized({ shipData: { fnlzing: '2587' } })).toBe(false);
     expect(isFinalized({})).toBe(false);
   });
+  it('a Final Note doc is finalized by itself, no manual flag needed', () => {
+    expect(isFinalized({ invType: 'Final Note' })).toBe(true);
+    expect(isFinalized({ invType: '3333' })).toBe(true);
+    expect(isFinalized({ invType: 'Final Note', shipData: { fnlzing: '2587' } })).toBe(true);
+    expect(isFinalized({ invType: 'Invoice' })).toBe(false);
+    expect(isFinalized({ invType: 'Credit Note' })).toBe(false);
+  });
 });
 
 describe('isOverdue', () => {
