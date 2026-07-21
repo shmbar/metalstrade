@@ -4,6 +4,11 @@ import OpenAI from 'openai';
 import { guardAiRequest } from '../../../../utils/aiGuard';
 import { extractPdfText } from '../../../../utils/pdfExtract';
 
+// Reading a multi-page / scanned document through gpt-4o routinely takes longer
+// than the platform's default function timeout — without this the client saw
+// bare 504s ("Server replied 504") on heavier documents.
+export const maxDuration = 60;
+
 let openai;
 function getOpenAI() {
     if (!openai) openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -246,7 +251,9 @@ Return ONLY the JSON object, no extra text.`;
             max_tokens: 4000,
             response_format: { type: 'json_object' },
             messages,
-        });
+            // Stay under maxDuration so a hung upstream returns OUR json error,
+            // not the platform's bare 504 page.
+        }, { timeout: 50_000 });
 
         guard.recordUsage(response.usage?.total_tokens);
         const result = JSON.parse(response.choices[0].message.content);

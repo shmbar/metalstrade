@@ -4,6 +4,10 @@ import OpenAI from 'openai';
 import { guardAiRequest } from '../../../../utils/aiGuard';
 import { extractPdfText } from '../../../../utils/pdfExtract';
 
+// Vision reads of scanned certificates can exceed the platform's default
+// function timeout — same allowance as the document reader.
+export const maxDuration = 60;
+
 let openai;
 function getOpenAI() {
     if (!openai) openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
