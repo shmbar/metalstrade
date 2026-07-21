@@ -13,7 +13,12 @@ export async function authedFetch(url, options = {}) {
     const user = auth.currentUser;
     if (!user) throw new Error('Not signed in');
 
-    const token = await user.getIdToken();
+    let token;
+    try {
+        token = await user.getIdToken();
+    } catch (e) {
+        throw new Error(`Could not refresh the sign-in token — try signing out and back in (${e?.message || e})`);
+    }
     const headers = new Headers(options.headers || {});
     headers.set('Authorization', `Bearer ${token}`);
     if (options.body && !headers.has('Content-Type')) {

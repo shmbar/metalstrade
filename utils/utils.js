@@ -171,7 +171,11 @@ const blobToBinaryString = async (blob) => {
 };
 
 export const fileToBase64 = async (file) => {
-  if (typeof file?.arrayBuffer === 'function') return btoa(await blobToBinaryString(file));
+  if (typeof file?.arrayBuffer === 'function') {
+    // If any step of the binary path throws (strict WebKit configurations have
+    // quirky btoa/apply limits), fall through to FileReader instead of failing.
+    try { return btoa(await blobToBinaryString(file)); } catch { /* fall through */ }
+  }
   if (typeof FileReader !== 'undefined') {
     return new Promise((res, rej) => {
       const r = new FileReader();
@@ -185,7 +189,9 @@ export const fileToBase64 = async (file) => {
 
 export const fileToDataUrl = async (file) => {
   if (typeof file?.arrayBuffer === 'function') {
-    return `data:${file.type || 'application/octet-stream'};base64,${btoa(await blobToBinaryString(file))}`;
+    try {
+      return `data:${file.type || 'application/octet-stream'};base64,${btoa(await blobToBinaryString(file))}`;
+    } catch { /* fall through */ }
   }
   if (typeof FileReader !== 'undefined') {
     return new Promise((res, rej) => {

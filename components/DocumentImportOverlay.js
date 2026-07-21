@@ -205,9 +205,14 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
         setResult(null);
         setError(null);
         setReading(true);
+        // Stage tag so a browser's one-line DOMException (Safari: "The string did
+        // not match the expected pattern.") still tells us WHERE it happened.
+        let stage = 'reading the file';
         try {
             const b64 = await toBase64(f);
+            stage = 'preparing pages';
             const pagesBase64 = f.type === 'application/pdf' ? await renderPdfPages(f) : null;
+            stage = 'contacting the AI service';
             const res = await authedFetch('/api/ai/document-reader', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -222,7 +227,12 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                     contractIndex: contractIndex || [],
                 }),
             });
-            const data = await res.json();
+            stage = 'reading the response';
+            const raw = await res.text();
+            let data;
+            try { data = JSON.parse(raw); }
+            catch { throw new Error(`Server replied ${res.status} with an unexpected response — try again, or a smaller file.`); }
+            stage = 'applying the result';
             if (!res.ok || data.error) {
                 // Distinguish scanned-image PDFs from parse failures so the user
                 // gets an accurate, actionable message.
@@ -250,7 +260,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             });
             setSelected(sel);
         } catch (e) {
-            setError(e.message || 'Failed to read document');
+            setError(`${e.message || 'Failed to read document'} (while ${stage})`);
         } finally {
             setReading(false);
         }
