@@ -12,7 +12,7 @@ import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad.js';
 import { Button } from '@components/ui/button.jsx';
-import { Save, CirclePlus, ScrollText, Trash, FileText, Copy } from "lucide-react";
+import { Save, CirclePlus, ScrollText, Trash, FileText, Copy, Pencil } from "lucide-react";
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
 
 
@@ -346,6 +346,18 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
     const statusArr = [{ id: 'sold', status: 'Sold' }, { id: 'unsold', status: 'Unsold' }]
 
+    // Inline rename for per-alloy names created by the invoice import. Rough scans
+    // misprint characters (a '?' where the paper says '7'), and these import-flagged
+    // products appear nowhere else in the UI to correct. Renaming updates the
+    // contract's product entry, and Save re-snapshots productsData onto every lot,
+    // so one fix propagates to the breakdown, stocks, cashflow and grade tables.
+    const [editNameRow, setEditNameRow] = useState(null)
+    const prodOf = (row) => (valueCon.productsData || []).find(p => p.id === row.description)
+    const renameImportProduct = (prodId, name) => setValueCon(prev => ({
+        ...prev,
+        productsData: (prev.productsData || []).map(p => p.id === prodId ? { ...p, description: name } : p),
+    }))
+
 
     const handleChange = (e, name, indx) => {
         if (name === 'description') {
@@ -401,12 +413,31 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 </div>
                                 <div className='md:max-w-52 w-full pt-2 md:pt-0'>
                                     <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Description', ln)}:</p>
-                                    <div className='flex flex-col w-36'>
-                                        <Selector
-                                            arr={valueCon.productsData} value={data[i]}
-                                            onChange={(e) => handleChange(e, 'description', i)}
-                                            name='description' classes='h-7'
-                                        />
+                                    <div className='flex items-center gap-1 w-44'>
+                                        {editNameRow === x.id && prodOf(x)?.import ? (
+                                            <input
+                                                className='input h-7 shadow-lg responsiveTextTable w-36'
+                                                value={prodOf(x)?.description || ''}
+                                                autoFocus
+                                                onChange={e => renameImportProduct(x.description, e.target.value)}
+                                                onBlur={() => setEditNameRow(null)}
+                                                onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Escape') setEditNameRow(null); }}
+                                            />
+                                        ) : (
+                                            <div className='flex flex-col w-36'>
+                                                <Selector
+                                                    arr={valueCon.productsData} value={data[i]}
+                                                    onChange={(e) => handleChange(e, 'description', i)}
+                                                    name='description' classes='h-7'
+                                                />
+                                            </div>
+                                        )}
+                                        {prodOf(x)?.import && editNameRow !== x.id && (
+                                            <Tltip direction='top' tltpText='Fix the material name (e.g. a character misread from the scan). Applies everywhere after Save.'>
+                                                <Pencil className='w-3.5 h-3.5 shrink-0 cursor-pointer text-[var(--regent-gray)] hover:text-[var(--endeavour)]'
+                                                    onClick={() => setEditNameRow(x.id)} />
+                                            </Tltip>
+                                        )}
                                     </div>
                                 </div>
                             </div>
