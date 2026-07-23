@@ -235,6 +235,14 @@ const useContractsState = (props) => {
             // (poInvoicesOverride); for any other save the contract's existing ones are kept.
             const finalPoInvoices = poInvoicesOverride ?? valueCon.poInvoices;
 
+            // DMT-style ALL-CAPS material names: soften invoice-imported product names
+            // (4+ capitals → Title Case; alloy codes like IN/SS/NIM and chemistry keep
+            // their casing) on every breakdown save, so legacy imports self-correct with
+            // a single Save — no re-import needed. Idempotent; PO's own lines untouched.
+            const softenCaps = (s) => String(s || '').replace(/\b[A-Z]{4,}\b/g, w => w[0] + w.slice(1).toLowerCase());
+            const productsData = (valueCon.productsData || []).map(p =>
+                p.import ? { ...p, description: softenCaps(p.description) } : p);
+
             //check if item deleted
             let delItems = valueCon.stock.filter((item) => !data.map(x => x.id).includes(item));
             if (delItems.length > 0) {
@@ -243,7 +251,7 @@ const useContractsState = (props) => {
 
 
             let tmpdata = data.map(x => ({
-                ...x, supplier: valueCon.supplier, productsData: valueCon.productsData,
+                ...x, supplier: valueCon.supplier, productsData,
                 order: valueCon.order, cur: valueCon.cur, poInvoices: finalPoInvoices,
                 qTypeTable: valueCon.qTypeTable,
                 contractData: { id: valueCon.id, date: valueCon.dateRange.startDate }, type: 'in',
@@ -254,7 +262,7 @@ const useContractsState = (props) => {
             //    await saveStockIn(uidCollection, tmpdata.filter(z => z.qnty !== '0'))
             await saveStockIn(uidCollection, tmpdata)
 
-            let tmp = { ...valueCon, stock: data.map(x => x.id), poInvoices: finalPoInvoices }
+            let tmp = { ...valueCon, productsData, stock: data.map(x => x.id), poInvoices: finalPoInvoices }
             setValueCon(tmp)
             setContractsData(contractsData.map((k) => (k.id === tmp.id ? tmp : k)))
 

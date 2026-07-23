@@ -656,6 +656,8 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
     // Per-alloy rows of a PO (groupDesc set) collapse under one summary line —
     // a 20-alloy DMT container would otherwise flood the list. Keyed by PO#.
     const [openPOs, setOpenPOs] = useState({});
+    // The per-material totals block is long too — collapsed by default.
+    const [showMatTotals, setShowMatTotals] = useState(false);
 
     const base = stockDataAllArray.filter(z => z.supplier === supplier)
         // Group rows by contract number (PO#) so both stock tables read consistently.
@@ -829,13 +831,19 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                 return (
                     <table className="cashflow-detail-table w-full table-auto" style={{ borderTop: '2px solid #b8ddf8' }}>
                         <thead>
-                            <tr>
-                                <th className="text-left" colSpan={2}>Totals per material</th>
-                                <th className="text-left w-14">Quantity</th>
-                                <th className="text-left w-20">Avg Price</th>
-                                <th className="text-right w-20">Total</th>
+                            <tr className="cursor-pointer" onClick={() => setShowMatTotals(v => !v)}>
+                                <th className="text-left" colSpan={2}>
+                                    <span className="inline-flex items-center gap-1">
+                                        <span className="inline-block transition-transform" style={{ transform: showMatTotals ? 'rotate(90deg)' : 'none' }}>›</span>
+                                        Totals per material ({groups.length})
+                                    </span>
+                                </th>
+                                <th className="text-left w-14">{showMatTotals ? 'Quantity' : ''}</th>
+                                <th className="text-left w-20">{showMatTotals ? 'Avg Price' : ''}</th>
+                                <th className="text-right w-20">{showMatTotals ? 'Total' : 'click to expand'}</th>
                             </tr>
                         </thead>
+                        {showMatTotals && (
                         <tbody>
                             {groups.map((g, i) => (
                                 <tr key={i}>
@@ -858,6 +866,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                 </tr>
                             ))}
                         </tbody>
+                        )}
                     </table>
                 );
             })()}
