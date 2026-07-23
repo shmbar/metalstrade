@@ -27,7 +27,13 @@ import { getTtl } from '@utils/languages';
 import { TableSkeleton } from "@components/skeletons";
 
 const OWNERS = ['IMS', 'GIS'];
-const blankLot = () => ({ id: '', descriptionText: '', qnty: '', unitPrc: '', stock: '', supplier: '', cur: 'us', status: '', owners: ['IMS', 'GIS'], sourceId: '', sourceAccount: '', sourcePo: '' });
+// financedBy = who PAID for the lot ('IMS' | 'GIS' | 'BOTH') — distinct from
+// owners (who holds it). Legacy lots without the field derive it from owners.
+const FINANCING = ['IMS', 'GIS', 'BOTH'];
+const financedOf = (x) => x?.financedBy && FINANCING.includes(x.financedBy)
+    ? x.financedBy
+    : (Array.isArray(x?.owners) && x.owners.length === 1 ? x.owners[0] : 'BOTH');
+const blankLot = () => ({ id: '', descriptionText: '', qnty: '', unitPrc: '', stock: '', supplier: '', cur: 'us', status: '', owners: ['IMS', 'GIS'], financedBy: 'BOTH', sourceId: '', sourceAccount: '', sourcePo: '' });
 
 const SharedStock = () => {
     const { settings, ln, setToast } = useContext(SettingsContext);
@@ -61,6 +67,7 @@ const SharedStock = () => {
             stockName: whName(x.stock),
             supplierName: supName(x.supplier),
             ownersLabel: Array.isArray(x.owners) && x.owners.length ? x.owners.join(' + ') : 'IMS + GIS',
+            financedLabel: financedOf(x) === 'BOTH' ? 'IMS + GIS' : financedOf(x),
         })));
         setLoading(false);
     };
@@ -148,6 +155,20 @@ const SharedStock = () => {
                 </span>
             ),
         },
+        {
+            accessorKey: 'financedLabel', header: 'Financed by',
+            cell: p => (
+                <span className='inline-flex items-center px-2 py-0.5 rounded-full font-semibold whitespace-nowrap'
+                    style={{
+                        fontSize: '0.6rem',
+                        background: p.getValue() === 'IMS' ? '#ecfdf5' : p.getValue() === 'GIS' ? '#fff7ed' : '#f1f5f9',
+                        color: p.getValue() === 'IMS' ? '#047857' : p.getValue() === 'GIS' ? '#b45309' : '#475569',
+                        border: `1px solid ${p.getValue() === 'IMS' ? '#a7f3d0' : p.getValue() === 'GIS' ? '#fed7aa' : '#cbd5e1'}`,
+                    }}>
+                    {p.getValue()}
+                </span>
+            ),
+        },
         { accessorKey: 'date', header: getTtl('Date', ln) || 'Date' },
         // eslint-disable-next-line react-hooks/exhaustive-deps
     ], [ln, warehouses, suppliers, currencies]);
@@ -160,7 +181,7 @@ const SharedStock = () => {
     const toggleOwner = (o) => setLot(prev => ({ ...prev, owners: prev.owners.includes(o) ? prev.owners.filter(x => x !== o) : [...prev.owners, o] }));
 
     const openAdd = () => { setLot(blankLot()); setOpen(true); };
-    const openEdit = (row) => { setLot({ ...blankLot(), ...row, owners: Array.isArray(row.owners) && row.owners.length ? row.owners : ['IMS', 'GIS'] }); setOpen(true); };
+    const openEdit = (row) => { setLot({ ...blankLot(), ...row, owners: Array.isArray(row.owners) && row.owners.length ? row.owners : ['IMS', 'GIS'], financedBy: financedOf(row) }); setOpen(true); };
 
     const save = async () => {
         if (!lot.descriptionText || !lot.qnty || !lot.stock) {
@@ -173,6 +194,7 @@ const SharedStock = () => {
             id: lot.id || uuidv4(),
             shared: true,
             owners: lot.owners.length ? lot.owners : ['IMS', 'GIS'],
+            financedBy: FINANCING.includes(lot.financedBy) ? lot.financedBy : 'BOTH',
             sharedByAccount: lot.sharedByAccount || accountName,
             type: 'in',
             stock: lot.stock,
@@ -208,9 +230,9 @@ const SharedStock = () => {
 
     const totalMt = rows.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
 
-    // Total stock value and how much each company is financing. A lot's value is
-    // split equally between its owners — owned by both means half to IMS, half to
-    // GIS; sole ownership carries the full value. Kept per currency.
+    // Total stock value and how much each company is financing — driven by the
+    // lot's explicit "Financed by" (IMS / GIS / Both 50-50); legacy lots without
+    // the field derive it from ownership. Kept per currency.
     const money = useMemo(() => {
         const totals = {};
         const fin = { IMS: {}, GIS: {} };
@@ -219,8 +241,9 @@ const SharedStock = () => {
             if (!val) return;
             const cur = r.cur || 'us';
             totals[cur] = (totals[cur] || 0) + val;
-            const owners = Array.isArray(r.owners) && r.owners.length ? r.owners : OWNERS;
-            owners.forEach(o => { if (fin[o]) fin[o][cur] = (fin[o][cur] || 0) + val / owners.length; });
+            const f = financedOf(r);
+            const payers = f === 'BOTH' ? OWNERS : [f];
+            payers.forEach(o => { if (fin[o]) fin[o][cur] = (fin[o][cur] || 0) + val / payers.length; });
         });
         return { totals, fin };
     }, [rows]);
@@ -268,7 +291,7 @@ const SharedStock = () => {
                             &nbsp;·&nbsp;GIS:&nbsp;<b style={{ color: 'var(--chathams-blue)' }}>{fmtMoney(money.fin.GIS)}</b>
                         </span>
                         <span style={{ fontSize: '10px', color: 'var(--regent-gray)' }}>
-                            Lots owned by both companies count half to each.
+                            From each lot&apos;s &quot;Financed by&quot; — Both counts half to each company.
                         </span>
                     </div>
 
@@ -332,6 +355,19 @@ const SharedStock = () => {
                                     </label>
                                 ))}
                                 <span className='text-[10px] text-[var(--regent-gray)]'>Both accounts see this lot regardless; owners records who holds it.</span>
+                            </div>
+                        </div>
+                        <div className='sm:col-span-2'>
+                            <label className={labelCls}>Financed by</label>
+                            <div className='flex items-center gap-3'>
+                                {FINANCING.map(f => (
+                                    <label key={f} className='flex items-center gap-1.5 text-xs text-[var(--port-gore)] cursor-pointer'>
+                                        <input type='radio' name='financedBy' checked={(lot.financedBy || 'BOTH') === f}
+                                            onChange={() => setF('financedBy', f)} className='w-3.5 h-3.5 accent-[var(--endeavour)]' />
+                                        {f === 'BOTH' ? 'Both (50/50)' : f}
+                                    </label>
+                                ))}
+                                <span className='text-[10px] text-[var(--regent-gray)]'>Who paid for this stock — drives the financing totals below the table.</span>
                             </div>
                         </div>
                     </div>
