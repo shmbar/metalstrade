@@ -163,6 +163,10 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     //  • Materials match the contract's products by word (prefix-tolerant, so
     //    "30% NI REF TURNINGS" finds "30Ni Refinery Turnings"), not by picking the first line.
     const LB_TO_MT = 0.45359237 / 1000, r2 = (n) => Math.round(n * 100) / 100, r3 = (n) => Math.round(n * 1000) / 1000;
+    // DMT prints material names in ALL CAPS ("IN 718 TURNINGS (51Ni 21Cr 3Mo)").
+    // Soften words of 4+ capitals to Title Case ("IN 718 Turnings") — short alloy
+    // tokens (IN, SS, GTD, NIM) and chemistry like 47Ni keep their casing.
+    const softenCaps = (s) => String(s || '').replace(/\b[A-Z]{4,}\b/g, w => w[0] + w.slice(1).toLowerCase());
     const words = (s) => String(s || '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
     const nameScore = (a, b) => {
         const wa = words(a), wb = words(b);
@@ -234,7 +238,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
             let match = scored
             if (!match && products.length === 1 && p.description) {
                 const prod = {
-                    id: uuidv4(), description: p.description,
+                    id: uuidv4(), description: softenCaps(p.description),
                     qnty: qtyMT || '', unitPrc: unitPrc || '', total: total || '',
                     import: true, importedFrom: { doc: 'supplier-invoice' },
                 }

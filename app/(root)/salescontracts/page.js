@@ -32,6 +32,8 @@ const SalesContracts = () => {
     const [highlightId, setHighlightId] = useState(null);
     // Shipped weight per sales-contract id, derived from linked invoices.
     const [shippedByContract, setShippedByContract] = useState({});
+    // Invoice numbers the contract was shipped with (FN/CN suffixed), same source.
+    const [invoicesByContract, setInvoicesByContract] = useState({});
 
     const gQ = (z, y, x) => settings?.[y]?.[y]?.find(q => q.id === z)?.[x] || '';
 
@@ -48,15 +50,23 @@ const SalesContracts = () => {
             // invoiced quantity per linked sales-contract id.
             const years = dt.map(c => (c.dateRange?.startDate || c.date || '').substring(0, 4)).filter(Boolean);
             const map = {};
+            const invMap = {};
+            const suffix = (t) => (t === '1111' || t === 'Invoice' || !t) ? '' : (t === '2222' || t === 'Credit Note') ? 'CN' : 'FN';
             if (years.length) {
                 const minY = Math.min(...years.map(Number));
                 const maxY = Math.max(...years.map(Number));
                 const invoices = await loadData(uidCollection, 'invoices', { start: `${minY}-01-01`, end: `${maxY}-12-31` });
                 invoices
                     .filter(inv => inv.salesContractId && !inv.canceled)
-                    .forEach(inv => { map[inv.salesContractId] = (map[inv.salesContractId] || 0) + invoiceQty(inv); });
+                    .forEach(inv => {
+                        map[inv.salesContractId] = (map[inv.salesContractId] || 0) + invoiceQty(inv);
+                        if (inv.invoice !== undefined && inv.invoice !== '') {
+                            (invMap[inv.salesContractId] ||= []).push(`${inv.invoice}${suffix(inv.invType)}`);
+                        }
+                    });
             }
             setShippedByContract(map);
+            setInvoicesByContract(invMap);
             setLoading(false);
         };
         Load();
@@ -108,6 +118,18 @@ const SalesContracts = () => {
                 },
             },
             {
+                id: 'shippedInvoices', header: 'Sales Invoices',
+                accessorFn: (c) => (invoicesByContract[c.id] || []).join(', '),
+                cell: (props) => {
+                    const v = props.getValue();
+                    return v
+                        ? <span className="block max-w-40 truncate mx-auto" title={v} style={{ color: 'var(--chathams-blue)', fontWeight: 500 }}>{v}</span>
+                        : <span style={{ color: 'var(--regent-gray)' }}>—</span>;
+                },
+                enableColumnFilter: false,
+                meta: { excludeFromQuickSum: true },
+            },
+            {
                 id: 'shipStatus', header: getTtl('Status', ln),
                 accessorFn: (c) => {
                     const qty = contractQty(c);
@@ -128,7 +150,7 @@ const SalesContracts = () => {
                 enableColumnFilter: false,
             },
         ];
-    }, [settings, ln, shippedByContract]);
+    }, [settings, ln, shippedByContract, invoicesByContract]);
 
     const invisible = {};
 

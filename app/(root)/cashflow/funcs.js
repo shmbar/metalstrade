@@ -232,6 +232,8 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
         const importIds = new Set(prods.filter(p => p.import).map(p => p.id));
         const hasImportLots = ownLots.some(l => importIds.has(l.description || l.descriptionId));
         const singleOwnLine = prods.filter(p => !p.import).length === 1;
+        // The PO's own line description — per-alloy rows group under it in the UI.
+        const ownLineDesc = singleOwnLine ? (prods.find(p => !p.import)?.description || '') : '';
         for (const prod of prods) {
             const prodLots = ownLots.filter(l => l.description === prod.id || l.descriptionId === prod.id);
             if (prod.import && prodLots.length === 0) continue;
@@ -283,6 +285,7 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
                 total,
                 cur: con.cur,
                 orderData: { date: con.date, id: con.id },
+                groupDesc: prod.import ? ownLineDesc : '',
             });
         }
         return rows;
@@ -650,6 +653,9 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
     setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
     const { setToast } = useContext(SettingsContext);
+    // Per-alloy rows of a PO (groupDesc set) collapse under one summary line —
+    // a 20-alloy DMT container would otherwise flood the list. Keyed by PO#.
+    const [openPOs, setOpenPOs] = useState({});
 
     const base = stockDataAllArray.filter(z => z.supplier === supplier)
         // Group rows by contract number (PO#) so both stock tables read consistently.
@@ -680,18 +686,18 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredArr.map((z, i) => {
-                        return (
-                            <tr key={i}>
+                    {(() => {
+                        const renderRow = (z, key, indent = false) => (
+                            <tr key={key}>
                                 <td className="!py-1 px-1">
                                     <SumToggle active={!!sumSel[sumKey('stock', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
                                 </td>
                                 <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
-                                    <Tltip direction='top' tltpText={[z.order, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate">{z.order}</span></Tltip></td>
+                                    <Tltip direction='top' tltpText={[z.order, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate">{indent ? '' : z.order}</span></Tltip></td>
                                 <td className="text-left w-28 max-w-28">
-                                    <Tltip direction='top' tltpText={z.description || ''}><span className="block truncate cursor-default">{z.description}</span></Tltip>
+                                    <Tltip direction='top' tltpText={z.description || ''}><span className={`block truncate cursor-default ${indent ? 'pl-4' : ''}`}>{z.description}</span></Tltip>
                                 </td>
                                 <td className="text-left w-20">
                                     <Tltip direction='top' tltpText={z.stockName || ''}><span className="block truncate cursor-default">{z.stockName}</span></Tltip>
@@ -729,8 +735,53 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                     />
                                 }</td>
                             </tr>
-                        )
-                    })}
+                        );
+
+                        // Collapse a PO's per-alloy rows (3+) under one summary line with the
+                        // PO's own material description; click the chevron row to expand.
+                        const emitted = new Set();
+                        const out = [];
+                        filteredArr.forEach((z, i) => {
+                            const grp = z.groupDesc ? filteredArr.filter(r => r.order === z.order && r.groupDesc) : [];
+                            if (z.groupDesc && grp.length >= 3) {
+                                if (emitted.has(z.order)) return;
+                                emitted.add(z.order);
+                                const isOpen = !!openPOs[z.order];
+                                const qSum = grp.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+                                const tSum = grp.reduce((s, r) => s + (parseFloat(r.total) || 0), 0);
+                                out.push(
+                                    <tr key={`grp-${z.order}`} className="cursor-pointer hover:bg-[#f4f9ff]"
+                                        onClick={() => setOpenPOs(prev => ({ ...prev, [z.order]: !prev[z.order] }))}>
+                                        <td className="!py-1 px-1"></td>
+                                        <td className="text-left text-[var(--endeavour)] max-w-20 truncate"
+                                            onClick={(e) => { e.stopPropagation(); moveToContracts(z, 'order', uidCollection, setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router, setToast); }}>
+                                            <span className="block truncate cursor-pointer hover:underline">{z.order}</span>
+                                        </td>
+                                        <td className="text-left w-28 max-w-28">
+                                            <span className="flex items-center gap-1 font-medium" style={{ color: 'var(--chathams-blue)' }}>
+                                                <span className="inline-block transition-transform" style={{ transform: isOpen ? 'rotate(90deg)' : 'none' }}>›</span>
+                                                <span className="truncate">{z.groupDesc || 'Materials'}</span>
+                                                <span style={{ color: 'var(--regent-gray)' }}>({grp.length})</span>
+                                            </span>
+                                        </td>
+                                        <td className="text-left w-20"></td>
+                                        <td className="text-left font-medium">{
+                                            <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
+                                        }</td>
+                                        <td className="text-left"></td>
+                                        <td className="text-right font-medium">{
+                                            <NumericFormat value={tSum} displayType="text" thousandSeparator
+                                                prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
+                                        }</td>
+                                    </tr>
+                                );
+                                if (isOpen) grp.forEach((r, k) => out.push(renderRow(r, `grp-${z.order}-${k}`, true)));
+                            } else {
+                                out.push(renderRow(z, i));
+                            }
+                        });
+                        return out;
+                    })()}
 
                 </tbody>
                 <tfoot>

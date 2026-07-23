@@ -1,5 +1,7 @@
 ﻿'use client'
 
+import React, { useState } from 'react'
+import { ChevronRight } from 'lucide-react'
 import { NumericFormat } from 'react-number-format'
 
 // Group stock rows by grade (descriptionName + currency), returning total
@@ -10,20 +12,27 @@ export const computeGradeSummary = (dataTable, settings) => {
   if (!dataTable || dataTable.length === 0) return []
 
   const gCur = (id) => settings?.Currency?.Currency?.find(q => q.id === id)?.cur || id
+  const supName = (id) => settings?.Supplier?.Supplier?.find(q => q.id === id)?.nname
+    || (id && id !== '-' ? String(id) : '(no supplier)')
 
-  // Group by descriptionName + cur, sum qnty and total value
+  // Group by descriptionName + cur, sum qnty and total value; keep a per-supplier
+  // split inside each group so the row can expand to show who supplied how much.
   const groups = {}
   dataTable.forEach(row => {
     const name = row.descriptionName || '-'
     const curId = row.cur || ''
     const key = `${name}|${curId}`
     if (!groups[key]) {
-      groups[key] = { descriptionName: name, curId, totalQnty: 0, totalValue: 0 }
+      groups[key] = { descriptionName: name, curId, totalQnty: 0, totalValue: 0, bySupplier: {} }
     }
     const qty = parseFloat(row.qnty) || 0
     const val = row.total === '-' ? 0 : parseFloat(row.total) || 0
     groups[key].totalQnty += qty
     groups[key].totalValue += val
+    const sup = supName(row.supplier)
+    if (!groups[key].bySupplier[sup]) groups[key].bySupplier[sup] = { supplier: sup, qnty: 0, value: 0 }
+    groups[key].bySupplier[sup].qnty += qty
+    groups[key].bySupplier[sup].value += val
   })
 
   return Object.values(groups)
@@ -36,16 +45,24 @@ export const computeGradeSummary = (dataTable, settings) => {
         ...r,
         avgPrice: r.totalQnty > 0 ? r.totalValue / r.totalQnty : 0,
         isoCode,
+        suppliers: Object.values(r.bySupplier)
+          .filter(s => s.qnty > 0.0005)
+          .sort((a, b) => b.value - a.value),
       }
     })
 }
 
 const GradeTable = ({ dataTable, loading, settings }) => {
+  // Expanded state per grade row (keyed by descriptionName|cur).
+  const [expanded, setExpanded] = useState({})
+
   if (loading) return null
 
   const rows = computeGradeSummary(dataTable, settings)
 
   if (rows.length === 0) return null
+
+  const toggle = (k) => setExpanded(prev => ({ ...prev, [k]: !prev[k] }))
 
   const thStyle = {
     color: 'var(--chathams-blue)',
@@ -101,10 +118,21 @@ const GradeTable = ({ dataTable, loading, settings }) => {
             <tbody>
               {rows.map((r, i) => {
                 const { avgPrice, isoCode } = r
+                const key = `${r.descriptionName}|${r.curId}`
+                const canExpand = (r.suppliers || []).length > 0
+                const isOpen = !!expanded[key]
                 return (
-                  <tr key={i} style={{ background: '#fff' }}>
+                  <React.Fragment key={i}>
+                  <tr style={{ background: '#fff', cursor: canExpand ? 'pointer' : 'default' }}
+                    onClick={() => canExpand && toggle(key)}>
                     <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '14px' }}>
-                      {r.descriptionName}
+                      <span className='inline-flex items-center gap-1'>
+                        {canExpand && (
+                          <ChevronRight className='w-3 h-3 shrink-0 transition-transform'
+                            style={{ transform: isOpen ? 'rotate(90deg)' : 'none', color: 'var(--endeavour)' }} />
+                        )}
+                        {r.descriptionName}
+                      </span>
                     </td>
                     <td className="responsiveTextTable" style={tdStyle}>
                       <NumericFormat
@@ -139,6 +167,26 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                       {isoCode === 'EUR' ? '€' : '$'}
                     </td>
                   </tr>
+                  {isOpen && r.suppliers.map((s, k) => (
+                    <tr key={`${i}-sup-${k}`} style={{ background: '#f8fbff' }}>
+                      <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '34px', color: 'var(--regent-gray)' }}>
+                        {s.supplier}
+                      </td>
+                      <td className="responsiveTextTable" style={{ ...tdStyle, color: 'var(--regent-gray)' }}>
+                        <NumericFormat value={s.qnty} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
+                      </td>
+                      <td className="responsiveTextTable" style={{ ...tdStyle, color: 'var(--regent-gray)' }}>
+                        <NumericFormat value={s.qnty > 0 ? s.value / s.qnty : 0} displayType="text" thousandSeparator
+                          prefix={isoCode === 'EUR' ? '€' : '$'} decimalScale={2} fixedDecimalScale />
+                      </td>
+                      <td className="responsiveTextTable" style={{ ...tdStyle, color: 'var(--regent-gray)' }}>
+                        <NumericFormat value={s.value} displayType="text" thousandSeparator
+                          prefix={isoCode === 'EUR' ? '€' : '$'} decimalScale={2} fixedDecimalScale />
+                      </td>
+                      <td style={tdStyle}></td>
+                    </tr>
+                  ))}
+                  </React.Fragment>
                 )
               })}
             </tbody>
