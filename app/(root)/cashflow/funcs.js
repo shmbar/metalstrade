@@ -82,8 +82,11 @@ const SumTh = () => (
 // A Final Note doc counts as finalized by itself — issuing the final note IS the
 // finalization; the manual Finalizing flag stays for shipments finalized without one.
 const isFN = (t) => t === '3333' || t === 'Final Note';
-const FinalBadge = ({ fnlzing, invType }) => {
-    const fn = isFN(invType);
+// Purchase invoices carry no invoice-type field — the business convention is an
+// "FN" suffix in the number itself ("0012FN"), so that counts as a final note too.
+const isFNNumber = (no) => /fn\s*$/i.test(String(no || '').trim());
+const FinalBadge = ({ fnlzing, invType, invoiceNo }) => {
+    const fn = isFN(invType) || isFNNumber(invoiceNo);
     const yes = fnlzing === '4568' || fn;
     // Matches FinalSummaryBadge: soft tint + inset ring + status dot.
     const tone = yes
@@ -1400,7 +1403,8 @@ export const getTotalsSupPayments = (arr) => {
         // Idempotent under re-aggregation (sort handlers re-run this on its own
         // output): carry forward existing counts, else derive from the raw flag.
         const incTotal = item._finTotal != null ? item._finTotal : 1;
-        const incFinal = item._finTotal != null ? (item._finCount || 0) : (item.fnlzing === '4568' ? 1 : 0);
+        const incFinal = item._finTotal != null ? (item._finCount || 0)
+            : ((item.fnlzing === '4568' || isFNNumber(item.invoice)) ? 1 : 0);
         if (!acc[supplier]) {
             // Seed with the PARSED, currency-converted balance — never the raw field.
             // AI-imported purchase invoices store blnc as a string, and seeding the
@@ -1516,7 +1520,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                 }</td>
                                 <td className="text-left">{z.shipmentEtd ? dateFormat(z.shipmentEtd, 'dd.mm.yy') : ''}</td>
                                 <td className="text-left">{z.shipmentEta ? dateFormat(z.shipmentEta, 'dd.mm.yy') : ''}</td>
-                                <td className="text-left"><FinalBadge fnlzing={z.fnlzing} /></td>
+                                <td className="text-left"><FinalBadge fnlzing={z.fnlzing} invoiceNo={z.invoice} /></td>
                                 <td className="text-left !py-1">
                                     <Tltip direction='right' tltpText='Partial Payment'>
                                         <div className='flex items-center justify-start'>
