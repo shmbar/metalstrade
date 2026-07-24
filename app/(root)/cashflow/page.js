@@ -9,7 +9,7 @@ import AutosavePill from "../../../components/AutosavePill";
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
 import { CardsSkeleton } from "../../../components/skeletons";
-import { loadData, loadDataSettings, loadInvoice, loadMargins, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments } from "../../../utils/utils";
+import { loadData, loadDataSettings, loadInvoice, loadMargins, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, saveStockIn, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments } from "../../../utils/utils";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
 import { MdDeleteOutline } from "react-icons/md";
@@ -698,6 +698,21 @@ const Cashflow = () => {
 
     }
 
+    // Stock lots carry a SNAPSHOT of their contract's poInvoices (taken when the
+    // breakdown was saved). The contract-modal payment path refreshes it, but the
+    // cashflow payment paths didn't — so invoices paid HERE left their stock stuck
+    // in "Stocks - UnPaid" forever (the ELG 010726 case). Refresh after any
+    // cashflow supplier payment.
+    const syncStockPoInvoices = async (contracts) => {
+        await Promise.all((contracts || []).map(async (c) => {
+            if (!Array.isArray(c.stock) || c.stock.length === 0) return;
+            try {
+                const lots = await loadStockData(uidCollection, 'id', c.stock);
+                if (lots.length) await saveStockIn(uidCollection, lots.map(l => ({ ...l, poInvoices: c.poInvoices })));
+            } catch (e) { console.warn('stock poInvoices sync failed:', e?.message || e); }
+        }));
+    };
+
     const savePmntSupplier = async (arr) => {
 
         let arr1 = arr.filter(x => x.checked)
@@ -735,6 +750,7 @@ const Cashflow = () => {
 
         let success = await saveMultipleData(uidCollection, 'contracts', tmpArr)
         await Promise.all(tmpArr.map(c => syncSpecialInvoicesPaidStatus(uidCollection, c)))
+        await syncStockPoInvoices(tmpArr)
         success && setToast({ show: true, text: getTtl('Payments successfully saved!', ln), clr: 'success' })
 
         let newArr = supPaymentsData.filter(z => !arr1.map(x => x.id).includes(z.id))
@@ -864,6 +880,7 @@ const Cashflow = () => {
 
         await saveMultipleData(uidCollection, 'contracts', [inv])
         await syncSpecialInvoicesPaidStatus(uidCollection, inv)
+        await syncStockPoInvoices([inv])
 
         let newArr;
 

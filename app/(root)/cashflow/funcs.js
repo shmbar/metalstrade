@@ -386,8 +386,13 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
         const child = c.data?.find(d => d.id === c.id);
         if (!child) return false;
 
-        // step 2: find the matching poInvoice
-        const invoice = child.poInvoices?.find(x => x.id === child.poInvoice);
+        // step 2: find the matching poInvoice — prefer the LIVE contract's list.
+        // Lots carry a snapshot of poInvoices taken at breakdown-save time, and
+        // payments recorded on the cashflow page never refreshed it (historic
+        // data), so paid stock kept showing under "Stocks - UnPaid" (ELG 010726).
+        const live = contractsData.find(k => k.id === child.contractData?.id)?.poInvoices;
+        const invoice = live?.find(x => x.id === child.poInvoice)
+            || child.poInvoices?.find(x => x.id === child.poInvoice);
         if (!invoice) return false;
 
         // step 3: check if payment is "0"
