@@ -352,7 +352,7 @@ const General = () => {
                         <p className='responsiveText font-medium text-[0.825rem] mb-3 text-[var(--chathams-blue)]'>Invoice wording</p>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='flex gap-4 items-center'>
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[170px] text-[var(--chathams-blue)]'>Prepayment label:</p>
+                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[170px] shrink-0 text-[var(--chathams-blue)]'>Prepayment label:</p>
                                 <input
                                     type='input'
                                     placeholder='Prepayment'
@@ -362,7 +362,7 @@ const General = () => {
                                 />
                             </div>
                             <div className='flex gap-4 items-start'>
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[170px] pt-1 text-[var(--chathams-blue)]'>Invoice note (Non&#8209;Radioactive):</p>
+                                <p className='responsiveText font-medium text-[0.825rem] w-[170px] shrink-0 pt-1 leading-tight text-[var(--chathams-blue)]'>Invoice note (Non&#8209;Radioactive):</p>
                                 <textarea
                                     rows={2}
                                     placeholder='e.g. We hereby certify the goods are non-radioactive and free of contamination.'
