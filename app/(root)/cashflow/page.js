@@ -719,21 +719,34 @@ const Cashflow = () => {
         let tmpArr = []
         let dt = dateFormat(new Date(), 'yyyy-mm-dd')
 
-        for (let i = 0; i < arr1.length; i++) {
+        // Group ticked payments by CONTRACT and apply them all to one loaded doc.
+        // The old loop loaded the contract fresh per invoice and batched N copies
+        // of the same document — last write won, so ticking several invoices of
+        // one PO saved only one of them per click ("press the diskette N times").
+        const byContract = new Map();
+        arr1.forEach(p => {
+            const key = p.orderData?.id;
+            if (!key) return;
+            if (!byContract.has(key)) byContract.set(key, { orderData: p.orderData, ids: new Set() });
+            byContract.get(key).ids.add(p.id);
+        });
 
-            let inv = await loadInvoice(uidCollection, 'contracts', arr1[i].orderData)
+        for (const { orderData, ids } of byContract.values()) {
 
-            //in case there is no payments
-            let pmntObj = inv.poInvoices.find(x => x.id === arr1[i].id)
-            let tmp = pmntObj.payments ? pmntObj.payments :
-                parseFloat(pmntObj.pmnt) > 0 ?
-                    [{
-                        pmntId: uuidv4(), pmntDate: null, pmntPerc: ((parseFloat(pmntObj.pmnt) / parseFloat(pmntObj.invValue) * 100)).toFixed(1),
-                        pmnt: pmntObj.pmnt,
-                    }] : []
+            let inv = await loadInvoice(uidCollection, 'contracts', orderData)
 
-            let updatedpoInvoices = inv.poInvoices.map(x => x.id === arr1[i].id ?
-                {
+            let updatedpoInvoices = inv.poInvoices.map(x => {
+                if (!ids.has(x.id)) return x;
+
+                //in case there is no payments
+                let tmp = x.payments ? x.payments :
+                    parseFloat(x.pmnt) > 0 ?
+                        [{
+                            pmntId: uuidv4(), pmntDate: null, pmntPerc: ((parseFloat(x.pmnt) / parseFloat(x.invValue) * 100)).toFixed(1),
+                            pmnt: x.pmnt,
+                        }] : []
+
+                return {
                     ...x, pmnt: x.invValue, blnc: 0,
                     payments: [...tmp, {
                         pmntId: uuidv4(),
@@ -741,8 +754,8 @@ const Cashflow = () => {
                         pmntPerc: parseFloat((parseFloat(x.blnc) * 100 / parseFloat(x.invValue)).toFixed(1)),
                         pmnt: x.blnc
                     }]
-                } :
-                x)
+                };
+            })
 
             inv.poInvoices = [...updatedpoInvoices]
             tmpArr.push(inv)
