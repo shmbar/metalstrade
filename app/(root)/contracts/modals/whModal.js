@@ -350,17 +350,34 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
     const statusArr = [{ id: 'sold', status: 'Sold' }, { id: 'unsold', status: 'Unsold' }]
 
-    // Inline rename for per-alloy names created by the invoice import. Rough scans
-    // misprint characters (a '?' where the paper says '7'), and these import-flagged
-    // products appear nowhere else in the UI to correct. Renaming updates the
+    // Inline rename for material names on breakdown rows. Renaming updates the
     // contract's product entry, and Save re-snapshots productsData onto every lot,
     // so one fix propagates to the breakdown, stocks, cashflow and grade tables.
+    // When the row's entry is SHARED — other rows point at the same product (old
+    // single-line-PO imports), or it IS the PO's own line — renaming must not drag
+    // the other rows along: the row is split onto its own import-flagged entry
+    // first, then renamed. In-place rename only when this row alone uses the entry.
     const [editNameRow, setEditNameRow] = useState(null)
     const prodOf = (row) => (valueCon.productsData || []).find(p => p.id === row.description)
-    const renameImportProduct = (prodId, name) => setValueCon(prev => ({
-        ...prev,
-        productsData: (prev.productsData || []).map(p => p.id === prodId ? { ...p, description: name } : p),
-    }))
+    const renameRowMaterial = (row, name) => {
+        const prod = prodOf(row)
+        if (!prod) return
+        const sharedByOthers = data.some(r => r.id !== row.id && r.description === prod.id)
+        if (prod.import && !sharedByOthers) {
+            setValueCon(prev => ({
+                ...prev,
+                productsData: (prev.productsData || []).map(p => p.id === prod.id ? { ...p, description: name } : p),
+            }))
+            return
+        }
+        // Split: give THIS row its own hidden entry (the PO's own line stays untouched).
+        const newProd = {
+            ...prod, id: uuidv4(), description: name,
+            import: true, importedFrom: prod.importedFrom || { doc: 'rename-split', sourceProduct: prod.id },
+        }
+        setValueCon(prev => ({ ...prev, productsData: [...(prev.productsData || []), newProd] }))
+        setData(prev => prev.map(r => r.id === row.id ? { ...r, description: newProd.id } : r))
+    }
 
 
     const handleChange = (e, name, indx) => {
@@ -418,12 +435,12 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 <div className='md:max-w-52 w-full pt-2 md:pt-0'>
                                     <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Description', ln)}:</p>
                                     <div className='flex items-center gap-1 w-44'>
-                                        {editNameRow === x.id && prodOf(x)?.import ? (
+                                        {editNameRow === x.id && prodOf(x) ? (
                                             <input
                                                 className='input h-7 shadow-lg responsiveTextTable w-36'
                                                 value={prodOf(x)?.description || ''}
                                                 autoFocus
-                                                onChange={e => renameImportProduct(x.description, e.target.value)}
+                                                onChange={e => renameRowMaterial(x, e.target.value)}
                                                 onBlur={() => setEditNameRow(null)}
                                                 onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Escape') setEditNameRow(null); }}
                                             />
@@ -436,8 +453,8 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                                 />
                                             </div>
                                         )}
-                                        {prodOf(x)?.import && editNameRow !== x.id && (
-                                            <Tltip direction='top' tltpText='Fix the material name (e.g. a character misread from the scan). Applies everywhere after Save.'>
+                                        {prodOf(x) && editNameRow !== x.id && (
+                                            <Tltip direction='top' tltpText='Rename this row&apos;s material (each row keeps its own name — other rows are never affected). Applies everywhere after Save.'>
                                                 <Pencil className='w-3.5 h-3.5 shrink-0 cursor-pointer text-[var(--regent-gray)] hover:text-[var(--endeavour)]'
                                                     onClick={() => setEditNameRow(x.id)} />
                                             </Tltip>
