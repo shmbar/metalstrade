@@ -8,7 +8,7 @@ import { Button } from "../../../components/ui/button";
 import { filteredArray, groupedArrayInvoice, loadAllStockData, loadCompanyExpense, loadCompanyExpenses, loadData, loadInvoice } from "../../../utils/utils"
 import { lotIsSold } from "../contractsstatement/soldStatus"
 import dateFormat from 'dateformat';
-import { ContactRoundIcon, Save } from "lucide-react";
+import { ContactRoundIcon, Eraser, Save } from "lucide-react";
 import { NumericFormat } from "react-number-format";
 import DoalogModal from "./dialogSupplier";
 import DoalogModalClient from "./dialogClient";
@@ -1492,7 +1492,7 @@ export const getTotalsSupPayments = (arr) => {
 
 export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
-    toggleSupplier, savePmntSupplier, supplierPartialPayment, openInvModal,
+    toggleSupplier, savePmntSupplier, supplierPartialPayment, supplierCloseBalance, openInvModal,
     sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
     const { setToast } = useContext(SettingsContext);
@@ -1572,17 +1572,25 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-left">{
-                                    <NumericFormat
-                                        value={z.blnc}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        prefix={z.cur === 'us' ? '$' : '€'}
-                                        decimalScale='2'
-                                        fixedDecimalScale
-                                    />
-                                }</td>
+                                <td className="text-left">
+                                    <span className='inline-flex items-center gap-1.5'>
+                                        <NumericFormat
+                                            value={z.blnc}
+                                            displayType="text"
+                                            thousandSeparator
+                                            allowNegative={true}
+                                            prefix={z.cur === 'us' ? '$' : '€'}
+                                            decimalScale='2'
+                                            fixedDecimalScale
+                                        />
+                                        {z.blnc * 1 < -0.011 && supplierCloseBalance && (
+                                            <Tltip direction='top' tltpText='Close balance — write this overpayment off (settlement adjustment). Reversible: delete the adjustment line in the contract popup to bring it back.'>
+                                                <Eraser className='w-3 h-3 shrink-0 cursor-pointer text-[var(--regent-gray)] hover:text-red-500'
+                                                    onClick={() => supplierCloseBalance(z)} />
+                                            </Tltip>
+                                        )}
+                                    </span>
+                                </td>
                                 <td className="text-left">{z.shipmentEtd ? dateFormat(z.shipmentEtd, 'dd.mm.yy') : ''}</td>
                                 <td className="text-left">{z.shipmentEta ? dateFormat(z.shipmentEta, 'dd.mm.yy') : ''}</td>
                                 <td className="text-left"><FinalBadge fnlzing={z.fnlzing} invoiceNo={z.invoice} /></td>

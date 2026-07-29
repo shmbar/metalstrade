@@ -865,6 +865,50 @@ const Cashflow = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pendingChecked.sig, autoCancelled, autoSaving]);
 
+    // "Close balance" on an overpaid purchase invoice: records a balancing
+    // settlement-adjustment entry (a negative payment equal to the residual) so
+    // the balance lands on exactly 0 and the row leaves the cashflow. Per-invoice
+    // and reversible — the entry shows as a payment line in the contract popup
+    // and can be deleted there to bring the balance back.
+    const supplierCloseBalance = async (item) => {
+        const residual = parseFloat(item.blnc) || 0;
+        if (residual === 0) return;
+        const dt = dateFormat(new Date(), 'yyyy-mm-dd');
+
+        let inv = await loadInvoice(uidCollection, 'contracts', item.orderData);
+        let updatedpoInvoices = inv.poInvoices.map(x => {
+            if (x.id !== item.id) return x;
+            const tmp = x.payments ? x.payments :
+                parseFloat(x.pmnt) > 0 ?
+                    [{
+                        pmntId: uuidv4(), pmntDate: null, pmntPerc: ((parseFloat(x.pmnt) / parseFloat(x.invValue) * 100)).toFixed(1),
+                        pmnt: x.pmnt,
+                    }] : [];
+            const adj = parseFloat(x.blnc) || 0; // the live residual on the stored doc
+            return {
+                ...x, pmnt: parseFloat(x.pmnt) + adj, blnc: 0,
+                payments: [...tmp, {
+                    pmntId: uuidv4(),
+                    pmntDate: { endDate: dt, startDate: dt },
+                    pmntPerc: parseFloat(((adj * 100) / parseFloat(x.invValue)).toFixed(1)),
+                    pmnt: adj,
+                    adjustment: 'closeBalance',
+                }],
+            };
+        });
+        inv.poInvoices = [...updatedpoInvoices];
+
+        await saveMultipleData(uidCollection, 'contracts', [inv]);
+        await syncSpecialInvoicesPaidStatus(uidCollection, inv);
+        await syncStockPoInvoices([inv]);
+
+        const newArr = supPaymentsData.filter(x => x.id !== item.id);
+        setsupPaymentsData(newArr);
+        setSupPayments1(getTotalsSupPayments(newArr.filter(z => z.blnc * 1 > 0)));
+        setSupPayments2(getTotalsSupPayments(newArr.filter(z => parseFloat(z.pmnt) === 0)));
+        setToast({ show: true, text: `Balance of invoice ${item.invoice} closed (settlement adjustment recorded)`, clr: 'success' });
+    };
+
     const supplierPartialPayment = async (obj) => {
 
         let item = supPaymentsData.find(x => x.id === obj.id)
@@ -1490,7 +1534,7 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 === 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
+                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 === 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} supplierCloseBalance={supplierCloseBalance} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
 
@@ -1552,7 +1596,7 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 > 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
+                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 > 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} supplierCloseBalance={supplierCloseBalance} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
                                                         )
