@@ -66,9 +66,9 @@ const GradeTable = ({ dataTable, loading, settings }) => {
 
   const thStyle = {
     color: 'var(--chathams-blue)',
-    background: '#dbeeff',
+    background: 'var(--surface-header)',
     padding: '6px 10px',
-    borderBottom: '1px solid #b8ddf8',
+    borderBottom: '1px solid var(--border-divider)',
     whiteSpace: 'nowrap',
     fontWeight: 500,
   }
@@ -76,7 +76,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
   const tdStyle = {
     color: 'var(--chathams-blue)',
     padding: '6px 10px',
-    borderBottom: '1px solid #b8ddf8',
+    borderBottom: '1px solid var(--border-divider)',
     whiteSpace: 'nowrap',
     textAlign: 'center',
   }
@@ -86,7 +86,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
       <div
         style={{
           borderRadius: '16px',
-          border: '1px solid #b8ddf8',
+          border: '1px solid var(--border-divider)',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
           overflow: 'hidden',
         }}
@@ -95,9 +95,9 @@ const GradeTable = ({ dataTable, loading, settings }) => {
         <div
           className="responsiveTextTable font-medium text-center"
           style={{
-            background: '#dbeeff',
+            background: 'var(--surface-header)',
             padding: '8px 16px',
-            borderBottom: '1px solid #b8ddf8',
+            borderBottom: '1px solid var(--border-divider)',
             color: 'var(--chathams-blue)',
             fontWeight: '500'
           }}
@@ -168,7 +168,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                     </td>
                   </tr>
                   {isOpen && r.suppliers.map((s, k) => (
-                    <tr key={`${i}-sup-${k}`} style={{ background: '#f8fbff' }}>
+                    <tr key={`${i}-sup-${k}`} style={{ background: 'var(--surface-pill)' }}>
                       <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '34px', color: 'var(--regent-gray)' }}>
                         {s.supplier}
                       </td>

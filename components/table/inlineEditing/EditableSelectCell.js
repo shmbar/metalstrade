@@ -151,7 +151,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
     >
       <Listbox.Options
         static
-        className="z-[9999] max-h-48 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg focus:outline-none border border-[#dbeeff] custom-scrollbar"
+        className="z-[9999] max-h-48 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg focus:outline-none border border-[var(--surface-header)] custom-scrollbar"
         style={{
           position: "absolute",
           ...(dropUp
@@ -170,7 +170,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
               key={o.value}
               className={({ active, selected }) =>
                 `relative cursor-pointer select-none py-2 pl-4 pr-4 rounded-lg text-left
-                ${selected ? 'bg-[#dbeeff] text-[var(--endeavour)] dropdown-option-selected' : active ? 'bg-[#dbeeff] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`
+                ${selected ? 'bg-[var(--surface-header)] text-[var(--endeavour)] dropdown-option-selected' : active ? 'bg-[var(--surface-header)] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`
               }
               value={o.value}
             >

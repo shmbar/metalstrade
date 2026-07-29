@@ -59,10 +59,10 @@ const Page = () => {
     <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
       <Toast />
       <VideoLoader loading={loading} fullScreen={true} />
-      <div className="p-1 md:p-4 bg-white rounded-2xl border border-[#b8ddf8] shadow-sm">
+      <div className="p-1 md:p-4 bg-white rounded-2xl border border-[var(--border-divider)] shadow-sm">
         <div className="mt-5 text-[var(--chathams-blue)] font-poppins text-[0.875rem] xl:text-[0.9375rem] 2xl:text-[1rem] 3xl:text-[1.0625rem] font-medium border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Settings', ln)}</div>
 
-        <div className="w-full px-3 mt-2 border border-[#b8ddf8] rounded-xl bg-white p-3">
+        <div className="w-full px-3 mt-2 border border-[var(--border-divider)] rounded-xl bg-white p-3">
           <TabGroup >
 <TabList
   className="
@@ -91,10 +91,10 @@ const Page = () => {
         `
         : `
           text-[var(--endeavour)]
-          bg-[#dbeeff]
-          border border-[#b8ddf8]
+          bg-[var(--surface-header)]
+          border border-[var(--border-divider)]
           font-medium
-          hover:bg-[#c5e4f8]
+          hover:bg-[var(--border-divider)]
           hover:border-[var(--endeavour)]
           hover:shadow-sm
         `
@@ -111,7 +111,7 @@ const Page = () => {
     relative
     mt-[-1px]
     rounded-xl
-    border border-[#b8ddf8]
+    border border-[var(--border-divider)]
     bg-white
     shadow-sm
     p-3

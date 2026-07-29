@@ -57,7 +57,7 @@ const SumToggle = ({ active, onToggle }) => (
         <button type="button" onClick={onToggle}
             className={`flex items-center justify-center w-4 h-4 rounded-[4px] border text-[10px] leading-none font-bold transition-colors ${active
                 ? 'bg-[var(--endeavour)] border-[var(--endeavour)] text-white'
-                : 'bg-white border-[#b8ddf8] text-[var(--endeavour)] hover:bg-[#dbeeff]'}`}>
+                : 'bg-white border-[var(--border-divider)] text-[var(--endeavour)] hover:bg-[var(--surface-header)]'}`}>
             {active ? '✓' : '+'}
         </button>
     </Tltip>
@@ -134,7 +134,7 @@ export const FinalSummaryBadge = ({ finalized = 0, total = 0 }) => {
     // "Final" column already spells out Yes/No, so a word here would be
     // redundant. Same dot colours as the table chips: emerald = all finalized ·
     // amber = none yet (provisional) · blue = partial. Meaning is in the tooltip.
-    const dot = allDone ? '#10b981' : noneDone ? '#f59e0b' : '#3b82f6';
+    const dot = allDone ? '#10b981' : noneDone ? '#f59e0b' : 'var(--primary-bright)';
     const label = allDone ? 'All finalized — final invoice issued'
         : noneDone ? 'Not finalized yet — before final invoice'
             : `${finalized} of ${total} finalized`;
@@ -552,7 +552,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
     });
 
     return (
-        <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
+        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-white">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -619,7 +619,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#dbeeff]">
+                    <tr className="bg-[var(--surface-header)]">
                         <th></th>
                         <th className="text-left">
                             Total
@@ -678,7 +678,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
     });
 
     return (
-        <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
+        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-white">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -757,7 +757,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                 const qSum = grp.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
                                 const tSum = grp.reduce((s, r) => s + (parseFloat(r.total) || 0), 0);
                                 out.push(
-                                    <tr key={`grp-${z.order}`} className="cursor-pointer hover:bg-[#f4f9ff]"
+                                    <tr key={`grp-${z.order}`} className="cursor-pointer hover:bg-[var(--surface-pill)]"
                                         onClick={() => setOpenPOs(prev => ({ ...prev, [z.order]: !prev[z.order] }))}>
                                         <td className="!py-1 px-1"></td>
                                         <td className="text-left text-[var(--endeavour)] max-w-20 truncate"
@@ -792,7 +792,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#dbeeff]">
+                    <tr className="bg-[var(--surface-header)]">
                         <th></th>
                         <th className="text-left">
                             Total
@@ -834,7 +834,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                 }, {})).sort((a, b) => b.total - a.total);
                 if (base.length < 2 || groups.length === 0) return null;
                 return (
-                    <table className="cashflow-detail-table w-full table-auto" style={{ borderTop: '2px solid #b8ddf8' }}>
+                    <table className="cashflow-detail-table w-full table-auto" style={{ borderTop: '2px solid var(--border-divider)' }}>
                         <thead>
                             <tr className="cursor-pointer" onClick={() => setShowMatTotals(v => !v)}>
                                 <th className="text-left" colSpan={2}>
@@ -1051,7 +1051,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
     const filteredArr1 = sortKey ? sortRows(rawInDebt, sortKey, sortDir) : rawInDebt;
 
     return (
-        <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
+        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-white">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             {type === 'PartPaid' &&
                 <div className="pt-1 w-full">
@@ -1153,7 +1153,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
 
                         </tbody>
                         <tfoot>
-                            <tr className="bg-[#dbeeff]">
+                            <tr className="bg-[var(--surface-header)]">
                                 <th></th>
                                 <th className="text-left">TOTAL</th>
                                 <th></th>
@@ -1275,7 +1275,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
 
                         </tbody>
                         <tfoot>
-                            <tr className="bg-[#dbeeff]">
+                            <tr className="bg-[var(--surface-header)]">
                                 <th></th>
                                 <th className="text-left">TOTAL</th>
                                 <th></th>
@@ -1511,7 +1511,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     });
 
     return (
-        <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
+        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-white">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -1614,7 +1614,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                     })}
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#dbeeff]">
+                    <tr className="bg-[var(--surface-header)]">
                         <th></th>
                         <th className="text-left">TOTAL</th>
                         <th></th>
@@ -1722,7 +1722,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
     const allEur = filteredArr.length > 0 && filteredArr.every(z => z.cur === 'eu');
 
     return (
-        <div className="w-full border border-[#b8ddf8] rounded-xl overflow-hidden bg-white">
+        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-white">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -1790,7 +1790,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[#dbeeff]">
+                    <tr className="bg-[var(--surface-header)]">
                         <th></th>
                         <th className="text-left">
                             {!allEur && <div>Total $</div>}

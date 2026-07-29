@@ -76,7 +76,7 @@ const Setup = () => {
             className="
               flex flex-col overflow-auto mt-1
               ring-1 ring-black/5 rounded-2xl
-              bg-[#e3f3ff]
+              bg-[var(--surface-header)]
               py-2
             "
           >

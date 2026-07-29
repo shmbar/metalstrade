@@ -101,16 +101,16 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                 cell grew taller (the source-PO chip rows), producing "stairs". A
                 single table shares row heights by construction; the first column is
                 sticky so the labels stay put if the matrix scrolls horizontally. */}
-            <div className="overflow-x-auto rounded-2xl border border-[#b8ddf8]">
+            <div className="overflow-x-auto rounded-2xl border border-[var(--border-divider)]">
                 <table className="w-full border-separate" style={{ borderSpacing: 0 }}>
                     <thead>
                         <tr className='text-center'>
                             <th rowSpan={2}
-                                className='sticky left-0 z-10 font-medium responsiveTextTable bg-[#dbeeff] text-[var(--chathams-blue)] whitespace-nowrap h-10 px-3 border-b border-r border-[#b8ddf8]'>
+                                className='sticky left-0 z-10 font-medium responsiveTextTable bg-[var(--surface-header)] text-[var(--chathams-blue)] whitespace-nowrap h-10 px-3 border-b border-r border-[var(--border-divider)]'>
                                 {getTtl('POInvoices', ln)}
                             </th>
                             <th colSpan={salesInvCols.length}
-                                className='font-medium responsiveTextTable bg-[#dbeeff] text-[var(--chathams-blue)] h-5 whitespace-nowrap border-b border-[#d8e8f5] text-center'>
+                                className='font-medium responsiveTextTable bg-[var(--surface-header)] text-[var(--chathams-blue)] h-5 whitespace-nowrap border-b border-[var(--border-cell)] text-center'>
                                 {getTtl('SalesInvoices', ln)}
                             </th>
                         </tr>
@@ -119,7 +119,7 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                 <th
                                     scope="col"
                                     key={k}
-                                    className='bg-[#dbeeff] border-b border-[#b8ddf8] px-3 responsiveTextTable font-medium text-[var(--chathams-blue)] h-5 text-center whitespace-nowrap'
+                                    className='bg-[var(--surface-header)] border-b border-[var(--border-divider)] px-3 responsiveTextTable font-medium text-[var(--chathams-blue)] h-5 text-center whitespace-nowrap'
                                 >
                                     {y}
                                 </th>
@@ -129,12 +129,12 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                     <tbody>
                         {rows.map((y) => (
                             <tr key={(y._source?.id || 'local') + '_' + y.id}>
-                                <td className={`sticky left-0 z-10 bg-[#f8fbff] border-b border-r border-[#d8e8f5] responsiveTextTable
+                                <td className={`sticky left-0 z-10 bg-[var(--surface-pill)] border-b border-r border-[var(--border-cell)] responsiveTextTable
                                     whitespace-nowrap px-3 h-11 text-center text-[var(--port-gore)] ${y._source ? 'italic' : ''}`} >
                                     <div className='flex flex-col items-center justify-center leading-tight gap-0.5'>
                                         <span className='font-medium'>{y.inv}</span>
                                         {y._source &&
-                                            <span className='text-[0.6rem] px-1.5 rounded-full bg-[#dbeeff] text-[var(--chathams-blue)] not-italic'>
+                                            <span className='text-[0.6rem] px-1.5 rounded-full bg-[var(--surface-header)] text-[var(--chathams-blue)] not-italic'>
                                                 {y._source.order}
                                             </span>
                                         }
@@ -146,15 +146,15 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                         <td
                                             key={q}
                                             data-label={q}
-                                            className={`px-3 border-b border-r border-[#d8e8f5] h-11 cursor-pointer transition-colors
-                                            ${active ? 'bg-[#dbeeff]' : 'bg-white hover:bg-[#f4f9ff]'}`}
+                                            className={`px-3 border-b border-r border-[var(--border-cell)] h-11 cursor-pointer transition-colors
+                                            ${active ? 'bg-[var(--surface-header)]' : 'bg-white hover:bg-[var(--surface-pill)]'}`}
                                             onClick={() => setRef(y, x)}
                                         >
                                             <div className='flex items-center justify-center'>
                                                 <span className={`inline-flex items-center justify-center size-4 rounded-md transition-all
                                                 ${active
                                                         ? 'bg-[var(--endeavour)] text-white shadow-sm'
-                                                        : 'border border-[#b8ddf8] bg-white'}`}>
+                                                        : 'border border-[var(--border-divider)] bg-white'}`}>
                                                     {active && <Check className='size-3' strokeWidth={3} />}
                                                 </span>
                                             </div>

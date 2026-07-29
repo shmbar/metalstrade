@@ -366,9 +366,9 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
         <div className="w-full justify-center flex">
             <div className="flex flex-col w-full">
                 <div className=" overflow-x-auto">
-                    <div className="border border-[#b8ddf8] rounded-lg overflow-hidden">
-                        <table id='my-table' className="table-fixed min-w-[640px] w-full divide-y divide-[#b8ddf8]">
-                            <thead style={{ background: '#dbeeff' }}>
+                    <div className="border border-[var(--border-divider)] rounded-lg overflow-hidden">
+                        <table id='my-table' className="table-fixed min-w-[640px] w-full divide-y divide-[var(--border-divider)]">
+                            <thead style={{ background: 'var(--surface-header)' }}>
                                 <tr>
                                     <th scope="col" className="w-8 py-1 px-2"></th>
                                     <th scope="col" className="w-6 pr-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
@@ -389,13 +389,13 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         <div>{getTtl('Total', ln)} <span className='responsiveTextTable'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-[13%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)] border-l border-[#b8ddf8]">
+                                    <th scope="col" className="w-[13%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)] border-l border-[var(--border-divider)]">
                                         {getTtl('Stock', ln)}</th>
                                     <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Available Quantity', ln)} (MT)</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#b8ddf8]">
+                            <tbody className="divide-y divide-[var(--border-divider)]">
                                 {value.productsDataInvoice.map((obj, i) => {
                                     return (
                                         <tr key={i} className='relative hover:z-10'>

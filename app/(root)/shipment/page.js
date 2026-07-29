@@ -48,7 +48,7 @@ function NotesCell({ value, contractId, contractDate, uidCollection, onChange, o
     };
 
     return (
-        <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+        <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
             <textarea
                 value={local}
                 onChange={handleChange}
@@ -78,7 +78,7 @@ function DateCell({ rawDate, onOpen, onClear, urgency }) {
         ? { backgroundColor: '#fee2e2', border: '1px solid #fecaca' }
         : urgency === 'soon'
         ? { backgroundColor: '#fef9c3', border: '1px solid #fde68a' }
-        : { backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' };
+        : { backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' };
     const textColor = urgency === 'overdue' ? '#991b1b'
         : urgency === 'soon' ? '#78350f'
         : (display ? 'var(--port-gore)' : 'var(--regent-gray)');
@@ -139,7 +139,7 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                 className="flex items-center gap-1.5 font-medium px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none transition-colors whitespace-nowrap"
                 style={{
                     fontSize: '0.68rem',
-                    borderColor: active ? 'var(--endeavour)' : '#b8ddf8',
+                    borderColor: active ? 'var(--endeavour)' : 'var(--border-divider)',
                     color: active ? '#fff' : 'var(--chathams-blue)',
                     backgroundColor: active ? 'var(--endeavour)' : '#fff',
                 }}
@@ -148,12 +148,12 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                 <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
             </button>
             {open && (
-                <div className="absolute z-[200] top-full mt-1 left-0 rounded-2xl shadow-lg overflow-hidden" style={{ border: '1px solid #d8e8f5', backgroundColor: '#fff', minWidth: '140px', maxHeight: '220px', overflowY: 'auto' }}>
+                <div className="absolute z-[200] top-full mt-1 left-0 rounded-2xl shadow-lg overflow-hidden" style={{ border: '1px solid var(--border-cell)', backgroundColor: '#fff', minWidth: '140px', maxHeight: '220px', overflowY: 'auto' }}>
                     <div
                         onClick={() => { onChange(''); setOpen(false); }}
                         className="px-3 py-1.5 cursor-pointer transition-colors"
                         style={{ fontSize: '0.68rem', color: value === '' ? 'var(--endeavour)' : 'var(--chathams-blue)', fontWeight: value === '' ? 600 : 400, backgroundColor: value === '' ? 'var(--selago)' : '#fff' }}
-                        onMouseEnter={e => { if (value !== '') e.currentTarget.style.backgroundColor = '#f0f7ff'; }}
+                        onMouseEnter={e => { if (value !== '') e.currentTarget.style.backgroundColor = 'var(--selago)'; }}
                         onMouseLeave={e => { if (value !== '') e.currentTarget.style.backgroundColor = '#fff'; }}
                     >
                         {placeholder}
@@ -164,7 +164,7 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                             onClick={() => { onChange(o.id); setOpen(false); }}
                             className="px-3 py-1.5 cursor-pointer transition-colors"
                             style={{ fontSize: '0.68rem', color: value === o.id ? 'var(--endeavour)' : 'var(--port-gore)', fontWeight: value === o.id ? 600 : 400, backgroundColor: value === o.id ? 'var(--selago)' : '#fff' }}
-                            onMouseEnter={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = '#f0f7ff'; }}
+                            onMouseEnter={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = 'var(--selago)'; }}
                             onMouseLeave={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = '#fff'; }}
                         >
                             {o.label}
@@ -219,7 +219,7 @@ function StatusSelect({ value, onChange }) {
                 <div
                     ref={dropRef}
                     className="rounded-xl overflow-hidden shadow-lg"
-                    style={{ position: 'fixed', top: pos.top, left: pos.left, minWidth: pos.width, zIndex: 99999, border: '1px solid #d8e8f5', backgroundColor: '#fff' }}
+                    style={{ position: 'fixed', top: pos.top, left: pos.left, minWidth: pos.width, zIndex: 99999, border: '1px solid var(--border-cell)', backgroundColor: '#fff' }}
                 >
                     {STATUSES.map(s => (
                         <div
@@ -708,11 +708,11 @@ const ShipmentPage = () => {
     }
 
     return (
-        <div className="w-full" style={{ background: '#f8fbff' }}>
+        <div className="w-full" style={{ background: 'var(--surface-pill)' }}>
         <style jsx global>{`
             .custom-table th {
-                border: 1px solid #d8e8f5;
-                background-color: #dbeeff;
+                border: 1px solid var(--border-cell);
+                background-color: var(--surface-header);
                 text-align: center;
                 vertical-align: middle;
                 padding: 6px;
@@ -770,7 +770,7 @@ const ShipmentPage = () => {
                 <Toast />
 
                 {/* Outer card — title only */}
-                <div className="rounded-2xl p-2 sm:p-3 lg:p-5 mt-4 sm:mt-6 lg:mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
+                <div className="rounded-2xl p-2 sm:p-3 lg:p-5 mt-4 sm:mt-6 lg:mt-8 border border-[var(--border-divider)] w-full bg-[var(--surface-pill)]">
                     <div className="flex items-center justify-between pb-2 flex-wrap gap-2">
                         <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                             Shipments Tracking
@@ -778,19 +778,19 @@ const ShipmentPage = () => {
                     </div>
 
                     {/* Inner card — toolbar + table */}
-                    <div className="relative rounded-2xl" style={{ background: '#f8fbff' }}>
-                      <div className="absolute inset-0 rounded-2xl border border-[#b8ddf8] pointer-events-none z-[25]" />
+                    <div className="relative rounded-2xl" style={{ background: 'var(--surface-pill)' }}>
+                      <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-[25]" />
 
                     {/* Toolbar */}
                     <div
                         className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-2 py-2 gap-2 rounded-t-2xl"
-                        style={{ borderBottom: '1px solid #b8ddf8', background: '#ffffff' }}
+                        style={{ borderBottom: '1px solid var(--border-divider)', background: '#ffffff' }}
                     >
                         {/* Left: Search + Status filter chips */}
                         <div className="flex flex-wrap items-center gap-2">
 
                             {/* Search */}
-                            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[#b8ddf8] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
+                            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--border-divider)] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
                                 <input
                                     className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium rounded-2xl"
                                     placeholder="Search"
@@ -903,7 +903,7 @@ const ShipmentPage = () => {
 
                     {/* Attention strip — fastest path to what needs action; chips filter the table */}
                     {(overdueCount + soonCount + inTransitCount) > 0 && (
-                        <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap" style={{ background: '#ffffff', borderBottom: '1px solid #eef4fb' }}>
+                        <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap" style={{ background: '#ffffff', borderBottom: '1px solid var(--selago)' }}>
                             <span className="responsiveTextTable font-semibold tracking-wider" style={{ color: 'var(--regent-gray)' }}>NEEDS ATTENTION</span>
                             {overdueCount > 0 && (
                                 <button
@@ -987,7 +987,7 @@ const ShipmentPage = () => {
                                         <tr key={contract.id} className="hover-row cursor-pointer transition-colors">
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={contract.order || '—'}>
-                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         <button onClick={() => navigateTo(contract.id)} className="text-[var(--endeavour)] hover:underline w-full overflow-hidden text-ellipsis whitespace-nowrap block">
                                                             {contract.order || '—'}
                                                         </button>
@@ -996,14 +996,14 @@ const ShipmentPage = () => {
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getSupplierName(contract)}>
-                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         {getSupplierName(contract)}
                                                     </div>
                                                 </Tltip>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         {mainInv ? (
                                                             <button onClick={() => navigateTo(contract.id)} className="text-[var(--endeavour)] hover:underline">
                                                                 {mainInv.invoice}
@@ -1014,7 +1014,7 @@ const ShipmentPage = () => {
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getClientName(contract.id)}>
-                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         {getClientName(contract.id)}
                                                     </div>
                                                 </Tltip>
@@ -1040,21 +1040,21 @@ const ShipmentPage = () => {
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getPOL(contract)}>
-                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         {getPOL(contract)}
                                                     </div>
                                                 </Tltip>
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getPOD(contract)}>
-                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         {getPOD(contract)}
                                                     </div>
                                                 </Tltip>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "#f8fbff", border: "1px solid #d8e8f5" }}>
+                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         {getShpType(contract)}
                                                     </div>
                                                 </div>
@@ -1077,7 +1077,7 @@ const ShipmentPage = () => {
                                                                 className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap inline-flex items-center gap-1"
                                                                 style={recent
                                                                     ? { backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#14532d' }
-                                                                    : { backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', color: ts ? 'var(--port-gore)' : 'var(--regent-gray)' }}
+                                                                    : { backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)', color: ts ? 'var(--port-gore)' : 'var(--regent-gray)' }}
                                                             >
                                                                 {recent && <span style={{ width: 6, height: 6, borderRadius: 9999, backgroundColor: '#22c55e', display: 'inline-block' }} />}
                                                                 {relTime(ts)}
@@ -1116,10 +1116,10 @@ const ShipmentPage = () => {
                                 <div
                                     key={contract.id}
                                     className="rounded-2xl overflow-hidden"
-                                    style={{ backgroundColor: '#FFFFFF', border: '1px solid #b8ddf8', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
+                                    style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--border-divider)', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
                                 >
                                     {/* Card header */}
-                                    <div className="px-3 py-2 flex items-center justify-between bg-[#9ad4ff]">
+                                    <div className="px-3 py-2 flex items-center justify-between bg-[var(--border-divider)]">
                                         <button
                                             onClick={() => navigateTo(contract.id)}
                                             className="font-medium text-[var(--endeavour)] responsiveText hover:underline"
@@ -1161,16 +1161,16 @@ const ShipmentPage = () => {
                                             { label: 'Ship Type',     value: getShpType(contract) },
                                             { label: 'Last Update',   value: relTime(contract.shipmentUpdatedAt) },
                                         ].map(({ label, value }) => (
-                                            <div key={label} className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid #f0f4f8' }}>
+                                            <div key={label} className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid var(--selago)' }}>
                                                 <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">{label}</span>
-                                                <div className="px-2 py-1 rounded-xl responsiveTextTable text-[var(--port-gore)]" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+                                                <div className="px-2 py-1 rounded-xl responsiveTextTable text-[var(--port-gore)]" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
                                                     {value || '—'}
                                                 </div>
                                             </div>
                                         ))}
 
                                         {/* Status */}
-                                        <div className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid #f0f4f8' }}>
+                                        <div className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid var(--selago)' }}>
                                             <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">Status</span>
                                             <StatusSelect
                                                 value={status}
@@ -1197,7 +1197,7 @@ const ShipmentPage = () => {
                     </div>
 
                     {/* Pagination footer */}
-                    <div className="flex-shrink-0 rounded-b-2xl" style={{ borderTop: '1px solid #b8ddf8', background: '#ffffff' }}>
+                    <div className="flex-shrink-0 rounded-b-2xl" style={{ borderTop: '1px solid var(--border-divider)', background: '#ffffff' }}>
                         <div className="w-full px-6 py-4">
                             <div className="flex items-center justify-between">
 
@@ -1225,7 +1225,7 @@ const ShipmentPage = () => {
                                                 style={{
                                                     backgroundColor: safePageIndex === pi ? 'var(--endeavour)' : '#FFFFFF',
                                                     color: safePageIndex === pi ? '#FFFFFF' : 'var(--endeavour)',
-                                                    borderColor: safePageIndex === pi ? 'var(--endeavour)' : '#b8ddf8',
+                                                    borderColor: safePageIndex === pi ? 'var(--endeavour)' : 'var(--border-divider)',
                                                 }}
                                             >
                                                 {pi + 1}
@@ -1257,7 +1257,7 @@ const ShipmentPage = () => {
                                                         <MenuItem key={x}>
                                                             <button
                                                                 onClick={() => { setPageSize(x); setPageIndex(0); }}
-                                                                className={`${pageSize === x ? 'bg-[#dbeeff] text-[var(--endeavour)] font-semibold' : 'text-[var(--port-gore)]'} flex w-full items-center rounded-lg px-2 py-1.5 text-[0.72rem] mt-0.5 justify-center ${pageSize !== x ? 'hover:bg-[var(--selago)]' : ''}`}
+                                                                className={`${pageSize === x ? 'bg-[var(--surface-header)] text-[var(--endeavour)] font-semibold' : 'text-[var(--port-gore)]'} flex w-full items-center rounded-lg px-2 py-1.5 text-[0.72rem] mt-0.5 justify-center ${pageSize !== x ? 'hover:bg-[var(--selago)]' : ''}`}
                                                             >
                                                                 {x}
                                                             </button>

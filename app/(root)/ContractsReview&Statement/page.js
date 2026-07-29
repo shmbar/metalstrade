@@ -39,8 +39,8 @@ const fmtMT = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }
 
 // Auto-derived lifecycle colours, used only when the contract has no manual shipment status set.
 const FALLBACK_STATUS_STYLES = {
-    shipped: { backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#075985' },
-    partial: { backgroundColor: '#dbeeff', border: '1px solid #b8ddf8', color: 'var(--chathams-blue)' },
+    shipped: { backgroundColor: 'var(--surface-header)', border: '1px solid var(--border-divider)', color: 'var(--chathams-blue)' },
+    partial: { backgroundColor: 'var(--surface-header)', border: '1px solid var(--border-divider)', color: 'var(--chathams-blue)' },
     pending: { backgroundColor: '#fef9c3', border: '1px solid #fde68a', color: '#92400e' },
     unsold:  { backgroundColor: '#fee2e2', border: '1px solid #fecaca', color: '#dc2626' },
 };
@@ -67,7 +67,7 @@ const ProgressBar = ({ shipped, total }) => {
     const color = pct >= 100 ? '#16a34a' : pct > 0 ? 'var(--endeavour)' : '#cbd5e1';
     return (
         <div className="flex flex-col items-center gap-1" style={{ minWidth: 84 }}>
-            <div style={{ width: '100%', height: 6, borderRadius: 9999, background: '#e6eef7', overflow: 'hidden' }}>
+            <div style={{ width: '100%', height: 6, borderRadius: 9999, background: 'var(--selago)', overflow: 'hidden' }}>
                 <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 9999, transition: 'width .2s' }} />
             </div>
             <span style={{ color: 'var(--port-gore)', fontSize: '0.6rem', fontWeight: 500 }}>{fmtMT(s)} / {fmtMT(t)} · {pct}%</span>
@@ -608,7 +608,7 @@ const ContractsMerged = () => {
                         <button
                             onClick={row.getToggleExpandedHandler()}
                             aria-label={row.getIsExpanded() ? 'Collapse details' : 'Expand details'}
-                            className={`flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-200 focus:outline-none ${row.getIsExpanded() ? 'bg-[#e7f1fd] text-[var(--endeavour)]' : 'text-[var(--endeavour)] hover:bg-[#eef5fd]'}`}
+                            className={`flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-200 focus:outline-none ${row.getIsExpanded() ? 'bg-[var(--selago)] text-[var(--endeavour)]' : 'text-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
                         >
                             <IoIosArrowDown size={13} className={`transition-transform duration-200 ${row.getIsExpanded() ? 'rotate-180' : 'rotate-0'}`} />
                         </button>
@@ -823,8 +823,8 @@ const ContractsMerged = () => {
                     onClick={() => setEnabledSwitch(!enabledSwitch)}
                     className="relative w-9 h-5 rounded-full focus:outline-none transition-colors duration-200 border-2 flex items-center"
                     style={{
-                        background: enabledSwitch ? "#3367AE" : "#a0a0a0",
-                        borderColor: enabledSwitch ? "#3367AE" : "#a0a0a0",
+                        background: enabledSwitch ? "var(--endeavour)" : "#a0a0a0",
+                        borderColor: enabledSwitch ? "var(--endeavour)" : "#a0a0a0",
                         minWidth: trackWidth,
                         borderWidth: 2,
                         padding: 0,
@@ -851,14 +851,14 @@ const ContractsMerged = () => {
     }
 
     return (
-        <div className="w-full " style={{ background: "#f8fbff" }}>
+        <div className="w-full " style={{ background: "var(--surface-pill)" }}>
             <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
                 {Object.keys(settings).length === 0 ? <TableSkeleton /> :
                     <>
                         <Toast />
                         <VideoLoader loading={loading} fullScreen={true} />
                         {/* Main Card */}
-                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8]  w-full bg-white">
+                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)]  w-full bg-white">
                             {/* Header Section */}
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-1'>
                                 <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">

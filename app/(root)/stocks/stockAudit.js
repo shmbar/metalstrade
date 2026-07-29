@@ -158,10 +158,10 @@ const fmtDate = (d) => {
 }
 
 const cellTh = {
-  background: '#dbeeff',
+  background: 'var(--surface-header)',
   color: 'var(--chathams-blue)',
   padding: '6px 10px',
-  borderBottom: '1px solid #b8ddf8',
+  borderBottom: '1px solid var(--border-divider)',
   fontWeight: 500,
   textAlign: 'left',
   whiteSpace: 'nowrap',
@@ -169,7 +169,7 @@ const cellTh = {
 const cellTd = {
   color: 'var(--port-gore)',
   padding: '6px 10px',
-  borderBottom: '1px solid #eef4fb',
+  borderBottom: '1px solid var(--selago)',
   whiteSpace: 'nowrap',
 }
 
@@ -275,7 +275,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                 type="button"
                 onClick={() => setTab(t.id)}
                 className={active
-                  ? 'whiteButton whitespace-nowrap !bg-[var(--chathams-blue)] !text-white !border-[#b8ddf8]'
+                  ? 'whiteButton whitespace-nowrap !bg-[var(--chathams-blue)] !text-white !border-[var(--border-divider)]'
                   : 'whiteButton whitespace-nowrap'}
               >
                 {t.label}
@@ -298,7 +298,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                 className="whiteButton whitespace-nowrap"
                 style={armed
                   ? { background: '#dc2626', color: '#fff', borderColor: '#dc2626' }
-                  : { background: 'var(--chathams-blue)', color: '#fff', borderColor: '#b8ddf8' }}
+                  : { background: 'var(--chathams-blue)', color: '#fff', borderColor: 'var(--border-divider)' }}
               >
                 {writing ? 'Writing off…'
                   : armed ? `Confirm — write off ${sel.length} item${sel.length > 1 ? 's' : ''} (OUT dated today)`
@@ -308,7 +308,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
           </div>
         )}
 
-        <div className="rounded-xl border border-[#b8ddf8] overflow-hidden">
+        <div className="rounded-xl border border-[var(--border-divider)] overflow-hidden">
           <div className="overflow-auto" style={{ maxHeight: '60vh' }}>
             {tab === 'left' && (
               <table className="w-full responsiveTextTable" style={{ borderCollapse: 'collapse' }}>

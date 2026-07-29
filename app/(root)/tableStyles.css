@@ -32,7 +32,7 @@
 }
 
 .custom-table th, .custom-table td {
-  border: 1px solid #b8cfe0;
+  border: 1px solid var(--border-divider);
   background-color: #f9f9f9;
   text-align: center;
   vertical-align: middle;
@@ -41,10 +41,10 @@
 }
 
 .custom-table th {
-  background-color: #d4eafc;
+  background-color: var(--border-cell);
 }
 
 .custom-table td {
   background-color: #fff;
-  border: 1px solid #b8cfe0;
+  border: 1px solid var(--border-divider);
 }

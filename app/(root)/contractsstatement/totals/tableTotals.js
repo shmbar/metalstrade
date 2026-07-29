@@ -41,13 +41,13 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                 }
                 .custom-table th, .custom-table td {
                   border: 1px solid var(--selago);
-                  background-color: #f8fbff;
+                  background-color: var(--surface-pill);
                   text-align: center;
                   vertical-align: middle;
                   padding: 6px;
                 }
                 .custom-table th {
-                  background-color: #dbeeff;
+                  background-color: var(--surface-header);
                 }
                 .custom-table td {
                   background-color: #fff;
@@ -55,14 +55,14 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                   font-size: 9px !important;
                 }
                 .dashboard-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-                .dashboard-scroll::-webkit-scrollbar-track { background: #ebf2fc; border-radius: 6px; }
-                .dashboard-scroll::-webkit-scrollbar-thumb { background: #9fb8d4; border-radius: 6px; }
-                .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: #0366ae; }
+                .dashboard-scroll::-webkit-scrollbar-track { background: var(--selago); border-radius: 6px; }
+                .dashboard-scroll::-webkit-scrollbar-thumb { background: var(--rock-blue); border-radius: 6px; }
+                .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: var(--endeavour); }
             `}</style>
-            <div className="glass-table rounded-2xl shadow-lg border border-[#b8ddf8] overflow-hidden">
+            <div className="glass-table rounded-2xl shadow-lg border border-[var(--border-divider)] overflow-hidden">
                 {/* Header */}
                 <div className="flex justify-between items-center px-4 py-2 rounded-t-2xl" style={{
-                    background: '#dbeeff',
+                    background: 'var(--surface-header)',
                     borderBottom: '1px solid var(--rock-blue)'
                 }}>
                     <h3 className="responsiveTextTableTitle text-[var(--chathams-blue)] font-normal font-poppins text-center w-full"
@@ -128,7 +128,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                             ))}
                         </tbody>
                         <tfoot>
-                            <tr style={{ borderTop: '1px solid var(--rock-blue)', background: '#dbeeff' }}>
+                            <tr style={{ borderTop: '1px solid var(--rock-blue)', background: 'var(--surface-header)' }}>
                                 <th className="responsiveTextTable px-2 py-2 font-normal text-[var(--chathams-blue)] text-center">Total</th>
                                 <th className="responsiveTextTable px-2 py-2 font-normal text-[var(--chathams-blue)] text-center">{showAmount(data.reduce((sum, item) => sum + item.poWeight * 1, 0))}</th>
                                 <th className="responsiveTextTable px-2 py-2 font-normal text-[var(--chathams-blue)] text-center">{showAmount(data.reduce((sum, item) => sum + item.shiipedWeight * 1, 0))}</th>
@@ -144,12 +144,12 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                             className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                             style={{
                                 backgroundColor: '#FFFFFF',
-                                border: '1px solid #b8ddf8',
+                                border: '1px solid var(--border-divider)',
                                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
                             }}
                         >
                             {/* Card Header */}
-                            <div className="px-3 py-2 flex items-center justify-between" style={{ background: '#bce1ff' }}>
+                            <div className="px-3 py-2 flex items-center justify-between" style={{ background: 'var(--border-divider)' }}>
                                 <span className="font-normal" style={{ fontSize: '0.62rem', textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)' }}>
                                     {getTtl('Row', settings?.ln || 'en')} {rowIndex + 1}
                                 </span>
@@ -157,11 +157,11 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                             {/* Card Content */}
                             <div className="p-4 space-y-2.5">
                                 {row.getVisibleCells().map(cell => (
-                                    <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0" style={{ borderBottom: '1px solid #b8ddf8' }}>
+                                    <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0" style={{ borderBottom: '1px solid var(--border-divider)' }}>
                                         <div className="uppercase tracking-wider font-normal" style={{ color: 'var(--regent-gray)', fontSize: '0.58rem' }}>
                                             {cell.column.columnDef.header}
                                         </div>
-                                        <div className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" style={{ color: 'var(--port-gore)', background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)', fontSize: '0.62rem', border: '1px solid #b8ddf8' }}>
+                                        <div className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" style={{ color: 'var(--port-gore)', background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)', fontSize: '0.62rem', border: '1px solid var(--border-divider)' }}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </div>
                                     </div>
@@ -170,7 +170,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                         </div>
                     ))}
                     {/* Mobile Total Row */}
-                    <div className="rounded-2xl border-t border-[var(--rock-blue)] px-3 py-2 flex flex-col gap-1" style={{ background: '#dbeeff' }}>
+                    <div className="rounded-2xl border-t border-[var(--rock-blue)] px-3 py-2 flex flex-col gap-1" style={{ background: 'var(--surface-header)' }}>
                         <div className="flex justify-between items-center">
                             <span className="responsiveTextTable font-normal text-[var(--chathams-blue)]">Total Quantity</span>
                             <span className="responsiveTextTable font-normal text-[var(--chathams-blue)]">{showAmount(data.reduce((sum, item) => sum + item.poWeight * 1, 0))}</span>

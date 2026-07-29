@@ -88,7 +88,7 @@ const SideBarMini = () => {
   }, []);
 
   return (
-    <nav className="w-full h-14 flex items-center shadow-sm bg-[#BCE1FE]">
+    <nav className="w-full h-14 flex items-center shadow-sm bg-[var(--border-divider)]">
       <div className='flex w-full justify-between items-center'>
         {/* Logo and Search Icon */}
         <div className='flex items-center'>
@@ -167,7 +167,7 @@ const SideBarMini = () => {
                 >
                 <MenuItems
   data-ims-sidebar="1"
-  className="fixed right-2 top-14 w-76 origin-top-left divide-y divide-[#003366]/20 rounded-xl shadow-lg border border-[var(--selago)] bg-[#bce1ff] focus:outline-none h-[450px] overflow-auto z-[20000]"
+  className="fixed right-2 top-14 w-76 origin-top-left divide-y divide-[rgba(var(--chathams-blue-rgb),0.2)] rounded-xl shadow-lg border border-[var(--selago)] bg-[var(--border-divider)] focus:outline-none h-[450px] overflow-auto z-[20000]"
 >
   <div className='px-4 py-3 border-b border-[var(--selago)]'>
     <p className='responsiveText font-medium text-[var(--chathams-blue)]'>
@@ -175,7 +175,7 @@ const SideBarMini = () => {
     </p>
     <p className='responsiveText text-[var(--chathams-blue)] truncate'>{user?.email || ''}</p>
   </div>
-  <ul className="flex-1 divide-[#003366]/20 divide-y">
+  <ul className="flex-1 divide-[rgba(var(--chathams-blue-rgb),0.2)] divide-y">
     {sideBar(userTitle, gisAccount).map((x, i) => (
       <div key={i} className="py-2">
         {x.ttl && (

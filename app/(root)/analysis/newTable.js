@@ -53,7 +53,7 @@ const Customtable = ({
             }}
             onChange={table.getToggleAllPageRowsSelectedHandler()}
             className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: '#BCE1FE' }}
+            style={{ accentColor: 'var(--border-divider)' }}
           />
         </div>
       ),
@@ -65,7 +65,7 @@ const Customtable = ({
             disabled={!row.getCanSelect()}
             onChange={row.getToggleSelectedHandler()}
             className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: '#BCE1FE' }}
+            style={{ accentColor: 'var(--border-divider)' }}
           />
         </div>
       ),
@@ -141,15 +141,15 @@ const Customtable = ({
           transition-timing-function: ease-in-out !important;
         }
         .custom-table th, .custom-table td {
-          border: 1px solid #d8e8f5;
-          background-color: #f8fbff;
+          border: 1px solid var(--border-cell);
+          background-color: var(--surface-pill);
           text-align: center;
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
         }
         .custom-table th {
-          background-color: #d4eafc;
+          background-color: var(--border-cell);
         }
         .custom-table td {
           background-color: #fff;
@@ -161,7 +161,7 @@ const Customtable = ({
       <div className="custom-table">
         <div className="flex flex-col" style={{ boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset' }}>
           {/* HEADER */}
-          <div className="flex-shrink-0" style={{ borderBottom: '2px solid #b8ddf8', background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))' }}>
+          <div className="flex-shrink-0" style={{ borderBottom: '2px solid var(--border-divider)', background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))' }}>
             <Header
               globalFilter={globalFilter}
               setGlobalFilter={setGlobalFilter}
@@ -180,7 +180,7 @@ const Customtable = ({
 
           {/* DESKTOP TABLE */}
           <div className="hidden md:block">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderRadius: '24px', border: '1px solid #d8e8f5' }}>
+            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderRadius: '24px', border: '1px solid var(--border-cell)' }}>
               <table className="w-full" style={{ tableLayout: 'auto' }}>
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(hdGroup => (
@@ -191,7 +191,7 @@ const Customtable = ({
                           className={`px-2 py-2 font-poppins responsiveTextTable font-medium`}
                           style={{
                             color: 'var(--chathams-blue)',
-                            backgroundColor: '#dbeeff',
+                            backgroundColor: 'var(--surface-header)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                             letterSpacing: '0.05em',
                             textAlign: header.column.id === 'select' ? 'left' : 'center',
@@ -216,7 +216,7 @@ const Customtable = ({
                       <tr
                         key={row.id}
                         onDoubleClick={() => SelectRow?.(row.original)}
-                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-orange-100 hover:bg-orange-200" : "hover:bg-[#dbeeff]"}`}
+                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-orange-100 hover:bg-orange-200" : "hover:bg-[var(--surface-header)]"}`}
                       >
                         {row.index === firstOccurrenceOrder && (
                           <td
@@ -258,7 +258,7 @@ const Customtable = ({
                           className={`px-2 py-2 font-poppins responsiveTextTable font-medium`}
                           style={{
                             color: 'var(--chathams-blue)',
-                            backgroundColor: '#dbeeff',
+                            backgroundColor: 'var(--surface-header)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                             letterSpacing: '0.05em',
                             textAlign: header.column.id === 'select' ? 'left' : 'center',
@@ -283,7 +283,7 @@ const Customtable = ({
                       <tr
                         key={row.id}
                         onDoubleClick={() => SelectRow?.(row.original)}
-                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-orange-100 hover:bg-orange-200" : "hover:bg-[#dbeeff]"}`}
+                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-orange-100 hover:bg-orange-200" : "hover:bg-[var(--surface-header)]"}`}
                       >
                         {row.index === firstOccurrenceOrder && (
                           <td
@@ -314,7 +314,7 @@ const Customtable = ({
 
           {/* FOOTER */}
           <div className="flex-shrink-0">
-            <div className="flex items-center justify-between p-4" style={{ borderTop: '2px solid #b8ddf8', background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))' }}>
+            <div className="flex items-center justify-between p-4" style={{ borderTop: '2px solid var(--border-divider)', background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))' }}>
               <RowsIndicator
                 table={table}
                 quickSumEnabled={quickSumEnabled}

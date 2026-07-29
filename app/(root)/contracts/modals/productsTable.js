@@ -261,22 +261,22 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
             <div className="flex flex-col w-full">
                 <div className="flex items-center justify-end gap-3 mb-1.5 responsiveTextTable flex-wrap">
                     <span className="text-[var(--regent-gray)] font-medium">View in:</span>
-                    <div className="inline-flex rounded-full border border-[#d8e8f5] overflow-hidden">
+                    <div className="inline-flex rounded-full border border-[var(--border-cell)] overflow-hidden">
                         {['mt', 'kg', 'lb'].map((u) => (
                             <button key={u} type="button" onClick={() => setViewUnit(u)}
-                                className={`px-2.5 py-0.5 font-semibold transition-colors border-l first:border-l-0 border-[#d8e8f5] ${effViewUnit === u ? 'bg-[var(--endeavour)] text-white' : 'bg-[#f8fbff] text-[var(--chathams-blue)] hover:bg-[#eaf4fd]'}`}>
+                                className={`px-2.5 py-0.5 font-semibold transition-colors border-l first:border-l-0 border-[var(--border-cell)] ${effViewUnit === u ? 'bg-[var(--endeavour)] text-white' : 'bg-[var(--surface-pill)] text-[var(--chathams-blue)] hover:bg-[var(--selago)]'}`}>
                                 {UNIT_LABEL[u]}
                             </button>
                         ))}
                     </div>
                     {canFx && (
-                        <div className="inline-flex rounded-full border border-[#d8e8f5] overflow-hidden">
+                        <div className="inline-flex rounded-full border border-[var(--border-cell)] overflow-hidden">
                             <button type="button" onClick={() => setViewCurrency(baseCode)}
-                                className={`px-2.5 py-0.5 font-semibold transition-colors ${effViewCur === baseCode ? 'bg-[var(--endeavour)] text-white' : 'bg-[#f8fbff] text-[var(--chathams-blue)] hover:bg-[#eaf4fd]'}`}>
+                                className={`px-2.5 py-0.5 font-semibold transition-colors ${effViewCur === baseCode ? 'bg-[var(--endeavour)] text-white' : 'bg-[var(--surface-pill)] text-[var(--chathams-blue)] hover:bg-[var(--selago)]'}`}>
                                 {curSymbol} {baseCode}
                             </button>
                             <button type="button" onClick={() => setViewCurrency(otherCur)}
-                                className={`px-2.5 py-0.5 font-semibold border-l border-[#d8e8f5] transition-colors ${effViewCur === otherCur ? 'bg-[var(--endeavour)] text-white' : 'bg-[#f8fbff] text-[var(--chathams-blue)] hover:bg-[#eaf4fd]'}`}>
+                                className={`px-2.5 py-0.5 font-semibold border-l border-[var(--border-cell)] transition-colors ${effViewCur === otherCur ? 'bg-[var(--endeavour)] text-white' : 'bg-[var(--surface-pill)] text-[var(--chathams-blue)] hover:bg-[var(--selago)]'}`}>
                                 {otherSymbol} {otherCur}
                             </button>
                         </div>
@@ -291,9 +291,9 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                         </Tltip>}
                 </div>
                 <div className="relative overflow-x-auto">
-                    <div className="border border-[#b8ddf8] rounded-lg  relative">
-                        <table className=" table-fixed min-w-[640px] w-full divide-y divide-[#b8ddf8]">
-                            <thead style={{ background: '#dbeeff' }}>
+                    <div className="border border-[var(--border-divider)] rounded-lg  relative">
+                        <table className=" table-fixed min-w-[640px] w-full divide-y divide-[var(--border-divider)]">
+                            <thead style={{ background: 'var(--surface-header)' }}>
                                 <tr>
                                     <th scope="col" className=" w-1/12 py-1 pl-4 "></th>
                                     <th scope="col" className="w-1/12 px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]"  >
@@ -308,7 +308,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                             {priceHeaderLabel ? '(' + priceHeaderLabel + ')' : ''}</span></div></th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#b8ddf8] relative">
+                            <tbody className="divide-y divide-[var(--border-divider)] relative">
                                 {reOrderTableCon(value.productsData.filter(x => !x.import)).map((obj, i) => {
                                     return (
                                         <tr key={i} className='relative hover:z-10'>
@@ -353,10 +353,10 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                             value={inputUnit}
                                                                             onChange={(e) => handleUnitSwitch(e.target.value)}
                                                                             title={`Switch the unit to convert the value; it's stored in the contract's ${UNIT_LABEL[baseUnit]} base on Enter`}
-                                                                            className={`appearance-none h-7 rounded-md border bg-[#f8fbff] pl-2 pr-5 font-semibold cursor-pointer focus:outline-0 transition-colors
+                                                                            className={`appearance-none h-7 rounded-md border bg-[var(--surface-pill)] pl-2 pr-5 font-semibold cursor-pointer focus:outline-0 transition-colors
                                                                                 ${inputUnit === baseUnit
-                                                                                    ? 'border-[#d8e8f5] text-[var(--chathams-blue)]'
-                                                                                    : 'border-[var(--endeavour)] text-[var(--endeavour)] bg-[#eaf4fd]'}`}
+                                                                                    ? 'border-[var(--border-cell)] text-[var(--chathams-blue)]'
+                                                                                    : 'border-[var(--endeavour)] text-[var(--endeavour)] bg-[var(--selago)]'}`}
                                                                             style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                                         >
                                                                             <option value='mt'>{key === 'unitPrc' ? '/MT' : 'MT'}</option>
@@ -368,7 +368,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                     </div>
                                                                 )}
                                                                 {convPreview && (
-                                                                    <span className='absolute left-0 top-full mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#dbeeff] border border-[#b8ddf8] text-[var(--endeavour)] font-semibold shadow-sm whitespace-nowrap z-50'>
+                                                                    <span className='absolute left-0 top-full mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--surface-header)] border border-[var(--border-divider)] text-[var(--endeavour)] font-semibold shadow-sm whitespace-nowrap z-50'>
                                                                         <MoveRight className='size-3' />
                                                                         {convPreview}
                                                                     </span>

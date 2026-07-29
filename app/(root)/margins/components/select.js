@@ -38,10 +38,10 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                         aria-expanded={open}
                         className="
                           group w-full flex items-center justify-between
-                          bg-[#f8fbff] rounded-lg px-2
+                          bg-[var(--surface-pill)] rounded-lg px-2
                           text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
                           text-[var(--port-gore)]
-                          border border-[#d8e8f5]
+                          border border-[var(--border-cell)]
                           focus:border-[var(--endeavour)]
                           focus:ring-1 focus:ring-[var(--endeavour)]
                           focus:outline-none
@@ -60,7 +60,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                     <PopoverContent
                       align="start"
                       sideOffset={4}
-                      className="p-0 w-[var(--radix-popover-trigger-width)] min-w-[180px] z-40 bg-[#f8fbff] rounded-xl border border-[#d8e8f5] shadow-lg"
+                      className="p-0 w-[var(--radix-popover-trigger-width)] min-w-[180px] z-40 bg-[var(--surface-pill)] rounded-xl border border-[var(--border-cell)] shadow-lg"
                     >
                       <Command className="bg-transparent">
                         <CommandInput
@@ -80,7 +80,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                                   handleChangeSelect(z.id, props.row.original.id, month, name);
                                   setOpen(false);
                                 }}
-                                className="text-[0.7rem] xl:text-[0.72rem] 2xl:text-[0.75rem] px-2 py-1.5 hover:bg-blue-50 cursor-pointer text-[var(--port-gore)] data-[selected=true]:bg-[#dbeeff] data-[selected=true]:text-[var(--endeavour)]"
+                                className="text-[0.7rem] xl:text-[0.72rem] 2xl:text-[0.75rem] px-2 py-1.5 hover:bg-blue-50 cursor-pointer text-[var(--port-gore)] data-[selected=true]:bg-[var(--surface-header)] data-[selected=true]:text-[var(--endeavour)]"
                               >
                                 <Check
                                   className={cn(

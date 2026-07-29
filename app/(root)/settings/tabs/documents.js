@@ -125,14 +125,14 @@ const Documents = () => {
                                 className={`px-4 py-1.5 rounded-full text-[0.75rem] font-medium transition-all border
                                     ${activeDoc === doc
                                         ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]'
-                                        : 'text-[var(--chathams-blue)] border-[#b8ddf8] hover:bg-[var(--selago)]'}`}>
+                                        : 'text-[var(--chathams-blue)] border-[var(--border-divider)] hover:bg-[var(--selago)]'}`}>
                                 {doc}
                             </button>
                         ))}
                     </div>
 
                     {/* List */}
-                    <ul className="flex flex-col ring-1 ring-black/5 rounded-2xl bg-[#e3f3ff] py-2 min-h-[60px]">
+                    <ul className="flex flex-col ring-1 ring-black/5 rounded-2xl bg-[var(--surface-header)] py-2 min-h-[60px]">
                         {templates.length === 0 && (
                             <li className="px-4 py-2 text-[0.75rem] text-[var(--regent-gray)] italic">
                                 No {activeDoc === 'Carrier' ? 'carriers' : 'templates'} yet
@@ -154,13 +154,13 @@ const Documents = () => {
 
                     <button onClick={() => { setForm(getBlank(activeDoc)); setEditId(null); setShowForm(true); setError(''); }}
                         className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.75rem] font-medium
-                            border border-[#b8ddf8] text-[var(--chathams-blue)] hover:bg-[var(--selago)] transition-all">
+                            border border-[var(--border-divider)] text-[var(--chathams-blue)] hover:bg-[var(--selago)] transition-all">
                         <CirclePlus size={14} /> Add {listLabel}
                     </button>
                 </div>
 
                 {/* RIGHT — form */}
-                {showForm && <div className="flex-1 border border-[#b8ddf8] rounded-2xl p-4">
+                {showForm && <div className="flex-1 border border-[var(--border-divider)] rounded-2xl p-4">
                     <p className="text-[0.75rem] font-medium text-[var(--chathams-blue)] mb-3 border-l-4 border-[var(--chathams-blue)] pl-2">
                         {editId ? `Edit ${listLabel}` : `New ${listLabel}`}
                     </p>
@@ -176,7 +176,7 @@ const Documents = () => {
                                     value={form[f.key] || ''}
                                     onChange={e => handleField(f.key, e.target.value)}
                                     placeholder={f.placeholder || ''}
-                                    className="border border-[#b8ddf8] rounded-full px-3 py-1 h-7 text-[0.75rem] w-full
+                                    className="border border-[var(--border-divider)] rounded-full px-3 py-1 h-7 text-[0.75rem] w-full
                                         focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
                                     style={{ fontFamily: 'inherit' }}
                                 />
@@ -192,7 +192,7 @@ const Documents = () => {
                         </button>
                         <button onClick={cancel}
                             className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[0.75rem] font-medium
-                                border border-[#b8ddf8] text-[var(--chathams-blue)] hover:bg-[var(--selago)]">
+                                border border-[var(--border-divider)] text-[var(--chathams-blue)] hover:bg-[var(--selago)]">
                             Cancel
                         </button>
                     </div>

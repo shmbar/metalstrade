@@ -43,7 +43,7 @@ const FindCOntract4Materials = ({ open, setOpen, uidCollection, value, setValue 
                 <div className="flex flex-col gap-1">
                     <p className="text-xs font-medium text-[var(--chathams-blue)]">Order Number:</p>
                     <input
-                        className="input h-7 text-xs rounded-xl border-[#b8ddf8] bg-white w-full"
+                        className="input h-7 text-xs rounded-xl border-[var(--border-divider)] bg-white w-full"
                         value={value1}
                         onChange={(e) => setValue1(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && findContract()}

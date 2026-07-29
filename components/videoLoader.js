@@ -16,7 +16,7 @@ const VideoLoader = ({ loading = true, fullScreen = true }) => {
     <div className={containerClasses} role="status" aria-label="Loading">
       <div className="flex items-center gap-3 bg-white rounded-full shadow-lg border border-[var(--selago)] px-5 py-3">
         <div
-          className="w-5 h-5 rounded-full border-[3px] border-[#dbeeff] animate-spin"
+          className="w-5 h-5 rounded-full border-[3px] border-[var(--surface-header)] animate-spin"
           style={{ borderTopColor: 'var(--endeavour)' }}
         />
         <span className="text-[12px] font-medium" style={{ color: 'var(--chathams-blue)' }}>

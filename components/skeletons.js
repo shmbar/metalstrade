@@ -29,7 +29,7 @@ export const TableSkeleton = ({ rows = 9, title = true }) => (
             </div>
             <div className="px-4 py-1">
                 {Array.from({ length: rows }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-3 py-3 border-b border-[#f1f6fc] last:border-0">
+                    <div key={i} className="flex items-center gap-3 py-3 border-b border-[var(--selago)] last:border-0">
                         <Bar w="8%" h={11} />
                         <Bar w="10%" h={11} />
                         <Bar w="14%" h={11} />

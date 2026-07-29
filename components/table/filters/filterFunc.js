@@ -5,8 +5,8 @@ export const Filter = ({ column, table, filterOn }) => {
     const columnFilterValue = column.getFilterValue();
     const { filterVariant } = column.columnDef.meta || {};
 
-    const inputCls = 'text-[11px] font-normal bg-[#f4f9ff] border border-[#b8ddf8] rounded-full px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] placeholder-[#9fb8d4] w-full';
-    const selectCls = 'text-[11px] font-normal bg-[#f4f9ff] border border-[#b8ddf8] rounded-full px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] w-full appearance-none cursor-pointer';
+    const inputCls = 'text-[11px] font-normal bg-[var(--surface-pill)] border border-[var(--border-divider)] rounded-full px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] placeholder-[var(--rock-blue)] w-full';
+    const selectCls = 'text-[11px] font-normal bg-[var(--surface-pill)] border border-[var(--border-divider)] rounded-full px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] w-full appearance-none cursor-pointer';
 
     return filterOn &&
         (filterVariant === 'range' ? (
@@ -79,7 +79,7 @@ export const Filter = ({ column, table, filterOn }) => {
                     className={inputCls}
                     max={columnFilterValue?.[1] || ''}
                 />
-                <span className="text-[#9fb8d4] text-xs">-</span>
+                <span className="text-[var(--rock-blue)] text-xs">-</span>
                 <input
                     type="date"
                     value={columnFilterValue?.[1] || ''}
@@ -129,6 +129,6 @@ const DebouncedInput = ({
 
     return (
         <input {...props} type={type} value={value} onChange={e => setValue(e.target.value)}
-            className={inputCls || `text-[11px] font-normal bg-[#f4f9ff] border border-[#b8ddf8] rounded-full px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] placeholder-[#9fb8d4] w-full`} />
+            className={inputCls || `text-[11px] font-normal bg-[var(--surface-pill)] border border-[var(--border-divider)] rounded-full px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] placeholder-[var(--rock-blue)] w-full`} />
     );
 }

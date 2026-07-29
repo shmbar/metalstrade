@@ -22,13 +22,13 @@ function FieldRow({ label, value, confidence, selected, onToggle }) {
         <div
             onClick={onToggle}
             className='flex items-start justify-between gap-2 px-3 py-2 cursor-pointer rounded-lg transition-colors'
-            style={{ background: selected ? '#f0fdf4' : '#f8fbff', border: `1px solid ${selected ? '#86efac' : '#dbeeff'}`, marginBottom: '4px' }}
+            style={{ background: selected ? '#f0fdf4' : 'var(--surface-pill)', border: `1px solid ${selected ? '#86efac' : 'var(--surface-header)'}`, marginBottom: '4px' }}
         >
             <div className='flex items-start gap-2 min-w-0'>
                 <div className='mt-0.5 flex-shrink-0'>
                     {selected
                         ? <CheckSquare className='w-3.5 h-3.5' style={{ color: '#16a34a' }} />
-                        : <Square className='w-3.5 h-3.5' style={{ color: '#b8ddf8' }} />
+                        : <Square className='w-3.5 h-3.5' style={{ color: 'var(--border-divider)' }} />
                     }
                 </div>
                 <div className='min-w-0'>
@@ -403,9 +403,9 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             aria-modal='true'
             aria-labelledby='doc-import-title'
         >
-            <div className='w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden' style={{ border: '1px solid #b8ddf8', maxHeight: '92vh' }}>
+            <div className='w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden' style={{ border: '1px solid var(--border-divider)', maxHeight: '92vh' }}>
                 {/* Header */}
-                <div className='flex items-center justify-between px-4 py-3' style={{ background: '#dbeeff', borderBottom: '1px solid #b8ddf8' }}>
+                <div className='flex items-center justify-between px-4 py-3' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
                     <div className='flex items-center gap-2'>
                         <FileText className='w-4 h-4' style={{ color: 'var(--endeavour)' }} />
                         <span id='doc-import-title' className='font-semibold' style={{ fontSize: '0.75rem', color: 'var(--chathams-blue)' }}>
@@ -415,7 +415,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                     <button
                         onClick={onClose}
                         aria-label='Close document import'
-                        className='p-1 rounded-full hover:bg-[#b8ddf8] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/40'
+                        className='p-1 rounded-full hover:bg-[var(--border-divider)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/40'
                     >
                         <X className='w-4 h-4' style={{ color: 'var(--chathams-blue)' }} />
                     </button>
@@ -436,8 +436,8 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                             aria-label='Upload document — drop a PDF, JPG or PNG here, or click to browse'
                             className='rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
                             style={{
-                                border: `2px dashed ${dragging ? 'var(--endeavour)' : '#b8ddf8'}`,
-                                background: dragging ? '#dbeeff' : '#f8fbff',
+                                border: `2px dashed ${dragging ? 'var(--endeavour)' : 'var(--border-divider)'}`,
+                                background: dragging ? 'var(--surface-header)' : 'var(--surface-pill)',
                                 minHeight: '100px', padding: '20px'
                             }}
                         >
@@ -450,7 +450,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                                 </div>
                             ) : (
                                 <>
-                                    <Upload className='w-6 h-6 mb-1' style={{ color: '#b8ddf8' }} />
+                                    <Upload className='w-6 h-6 mb-1' style={{ color: 'var(--border-divider)' }} />
                                     <p className='font-medium' style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)' }}>Drop document or click to upload</p>
                                     <p style={{ fontSize: '0.58rem', color: 'var(--regent-gray)' }}>PDF, JPG, PNG · max 10 MB</p>
                                 </>
@@ -478,7 +478,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                                 </div>
                                 <button onClick={() => { setFile(null); setResult(null); setError(null); }}
                                     className='flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs hover:border-[var(--endeavour)] transition-colors'
-                                    style={{ fontSize: '0.58rem', borderColor: '#b8ddf8', color: 'var(--chathams-blue)' }}>
+                                    style={{ fontSize: '0.58rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}>
                                     Try another file
                                 </button>
                             </div>
@@ -563,13 +563,13 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
 
                 {/* Footer */}
                 {result && (
-                    <div className='flex items-center justify-between px-4 py-3' style={{ borderTop: '1px solid #b8ddf8', background: '#f8fbff' }}>
+                    <div className='flex items-center justify-between px-4 py-3' style={{ borderTop: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
                         <p style={{ fontSize: '0.58rem', color: 'var(--regent-gray)' }}>
                             Unmatched entities won&apos;t be applied. Verify after import.
                         </p>
                         <div className='flex gap-2'>
                             <button onClick={onClose} className='px-3 py-1.5 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                                style={{ fontSize: '0.65rem', borderColor: '#b8ddf8', color: 'var(--chathams-blue)' }}>
+                                style={{ fontSize: '0.65rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}>
                                 Cancel
                             </button>
                             <button onClick={handleApply}

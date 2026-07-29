@@ -168,7 +168,7 @@ export default function Sidebar() {
         maxWidth: collapsed ? "60px" : "clamp(190px, 15vw, 220px)",
         borderRadius: "12px",
         zIndex: 0,
-        background: "#e3f3ff",
+        background: "var(--surface-header)",
         WebkitFontSmoothing: "antialiased",
         MozOsxFontSmoothing: "grayscale",
       }}
@@ -193,9 +193,9 @@ export default function Sidebar() {
 
       {/* Main panel */}
       <div style={{
-        background: "#e3f3ff",
+        background: "var(--surface-header)",
         borderRadius: "12px",
-        border: "1.5px solid #b8ddf8",
+        border: "1.5px solid var(--border-divider)",
         margin: "0 8px 8px 2px",
         flex: 1,
         display: "flex",
@@ -206,7 +206,7 @@ export default function Sidebar() {
       {/* Search bar */}
       {!collapsed && (
         <div className="px-3 pt-2 pb-1 shrink-0">
-          <div className="relative flex items-center rounded-full px-3 py-1.5 responsiveTextTable" style={{ background: '#f8fbff', border: '1px solid #b8ddf8' }}>
+          <div className="relative flex items-center rounded-full px-3 py-1.5 responsiveTextTable" style={{ background: 'var(--surface-pill)', border: '1px solid var(--border-divider)' }}>
             <FiSearch size={13} style={{ color: 'var(--chathams-blue)', flexShrink: 0 }} />
             <input
               type="text"
@@ -318,7 +318,7 @@ export default function Sidebar() {
 
                 const sectionWrapStyle = shouldHighlightSection && !collapsed
                   ? {
-                      background: "#d4eafc",
+                      background: "var(--border-cell)",
                       borderRadius: "12px",
                       transition: "background 0.2s",
                       marginLeft: "4px",
@@ -452,9 +452,9 @@ export default function Sidebar() {
                 minWidth: 0, width: "100%", maxWidth: 260, gap: collapsed ? 0 : 10,
                 justifyContent: "center",
               }}>
-                <img src="/logo/person.svg" alt="Profile" style={{ width: 22, height: 22, borderRadius: "50%", background: "#f3f6fa", objectFit: "cover" }} />
+                <img src="/logo/person.svg" alt="Profile" style={{ width: 22, height: 22, borderRadius: "50%", background: "var(--surface-pill)", objectFit: "cover" }} />
                 {!collapsed && (
-                  <span style={{ color: "#2176ae", fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
+                  <span style={{ color: "var(--endeavour)", fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
                     {user?.displayName || user?.email?.split('@')[0] || 'User'}
                   </span>
                 )}

@@ -15,7 +15,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 fixedDecimalScale
                 style={{ fontWeight: '500', color: 'var(--chathams-blue)' }}
             />,
-            bg: '#dbeeff', border: '#b8ddf8', color: 'var(--chathams-blue)'
+            bg: 'var(--surface-header)', border: 'var(--border-divider)', color: 'var(--chathams-blue)'
         },
         {
             label: "Outstanding shipment:",
@@ -91,7 +91,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
             `}</style>
 
             <div className="w-full flex justify-center">
-                <div className="w-full max-w-7xl rounded-2xl border border-[#b8ddf8] shadow-xl p-3 sm:p-4">
+                <div className="w-full max-w-7xl rounded-2xl border border-[var(--border-divider)] shadow-xl p-3 sm:p-4">
                     {/* Desktop Layout */}
                     <div className="hidden md:grid grid-cols-5 gap-4 stats-cards w-full">
                         {cards.map((card, idx) => (

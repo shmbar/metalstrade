@@ -83,7 +83,7 @@ export default function CommandPalette() {
         onClick={() => setOpen(true)}
         aria-label="Open command palette (Ctrl+K)"
         title="Search & navigate (Ctrl+K)"
-        className="fixed bottom-4 right-20 z-40 hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#d8e8f5] shadow-md hover:shadow-lg transition-shadow"
+        className="fixed bottom-4 right-20 z-40 hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[var(--border-cell)] shadow-md hover:shadow-lg transition-shadow"
       >
         <Search className="w-3.5 h-3.5 text-[var(--chathams-blue)]" />
         <span className="text-[0.62rem] text-[var(--regent-gray)] font-medium">
@@ -104,11 +104,11 @@ export default function CommandPalette() {
       />
       <Command
         label="Command Palette"
-        className="relative w-full max-w-xl rounded-xl bg-white shadow-2xl border border-[#d8e8f5] overflow-hidden"
+        className="relative w-full max-w-xl rounded-xl bg-white shadow-2xl border border-[var(--border-cell)] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         loop
       >
-        <div className="flex items-center gap-2 px-3 border-b border-[#e6eef7]">
+        <div className="flex items-center gap-2 px-3 border-b border-[var(--selago)]">
           <Search className="w-4 h-4 text-[var(--regent-gray)] flex-shrink-0" />
           <Command.Input
             value={query}
@@ -117,7 +117,7 @@ export default function CommandPalette() {
             className="w-full h-11 outline-none bg-transparent text-sm text-[var(--port-gore)] placeholder:text-[var(--regent-gray)]"
             autoFocus
           />
-          <kbd className="text-[0.6rem] px-1.5 py-0.5 rounded border border-[#d8e8f5] text-[var(--regent-gray)]">
+          <kbd className="text-[0.6rem] px-1.5 py-0.5 rounded border border-[var(--border-cell)] text-[var(--regent-gray)]">
             Esc
           </kbd>
         </div>
@@ -136,7 +136,7 @@ export default function CommandPalette() {
                 key={route}
                 value={`${label} ${keywords}`}
                 onSelect={() => go(route)}
-                className="flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer text-sm text-[var(--port-gore)] aria-selected:bg-[#dbeeff]"
+                className="flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer text-sm text-[var(--port-gore)] aria-selected:bg-[var(--surface-header)]"
               >
                 <Icon className="w-4 h-4 text-[var(--endeavour)]" />
                 <span className="flex-1">{label}</span>
@@ -156,7 +156,7 @@ export default function CommandPalette() {
                   key={item.key}
                   value={item.searchText}
                   onSelect={() => go(item.route, item.rowId, item.source)}
-                  className="flex flex-col items-start gap-0.5 px-2 py-2 rounded-md cursor-pointer aria-selected:bg-[#dbeeff]"
+                  className="flex flex-col items-start gap-0.5 px-2 py-2 rounded-md cursor-pointer aria-selected:bg-[var(--surface-header)]"
                 >
                   <span className="text-sm text-[var(--port-gore)] truncate w-full">
                     {item.title}
@@ -172,10 +172,10 @@ export default function CommandPalette() {
           )}
         </Command.List>
 
-        <div className="flex items-center gap-3 px-3 py-2 border-t border-[#e6eef7] text-[0.58rem] text-[var(--regent-gray)]">
-          <span><kbd className="px-1 py-0.5 rounded border border-[#d8e8f5]">↑↓</kbd> navigate</span>
-          <span><kbd className="px-1 py-0.5 rounded border border-[#d8e8f5]">↵</kbd> open</span>
-          <span><kbd className="px-1 py-0.5 rounded border border-[#d8e8f5]">Esc</kbd> close</span>
+        <div className="flex items-center gap-3 px-3 py-2 border-t border-[var(--selago)] text-[0.58rem] text-[var(--regent-gray)]">
+          <span><kbd className="px-1 py-0.5 rounded border border-[var(--border-cell)]">↑↓</kbd> navigate</span>
+          <span><kbd className="px-1 py-0.5 rounded border border-[var(--border-cell)]">↵</kbd> open</span>
+          <span><kbd className="px-1 py-0.5 rounded border border-[var(--border-cell)]">Esc</kbd> close</span>
         </div>
       </Command>
     </div>

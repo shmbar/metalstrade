@@ -11,6 +11,8 @@ import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext'
 import Tltip from '../../../components/tlTip'
 import { Selector } from '@components/selectors/selectShad';
 import NotificationBell from '@components/NotificationBell';
+import { useTheme } from '../../../contexts/useThemeContext';
+import { THEMES, themeSwatch } from '../../../utils/themes';
 
 // Self-contained clock: owns the 1-second interval so only this tiny component
 // re-renders each second — previously the state lived in MainNav and re-rendered
@@ -26,7 +28,7 @@ const Clock = () => {
 
   if (!now) return null
   return (
-    <div className='flex flex-col items-end leading-tight select-none pointer-events-none pl-4 border-l border-[#b8ddf8]'>
+    <div className='flex flex-col items-end leading-tight select-none pointer-events-none pl-4 border-l border-[var(--border-divider)]'>
       <span style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)', fontWeight: 500, opacity: 0.8 }}>
         {now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
       </span>
@@ -39,6 +41,7 @@ const Clock = () => {
 
 export const MainNav = () => {
   const { SignOut, user, gisAccount } = UserAuth();
+  const { themeId, setTheme } = useTheme();
   const { compData, accounts, uidCollection, setUidCollection } = useContext(SettingsContext)
   const ln = compData?.lng || 'English'
   const router = useRouter()
@@ -85,11 +88,11 @@ export const MainNav = () => {
 
   return (
     <div
-      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[#e3f3ff] z-[100] rounded-lg'
+      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[var(--surface-header)] z-[100] rounded-lg'
       style={{
         height: 'clamp(56px, 7vh, 80px)',
         borderRadius: '12px',
-        border: '1.5px solid #b8ddf8',
+        border: '1.5px solid var(--border-divider)',
         padding: '0 clamp(8px, 1vw, 16px)', // reduced horizontal padding
       }}
     >
@@ -232,12 +235,32 @@ export const MainNav = () => {
               </div>
             </button>
             {showDropdown && (
-              <div className='absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-[var(--selago)] py-2 z-[9999] overflow-visible'>
+              <div className='absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-lg border border-[var(--selago)] py-2 z-[9999] overflow-visible'>
                 <div className='px-4 py-3 border-b border-[var(--selago)]'>
                   <p className='responsiveTextTable font-medium text-[var(--port-gore)]'>
                     {user?.displayName || user?.email?.split('@')[0] || 'User'}
                   </p>
                   <p className='responsiveTextTable text-[var(--regent-gray)] truncate'>{user?.email || ''}</p>
+                </div>
+                {/* Personal colour theme — applies instantly app-wide, saved per member */}
+                <div className='px-4 py-2.5 border-b border-[var(--selago)]'>
+                  <p className='responsiveTextTable text-[var(--regent-gray)] mb-2'>{getTtl('Theme', ln) || 'Theme'}</p>
+                  <div className='flex items-center gap-2 flex-wrap'>
+                    {THEMES.map(t => (
+                      <button
+                        key={t.id}
+                        onClick={() => setTheme(t.id)}
+                        title={t.label}
+                        aria-label={`Theme: ${t.label}`}
+                        className={`w-5 h-5 rounded-full shadow-sm transition-transform hover:scale-110 ${
+                          themeId === t.id
+                            ? 'ring-2 ring-offset-1 ring-[var(--endeavour)]'
+                            : 'ring-1 ring-black/10'
+                        }`}
+                        style={{ backgroundColor: themeSwatch(t) }}
+                      />
+                    ))}
+                  </div>
                 </div>
                 <div className='py-1'>
                   <button

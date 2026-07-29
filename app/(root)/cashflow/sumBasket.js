@@ -75,8 +75,8 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
         <div
             ref={ref}
             className={`fixed z-40 w-[19rem] rounded-2xl overflow-hidden font-poppins
-                ring-1 ring-[#cfe3f5] border border-white/60
-                bg-white/85 backdrop-blur-md shadow-[0_16px_50px_rgba(3,102,174,0.28)]
+                ring-1 ring-[var(--border-cell)] border border-white/60
+                bg-white/85 backdrop-blur-md shadow-[0_16px_50px_rgba(var(--endeavour-rgb),0.28)]
                 animate-in fade-in slide-in-from-bottom-3 duration-300
                 ${pos ? '' : 'bottom-4 left-1/2 -translate-x-1/2'}`}
             style={pos ? { left: pos.left, top: pos.top } : undefined}
@@ -85,7 +85,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             <div
                 onPointerDown={startDrag}
                 className="flex items-center justify-between gap-2 px-3 py-2 cursor-grab active:cursor-grabbing select-none
-                    bg-gradient-to-br from-[var(--endeavour)] via-[#0a52a0] to-[var(--chathams-blue)] text-white"
+                    bg-gradient-to-br from-[var(--endeavour)] via-[var(--endeavour)] to-[var(--chathams-blue)] text-white"
             >
                 <div className="flex items-center gap-2 min-w-0">
                     <span className="grid place-items-center w-6 h-6 rounded-lg bg-white/20 shrink-0">
@@ -113,12 +113,12 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             </div>
 
             {/* Metric switcher */}
-            <div className="flex items-center gap-1 px-2 py-1.5 bg-white/60 border-b border-[#eef5fc]">
+            <div className="flex items-center gap-1 px-2 py-1.5 bg-white/60 border-b border-[var(--selago)]">
                 {METRICS.map(m => (
                     <button key={m} onClick={() => setMetric(m)}
                         className={`flex-1 text-[0.62rem] font-semibold py-1 rounded-lg transition-colors ${metric === m
                             ? 'bg-[var(--endeavour)] text-white shadow-sm'
-                            : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}>
+                            : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}>
                         {metricLabel[m]}
                     </button>
                 ))}
@@ -127,7 +127,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             {/* Subtotals — always visible, shown as soft stat pills */}
             <div className="px-3 py-2.5 flex flex-col gap-1.5 bg-white/70">
                 {hasUsd &&
-                    <div className="flex items-center justify-between rounded-xl px-2.5 py-1.5 bg-gradient-to-r from-[#f0f7ff] to-[#dbeeff]/70 border border-[#cfe3f5]">
+                    <div className="flex items-center justify-between rounded-xl px-2.5 py-1.5 bg-gradient-to-r from-[var(--selago)] to-[rgba(var(--surface-header-rgb),0.7)] border border-[var(--border-cell)]">
                         <span className="flex items-center gap-1.5 text-[0.6rem] font-semibold tracking-wide uppercase text-[var(--regent-gray)]">
                             <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--endeavour)] text-white text-[0.62rem] font-bold leading-none">$</span>
                             {metricLabel[metric]}
@@ -138,7 +138,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                     </div>
                 }
                 {hasEur &&
-                    <div className="flex items-center justify-between rounded-xl px-2.5 py-1.5 bg-gradient-to-r from-[#f0f7ff] to-[#dbeeff]/70 border border-[#cfe3f5]">
+                    <div className="flex items-center justify-between rounded-xl px-2.5 py-1.5 bg-gradient-to-r from-[var(--selago)] to-[rgba(var(--surface-header-rgb),0.7)] border border-[var(--border-cell)]">
                         <span className="flex items-center gap-1.5 text-[0.6rem] font-semibold tracking-wide uppercase text-[var(--regent-gray)]">
                             <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--chathams-blue)] text-white text-[0.62rem] font-bold leading-none">€</span>
                             {metricLabel[metric]}
@@ -157,10 +157,10 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
 
             {/* Selected line items — collapsible */}
             {!collapsed &&
-                <div className="max-h-52 overflow-y-auto border-t border-[#eef5fc] bg-white/40">
+                <div className="max-h-52 overflow-y-auto border-t border-[var(--selago)] bg-white/40">
                     {rows.map(r => (
                         <div key={r.key}
-                            className="group flex items-center justify-between gap-2 px-3 py-1.5 hover:bg-[#eef6ff] transition-colors text-[0.7rem]">
+                            className="group flex items-center justify-between gap-2 px-3 py-1.5 hover:bg-[var(--selago)] transition-colors text-[0.7rem]">
                             <div className="min-w-0">
                                 <div className="truncate text-[var(--port-gore)] font-medium leading-tight">{r.label || kindLabel[r.kind]}</div>
                                 {r.sub && <div className="truncate text-[0.62rem] text-[var(--regent-gray)] leading-tight">{r.sub}</div>}

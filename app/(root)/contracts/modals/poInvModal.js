@@ -391,7 +391,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                 {valueCon.poInvoices.map((x, i) => {
 
                     return (
-                        <div className='flex gap-4 p-1 border border-[#b8ddf8] rounded-2xl flex-col bg-[#f4f9ff]' key={x.id}>
+                        <div className='flex gap-4 p-1 border border-[var(--border-divider)] rounded-2xl flex-col bg-[var(--surface-pill)]' key={x.id}>
                             <div className=''>
                                 <div className='flex items-center'>
                                     <div className='items-center flex pt-3 pr-2'>
@@ -584,7 +584,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                         </p>
                         <input type='text' className='input h-8 w-full responsiveTextTable' placeholder='Search invoice number…'
                             value={mirrorQuery} onChange={e => setMirrorQuery(e.target.value)} autoFocus />
-                        <div className='max-h-[50vh] overflow-y-auto flex flex-col divide-y divide-[#d8e8f5] border border-[#d8e8f5] rounded-lg'>
+                        <div className='max-h-[50vh] overflow-y-auto flex flex-col divide-y divide-[var(--border-cell)] border border-[var(--border-cell)] rounded-lg'>
                             {mirrorList === null ? (
                                 <p className='p-3 responsiveTextTable text-[var(--regent-gray)]'>Loading {counterpartName} invoices…</p>
                             ) : (() => {
@@ -597,7 +597,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                     const recDiff = rec && round2(rec.invValue) !== exact;
                                     return (
                                         <button key={z.id || `${z.invoice}-${z.date}`} type='button'
-                                            className='flex items-center justify-between gap-3 px-3 py-2 text-left hover:bg-[#f8fbff] transition-colors'
+                                            className='flex items-center justify-between gap-3 px-3 py-2 text-left hover:bg-[var(--surface-pill)] transition-colors'
                                             onClick={() => pickMirror(z)}>
                                             <span className='responsiveTextTable font-medium text-[var(--port-gore)] whitespace-nowrap'>
                                                 #{z.invoice}{invSuffix(z)}

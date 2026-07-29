@@ -96,7 +96,7 @@ const Customtable = ({ data, propDefaults, val, mult }) => {
 
 			<div className="overflow-x-auto rounded-lg">
 				<table className='w-full'>
-					<thead style={{ background: '#dbeeff' }} className="divide-y divide-[#b8ddf8]">
+					<thead style={{ background: 'var(--surface-header)' }} className="divide-y divide-[var(--border-divider)]">
 						<tr className='border-b '>
 							{cols.map(x => x.header)
 								.map((y, k) => (

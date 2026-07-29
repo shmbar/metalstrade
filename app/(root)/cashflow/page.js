@@ -1038,7 +1038,7 @@ const Cashflow = () => {
     };
 
     return (
-        <div className="w-full" style={{ background: "#f8fbff" }}>
+        <div className="w-full" style={{ background: "var(--surface-pill)" }}>
             <div className="cf-uniform mx-auto max-w-full px-1 md:px-2 pb-4 mt-[72px]">
                 {Object.keys(settings).length === 0 ? <CardsSkeleton /> :
                     <>
@@ -1051,7 +1051,7 @@ const Cashflow = () => {
                             onCancel={() => setAutoCancelled(true)}
                         />
                         <VideoLoader loading={loading} fullScreen={true} />
-                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-lg w-full bg-white">
+                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-lg w-full bg-white">
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
                                 <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                                     {getTtl('Cashflow', ln)}
@@ -1061,7 +1061,7 @@ const Cashflow = () => {
                                         <button
                                             type="button"
                                             onClick={handleExportCashflow}
-                                            className="flex items-center gap-1.5 border border-[#d8e8f5] text-[var(--endeavour)] px-3 h-8 text-[0.72rem] font-medium rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all"
+                                            className="flex items-center gap-1.5 border border-[var(--border-cell)] text-[var(--endeavour)] px-3 h-8 text-[0.72rem] font-medium rounded-full bg-[var(--surface-header)] hover:bg-[var(--surface-header)] transition-all"
                                         >
                                             <FiDownload className="scale-110" /> Export
                                         </button>
@@ -1074,16 +1074,16 @@ const Cashflow = () => {
                             <ForecastPanel />
 
                             {/* Tabs */}
-                            <div className="inline-flex gap-1 mb-2 bg-[#e3f3ff] border border-[#b8ddf8] rounded-full p-0">
+                            <div className="inline-flex gap-1 mb-2 bg-[var(--surface-header)] border border-[var(--border-divider)] rounded-full p-0">
                                 <button
                                     onClick={() => setActiveTab('general')}
-                                    className={`px-4 py-1 text-[0.72rem] xl:text-[0.75rem] rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
+                                    className={`px-4 py-1 text-[0.72rem] xl:text-[0.75rem] rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}
                                 >
                                     General Cashflow
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('unsold')}
-                                    className={`px-4 py-1 text-[0.72rem] xl:text-[0.75rem] rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[#dbeeff]'}`}
+                                    className={`px-4 py-1 text-[0.72rem] xl:text-[0.75rem] rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}
                                 >
                                     Unsold Stocks
                                 </button>
@@ -1091,7 +1091,7 @@ const Cashflow = () => {
 
 
                             {activeTab === 'unsold' ? (
-                                <div className="w-full max-w-2xl border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white p-4">
+                                <div className="w-full max-w-2xl border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-white p-4">
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="text-[var(--chathams-blue)] responsiveText font-semibold">Unsold Stocks</div>
                                         <div className="flex items-center gap-2">
@@ -1110,7 +1110,7 @@ const Cashflow = () => {
                                     ) : (
                                         <>
                                             {stockDataNoSold.map((x, i) => (
-                                                <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                     <MyAccordion title={
                                                         <div className="flex w-full justify-between">
                                                             <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
@@ -1185,16 +1185,16 @@ const Cashflow = () => {
                                                 })}
                                             <div className="flex gap-2 my-1">
                                                 <Tltip direction='bottom' tltpText='Save added data'>
-                                                    <button type="button" className="bg-[var(--endeavour)] border border-[#d8e8f5] text-white px-5 h-7 text-[0.72rem] font-medium rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
+                                                    <button type="button" className="bg-[var(--endeavour)] border border-[var(--border-cell)] text-white px-5 h-7 text-[0.72rem] font-medium rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
                                                 </Tltip>
                                                 <Tltip direction='bottom' tltpText='Add new item'>
-                                                    <button type="button" className="border border-[#d8e8f5] text-[var(--endeavour)] px-5 h-7 text-[0.72rem] font-medium rounded-full bg-[#e3f3ff] hover:bg-[#dbeeff] transition-all" onClick={addItem}>Add</button>
+                                                    <button type="button" className="border border-[var(--border-cell)] text-[var(--endeavour)] px-5 h-7 text-[0.72rem] font-medium rounded-full bg-[var(--surface-header)] hover:bg-[var(--surface-header)] transition-all" onClick={addItem}>Add</button>
                                                 </Tltip>
                                             </div>
                                         </div>
 
                                     }
-                                    <div className="w-full border border-[#b8ddf8] rounded-2xl overflow-hidden bg-white">
+                                    <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-white">
                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
                                             <div className="w-full">
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
@@ -1207,7 +1207,7 @@ const Cashflow = () => {
                                                     </div>
                                                     {stockData1.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0"
@@ -1271,7 +1271,7 @@ const Cashflow = () => {
 
                                                     {stockData2.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1331,7 +1331,7 @@ const Cashflow = () => {
 
                                                     {clientInvoices2.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="flex items-center gap-1.5 min-w-0">
@@ -1390,7 +1390,7 @@ const Cashflow = () => {
 
                                                     {clientInvoices1.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="flex items-center gap-1.5 min-w-0">
@@ -1457,7 +1457,7 @@ const Cashflow = () => {
                                                                 {
                                                                     financedLeft?.map((z, i) => {
                                                                         return (
-                                                                            <div className="flex items-center justify-between rounded-xl px-0 responsiveTextInput hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                            <div className="flex items-center justify-between rounded-xl px-0 responsiveTextInput hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                                 <div className="flex items-center gap-1 min-w-0 flex-1">
                                                                                     <button onClick={() => setFinancedLeft(financedLeft.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
                                                                                     <input className={cn('flex-1 min-w-0 outline-none h-6 bg-transparent text-[var(--chathams-blue)]',
@@ -1496,7 +1496,7 @@ const Cashflow = () => {
                                             </div>
 
 
-                                            <div className="w-full border-l border-[#b8ddf8] pt-0">
+                                            <div className="w-full border-l border-[var(--border-divider)] pt-0">
 
                                                 <div className="p-2 bg-white mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
@@ -1511,7 +1511,7 @@ const Cashflow = () => {
 
                                                     {supPayments2.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                                         <div className="flex items-center gap-1.5 w-full min-w-0">
@@ -1573,7 +1573,7 @@ const Cashflow = () => {
 
                                                     {supPayments1.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                                         <div className="flex items-center gap-1.5 w-full min-w-0">
@@ -1632,7 +1632,7 @@ const Cashflow = () => {
 
                                                     {expenses.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex justify-between leading-4 2xl:leading-6 w-full">
                                                                         <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"              >
@@ -1696,7 +1696,7 @@ const Cashflow = () => {
                                                                 {
                                                                     financedRight?.map((z, i) => {
                                                                         return (
-                                                                            <div className="flex items-center justify-between rounded-xl px-0 responsiveTextInput hover:bg-[#dbeeff] transition-colors" key={i}>
+                                                                            <div className="flex items-center justify-between rounded-xl px-0 responsiveTextInput hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                                 <div className="flex items-center gap-1 min-w-0 flex-1">
                                                                                     <button onClick={() => setFinancedRight(financedRight.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
                                                                                     <input className={cn('flex-1 min-w-0 outline-none h-6 text-[var(--chathams-blue)] bg-transparent',
@@ -1737,12 +1737,12 @@ const Cashflow = () => {
                                         </div>
 
                                         {userTitle === 'Admin' && (
-                                            <div className="mt-1 w-full border border-[#b8ddf8] rounded-xl p-2">
+                                            <div className="mt-1 w-full border border-[var(--border-divider)] rounded-xl p-2">
 
                                                 {/* TOTALS AND BALANCE IN ONE ROW */}
                                                 <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
 
-                                                    <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
+                                                    <div className="flex justify-between items-center bg-[var(--border-cell)] rounded-full px-3 py-0.5">
                                                         <span className="font-medium text-[var(--chathams-blue)] responsiveText whitespace-nowrap">
                                                             Total (Left)
                                                         </span>
@@ -1774,7 +1774,7 @@ const Cashflow = () => {
                                                         />
                                                     </div>
 
-                                                    <div className="flex justify-between items-center bg-[#d4eafc] rounded-full px-3 py-0.5">
+                                                    <div className="flex justify-between items-center bg-[var(--border-cell)] rounded-full px-3 py-0.5">
                                                         <span className="font-medium text-[var(--chathams-blue)] responsiveText whitespace-nowrap">
                                                             Total (Right)
                                                         </span>
@@ -1800,7 +1800,7 @@ const Cashflow = () => {
                                                             <div className="flex gap-2 my-1" key={z}>
                                                                 <span className="responsiveText items-center flex w-28 text-[var(--chathams-blue)] whitespace-nowrap font-medium">Total for {z}</span>
                                                                 <NumericFormat
-                                                                    className='input w-44 h-6 responsiveText font-medium text-[var(--chathams-blue)] text-right px-3 bg-[#f8fbff] border-[#d8e8f5] rounded-full'
+                                                                    className='input w-44 h-6 responsiveText font-medium text-[var(--chathams-blue)] text-right px-3 bg-[var(--surface-pill)] border-[var(--border-cell)] rounded-full'
                                                                     value={totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || ''}
                                                                     thousandSeparator allowNegative={false} decimalScale={2} prefix='$'
                                                                     onValueChange={values => handleChange({ target: { value: values.value } }, z)}

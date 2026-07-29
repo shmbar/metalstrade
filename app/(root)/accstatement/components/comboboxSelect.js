@@ -55,7 +55,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                         afterLeave={() => setQuery('')}
                     >
                         <ComboboxOptions className={`z-[9999] absolute mt-1 max-h-60 w-full overflow-auto custom-scroll rounded-xl
-                        bg-white py-1 text-base shadow-lg border border-[#dbeeff] focus:outline-none
+                        bg-white py-1 text-base shadow-lg border border-[var(--surface-header)] focus:outline-none
                         responsiveText ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (
                                 <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] responsiveText">
@@ -69,8 +69,8 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                                         className={cn(
                                             'relative cursor-default select-none py-1 responsiveText pl-2 pr-2 text-[var(--port-gore)]',
                                             selected.id === x.id
-                                                ? 'bg-[#dbeeff] text-[var(--endeavour)]'
-                                                : 'hover:bg-[#dbeeff] hover:text-[var(--endeavour)]'
+                                                ? 'bg-[var(--surface-header)] text-[var(--endeavour)]'
+                                                : 'hover:bg-[var(--surface-header)] hover:text-[var(--endeavour)]'
                                         )}
                                         value={x}
                                     >

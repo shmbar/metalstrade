@@ -97,7 +97,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                     <div className="flex justify-end">
                         <button
                             onClick={() => setOpen(false)}
-                            className="w-6 h-6 flex items-center justify-center rounded-full bg-[#f0f7ff] hover:bg-[#dbeeff] text-[var(--endeavour)] transition-colors"
+                            className="w-6 h-6 flex items-center justify-center rounded-full bg-[var(--selago)] hover:bg-[var(--surface-header)] text-[var(--endeavour)] transition-colors"
                         >
                             <MdClose className="w-3.5 h-3.5" />
                         </button>
@@ -147,7 +147,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                 </div>
 
                 <div className="flex justify-end pt-3">
-                    <Button className="px-2 h-7 bg-[#d4eafc] hover:bg-[#b8ddf8] text-[var(--endeavour)] border-0 shadow-none rounded-full" onClick={handleSave}>
+                    <Button className="px-2 h-7 bg-[var(--border-cell)] hover:bg-[var(--border-divider)] text-[var(--endeavour)] border-0 shadow-none rounded-full" onClick={handleSave}>
                         Save
                     </Button>
                 </div>

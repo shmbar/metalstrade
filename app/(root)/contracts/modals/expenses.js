@@ -108,13 +108,13 @@ const Expenses = ({ showExpenses }) => {
 
 
     return valueExp && (
-        <div className={`z-10 relative mt-2 border border-[#b8ddf8] rounded-2xl
-        ${showExpenses ? 'flex animated-div' : 'hidden'}`} style={{background:'#f4f9ff'}}>
+        <div className={`z-10 relative mt-2 border border-[var(--border-divider)] rounded-2xl
+        ${showExpenses ? 'flex animated-div' : 'hidden'}`} style={{background:'var(--surface-pill)'}}>
             <div className='grid grid-cols-1 md:grid-cols-4 gap-3 p-2 w-full'>
-                <div className='md:col-span-1 border border-[#b8ddf8] rounded-2xl p-2 h-fit'>
+                <div className='md:col-span-1 border border-[var(--border-divider)] rounded-2xl p-2 h-fit'>
                     <p className='responsiveText font-medium' style={{color:'var(--chathams-blue)'}}>{getTtl('Expenses', ln)}:</p>
                     {valueInv.expenses.length > 0 &&
-                        <ul className="flex flex-col mt-1 overflow-auto rounded-2xl divide-y" style={{border:'1px solid #b8ddf8'}}>
+                        <ul className="flex flex-col mt-1 overflow-auto rounded-2xl divide-y" style={{border:'1px solid var(--border-divider)'}}>
                             {valueInv.expenses.map((x, i) => {
                                 return (
                                     <li key={i} onClick={() => selectRow(i)}

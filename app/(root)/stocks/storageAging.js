@@ -90,7 +90,7 @@ const StorageAging = ({ data = [] }) => {
 
     if (!data?.length) return null;
 
-    const bucketColor = { '0-30': '#16a34a', '31-60': '#0366ae', '61-90': '#d97706', '90+': '#dc2626' };
+    const bucketColor = { '0-30': '#16a34a', '31-60': 'var(--endeavour)', '61-90': '#d97706', '90+': '#dc2626' };
 
     return (
         <div className='w-full mt-6'>
@@ -110,7 +110,7 @@ const StorageAging = ({ data = [] }) => {
                     const danger = g.oldest >= DEMURRAGE_DAYS;
                     const warn = g.oldest >= STALE_DAYS;
                     return (
-                        <div key={g.terminal} className='rounded-2xl border p-3' style={{ borderColor: danger ? '#fca5a5' : warn ? '#fde68a' : '#b8ddf8', background: 'white' }}>
+                        <div key={g.terminal} className='rounded-2xl border p-3' style={{ borderColor: danger ? '#fca5a5' : warn ? '#fde68a' : 'var(--border-divider)', background: 'white' }}>
                             <div className='flex items-center justify-between mb-1.5'>
                                 <span className='font-medium responsiveText text-[var(--chathams-blue)] truncate'>{g.name}</span>
                                 <span className='flex items-center gap-1' style={{ fontSize: '0.6rem', color: danger ? '#dc2626' : warn ? '#d97706' : 'var(--regent-gray)' }}>
@@ -122,7 +122,7 @@ const StorageAging = ({ data = [] }) => {
                                 <span>{fmtQty(g.qty)} qty</span>
                             </div>
                             {/* Age bucket bar */}
-                            <div className='flex w-full h-2 rounded-full overflow-hidden' style={{ background: '#eef5fc' }}>
+                            <div className='flex w-full h-2 rounded-full overflow-hidden' style={{ background: 'var(--selago)' }}>
                                 {['0-30', '31-60', '61-90', '90+'].map(b => {
                                     const pct = g.count ? (g.buckets[b] / g.count) * 100 : 0;
                                     return pct > 0 ? <div key={b} style={{ width: `${pct}%`, background: bucketColor[b] }} title={`${b}d: ${g.buckets[b]}`} /> : null;

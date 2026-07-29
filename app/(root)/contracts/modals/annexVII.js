@@ -11,7 +11,7 @@ const Field = ({ label, name, value, onChange, placeholder = '', wide = false })
             value={value || ''}
             onChange={onChange}
             placeholder={placeholder}
-            className="border border-[#b8ddf8] rounded-full px-3 h-7 text-[0.75rem] w-full
+            className="border border-[var(--border-divider)] rounded-full px-3 h-7 text-[0.75rem] w-full
                 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
             style={{ fontFamily: 'inherit' }}
         />
@@ -19,7 +19,7 @@ const Field = ({ label, name, value, onChange, placeholder = '', wide = false })
 );
 
 const SectionLabel = ({ text }) => (
-    <p className="md:col-span-2 text-[0.7rem] font-medium text-[var(--endeavour)] mt-2 border-b border-[#dbeeff] pb-0.5">{text}</p>
+    <p className="md:col-span-2 text-[0.7rem] font-medium text-[var(--endeavour)] mt-2 border-b border-[var(--surface-header)] pb-0.5">{text}</p>
 );
 
 const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
@@ -174,7 +174,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
         .map(c => ({ ...c, displayName: c.nickname || c.name }));
 
     return (
-        <div className="border border-[#b8ddf8] rounded-2xl p-3">
+        <div className="border border-[var(--border-divider)] rounded-2xl p-3">
             <div className="flex items-center justify-between mb-2">
                 <p className="responsiveText font-medium text-[var(--chathams-blue)]">Annex VII — EU Waste Shipment Document</p>
                 <button
@@ -293,7 +293,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                             value={ax.nationalCode || ''}
                             onChange={handleInput}
                             placeholder="e.g. 7503"
-                            className="border border-[#b8ddf8] rounded-full px-3 h-7 text-[0.75rem] w-full
+                            className="border border-[var(--border-divider)] rounded-full px-3 h-7 text-[0.75rem] w-full
                                 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
                             style={{ fontFamily: 'inherit' }}
                         />

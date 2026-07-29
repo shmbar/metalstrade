@@ -60,7 +60,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="relative">
                     <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-white text-left
-                     focus:outline-none text-xs border border-[#b8ddf8] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
+                     focus:outline-none text-xs border border-[var(--border-divider)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
                             className={cn('w-full py-2 pl-3 pr-10 text-xs leading-5 focus:outline-none',
                                 selected[name] !== plcHolder ? 'text-[var(--endeavour)]' : 'text-[var(--endeavour)]')}
@@ -83,7 +83,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                     >
                         <Portal>
                             <ComboboxOptions style={dropdownStyle} className={`z-50 max-h-60 overflow-auto custom-scroll rounded-xl
-                            bg-white py-1 text-xs shadow-lg border border-[#dbeeff] focus:outline-none ${classes1}`}>
+                            bg-white py-1 text-xs shadow-lg border border-[var(--surface-header)] focus:outline-none ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (
                                 <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] text-xs">
                                     Nothing found.
@@ -94,9 +94,9 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                                     <ComboboxOption
                                         key={x.id}
                                         className={cn(
-                                            'relative cursor-default select-none py-1 text-[0.75rem] pl-10 pr-4 text-[var(--port-gore)] hover:bg-[#dbeeff] hover:text-[var(--endeavour)]',
+                                            'relative cursor-default select-none py-1 text-[0.75rem] pl-10 pr-4 text-[var(--port-gore)] hover:bg-[var(--surface-header)] hover:text-[var(--endeavour)]',
                                             selected.id === x.id
-                                                ? 'bg-[#dbeeff] text-[var(--endeavour)]'
+                                                ? 'bg-[var(--surface-header)] text-[var(--endeavour)]'
                                                 : '',
                                                 x.id==='allStocks' ? 'text-[var(--chathams-blue)] italic font-bold truncate': ''
                                         )}

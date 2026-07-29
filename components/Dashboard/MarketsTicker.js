@@ -28,7 +28,7 @@ const makeFlagIcon = (cc) => ({ className = '' }) => {
     const code = (cc || 'un').toLowerCase();
     if (code === 'eu') {
         return (
-            <div className={className} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 12, background: '#003399', borderRadius: 2 }}>
+            <div className={className} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 12, background: 'var(--chathams-blue)', borderRadius: 2 }}>
                 <FaEuroSign style={{ color: '#FFD700', width: 12, height: 12 }} />
             </div>
         );
@@ -112,7 +112,7 @@ export default function MarketsTicker({ className = '' }) {
                 rightSlot={
                     <div className="flex items-center gap-2">
                         {updatedLabel && (
-                            <span className="text-[0.72rem] font-medium" style={{ color: '#3a6a9e' }}>
+                            <span className="text-[0.72rem] font-medium" style={{ color: 'var(--endeavour)' }}>
                                 {metals.apiDate ? `LME · ${metals.apiDate}` : updatedLabel}
                             </span>
                         )}

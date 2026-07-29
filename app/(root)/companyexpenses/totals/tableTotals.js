@@ -54,7 +54,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
       className="bg-white rounded-xl shadow border overflow-hidden"
       style={{
         width: TABLE_WIDTH,
-        borderColor: '#b8ddf8',
+        borderColor: 'var(--border-divider)',
         borderWidth: 1,
         borderRadius: '16px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
@@ -74,9 +74,9 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         {/* TITLE */}
         <div
           style={{
-            borderBottom: '1px solid #b8ddf8',
+            borderBottom: '1px solid var(--border-divider)',
             padding: '12px 16px',
-            background: '#dbeeff'
+            background: 'var(--surface-header)'
           }}
         >
           <p
@@ -94,8 +94,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           className="grid grid-cols-[1fr_auto] px-4 py-2"
           style={{
             background: '#ffffff',
-            borderTop: '1px solid #b8ddf8',
-            borderBottom: '1px solid #b8ddf8'
+            borderTop: '1px solid var(--border-divider)',
+            borderBottom: '1px solid var(--border-divider)'
           }}
         >
           <div
@@ -132,7 +132,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
               tltpText={expensesToolTip(row, expensesData, settings, filt)}
             >
               <div
-                className="grid grid-cols-[1fr_auto] px-4 py-1 items-center hover:bg-[#f8fbff] transition responsiveTextTable"
+                className="grid grid-cols-[1fr_auto] px-4 py-1 items-center hover:bg-[var(--surface-pill)] transition responsiveTextTable"
                 style={{
                   borderBottom: '1px solid var(--selago)'
                 }}
@@ -162,8 +162,8 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         <div
           className="px-4 py-3"
           style={{
-            borderTop: '1px solid #b8ddf8',
-            background: '#dbeeff'
+            borderTop: '1px solid var(--border-divider)',
+            background: 'var(--surface-header)'
           }}
         >
           <div

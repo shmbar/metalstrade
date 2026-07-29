@@ -9,8 +9,8 @@ export const detailsToolTip = (row, data, settings, dataTable,) => {
     let id = settings.Stocks.Stocks.find(z => z.nname === row.original.stock)?.id
     let filteredArr = dataTable.filter(z => z.stock === id)
 
-    const thStyle = { textAlign: 'center', padding: '6px 10px', color: 'var(--chathams-blue)', fontWeight: 500, fontSize: '0.75rem', border: '1px solid #b8ddf8', background: '#dbeeff', whiteSpace: 'nowrap' }
-    const tdStyle = { textAlign: 'center', padding: '5px 10px', border: '1px solid #e8f0f8', fontSize: '0.75rem', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }
+    const thStyle = { textAlign: 'center', padding: '6px 10px', color: 'var(--chathams-blue)', fontWeight: 500, fontSize: '0.75rem', border: '1px solid var(--border-divider)', background: 'var(--surface-header)', whiteSpace: 'nowrap' }
+    const tdStyle = { textAlign: 'center', padding: '5px 10px', border: '1px solid var(--selago)', fontSize: '0.75rem', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }
 
     return (
         <div style={{
@@ -19,13 +19,13 @@ export const detailsToolTip = (row, data, settings, dataTable,) => {
             overflow: 'hidden',
             maxHeight: '28rem',
             overflowY: 'auto',
-            boxShadow: '0 8px 32px rgba(3,102,174,0.13)',
-            border: '1px solid #b8ddf8',
+            boxShadow: '0 8px 32px rgba(var(--endeavour-rgb),0.13)',
+            border: '1px solid var(--border-divider)',
             fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
             minWidth: '400px',
         }}>
             {/* Title bar */}
-            <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 500, fontSize: '0.8rem', color: 'var(--chathams-blue)', borderBottom: '1px solid #b8ddf8' }}>
+            <div style={{ background: 'var(--surface-header)', padding: '7px 14px', fontWeight: 500, fontSize: '0.8rem', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
                 Stock Details
             </div>
             <table style={{ fontFamily: 'inherit', fontSize: '0.75rem', width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>
@@ -41,7 +41,7 @@ export const detailsToolTip = (row, data, settings, dataTable,) => {
                 </thead>
                 <tbody>
                     {filteredArr.map((z, i) => (
-                        <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#f4f9ff' }}>
+                        <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : 'var(--surface-pill)' }}>
                             <td style={tdStyle}>{z.order}</td>
                             <td style={tdStyle}>{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td>
                             <td style={tdStyle}>{z.descriptionName}</td>

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 const ENTITY = {
-    contract: { icon: FileText, color: '#0366ae', bg: '#dbeeff', route: (id) => `/contracts?openId=${id}` },
+    contract: { icon: FileText, color: 'var(--endeavour)', bg: 'var(--surface-header)', route: (id) => `/contracts?openId=${id}` },
     invoice: { icon: Receipt, color: '#15803d', bg: '#f0fdf4', route: (id) => `/invoices?openId=${id}` },
     expense: { icon: Banknote, color: '#b45309', bg: '#fffbeb', route: (id) => `/expenses?openId=${id}` },
     companyexpense: { icon: Banknote, color: '#b45309', bg: '#fffbeb', route: () => `/companyexpenses` },
@@ -61,13 +61,13 @@ function Chip({ active, onClick, label, count, unread }) {
             className='flex items-center gap-1 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 transition-colors'
             style={{
                 fontSize: '0.58rem',
-                border: `1px solid ${active ? 'var(--endeavour)' : '#dbeeff'}`,
+                border: `1px solid ${active ? 'var(--endeavour)' : 'var(--surface-header)'}`,
                 background: active ? 'var(--endeavour)' : 'white',
                 color: active ? 'white' : 'var(--chathams-blue)',
             }}
         >
             {label}
-            <span className='px-1 rounded-full' style={{ fontSize: '0.5rem', background: active ? 'rgba(255,255,255,0.25)' : '#eef5fc', color: active ? 'white' : 'var(--regent-gray)' }}>
+            <span className='px-1 rounded-full' style={{ fontSize: '0.5rem', background: active ? 'rgba(255,255,255,0.25)' : 'var(--selago)', color: active ? 'white' : 'var(--regent-gray)' }}>
                 {unread > 0 ? unread : count}
             </span>
         </button>
@@ -166,9 +166,9 @@ const NotificationBell = () => {
         return (
             <div
                 key={n.id}
-                className='group relative flex items-start gap-2.5 px-3 py-2.5 border-b border-[#eef5fc] hover:bg-[#f8fbff] transition-colors'
+                className='group relative flex items-start gap-2.5 px-3 py-2.5 border-b border-[var(--selago)] hover:bg-[var(--surface-pill)] transition-colors'
                 style={{
-                    background: isSelected ? '#dbeeff' : unreadFlag ? '#f8fbff' : 'white',
+                    background: isSelected ? 'var(--surface-header)' : unreadFlag ? 'var(--surface-pill)' : 'white',
                     borderLeft: `3px solid ${pr.color}`,
                     cursor: selectMode ? 'pointer' : undefined,
                 }}
@@ -178,7 +178,7 @@ const NotificationBell = () => {
                     <span className='flex-shrink-0 mt-1'>
                         {isSelected
                             ? <CheckCircle2 className='w-4 h-4' style={{ color: 'var(--endeavour)' }} />
-                            : <Circle className='w-4 h-4' style={{ color: '#b8ddf8' }} />}
+                            : <Circle className='w-4 h-4' style={{ color: 'var(--border-divider)' }} />}
                     </span>
                 )}
                 <span className='inline-flex items-center justify-center rounded-full flex-shrink-0 mt-0.5' style={{ width: 26, height: 26, background: meta.bg }}>
@@ -207,10 +207,10 @@ const NotificationBell = () => {
                     /* Actions reveal on hover (always visible on touch screens) — keeps
                        rows clean without hiding functionality. */
                     <div className='flex flex-col items-center gap-1 flex-shrink-0 md:opacity-0 md:group-hover:opacity-100 transition-opacity'>
-                        <button onClick={() => markRead?.(n.id)} title='Mark as read' className='p-0.5 rounded hover:bg-[#dbeeff]'>
+                        <button onClick={() => markRead?.(n.id)} title='Mark as read' className='p-0.5 rounded hover:bg-[var(--surface-header)]'>
                             <Check className='w-3.5 h-3.5' style={{ color: 'var(--endeavour)' }} />
                         </button>
-                        <button onClick={() => setSnoozeFor(snoozeFor === n.id ? null : n.id)} title='Snooze' className='p-0.5 rounded hover:bg-[#dbeeff]'>
+                        <button onClick={() => setSnoozeFor(snoozeFor === n.id ? null : n.id)} title='Snooze' className='p-0.5 rounded hover:bg-[var(--surface-header)]'>
                             <Clock className='w-3.5 h-3.5' style={{ color: 'var(--regent-gray)' }} />
                         </button>
                     </div>
@@ -254,7 +254,7 @@ const NotificationBell = () => {
             {open && (
                 <div className='absolute right-0 top-full mt-2 w-[360px] bg-white rounded-xl shadow-lg border border-[var(--selago)] z-[9999] overflow-hidden'>
                     {/* Header */}
-                    <div className='flex items-center justify-between px-3 py-2' style={{ background: '#dbeeff', borderBottom: '1px solid #b8ddf8' }}>
+                    <div className='flex items-center justify-between px-3 py-2' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
                         <span className='font-semibold' style={{ fontSize: '0.72rem', color: 'var(--chathams-blue)' }}>
                             Notifications{unreadCount > 0 ? ` · ${unreadCount} new` : ''}
                         </span>
@@ -271,7 +271,7 @@ const NotificationBell = () => {
                                     fontSize: '0.6rem',
                                     background: selectMode ? 'var(--chathams-blue)' : 'white',
                                     color: selectMode ? 'white' : 'var(--chathams-blue)',
-                                    border: '1px solid #b8ddf8',
+                                    border: '1px solid var(--border-divider)',
                                 }}
                             >
                                 {selectMode ? 'Cancel' : 'Select'}
@@ -296,8 +296,8 @@ const NotificationBell = () => {
                         const receipts = Object.values(detail.readReceipts || {});
                         return (
                             <div>
-                                <div className='flex items-center gap-1.5 px-2 py-1.5' style={{ borderBottom: '1px solid #eef5fc' }}>
-                                    <button onClick={() => setDetail(null)} className='p-1 rounded-full hover:bg-[#dbeeff]' aria-label='Back to list'>
+                                <div className='flex items-center gap-1.5 px-2 py-1.5' style={{ borderBottom: '1px solid var(--selago)' }}>
+                                    <button onClick={() => setDetail(null)} className='p-1 rounded-full hover:bg-[var(--surface-header)]' aria-label='Back to list'>
                                         <ChevronLeft className='w-4 h-4' style={{ color: 'var(--chathams-blue)' }} />
                                     </button>
                                     <span style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--chathams-blue)' }}>Notification</span>
@@ -320,7 +320,7 @@ const NotificationBell = () => {
                                     <p className='mt-3 break-words' style={{ fontSize: '0.74rem', color: 'var(--port-gore)', lineHeight: 1.55 }}>
                                         {detail.message || `${detail.entityType || 'Item'} ${detail.action || 'updated'}`}
                                     </p>
-                                    <div className='mt-3 rounded-xl p-2.5' style={{ background: '#f8fbff', border: '1px solid #eef5fc' }}>
+                                    <div className='mt-3 rounded-xl p-2.5' style={{ background: 'var(--surface-pill)', border: '1px solid var(--selago)' }}>
                                         <p style={{ fontSize: '0.62rem', color: 'var(--regent-gray)' }}>
                                             From: <span style={{ color: 'var(--port-gore)' }}>{detail.actorName || 'System'}</span>
                                         </p>
@@ -343,8 +343,8 @@ const NotificationBell = () => {
                                         </button>
                                         <button
                                             onClick={() => setDetail(null)}
-                                            className='px-4 py-1.5 rounded-full font-medium transition-colors hover:bg-[#dbeeff]'
-                                            style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}
+                                            className='px-4 py-1.5 rounded-full font-medium transition-colors hover:bg-[var(--surface-header)]'
+                                            style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}
                                         >
                                             Close
                                         </button>
@@ -356,7 +356,7 @@ const NotificationBell = () => {
 
                     {/* Subject filter chips */}
                     {!detail && chips.length > 1 && (
-                        <div className='flex gap-1 px-2 py-1.5 overflow-x-auto' style={{ borderBottom: '1px solid #eef5fc' }}>
+                        <div className='flex gap-1 px-2 py-1.5 overflow-x-auto' style={{ borderBottom: '1px solid var(--selago)' }}>
                             <Chip active={catFilter === 'all'} onClick={() => setCatFilter('all')} label='All' count={notifications.length} unread={unreadCount} />
                             {chips.map(c => (
                                 <Chip key={c.key} active={catFilter === c.key} onClick={() => setCatFilter(c.key)} label={categoryLabel(c.key)} count={c.total} unread={c.unread} />
@@ -369,7 +369,7 @@ const NotificationBell = () => {
                     <div className='max-h-[60vh] overflow-y-auto'>
                         {visible.length === 0 ? (
                             <div className='flex flex-col items-center justify-center py-8 gap-1'>
-                                <Bell className='w-5 h-5' style={{ color: '#b8ddf8' }} />
+                                <Bell className='w-5 h-5' style={{ color: 'var(--border-divider)' }} />
                                 <span style={{ fontSize: '0.7rem', color: 'var(--regent-gray)' }}>You&apos;re all caught up.</span>
                             </div>
                         ) : catFilter === 'all' ? (
@@ -397,7 +397,7 @@ const NotificationBell = () => {
 
                     {/* Footer: selection action bar while selecting, otherwise activity link */}
                     {!detail && (selectMode ? (
-                        <div className='flex items-center justify-between px-3 py-2' style={{ borderTop: '1px solid #eef5fc', background: '#f8fbff' }}>
+                        <div className='flex items-center justify-between px-3 py-2' style={{ borderTop: '1px solid var(--selago)', background: 'var(--surface-pill)' }}>
                             <span style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--chathams-blue)' }}>
                                 {selected.size} selected
                             </span>
@@ -414,7 +414,7 @@ const NotificationBell = () => {
                         <button
                             onClick={() => { setOpen(false); router.push('/activity'); }}
                             className='w-full flex items-center justify-center gap-1.5 py-2 hover:bg-[var(--selago)] transition-colors'
-                            style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)', borderTop: '1px solid #eef5fc' }}
+                            style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)', borderTop: '1px solid var(--selago)' }}
                         >
                             <Activity className='w-3.5 h-3.5' /> View all activity
                         </button>

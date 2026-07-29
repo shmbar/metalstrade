@@ -8,6 +8,25 @@
   --bunting: #1c134d;
   --chathams-blue: #103a7a;
   --regent-gray: #838ca7;
+  --primary-bright: #2f6fdb;
+  --surface-header: #dbeeff;
+  --surface-pill: #f8fbff;
+  --border-cell: #d8e8f5;
+  --border-divider: #b8ddf8;
+  /* RGB channel triplets — required wherever alpha compositing is needed,
+     e.g. rgba(var(--endeavour-rgb), 0.5). Keep in sync with the hex tokens above. */
+  --endeavour-rgb: 3, 102, 174;
+  --rock-blue-rgb: 159, 184, 212;
+  --selago-rgb: 235, 242, 252;
+  --port-gore-rgb: 40, 38, 79;
+  --bunting-rgb: 28, 19, 77;
+  --chathams-blue-rgb: 16, 58, 122;
+  --regent-gray-rgb: 131, 140, 167;
+  --primary-bright-rgb: 47, 111, 219;
+  --surface-header-rgb: 219, 238, 255;
+  --surface-pill-rgb: 248, 251, 255;
+  --border-cell-rgb: 216, 232, 245;
+  --border-divider-rgb: 184, 221, 248;
   --radius: 0.75rem;
 
   /* shadcn/Radix design tokens — referenced by tailwind.config.js (hsl(var(--x)))
@@ -61,18 +80,18 @@ body,
 /* Row hover: ensure all tds inherit tr hover background */
 tr.cursor-pointer:hover td,
 tr.hover-row:hover td {
-  background-color: #dbeeff !important;
+  background-color: var(--surface-header) !important;
 }
 
 /* Cell hover: slightly darker on the specific cell under cursor */
 tr.cursor-pointer:hover td:hover,
 tr.hover-row:hover td:hover {
-  background-color: #b8ddf8 !important;
+  background-color: var(--border-divider) !important;
 }
 
 /* Row selected: persistent click highlight */
 tr.selected-row td {
-  background-color: #b8ddf8 !important;
+  background-color: var(--border-divider) !important;
 }
 
 /* Smooth transitions on all table rows */
@@ -105,7 +124,7 @@ thead th {
   }
 
   .input {
-    @apply w-full border rounded-full border-[#d8e8f5] h-10 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-[0.72rem] text-[var(--port-gore)] bg-[#f8fbff];
+    @apply w-full border rounded-full border-[var(--border-cell)] h-10 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-[0.72rem] text-[var(--port-gore)] bg-[var(--surface-pill)];
     font-family: inherit;
   }
 
@@ -126,10 +145,10 @@ thead th {
   }
 
   .whiteButton {
-    @apply bg-white border-[#b8ddf8] hover:bg-[var(--selago)] text-[var(--chathams-blue)] flex items-center gap-2 justify-center rounded-full border px-3 h-7 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-sm transition-colors
+    @apply bg-white border-[var(--border-divider)] hover:bg-[var(--selago)] text-[var(--chathams-blue)] flex items-center gap-2 justify-center rounded-full border px-3 h-7 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-sm transition-colors
   }
     .supplierButton {
-    @apply bg-[#dbeeff] hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] focus:outline-none shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+    @apply bg-[var(--surface-header)] hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] focus:outline-none shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
   }
    .supplierAddButton {
     @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] focus:outline-none shadow-md transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
@@ -198,7 +217,7 @@ thead th {
 
 /******** skeleton loaders ****/
 .skel {
-  background: linear-gradient(90deg, #e9f1f9 25%, #f6fafd 50%, #e9f1f9 75%);
+  background: linear-gradient(90deg, var(--selago) 25%, var(--surface-pill) 50%, var(--selago) 75%);
   background-size: 200% 100%;
   animation: skel-shimmer 1.4s ease-in-out infinite;
 }
@@ -359,20 +378,20 @@ input::-webkit-inner-spin-button {
 }
 
 .cashflow-detail-table thead tr {
-  background: #dbeeff;
+  background: var(--surface-header);
 }
 
 .cashflow-detail-table thead th {
   font-weight: 500;
   color: var(--chathams-blue);
-  border-bottom: 1.5px solid #b8ddf8;
+  border-bottom: 1.5px solid var(--border-divider);
   padding: 6px 8px;
   white-space: nowrap;
 }
 
 .cashflow-detail-table tbody td {
   color: #1F2937;
-  border-bottom: 1px solid #e8f0f8;
+  border-bottom: 1px solid var(--selago);
 }
 
 .cashflow-detail-table tbody td.text-\[var\(--endeavour\)\] {
@@ -380,14 +399,14 @@ input::-webkit-inner-spin-button {
 }
 
 .cashflow-detail-table tbody tr:hover td {
-  background-color: #f0f7ff;
+  background-color: var(--selago);
 }
 
 .cashflow-detail-table tfoot th {
   font-weight: 500;
   color: var(--chathams-blue);
   font-size: 0.72rem;
-  border-top: 1.5px solid #b8ddf8;
+  border-top: 1.5px solid var(--border-divider);
 }
 
 .cashflow-detail-table tbody td > div {
@@ -420,8 +439,8 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 .react-tailwindcss-datepicker-container > div:not(:first-child),
 .shadow-sm.border.border-gray-300.px-1.py-0\.5.bg-white.rounded-lg {
   border-radius: 1.25rem !important;
-  border: 1px solid #e6eef8 !important;
-  box-shadow: 0 12px 40px rgba(16,58,122,0.12) !important;
+  border: 1px solid var(--selago) !important;
+  box-shadow: 0 12px 40px rgba(var(--chathams-blue-rgb),0.12) !important;
   overflow: hidden !important;
   z-index: 9999 !important;
 }
@@ -431,25 +450,25 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
   display: none !important;
 }
 .flex.items-center.space-x-1\.5.border.border-gray-300.rounded-md.px-2.py-1\.5 {
-  background: #dbeeff !important;
-  border: 1px solid #b8ddf8 !important;
+  background: var(--surface-header) !important;
+  border: 1px solid var(--border-divider) !important;
   border-radius: 999px !important;
   color: var(--chathams-blue) !important;
   font-size: 11px !important;
   padding: 3px 8px !important;
 }
 .rounded-full.p-\[0\.45rem\]:hover {
-  background: #dbeeff !important;
+  background: var(--surface-header) !important;
 }
 .tracking-wide.px-3.py-\[0\.55rem\].uppercase.hover\:bg-gray-100.rounded-md {
   border-radius: 999px !important;
   color: var(--chathams-blue) !important;
 }
 .tracking-wide.px-3.py-\[0\.55rem\].uppercase.hover\:bg-gray-100.rounded-md:hover {
-  background: #dbeeff !important;
+  background: var(--surface-header) !important;
 }
 .grid.grid-cols-7.border-b.border-gray-300.py-2 {
-  border-color: #e8f0f8 !important;
+  border-color: var(--selago) !important;
 }
 .grid.grid-cols-7.border-b.border-gray-300.py-2 > div {
   color: var(--chathams-blue) !important;
@@ -467,14 +486,14 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 }
 .flex.items-center.justify-center.w-12.h-12:hover,
 .flex.items-center.justify-center.lg\:w-10.lg\:h-10:hover {
-  background: #dbeeff !important;
+  background: var(--surface-header) !important;
   color: var(--chathams-blue) !important;
 }
 .rounded-r-full, .rounded-l-full {
   border-radius: 999px !important;
 }
 .bg-blue-100 {
-  background-color: #eef5fd !important;
+  background-color: var(--selago) !important;
 }
 
 /* ========== Custom Scrollbar (always-visible) ========== */
@@ -485,27 +504,27 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 }
 
 .custom-scroll::-webkit-scrollbar-track {
-  background: #f1f5fb;
+  background: var(--selago);
   border-radius: 4px;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-  background: #b8d4ee;
+  background: var(--border-divider);
   border-radius: 4px;
   min-height: 30px;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: #7aaed6;
+  background: var(--rock-blue);
 }
 
 .custom-scroll::-webkit-scrollbar-corner {
-  background: #f1f5fb;
+  background: var(--selago);
 }
 
 .custom-scroll {
   scrollbar-width: auto;
-  scrollbar-color: #b8d4ee #f1f5fb;
+  scrollbar-color: var(--border-divider) var(--selago);
 }
 /* ========== End Custom Scrollbar ========== */
 
@@ -518,23 +537,23 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
   -webkit-appearance: none;
 }
 *::-webkit-scrollbar-track {
-  background: #f1f5fb;
+  background: var(--selago);
   border-radius: 4px;
 }
 *::-webkit-scrollbar-thumb {
-  background: #b8d4ee;
+  background: var(--border-divider);
   border-radius: 4px;
   min-height: 30px;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: #7aaed6;
+  background: var(--rock-blue);
 }
 *::-webkit-scrollbar-corner {
-  background: #f1f5fb;
+  background: var(--selago);
 }
 * {
   scrollbar-width: auto;
-  scrollbar-color: #b8d4ee #f1f5fb;
+  scrollbar-color: var(--border-divider) var(--selago);
 }
 /* ========== End Global Always-Visible Scrollbar ========== */
 

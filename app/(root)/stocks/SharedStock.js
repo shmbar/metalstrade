@@ -253,7 +253,7 @@ const SharedStock = () => {
             .map(([cur, v]) => (curSym(cur) || '$') + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v));
         return parts.length ? parts.join(' · ') : (curSym('us') || '$') + '0.00';
     };
-    const inputCls = 'w-full rounded-lg bg-[#f8fbff] border border-[#d8e8f5] px-2 h-8 text-xs text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]';
+    const inputCls = 'w-full rounded-lg bg-[var(--surface-pill)] border border-[var(--border-cell)] px-2 h-8 text-xs text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]';
     const labelCls = 'text-[11px] font-medium text-[var(--chathams-blue)] mb-0.5 block';
 
     if (loading) return <div className='p-6'><TableSkeleton rows={6} title={false} /></div>;
@@ -271,7 +271,7 @@ const SharedStock = () => {
             </div>
 
             {rows.length === 0 ? (
-                <div className='rounded-2xl border border-dashed border-[#b8ddf8] bg-white p-8 text-center responsiveTextTable text-[var(--regent-gray)]'>
+                <div className='rounded-2xl border border-dashed border-[var(--border-divider)] bg-white p-8 text-center responsiveTextTable text-[var(--regent-gray)]'>
                     No shared stock yet. Use <b>Add shared stock</b> to record inventory jointly held by IMS &amp; GIS —
                     no contract or invoice needed. It appears here for both accounts.
                 </div>
@@ -280,7 +280,7 @@ const SharedStock = () => {
                     <Customtable data={rows} columns={columns} invisible={{}} SelectRow={openEdit} type='sharedStock' ln={ln} />
 
                     {/* Bottom summary: total value + who finances how much */}
-                    <div className='flex flex-wrap items-center gap-x-6 gap-y-1 mt-3 rounded-xl border border-[#b8ddf8] bg-[#f8fbff] px-4 py-2.5 responsiveTextTable'>
+                    <div className='flex flex-wrap items-center gap-x-6 gap-y-1 mt-3 rounded-xl border border-[var(--border-divider)] bg-[var(--surface-pill)] px-4 py-2.5 responsiveTextTable'>
                         <span style={{ color: 'var(--regent-gray)' }}>
                             Total:&nbsp;<b style={{ color: 'var(--chathams-blue)' }}>
                                 {new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(totalMt)} MT</b>
@@ -303,7 +303,7 @@ const SharedStock = () => {
             <Modal isOpen={open} setIsOpen={setOpen} title={lot.id ? 'Edit shared stock' : 'Add shared stock'} w='max-w-2xl'>
                 <div className='p-3'>
                     <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-                        <div className='sm:col-span-2 rounded-xl border border-[#b8ddf8] bg-[#f4f9ff] p-2.5'>
+                        <div className='sm:col-span-2 rounded-xl border border-[var(--border-divider)] bg-[var(--surface-pill)] p-2.5'>
                             <label className={labelCls}>Pick from my current stock</label>
                             <Selector
                                 arr={pickOptions}

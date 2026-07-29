@@ -66,7 +66,7 @@ const Header = ({
           {/* LEFT: Search + Add Tables + Save + Delete */}
           <div className="flex items-center gap-2 flex-wrap">
             {/* Search */}
-            <div className="flex items-center relative w-[160px] h-7 border border-[#b8ddf8] rounded-full bg-white focus-within:ring-1 focus-within:ring-[#b8ddf8] shadow-sm transition-all duration-200">
+            <div className="flex items-center relative w-[160px] h-7 border border-[var(--border-divider)] rounded-full bg-white focus-within:ring-1 focus-within:ring-[var(--border-divider)] shadow-sm transition-all duration-200">
               <input
                 className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium rounded-full"
                 placeholder={getTtl('Search', ln)}
@@ -159,7 +159,7 @@ const Header = ({
 
           {/* Search Box */}
           {pathname !== '/accounting' && (
-            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[#b8ddf8] rounded-full bg-white focus-within:ring-1 focus-within:ring-[#b8ddf8] shadow-sm transition-all duration-200">
+            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--border-divider)] rounded-full bg-white focus-within:ring-1 focus-within:ring-[var(--border-divider)] shadow-sm transition-all duration-200">
               <input
                 className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium rounded-full"
                 placeholder={getTtl('Search', ln)}

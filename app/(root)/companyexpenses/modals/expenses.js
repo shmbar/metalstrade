@@ -86,14 +86,14 @@ const Expenses = ({setIsOpen}) => {
                 />
             )}
 
-            <div className='z-10 relative mt-2 rounded-2xl flex m-2 pb-4' style={{ border: '1px solid #b8ddf8', background: '#f4f9ff' }}>
+            <div className='z-10 relative mt-2 rounded-2xl flex m-2 pb-4' style={{ border: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
 
                 <div className='grid grid-cols-1 md:grid-cols-12 gap-3 w-full p-2'>
                     <div className='md:col-span-4 px-2'>
                         <div>
                             <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Expense Invoice', ln)}</p>
                             <div className='w-full '>
-                                <input className="input h-8 text-xs !rounded-full border-[#b8ddf8] bg-white" name='expense' value={valueExp.expense} onChange={handleValue} />
+                                <input className="input h-8 text-xs !rounded-full border-[var(--border-divider)] bg-white" name='expense' value={valueExp.expense} onChange={handleValue} />
                                 <ErrDiv field='expense' errors={errorsExp} ln={ln} />
                             </div>
                         </div>
@@ -112,7 +112,7 @@ const Expenses = ({setIsOpen}) => {
                         <div className='pt-1'>
                             <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Amount', ln)}:</p>
                             <div className='w-full '>
-                                <input type='number' className="input h-8 text-xs !rounded-full border-[#b8ddf8] bg-white" name='amount' value={valueExp.amount} onChange={handleValue} />
+                                <input type='number' className="input h-8 text-xs !rounded-full border-[var(--border-divider)] bg-white" name='amount' value={valueExp.amount} onChange={handleValue} />
                                 <ErrDiv field='amount' errors={errorsExp} ln={ln} />
                             </div>
                         </div>
@@ -164,7 +164,7 @@ const Expenses = ({setIsOpen}) => {
                         <p className='flex text-xs font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Comments', ln)}:</p>
                         <div>
                             <textarea rows="5" name="comments"
-                                className="input h-32 p-1 rounded-xl border-[#b8ddf8] bg-white w-full"
+                                className="input h-32 p-1 rounded-xl border-[var(--border-divider)] bg-white w-full"
                                 style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
                                 value={valueExp.comments} onChange={handleValue} />
                         </div>

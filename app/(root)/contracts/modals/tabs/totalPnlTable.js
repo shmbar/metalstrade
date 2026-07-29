@@ -133,11 +133,11 @@ const TotalPnlTable = ({ data, val, mult }) => {
     return (
 
 
-        <div className='border border-[#b8ddf8] p-2 rounded-2xl' >
-            <div className="overflow-x-auto border-[#b8ddf8] border rounded-2xl">
+        <div className='border border-[var(--border-divider)] p-2 rounded-2xl' >
+            <div className="overflow-x-auto border-[var(--border-divider)] border rounded-2xl">
                 <table className="w-full ">
-                    <thead style={{ background: '#dbeeff' }} className="divide-y divide-[#b8ddf8]">
-                        <tr className='border-b border-[#b8ddf8]'>
+                    <thead style={{ background: 'var(--surface-header)' }} className="divide-y divide-[var(--border-divider)]">
+                        <tr className='border-b border-[var(--border-divider)]'>
                             {cols.map(x => x.header)
                                 .map((y, k) => (
                                     <th

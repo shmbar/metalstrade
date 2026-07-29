@@ -5,7 +5,7 @@ export const TONES = {
     green: { bg: '#dcfce7', text: '#15803d', border: '#86efac' },
     amber: { bg: '#fef3c7', text: '#92400e', border: '#fde68a' },
     red: { bg: '#fee2e2', text: '#991b1b', border: '#fca5a5' },
-    blue: { bg: '#dbeeff', text: '#0366ae', border: '#b8ddf8' },
+    blue: { bg: 'var(--surface-header)', text: 'var(--endeavour)', border: 'var(--border-divider)' },
     gray: { bg: '#f1f5f9', text: '#475569', border: '#e2e8f0' },
 };
 

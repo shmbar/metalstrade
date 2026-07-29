@@ -118,7 +118,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
                 </div>
 
                 <div className="flex justify-end pt-3">
-                    <Button className="px-2 h-7 bg-[#d4eafc] hover:bg-[#b8ddf8] text-[var(--endeavour)] border-0 shadow-none rounded-full" onClick={handleSave}>
+                    <Button className="px-2 h-7 bg-[var(--border-cell)] hover:bg-[var(--border-divider)] text-[var(--endeavour)] border-0 shadow-none rounded-full" onClick={handleSave}>
                         Save
                     </Button>
                 </div>

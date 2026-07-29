@@ -608,7 +608,7 @@ const Stainless = ({ value, handleChange }) => {
         return value.stainless != null ? (
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 items-start">
                 {/* COST SECTION */}
-                <div className="w-full bg-white rounded-xl border border-[#b8ddf8] shadow-sm p-3 text-center">
+                <div className="w-full bg-white rounded-xl border border-[var(--border-divider)] shadow-sm p-3 text-center">
                     <h3 className='text-xs font-medium text-[var(--endeavour)] mb-1 text-left pl-3'>Cost</h3>
 
                     {/* Composition + Price with Ni LME aside */}
@@ -619,10 +619,10 @@ const Stainless = ({ value, handleChange }) => {
                         Composition
                     </p>
 
-                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-[85px_85px_85px_85px]">
+                    <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white grid grid-cols-[85px_85px_85px_85px]">
                         {/* Ni */}
                         <div>
-                        <div className="bg-[#EAF4FF]  py-1 text-xs text-center text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div className="bg-[var(--selago)]  py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Ni
                         </div>
                         <input
@@ -656,8 +656,8 @@ const Stainless = ({ value, handleChange }) => {
                         </div>
 
                         {/* Cr */}
-                        <div className="border-l border-[#b8ddf8]">
-                        <div className="bg-[#EAF4FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div className="border-l border-[var(--border-divider)]">
+                        <div className="bg-[var(--selago)] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Cr
                         </div>
                         <input
@@ -691,8 +691,8 @@ const Stainless = ({ value, handleChange }) => {
                         </div>
 
                         {/* Mo */}
-                        <div className="border-l border-[#b8ddf8]">
-                        <div className="bg-[#EAF4FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div className="border-l border-[var(--border-divider)]">
+                        <div className="bg-[var(--selago)] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Mo
                         </div>
                         <input
@@ -726,8 +726,8 @@ const Stainless = ({ value, handleChange }) => {
                         </div>
 
                         {/* Fe */}
-                        <div className="border-l border-[#b8ddf8]">
-                        <div className="bg-[#EAF4FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div className="border-l border-[var(--border-divider)]">
+                        <div className="bg-[var(--selago)] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Fe
                         </div>
                         <input
@@ -747,10 +747,10 @@ const Stainless = ({ value, handleChange }) => {
                         Price
                     </p>
 
-                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-[85px_85px_85px_85px]">
+                    <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white grid grid-cols-[85px_85px_85px_85px]">
                         {/* Ni */}
                         <div>
-                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Ni
                         </div>
                         <input
@@ -764,8 +764,8 @@ const Stainless = ({ value, handleChange }) => {
                         </div>
 
                         {/* Cr */}
-                        <div className="border-l border-[#b8ddf8]">
-                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div className="border-l border-[var(--border-divider)]">
+                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Cr
                         </div>
                         <input
@@ -795,8 +795,8 @@ const Stainless = ({ value, handleChange }) => {
                         </div>
 
                         {/* Mo */}
-                        <div className="border-l border-[#b8ddf8]">
-                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div className="border-l border-[var(--border-divider)]">
+                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Mo
                         </div>
                         <input
@@ -826,8 +826,8 @@ const Stainless = ({ value, handleChange }) => {
                         </div>
 
                         {/* Fe */}
-                        <div className="border-l border-[#b8ddf8]">
-                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div className="border-l border-[var(--border-divider)]">
+                        <div className="bg-[#E9E2FF] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Fe
                         </div>
                         <input
@@ -858,15 +858,15 @@ const Stainless = ({ value, handleChange }) => {
                     </div>
                     </div>
                     </div>
-                    <div className="w-20 flex-shrink-0 rounded-xl overflow-hidden border border-[#b8ddf8]">
-                        <div className="py-1 text-center bg-[#dbeeff] text-xs text-[var(--endeavour)] font-medium">Ni LME</div>
-                        <div className="py-1 text-center text-xs text-[#2F6FDB] bg-[#EAF4FF]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
+                    <div className="w-20 flex-shrink-0 rounded-xl overflow-hidden border border-[var(--border-divider)]">
+                        <div className="py-1 text-center bg-[var(--surface-header)] text-xs text-[var(--endeavour)] font-medium">Ni LME</div>
+                        <div className="py-1 text-center text-xs text-[var(--primary-bright)] bg-[var(--selago)]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
                     </div>
                     </div>
 
                     {/* Formula x Ni */}
                     <div className="mb-2 mt-2 flex pl-2 pr-24">
-                    <div className="w-32 rounded-xl overflow-hidden border border-[#b8ddf8] bg-white">
+                    <div className="w-32 rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white">
                         <div className="bg-[#FFDADA] text-[#F44336] text-xs py-1 text-center">Formula x Ni</div>
                         <input type="text" className="w-full text-center py-1 outline-none text-xs text-[#F44336] bg-[#fafafa]"
                             name="formulaNiCost" value={value?.stainless?.formulaNiCost + '%'}
@@ -878,17 +878,17 @@ const Stainless = ({ value, handleChange }) => {
 
                     {/* Results */}
                     <div className="flex flex-wrap gap-2 mb-2 mt-2 pl-2">
-                        <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center min-w-[120px]">
-                            <div className="bg-[#FFECEC] py-1"><p className="text-xs text-[#2F6FDB]">Solids Price</p></div>
-                            <div className="py-1 text-xs text-[#2F6FDB] bg-[#fafafa]">{formatCurrency(solidsPrice.toFixed(2))}</div>
+                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white text-center min-w-[120px]">
+                            <div className="bg-[#FFECEC] py-1"><p className="text-xs text-[var(--primary-bright)]">Solids Price</p></div>
+                            <div className="py-1 text-xs text-[var(--primary-bright)] bg-[#fafafa]">{formatCurrency(solidsPrice.toFixed(2))}</div>
                         </div>
-                        <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center min-w-[120px]">
-                            <div className="bg-[#FFECEC] py-1"><p className="text-xs text-[#2F6FDB]">Turnings Price</p></div>
-                            <div className="py-1 text-xs text-[#2F6FDB] bg-[#fafafa]">{formatCurrency((solidsPrice * 0.92).toFixed(2))}</div>
+                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white text-center min-w-[120px]">
+                            <div className="bg-[#FFECEC] py-1"><p className="text-xs text-[var(--primary-bright)]">Turnings Price</p></div>
+                            <div className="py-1 text-xs text-[var(--primary-bright)] bg-[#fafafa]">{formatCurrency((solidsPrice * 0.92).toFixed(2))}</div>
                         </div>
-                        <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center min-w-[120px]">
-                            <div className="bg-[#E9FFF1] py-1"><p className="text-xs text-[#2F6FDB]">Price / Euro</p></div>
-                            <div className="py-1 text-xs text-[#2F6FDB] bg-[#fafafa]">{formatCurrency((solidsPrice / value.general?.euroRate).toFixed(2), '€')}</div>
+                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white text-center min-w-[120px]">
+                            <div className="bg-[#E9FFF1] py-1"><p className="text-xs text-[var(--primary-bright)]">Price / Euro</p></div>
+                            <div className="py-1 text-xs text-[var(--primary-bright)] bg-[#fafafa]">{formatCurrency((solidsPrice / value.general?.euroRate).toFixed(2), '€')}</div>
                         </div>
                     </div>
 
@@ -899,7 +899,7 @@ const Stainless = ({ value, handleChange }) => {
                 </div>
 
                 {/* SALES SECTION */}
-                <div className="w-full bg-white rounded-xl border border-[#b8ddf8] shadow-sm p-3 text-center">
+                <div className="w-full bg-white rounded-xl border border-[var(--border-divider)] shadow-sm p-3 text-center">
                     <h3 className='text-xs font-medium text-[var(--endeavour)] mb-1 text-left pl-3'>Sales</h3>
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end">
@@ -907,15 +907,15 @@ const Stainless = ({ value, handleChange }) => {
                     <div className="mb-2">
                     <p className="text-xs text-[#979797] mb-1 text-center">Composition</p>
 
-                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-[85px_85px_85px_85px]">
+                    <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white grid grid-cols-[85px_85px_85px_85px]">
                         {[
                         { label: 'Ni', value: value?.stainless?.ni + '%' },
                         { label: 'Cr', value: value?.stainless?.cr + '%' },
                         { label: 'Mo', value: value?.stainless?.mo + '%' },
                         { label: 'Fe', value: fe + '%' },
                         ].map((item, idx) => (
-                        <div key={item.label} className={idx > 0 ? 'border-l border-[#b8ddf8]' : ''}>
-                            <div className="bg-[#EAF4FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div key={item.label} className={idx > 0 ? 'border-l border-[var(--border-divider)]' : ''}>
+                            <div className="bg-[var(--selago)] text-center py-1 text-xs text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             {item.label}
                             </div>
                             <div className="py-1 text-xs text-center bg-[#fafafa]">
@@ -931,13 +931,13 @@ const Stainless = ({ value, handleChange }) => {
                     <div className="mt-2">
                     <p className="text-xs font-normal text-[#979797] mb-1 text-center">Price</p>
 
-                    <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white grid grid-cols-[85px_85px_85px_85px]">
+                    <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white grid grid-cols-[85px_85px_85px_85px]">
                         {/* Ni */}
                         <div>
-                        <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Ni
                         </div>
-                        <div className="py-1 text-xs text-center text-[#2F6FDB] bg-[#fafafa]">
+                        <div className="py-1 text-xs text-center text-[var(--primary-bright)] bg-[#fafafa]">
                             {formatCurrency(
                             (value?.general?.nilme * value?.stainless?.formulaNiPrice / 100).toFixed(2)
                             )}
@@ -945,8 +945,8 @@ const Stainless = ({ value, handleChange }) => {
                         </div>
 
                         {/* Cr */}
-                        <div className="border-l border-[#b8ddf8]">
-                        <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div className="border-l border-[var(--border-divider)]">
+                        <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Cr
                         </div>
                         <div className="py-1 text-xs text-center text-[#F44336] bg-[#fafafa]">
@@ -957,8 +957,8 @@ const Stainless = ({ value, handleChange }) => {
                         </div>
 
                         {/* Mo */}
-                        <div className="border-l border-[#b8ddf8]">
-                        <div className="bg-[#E9E2FF] text-center py-1 text-xs  text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div className="border-l border-[var(--border-divider)]">
+                        <div className="bg-[#E9E2FF] text-center py-1 text-xs  text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Mo
                         </div>
                         <div className="py-1 text-xs text-center text-[#F44336] bg-[#fafafa]">
@@ -969,8 +969,8 @@ const Stainless = ({ value, handleChange }) => {
                         </div>
 
                         {/* Fe (editable) */}
-                        <div className="border-l border-[#b8ddf8]">
-                        <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[#2F6FDB] border-b border-[#b8ddf8] font-normal">
+                        <div className="border-l border-[var(--border-divider)]">
+                        <div className="bg-[#E9E2FF] text-center py-1 text-xs text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Fe
                         </div>
                         <input
@@ -999,15 +999,15 @@ const Stainless = ({ value, handleChange }) => {
                     </div>
                     </div>
                     </div>
-                    <div className="w-20 flex-shrink-0 rounded-xl overflow-hidden border border-[#b8ddf8]">
-                        <div className="py-1 text-center bg-[#dbeeff] text-xs text-[var(--endeavour)] font-medium">Ni LME</div>
-                        <div className="py-1 text-center text-xs text-[#2F6FDB] bg-[#EAF4FF]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
+                    <div className="w-20 flex-shrink-0 rounded-xl overflow-hidden border border-[var(--border-divider)]">
+                        <div className="py-1 text-center bg-[var(--surface-header)] text-xs text-[var(--endeavour)] font-medium">Ni LME</div>
+                        <div className="py-1 text-center text-xs text-[var(--primary-bright)] bg-[var(--selago)]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
                     </div>
                     </div>
 
                     {/* Formula x Ni */}
                     <div className="mb-2 mt-2 flex pl-2 pr-24">
-                    <div className="w-32 rounded-xl overflow-hidden border border-[#b8ddf8] bg-white">
+                    <div className="w-32 rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white">
                         <div className="bg-[#FFDADA] text-[#F44336] text-xs py-1 text-center">Formula x Ni</div>
                         <input type="text" className="w-full text-center py-1 outline-none text-xs text-[#F44336] bg-[#fafafa]"
                             name="formulaNiPrice" value={value?.stainless?.formulaNiPrice + '%'}
@@ -1019,17 +1019,17 @@ const Stainless = ({ value, handleChange }) => {
 
                     {/* Results */}
                     <div className="flex flex-wrap gap-2 mb-2 mt-2 pl-2">
-                        <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center min-w-[120px]">
-                            <div className="bg-[#FFECEC] py-1"><p className="text-xs text-[#2F6FDB]">Solids Price</p></div>
-                            <div className="py-1 text-xs text-[#2F6FDB] bg-[#fafafa]">{formatCurrency(solidsPrice1.toFixed(2))}</div>
+                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white text-center min-w-[120px]">
+                            <div className="bg-[#FFECEC] py-1"><p className="text-xs text-[var(--primary-bright)]">Solids Price</p></div>
+                            <div className="py-1 text-xs text-[var(--primary-bright)] bg-[#fafafa]">{formatCurrency(solidsPrice1.toFixed(2))}</div>
                         </div>
-                        <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center min-w-[120px]">
-                            <div className="bg-[#FFECEC] py-1"><p className="text-xs text-[#2F6FDB]">Turnings Price</p></div>
-                            <div className="py-1 text-xs text-[#2F6FDB] bg-[#fafafa]">{formatCurrency((solidsPrice1 * 0.92).toFixed(2))}</div>
+                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white text-center min-w-[120px]">
+                            <div className="bg-[#FFECEC] py-1"><p className="text-xs text-[var(--primary-bright)]">Turnings Price</p></div>
+                            <div className="py-1 text-xs text-[var(--primary-bright)] bg-[#fafafa]">{formatCurrency((solidsPrice1 * 0.92).toFixed(2))}</div>
                         </div>
-                        <div className="rounded-xl overflow-hidden border border-[#b8ddf8] bg-white text-center min-w-[120px]">
-                            <div className="bg-[#E9FFF1] py-1"><p className="text-xs text-[#2F6FDB]">Price / Euro</p></div>
-                            <div className="py-1 text-xs text-[#2F6FDB] bg-[#fafafa]">{formatCurrency((solidsPrice1 / value.general?.euroRate).toFixed(2), '€')}</div>
+                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white text-center min-w-[120px]">
+                            <div className="bg-[#E9FFF1] py-1"><p className="text-xs text-[var(--primary-bright)]">Price / Euro</p></div>
+                            <div className="py-1 text-xs text-[var(--primary-bright)] bg-[#fafafa]">{formatCurrency((solidsPrice1 / value.general?.euroRate).toFixed(2), '€')}</div>
                         </div>
                     </div>
 

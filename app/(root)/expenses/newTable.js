@@ -79,7 +79,7 @@
 //             ref={el => { if (el) el.indeterminate = table.getIsSomePageRowsSelected() }}
 //             onChange={table.getToggleAllPageRowsSelectedHandler()}
 //             className="w-4 h-4 cursor-pointer rounded"
-//             style={{ accentColor: '#BCE1FE' }}
+//             style={{ accentColor: 'var(--border-divider)' }}
 //           />
 //         </div>
 //       ),
@@ -91,7 +91,7 @@
 //             disabled={!row.getCanSelect()}
 //             onChange={row.getToggleSelectedHandler()}
 //             className="w-4 h-4 cursor-pointer rounded"
-//             style={{ accentColor: '#BCE1FE' }}
+//             style={{ accentColor: 'var(--border-divider)' }}
 //           />
 //         </div>
 //       ),
@@ -274,7 +274,7 @@
 
 //         /* ── Blue header row ── */
 //         .header-blue {
-//           background-color: #d9e6f2;
+//           background-color: var(--border-cell);
 //           color: var(--chathams-blue);
 //         }
 
@@ -299,7 +299,7 @@
 //           {/* ── TOOLBAR ── */}
 //           <div className="flex-shrink-0"
 //             style={{
-//               borderBottom: '2px solid #b8ddf8',
+//               borderBottom: '2px solid var(--border-divider)',
 //               background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
 //             }}>
 //             <Header
@@ -380,7 +380,7 @@
 //                     <td
 //                       colSpan={columnsWithSelection.length}
 //                       style={{
-//                         backgroundColor: '#8db6d8',
+//                         backgroundColor: 'var(--rock-blue)',
 //                         border: 'none',
 //                         padding: 0,
 //                         height: '34px',
@@ -457,7 +457,7 @@
 //                                 <div className="px-3 py-1.5 rounded-xl responsiveTextTable font-normal"
 //                                   style={{
 //                                     backgroundColor: value ? '#00bf63' : '#eb3636',
-//                                     color: '#FFFFFF', border: '1px solid #d8e8f5'
+//                                     color: '#FFFFFF', border: '1px solid var(--border-cell)'
 //                                   }}>
 //                                   {value ? 'Completed' : 'Incompleted'}
 //                                 </div>
@@ -467,7 +467,7 @@
 //                                 <div className="px-3 py-1.5 rounded-xl responsiveTextTable font-normal"
 //                                   style={{
 //                                     backgroundColor: value === 'Completed' ? '#00bf63' : '#eb3636',
-//                                     color: '#FFFFFF', border: '1px solid #d8e8f5'
+//                                     color: '#FFFFFF', border: '1px solid var(--border-cell)'
 //                                   }}>
 //                                   {value}
 //                                 </div>
@@ -478,9 +478,9 @@
 //                                   style={{
 //                                     backgroundColor:
 //                                       value === 'Paid'   ? '#ceb8ff' :
-//                                       value === 'Unpaid' ? '#c387b4' : '#f8fbff',
+//                                       value === 'Unpaid' ? '#c387b4' : 'var(--surface-pill)',
 //                                     color: value === 'Paid' || value === 'Unpaid' ? 'var(--chathams-blue)' : '#1F2937',
-//                                     border: '1px solid #d8e8f5',
+//                                     border: '1px solid var(--border-cell)',
 //                                     fontWeight: value === 'Paid' || value === 'Unpaid' ? '600' : '400'
 //                                   }}>
 //                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -491,8 +491,8 @@
 //                                 {hasValue ? (
 //                                   <div className="px-3 py-1.5 rounded-xl responsiveTextTable font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
 //                                     style={{
-//                                       backgroundColor: '#f8fbff',
-//                                       border: '1px solid #d8e8f5',
+//                                       backgroundColor: 'var(--surface-pill)',
+//                                       border: '1px solid var(--border-cell)',
 //                                       ...(isEditMode && { boxShadow: 'inset 0 0 0 1px #d1d1d1' })
 //                                     }}>
 //                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -550,7 +550,7 @@
 //                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
 //               </div>
 //               <div className="flex items-center justify-between px-4 py-2"
-//                 style={{ backgroundColor: '#8db6d8' }}>
+//                 style={{ backgroundColor: 'var(--rock-blue)' }}>
 //                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total €:</span>
 //                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.currency}</span>
 //                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
@@ -565,13 +565,13 @@
 //                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
 //                   style={{
 //                     backgroundColor: '#FFFFFF',
-//                     border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid #b8ddf8',
+//                     border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid var(--border-divider)',
 //                     boxShadow: highlightId === row.original.id
 //                       ? '0 12px 28px rgba(249,115,22,0.2)'
 //                       : '0 4px 12px rgba(0,0,0,0.06)'
 //                   }}>
 //                   <div className="px-3 py-2 flex items-center justify-between"
-//                     style={{ background: '#bce1ff' }}>
+//                     style={{ background: 'var(--border-divider)' }}>
 //                     <span className="font-normal" style={{ fontSize: 'clamp(9px, 0.8vw, 10px)' }}>
 //                       {getTtl('Row', ln)} {rowIndex + 1}
 //                     </span>
@@ -591,7 +591,7 @@
 //                       if (cell.column.id === 'select') return null
 //                       return (
 //                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-//                           style={{ borderBottom: '1px solid #b8ddf8' }}>
+//                           style={{ borderBottom: '1px solid var(--border-divider)' }}>
 //                           <div className="uppercase tracking-wider font-normal"
 //                             style={{ color: '#6B7280', fontSize: 'clamp(6px, 0.6vw, 7px)' }}>
 //                             {cell.column.columnDef.header}
@@ -601,7 +601,7 @@
 //                               color: '#1F2937',
 //                               background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
 //                               fontSize: 'clamp(8px, 0.7vw, 10px)',
-//                               border: '1px solid #b8ddf8'
+//                               border: '1px solid var(--border-divider)'
 //                             }}>
 //                             {cell.column.id === 'completed' ? (
 //                               cell.getValue() ? (
@@ -616,8 +616,8 @@
 //                                 style={{
 //                                   backgroundColor:
 //                                     cell.getValue() === 'Paid'   ? '#ceb8ff' :
-//                                     cell.getValue() === 'Unpaid' ? '#c387b4' : '#f8fbff',
-//                                   color: 'var(--chathams-blue)', border: '1px solid #d8e8f5'
+//                                     cell.getValue() === 'Unpaid' ? '#c387b4' : 'var(--surface-pill)',
+//                                   color: 'var(--chathams-blue)', border: '1px solid var(--border-cell)'
 //                                 }}>
 //                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
 //                               </div>
@@ -656,7 +656,7 @@
 //           {/* ── PAGINATION FOOTER ── */}
 //           <div className="flex-shrink-0"
 //             style={{
-//               borderTop: '2px solid #b8ddf8',
+//               borderTop: '2px solid var(--border-divider)',
 //               background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
 //             }}>
 //             <div className="px-4 py-3">
@@ -780,7 +780,7 @@ const Customtable = ({
             ref={el => { if (el) el.indeterminate = table.getIsSomePageRowsSelected() }}
             onChange={table.getToggleAllPageRowsSelectedHandler()}
             className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: '#BCE1FE' }}
+            style={{ accentColor: 'var(--border-divider)' }}
           />
         </div>
       ),
@@ -792,7 +792,7 @@ const Customtable = ({
             disabled={!row.getCanSelect()}
             onChange={row.getToggleSelectedHandler()}
             className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: '#BCE1FE' }}
+            style={{ accentColor: 'var(--border-divider)' }}
           />
         </div>
       ),
@@ -978,7 +978,7 @@ const Customtable = ({
 
         /* ── Header blue ── */
         .header-blue {
-          background-color: #dbeeff;
+          background-color: var(--surface-header);
           color: var(--chathams-blue);
         }
 
@@ -995,12 +995,12 @@ const Customtable = ({
 
       <div className="custom-table">
         <div className="relative flex flex-col rounded-2xl">
-          <div className="absolute inset-0 rounded-2xl border border-[#b8ddf8] pointer-events-none z-[15]" />
+          <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-[15]" />
 
           {/* ── TOOLBAR ── */}
           <div className="flex-shrink-0 rounded-t-2xl"
             style={{
-              borderBottom: '1px solid #b8ddf8',
+              borderBottom: '1px solid var(--border-divider)',
               background: '#ffffff',
             }}>
             <Header
@@ -1084,7 +1084,7 @@ const Customtable = ({
                     <td
                       colSpan={totalCols}
                       style={{
-                        backgroundColor: '#8db6d8',
+                        backgroundColor: 'var(--rock-blue)',
                         border: 'none',
                         padding: 0,
                         height: '26px',
@@ -1152,7 +1152,7 @@ const Customtable = ({
                     {filterOn && (
                       <tr style={{ backgroundColor: '#FFFFFF' }}>
                         {hdGroup.headers.map(header => (
-                          <th key={header.id} className="px-2 py-1.5" style={{ backgroundColor: '#FFFFFF', borderBottom: '2px solid #b8ddf8' }}>
+                          <th key={header.id} className="px-2 py-1.5" style={{ backgroundColor: '#FFFFFF', borderBottom: '2px solid var(--border-divider)' }}>
                             {header.column.getCanFilter() && (
                               <Filter column={header.column} table={table} filterOn={filterOn} />
                             )}
@@ -1213,7 +1213,7 @@ const Customtable = ({
                               <div className="flex justify-center">
                                 <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px] text-center"
                                   style={{
-                                    backgroundColor: isUnpaidValue ? '#fee2e2' : isPaidValue ? '#dcfce7' : '#f8fbff',
+                                    backgroundColor: isUnpaidValue ? '#fee2e2' : isPaidValue ? '#dcfce7' : 'var(--surface-pill)',
                                     color: isPaidValue ? '#166534' : isUnpaidValue ? '#dc2626' : 'var(--port-gore)',
                                     border: `1px solid ${isPaidValue ? '#bbf7d0' : isUnpaidValue ? '#fecaca' : '#cecece'}`,
                                   }}>
@@ -1224,8 +1224,8 @@ const Customtable = ({
                               <div className="flex justify-center">
                                 {isCurrency && hasValue ? (
                                   (() => {
-                                    const bg = isUSDValue ? '#dcfce7' : isEURValue ? '#dbeeff' : '#e5e7eb'
-                                    const border = isUSDValue ? '1px solid #bbf7d0' : isEURValue ? '1px solid #b8ddf8' : '1px solid #d1d5db'
+                                    const bg = isUSDValue ? '#dcfce7' : isEURValue ? 'var(--surface-header)' : '#e5e7eb'
+                                    const border = isUSDValue ? '1px solid #bbf7d0' : isEURValue ? '1px solid var(--border-divider)' : '1px solid #d1d5db'
                                     const color = isUSDValue ? '#166534' : 'var(--chathams-blue)'
                                     return (
                                       <span className="rounded-full responsiveTextTable font-medium"
@@ -1247,12 +1247,12 @@ const Customtable = ({
                                   })()
                                 ) : hasValue ? (
                                   <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]"
-                                    style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>
+                                    style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
                                   <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal w-full"
-                                    style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
+                                    style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}
@@ -1295,7 +1295,7 @@ const Customtable = ({
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
               </div>
               <div className="flex items-center justify-between px-4 py-2"
-                style={{ backgroundColor: '#8db6d8' }}>
+                style={{ backgroundColor: 'var(--rock-blue)' }}>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total €:</span>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>EUR</span>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
@@ -1310,13 +1310,13 @@ const Customtable = ({
                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid #b8ddf8',
+                    border: highlightId === row.original.id ? '2px solid #F97316' : '1px solid var(--border-divider)',
                     boxShadow: highlightId === row.original.id
                       ? '0 12px 28px rgba(249,115,22,0.2)'
                       : '0 4px 12px rgba(0,0,0,0.06)'
                   }}>
                   <div className="px-3 py-2 flex items-center justify-between"
-                    style={{ background: '#bce1ff' }}>
+                    style={{ background: 'var(--border-divider)' }}>
                     <span className="font-normal" style={{ fontSize: '0.62rem' }}>
                       {getTtl('Row', ln)} {rowIndex + 1}
                     </span>
@@ -1344,7 +1344,7 @@ const Customtable = ({
                       const isEURValue = ['eu', 'eur', '€'].includes(normalizedValue)
                       return (
                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-                          style={{ borderBottom: '1px solid #b8ddf8' }}>
+                          style={{ borderBottom: '1px solid var(--border-divider)' }}>
                           <div className="uppercase tracking-wider font-normal"
                             style={{ color: 'var(--regent-gray)', fontSize: '0.58rem' }}>
                             {cell.column.columnDef.header}
@@ -1353,7 +1353,7 @@ const Customtable = ({
                             style={{
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg,#FAFAFA,#F5F5F5)',
-                              border: '1px solid #b8ddf8'
+                              border: '1px solid var(--border-divider)'
                             }}>
                             {cell.column.id === 'completed' ? (
                               cell.getValue() ? (
@@ -1368,9 +1368,9 @@ const Customtable = ({
                                 style={{
                                   backgroundColor:
                                     isUnpaidValue ? '#fef9c3' :
-                                    isPaidValue ? '#dcfce7' : '#f8fbff',
+                                    isPaidValue ? '#dcfce7' : 'var(--surface-pill)',
                                   color: isPaidValue ? '#166534' : isUnpaidValue ? '#92400e' : 'var(--chathams-blue)',
-                                  border: isPaidValue ? '1px solid #bbf7d0' : isUnpaidValue ? '1px solid #fde68a' : '1px solid #d8e8f5'
+                                  border: isPaidValue ? '1px solid #bbf7d0' : isUnpaidValue ? '1px solid #fde68a' : '1px solid var(--border-cell)'
                                 }}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                               </div>
@@ -1379,9 +1379,9 @@ const Customtable = ({
                                 style={{
                                   backgroundColor:
                                     isUSDValue ? '#dcfce7' :
-                                    isEURValue ? '#dbeeff' : '#e5e7eb',
+                                    isEURValue ? 'var(--surface-header)' : '#e5e7eb',
                                   color: isUSDValue ? '#166534' : 'var(--chathams-blue)',
-                                  border: isUSDValue ? '1px solid #bbf7d0' : isEURValue ? '1px solid #b8ddf8' : '1px solid #d1d5db'
+                                  border: isUSDValue ? '1px solid #bbf7d0' : isEURValue ? '1px solid var(--border-divider)' : '1px solid #d1d5db'
                                 }}>
                                 {isUSDValue ? '$' :
                                  isEURValue ? '€' :
@@ -1415,7 +1415,7 @@ const Customtable = ({
           {/* ── PAGINATION FOOTER ── */}
           <div className="flex-shrink-0 rounded-b-2xl"
             style={{
-              borderTop: '1px solid #b8ddf8',
+              borderTop: '1px solid var(--border-divider)',
               background: '#ffffff',
             }}>
             <div className="px-4 py-3">

@@ -145,7 +145,7 @@ const ForecastPanel = () => {
     const result = results[activeHorizon];
 
     return (
-        <section className='mb-3 rounded-xl overflow-hidden' style={{ border: '1px solid #b8ddf8' }} aria-labelledby='forecast-panel-title'>
+        <section className='mb-3 rounded-xl overflow-hidden' style={{ border: '1px solid var(--border-divider)' }} aria-labelledby='forecast-panel-title'>
             {/* Header / toggle — div+role rather than <button> so the inner
                 Refresh <button> can be a real nested interactive element
                 (nested <button> inside <button> is invalid HTML and hard-errors
@@ -158,7 +158,7 @@ const ForecastPanel = () => {
                 aria-expanded={opened}
                 aria-controls='forecast-panel-body'
                 className='w-full flex items-center justify-between px-4 py-2.5 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
-                style={{ background: '#dbeeff' }}
+                style={{ background: 'var(--surface-header)' }}
             >
                 <div className='flex items-center gap-2'>
                     <TrendingUp className='w-3.5 h-3.5' style={{ color: 'var(--endeavour)' }} />
@@ -172,7 +172,7 @@ const ForecastPanel = () => {
                         <button
                             onClick={e => { e.stopPropagation(); handleRefresh(); }}
                             aria-label='Refresh cash forecast'
-                            className='p-1 rounded-full hover:bg-[#b8ddf8] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
+                            className='p-1 rounded-full hover:bg-[var(--border-divider)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
                         >
                             <RefreshCw className='w-3 h-3' style={{ color: 'var(--endeavour)' }} aria-hidden='true' />
                         </button>
@@ -195,9 +195,9 @@ const ForecastPanel = () => {
                                 className='px-3 py-1 rounded-full font-medium transition-all disabled:opacity-50'
                                 style={{
                                     fontSize: '0.65rem',
-                                    background: activeHorizon === h ? 'var(--endeavour)' : '#f8fbff',
+                                    background: activeHorizon === h ? 'var(--endeavour)' : 'var(--surface-pill)',
                                     color: activeHorizon === h ? 'white' : 'var(--chathams-blue)',
-                                    border: `1px solid ${activeHorizon === h ? 'var(--endeavour)' : '#b8ddf8'}`,
+                                    border: `1px solid ${activeHorizon === h ? 'var(--endeavour)' : 'var(--border-divider)'}`,
                                 }}
                             >
                                 {h}d
@@ -227,7 +227,7 @@ const ForecastPanel = () => {
                             {/* Unified base-currency total (includes overdue) */}
                             {result.baseTotals && result.baseCurrency && (
                                 <div className='rounded-xl p-3 mb-3 flex items-center justify-between flex-wrap gap-2'
-                                    style={{ background: 'linear-gradient(135deg, #dbeeff 0%, #f0f9ff 100%)', border: '1px solid #93c5fd' }}>
+                                    style={{ background: 'linear-gradient(135deg, var(--surface-header) 0%, var(--selago) 100%)', border: '1px solid var(--rock-blue)' }}>
                                     <div>
                                         <p style={{ fontSize: '0.58rem', color: 'var(--regent-gray)' }}>
                                             Effective net (projected + overdue, all currencies → {result.baseCurrency} @ ECB rates)
@@ -268,7 +268,7 @@ const ForecastPanel = () => {
                                         {result.sources.expenseCount} expense{result.sources.expenseCount !== 1 ? 's' : ''}
                                     </p>
                                 </div>
-                                <div className='rounded-xl p-3' style={{ background: '#eff6ff', border: '1px solid #93c5fd' }}>
+                                <div className='rounded-xl p-3' style={{ background: 'var(--selago)', border: '1px solid var(--rock-blue)' }}>
                                     <div className='flex items-center gap-1 mb-1' title='Net = projected + already-overdue (the cash that needs to move regardless of when it was originally due)'>
                                         <Minus className='w-3 h-3' style={{ color: 'var(--endeavour)' }} />
                                         <span className='font-semibold' style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>Net Position (incl. overdue)</span>
@@ -307,7 +307,7 @@ const ForecastPanel = () => {
                             {/* AI insights: assumptions + risks */}
                             <div className='grid grid-cols-2 gap-3'>
                                 {result.assumptions?.length > 0 && (
-                                    <div className='rounded-lg p-2.5' style={{ background: '#f8fbff', border: '1px solid #dbeeff' }}>
+                                    <div className='rounded-lg p-2.5' style={{ background: 'var(--surface-pill)', border: '1px solid var(--surface-header)' }}>
                                         <div className='flex items-center gap-1 mb-1.5'>
                                             <Info className='w-3 h-3' style={{ color: 'var(--endeavour)' }} />
                                             <span className='font-semibold' style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>Key Assumptions</span>

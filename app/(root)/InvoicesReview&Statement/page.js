@@ -709,18 +709,18 @@ const Shipments = () => {
       filterFn: 'dateBetweenFilterFn'
     },//false
 
-    { accessorKey: 'rcvd', header: 'Outturn', bgt: 'bg-[#0070C0]', bgr: 'bg-blue-50' }, //false
-    { accessorKey: 'outrnamnt', header: 'Outturn Amount', bgt: 'bg-[#0070C0]', bgr: 'bg-blue-50', cell: (props) => <p>{props.getValue() !== '' && showAmountInv(props)}</p> }, //false
+    { accessorKey: 'rcvd', header: 'Outturn', bgt: 'bg-[var(--endeavour)]', bgr: 'bg-blue-50' }, //false
+    { accessorKey: 'outrnamnt', header: 'Outturn Amount', bgt: 'bg-[var(--endeavour)]', bgr: 'bg-blue-50', cell: (props) => <p>{props.getValue() !== '' && showAmountInv(props)}</p> }, //false
     {
-      accessorKey: 'deviation', header: getTtl('Deviation', ln), bgt: 'bg-[#0070C0]', bgr: 'bg-blue-50', cell: (props) => <p>{showAmountInv(props)}</p>,
+      accessorKey: 'deviation', header: getTtl('Deviation', ln), bgt: 'bg-[var(--endeavour)]', bgr: 'bg-blue-50', cell: (props) => <p>{showAmountInv(props)}</p>,
       ttlUS: showAmountTtl(totals[0]?.us.deviation, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.deviation, 'EUR')
     },
     {
-      accessorKey: 'debtBlnc', header: getTtl('Debt Balance', ln), bgt: 'bg-[#0070C0]', bgr: 'bg-blue-50', cell: (props) => <p>{showAmountInv(props)}</p>,
+      accessorKey: 'debtBlnc', header: getTtl('Debt Balance', ln), bgt: 'bg-[var(--endeavour)]', bgr: 'bg-blue-50', cell: (props) => <p>{showAmountInv(props)}</p>,
       ttlUS: showAmountTtl(totals[0]?.us.debtBlnc, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.debtBlnc, 'EUR')
     },//false
-    { accessorKey: 'cn', header: getTtl('Credit/Final Note', ln), bgt: 'bg-[#0070C0]', bgr: 'bg-blue-50' },
-    { accessorKey: 'fnlzing', header: getTtl('Finalizing', ln), bgt: 'bg-[#0070C0]', bgr: 'bg-blue-50' },//false
+    { accessorKey: 'cn', header: getTtl('Credit/Final Note', ln), bgt: 'bg-[var(--endeavour)]', bgr: 'bg-blue-50' },
+    { accessorKey: 'fnlzing', header: getTtl('Finalizing', ln), bgt: 'bg-[var(--endeavour)]', bgr: 'bg-blue-50' },//false
 
 
     {
@@ -903,7 +903,7 @@ const Shipments = () => {
   };
 
   return (
-    <div className="w-full " style={{ background: "#f8fbff" }}>
+    <div className="w-full " style={{ background: "var(--surface-pill)" }}>
       <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
         {Object.keys(settings).length === 0 ? <TableSkeleton /> :
           <>
@@ -912,7 +912,7 @@ const Shipments = () => {
                 tables render empty (old "no data" video) for the whole load. */}
             <VideoLoader loading={loading} fullScreen={true} />
             {/* Main Card */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8]  w-full bg-white">
+            <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)]  w-full bg-white">
               {/* Header Section */}
               <div className='flex items-center justify-between flex-wrap gap-2 pb-1'>
                 <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">

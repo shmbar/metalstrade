@@ -10,7 +10,7 @@
   --ui-border: #d1d5db;
 
   --ui-primary: var(--endeavour);
-  --ui-primary-soft: #e8f2ff;
+  --ui-primary-soft: var(--selago);
 
   --ui-radius: 8px;
   --ui-shadow-soft: 0 1px 3px rgba(0,0,0,.08);
@@ -35,8 +35,8 @@ thead th {
   position: sticky;
   top: 0;
   z-index: 5;
-  background: #dbeeff;
-  color: #103a7a;
+  background: var(--surface-header);
+  color: var(--chathams-blue);
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: .03em;

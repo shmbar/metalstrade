@@ -127,8 +127,8 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
         background: '#fff',
         borderRadius: '16px',
         overflow: 'hidden',
-        boxShadow: '0 8px 32px rgba(3,102,174,0.13)',
-        border: '1px solid #b8ddf8',
+        boxShadow: '0 8px 32px rgba(var(--endeavour-rgb),0.13)',
+        border: '1px solid var(--border-divider)',
         minWidth: '400px',
         padding: '0',
     };
@@ -144,14 +144,14 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
         color: 'var(--chathams-blue)',
         fontWeight: 500,
         fontSize: '0.68rem',
-        border: '1px solid #b8ddf8',
-        background: '#dbeeff',
+        border: '1px solid var(--border-divider)',
+        background: 'var(--surface-header)',
         whiteSpace: 'nowrap',
     };
     const tdStyle = {
         textAlign: 'center',
         padding: '5px 10px',
-        border: '1px solid #e8f0f8',
+        border: '1px solid var(--selago)',
         fontSize: '0.68rem',
         color: 'var(--chathams-blue)',
         whiteSpace: 'nowrap',
@@ -169,7 +169,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
 
         return (
             <div style={containerStyle}>
-                <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 500, fontSize: '0.68rem', color: 'var(--chathams-blue)', borderBottom: '1px solid #b8ddf8' }}>
+                <div style={{ background: 'var(--surface-header)', padding: '7px 14px', fontWeight: 500, fontSize: '0.68rem', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
                     Supplier Details
                 </div>
                 <table style={tableStyle}>
@@ -183,7 +183,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                     </thead>
                     <tbody>
                         {filteredArr?.map((z, i) => (
-                            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#f4f9ff', transition: 'background 150ms ease-in-out' }}>
+                            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : 'var(--surface-pill)', transition: 'background 150ms ease-in-out' }}>
                                 <td style={tdStyle}>
                                     {Array.isArray(z.supInvoices) ? z.supInvoices.map((item, index) => (
                                         <div key={index}>{item}</div>
@@ -237,7 +237,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
 
         return (
             <div style={containerStyle}>
-                <div style={{ background: '#dbeeff', padding: '7px 14px', fontWeight: 500, fontSize: '0.68rem', color: 'var(--chathams-blue)', borderBottom: '1px solid #b8ddf8' }}>
+                <div style={{ background: 'var(--surface-header)', padding: '7px 14px', fontWeight: 500, fontSize: '0.68rem', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
                     Client Details
                 </div>
                 <table style={tableStyle}>
@@ -251,7 +251,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                     </thead>
                     <tbody>
                         {filteredArr?.map((z, i) => (
-                            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#f4f9ff', transition: 'background 150ms ease-in-out' }}>
+                            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : 'var(--surface-pill)', transition: 'background 150ms ease-in-out' }}>
                                 <td style={tdStyle}>{z.InvNum}</td>
                                 <td style={tdAmountStyle}>
                                     <NumericFormat

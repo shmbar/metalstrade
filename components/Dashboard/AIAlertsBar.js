@@ -13,7 +13,7 @@ function AlertPill({ icon: Icon, label, count, severity, onClick }) {
         red: { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b' },
         amber: { bg: '#fff3cd', border: '#ffc107', text: '#92400e' },
         green: { bg: '#d1fae5', border: '#86efac', text: '#065f46' },
-        blue: { bg: '#dbeeff', border: '#b8ddf8', text: 'var(--chathams-blue)' },
+        blue: { bg: 'var(--surface-header)', border: 'var(--border-divider)', text: 'var(--chathams-blue)' },
     }[severity];
     return (
         <button
@@ -175,7 +175,7 @@ const AIAlertsBar = () => {
 
     if (loading) {
         return (
-            <div className='flex items-center gap-2 px-3 py-2.5 rounded-xl mb-3 shadow-sm' style={{ border: '1px solid #e6eef8', background: '#ffffff' }}>
+            <div className='flex items-center gap-2 px-3 py-2.5 rounded-xl mb-3 shadow-sm' style={{ border: '1px solid var(--selago)', background: '#ffffff' }}>
                 <Loader2 className='w-3.5 h-3.5 animate-spin' style={{ color: 'var(--endeavour)' }} />
                 <span style={{ fontSize: '0.65rem', color: 'var(--regent-gray)' }}>Checking alerts…</span>
             </div>
@@ -197,7 +197,7 @@ const AIAlertsBar = () => {
     return (
         <div
             className='flex flex-wrap items-center gap-2 px-3 py-2.5 rounded-xl mb-3 shadow-sm'
-            style={{ border: '1px solid #e6eef8', background: '#ffffff' }}
+            style={{ border: '1px solid var(--selago)', background: '#ffffff' }}
             role='region'
             aria-label='AI alerts summary'
         >

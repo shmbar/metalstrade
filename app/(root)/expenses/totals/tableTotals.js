@@ -38,7 +38,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
       className="bg-white rounded-xl shadow border overflow-hidden"
       style={{
         width: TABLE_WIDTH,
-        borderColor: '#b8ddf8',
+        borderColor: 'var(--border-divider)',
         borderWidth: 1,
         borderRadius: '16px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
@@ -57,7 +57,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         {/* HEADER */}
         <div
           style={{
-            background: '#dbeeff',
+            background: 'var(--surface-header)',
             padding: '6px 16px',
             borderBottom: '1px solid var(--rock-blue)'
           }}
@@ -87,7 +87,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                 direction="right"
                 tltpText={expensesToolTip(row, expensesData, settings, filt)}
               >
-                <div className="grid grid-cols-[1fr_auto] px-4 py-1 items-center hover:bg-[#f8fbff] transition"
+                <div className="grid grid-cols-[1fr_auto] px-4 py-1 items-center hover:bg-[var(--surface-pill)] transition"
                   style={{
                     borderBottom: '1px solid var(--selago)',
                     borderRight: '1px solid var(--selago)',
@@ -120,7 +120,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           <div className="px-4 py-2.5"
             style={{
               borderTop: '1px solid var(--rock-blue)',
-              background: '#dbeeff',
+              background: 'var(--surface-header)',
               borderLeft: '1px solid var(--selago)',
               borderRight: '1px solid var(--selago)',
               borderBottom: '1px solid var(--selago)'

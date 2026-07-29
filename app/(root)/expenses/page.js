@@ -386,14 +386,14 @@ const Expenses = () => {
 	};
 
 	return (
-		<div className="w-full " style={{ background: "#f8fbff" }}>
+		<div className="w-full " style={{ background: "var(--surface-pill)" }}>
 			<div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
 				{Object.keys(settings).length === 0 ? <TableSkeleton /> :
 					<>
 						<Toast />
 						<VideoLoader loading={loading} fullScreen={true} />
 						{/* Main Card */}
-						<div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
+						<div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] w-full bg-[var(--surface-pill)]">
 
 							{/* Header Section */}
 							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
@@ -411,13 +411,13 @@ const Expenses = () => {
 											style={{
 												fontSize: '0.66rem', padding: '4px 12px',
 												color: onlyUnsplit ? 'white' : 'var(--chathams-blue)',
-												background: onlyUnsplit ? 'var(--endeavour)' : '#f8fbff',
-												border: '1px solid #b8ddf8',
+												background: onlyUnsplit ? 'var(--endeavour)' : 'var(--surface-pill)',
+												border: '1px solid var(--border-divider)',
 											}}
 										>
 											<Split className='w-3.5 h-3.5' />
 											Needs IMS/GIS split
-											<span className='rounded-full px-1.5' style={{ fontSize: '0.6rem', background: onlyUnsplit ? 'rgba(255,255,255,0.25)' : '#dbeeff', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
+											<span className='rounded-full px-1.5' style={{ fontSize: '0.6rem', background: onlyUnsplit ? 'rgba(255,255,255,0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
 												{pendingCount}
 											</span>
 										</button>

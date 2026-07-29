@@ -6,7 +6,7 @@ import { FileText, Receipt, Banknote, Package, Settings as SettingsIcon, Activit
 
 // Visual identity per entity type (aligns with the future #7 status-color system).
 const ENTITY_META = {
-    contract: { label: 'Contract', icon: FileText, color: '#0366ae', bg: '#dbeeff' },
+    contract: { label: 'Contract', icon: FileText, color: 'var(--endeavour)', bg: 'var(--surface-header)' },
     invoice: { label: 'Invoice', icon: Receipt, color: '#15803d', bg: '#f0fdf4' },
     expense: { label: 'Expense', icon: Banknote, color: '#b45309', bg: '#fffbeb' },
     stock: { label: 'Stock', icon: Package, color: '#7c3aed', bg: '#f5f3ff' },
@@ -73,14 +73,14 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
         return rows;
     }, [items, showFilters, typeFilter, actorFilter, q]);
 
-    const pill = 'rounded-full border border-[#b8ddf8] bg-[#f8fbff] outline-none focus:border-[var(--endeavour)]';
+    const pill = 'rounded-full border border-[var(--border-divider)] bg-[var(--surface-pill)] outline-none focus:border-[var(--endeavour)]';
 
     return (
         <div className='p-3'>
             {/* Filters (global mode only) */}
             {showFilters && (
                 <div className='flex flex-wrap items-center gap-2 mb-3'>
-                    <div className='flex items-center gap-1.5 px-3 py-1 flex-1 min-w-[180px]' style={{ borderRadius: 9999, border: '1px solid #b8ddf8', background: '#f8fbff' }}>
+                    <div className='flex items-center gap-1.5 px-3 py-1 flex-1 min-w-[180px]' style={{ borderRadius: 9999, border: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
                         <Search className='w-3.5 h-3.5' style={{ color: 'var(--regent-gray)' }} />
                         <input
                             value={q}
@@ -112,7 +112,7 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                 </div>
             ) : filtered.length === 0 ? (
                 <div className='flex flex-col items-center justify-center py-8 gap-1'>
-                    <Activity className='w-5 h-5' style={{ color: '#b8ddf8' }} />
+                    <Activity className='w-5 h-5' style={{ color: 'var(--border-divider)' }} />
                     <span style={{ fontSize: '0.72rem', color: 'var(--regent-gray)' }}>
                         {items.length === 0 ? 'No activity recorded yet.' : 'No activity matches your filters.'}
                     </span>
@@ -123,7 +123,7 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                         const meta = metaFor(r.entityType);
                         const Icon = meta.icon;
                         return (
-                            <li key={r.id} className='flex items-start gap-2.5 p-2 rounded-xl' style={{ border: '1px solid #eef5fc', background: 'white' }}>
+                            <li key={r.id} className='flex items-start gap-2.5 p-2 rounded-xl' style={{ border: '1px solid var(--selago)', background: 'white' }}>
                                 <span className='inline-flex items-center justify-center rounded-full flex-shrink-0' style={{ width: 26, height: 26, background: meta.bg }}>
                                     <Icon className='w-3.5 h-3.5' style={{ color: meta.color }} />
                                 </span>

@@ -32,7 +32,7 @@ const Toast = () => {
             {toast?.show && (
                 <div className={`gap-3 flex text-sm px-4 py-3 bottom-4 right-4 z-[70] fixed rounded-xl items-center shadow-lg fadeInToast border
                 ${toast?.clr === 'success'
-                    ? 'bg-[var(--endeavour)] border-[#0255a3] text-white'
+                    ? 'bg-[var(--endeavour)] border-[var(--endeavour)] text-white'
                     : 'bg-red-600 border-red-700 text-white'}`}>
                     {toast?.clr === 'success'
                         ? <FaRegCheckCircle className='scale-150 text-white flex-shrink-0' />
@@ -41,7 +41,7 @@ const Toast = () => {
                 </div>
             )}
             {secondaryToast && toast?.clr === 'success' && (
-                <div className="gap-3 flex text-sm px-4 py-3 bottom-4 right-4 z-[70] fixed rounded-xl items-center shadow-lg fadeInToast border border-[#b8ddf8] bg-[#ebf2fc] text-[var(--chathams-blue)]">
+                <div className="gap-3 flex text-sm px-4 py-3 bottom-4 right-4 z-[70] fixed rounded-xl items-center shadow-lg fadeInToast border border-[var(--border-divider)] bg-[var(--selago)] text-[var(--chathams-blue)]">
                     <FaRegCheckCircle className='scale-125 text-[var(--endeavour)] flex-shrink-0' />
                     <div>Please verify the saved data again!</div>
                 </div>

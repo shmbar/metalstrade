@@ -82,7 +82,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled} >
                 <div className="relative my-1">
                     <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-white text-left
-                     focus:outline-none responsiveText border border-[#b8ddf8] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
+                     focus:outline-none responsiveText border border-[var(--border-divider)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
                             className={`w-full py-2 pl-3 pr-10 responsiveText ${classes2} leading-5 text-[var(--endeavour)] focus:outline-none`}
                             style={{ fontSize: 'inherit' }}
@@ -115,7 +115,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                       
                         <ComboboxOptions anchor="bottom" className={`absolute left-0 z-50 w-[var(--input-width)]
                         [--anchor-gap:var(--spacing-1)] empty:hidden
-                        mt-1 max-h-60 rounded-xl bg-white py-1 responsiveText shadow-lg border border-[#dbeeff] focus:outline-none
+                        mt-1 max-h-60 rounded-xl bg-white py-1 responsiveText shadow-lg border border-[var(--surface-header)] focus:outline-none
                         ${classes1} dropDownHeight`}>
                             {filteredData.length === 0 && query !== '' ? (
                                 <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] responsiveText">
@@ -126,7 +126,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                                     <ComboboxOption
                                         key={x.id}
                                         className={({ active }) =>
-                                            `relative cursor-default select-none py-1 responsiveText ${classes2} pl-10 pr-4 ${active ? 'bg-[#dbeeff] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}
+                                            `relative cursor-default select-none py-1 responsiveText ${classes2} pl-10 pr-4 ${active ? 'bg-[var(--surface-header)] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}
                                             `
                                         }
                                         value={x}

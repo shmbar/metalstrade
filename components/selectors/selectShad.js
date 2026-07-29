@@ -31,7 +31,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
     return (
         <Select className='border-slate-400' value={value[name]} onValueChange={onChange}
             defaultValue="df" onOpenChange={(open) => { if (!open) setQuery('') }}>
-            <SelectTrigger className={`group relative border-[#b8ddf8] hover:border-[var(--rock-blue)] rounded-full h-8 text-[0.75rem] gap-0.5 px-2
+            <SelectTrigger className={`group relative border-[var(--border-divider)] hover:border-[var(--rock-blue)] rounded-full h-8 text-[0.75rem] gap-0.5 px-2
                     text-[var(--chathams-blue)] outline-none focus:ring-0
                     focus:outline-none focus:ring-offset-0 shadow-sm pointer-events-auto
                     w-full max-w-full overflow-hidden [&>span]:truncate [&>span]:pr-4
@@ -55,16 +55,16 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
 
 
             </SelectTrigger>
-            <SelectContent className="z-[9999] rounded-xl border border-[#dbeeff] shadow-md text-[0.75rem] text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
+            <SelectContent className="z-[9999] rounded-xl border border-[var(--surface-header)] shadow-md text-[0.75rem] text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
                 {searchable && (
-                    <div className="sticky top-0 z-10 bg-white p-1.5 border-b border-[#eef5fc]">
+                    <div className="sticky top-0 z-10 bg-white p-1.5 border-b border-[var(--selago)]">
                         <input
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             onKeyDown={(e) => e.stopPropagation()}
                             onPointerDown={(e) => e.stopPropagation()}
                             placeholder="Search…"
-                            className="w-full h-7 px-2 rounded-lg border border-[#d8e8f5] bg-[#f8fbff] text-[0.72rem] text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]"
+                            className="w-full h-7 px-2 rounded-lg border border-[var(--border-cell)] bg-[var(--surface-pill)] text-[0.72rem] text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]"
                         />
                     </div>
                 )}

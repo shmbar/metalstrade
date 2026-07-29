@@ -30,6 +30,14 @@ export default function RootLayout({ children }) {
 	return (
 		<html lang="en">
 			<body className={poppins.className} style={{ '--font-poppins': poppins.style.fontFamily }}>
+				{/* Apply the member's saved colour theme before first paint (see
+				    contexts/useThemeContext.js — the vars map is precomputed at save time). */}
+				<script
+					dangerouslySetInnerHTML={{
+						__html:
+							"try{var t=JSON.parse(localStorage.getItem('ims-theme'));if(t&&t.vars){var r=document.documentElement;for(var k in t.vars){r.style.setProperty(k,t.vars[k])}}}catch(e){}",
+					}}
+				/>
 				<Provider>
 					<GlobalSearchProvider>
 						<div>{children}</div>

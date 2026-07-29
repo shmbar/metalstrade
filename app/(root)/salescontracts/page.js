@@ -141,7 +141,7 @@ const SalesContracts = () => {
                 cell: (props) => {
                     const v = props.getValue();
                     const tone = v === 'Fully shipped' ? ['#dcfce7', '#166534', '#bbf7d0']
-                        : v === 'Partial' ? ['#dbeafe', '#1e40af', '#bfdbfe']
+                        : v === 'Partial' ? ['var(--border-cell)', 'var(--primary-bright)', 'var(--border-divider)']
                             : ['#fef9c3', '#92400e', '#fde68a'];
                     return <span className="rounded-full responsiveTextTable font-medium" style={{
                         background: tone[0], color: tone[1], border: `1px solid ${tone[2]}`, padding: '2px 12px', whiteSpace: 'nowrap'
@@ -162,12 +162,12 @@ const SalesContracts = () => {
     };
 
     return (
-        <div className="w-full" style={{ background: "#f8fbff" }}>
+        <div className="w-full" style={{ background: "var(--surface-pill)" }}>
             <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
                 {Object.keys(settings).length === 0 ? <TableSkeleton /> :
                     <>
                         <Toast />
-                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
+                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] w-full bg-[var(--surface-pill)]">
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
                                 <h1 className="text-[var(--chathams-blue)] responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                                     Sales Contracts

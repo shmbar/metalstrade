@@ -35,7 +35,7 @@ const General = () => {
             {compData && Object.keys(compData).length === 0 ?
                 <Spinner />
                 : <>
-                    <div className='border border-[#b8ddf8] p-4 rounded-2xl mt-1'>
+                    <div className='border border-[var(--border-divider)] p-4 rounded-2xl mt-1'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='gap-4 flex items-center' >
                                 <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
@@ -48,14 +48,14 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#b8ddf8]
+  border-[var(--border-divider)]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
   transition
-  focus:border-[#0A5DB8]
+  focus:border-[var(--endeavour)]
   focus:ring-2
-  focus:ring-[#0A5DB8]/20
+  focus:ring-[rgba(var(--endeavour-rgb),0.2)]
   text-[0.75rem]
 "
 
@@ -83,7 +83,7 @@ const General = () => {
                         </div>
                     </div>
 
-                    <div className='border border-[#b8ddf8] p-4 rounded-2xl mt-5'>
+                    <div className='border border-[var(--border-divider)] p-4 rounded-2xl mt-5'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2'>
@@ -92,7 +92,7 @@ const General = () => {
                                             {getTtl('street', ln)}:</p>
                                         <input
                                             type='input'
-                                            className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                            className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
                                             value={compData?.street || ''}
                                             onChange={e => setCompData({ ...(compData || {}), street: e.target.value })}
                                         />
@@ -102,7 +102,7 @@ const General = () => {
                                             {getTtl('city', ln)}: </p>
                                         <input
                                             type='input'
-                                            className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                            className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
                                             value={compData?.city || ''}
                                             onChange={e => setCompData({ ...(compData || {}), city: e.target.value })}
                                         />
@@ -118,14 +118,14 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#b8ddf8]
+  border-[var(--border-divider)]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
   transition
-  focus:border-[#0A5DB8]
+  focus:border-[var(--endeavour)]
   focus:ring-2
-  focus:ring-[#0A5DB8]/20
+  focus:ring-[rgba(var(--endeavour-rgb),0.2)]
   text-[0.75rem]
 "
 
@@ -144,14 +144,14 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#b8ddf8]
+  border-[var(--border-divider)]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
   transition
-  focus:border-[#0A5DB8]
+  focus:border-[var(--endeavour)]
   focus:ring-2
-  focus:ring-[#0A5DB8]/20
+  focus:ring-[rgba(var(--endeavour-rgb),0.2)]
   text-[0.75rem]
 "
 
@@ -173,14 +173,14 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#b8ddf8]
+  border-[var(--border-divider)]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
   transition
-  focus:border-[#0A5DB8]
+  focus:border-[var(--endeavour)]
   focus:ring-2
-  focus:ring-[#0A5DB8]/20
+  focus:ring-[rgba(var(--endeavour-rgb),0.2)]
   text-[0.75rem]
 "
 
@@ -198,14 +198,14 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#b8ddf8]
+  border-[var(--border-divider)]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
   transition
-  focus:border-[#0A5DB8]
+  focus:border-[var(--endeavour)]
   focus:ring-2
-  focus:ring-[#0A5DB8]/20
+  focus:ring-[rgba(var(--endeavour-rgb),0.2)]
   text-[0.75rem]
 "
 
@@ -223,14 +223,14 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#b8ddf8]
+  border-[var(--border-divider)]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
   transition
-  focus:border-[#0A5DB8]
+  focus:border-[var(--endeavour)]
   focus:ring-2
-  focus:ring-[#0A5DB8]/20
+  focus:ring-[rgba(var(--endeavour-rgb),0.2)]
   text-[0.75rem]
 "
 
@@ -246,7 +246,7 @@ const General = () => {
 
 
 
-                    <div className='border border-[#b8ddf8] p-4 rounded-2xl  mt-5 w-full'>
+                    <div className='border border-[var(--border-divider)] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
                                 <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
@@ -259,14 +259,14 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#b8ddf8]
+  border-[var(--border-divider)]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
   transition
-  focus:border-[#0A5DB8]
+  focus:border-[var(--endeavour)]
   focus:ring-2
-  focus:ring-[#0A5DB8]/20
+  focus:ring-[rgba(var(--endeavour-rgb),0.2)]
   text-[0.75rem]
 "
                                     value={compData?.email || ''}
@@ -284,14 +284,14 @@ const General = () => {
   px-4
   rounded-full
   border
-  border-[#b8ddf8]
+  border-[var(--border-divider)]
   bg-white
   text-[var(--chathams-blue)]
   outline-none
   transition
-  focus:border-[#0A5DB8]
+  focus:border-[var(--endeavour)]
   focus:ring-2
-  focus:ring-[#0A5DB8]/20
+  focus:ring-[rgba(var(--endeavour-rgb),0.2)]
   text-[0.75rem]
 "
                                     value={compData?.website || ''}
@@ -302,14 +302,14 @@ const General = () => {
                     </div>
 
 
-                    <div className=' border border-[#b8ddf8] p-4 rounded-2xl  mt-5 w-full'>
+                    <div className=' border border-[var(--border-divider)] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
                                 <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpPhone', ln)}:</p>
                                 <input
                                     type='input'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
                                     value={compData?.phone || ''}
                                     onChange={e => setCompData({ ...(compData || {}), phone: e.target.value })}
                                 />
@@ -319,7 +319,7 @@ const General = () => {
                                     {getTtl('cmpMobile', ln)}:</p>
                                 <input
                                     type='input'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
                                     value={compData?.mobile || ''}
                                     onChange={e => setCompData({ ...(compData || {}), mobile: e.target.value })}
                                 />
@@ -328,7 +328,7 @@ const General = () => {
                                 <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Fax:</p>
                                 <input
                                     type='input'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
                                     value={compData?.fax || ''}
                                     onChange={e => setCompData({ ...(compData || {}), fax: e.target.value })}
                                 />
@@ -337,7 +337,7 @@ const General = () => {
                                 <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Contact Person:</p>
                                 <input
                                     type='input'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
                                     value={compData?.contact || ''}
                                     onChange={e => setCompData({ ...(compData || {}), contact: e.target.value })}
                                 />
@@ -348,7 +348,7 @@ const General = () => {
                     {/* <div className=' border border-slate-300 p-4 rounded-2xl  mt-5 w-full'>
                         <Logos compData={compData} setCompData={setCompData} />
                     </div> */}
-                    <div className='border border-[#b8ddf8] p-4 rounded-2xl mt-5 w-full'>
+                    <div className='border border-[var(--border-divider)] p-4 rounded-2xl mt-5 w-full'>
                         <p className='responsiveText font-medium text-[0.825rem] mb-3 text-[var(--chathams-blue)]'>Invoice wording</p>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='flex gap-4 items-center'>
@@ -356,7 +356,7 @@ const General = () => {
                                 <input
                                     type='input'
                                     placeholder='Prepayment'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
                                     value={compData?.invPrepaymentLabel || ''}
                                     onChange={e => setCompData({ ...(compData || {}), invPrepaymentLabel: e.target.value })}
                                 />
@@ -366,7 +366,7 @@ const General = () => {
                                 <textarea
                                     rows={2}
                                     placeholder='e.g. We hereby certify the goods are non-radioactive and free of contamination.'
-                                    className="flex-1 p-2 rounded-2xl border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    className="flex-1 p-2 rounded-2xl border border-[var(--border-divider)] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
                                     style={{ fontFamily: 'inherit' }}
                                     value={compData?.invNonRadioText || ''}
                                     onChange={e => setCompData({ ...(compData || {}), invNonRadioText: e.target.value })}
@@ -378,7 +378,7 @@ const General = () => {
                         </p>
                     </div>
 
-                    <div className='border border-[#b8ddf8] p-4 rounded-2xl mt-5 w-full'>
+                    <div className='border border-[var(--border-divider)] p-4 rounded-2xl mt-5 w-full'>
                         <p className='responsiveText font-medium text-[0.825rem] mb-3 text-[var(--chathams-blue)]'>Currency &amp; Terms</p>
                         <div className='flex flex-col gap-3'>
                             <div className='flex gap-4 items-center'>
@@ -387,7 +387,7 @@ const General = () => {
                                     type='number'
                                     step='0.0001'
                                     placeholder='e.g. 1.08'
-                                    className="flex-1 max-w-[180px] h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    className="flex-1 max-w-[180px] h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
                                     value={compData?.eurUsdRate ?? ''}
                                     onChange={e => setCompData({ ...(compData || {}), eurUsdRate: e.target.value })}
                                 />
@@ -398,7 +398,7 @@ const General = () => {
                                     type='number'
                                     step='1'
                                     placeholder='30'
-                                    className="flex-1 max-w-[180px] h-[26px] px-4 rounded-full border border-[#b8ddf8] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[#0A5DB8] focus:ring-2 focus:ring-[#0A5DB8]/20 text-[0.75rem]"
+                                    className="flex-1 max-w-[180px] h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-white text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
                                     value={compData?.defaultTermDays ?? ''}
                                     onChange={e => setCompData({ ...(compData || {}), defaultTermDays: e.target.value })}
                                 />

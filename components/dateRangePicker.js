@@ -71,8 +71,8 @@ const DateRangePicker = ({ displayLabel }) => {
             .react-tailwindcss-datepicker-container > div:not(:first-child),
             .shadow-sm.border.border-gray-300.px-1.py-0\\.5.bg-white.rounded-lg {
                 border-radius: 1.25rem !important;
-                border: 1px solid #e6eef8 !important;
-                box-shadow: 0 12px 40px rgba(16,58,122,0.12) !important;
+                border: 1px solid var(--selago) !important;
+                box-shadow: 0 12px 40px rgba(var(--chathams-blue-rgb),0.12) !important;
                 overflow: hidden !important;
                 z-index: 9999 !important;
                 transform-origin: top right !important;
@@ -85,8 +85,8 @@ const DateRangePicker = ({ displayLabel }) => {
 
             /* ── Month/Year header pill ── */
             .flex.items-center.space-x-1\\.5.border.border-gray-300.rounded-md.px-2.py-1\\.5 {
-                background: #dbeeff !important;
-                border: 1px solid #b8ddf8 !important;
+                background: var(--surface-header) !important;
+                border: 1px solid var(--border-divider) !important;
                 border-radius: 999px !important;
                 color: var(--chathams-blue) !important;
             }
@@ -96,7 +96,7 @@ const DateRangePicker = ({ displayLabel }) => {
                 border-radius: 999px !important;
             }
             .rounded-full.p-\\[0\\.45rem\\]:hover {
-                background: #dbeeff !important;
+                background: var(--surface-header) !important;
             }
 
             /* ── Month/Year text buttons (uppercase label) ── */
@@ -105,12 +105,12 @@ const DateRangePicker = ({ displayLabel }) => {
                 color: var(--chathams-blue) !important;
             }
             .tracking-wide.px-3.py-\\[0\\.55rem\\].uppercase.hover\\:bg-gray-100.rounded-md:hover {
-                background: #dbeeff !important;
+                background: var(--surface-header) !important;
             }
 
             /* ── Week header row ── */
             .grid.grid-cols-7.border-b.border-gray-300.py-2 {
-                border-color: #e8f0f8 !important;
+                border-color: var(--selago) !important;
             }
             .grid.grid-cols-7.border-b.border-gray-300.py-2 > div {
                 color: var(--chathams-blue) !important;
@@ -132,7 +132,7 @@ const DateRangePicker = ({ displayLabel }) => {
             }
             .flex.items-center.justify-center.w-12.h-12:hover,
             .flex.items-center.justify-center.lg\\:w-10.lg\\:h-10:hover {
-                background: #dbeeff !important;
+                background: var(--surface-header) !important;
                 color: var(--chathams-blue) !important;
             }
 
@@ -143,7 +143,7 @@ const DateRangePicker = ({ displayLabel }) => {
 
             /* ── Range highlight days (soft wash, not loud circles) ── */
             .bg-blue-100 {
-                background-color: #eef5fd !important;
+                background-color: var(--selago) !important;
             }
 
             /* ── Shortcuts list items ── */
@@ -155,12 +155,12 @@ const DateRangePicker = ({ displayLabel }) => {
             }
             .whitespace-nowrap.w-1\\/2.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded:hover,
             .whitespace-nowrap.lg\\:w-auto.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded:hover {
-                background: #dbeeff !important;
+                background: var(--surface-header) !important;
             }
 
             /* ── Divider between shortcuts and calendar ── */
             .md\\:border-b.mb-3.border-gray-300 {
-                border-color: #e8f0f8 !important;
+                border-color: var(--selago) !important;
             }
         `;
         document.head.appendChild(style);
@@ -191,11 +191,11 @@ const DateRangePicker = ({ displayLabel }) => {
                         w-full
                         bg-white
                         rounded-full
-                        border border-[#e6eef8]
+                        border border-[var(--selago)]
                         shadow-sm
                         cursor-pointer
                         focus:outline-none
-                        focus:ring-1 focus:ring-[#cbe3f7]
+                        focus:ring-1 focus:ring-[var(--border-cell)]
                         tracking-normal
                         leading-tight
                     "

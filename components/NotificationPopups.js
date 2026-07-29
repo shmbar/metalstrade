@@ -14,7 +14,7 @@ const AUTO_DISMISS_MS = 8000;
 // Same entity iconography + tints as the bell dropdown, so the pop-up reads as
 // part of the same system.
 const ENTITY_ICON = {
-    contract: { Icon: FileText, color: '#0366ae', bg: '#dbeeff' },
+    contract: { Icon: FileText, color: 'var(--endeavour)', bg: 'var(--surface-header)' },
     invoice: { Icon: Receipt, color: '#15803d', bg: '#f0fdf4' },
     expense: { Icon: Banknote, color: '#b45309', bg: '#fffbeb' },
     companyexpense: { Icon: Banknote, color: '#b45309', bg: '#fffbeb' },
@@ -52,10 +52,10 @@ function PopupCard({ n, onDismiss, onOpen }) {
                 background: 'rgba(255,255,255,0.92)',
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
-                border: '1px solid #d8e8f5',
+                border: '1px solid var(--border-cell)',
                 boxShadow: hovered
-                    ? '0 14px 38px rgba(16,58,122,0.18), 0 2px 8px rgba(16,58,122,0.08)'
-                    : '0 10px 30px rgba(16,58,122,0.12), 0 2px 6px rgba(16,58,122,0.06)',
+                    ? '0 14px 38px rgba(var(--chathams-blue-rgb),0.18), 0 2px 8px rgba(var(--chathams-blue-rgb),0.08)'
+                    : '0 10px 30px rgba(var(--chathams-blue-rgb),0.12), 0 2px 6px rgba(var(--chathams-blue-rgb),0.06)',
             }}
             onClick={() => onOpen(n)}
             onMouseEnter={() => setHovered(true)}
@@ -99,7 +99,7 @@ function PopupCard({ n, onDismiss, onOpen }) {
 
                     <button
                         onClick={(e) => { e.stopPropagation(); onDismiss(n.popupId); }}
-                        className='p-1 -mt-1 -mr-1 rounded-full hover:bg-[#dbeeff] shrink-0 transition-colors'
+                        className='p-1 -mt-1 -mr-1 rounded-full hover:bg-[var(--surface-header)] shrink-0 transition-colors'
                         aria-label='Dismiss notification'
                     >
                         <X className='w-3.5 h-3.5' style={{ color: 'var(--regent-gray)' }} />
@@ -108,7 +108,7 @@ function PopupCard({ n, onDismiss, onOpen }) {
             </div>
 
             {/* Auto-dismiss progress — pauses with the countdown while hovered */}
-            <div className='h-[3px] w-full' style={{ background: '#eef5fc' }}>
+            <div className='h-[3px] w-full' style={{ background: 'var(--selago)' }}>
                 <div
                     key={hovered ? 'paused' : 'running'}
                     className='h-full'

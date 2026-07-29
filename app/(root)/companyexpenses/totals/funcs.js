@@ -16,11 +16,11 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
     <div
       className="w-fit custom-tooltip-table"
       style={{
-        background: "#f6f9ff",
-        border: "1px solid #b8ddf8",
+        background: "var(--surface-pill)",
+        border: "1px solid var(--border-divider)",
         borderRadius: "16px",
         overflow: "hidden",
-        boxShadow: "0 4px 16px rgba(3,102,174,0.12)",
+        boxShadow: "0 4px 16px rgba(var(--endeavour-rgb),0.12)",
         fontFamily:
           "var(--font-poppins), 'Poppins', sans-serif",
         fontSize: "0.68rem",
@@ -30,7 +30,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
         <thead>
           <tr
             style={{
-              background: "#eaf4ff",
+              background: "var(--selago)",
               borderBottom: "1px solid #e0e0e0",
             }}
           >

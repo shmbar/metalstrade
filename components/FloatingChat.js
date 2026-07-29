@@ -600,10 +600,10 @@ const FloatingChat = () => {
     return (
         <>
             {chatOpen && (
-                <div style={{ zIndex: 99999 }} className="fixed bottom-4 right-4 w-96 h-[540px] bg-white rounded-2xl shadow-2xl border border-[#b8ddf8] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+                <div style={{ zIndex: 99999 }} className="fixed bottom-4 right-4 w-96 h-[540px] bg-white rounded-2xl shadow-2xl border border-[var(--border-divider)] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
 
                     {/* Header */}
-                    <div className="px-3 py-2.5 border-b border-[#b8ddf8] flex items-center justify-between bg-[#dbeeff]">
+                    <div className="px-3 py-2.5 border-b border-[var(--border-divider)] flex items-center justify-between bg-[var(--surface-header)]">
                         <div className="flex items-center gap-2">
                             <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
                             <span className="responsiveText font-semibold text-[var(--port-gore)]">Assistant</span>
@@ -616,7 +616,7 @@ const FloatingChat = () => {
                                     <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.6rem', backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}>
                                         {contractsData.length} Con
                                     </span>
-                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.6rem', backgroundColor: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
+                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.6rem', backgroundColor: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
                                         {invoicesData.length} Inv
                                     </span>
                                     <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.6rem', backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}>
@@ -653,7 +653,7 @@ const FloatingChat = () => {
                                                 ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-sm'
                                                 : 'bg-[var(--selago)]/40 text-[var(--port-gore)] border border-[var(--selago)] rounded-bl-sm'
                                     }`}
-                                    style={msg.role === 'user' ? { backgroundColor: '#e8f5ff', color: 'var(--port-gore)' } : {}}
+                                    style={msg.role === 'user' ? { backgroundColor: 'var(--selago)', color: 'var(--port-gore)' } : {}}
                                 >
                                     <div
                                         className="break-words leading-relaxed"
@@ -680,7 +680,7 @@ const FloatingChat = () => {
                                                             setChatOpen(false);
                                                         }}
                                                         title={`Open ${src.label} in ${src.route.replace('/', '')}`}
-                                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-[#d8e8f5] hover:border-[var(--endeavour)] hover:bg-[#f0f9ff] transition-colors"
+                                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-[var(--border-cell)] hover:border-[var(--endeavour)] hover:bg-[var(--selago)] transition-colors"
                                                         style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}
                                                     >
                                                         <Icon className="w-2.5 h-2.5" aria-hidden="true" />
@@ -727,7 +727,7 @@ const FloatingChat = () => {
                     </div>
 
                     {/* Input + actions */}
-                    <div className="p-3 border-t border-[#b8ddf8]" style={{ backgroundColor: '#ffffff' }}>
+                    <div className="p-3 border-t border-[var(--border-divider)]" style={{ backgroundColor: '#ffffff' }}>
 
                         {/* Nav buttons — shown after a data response mentions a page */}
                         {lastAssistantMsg && !isLoading && (() => {
@@ -750,7 +750,7 @@ const FloatingChat = () => {
                         })()}
 
                         {/* Input bar */}
-                        <div className="flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-3 py-2 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: '#e8f5ff' }}>
+                        <div className="flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-3 py-2 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: 'var(--selago)' }}>
                             <input
                                 ref={inputRef}
                                 type="text"
@@ -759,7 +759,7 @@ const FloatingChat = () => {
                                 onKeyDown={handleKeyDown}
                                 placeholder="Ask me anything"
                                 disabled={isLoading || dataLoading}
-                                className="flex-1 outline-none text-[var(--port-gore)] placeholder-[#6b8fb5] disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 outline-none text-[var(--port-gore)] placeholder-[var(--rock-blue)] disabled:opacity-50 disabled:cursor-not-allowed"
                                 style={{ fontSize: '0.68rem', backgroundColor: 'transparent' }}
                             />
                             <button
@@ -778,7 +778,7 @@ const FloatingChat = () => {
                                     <button
                                         key={action}
                                         onClick={() => handleSendMessage(action)}
-                                        className="px-2.5 py-1 bg-white border border-[#b8ddf8] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
+                                        className="px-2.5 py-1 bg-white border border-[var(--border-divider)] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
                                         style={{ fontSize: '0.65rem' }}
                                     >
                                         {action}
@@ -794,7 +794,7 @@ const FloatingChat = () => {
                                     <button
                                         key={action}
                                         onClick={() => handleSendMessage(action)}
-                                        className="px-2.5 py-1 bg-white border border-[#b8ddf8] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
+                                        className="px-2.5 py-1 bg-white border border-[var(--border-divider)] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
                                         style={{ fontSize: '0.65rem' }}
                                     >
                                         {action}

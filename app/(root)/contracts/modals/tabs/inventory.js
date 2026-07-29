@@ -162,7 +162,7 @@ const Inventory = () => {
     return (
         <div className='p-1'>
 
-            <div className='mt-3 border border-[#b8ddf8] p-2 rounded-2xl max-w-xs'>
+            <div className='mt-3 border border-[var(--border-divider)] p-2 rounded-2xl max-w-xs'>
 
                 <div className='flex justify-between'>
                     <p className='responsiveTextTable font-medium text-[var(--chathams-blue)]'>{getTtl('Purchase QTY', ln)} / MT</p>
@@ -183,11 +183,11 @@ const Inventory = () => {
             </div>
 
 
-            <div className='mt-4 border border-[#b8ddf8] p-2 rounded-2xl w-fit' >
-                <div className="overflow-x-auto border-[#b8ddf8] border rounded-2xl ">
+            <div className='mt-4 border border-[var(--border-divider)] p-2 rounded-2xl w-fit' >
+                <div className="overflow-x-auto border-[var(--border-divider)] border rounded-2xl ">
                     <table className=''>
-                        <thead style={{ background: '#dbeeff' }} className="divide-y divide-[#b8ddf8]">
-                            <tr className='border-b border-[#b8ddf8]'>
+                        <thead style={{ background: 'var(--surface-header)' }} className="divide-y divide-[var(--border-divider)]">
+                            <tr className='border-b border-[var(--border-divider)]'>
                                 {cols.map(x => x.header)
                                     .map((y, k) => (
                                         <th
@@ -201,7 +201,7 @@ const Inventory = () => {
                                     ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#d8e8f5]">
+                        <tbody className="divide-y divide-[var(--border-cell)]">
                             {data.map((obj, i) => (
                                 <tr key={i}>
                                     {cols.map(y => (

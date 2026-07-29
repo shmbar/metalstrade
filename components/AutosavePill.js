@@ -10,7 +10,7 @@ export default function AutosavePill({ mode, text, countdown, onSaveNow, onCance
     if (!mode) return null;
     return (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9990] pointer-events-none">
-            <div className="flex items-center gap-2 rounded-full bg-white shadow-xl border border-[#dbeeff] pl-3 pr-2 py-1.5 pointer-events-auto"
+            <div className="flex items-center gap-2 rounded-full bg-white shadow-xl border border-[var(--surface-header)] pl-3 pr-2 py-1.5 pointer-events-auto"
                 style={{ fontSize: '0.72rem' }}>
                 {mode === 'pending' && (
                     <>
@@ -23,7 +23,7 @@ export default function AutosavePill({ mode, text, countdown, onSaveNow, onCance
                             Save now
                         </button>
                         <button onClick={onCancel} className="rounded-full px-2.5 py-1 font-semibold hover:brightness-95"
-                            style={{ color: 'var(--regent-gray)', background: '#f1f5fb', fontSize: '0.66rem' }}>
+                            style={{ color: 'var(--regent-gray)', background: 'var(--selago)', fontSize: '0.66rem' }}>
                             Cancel
                         </button>
                     </>

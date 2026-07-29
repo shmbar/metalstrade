@@ -13,7 +13,7 @@ const YearSelect = ({yr, setYr}) => {
                 {yrArr.map(z => {
                     return (
                         <MenuItem className='text-[var(--endeavour)] font-poppins text-xs' key={z} >
-                            <button className={`hover:bg-[#dbeeff] flex w-full items-center gap-2 rounded-full py-1.5 my-1 px-1
+                            <button className={`hover:bg-[var(--surface-header)] flex w-full items-center gap-2 rounded-full py-1.5 my-1 px-1
                             ${yr === z ? 'bg-[var(--endeavour)] text-white' : ''}`}
                                 onClick={() => setYr(z)}>
                                 {z}

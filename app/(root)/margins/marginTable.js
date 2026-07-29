@@ -31,7 +31,7 @@ const MarginTable = memo(function MarginTable(props) {
                 style={{
                     background: '#ffffff',
                     borderRadius: '12px',
-                    border: '1px solid #b8ddf8',
+                    border: '1px solid var(--border-divider)',
                     marginBottom: '0px',
                     padding: '4px 8px'
                 }}
@@ -49,7 +49,7 @@ const MarginTable = memo(function MarginTable(props) {
                                 minHeight: '32px'
                             }}
                         >
-                            <div className="bg-[#dbeeff] rounded-full px-3 py-1 flex items-center gap-2 w-fit">
+                            <div className="bg-[var(--surface-header)] rounded-full px-3 py-1 flex items-center gap-2 w-fit">
 
   <DisclosureButton className="flex items-center justify-center hover:opacity-80 transition-all" onClick={() => saveOpenClose(!open)}>
     {!open ? (
@@ -241,7 +241,7 @@ const MarginTable = memo(function MarginTable(props) {
                             <div 
                                 className="mt-1 w-full"
                                 style={{
-                                    borderTop: '1px solid #b8ddf8',
+                                    borderTop: '1px solid var(--border-divider)',
                                     paddingTop: '8px'
                                 }}
                             >

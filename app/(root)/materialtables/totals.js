@@ -46,7 +46,7 @@ const Customtable = ({ data, columns }) => {
                                         key={header.id}
                                         className="responsiveTextTable"
                                         style={{
-                                            backgroundColor: isDel ? 'transparent' : '#dbeeff',
+                                            backgroundColor: isDel ? 'transparent' : 'var(--surface-header)',
                                             color: 'var(--chathams-blue)',
                                             padding: isDel ? '0' : '5px 6px',
                                                                                         fontWeight: '500',

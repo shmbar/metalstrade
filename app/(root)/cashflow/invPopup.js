@@ -107,15 +107,15 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                 maxWidth: 'min(95vw, 860px)',
                 maxHeight: '92vh',
                 borderRadius: '16px',
-                border: '1px solid #d8e8f5',
-                boxShadow: '0 24px 80px rgba(3,102,174,0.18)',
+                border: '1px solid var(--border-cell)',
+                boxShadow: '0 24px 80px rgba(var(--endeavour-rgb),0.18)',
                 fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
             }}>
                 <DialogTitle className="sr-only">Supplier Invoice {invNo}</DialogTitle>
                 {/* Status ribbon — sits OUTSIDE the document */}
                 <div style={{
-                    background: '#f8fbff',
-                    borderBottom: '1px solid #d8e8f5',
+                    background: 'var(--surface-pill)',
+                    borderBottom: '1px solid var(--border-cell)',
                     padding: '8px 16px 8px 16px',
                     paddingRight: '44px',
                     display: 'flex', justifyContent: 'flex-start', gap: '6px', alignItems: 'center',
@@ -137,7 +137,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                     }}>{status}</span>
                 </div>
 
-                <div className="overflow-y-auto flex-1" style={{ background: '#e8eff6' }}>
+                <div className="overflow-y-auto flex-1" style={{ background: 'var(--selago)' }}>
                     <div className="mx-auto my-4" style={{
                         background: '#fff',
                         width: 'calc(100% - 32px)',
@@ -145,7 +145,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                         boxShadow: '0 2px 16px rgba(0,0,0,0.10)',
                         borderRadius: '4px',
                         padding: '32px 36px 28px',
-                        color: '#203764',
+                        color: 'var(--chathams-blue)',
                         position: 'relative',
                     }}>
 
@@ -161,7 +161,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                         {/* Supplier (From) + Invoice details */}
                         <div className="flex justify-between items-start mb-4 flex-wrap gap-x-6 gap-y-2">
                             <div style={{ minWidth: '200px' }}>
-                                <p style={{ fontSize: '10px', fontWeight: '700', borderBottom: '1px solid #203764', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
+                                <p style={{ fontSize: '10px', fontWeight: '700', borderBottom: '1px solid var(--chathams-blue)', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
                                     From (Supplier):
                                 </p>
                                 <p style={{ fontSize: '10px', fontWeight: '700' }}>{supplier?.nname || inv.supplierName || ''}</p>
@@ -204,10 +204,10 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                     // open. It's a viewer hint, not guaranteed on every browser, but covers
                                     // the common ones and the user can still open the panel themselves.
                                     <iframe title={primaryFile.name} src={`${primaryFile.url}#toolbar=1&navpanes=0`}
-                                        style={{ width: '100%', height: '68vh', border: '1px solid #d8e8f5', borderRadius: '6px', background: '#fff' }} />
+                                        style={{ width: '100%', height: '68vh', border: '1px solid var(--border-cell)', borderRadius: '6px', background: '#fff' }} />
                                 ) : isImage(primaryFile.name) ? (
                                     <img src={primaryFile.url} alt={primaryFile.name}
-                                        style={{ display: 'block', maxWidth: '100%', margin: '0 auto', borderRadius: '6px', border: '1px solid #d8e8f5' }} />
+                                        style={{ display: 'block', maxWidth: '100%', margin: '0 auto', borderRadius: '6px', border: '1px solid var(--border-cell)' }} />
                                 ) : (
                                     <div style={{ fontSize: '11px', color: 'var(--regent-gray)', padding: '12px 0' }}>
                                         This file type can’t be previewed inline — open it with the link below.
@@ -228,8 +228,8 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                     <tbody>
                                         <tr>
                                             <td colSpan={3} />
-                                            <td className="text-left text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px', whiteSpace: 'nowrap', width: '18%' }}>Total Amount:</td>
-                                            <td className="text-right text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px', width: '15%' }}>{fmtAmt(total)}</td>
+                                            <td className="text-left text-[10px] px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px', whiteSpace: 'nowrap', width: '18%' }}>Total Amount:</td>
+                                            <td className="text-right text-[10px] px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px', width: '15%' }}>{fmtAmt(total)}</td>
                                         </tr>
                                         <tr>
                                             <td colSpan={3} />
@@ -355,15 +355,15 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                 maxWidth: 'min(95vw, 860px)',
                 maxHeight: '92vh',
                 borderRadius: '16px',
-                border: '1px solid #d8e8f5',
-                boxShadow: '0 24px 80px rgba(3,102,174,0.18)',
+                border: '1px solid var(--border-cell)',
+                boxShadow: '0 24px 80px rgba(var(--endeavour-rgb),0.18)',
                 fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
             }}>
                 <DialogTitle className="sr-only">{getInvTypeLabel(inv).replace(':', '')} {invNo}</DialogTitle>
                 {/* Status ribbon — sits OUTSIDE the document */}
                 <div style={{
-                    background: '#f8fbff',
-                    borderBottom: '1px solid #d8e8f5',
+                    background: 'var(--surface-pill)',
+                    borderBottom: '1px solid var(--border-cell)',
                     padding: '8px 16px 8px 16px',
                     paddingRight: '44px',
                     display: 'flex', justifyContent: 'flex-start', gap: '6px', alignItems: 'center',
@@ -402,7 +402,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                 </div>
 
                 {/* Scrollable document area */}
-                <div className="overflow-y-auto flex-1" style={{ background: '#e8eff6' }}>
+                <div className="overflow-y-auto flex-1" style={{ background: 'var(--selago)' }}>
                     <div className="mx-auto my-4" style={{
                         background: '#fff',
                         width: 'calc(100% - 32px)',
@@ -410,7 +410,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         boxShadow: '0 2px 16px rgba(0,0,0,0.10)',
                         borderRadius: '4px',
                         padding: '32px 36px 28px',
-                        color: '#203764',
+                        color: 'var(--chathams-blue)',
                         position: 'relative',
                     }}>
 
@@ -426,7 +426,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         {/* ── Consignee + Invoice details ── */}
                         <div className="flex justify-between items-start mb-4 flex-wrap gap-x-6 gap-y-2">
                             <div style={{ minWidth: '200px' }}>
-                                <p style={{ fontSize: '10px', fontWeight: '700', borderBottom: '1px solid #203764', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
+                                <p style={{ fontSize: '10px', fontWeight: '700', borderBottom: '1px solid var(--chathams-blue)', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
                                     Consignee:
                                 </p>
                                 <p style={{ fontSize: '10px', fontWeight: '700' }}>{client?.nname || inv.clientName || ''}</p>
@@ -460,7 +460,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         </div>
 
                         {/* ── Shipment details ── */}
-                        <div style={{ marginBottom: '48px', fontSize: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', color: '#203764' }}>
+                        <div style={{ marginBottom: '48px', fontSize: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', color: 'var(--chathams-blue)' }}>
                             {/* Left: Shipment / Origin / Delivery Terms */}
                             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                                 <table style={{ borderCollapse: 'collapse' }}>
@@ -497,7 +497,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         {/* ── Products table ── */}
                         <table className="inv-preview-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4px', fontSize: '10px' }}>
                             <thead>
-                                <tr style={{ background: '#096eb6', color: '#fff' }}>
+                                <tr style={{ background: 'var(--endeavour)', color: '#fff' }}>
                                     <th className={TH} style={{ width: '4%' }}>#</th>
                                     <th className={TH} style={{ width: '13%' }}>PO#</th>
                                     <th className={TH} style={{ width: '38%' }}>Description</th>
@@ -522,9 +522,9 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 {/* Total rows */}
                                 <tr>
                                     <td colSpan={4} style={{ border: 'none' }} />
-                                    <td className="text-left text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px', whiteSpace: 'nowrap' }}>Total Amount:</td>
-                                    <td style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px' }} />
-                                    <td className="text-right text-[10px] px-2" style={{ borderTop: '1px solid #203764', padding: '6px 8px 4px' }}>{fmtAmt(inv.totalAmount)}</td>
+                                    <td className="text-left text-[10px] px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px', whiteSpace: 'nowrap' }}>Total Amount:</td>
+                                    <td style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px' }} />
+                                    <td className="text-right text-[10px] px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px' }}>{fmtAmt(inv.totalAmount)}</td>
                                 </tr>
                                 {isInvoice && inv.percentage && (
                                     <tr>

@@ -121,9 +121,13 @@ const AuthContextProvider = ({ children }) => {
     // Keep the sign-in page's email prefill across logout — wiping it made every
     // logout look like "Remember me forgot me".
     const savedEmail = localStorage.getItem('email');
+    // Keep the colour theme too, so the next login paints in the member's own
+    // theme immediately instead of flashing default blue until Firestore loads.
+    const savedTheme = localStorage.getItem('ims-theme');
     sessionStorage.clear();
     localStorage.clear();
     if (savedEmail) localStorage.setItem('email', savedEmail);
+    if (savedTheme) localStorage.setItem('ims-theme', savedTheme);
     setUser(null);
     if (window.__resetLogoutTimer) window.__resetLogoutTimer();
     await signOut(auth).catch(() => {});

@@ -340,7 +340,7 @@ const ContractModal = () => {
 	return (
 		<div className="px-1">
 			<div className='grid grid-cols-1 md:grid-cols-6 gap-3 pt-1'>
-				<div className='md:col-span-3 border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='md:col-span-3 border border-[var(--border-divider)] p-2 rounded-2xl'>
 					<div className='flex flex-col md:flex-row gap-3 items-start md:items-center'>
 						<p className='flex responsiveText font-medium text-[var(--chathams-blue)]'>{getTtl('Supplier Name', ln)}:</p>
 						<div className='flex-1 min-w-0'>
@@ -381,13 +381,13 @@ const ContractModal = () => {
 						</div>
 					}
 				</div>
-				<div className='hidden md:flex md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='hidden md:flex md:col-span-1 border border-[var(--border-divider)] p-2 rounded-2xl'>
 
 				</div>
-				<div className='md:col-span-2 border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='md:col-span-2 border border-[var(--border-divider)] p-2 rounded-2xl'>
 					<p className='flex items-center responsiveText font-medium text-[var(--chathams-blue)]'>{getTtl('PoOrderNo', ln)}:</p>
 					<div className='w-full responsiveText'>
-						<input className="border border-[#d8e8f5] bg-[#f8fbff] rounded-full px-3 py-1 h-7 text-[0.72rem] text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)] w-full" style={{ fontFamily: 'inherit' }} name='order' value={valueCon.order} onChange={handleValue} />
+						<input className="border border-[var(--border-cell)] bg-[var(--surface-pill)] rounded-full px-3 py-1 h-7 text-[0.72rem] text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)] w-full" style={{ fontFamily: 'inherit' }} name='order' value={valueCon.order} onChange={handleValue} />
 						<ErrDiv field='order' errors={errors} ln={ln} />
 					</div>
 					<p className='flex items-center responsiveText mt-3 font-medium text-[var(--chathams-blue)]'>{getTtl('Date', ln)}:</p>
@@ -398,14 +398,14 @@ const ContractModal = () => {
 							popoverDirection='down'
 							onChange={handleDateChange}
 							displayFormat={"DD-MMM-YYYY"}
-							inputClassName='border border-[#d8e8f5] bg-[#f8fbff] rounded-full px-3 py-1 h-7 text-[0.72rem] text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)] w-full'
+							inputClassName='border border-[var(--border-cell)] bg-[var(--surface-pill)] rounded-full px-3 py-1 h-7 text-[0.72rem] text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)] w-full'
 						/>
 						<ErrDiv field='date' errors={errors} ln={ln} />
 					</div>
 				</div>
 			</div>
 			<div className='grid grid-cols-1 md:grid-cols-3 gap-3 pt-2'>
-				<div className='border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='border border-[var(--border-divider)] p-2 rounded-2xl'>
 					<div className='flex  gap-2 md:items-center justify-between'>
 						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)]'>{getTtl('Shipment', ln)}:</p>
 						<div className='flex-1 min-w-0 max-w-[15rem]'>
@@ -436,7 +436,7 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='border border-[var(--border-divider)] p-2 rounded-2xl'>
 					<div className='flex gap-2 md:items-center justify-between'>
 						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)]'>{getTtl('POL', ln)}:</p>
 						<div className='flex-1 min-w-0 max-w-[15rem]'>
@@ -466,7 +466,7 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='border border-[var(--border-divider)] p-2 rounded-2xl'>
 					<div className='flex gap-2 md:items-center justify-between'>
 						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)]'>{getTtl('Container Type', ln)}:</p>
 						<div className='flex-1 min-w-0  max-w-[15rem]'>
@@ -508,7 +508,7 @@ const ContractModal = () => {
 				</div>
 			</div>
 
-			<div className='mt-2 w-full border border-[#b8ddf8] p-2 rounded-2xl'>
+			<div className='mt-2 w-full border border-[var(--border-divider)] p-2 rounded-2xl'>
 				<p className='flex items-center responsiveText font-medium text-[var(--chathams-blue)]'>{getTtl('Payment Terms', ln)}:</p>
 				<div className='w-full '>
 					{!valueCon.isTermPmntText ?
@@ -531,14 +531,14 @@ const ContractModal = () => {
 
 			<div className='grid grid-cols-1 md:grid-cols-4 gap-3 pt-2'>
 				<div className='md:col-span-3'>
-					<div className='w-full border border-[#b8ddf8] p-2 rounded-2xl'>
+					<div className='w-full border border-[var(--border-divider)] p-2 rounded-2xl'>
 						<ProductsTable value={valueCon} setValue={setValueCon} currency={settings.Currency.Currency}
 							quantityTable={settings.Quantity.Quantity} setShowPoInvModal={setShowPoInvModal}
 							setShowStockModal={setShowStockModal} setToast={setToast} contractsData={contractsData}
 						/>
 					</div>
 				</div>
-				<div className='md:col-span-1 border border-[#b8ddf8] p-2 rounded-2xl'>
+				<div className='md:col-span-1 border border-[var(--border-divider)] p-2 rounded-2xl'>
 					<div className='flex flex-col gap-0.5'>
 						<p className='flex responsiveText font-medium text-[var(--chathams-blue)]'>{getTtl('Currency', ln)}:</p>
 						<div className='flex-1 min-w-0'>
@@ -573,10 +573,10 @@ const ContractModal = () => {
 
 			<div className='grid grid-cols-1 md:grid-cols-4 gap-3 pt-2'>
 				<div className='md:col-span-3'>
-					<div className='mt-2 w-full border border-[#b8ddf8] p-2 rounded-2xl'>
+					<div className='mt-2 w-full border border-[var(--border-divider)] p-2 rounded-2xl'>
 						<Remarks settings={settings} value={valueCon} setValue={setValueCon} />
 					</div>
-					<div className='mt-2 w-full border border-[#b8ddf8] p-2 rounded-2xl'>
+					<div className='mt-2 w-full border border-[var(--border-divider)] p-2 rounded-2xl'>
 						<PriceRemarks value={valueCon} setValue={setValueCon} />
 					</div>
 				</div>

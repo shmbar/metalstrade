@@ -498,7 +498,7 @@ const Margins = () => {
     }, []);
 
     return (
-        <div className="w-full" style={{ background: "#f8fbff" }}>
+        <div className="w-full" style={{ background: "var(--surface-pill)" }}>
             <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
                 {Object.keys(settings).length === 0 ? <TableSkeleton /> :
                     <>
@@ -511,7 +511,7 @@ const Margins = () => {
                         <VideoLoader loading={loading} fullScreen={true} />
 
                         {/* Main Card */}
-                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-xl w-full bg-white">
+                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-xl w-full bg-white">
 
                             {/* Header Section */}
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
@@ -532,7 +532,7 @@ const Margins = () => {
                                             onChange={e => handleThresholdChange(e.target.value)}
                                             aria-label='Minimum acceptable total margin'
                                             className='w-20 text-center rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
-                                            style={{ fontSize: '0.65rem', borderColor: '#b8ddf8', background: '#f8fbff', color: 'var(--port-gore)' }}
+                                            style={{ fontSize: '0.65rem', borderColor: 'var(--border-divider)', background: 'var(--surface-pill)', color: 'var(--port-gore)' }}
                                         />
                                     </div>
                                     <div className='flex items-center gap-2 group'>
@@ -656,7 +656,7 @@ const Margins = () => {
                             {!loading && incompleteCount > 0 && (
                                 <div
                                     className='flex items-center gap-2 px-3 py-1.5 mb-3 rounded-lg'
-                                    style={{ background: '#f8fbff', border: '1px solid #dbeeff' }}
+                                    style={{ background: 'var(--surface-pill)', border: '1px solid var(--surface-header)' }}
                                 >
                                     <Info className='w-3 h-3 flex-shrink-0' style={{ color: 'var(--regent-gray)' }} />
                                     <span style={{ fontSize: '0.62rem', color: 'var(--regent-gray)' }}>
@@ -675,10 +675,10 @@ const Margins = () => {
                             />
 
                             {/* Action Buttons - Keep original position */}
-                            <div className="rounded-2xl border border-[#b8ddf8]">
+                            <div className="rounded-2xl border border-[var(--border-divider)]">
                                 <div className="p-2 flex gap-3 mt-3">
                                     <button
-                                        className="bg-[#dbeeff] text-[var(--chathams-blue)] font-medium px-3 py-1 text-[0.68rem] rounded-full hover:opacity-90 transition-all"
+                                        className="bg-[var(--surface-header)] text-[var(--chathams-blue)] font-medium px-3 py-1 text-[0.68rem] rounded-full hover:opacity-90 transition-all"
                                         disabled={data.length >= 12}
                                         onClick={addMonth}
                                     >
@@ -687,7 +687,7 @@ const Margins = () => {
 
                                     {autoSaving ? (
                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
-                                            style={{ fontSize: '0.62rem', background: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
+                                            style={{ fontSize: '0.62rem', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
                                             <Loader2 className="w-3 h-3 animate-spin" /> Saving…
                                         </span>
                                     ) : dirty ? (
@@ -711,7 +711,7 @@ const Margins = () => {
 
                                 {/* Margins Tables */}
                                 <div className="w-full p-2 mt-2">
-                                    <div className="w-full max-w-8xl divide-y divide-[#dbeeff] rounded-xl">
+                                    <div className="w-full max-w-8xl divide-y divide-[var(--surface-header)] rounded-xl">
                                         {data.map(({ month, items, openMonth }) => {
                                             return (
                                                 <div key={month}>

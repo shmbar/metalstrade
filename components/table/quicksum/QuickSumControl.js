@@ -109,7 +109,7 @@ export function QuickSumButton({
         type="button"
         onClick={toggleEnabled}
         className={enabled
-            ? 'whiteButton whitespace-nowrap !bg-[var(--chathams-blue)] !text-white !border-[#b8ddf8]'
+            ? 'whiteButton whitespace-nowrap !bg-[var(--chathams-blue)] !text-white !border-[var(--border-divider)]'
             : 'whiteButton whitespace-nowrap'}
         title="Quick Sum"
       >
@@ -122,7 +122,7 @@ export function QuickSumButton({
             ref={triggerRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="h-7 px-2 rounded-2xl text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium transition-all bg-white text-[var(--port-gore)] border border-[#b8ddf8] hover:border-[#b8ddf8]"
+            className="h-7 px-2 rounded-2xl text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium transition-all bg-white text-[var(--port-gore)] border border-[var(--border-divider)] hover:border-[var(--border-divider)]"
             title="Choose columns"
           >
             Columns ▾
@@ -136,7 +136,7 @@ export function QuickSumButton({
               />
               <div
                 style={dropdownStyle}
-                className="bg-white border border-[#b8ddf8] rounded-xl shadow-lg p-3"
+                className="bg-white border border-[var(--border-divider)] rounded-xl shadow-lg p-3"
               >
                 <div className="text-sm font-medium text-[var(--port-gore)] mb-2 pl-1">
                   Select numeric columns
@@ -165,7 +165,7 @@ export function QuickSumButton({
                   </div>
                 )}
 
-                <div className="mt-2 pt-2 border-t border-[#b8ddf8] flex items-center justify-between">
+                <div className="mt-2 pt-2 border-t border-[var(--border-divider)] flex items-center justify-between">
                   <button
                     type="button"
                     className="text-xs text-[var(--endeavour)] hover:underline"
@@ -225,7 +225,7 @@ export function QuickSumTotals({
           if (t.byCurrency.EUR != null) parts.push(`€${fmt(t.byCurrency.EUR)}`);
           if (t.byCurrency.plain != null) parts.push(fmt(t.byCurrency.plain));
           return (
-            <span key={t.id} className="bg-white border border-[#b8ddf8] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
+            <span key={t.id} className="bg-white border border-[var(--border-divider)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
               {label}: <span className="text-[var(--endeavour)]">{parts.join(' | ')}</span>
             </span>
           );
@@ -233,7 +233,7 @@ export function QuickSumTotals({
 
         // Single currency / plain number
         return (
-          <span key={t.id} className="bg-white border border-[#b8ddf8] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
+          <span key={t.id} className="bg-white border border-[var(--border-divider)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
             {label}: <span className="text-[var(--endeavour)]">{fmt(t.total)}</span>
           </span>
         );

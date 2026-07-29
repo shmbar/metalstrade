@@ -322,8 +322,8 @@ const Invoices = () => {
 				const isUSD = cur === 'USD' || cur === '$' || cur.toLowerCase() === 'us';
 				const isEUR = cur === 'EUR' || cur === '€' || cur.toLowerCase() === 'eu';
 				const symbol = isUSD ? '$' : isEUR ? '€' : cur;
-				const bg = isUSD ? '#dcfce7' : isEUR ? '#dbeeff' : '#e5e7eb';
-				const border = isUSD ? '1px solid #bbf7d0' : isEUR ? '1px solid #b8ddf8' : '1px solid #d1d5db';
+				const bg = isUSD ? '#dcfce7' : isEUR ? 'var(--surface-header)' : '#e5e7eb';
+				const border = isUSD ? '1px solid #bbf7d0' : isEUR ? '1px solid var(--border-divider)' : '1px solid #d1d5db';
 				const color = isUSD ? '#166534' : 'var(--chathams-blue)';
 				return (
 					<span
@@ -702,13 +702,13 @@ const Invoices = () => {
 	};
 
 	return (
-		<div className="w-full " style={{ background: "#f8fbff" }}>
+		<div className="w-full " style={{ background: "var(--surface-pill)" }}>
 			<div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
 				{Object.keys(settings).length === 0 ? <TableSkeleton /> :
 					<>
 						<Toast />
 						{/* Main Card */}
-						<div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] w-full bg-[#f8fbff]">
+						<div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] w-full bg-[var(--surface-pill)]">
 
 							{/* Header Section */}
 							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
@@ -726,13 +726,13 @@ const Invoices = () => {
 											style={{
 												fontSize: '0.66rem', padding: '4px 12px',
 												color: onlyUnsplit ? 'white' : 'var(--chathams-blue)',
-												background: onlyUnsplit ? 'var(--endeavour)' : '#f8fbff',
-												border: '1px solid #b8ddf8',
+												background: onlyUnsplit ? 'var(--endeavour)' : 'var(--surface-pill)',
+												border: '1px solid var(--border-divider)',
 											}}
 										>
 											<Split className='w-3.5 h-3.5' />
 											Needs IMS/GIS split
-											<span className='rounded-full px-1.5' style={{ fontSize: '0.6rem', background: onlyUnsplit ? 'rgba(255,255,255,0.25)' : '#dbeeff', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
+											<span className='rounded-full px-1.5' style={{ fontSize: '0.6rem', background: onlyUnsplit ? 'rgba(255,255,255,0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
 												{pendingCount}
 											</span>
 										</button>
@@ -756,7 +756,7 @@ const Invoices = () => {
 						{/* Alert Section */}
 						{alertArr.length > 0 && (
 							<div className='mt-4 px-2 sm:px-3'>
-								<div className="responsiveText font-medium border border-[#b8ddf8] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
+								<div className="responsiveText font-medium border border-[var(--border-divider)] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
 									<div style={{ color: 'var(--chathams-blue)' }}>
 										<span className='responsiveText border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
 										<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />

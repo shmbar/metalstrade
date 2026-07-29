@@ -341,7 +341,7 @@ const Stocks = () => {
   );
 
   return (
-    <div className="w-full " style={{ background: "#f8fbff" }}>
+    <div className="w-full " style={{ background: "var(--surface-pill)" }}>
       <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
         {Object.keys(settings).length === 0 ? <TableSkeleton /> :
           <>
@@ -351,7 +351,7 @@ const Stocks = () => {
                 light overlay as every other loading state. */}
             <VideoLoader loading={isLoadingStock} fullScreen={true} />
             {/* Main Card */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
+            <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)]">
               {/* Header Section */}
               <div className='flex items-center justify-between flex-wrap gap-2'>
                 <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
@@ -376,7 +376,7 @@ const Stocks = () => {
                       fontSize: '0.72rem', padding: '5px 14px',
                       background: activeTab === key ? 'var(--endeavour)' : 'white',
                       color: activeTab === key ? 'white' : 'var(--chathams-blue)',
-                      border: `1px solid ${activeTab === key ? 'var(--endeavour)' : '#d8e8f5'}`,
+                      border: `1px solid ${activeTab === key ? 'var(--endeavour)' : 'var(--border-cell)'}`,
                     }}>
                     {label}
                   </button>

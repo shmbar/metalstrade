@@ -347,12 +347,12 @@ const AssistantChat = () => {
                 {Object.keys(settings).length === 0 ? <Spinner /> :
                     <>
                         <Toast />
-                        <div className="border border-[#b8ddf8] rounded-xl shadow-sm bg-white mt-4 flex flex-col flex-1 overflow-hidden">
+                        <div className="border border-[var(--border-divider)] rounded-xl shadow-sm bg-white mt-4 flex flex-col flex-1 overflow-hidden">
 
                             {/* Top Bar — flex-wrap + nowrap pills: on narrow screens the chip
                                 row drops WHOLE onto its own line under the title instead of
                                 breaking words mid-pill ("Contract / s") and colliding with it. */}
-                            <div className="px-3 md:px-4 py-2.5 border-b border-[#b8ddf8] flex flex-wrap items-center justify-between gap-y-2 gap-x-3 bg-[#dbeeff]">
+                            <div className="px-3 md:px-4 py-2.5 border-b border-[var(--border-divider)] flex flex-wrap items-center justify-between gap-y-2 gap-x-3 bg-[var(--surface-header)]">
                                 <div className="flex items-center gap-2 shrink-0">
                                     <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
                                     <span className="responsiveTextTitle font-medium text-[var(--port-gore)]">Assistant</span>
@@ -365,7 +365,7 @@ const AssistantChat = () => {
                                             <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}>
                                                 {contractsData.length} Contracts
                                             </span>
-                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: '#dbeeff', color: 'var(--chathams-blue)', border: '1px solid #b8ddf8' }}>
+                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
                                                 {invoicesData.length} Invoices
                                             </span>
                                             <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: '#ede9fe', color: '#5b21b6', border: '1px solid #c4b5fd' }}>
@@ -379,7 +379,7 @@ const AssistantChat = () => {
                                     <button
                                         onClick={() => loadAllData(true)}
                                         disabled={dataLoading}
-                                        className="p-1.5 rounded-full transition-colors hover:bg-[#b8ddf8]/50 disabled:opacity-40 shrink-0"
+                                        className="p-1.5 rounded-full transition-colors hover:bg-[rgba(var(--border-divider-rgb),0.5)] disabled:opacity-40 shrink-0"
                                         title="Refresh data"
                                     >
                                         <FiRefreshCw className={`w-3.5 h-3.5 text-[var(--endeavour)] ${dataLoading ? 'animate-spin' : ''}`} />
@@ -434,7 +434,7 @@ const AssistantChat = () => {
                                                                 ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-sm'
                                                                 : 'bg-[var(--selago)]/40 text-[var(--port-gore)] border border-[var(--selago)] rounded-bl-sm'
                                                     }`}
-                                                    style={message.role === 'user' ? { backgroundColor: '#dbeeff', color: 'var(--port-gore)' } : {}}
+                                                    style={message.role === 'user' ? { backgroundColor: 'var(--surface-header)', color: 'var(--port-gore)' } : {}}
                                                 >
                                                     <div
                                                         className="break-words"
@@ -478,7 +478,7 @@ const AssistantChat = () => {
 
                             {/* Input Area */}
                             <div className="p-4 border-t border-[var(--selago)]" style={{ backgroundColor: '#ffffff' }}>
-                                <div className="responsiveText flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: '#dbeeff' }}>
+                                <div className="responsiveText flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: 'var(--surface-header)' }}>
                                     <GrAttachment className="w-4 h-4 text-[var(--regent-gray)] flex-shrink-0" />
                                     <input
                                         ref={inputRef}
@@ -488,7 +488,7 @@ const AssistantChat = () => {
                                         onChange={(e) => setNewMessage(e.target.value)}
                                         onKeyDown={handleKeyDown}
                                         disabled={isLoading || dataLoading}
-                                        className="flex-1 outline-none text-[var(--port-gore)] placeholder-[#6b8fb5] disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex-1 outline-none text-[var(--port-gore)] placeholder-[var(--rock-blue)] disabled:opacity-50 disabled:cursor-not-allowed"
                                         style={{ backgroundColor: 'transparent', fontSize: 'inherit' }}
                                     />
                                     <button
@@ -508,7 +508,7 @@ const AssistantChat = () => {
                                             key={index}
                                             onClick={() => handleSendMessage(action.text)}
                                             disabled={isLoading || dataLoading}
-                                            className="flex items-center gap-1 px-2.5 py-1 bg-white border border-[#b8ddf8] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                            className="flex items-center gap-1 px-2.5 py-1 bg-white border border-[var(--border-divider)] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                             style={{ fontSize: '0.68rem' }}
                                         >
                                             {action.icon}

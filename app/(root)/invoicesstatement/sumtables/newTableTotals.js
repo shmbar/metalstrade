@@ -42,14 +42,14 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
     return (
         <div className="custom-table-totals bg-white rounded-xl shadow border overflow-hidden"
             style={{
-                borderColor: '#b8ddf8',
+                borderColor: 'var(--border-divider)',
                 borderWidth: 1,
                 borderRadius: '16px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
             }}>
             <div className="px-4 py-2.5"
                 style={{
-                    background: '#dbeeff',
+                    background: 'var(--surface-header)',
                     borderBottom: '1px solid var(--rock-blue)',
                     borderTopLeftRadius: '16px',
                     borderTopRightRadius: '12px'
@@ -73,8 +73,8 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                             className="responsiveTextTable relative px-6 py-2 text-left font-medium font-poppins"
                                             style={{
                                                 color: 'var(--chathams-blue)',
-                                                borderRight: '1px solid #b8ddf8',
-                                                borderBottom: '1px solid #b8ddf8'
+                                                borderRight: '1px solid var(--border-divider)',
+                                                borderBottom: '1px solid var(--border-divider)'
                                             }}>
                                             {header.column.getCanSort() ?
                                                 <div onClick={header.column.getToggleSortingHandler()} className="flex cursor-pointer items-center gap-1">
@@ -95,7 +95,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         </thead>
                         <tbody>
                             {table1.getRowModel().rows.map(row => (
-                                <tr key={row.id} style={{ borderBottom: '1px solid var(--selago)' }} className='hover:bg-[#f8fbff] transition'>
+                                <tr key={row.id} style={{ borderBottom: '1px solid var(--selago)' }} className='hover:bg-[var(--surface-pill)] transition'>
                                     {row.getVisibleCells().map(cell => (
                                         <td key={cell.id} data-label={cell.column.columnDef.header}
                                             className="responsiveTextTable px-6 py-1 items-center"
@@ -117,7 +117,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                             ))}
                         </tbody>
                         <tfoot>
-                            <tr style={{ background: '#dbeeff', fontWeight: 500 }}>
+                            <tr style={{ background: 'var(--surface-header)', fontWeight: 500 }}>
                                 <th className="responsiveTextTable relative px-2 py-2 text-left font-medium"
                                     style={{ color: 'var(--chathams-blue)', borderRight: '1px solid var(--selago)' }}>
                                     Total $:
@@ -135,7 +135,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                     {showAmount(usdTotals.balance, 'usd')}
                                 </th>
                             </tr>
-                            <tr style={{ background: '#dbeeff', borderTop: '1px solid var(--rock-blue)' }}>
+                            <tr style={{ background: 'var(--surface-header)', borderTop: '1px solid var(--rock-blue)' }}>
                                 <th className="responsiveTextTable relative px-2 py-2 text-left font-medium"
                                     style={{ color: 'var(--chathams-blue)', borderRight: '1px solid var(--selago)' }}>
                                     Total €:
@@ -160,7 +160,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 <div className="md:hidden">
                     <div className="divide-y" style={{ borderColor: 'var(--selago)' }}>
                         {table1.getRowModel().rows.map(row => (
-                            <div key={row.id} className="p-4 bg-white hover:bg-[#f8fbff] transition-colors" style={{ borderBottom: '1px solid var(--selago)' }}>
+                            <div key={row.id} className="p-4 bg-white hover:bg-[var(--surface-pill)] transition-colors" style={{ borderBottom: '1px solid var(--selago)' }}>
                                 <Tltip direction='top' tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}>
                                     <div className="space-y-2.5">
                                         {row.getVisibleCells().map((cell) => (
@@ -185,7 +185,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         ))}
                     </div>
                     {/* Mobile Total Sections */}
-                    <div className="border-t-2" style={{ background: '#dbeeff', borderTop: '1px solid var(--rock-blue)' }}>
+                    <div className="border-t-2" style={{ background: 'var(--surface-header)', borderTop: '1px solid var(--rock-blue)' }}>
                         {/* USD Totals */}
                         <div className="p-4 border-b" style={{ borderBottom: '1px solid var(--rock-blue)' }}>
                             <div className="space-y-2.5">

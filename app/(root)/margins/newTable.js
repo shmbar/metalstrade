@@ -92,7 +92,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
     <TableRow
       ref={setNodeRef}
       style={style}
-      className="hover:bg-[#dbeeff]/40"
+      className="hover:bg-[rgba(var(--surface-header-rgb),0.4)]"
     >
       {row.getVisibleCells().map((cell) => {
         const columnConfig = COLUMN_CONFIGS[cell.column.id] || {};
@@ -112,7 +112,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
             className={cn(
               cellAlign === "right" && "text-center",
               cellAlign === "center" && "text-center",
-              "border-r border-r-[#e8f0f8] last:border-r-0"
+              "border-r border-r-[var(--selago)] last:border-r-0"
             )}
           >
             {cell.column.id === "drag-handle" ? (
@@ -363,7 +363,7 @@ const Customtable = (props) => {
                 <style jsx global>{`
                     .margins-data-table tbody td { font-size: 9px !important; }
                 `}</style>
-                <div className="rounded-lg border border-[#b8ddf8] overflow-x-auto relative shadow-sm">
+                <div className="rounded-lg border border-[var(--border-divider)] overflow-x-auto relative shadow-sm">
                     {/* Desktop Table - Compact Heights */}
                     <div className="hidden sm:block w-full min-w-[900px]">
                         <Table className="w-full margins-data-table" style={{ borderSpacing: '0 1px', tableLayout: 'fixed' }}>
@@ -381,7 +381,7 @@ const Customtable = (props) => {
     width: (COLUMN_CONFIGS[header.column.id] || {}).pct || 'auto',
   }}
   className={cn(
-    'bg-[#dbeeff] text-[var(--chathams-blue)] border-b border-b-[#b8ddf8]',
+    'bg-[var(--surface-header)] text-[var(--chathams-blue)] border-b border-b-[var(--border-divider)]',
     idx === 0 ? 'rounded-tl-lg' : '',
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
@@ -426,7 +426,7 @@ const Customtable = (props) => {
                             {data.length > 0 && (
                                 <TableFooter>
                                     {table.getFooterGroups().map((footerGroup) => (
-                                        <TableRow key={footerGroup.id} className='bg-[#dbeeff]'>
+                                        <TableRow key={footerGroup.id} className='bg-[var(--surface-header)]'>
                                             {footerGroup.headers.map((footer) => {
                                                 const accessorKey = footer.column.columnDef.accessorKey;
                                                 const columnConfig = COLUMN_CONFIGS[accessorKey] || {};
@@ -449,7 +449,7 @@ const Customtable = (props) => {
                                                         className={cn(
                                                             columnConfig.align === 'right' && 'text-right',
                                                             columnConfig.align === 'center' && 'text-center',
-                                                            'border-t border-t-[#b8ddf8]',
+                                                            'border-t border-t-[var(--border-divider)]',
                                                             'responsiveTextTable'
                                                         )}
                                                     >
@@ -491,7 +491,7 @@ const Customtable = (props) => {
                                     className="rounded-lg border border-[var(--selago)] bg-white shadow-sm overflow-hidden"
                                 >
                                     {/* Compact Card Header */}
-                                    <div className="bg-[#dbeeff] px-3 py-2 border-b border-[#b8ddf8] flex justify-between items-center min-h-[32px]">
+                                    <div className="bg-[var(--surface-header)] px-3 py-2 border-b border-[var(--border-divider)] flex justify-between items-center min-h-[32px]">
                                         <span
                                             className="responsiveTextTable font-normal text-[var(--chathams-blue)]"
                                             style={{ lineHeight: '1.2' }}

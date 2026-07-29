@@ -110,7 +110,7 @@ const Customtable = ({
 
         <div className="w-full rounded-2xl border border-[var(--selago)] overflow-x-auto shadow-sm">
           <table className="w-full min-w-[700px] border-collapse text-center table-fixed border border-[var(--selago)]">
-            <thead className="md:sticky md:top-0 md:z-10 bg-[#dbeeff]">
+            <thead className="md:sticky md:top-0 md:z-10 bg-[var(--surface-header)]">
               {table.getHeaderGroups().map((hdGroup) => (
                 <tr key={hdGroup.id} className="divide-x divide-[var(--selago)]">
                   {hdGroup.headers.map((header) => (
@@ -171,7 +171,7 @@ const Customtable = ({
                           ) : (
                             <div
                               className="px-3 py-1 rounded-xl responsiveTextTable font-normal w-full"
-                              style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}
+                              style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}
                             >
                               {cell.getValue() != null && cell.getValue() !== ''
                                 ? flexRender(cell.column.columnDef.cell, cell.getContext())
@@ -186,7 +186,7 @@ const Customtable = ({
             </tbody>
           </table>
         </div>
-        <div className="flex items-center justify-between p-3 border-[#b8ddf8] bg-white rounded-b-lg">
+        <div className="flex items-center justify-between p-3 border-[var(--border-divider)] bg-white rounded-b-lg">
           {/* LEFT — Showing text */}
           <div className="hidden lg:flex text-[var(--endeavour)] text-[0.72rem]">
             {`${getTtl("Showing", ln)} ${table.getState().pagination.pageIndex *

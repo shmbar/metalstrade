@@ -44,7 +44,7 @@ const Page = () => {
                                             'focus:outline-none',
                                             selected
                                                 ? 'text-white bg-[var(--endeavour)] shadow-sm'
-                                                : 'text-[var(--endeavour)] hover:bg-[var(--selago)] border border-[#b8ddf8]'
+                                                : 'text-[var(--endeavour)] hover:bg-[var(--selago)] border border-[var(--border-divider)]'
                                         )
                                     }
                                 >

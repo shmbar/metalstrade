@@ -127,7 +127,7 @@ const Page = () => {
 				<>
 					<Toast />
 					<VideoLoader loading={loading} fullScreen={true} />
-					<div className="bg-white rounded-2xl p-2 sm:p-3 mt-4 border border-[#b8ddf8]">
+					<div className="bg-white rounded-2xl p-2 sm:p-3 mt-4 border border-[var(--border-divider)]">
 						<div className='pb-2'>
 							<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">Formulas</h1>
 
@@ -143,7 +143,7 @@ const Page = () => {
 														'focus:outline-none',
 														selected
 															? 'font-semibold text-white bg-[var(--endeavour)] shadow-md border border-[var(--endeavour)]'
-															: 'text-[var(--endeavour)] bg-[#dbeeff] border border-[#b8ddf8] font-medium hover:bg-[#c5e4f8] hover:border-[var(--endeavour)] hover:shadow-sm'
+															: 'text-[var(--endeavour)] bg-[var(--surface-header)] border border-[var(--border-divider)] font-medium hover:bg-[var(--border-divider)] hover:border-[var(--endeavour)] hover:shadow-sm'
 													)
 												}
 											>
@@ -153,10 +153,10 @@ const Page = () => {
 									</TabList>
 
 									{value.general != null && !loading && (
-										<div className='bg-white rounded-xl p-3 mb-2 w-fit border border-[#b8ddf8]'>
+										<div className='bg-white rounded-xl p-3 mb-2 w-fit border border-[var(--border-divider)]'>
 											<div className='flex flex-wrap items-end gap-2.5'>
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-medium flex items-center justify-center gap-1'>
+													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium flex items-center justify-center gap-1'>
 														Ni LME
 														<button onClick={refreshMetal} title="Refresh live price" className="hover:text-[var(--chathams-blue)] transition-colors">
 															<RefreshCw className={`w-3 h-3 ${metalLoading ? 'animate-spin' : ''}`} />
@@ -174,7 +174,7 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-medium'>Mo Oxide - Lb</span>
+													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Mo Oxide - Lb</span>
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
@@ -187,7 +187,7 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-medium'>Charge Cr - Lb</span>
+													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Charge Cr - Lb</span>
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
@@ -200,7 +200,7 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-medium'>1 MT</span>
+													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>1 MT</span>
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
@@ -211,7 +211,7 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[#dbeeff] text-center py-1.5 font-medium'>Euro / USD</span>
+													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Euro / USD</span>
 													<input
 														type='text'
 														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'

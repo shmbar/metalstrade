@@ -81,7 +81,7 @@ const Customtable = ({
             }}
             onChange={table.getToggleAllPageRowsSelectedHandler()}
             className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: '#BCE1FE' }}
+            style={{ accentColor: 'var(--border-divider)' }}
           />
         </div>
       ),
@@ -93,7 +93,7 @@ const Customtable = ({
             disabled={!row.getCanSelect()}
             onChange={row.getToggleSelectedHandler()}
             className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: '#BCE1FE' }}
+            style={{ accentColor: 'var(--border-divider)' }}
           />
         </div>
       ),
@@ -159,20 +159,20 @@ const Customtable = ({
     <div className="w-full">
       <style jsx global>{`
         .custom-table th {
-          border: 1px solid #e8f0f8;
+          border: 1px solid var(--selago);
           text-align: center;
 
           font-family: var(--font-poppins), 'Poppins', sans-serif;
         }
         .custom-table td {
-          border: 1px solid #e8f0f8;
+          border: 1px solid var(--selago);
           text-align: center;
           font-size: 9px !important;
           font-family: var(--font-poppins), 'Poppins', sans-serif;
 
         }
         .header-blue {
-          background-color: #dbeeff;
+          background-color: var(--surface-header);
           color: var(--chathams-blue);
         }
 
@@ -187,7 +187,7 @@ const Customtable = ({
         }
 
         .summary-blue {
-          background-color: #8db6d8;
+          background-color: var(--rock-blue);
           color: var(--chathams-blue);
           font-weight: 400;
         }
@@ -222,12 +222,12 @@ const Customtable = ({
       <div className="custom-table">
         <div className="relative flex flex-col rounded-2xl">
           {/* Border overlay — renders above children so corners always visible */}
-          <div className="absolute inset-0 rounded-2xl border border-[#b8ddf8] pointer-events-none z-[15]" />
+          <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-[15]" />
 
           <div
             className="flex-shrink-0 rounded-t-2xl"
             style={{
-              borderBottom: '1px solid #b8ddf8',
+              borderBottom: '1px solid var(--border-divider)',
               background: '#ffffff',
             }}
           >
@@ -324,7 +324,7 @@ const Customtable = ({
                           className="px-2 py-1.5"
                           style={{
                             backgroundColor: '#FFFFFF',
-                            borderBottom: '2px solid #b8ddf8',
+                            borderBottom: '2px solid var(--border-divider)',
                             minWidth: header.column.id === 'select' ? '40px' : '90px',
                             maxWidth: header.column.id === 'select' ? '40px' : 'none',
                           }}
@@ -404,7 +404,7 @@ const Customtable = ({
                         ? '#dcfce7'
                         : '#fee2e2',
                     color: value === 'Completed' ? '#16a34a' : '#dc2626',
-                    border: '1px solid #d8e8f5'
+                    border: '1px solid var(--border-cell)'
                   }}
                 >
                   {value}
@@ -420,11 +420,11 @@ const Customtable = ({
                     style={{
                       backgroundColor:
                         value === 'Paid' ? '#dcfce7' :
-                        value === 'Unpaid' ? '#fee2e2' : '#f8fbff',
+                        value === 'Unpaid' ? '#fee2e2' : 'var(--surface-pill)',
                       color:
                         value === 'Paid' ? '#166534' :
                         value === 'Unpaid' ? '#dc2626' : 'var(--port-gore)',
-                      border: `1px solid ${value === 'Paid' ? '#bbf7d0' : value === 'Unpaid' ? '#fecaca' : '#d8e8f5'}`,
+                      border: `1px solid ${value === 'Paid' ? '#bbf7d0' : value === 'Unpaid' ? '#fecaca' : 'var(--border-cell)'}`,
                       fontWeight: '400',
                       ...(isEditMode && { boxShadow: 'inset 0 0 0 1px #d1d1d1' })
                     }}
@@ -432,7 +432,7 @@ const Customtable = ({
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </div>
                 ) : (
-                  <div className="p-1.5 rounded-xl responsiveTextTable font-normal min-w-[70px]" style={{ backgroundColor: '#f8fbff', border: '1px solid #d8e8f5' }}>&nbsp;</div>
+                  <div className="p-1.5 rounded-xl responsiveTextTable font-normal min-w-[70px]" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
                 )}
               </div>
             )}
@@ -478,7 +478,7 @@ const Customtable = ({
                     backgroundColor: '#FFFFFF',
                     border: highlightId === row.original.id 
                       ? '2px solid #F97316' 
-                      : '1px solid #b8ddf8',
+                      : '1px solid var(--border-divider)',
                     boxShadow: highlightId === row.original.id 
                       ? '0 12px 28px rgba(249, 115, 22, 0.2)'
                       : '0 4px 12px rgba(0, 0, 0, 0.06)'
@@ -487,7 +487,7 @@ const Customtable = ({
                   <div 
                     className="px-3 py-2 flex items-center justify-between"
                     style={{ 
-                      background: '#bce1ff',
+                      background: 'var(--border-divider)',
                     }}
                   >
                     <span
@@ -518,7 +518,7 @@ const Customtable = ({
                         <div 
                           key={cell.id} 
                           className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-                          style={{ borderBottom: '1px solid #b8ddf8' }}
+                          style={{ borderBottom: '1px solid var(--border-divider)' }}
                         >
                           <div
                             className="uppercase tracking-wider font-normal"
@@ -534,7 +534,7 @@ const Customtable = ({
                             style={{
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
-                              border: '1px solid #b8ddf8'
+                              border: '1px solid var(--border-divider)'
                             }}
                           >
                             {cell.column.id === 'completed' ? (
@@ -585,7 +585,7 @@ const Customtable = ({
          <div
   className="flex-shrink-0 rounded-b-2xl"
   style={{
-    borderTop: '1px solid #b8ddf8',
+    borderTop: '1px solid var(--border-divider)',
     background: '#ffffff',
   }}
 >

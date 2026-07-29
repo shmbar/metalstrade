@@ -65,7 +65,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             className="responsiveTextTable font-medium text-center"
             style={{
               color: 'var(--chathams-blue)',
-              background: '#dbeeff',
+              background: 'var(--surface-header)',
               padding: '6px 10px',
               whiteSpace: 'nowrap',
             }}
@@ -83,7 +83,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
         className="w-full"
         style={{
           borderRadius: '16px',
-          border: '1px solid #b8ddf8',
+          border: '1px solid var(--border-divider)',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
           overflow: 'hidden'
         }}
@@ -92,9 +92,9 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
         <div
           className="responsiveTextTable font-medium text-center"
           style={{
-            background: '#dbeeff',
+            background: 'var(--surface-header)',
             padding: '8px 16px',
-            borderBottom: '1px solid #b8ddf8',
+            borderBottom: '1px solid var(--border-divider)',
             color: 'var(--chathams-blue)',
             fontWeight: '500'
           }}
@@ -112,9 +112,9 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                       className="responsiveTextTable font-medium text-center"
                       style={{
                         color: 'var(--chathams-blue)',
-                        background: '#dbeeff',
+                        background: 'var(--surface-header)',
                         padding: '6px 10px',
-                        borderBottom: '1px solid #b8ddf8',
+                        borderBottom: '1px solid var(--border-divider)',
                         whiteSpace: 'nowrap',
                       }}
                     >
@@ -143,7 +143,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         style={{
                           color: 'var(--chathams-blue)',
                           padding: '6px 10px',
-                          borderBottom: '1px solid #b8ddf8',
+                          borderBottom: '1px solid var(--border-divider)',
                           whiteSpace: 'nowrap',
                         }}
                       >

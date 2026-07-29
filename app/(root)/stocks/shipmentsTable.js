@@ -157,20 +157,20 @@ const Customtable = ({ data, item }) => {
 
 
 	return (
-		<div className='mx-4 mb-4 rounded-2xl overflow-hidden border border-[#b8ddf8]' style={{ boxShadow: '0 2px 12px rgba(3,102,174,0.08)' }}>
+		<div className='mx-4 mb-4 rounded-2xl overflow-hidden border border-[var(--border-divider)]' style={{ boxShadow: '0 2px 12px rgba(var(--endeavour-rgb),0.08)' }}>
 			<div className="w-full overflow-x-auto">
 				<table className="w-full" style={{ borderCollapse: 'collapse', fontFamily: "var(--font-poppins), 'Poppins', sans-serif", fontSize: '0.72rem' }}>
 					<thead>
 						<tr>
 							{cols.map((x, k) => (
 								<th key={k} style={{
-									background: '#dbeeff',
+									background: 'var(--surface-header)',
 									color: 'var(--chathams-blue)',
 									fontWeight: 600,
 									fontSize: '0.72rem',
 									textAlign: 'center',
 									padding: '7px 10px',
-									border: '1px solid #b8ddf8',
+									border: '1px solid var(--border-divider)',
 									whiteSpace: 'normal',
 										width: x.width || undefined,
 									letterSpacing: '0.04em',
@@ -183,11 +183,11 @@ const Customtable = ({ data, item }) => {
 					</thead>
 					<tbody>
 						{tableData.map((obj, i) => (
-							<tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#f4f9ff' }}>
+							<tr key={i} style={{ background: i % 2 === 0 ? '#fff' : 'var(--surface-pill)' }}>
 								{cols.map(x => (
 									<td key={x.field} style={{
 										padding: '5px 10px',
-										border: '1px solid #e8f0f8',
+										border: '1px solid var(--selago)',
 										fontSize: '0.72rem',
 										color: 'var(--chathams-blue)',
 										textAlign: 'center',

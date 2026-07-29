@@ -69,11 +69,11 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
         >
             <div
                 className='w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col'
-                style={{ border: '1px solid #b8ddf8', height: '92vh' }}
+                style={{ border: '1px solid var(--border-divider)', height: '92vh' }}
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className='flex items-center justify-between px-4 py-3 flex-shrink-0' style={{ background: '#dbeeff', borderBottom: '1px solid #b8ddf8' }}>
+                <div className='flex items-center justify-between px-4 py-3 flex-shrink-0' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
                     <span className='font-semibold truncate' style={{ fontSize: '0.75rem', color: 'var(--chathams-blue)' }}>
                         {title || filename}
                     </span>
@@ -81,21 +81,21 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
                         <button
                             onClick={download}
                             className='flex items-center gap-1 px-2.5 py-1 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                            style={{ fontSize: '0.65rem', borderColor: '#b8ddf8', color: 'var(--chathams-blue)', background: 'white' }}
+                            style={{ fontSize: '0.65rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)', background: 'white' }}
                         >
                             <Download className='w-3 h-3' /> Download
                         </button>
                         <button
                             onClick={print}
                             className='flex items-center gap-1 px-2.5 py-1 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                            style={{ fontSize: '0.65rem', borderColor: '#b8ddf8', color: 'var(--chathams-blue)', background: 'white' }}
+                            style={{ fontSize: '0.65rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)', background: 'white' }}
                         >
                             <Printer className='w-3 h-3' /> Print
                         </button>
                         <button
                             onClick={onClose}
                             aria-label='Close preview'
-                            className='p-1 rounded-full hover:bg-[#b8ddf8] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/40'
+                            className='p-1 rounded-full hover:bg-[var(--border-divider)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/40'
                         >
                             <X className='w-4 h-4' style={{ color: 'var(--chathams-blue)' }} />
                         </button>
