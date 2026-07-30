@@ -9,8 +9,8 @@ const ActivityPage = () => {
 
     return (
         <div className="w-full" style={{ background: 'var(--surface-pill)' }}>
-            <div className="mx-auto w-full max-w-5xl px-1 md:px-2 pb-4 mt-[72px]">
-                <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] w-full bg-[var(--surface-pill)]">
+            <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
+                <div className="rounded-2xl p-3 sm:p-5 border border-[var(--border-divider)] shadow-lg w-full bg-white">
                     <div className="pb-2">
                         <h1 className="text-[var(--chathams-blue)] responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                             {getTtl('Activity Log', ln) || 'Activity Log'}
