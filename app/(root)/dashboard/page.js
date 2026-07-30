@@ -256,7 +256,7 @@ function ReceivablesSplitCard({ byCur = {} }) {
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0"
-              style={{ background: '#2563eb1A', color: '#2563eb', width: 30, height: 30 }}>
+              style={{ background: 'rgba(var(--primary-bright-rgb),0.1)', color: 'var(--primary-bright)', width: 30, height: 30 }}>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 7h18v10H3z" stroke="currentColor" strokeWidth="2" /><path d="M3 11h18" stroke="currentColor" strokeWidth="2" /></svg>
             </span>
             <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Outstanding Receivables</span>
@@ -425,15 +425,15 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
     {
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="7" width="20" height="14" rx="2" stroke="#2563eb" strokeWidth="2" fill="#dbeafe" />
-          <path d="M16 7V5a2 2 0 0 0-4 0v2" stroke="#2563eb" strokeWidth="2" />
-          <circle cx="12" cy="14" r="2" fill="#2563eb" />
+          <rect x="2" y="7" width="20" height="14" rx="2" stroke="var(--primary-bright)" strokeWidth="2" fill="var(--border-cell)" />
+          <path d="M16 7V5a2 2 0 0 0-4 0v2" stroke="var(--primary-bright)" strokeWidth="2" />
+          <circle cx="12" cy="14" r="2" fill="var(--primary-bright)" />
         </svg>
       ),
       value: fmtAutoKM(avgExpensePerMT),
       label: 'Avg Expense / MT',
       sub: 'expenses per MT',
-      valueColor: '#2563eb',
+      valueColor: 'var(--primary-bright)',
     },
     {
       icon: (
@@ -571,7 +571,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0"
-              style={{ background: '#2563eb1A', color: '#2563eb', width: 30, height: 30 }}>
+              style={{ background: 'rgba(var(--primary-bright-rgb),0.1)', color: 'var(--primary-bright)', width: 30, height: 30 }}>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M3 7v10l9 4 9-4V7" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
             </span>
             <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Tonnage — Purchased vs Shipped</span>
@@ -580,7 +580,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
         </div>
 
         {/* Shipped proportion bar — blue track (purchased) with emerald fill (shipped) */}
-        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#dbeafe' }}>
+        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--border-cell)' }}>
           <div className="h-full rounded-full transition-all" style={{ width: `${pctShipped}%`, backgroundColor: '#10b981' }} />
         </div>
 
