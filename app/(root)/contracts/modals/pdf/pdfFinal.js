@@ -182,8 +182,17 @@ export const Pdf = async (valueCon, arrTable, settings, compData, data, gisAccou
         x.poInvoices.filter(y => y.id === x.poInvoice).map(y => y.inv)
     ))];
 
+    // Long invoice numbers (e.g. FVEH/00001/06/26/D) overflowed the page when
+    // drawn left-aligned at x=185 — only ~15mm remained to the margin. Right-align
+    // each number at the content edge (x=200, same as the table) so it grows
+    // leftward into the free space, and wrap onto extra lines if still too long.
+    let invY = 58;
     for (let i = 0; i < InvArr.length; i++) {
-        doc.text(InvArr[i], 185, 58 + i * 4);
+        const lines = doc.splitTextToSize(String(InvArr[i] ?? ''), 62);
+        for (const ln of lines) {
+            doc.text(ln, 200, invY, { align: 'right' });
+            invY += 4;
+        }
     }
 
     doc.setFont('PoppinsB', 'bold');
