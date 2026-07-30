@@ -609,7 +609,7 @@ const Accounting = () => {
             <VideoLoader loading={loading} fullScreen={true} />
 
             {/* Header + Stats Wrapper */}
-            <div className="rounded-2xl border border-[#b8ddf8] bg-[#f8fbff] shadow-sm p-4 mb-6">
+            <div className="rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-pill)] shadow-sm p-4 mb-6">
 
               {/* Header Section */}
               <div className='flex items-center justify-between flex-wrap gap-2 pb-3'>
@@ -621,7 +621,7 @@ const Accounting = () => {
               {/* Summary Cards */}
               <div
                 style={{
-                  background: '#dff0fb',
+                  background: 'var(--surface-header)',
                   width: '100%',
                   display: 'flex',
                   alignItems: 'center',
@@ -631,7 +631,7 @@ const Accounting = () => {
                   flexWrap: 'wrap',
                   margin: '0 auto',
                   borderRadius: '1rem',
-                  border: '1px solid #b8ddf8',
+                  border: '1px solid var(--border-divider)',
                 }}
               >
 
@@ -734,7 +734,7 @@ const Accounting = () => {
               </div>
             </div>
             {/* Full Table */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff] relative">
+            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)] relative">
               <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-4">All Transactions</h3>
               <Customtable data={invoicesAccData} columns={propDefaults} onCellUpdate={onCellUpdate}
                 excellReport={EXD(invoicesAccData, settings, getTtl('Accounting', ln), ln)} />
@@ -743,7 +743,7 @@ const Accounting = () => {
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6 mt-3">
               {/* Last Transaction */}
-              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
+              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)]">
                 <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-2">Last Transaction</h3>
                 <div className="space-y-0">
                   {recentTransactions.map((item, idx) => (
@@ -775,7 +775,7 @@ const Accounting = () => {
               </div>
 
               {/* Invoices Sent */}
-              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
+              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)]">
                 <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-2">Invoices Sent</h3>
                 <div className="space-y-0">
                   {recentInvoices.map((item, idx) => (
@@ -810,7 +810,7 @@ const Accounting = () => {
             {/* Chart Section */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
               {/* Debit & Credit Overview */}
-              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl w-full bg-[#f8fbff]">
+              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)]">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                   <div className="min-w-0">
                     <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)]">Debit & Credit Overview</h3>
@@ -834,24 +834,24 @@ const Accounting = () => {
                 </div>
               </div>
               {/* Summary Stats */}
-              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[#b8ddf8] shadow-xl bg-[#f8fbff] overflow-hidden">
+              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--border-divider)] shadow-xl bg-[var(--surface-pill)] overflow-hidden">
                 <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-4">Financial Summary</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
+                  <div className="bg-[var(--surface-header)] rounded-xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Total Transactions</p>
                     <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">{invoicesAccData.length}</p>
                   </div>
-                  <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
+                  <div className="bg-[var(--surface-header)] rounded-xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Avg. Transaction</p>
                     <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">
                       {formatCurrency(invoicesAccData.length > 0 ? (totals.totalIncome + totals.totalExpense) / invoicesAccData.length : 0)}
                     </p>
                   </div>
-                  <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
+                  <div className="bg-[var(--surface-header)] rounded-xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Net Profit</p>
                     <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">{formatCurrency(totals.balance)}</p>
                   </div>
-                  <div className="bg-[#dbeeff] rounded-xl p-4 overflow-hidden border border-[#b8ddf8] shadow-sm">
+                  <div className="bg-[var(--surface-header)] rounded-xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Profit Margin</p>
                     <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">
                       {formatPercent(totals.totalIncome > 0 ? (totals.balance / totals.totalIncome) * 100 : 0)}

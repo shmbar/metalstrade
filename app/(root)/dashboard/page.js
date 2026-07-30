@@ -67,7 +67,7 @@ const sumObj = (obj) => Object.values(obj || {}).reduce((a, v) => a + (Number(v)
 function CardShell({ className = "", children }) {
   return (
     <m.div
-      className={`bg-white rounded-2xl border border-[#e6eef8] shadow-sm ${className}`}
+      className={`bg-white rounded-2xl border border-[var(--selago)] shadow-sm ${className}`}
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -131,7 +131,7 @@ function StatKpiCard({
 
   return (
     <m.div
-      className="relative h-full min-h-[140px] rounded-xl bg-white border border-[#e6eef8] shadow-sm flex flex-col overflow-hidden"
+      className="relative h-full min-h-[140px] rounded-xl bg-white border border-[var(--selago)] shadow-sm flex flex-col overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
@@ -246,7 +246,7 @@ function ReceivablesSplitCard({ byCur = {} }) {
 
   return (
     <m.div
-      className="relative rounded-xl bg-white border border-[#e6eef8] shadow-sm overflow-hidden"
+      className="relative rounded-xl bg-white border border-[var(--selago)] shadow-sm overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
@@ -367,7 +367,7 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
 
                 {/* Bar */}
                 <div className="flex-1 min-w-0">
-                  <div className="w-full bg-[#eef3f9] rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
+                  <div className="w-full bg-[var(--selago)] rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
                     <m.div
                       className="h-full flex items-center pl-2"
                       style={{ width: `${pct}%`, background: color, minWidth: '42px', borderRadius: '0 9999px 9999px 0', transformOrigin: 'left' }}
@@ -470,7 +470,7 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
           {metrics.map((metric, i) => (
             <m.div
               key={i}
-              className="p-3 rounded-xl border border-[#e6eef8] bg-[#f8fbff]"
+              className="p-3 rounded-xl border border-[var(--selago)] bg-[var(--surface-pill)]"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: i * 0.06 }}
@@ -510,8 +510,8 @@ function FilterSelect({ label, icon, value, onChange, options }) {
         className="group h-8 w-auto min-w-[122px] max-w-[210px] gap-1.5 rounded-full pl-2.5 pr-1.5 shadow-sm focus:ring-0 focus:ring-offset-0"
         style={{
           fontSize: '0.7rem',
-          background: active ? '#eaf4ff' : '#f8fbff',
-          borderColor: active ? 'var(--endeavour)' : '#d8e8f5',
+          background: active ? 'var(--selago)' : 'var(--surface-pill)',
+          borderColor: active ? 'var(--endeavour)' : 'var(--border-cell)',
           boxShadow: active ? '0 1px 8px rgba(3,102,174,0.16)' : undefined,
         }}
       >
@@ -522,16 +522,16 @@ function FilterSelect({ label, icon, value, onChange, options }) {
             style={{ fontSize: '0.7rem', color: active ? 'var(--endeavour)' : 'var(--chathams-blue)' }} />
         </span>
       </SelectTrigger>
-      <SelectContent className="rounded-xl border border-[#dbeeff] shadow-md max-h-72 min-w-[var(--radix-select-trigger-width)]">
+      <SelectContent className="rounded-xl border border-[var(--surface-header)] shadow-md max-h-72 min-w-[var(--radix-select-trigger-width)]">
         {options.length > 7 && (
-          <div className="sticky top-0 z-10 bg-white p-1.5 border-b border-[#eef5fc]">
+          <div className="sticky top-0 z-10 bg-white p-1.5 border-b border-[var(--selago)]">
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               onKeyDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               placeholder="Search…"
-              className="w-full h-7 px-2 rounded-lg border border-[#d8e8f5] bg-[#f8fbff] focus:outline-none focus:border-[var(--endeavour)]"
+              className="w-full h-7 px-2 rounded-lg border border-[var(--border-cell)] bg-[var(--surface-pill)] focus:outline-none focus:border-[var(--endeavour)]"
               style={{ fontSize: '0.7rem', color: 'var(--chathams-blue)' }}
             />
           </div>
@@ -561,7 +561,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
   ];
   return (
     <m.div
-      className="relative rounded-xl bg-white border border-[#e6eef8] shadow-sm overflow-hidden"
+      className="relative rounded-xl bg-white border border-[var(--selago)] shadow-sm overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
@@ -623,7 +623,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
 
   return (
     <m.div
-      className="relative rounded-xl bg-white border border-[#e6eef8] shadow-sm overflow-hidden h-full flex flex-col"
+      className="relative rounded-xl bg-white border border-[var(--selago)] shadow-sm overflow-hidden h-full flex flex-col"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
@@ -680,7 +680,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
             </div>
 
             {avgPerInvoice != null && (
-              <div className="flex items-center justify-between border-t border-[#eef5fc] pt-2 mt-auto">
+              <div className="flex items-center justify-between border-t border-[var(--selago)] pt-2 mt-auto">
                 <span className="responsiveTextTable text-[var(--regent-gray)]">Avg / invoice</span>
                 <span className="responsiveTextTable font-semibold" style={{ color: 'var(--port-gore)' }}>{fmtCur(single[0], avgPerInvoice)}</span>
               </div>
@@ -700,7 +700,7 @@ function UnsoldStockCard({ value = 0, mt = 0 }) {
   const fmtMT = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
   return (
     <m.div
-      className="relative rounded-xl bg-white border border-[#e6eef8] shadow-sm overflow-hidden"
+      className="relative rounded-xl bg-white border border-[var(--selago)] shadow-sm overflow-hidden"
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}
       whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
     >
@@ -751,7 +751,7 @@ function AgingCard({ buckets = [] }) {
                   <span className="responsiveTextTable text-[var(--port-gore)] font-medium">{b.label} d</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="w-full bg-[#eef3f9] rounded-full overflow-hidden" style={{ height: 16 }}>
+                  <div className="w-full bg-[var(--selago)] rounded-full overflow-hidden" style={{ height: 16 }}>
                     <div className="h-full rounded-full" style={{ width: `${max > 0 ? (tot / max) * 100 : 0}%`, minWidth: tot > 0 ? 4 : 0, background: colors[i], borderRadius: '0 9999px 9999px 0' }} />
                   </div>
                 </div>
@@ -786,7 +786,7 @@ function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 
             <div key={label} className="flex items-center gap-2 mb-1.5">
               <div className="w-28 responsiveTextTable text-[var(--port-gore)] truncate flex-shrink-0" title={label}>{label}</div>
               <div className="flex-1 min-w-0">
-                <div className="w-full bg-[#eef3f9] rounded-full overflow-hidden" style={{ height: 16 }}>
+                <div className="w-full bg-[var(--selago)] rounded-full overflow-hidden" style={{ height: 16 }}>
                   <div className="h-full rounded-full" style={{ width: `${max > 0 ? (value / max) * 100 : 0}%`, minWidth: 4, background: accent, borderRadius: '0 9999px 9999px 0' }} />
                 </div>
               </div>
@@ -1227,9 +1227,9 @@ const Dash = () => {
 
           {/* FILTER BAR — Supplier / Client / Material (date range lives in the header) */}
           <m.div className="mb-5" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.08 }}>
-            <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[#e6eef8] px-3 py-2.5 shadow-sm"
-              style={{ background: 'linear-gradient(180deg,#ffffff,#f8fbff)' }}>
-              <span className="inline-flex items-center gap-1.5 pr-2 mr-0.5 border-r border-[#e6eef8]">
+            <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--selago)] px-3 py-2.5 shadow-sm"
+              style={{ background: 'linear-gradient(180deg,#ffffff,var(--surface-pill))' }}>
+              <span className="inline-flex items-center gap-1.5 pr-2 mr-0.5 border-r border-[var(--selago)]">
                 <span className="inline-flex items-center justify-center rounded-lg" style={{ background: 'var(--endeavour)', color: '#fff', width: 22, height: 22 }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 5h18M6 12h12M10 19h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                 </span>
@@ -1255,7 +1255,7 @@ const Dash = () => {
               {filtersActive && (
                 <button onClick={clearFilters}
                   className="ml-auto inline-flex items-center gap-1 rounded-full px-2.5 h-7 font-semibold transition-colors hover:brightness-95"
-                  style={{ fontSize: '0.7rem', color: 'var(--endeavour)', background: '#eaf4ff', border: '1px solid #cfe3f5' }}>
+                  style={{ fontSize: '0.7rem', color: 'var(--endeavour)', background: 'var(--selago)', border: '1px solid var(--border-cell)' }}>
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                   Clear all
                 </button>
