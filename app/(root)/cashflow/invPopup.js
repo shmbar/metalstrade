@@ -6,6 +6,7 @@ import { getD, reOrderTableInv, getAllfiles, uploadFile } from '../../../utils/u
 import { Pdf as InvoicePdf } from '../contracts/modals/pdf/pdfInvoice';
 import { FaFilePdf } from 'react-icons/fa';
 import { FileUploader } from 'react-drag-drop-files';
+import PdfPagesView from '../../../components/PdfPagesView';
 
 const getprefixInv = (x) => {
     if (!x?.invType) return '';
@@ -198,13 +199,11 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                         ) : primaryFile ? (
                             <div>
                                 {isPdf(primaryFile.name) ? (
-                                    // #navpanes=0 asks the browser's built-in PDF viewer (Chrome/Edge PDFium,
-                                    // Firefox pdf.js) to start with the thumbnail/outline sidebar collapsed,
-                                    // so the file fills the frame instead of opening with that panel pinned
-                                    // open. It's a viewer hint, not guaranteed on every browser, but covers
-                                    // the common ones and the user can still open the panel themselves.
-                                    <iframe title={primaryFile.name} src={`${primaryFile.url}#toolbar=1&navpanes=0`}
-                                        style={{ width: '100%', height: '68vh', border: '1px solid var(--border-cell)', borderRadius: '6px', background: 'var(--surface-card)' }} />
+                                    // Rendered as page images via pdf.js — the browser PDF viewer's
+                                    // thumbnail sidebar ignored the #navpanes=0 hint on some browsers
+                                    // (Safari ignores those URL fragments entirely), so we bypass the
+                                    // built-in viewer altogether.
+                                    <PdfPagesView src={primaryFile.url} height='68vh' />
                                 ) : isImage(primaryFile.name) ? (
                                     <img src={primaryFile.url} alt={primaryFile.name}
                                         style={{ display: 'block', maxWidth: '100%', margin: '0 auto', borderRadius: '6px', border: '1px solid var(--border-cell)' }} />
