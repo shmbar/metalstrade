@@ -537,12 +537,27 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
     setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
     const { setToast } = useContext(SettingsContext);
+    // Per-alloy rows of a PO collapse under one summary line, same as Unsold Stocks.
+    const [openPOs, setOpenPOs] = useState({});
+
+    // A row belongs to a fold group when its material is an invoice-imported
+    // (import-flagged) product of a single-line PO — the PO's own description
+    // becomes the group label. Derived from the lot's productsData snapshot.
+    const groupDescOf = (z) => {
+        const rec = z.data?.[0];
+        const prods = rec?.productsData || [];
+        const pid = rec?.description || rec?.descriptionId;
+        const p = prods.find(q => q.id === pid);
+        if (!p?.import) return '';
+        const own = prods.filter(q => !q.import);
+        return own.length === 1 ? (own[0]?.description || 'Materials') : '';
+    };
 
     const base = stockDataAll
         .filter(z => z.stock === stock)
         // Group rows by contract number (PO#), matching the Unsold Stocks ordering.
         .sort((a, b) => String(a.order ?? '').localeCompare(String(b.order ?? ''), undefined, { numeric: true }))
-        .map(z => ({ ...z, _supplierName: settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || '' }));
+        .map(z => ({ ...z, _supplierName: settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || '', _groupDesc: groupDescOf(z) }));
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
 
     const buildSumItem = (z) => ({
@@ -567,19 +582,19 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredArr.map((z, i) => {
-                        return (
-                            <tr key={i}>
+                    {(() => {
+                        const renderRow = (z, key, indent = false) => (
+                            <tr key={key}>
                                 <td className="!py-1 px-1">
                                     <SumToggle active={!!sumSel[sumKey('stock', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
                                 </td>
                                 <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
-                                    <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
-                                <td className="text-left w-16"><Tltip direction='top' tltpText={[settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate cursor-default">{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></Tltip></td>
+                                    <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{indent ? '' : z.order}</span></Tltip></td>
+                                <td className="text-left w-16"><Tltip direction='top' tltpText={[settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate cursor-default">{indent ? '' : settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></Tltip></td>
                                 <td className="text-left w-28 max-w-28">
-                                    <Tltip direction='top' tltpText={z.descriptionName || ''}><span className="block truncate cursor-default">{z.descriptionName}</span></Tltip>
+                                    <Tltip direction='top' tltpText={z.descriptionName || ''}><span className={`block truncate cursor-default ${indent ? 'pl-4' : ''}`}>{z.descriptionName}</span></Tltip>
                                 </td>
                                 <td className="text-left">{
                                     <NumericFormat
@@ -614,8 +629,55 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                     />
                                 }</td>
                             </tr>
-                        )
-                    })}
+                        );
+
+                        // Collapse a PO's per-alloy rows (3+) under one summary line, same
+                        // pattern as the Unsold Stocks table.
+                        const emitted = new Set();
+                        const out = [];
+                        filteredArr.forEach((z, i) => {
+                            const grp = z._groupDesc ? filteredArr.filter(r => r.order === z.order && r._groupDesc) : [];
+                            if (z._groupDesc && grp.length >= 3) {
+                                if (emitted.has(z.order)) return;
+                                emitted.add(z.order);
+                                const isOpen = !!openPOs[z.order];
+                                const qSum = grp.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+                                const tSum = grp.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
+                                out.push(
+                                    <tr key={`grp-${z.order}`} className="cursor-pointer hover:bg-[#f4f9ff]"
+                                        onClick={() => setOpenPOs(prev => ({ ...prev, [z.order]: !prev[z.order] }))}>
+                                        <td className="!py-1 px-1"></td>
+                                        <td className="text-left text-[var(--endeavour)] max-w-20 truncate"
+                                            onClick={(e) => { e.stopPropagation(); moveToContracts(z, 'stock', uidCollection, setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router, setToast); }}>
+                                            <span className="block truncate cursor-pointer hover:underline">{z.order}</span>
+                                        </td>
+                                        <td className="text-left w-16">
+                                            <span className="block truncate cursor-default">{z._supplierName}</span>
+                                        </td>
+                                        <td className="text-left w-28 max-w-28">
+                                            <span className="flex items-center gap-1 font-medium" style={{ color: 'var(--chathams-blue)' }}>
+                                                <span className="inline-block transition-transform" style={{ transform: isOpen ? 'rotate(90deg)' : 'none' }}>›</span>
+                                                <span className="truncate">{z._groupDesc}</span>
+                                                <span style={{ color: 'var(--regent-gray)' }}>({grp.length})</span>
+                                            </span>
+                                        </td>
+                                        <td className="text-left font-medium">{
+                                            <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
+                                        }</td>
+                                        <td className="text-left"></td>
+                                        <td className="text-right font-medium">{
+                                            <NumericFormat value={tSum} displayType="text" thousandSeparator
+                                                prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
+                                        }</td>
+                                    </tr>
+                                );
+                                if (isOpen) grp.forEach((r, k) => out.push(renderRow(r, `grp-${z.order}-${k}`, true)));
+                            } else {
+                                out.push(renderRow(z, i));
+                            }
+                        });
+                        return out;
+                    })()}
 
                 </tbody>
                 <tfoot>
