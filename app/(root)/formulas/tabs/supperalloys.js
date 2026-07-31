@@ -661,12 +661,12 @@ const SupperAlloys = ({ value, handleChange }) => {
     const priceFields = ['niPrice', 'crPrice', 'MoOxideLb', 'nbPrice', 'coPrice', 'wPrice', 'hfPrice', 'taPrice', 'fePrice'];
 
         return value.supperalloys != null ? (
-        <div className="w-full bg-white rounded-xl border border-[var(--border-divider)] shadow-sm p-2">
+        <div className="w-full bg-[var(--surface-card)] rounded-xl border border-[var(--border-divider)] shadow-sm p-2">
           <h3 className='text-xs font-medium text-[var(--endeavour)] mb-1 text-left pl-3'>Cost</h3>
 
             {/* Composition */}
             <div className="mb-2 px-2 w-fit">
-            <p className="text-xs text-[#979797] mb-1 text-center">
+            <p className="text-xs text-[var(--text-faint)] mb-1 text-center">
                 Composition
             </p>
 
@@ -684,7 +684,7 @@ const SupperAlloys = ({ value, handleChange }) => {
                 </div>
 
                 {/* Values */}
-              <div className="grid grid-cols-[85px_85px_85px_85px_85px_85px_85px_85px_85px] bg-white text-xs border-t border-[var(--border-divider)]">
+              <div className="grid grid-cols-[85px_85px_85px_85px_85px_85px_85px_85px_85px] bg-[var(--surface-card)] text-xs border-t border-[var(--border-divider)]">
                   {elements.map((elem, idx) => (
                   <input
                   key={elem}
@@ -694,7 +694,7 @@ const SupperAlloys = ({ value, handleChange }) => {
                   } ${
                     elem === 'fe'
                     ? 'text-[var(--primary-bright)] bg-gray-100 cursor-not-allowed'
-                    : 'text-[#F44336] bg-[#fafafa]'
+                    : 'text-[var(--danger-text)] bg-[var(--surface-base)]'
                   }`}
                     name={elem}
                     value={elem === 'fe'
@@ -727,13 +727,13 @@ const SupperAlloys = ({ value, handleChange }) => {
 
             {/* Price / Lbs */}
             <div className="mb-2 px-2 w-fit">
-            <p className="text-xs text-[#979797] mb-1 text-center">
+            <p className="text-xs text-[var(--text-faint)] mb-1 text-center">
                 Price / Lbs
             </p>
 
             <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-pill)]">
                 {/* Header */}
-                <div className="grid grid-cols-[85px_85px_85px_85px_85px_85px_85px_85px_85px] bg-[#E9E2FF] text-[var(--primary-bright)] text-xs">
+                <div className="grid grid-cols-[85px_85px_85px_85px_85px_85px_85px_85px_85px] bg-[var(--violet-bg)] text-[var(--primary-bright)] text-xs">
                 {elementLabels.map((label, idx) => (
                   <div
                   key={label}
@@ -745,7 +745,7 @@ const SupperAlloys = ({ value, handleChange }) => {
                 </div>
 
                 {/* Values */}
-                <div className="grid grid-cols-[85px_85px_85px_85px_85px_85px_85px_85px_85px] bg-white text-xs border-t border-[var(--border-divider)]">
+                <div className="grid grid-cols-[85px_85px_85px_85px_85px_85px_85px_85px_85px] bg-[var(--surface-card)] text-xs border-t border-[var(--border-divider)]">
                 {priceFields.map((field, idx) => {
                     const isReadOnly = field === 'niPrice' || field === 'MoOxideLb';
 
@@ -767,7 +767,7 @@ const SupperAlloys = ({ value, handleChange }) => {
                         } ${
                         isReadOnly
                             ? 'bg-gray-100 cursor-not-allowed text-[var(--primary-bright)]'
-                            : 'text-[#F44336] bg-[#fafafa]'
+                            : 'text-[var(--danger-text)] bg-[var(--surface-base)]'
                         }`}
                         name={field}
                         value={displayValue}
@@ -806,8 +806,8 @@ const SupperAlloys = ({ value, handleChange }) => {
     {/* Formula Intrinsic */}
     <div className="mb-2">
       <div className="w-32 rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-pill)]">
-        <div className="bg-[#FFDADA] text-[#F44336] text-xs py-1.5 text-center">Formula Intrinsic</div>
-        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[#F44336] border-t border-[var(--border-divider)] bg-[#fafafa]"
+        <div className="bg-[var(--danger-bg)] text-[var(--danger-text)] text-xs py-1.5 text-center">Formula Intrinsic</div>
+        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[var(--danger-text)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]"
           value={(value?.supperalloys?.formulaIntsCost || '0') + '%'} name="formulaIntsCost"
           onChange={(e) => handleChange({ target: { name: 'formulaIntsCost', value: e.target.value.replace('%', '') } }, 'supperalloys')}
           onBlur={(e) => { const n = parseFloat(e.target.value.replace('%', '')); if (!isNaN(n)) handleChange({ target: { name: 'formulaIntsCost', value: n.toFixed(2) } }, 'supperalloys'); }}
@@ -815,11 +815,11 @@ const SupperAlloys = ({ value, handleChange }) => {
       </div>
     </div>
     <div className="flex flex-wrap gap-2 mb-2">
-      <ResultBox title="Solids Price" bg="#FFECEC" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100).toFixed(2))} />
-      <ResultBox title="Price per MT" bg="#FFECEC" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 * value.general.mt).toFixed(2))} />
+      <ResultBox title="Solids Price" bg="var(--danger-soft)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100).toFixed(2))} />
+      <ResultBox title="Price per MT" bg="var(--danger-soft)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 * value.general.mt).toFixed(2))} />
     </div>
     <div>
-      <ResultBox title="Price / Euro" bg="#E9FFF1" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 / value.general?.euroRate).toFixed(2), "€")} />
+      <ResultBox title="Price / Euro" bg="var(--ok-soft)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 / value.general?.euroRate).toFixed(2), "€")} />
     </div>
   </div>
 
@@ -828,8 +828,8 @@ const SupperAlloys = ({ value, handleChange }) => {
     {/* Formula Intrinsic */}
     <div className="mb-2">
       <div className="w-32 rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-pill)]">
-        <div className="bg-[#FFDADA] text-[#F44336] text-xs py-1.5 text-center">Formula Intrinsic</div>
-        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[#F44336] border-t border-[var(--border-divider)] bg-[#fafafa]"
+        <div className="bg-[var(--danger-bg)] text-[var(--danger-text)] text-xs py-1.5 text-center">Formula Intrinsic</div>
+        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[var(--danger-text)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]"
           value={(value?.supperalloys?.formulaIntsPrice || '0') + '%'} name="formulaIntsPrice"
           onChange={(e) => handleChange({ target: { name: 'formulaIntsPrice', value: e.target.value.replace('%', '') } }, 'supperalloys')}
           onBlur={(e) => { const n = parseFloat(e.target.value.replace('%', '')); if (!isNaN(n)) handleChange({ target: { name: 'formulaIntsPrice', value: n.toFixed(2) } }, 'supperalloys'); }}
@@ -841,7 +841,7 @@ const SupperAlloys = ({ value, handleChange }) => {
       <ResultBox title="Price per MT" bg="var(--selago)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 * value.general.mt).toFixed(2))} />
     </div>
     <div>
-      <ResultBox title="Price / Euro" bg="#E9FFF1" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 / value.general?.euroRate).toFixed(2), "€")} />
+      <ResultBox title="Price / Euro" bg="var(--ok-soft)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 / value.general?.euroRate).toFixed(2), "€")} />
     </div>
   </div>
 
@@ -851,7 +851,7 @@ const SupperAlloys = ({ value, handleChange }) => {
     ) : null;
 };
 const ResultBox = ({ title, value, bg }) => (
-  <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-white text-center min-w-[120px] w-fit">
+  <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px] w-fit">
     <div className="py-1 px-3" style={{ backgroundColor: bg }}>
       <p className="text-xs text-[var(--primary-bright)] whitespace-nowrap">{title}</p>
     </div>

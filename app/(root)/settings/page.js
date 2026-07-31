@@ -59,10 +59,10 @@ const Page = () => {
     <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
       <Toast />
       <VideoLoader loading={loading} fullScreen={true} />
-      <div className="p-1 md:p-4 bg-white rounded-2xl border border-[var(--border-divider)] shadow-sm">
+      <div className="p-1 md:p-4 bg-[var(--surface-card)] rounded-2xl border border-[var(--border-divider)] shadow-sm">
         <div className="mt-5 text-[var(--chathams-blue)] font-poppins text-[0.875rem] xl:text-[0.9375rem] 2xl:text-[1rem] 3xl:text-[1.0625rem] font-medium border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Settings', ln)}</div>
 
-        <div className="w-full px-3 mt-2 border border-[var(--border-divider)] rounded-xl bg-white p-3">
+        <div className="w-full px-3 mt-2 border border-[var(--border-divider)] rounded-xl bg-[var(--surface-card)] p-3">
           <TabGroup >
 <TabList
   className="
@@ -112,7 +112,7 @@ const Page = () => {
     mt-[-1px]
     rounded-xl
     border border-[var(--border-divider)]
-    bg-white
+    bg-[var(--surface-card)]
     shadow-sm
     p-3
   "

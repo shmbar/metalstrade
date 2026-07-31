@@ -413,7 +413,7 @@ const Contracts = () => {
 						{/* Alert Section */}
 						{alertArr.length > 0 && (
 							<div className='mt-4 px-2 sm:px-3'>
-								<div className="responsiveText font-medium border border-[var(--border-divider)] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
+								<div className="responsiveText font-medium border border-[var(--border-divider)] p-4 rounded-2xl shadow-sm bg-[var(--surface-card)] w-full max-w-2xl">
 									<div style={{ color: 'var(--chathams-blue)' }}>
 										<span className='responsiveText border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
 										<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />

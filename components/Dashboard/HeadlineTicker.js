@@ -34,7 +34,7 @@ export default function HeadlineTicker({
   // ── theme ──────────────────────────────────────────────────────────────────
   const theme = useMemo(() => {
     const t = {
-      shell:         'border border-[var(--selago)] bg-white shadow-sm',
+      shell:         'border border-[var(--selago)] bg-[var(--surface-card)] shadow-sm',
       headerIconWrap:'bg-[var(--endeavour)] text-white',
       titleText:     'text-[var(--chathams-blue)]',
       subText:       'text-[var(--endeavour)] text-xs',
@@ -194,7 +194,7 @@ export default function HeadlineTicker({
         top: '50%', [side]: 6,
         transform: 'translateY(-50%)',
         zIndex: 10,
-        background: 'rgba(255,255,255,0.92)',
+        background: 'rgba(var(--surface-card-rgb),0.92)',
         border: '1px solid var(--border-divider)',
         borderRadius: '50%',
         width: 22, height: 22,
@@ -275,10 +275,10 @@ export default function HeadlineTicker({
                     <span className={['responsiveTextTable font-bold', theme.itemValue].join(' ')}>{it.value}</span>
                     {it.change != null && (() => {
                       const c = it.change > 0
-                        ? { bg: '#dcfce7', fg: '#16a34a', arrow: '▲' }
+                        ? { bg: 'var(--ok-bg)', fg: 'var(--ok-text)', arrow: '▲' }
                         : it.change < 0
-                          ? { bg: '#fee2e2', fg: '#dc2626', arrow: '▼' }
-                          : { bg: 'var(--selago)', fg: '#64748b', arrow: '•' };
+                          ? { bg: 'var(--danger-bg)', fg: 'var(--danger-text)', arrow: '▼' }
+                          : { bg: 'var(--selago)', fg: 'var(--text-mid)', arrow: '•' };
                       const pct = it.change_pct != null
                         ? `${Math.abs(it.change_pct).toFixed(2)}%`
                         : Math.abs(it.change).toFixed(2);

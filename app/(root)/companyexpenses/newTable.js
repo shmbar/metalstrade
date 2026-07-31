@@ -177,12 +177,12 @@ const Customtable = ({
         }
 
         .summary-green {
-          background-color: #b7d1b5;
-          color: #1a3a1a;
+          background-color: var(--ok-border);
+          color: var(--ok-strong);
           font-weight: 400;
         }
         .summary-green th {
-          color: #1a3a1a !important;
+          color: var(--ok-strong) !important;
           border: none !important;
         }
 
@@ -228,7 +228,7 @@ const Customtable = ({
             className="flex-shrink-0 rounded-t-2xl"
             style={{
               borderBottom: '1px solid var(--border-divider)',
-              background: '#ffffff',
+              background: 'var(--surface-card)',
             }}
           >
             <Header
@@ -317,13 +317,13 @@ const Customtable = ({
 
                   {/* Filter Row */}
                   {filterOn && (
-                    <tr style={{ backgroundColor: '#FFFFFF' }}>
+                    <tr style={{ backgroundColor: 'var(--surface-card)' }}>
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
                           className="px-2 py-1.5"
                           style={{
-                            backgroundColor: '#FFFFFF',
+                            backgroundColor: 'var(--surface-card)',
                             borderBottom: '2px solid var(--border-divider)',
                             minWidth: header.column.id === 'select' ? '40px' : '90px',
                             maxWidth: header.column.id === 'select' ? '40px' : 'none',
@@ -386,9 +386,9 @@ const Customtable = ({
                 <div
                   className="px-3 py-1.5 rounded-lg font-normal"
                   style={{
-                    backgroundColor: value ? '#dcfce7' : '#fee2e2',
-                    color: value ? '#16a34a' : '#dc2626',
-                    border: `1px solid ${value ? '#bbf7d0' : '#fecaca'}`
+                    backgroundColor: value ? 'var(--ok-bg)' : 'var(--danger-bg)',
+                    color: value ? 'var(--ok-text)' : 'var(--danger-text)',
+                    border: `1px solid ${value ? 'var(--ok-border)' : 'var(--danger-border)'}`
                   }}
                 >
                   {value ? 'Completed' : 'Incompleted'}
@@ -401,9 +401,9 @@ const Customtable = ({
                   style={{
                     backgroundColor:
                       value === 'Completed'
-                        ? '#dcfce7'
-                        : '#fee2e2',
-                    color: value === 'Completed' ? '#16a34a' : '#dc2626',
+                        ? 'var(--ok-bg)'
+                        : 'var(--danger-bg)',
+                    color: value === 'Completed' ? 'var(--ok-text)' : 'var(--danger-text)',
                     border: '1px solid var(--border-cell)'
                   }}
                 >
@@ -419,14 +419,14 @@ const Customtable = ({
                     className="px-3 py-1.5 rounded-xl responsiveTextTable font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
                     style={{
                       backgroundColor:
-                        value === 'Paid' ? '#dcfce7' :
-                        value === 'Unpaid' ? '#fee2e2' : 'var(--surface-pill)',
+                        value === 'Paid' ? 'var(--ok-bg)' :
+                        value === 'Unpaid' ? 'var(--danger-bg)' : 'var(--surface-pill)',
                       color:
-                        value === 'Paid' ? '#166534' :
-                        value === 'Unpaid' ? '#dc2626' : 'var(--port-gore)',
-                      border: `1px solid ${value === 'Paid' ? '#bbf7d0' : value === 'Unpaid' ? '#fecaca' : 'var(--border-cell)'}`,
+                        value === 'Paid' ? 'var(--ok-strong)' :
+                        value === 'Unpaid' ? 'var(--danger-text)' : 'var(--port-gore)',
+                      border: `1px solid ${value === 'Paid' ? 'var(--ok-border)' : value === 'Unpaid' ? 'var(--danger-border)' : 'var(--border-cell)'}`,
                       fontWeight: '400',
-                      ...(isEditMode && { boxShadow: 'inset 0 0 0 1px #d1d1d1' })
+                      ...(isEditMode && { boxShadow: 'inset 0 0 0 1px var(--border-neutral-strong)' })
                     }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -475,9 +475,9 @@ const Customtable = ({
                   onClick={() => SelectRow(row.original)}
                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                   style={{
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: 'var(--surface-card)',
                     border: highlightId === row.original.id 
-                      ? '2px solid #F97316' 
+                      ? '2px solid var(--warn-text)' 
                       : '1px solid var(--border-divider)',
                     boxShadow: highlightId === row.original.id 
                       ? '0 12px 28px rgba(249, 115, 22, 0.2)'
@@ -533,7 +533,7 @@ const Customtable = ({
                             className="responsiveTextTable font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
                             style={{
                               color: 'var(--port-gore)',
-                              background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                              background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
                               border: '1px solid var(--border-divider)'
                             }}
                           >
@@ -542,8 +542,8 @@ const Customtable = ({
                                 <div 
                                       className="w-full px-2 py-2 rounded-md responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-md"
                                       style={{
-                                        backgroundColor: '#dcfce7',
-                                        color: '#16a34a'
+                                        backgroundColor: 'var(--ok-bg)',
+                                        color: 'var(--ok-text)'
                                       }}
                                 >
                                   Completed
@@ -552,8 +552,8 @@ const Customtable = ({
                                 <div
                                   className="w-full px-2 py-2 rounded-md responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-sm"
                                   style={{
-                                    backgroundColor: '#fee2e2',
-                                    color: '#dc2626'
+                                    backgroundColor: 'var(--danger-bg)',
+                                    color: 'var(--danger-text)'
                                   }}
                                 >
                                   Pending
@@ -586,7 +586,7 @@ const Customtable = ({
   className="flex-shrink-0 rounded-b-2xl"
   style={{
     borderTop: '1px solid var(--border-divider)',
-    background: '#ffffff',
+    background: 'var(--surface-card)',
   }}
 >
   <div className="px-4 py-3">

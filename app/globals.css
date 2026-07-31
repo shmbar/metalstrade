@@ -27,6 +27,47 @@
   --surface-pill-rgb: 248, 251, 255;
   --border-cell-rgb: 216, 232, 245;
   --border-divider-rgb: 184, 221, 248;
+
+  /* Neutral base layer — themable so dark mode can flip it.
+     Light values are the original palette (zero visual change in light mode). */
+  --surface-card: #ffffff;
+  --surface-base: #fafafa;
+  --surface-muted: #f5f5f5;
+  --border-neutral: #e5e7eb;
+  --border-neutral-strong: #cccccc;
+  --text-strong: #1f2937;
+  --text-mid: #64748b;
+  --text-faint: #9ca3af;
+  --surface-card-rgb: 255, 255, 255;
+  --surface-base-rgb: 250, 250, 250;
+
+  /* Status colour system — light values match the original pastels.
+     Dark mode swaps these for dark-tinted backgrounds + brighter text
+     (see DARK_STATUS in utils/themes.js). */
+  --ok-soft: #f0fdf4;
+  --ok-bg: #dcfce7;
+  --ok-border: #86efac;
+  --ok-text: #16a34a;
+  --ok-strong: #15803d;
+  --danger-soft: #fef2f2;
+  --danger-bg: #fee2e2;
+  --danger-border: #fca5a5;
+  --danger-text: #dc2626;
+  --danger-strong: #991b1b;
+  --warn-soft: #fffbeb;
+  --warn-bg: #fef3c7;
+  --warn-border: #fde68a;
+  --warn-text: #d97706;
+  --warn-strong: #92400e;
+  --violet-soft: #f5f3ff;
+  --violet-bg: #ede9fe;
+  --violet-border: #ddd6fe;
+  --violet-text: #7c3aed;
+  --violet-strong: #5b21b6;
+  --pink-soft: #fdf2f8;
+  --pink-bg: #fce7f3;
+  --pink-text: #db2777;
+  --pink-strong: #9d174d;
   --radius: 0.75rem;
 
   /* shadcn/Radix design tokens — referenced by tailwind.config.js (hsl(var(--x)))
@@ -75,6 +116,18 @@ body,
   height: 100%;
   overflow-x: hidden;
   font-family: var(--font-poppins), 'Poppins', sans-serif;
+}
+
+/* Dark mode plumbing. The .dark class is set by applyTheme() (utils/themes.js)
+   and by the pre-paint boot script in app/layout.js. */
+html.dark {
+  color-scheme: dark; /* native scrollbars, inputs, date controls */
+}
+/* The /logo/ SVG assets are drawn in brand blue — on dark surfaces they'd
+   vanish. White-silhouette them. Rasters (.png company logos) are excluded:
+   brightness(0) would destroy their detail. */
+html.dark img[src^="/logo/"][src$=".svg"] {
+  filter: brightness(0) invert(1);
 }
 
 /* Row hover: ensure all tds inherit tr hover background */
@@ -129,11 +182,11 @@ thead th {
   }
 
   .dashBox {
-    @apply col-span-12 md:col-span-1 border border-[var(--selago)] rounded-2xl bg-white justify-center flex shadow-lg text-[15px] flex-col p-4;
+    @apply col-span-12 md:col-span-1 border border-[var(--selago)] rounded-2xl bg-[var(--surface-card)] justify-center flex shadow-lg text-[15px] flex-col p-4;
   }
 
   .dashCard {
-    @apply rounded-2xl bg-white shadow-lg p-5 border border-[var(--selago)];
+    @apply rounded-2xl bg-[var(--surface-card)] shadow-lg p-5 border border-[var(--selago)];
   }
 
   .dashStatCard {
@@ -145,7 +198,7 @@ thead th {
   }
 
   .whiteButton {
-    @apply bg-white border-[var(--border-divider)] hover:bg-[var(--selago)] text-[var(--chathams-blue)] flex items-center gap-2 justify-center rounded-full border px-3 h-7 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-sm transition-colors
+    @apply bg-[var(--surface-card)] border-[var(--border-divider)] hover:bg-[var(--selago)] text-[var(--chathams-blue)] flex items-center gap-2 justify-center rounded-full border px-3 h-7 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-sm transition-colors
   }
     .supplierButton {
     @apply bg-[var(--surface-header)] hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] focus:outline-none shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
@@ -390,7 +443,7 @@ input::-webkit-inner-spin-button {
 }
 
 .cashflow-detail-table tbody td {
-  color: #1F2937;
+  color: var(--text-strong);
   border-bottom: 1px solid var(--selago);
 }
 
@@ -437,6 +490,8 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 }
 
 .react-tailwindcss-datepicker-container > div:not(:first-child),
+/* NOTE: selector must keep the literal class names the datepicker library
+   renders (bg-white comes from node_modules) — do not tokenise selectors. */
 .shadow-sm.border.border-gray-300.px-1.py-0\.5.bg-white.rounded-lg {
   border-radius: 1.25rem !important;
   border: 1px solid var(--selago) !important;

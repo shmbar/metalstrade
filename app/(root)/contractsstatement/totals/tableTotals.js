@@ -31,7 +31,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
         <div className="w-full max-w-[540px]">
             <style jsx global>{`
                 .glass-table {
-                  background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(250,250,250,0.90) 50%, rgba(255,255,255,0.85) 100%);
+                  background: linear-gradient(135deg, rgba(var(--surface-card-rgb),0.85) 0%, rgba(var(--surface-base-rgb),0.90) 50%, rgba(var(--surface-card-rgb),0.85) 100%);
                 }
                 .custom-table, .custom-table *, .glass-table, .glass-table * {
                   font-family: var(--font-poppins), 'Poppins', sans-serif;
@@ -50,7 +50,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                   background-color: var(--surface-header);
                 }
                 .custom-table td {
-                  background-color: #fff;
+                  background-color: var(--surface-card);
                   border: 1px solid var(--selago);
                   font-size: 9px !important;
                 }
@@ -143,7 +143,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                         <div key={row.id}
                             className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                             style={{
-                                backgroundColor: '#FFFFFF',
+                                backgroundColor: 'var(--surface-card)',
                                 border: '1px solid var(--border-divider)',
                                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
                             }}
@@ -161,7 +161,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                                         <div className="uppercase tracking-wider font-normal" style={{ color: 'var(--regent-gray)', fontSize: '0.58rem' }}>
                                             {cell.column.columnDef.header}
                                         </div>
-                                        <div className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" style={{ color: 'var(--port-gore)', background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)', fontSize: '0.62rem', border: '1px solid var(--border-divider)' }}>
+                                        <div className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" style={{ color: 'var(--port-gore)', background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))', fontSize: '0.62rem', border: '1px solid var(--border-divider)' }}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </div>
                                     </div>

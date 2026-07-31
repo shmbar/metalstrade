@@ -14,7 +14,7 @@ export const detailsToolTip = (row, data, settings, dataTable,) => {
 
     return (
         <div style={{
-            background: '#fff',
+            background: 'var(--surface-card)',
             borderRadius: '16px',
             overflow: 'hidden',
             maxHeight: '28rem',

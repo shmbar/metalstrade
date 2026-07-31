@@ -90,7 +90,7 @@ const AccountStatement = () => {
         <div className='flex group datepicker-wrapper w-full sm:w-auto'>
           <Datepicker
             inputClassName='border border-[var(--border-divider)] h-7 py-2 pl-3 pr-3 rounded-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] w-full sm:w-44
-              focus:outline-none focus:ring-1 focus:ring-blue-200 cursor-pointer bg-white shadow-sm text-[0.75rem]'
+              focus:outline-none focus:ring-1 focus:ring-blue-200 cursor-pointer bg-[var(--surface-card)] shadow-sm text-[0.75rem]'
             useRange={false}
             asSingle={true}
             value={valueDate}
@@ -292,7 +292,7 @@ const AccountStatement = () => {
       },
     },
 
-    { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toLowerCase(); const isUsd = v === 'us' || v === 'usd'; const isEur = v === 'eu' || v === 'eur'; return <span style={{ background: isUsd ? '#b7d1b5' : isEur ? 'var(--surface-header)' : '#f0f0f0', color: isUsd ? '#2d6a2d' : isEur ? 'var(--chathams-blue)' : '#555', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: '12px', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
+    { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toLowerCase(); const isUsd = v === 'us' || v === 'usd'; const isEur = v === 'eu' || v === 'eur'; return <span style={{ background: isUsd ? 'var(--ok-border)' : isEur ? 'var(--surface-header)' : 'var(--surface-muted)', color: isUsd ? 'var(--ok-strong)' : isEur ? 'var(--chathams-blue)' : '#555', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: '12px', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
     {
       accessorKey: 'due', header: getTtl('DuePayment', ln), cell: (props) => <div>{dateFormat(props.getValue(), 'dd.mm.yy')} </div>,
       meta: {

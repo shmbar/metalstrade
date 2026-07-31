@@ -71,8 +71,8 @@ const MyCombobox = ({ data, setValue, value, dt, indx, name, classes, disabled, 
         <div className="w-full">
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="relative">
-                    <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-white text-left
-                     focus:outline-none sm:text-sm border border-[#E5E7EB] hover:border-[var(--rock-blue)] transition-colors h-8 ${classes}`}>
+                    <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-[var(--surface-card)] text-left
+                     focus:outline-none sm:text-sm border border-[var(--border-neutral)] hover:border-[var(--rock-blue)] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
                             className="w-full py-2 pl-3 pr-10 text-xs leading-5 text-[var(--endeavour)] focus:outline-none "
                             displayValue={(value) => (data.find(x => x.id === dt[indx][name]) || {})[name] || selected[name]}
@@ -93,7 +93,7 @@ const MyCombobox = ({ data, setValue, value, dt, indx, name, classes, disabled, 
                         afterLeave={() => setQuery('')}
                     >
                         <ComboboxOptions className={`z-10 absolute mt-1 max-h-60 w-full overflow-auto rounded-xl
-                        bg-white py-1 text-base shadow-lg border border-[var(--surface-header)] focus:outline-none
+                        bg-[var(--surface-card)] py-1 text-base shadow-lg border border-[var(--surface-header)] focus:outline-none
                         sm:text-sm ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (
                                 <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] text-xs">

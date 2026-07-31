@@ -7,12 +7,12 @@ import { FileText, Receipt, Banknote, Package, Settings as SettingsIcon, Activit
 // Visual identity per entity type (aligns with the future #7 status-color system).
 const ENTITY_META = {
     contract: { label: 'Contract', icon: FileText, color: 'var(--endeavour)', bg: 'var(--surface-header)' },
-    invoice: { label: 'Invoice', icon: Receipt, color: '#15803d', bg: '#f0fdf4' },
-    expense: { label: 'Expense', icon: Banknote, color: '#b45309', bg: '#fffbeb' },
-    stock: { label: 'Stock', icon: Package, color: '#7c3aed', bg: '#f5f3ff' },
-    settings: { label: 'Settings', icon: SettingsIcon, color: '#475569', bg: '#f1f5f9' },
+    invoice: { label: 'Invoice', icon: Receipt, color: 'var(--ok-strong)', bg: 'var(--ok-soft)' },
+    expense: { label: 'Expense', icon: Banknote, color: 'var(--warn-strong)', bg: 'var(--warn-soft)' },
+    stock: { label: 'Stock', icon: Package, color: 'var(--violet-text)', bg: 'var(--violet-soft)' },
+    settings: { label: 'Settings', icon: SettingsIcon, color: 'var(--text-mid)', bg: '#f1f5f9' },
 };
-const FALLBACK_META = { label: 'Activity', icon: Activity, color: '#475569', bg: '#f1f5f9' };
+const FALLBACK_META = { label: 'Activity', icon: Activity, color: 'var(--text-mid)', bg: '#f1f5f9' };
 const metaFor = (t) => ENTITY_META[t] || FALLBACK_META;
 
 function relativeTime(ms) {
@@ -190,7 +190,7 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                                     return (
                                         <li
                                             key={r.id}
-                                            className='flex items-start gap-2.5 px-2.5 py-2 rounded-xl border border-[var(--selago)] bg-white transition-colors hover:border-[var(--border-divider)] hover:bg-[var(--surface-pill)]'
+                                            className='flex items-start gap-2.5 px-2.5 py-2 rounded-xl border border-[var(--selago)] bg-[var(--surface-card)] transition-colors hover:border-[var(--border-divider)] hover:bg-[var(--surface-pill)]'
                                         >
                                             <span className='inline-flex items-center justify-center rounded-full flex-shrink-0' style={{ width: 26, height: 26, background: meta.bg }}>
                                                 <Icon className='w-3.5 h-3.5' style={{ color: meta.color }} />

@@ -29,7 +29,7 @@ const MarginTable = memo(function MarginTable(props) {
                 defaultOpen={openMonth === true}
                 className="margin-card w-full overflow-visible"
                 style={{
-                    background: '#ffffff',
+                    background: 'var(--surface-card)',
                     borderRadius: '12px',
                     border: '1px solid var(--border-divider)',
                     marginBottom: '0px',
@@ -42,7 +42,7 @@ const MarginTable = memo(function MarginTable(props) {
                         <div 
                             className="flex flex-wrap items-center gap-2 mb-2"
                             style={{
-                                background: '#ffffff',
+                                background: 'var(--surface-card)',
                                 padding: '2px 4px',
                                 borderRadius: '8px',
                                 marginBottom: '0px',
@@ -154,7 +154,7 @@ const MarginTable = memo(function MarginTable(props) {
                                                 decimalScale={3}
                                                 fixedDecimalScale
                                                 style={{
-                                                    color: totalOpenShip > 0 ? '#dc2626' : 'var(--chathams-blue)',
+                                                    color: totalOpenShip > 0 ? 'var(--danger-text)' : 'var(--chathams-blue)',
                                                     lineHeight: '1.2'
                                                 }}
                                             />
@@ -183,7 +183,7 @@ const MarginTable = memo(function MarginTable(props) {
                                                 decimalScale={2}
                                                 fixedDecimalScale
                                                 style={{
-                                                    color: remaining > 0 ? '#dc2626' : 'var(--chathams-blue)',
+                                                    color: remaining > 0 ? 'var(--danger-text)' : 'var(--chathams-blue)',
                                                     lineHeight: '1.2'
                                                 }}
                                             />
@@ -223,7 +223,7 @@ const MarginTable = memo(function MarginTable(props) {
                                     onClick={() => deleteMonth(month)}
                                     title="Delete month"
                                     style={{
-                                        color: '#ef4444',
+                                        color: 'var(--danger-text)',
                                         width: '28px',
                                         height: '28px',
                                         display: 'flex',

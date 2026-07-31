@@ -7,9 +7,9 @@
 
 // Visual tokens + sort rank for each level. Rank 0 sorts first (High on top).
 export const PRIORITY = {
-    high: { key: 'high', rank: 0, label: 'High', color: '#dc2626', bg: '#fee2e2', border: '#fca5a5' },
-    medium: { key: 'medium', rank: 1, label: 'Medium', color: '#b45309', bg: '#fff3cd', border: '#ffc107' },
-    low: { key: 'low', rank: 2, label: 'Low', color: '#475569', bg: '#f1f5f9', border: '#cbd5e1' },
+    high: { key: 'high', rank: 0, label: 'High', color: 'var(--danger-text)', bg: 'var(--danger-bg)', border: 'var(--danger-border)' },
+    medium: { key: 'medium', rank: 1, label: 'Medium', color: 'var(--warn-strong)', bg: 'var(--warn-soft)', border: '#ffc107' },
+    low: { key: 'low', rank: 2, label: 'Low', color: 'var(--text-mid)', bg: '#f1f5f9', border: '#cbd5e1' },
 };
 
 // Display order: High → Medium → Low.

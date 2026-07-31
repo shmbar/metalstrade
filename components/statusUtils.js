@@ -2,11 +2,11 @@
 // and reusable anywhere. The <StatusBadge> component in StatusBadge.js renders these.
 
 export const TONES = {
-    green: { bg: '#dcfce7', text: '#15803d', border: '#86efac' },
-    amber: { bg: '#fef3c7', text: '#92400e', border: '#fde68a' },
-    red: { bg: '#fee2e2', text: '#991b1b', border: '#fca5a5' },
+    green: { bg: 'var(--ok-bg)', text: 'var(--ok-strong)', border: 'var(--ok-border)' },
+    amber: { bg: 'var(--warn-bg)', text: 'var(--warn-strong)', border: 'var(--warn-border)' },
+    red: { bg: 'var(--danger-bg)', text: 'var(--danger-strong)', border: 'var(--danger-border)' },
     blue: { bg: 'var(--surface-header)', text: 'var(--endeavour)', border: 'var(--border-divider)' },
-    gray: { bg: '#f1f5f9', text: '#475569', border: '#e2e8f0' },
+    gray: { bg: '#f1f5f9', text: 'var(--text-mid)', border: 'var(--border-neutral)' },
 };
 
 // Map a free-text status label to a tone. Order matters: negative/partial checks

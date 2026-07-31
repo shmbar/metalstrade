@@ -48,7 +48,7 @@ const MyModal = ({ isDeleteOpen, setIsDeleteOpen, ttl, txt, doAction }) => {
 
           <button
             onClick={closeModal}
-            className="inline-flex justify-center rounded-full border border-[var(--endeavour)] bg-white px-4 py-1.5 text-sm font-medium text-[var(--endeavour)] hover:bg-[var(--selago)] transition-all"
+            className="inline-flex justify-center rounded-full border border-[var(--endeavour)] bg-[var(--surface-card)] px-4 py-1.5 text-sm font-medium text-[var(--endeavour)] hover:bg-[var(--selago)] transition-all"
           >
             {getTtl("Cancel", ln)}
           </button>

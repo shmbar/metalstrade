@@ -123,7 +123,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                 const isOpen = !!expanded[key]
                 return (
                   <React.Fragment key={i}>
-                  <tr style={{ background: '#fff', cursor: canExpand ? 'pointer' : 'default' }}
+                  <tr style={{ background: 'var(--surface-card)', cursor: canExpand ? 'pointer' : 'default' }}
                     onClick={() => canExpand && toggle(key)}>
                     <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '14px' }}>
                       <span className='inline-flex items-center gap-1'>

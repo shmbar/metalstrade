@@ -79,7 +79,7 @@ const Remraks = ({ value, setValue, ln }) => {
 
                 {value.remarks.map((x, i) => {
                     return (
-                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-2 px-4 responsiveText bg-white border border-[var(--border-cell)] text-[var(--port-gore)] -mt-px first:rounded-t-xl first:mt-0 last:rounded-b-xl ">
+                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-2 px-4 responsiveText bg-[var(--surface-card)] border border-[var(--border-cell)] text-[var(--port-gore)] -mt-px first:rounded-t-xl first:mt-0 last:rounded-b-xl ">
                             {edit.status && edit.id === x.id ?
                                 <input
                                     className="w-full border rounded-full border-[var(--border-cell)] h-7

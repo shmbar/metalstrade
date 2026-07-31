@@ -92,7 +92,7 @@ const Customtable = ({
                             }}
                             onChange={table.getToggleAllPageRowsSelectedHandler()}
                             className="w-4 h-4 cursor-pointer rounded"
-                            style={{ accentColor: '#9333EA' }}
+                            style={{ accentColor: 'var(--violet-text)' }}
                         />
                     </div>
                 ),
@@ -169,25 +169,25 @@ const Customtable = ({
                 /* Professional gradient scrollbar matching cards */
                 .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
                 .dashboard-scroll::-webkit-scrollbar-track {
-                    background: linear-gradient(180deg, #F8F8F8, #F0F0F0);
+                    background: linear-gradient(180deg, var(--surface-base), var(--surface-muted));
                     border-radius: 6px;
                 }
                 .dashboard-scroll::-webkit-scrollbar-thumb {
-                    background: linear-gradient(180deg, #E0E0E0, #CCCCCC);
+                    background: linear-gradient(180deg, var(--border-neutral), var(--border-neutral-strong));
                     border-radius: 6px;
-                    border: 2px solid #F8F8F8;
+                    border: 2px solid var(--surface-base);
                 }
                 .dashboard-scroll::-webkit-scrollbar-thumb:hover {
-                    background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
-                    border-color: #F0F0F0;
+                    background: linear-gradient(180deg, var(--border-neutral-strong), var(--text-faint));
+                    border-color: var(--surface-muted);
                 }
 
                 /* Glassmorphic professional table */
                 .glass-table {
                     background: linear-gradient(135deg,
-                        rgba(255, 255, 255, 0.85) 0%,
-                        rgba(250, 250, 250, 0.90) 50%,
-                        rgba(255, 255, 255, 0.85) 100%
+                        rgba(var(--surface-card-rgb),0.85) 0%,
+                        rgba(var(--surface-base-rgb),0.90) 50%,
+                        rgba(var(--surface-card-rgb),0.85) 100%
                     );
                 }
 
@@ -210,7 +210,7 @@ const Customtable = ({
                 }
                 .custom-table td {
                     border: 0.5px solid rgba(0,0,0,0.04);
-                    background-color: #fff;
+                    background-color: var(--surface-card);
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
@@ -219,13 +219,13 @@ const Customtable = ({
                 }
 
                 .summary-green-si {
-                    background-color: #b7d1b5;
-                    color: #1a3a1a;
+                    background-color: var(--ok-border);
+                    color: var(--ok-strong);
                     font-weight: 400;
                 }
                 .summary-green-si th {
-                    background-color: #b7d1b5 !important;
-                    color: #1a3a1a !important;
+                    background-color: var(--ok-border) !important;
+                    color: var(--ok-strong) !important;
                     border: none !important;
                 }
 
@@ -252,7 +252,7 @@ const Customtable = ({
                         className="flex-shrink-0 rounded-t-2xl"
                         style={{
                             borderBottom: '1px solid var(--border-divider)',
-                            background: '#ffffff',
+                            background: 'var(--surface-card)',
                         }}
                     >
                         <Header
@@ -347,13 +347,13 @@ const Customtable = ({
 
                                             {/* Filter Row */}
                                             {filterOn && (
-                                                <tr style={{ backgroundColor: '#FFFFFF' }}>
+                                                <tr style={{ backgroundColor: 'var(--surface-card)' }}>
                                                     {group.headers.map(header => (
                                                         <th
                                                             key={header.id}
                                                             className="px-2 py-1.5 font-medium text-xs font-poppins"
                                                             style={{
-                                                                backgroundColor: '#FFFFFF',
+                                                                backgroundColor: 'var(--surface-card)',
                                                                 borderBottom: '2px solid var(--border-divider)',
                                                                 minWidth: header.column.id === 'select' ? '50px' : '90px',
                                                                 maxWidth: header.column.id === 'select' ? '50px' : 'none',
@@ -413,9 +413,9 @@ const Customtable = ({
                 <div
                   className="px-3 py-1.5 rounded-xl responsiveTextTable font-normal"
                   style={{
-                    backgroundColor: value ? '#dcfce7' : '#fee2e2',
-                    color: value ? '#16a34a' : '#dc2626',
-                    border: `1px solid ${value ? '#bbf7d0' : '#fecaca'}`
+                    backgroundColor: value ? 'var(--ok-bg)' : 'var(--danger-bg)',
+                    color: value ? 'var(--ok-text)' : 'var(--danger-text)',
+                    border: `1px solid ${value ? 'var(--ok-border)' : 'var(--danger-border)'}`
                   }}
                 >
                   {value ? 'Completed' : 'Incompleted'}
@@ -428,12 +428,12 @@ const Customtable = ({
                   style={{
                     backgroundColor:
                       value === 'Paid'
-                        ? '#dcfce7'
+                        ? 'var(--ok-bg)'
                         : value === 'Unpaid'
-                        ? '#fef9c3'
+                        ? 'var(--warn-bg)'
                         : 'var(--surface-pill)',
-                    border: value ? `1px solid ${value === 'Paid' ? '#bbf7d0' : value === 'Unpaid' ? '#fde68a' : 'var(--border-cell)'}` : 'none',
-                    color: value === 'Paid' ? '#166534' : value === 'Unpaid' ? '#92400e' : 'var(--port-gore)'
+                    border: value ? `1px solid ${value === 'Paid' ? 'var(--ok-border)' : value === 'Unpaid' ? 'var(--warn-border)' : 'var(--border-cell)'}` : 'none',
+                    color: value === 'Paid' ? 'var(--ok-strong)' : value === 'Unpaid' ? 'var(--warn-strong)' : 'var(--port-gore)'
                   }}
                 >
                   {value || '\u00A0'}
@@ -447,12 +447,12 @@ const Customtable = ({
                     style={{
                       backgroundColor:
                         value === 'Paid'
-                          ? '#dcfce7'
+                          ? 'var(--ok-bg)'
                           : value === 'Not Paid'
-                          ? '#fef9c3'
+                          ? 'var(--warn-bg)'
                           : 'var(--surface-pill)',
-                      border: `1px solid ${value === 'Paid' ? '#bbf7d0' : value === 'Not Paid' ? '#fde68a' : 'var(--border-cell)'}`,
-                      color: value === 'Paid' ? '#166534' : value === 'Not Paid' ? '#92400e' : 'var(--port-gore)',
+                      border: `1px solid ${value === 'Paid' ? 'var(--ok-border)' : value === 'Not Paid' ? 'var(--warn-border)' : 'var(--border-cell)'}`,
+                      color: value === 'Paid' ? 'var(--ok-strong)' : value === 'Not Paid' ? 'var(--warn-strong)' : 'var(--port-gore)',
                       whiteSpace: 'nowrap',
                     }}
                   >
@@ -508,7 +508,7 @@ const Customtable = ({
                                     onDoubleClick={() => SelectRow(row.original)}
                                     className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                                     style={{
-                                        backgroundColor: '#FFFFFF',
+                                        backgroundColor: 'var(--surface-card)',
                                         border: '1px solid var(--border-divider)',
                                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
                                     }}
@@ -517,7 +517,7 @@ const Customtable = ({
                                     <div
                                         className="px-3 py-2 flex items-center justify-between bg-[var(--border-divider)]"
                                         // style={{
-                                        //     background: 'linear-gradient(135deg, #6366F1, #9333EA, #0D9488)',
+                                        //     background: 'linear-gradient(135deg, var(--violet-text), var(--violet-text), #0D9488)',
                                         // }}
                                     >
                                         <span
@@ -567,7 +567,7 @@ const Customtable = ({
                                                         className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
                                                         style={{
                                                             color: 'var(--port-gore)',
-                                                            background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                                                            background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
                                                             fontSize: '0.62rem',
                                                             border: '1px solid var(--border-divider)'
                                                         }}
@@ -607,7 +607,7 @@ const Customtable = ({
   className="flex-shrink-0 rounded-b-2xl"
   style={{
     borderTop: '1px solid var(--border-divider)',
-    background: '#ffffff',
+    background: 'var(--surface-card)',
   }}
 >
   <div className="w-full px-6 py-4">

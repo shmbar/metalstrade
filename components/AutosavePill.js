@@ -10,11 +10,11 @@ export default function AutosavePill({ mode, text, countdown, onSaveNow, onCance
     if (!mode) return null;
     return (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9990] pointer-events-none">
-            <div className="flex items-center gap-2 rounded-full bg-white shadow-xl border border-[var(--surface-header)] pl-3 pr-2 py-1.5 pointer-events-auto"
+            <div className="flex items-center gap-2 rounded-full bg-[var(--surface-card)] shadow-xl border border-[var(--surface-header)] pl-3 pr-2 py-1.5 pointer-events-auto"
                 style={{ fontSize: '0.72rem' }}>
                 {mode === 'pending' && (
                     <>
-                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: '#b45309' }} />
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--warn-strong)' }} />
                         <span className="font-medium whitespace-nowrap" style={{ color: 'var(--chathams-blue)' }}>
                             {text}{countdown != null ? ` in ${countdown}s` : ''}
                         </span>
@@ -30,7 +30,7 @@ export default function AutosavePill({ mode, text, countdown, onSaveNow, onCance
                 )}
                 {mode === 'info' && (
                     <>
-                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: '#b45309' }} />
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--warn-strong)' }} />
                         <span className="font-medium pr-1 whitespace-nowrap" style={{ color: 'var(--chathams-blue)' }}>{text || 'Unsaved — autosaving…'}</span>
                     </>
                 )}
@@ -42,8 +42,8 @@ export default function AutosavePill({ mode, text, countdown, onSaveNow, onCance
                 )}
                 {mode === 'saved' && (
                     <>
-                        <span style={{ color: '#15803d' }}>✓</span>
-                        <span className="font-medium pr-1 whitespace-nowrap" style={{ color: '#15803d' }}>{text || 'Saved'}</span>
+                        <span style={{ color: 'var(--ok-strong)' }}>✓</span>
+                        <span className="font-medium pr-1 whitespace-nowrap" style={{ color: 'var(--ok-strong)' }}>{text || 'Saved'}</span>
                     </>
                 )}
             </div>

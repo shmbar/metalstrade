@@ -57,7 +57,7 @@ const SumToggle = ({ active, onToggle }) => (
         <button type="button" onClick={onToggle}
             className={`flex items-center justify-center w-4 h-4 rounded-[4px] border text-[10px] leading-none font-bold transition-colors ${active
                 ? 'bg-[var(--endeavour)] border-[var(--endeavour)] text-white'
-                : 'bg-white border-[var(--border-divider)] text-[var(--endeavour)] hover:bg-[var(--surface-header)]'}`}>
+                : 'bg-[var(--surface-card)] border-[var(--border-divider)] text-[var(--endeavour)] hover:bg-[var(--surface-header)]'}`}>
             {active ? '✓' : '+'}
         </button>
     </Tltip>
@@ -90,8 +90,8 @@ const FinalBadge = ({ fnlzing, invType, invoiceNo }) => {
     const yes = fnlzing === '4568' || fn;
     // Matches FinalSummaryBadge: soft tint + inset ring + status dot.
     const tone = yes
-        ? { dot: '#10b981', text: '#047857', bg: '#ecfdf5', ring: '#a7f3d0' }
-        : { dot: '#f59e0b', text: '#b45309', bg: '#fffbeb', ring: '#fde68a' };
+        ? { dot: 'var(--ok-text)', text: 'var(--ok-strong)', bg: 'var(--ok-soft)', ring: 'var(--ok-border)' }
+        : { dot: 'var(--warn-text)', text: 'var(--warn-strong)', bg: 'var(--warn-soft)', ring: 'var(--warn-border)' };
     return (
         <Tltip direction='top' tltpText={fn ? 'Final Note issued — finalized' : yes ? 'Shipment finalized — final invoice issued' : 'Not finalized — balance is before the final invoice'}>
             <span
@@ -134,7 +134,7 @@ export const FinalSummaryBadge = ({ finalized = 0, total = 0 }) => {
     // "Final" column already spells out Yes/No, so a word here would be
     // redundant. Same dot colours as the table chips: emerald = all finalized ·
     // amber = none yet (provisional) · blue = partial. Meaning is in the tooltip.
-    const dot = allDone ? '#10b981' : noneDone ? '#f59e0b' : 'var(--primary-bright)';
+    const dot = allDone ? 'var(--ok-text)' : noneDone ? 'var(--warn-text)' : 'var(--primary-bright)';
     const label = allDone ? 'All finalized — final invoice issued'
         : noneDone ? 'Not finalized yet — before final invoice'
             : `${finalized} of ${total} finalized`;
@@ -552,7 +552,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
     });
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-white">
+        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-[var(--surface-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -678,7 +678,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
     });
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-white">
+        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-[var(--surface-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -1051,7 +1051,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
     const filteredArr1 = sortKey ? sortRows(rawInDebt, sortKey, sortDir) : rawInDebt;
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-white">
+        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-[var(--surface-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             {type === 'PartPaid' &&
                 <div className="pt-1 w-full">
@@ -1511,7 +1511,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     });
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-white">
+        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-[var(--surface-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -1722,7 +1722,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
     const allEur = filteredArr.length > 0 && filteredArr.every(z => z.cur === 'eu');
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-white">
+        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-[var(--surface-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>

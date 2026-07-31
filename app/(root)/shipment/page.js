@@ -75,12 +75,12 @@ function DateCell({ rawDate, onOpen, onClear, urgency }) {
 
     // Arrival cells tint when cargo is overdue (red) or due within 7 days (amber).
     const tint = urgency === 'overdue'
-        ? { backgroundColor: '#fee2e2', border: '1px solid #fecaca' }
+        ? { backgroundColor: 'var(--danger-bg)', border: '1px solid var(--danger-border)' }
         : urgency === 'soon'
-        ? { backgroundColor: '#fef9c3', border: '1px solid #fde68a' }
+        ? { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)' }
         : { backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' };
-    const textColor = urgency === 'overdue' ? '#991b1b'
-        : urgency === 'soon' ? '#78350f'
+    const textColor = urgency === 'overdue' ? 'var(--danger-strong)'
+        : urgency === 'soon' ? 'var(--warn-strong)'
         : (display ? 'var(--port-gore)' : 'var(--regent-gray)');
 
     const handleClick = (e) => {
@@ -148,7 +148,7 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                 <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
             </button>
             {open && (
-                <div className="absolute z-[200] top-full mt-1 left-0 rounded-2xl shadow-lg overflow-hidden" style={{ border: '1px solid var(--border-cell)', backgroundColor: '#fff', minWidth: '140px', maxHeight: '220px', overflowY: 'auto' }}>
+                <div className="absolute z-[200] top-full mt-1 left-0 rounded-2xl shadow-lg overflow-hidden" style={{ border: '1px solid var(--border-cell)', backgroundColor: 'var(--surface-card)', minWidth: '140px', maxHeight: '220px', overflowY: 'auto' }}>
                     <div
                         onClick={() => { onChange(''); setOpen(false); }}
                         className="px-3 py-1.5 cursor-pointer transition-colors"
@@ -219,7 +219,7 @@ function StatusSelect({ value, onChange }) {
                 <div
                     ref={dropRef}
                     className="rounded-xl overflow-hidden shadow-lg"
-                    style={{ position: 'fixed', top: pos.top, left: pos.left, minWidth: pos.width, zIndex: 99999, border: '1px solid var(--border-cell)', backgroundColor: '#fff' }}
+                    style={{ position: 'fixed', top: pos.top, left: pos.left, minWidth: pos.width, zIndex: 99999, border: '1px solid var(--border-cell)', backgroundColor: 'var(--surface-card)' }}
                 >
                     {STATUSES.map(s => (
                         <div
@@ -719,8 +719,8 @@ const ShipmentPage = () => {
                 border-radius: 4px;
         }
             .custom-table td {
-                background-color: #fff;
-                border: 1px solid #e0e0e0;
+                background-color: var(--surface-card);
+                border: 1px solid var(--border-neutral);
                 text-align: center;
                 vertical-align: middle;
                 padding: 6px;
@@ -784,15 +784,15 @@ const ShipmentPage = () => {
                     {/* Toolbar */}
                     <div
                         className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-2 py-2 gap-2 rounded-t-2xl"
-                        style={{ borderBottom: '1px solid var(--border-divider)', background: '#ffffff' }}
+                        style={{ borderBottom: '1px solid var(--border-divider)', background: 'var(--surface-card)' }}
                     >
                         {/* Left: Search + Status filter chips */}
                         <div className="flex flex-wrap items-center gap-2">
 
                             {/* Search */}
-                            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--border-divider)] rounded-2xl bg-white focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
+                            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--border-divider)] rounded-2xl bg-[var(--surface-card)] focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
                                 <input
-                                    className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium rounded-2xl"
+                                    className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium rounded-2xl"
                                     placeholder="Search"
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
@@ -843,7 +843,7 @@ const ShipmentPage = () => {
                             {showFilters && <div className="flex items-center gap-1 flex-wrap">
                                 <button
                                     onClick={() => setStatusFilter('')}
-                                    className={`font-medium px-2.5 py-0.5 rounded-full border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]' : 'bg-white text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
+                                    className={`font-medium px-2.5 py-0.5 rounded-full border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]' : 'bg-[var(--surface-card)] text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
                                     style={{ fontSize: '0.68rem' }}
                                 >
                                     All ({contracts.length})
@@ -903,13 +903,13 @@ const ShipmentPage = () => {
 
                     {/* Attention strip — fastest path to what needs action; chips filter the table */}
                     {(overdueCount + soonCount + inTransitCount) > 0 && (
-                        <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap" style={{ background: '#ffffff', borderBottom: '1px solid var(--selago)' }}>
+                        <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap" style={{ background: 'var(--surface-card)', borderBottom: '1px solid var(--selago)' }}>
                             <span className="responsiveTextTable font-semibold tracking-wider" style={{ color: 'var(--regent-gray)' }}>NEEDS ATTENTION</span>
                             {overdueCount > 0 && (
                                 <button
                                     onClick={() => setUrgencyFilter(prev => prev === 'overdue' ? '' : 'overdue')}
                                     className="font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                    style={{ fontSize: '0.68rem', backgroundColor: '#fee2e2', border: '1px solid #fecaca', color: '#991b1b', outline: urgencyFilter === 'overdue' ? '2px solid #991b1b' : 'none', outlineOffset: '1px' }}
+                                    style={{ fontSize: '0.68rem', backgroundColor: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-strong)', outline: urgencyFilter === 'overdue' ? '2px solid var(--danger-strong)' : 'none', outlineOffset: '1px' }}
                                 >
                                     {overdueCount} overdue
                                 </button>
@@ -918,7 +918,7 @@ const ShipmentPage = () => {
                                 <button
                                     onClick={() => setUrgencyFilter(prev => prev === 'soon' ? '' : 'soon')}
                                     className="font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                    style={{ fontSize: '0.68rem', backgroundColor: '#fef9c3', border: '1px solid #fde68a', color: '#78350f', outline: urgencyFilter === 'soon' ? '2px solid #78350f' : 'none', outlineOffset: '1px' }}
+                                    style={{ fontSize: '0.68rem', backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)', outline: urgencyFilter === 'soon' ? '2px solid var(--warn-strong)' : 'none', outlineOffset: '1px' }}
                                 >
                                     {soonCount} arriving ≤7d
                                 </button>
@@ -1076,10 +1076,10 @@ const ShipmentPage = () => {
                                                             <div
                                                                 className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap inline-flex items-center gap-1"
                                                                 style={recent
-                                                                    ? { backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#14532d' }
+                                                                    ? { backgroundColor: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok-strong)' }
                                                                     : { backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)', color: ts ? 'var(--port-gore)' : 'var(--regent-gray)' }}
                                                             >
-                                                                {recent && <span style={{ width: 6, height: 6, borderRadius: 9999, backgroundColor: '#22c55e', display: 'inline-block' }} />}
+                                                                {recent && <span style={{ width: 6, height: 6, borderRadius: 9999, backgroundColor: 'var(--ok-text)', display: 'inline-block' }} />}
                                                                 {relTime(ts)}
                                                             </div>
                                                         );
@@ -1116,7 +1116,7 @@ const ShipmentPage = () => {
                                 <div
                                     key={contract.id}
                                     className="rounded-2xl overflow-hidden"
-                                    style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--border-divider)', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
+                                    style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-divider)', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
                                 >
                                     {/* Card header */}
                                     <div className="px-3 py-2 flex items-center justify-between bg-[var(--border-divider)]">
@@ -1131,8 +1131,8 @@ const ShipmentPage = () => {
                                                 const u = getUrgency(contract);
                                                 if (!u) return null;
                                                 const s = u === 'overdue'
-                                                    ? { backgroundColor: '#fee2e2', border: '1px solid #fecaca', color: '#991b1b', t: 'Overdue' }
-                                                    : { backgroundColor: '#fef9c3', border: '1px solid #fde68a', color: '#78350f', t: '≤7d' };
+                                                    ? { backgroundColor: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-strong)', t: 'Overdue' }
+                                                    : { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)', t: '≤7d' };
                                                 return (
                                                     <span className="responsiveTextTable font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: s.backgroundColor, border: s.border, color: s.color }}>
                                                         {s.t}
@@ -1141,7 +1141,7 @@ const ShipmentPage = () => {
                                             })()}
                                             <span
                                                 className="responsiveTextTable font-medium px-2.5 py-0.5 rounded-full"
-                                                style={status ? STATUS_STYLES[status] : { backgroundColor: '#f3f4f6', color: 'var(--regent-gray)', border: '1px solid #d1d5db' }}
+                                                style={status ? STATUS_STYLES[status] : { backgroundColor: 'var(--surface-muted)', color: 'var(--regent-gray)', border: '1px solid var(--border-neutral-strong)' }}
                                             >
                                                 {status || 'No Status'}
                                             </span>
@@ -1197,7 +1197,7 @@ const ShipmentPage = () => {
                     </div>
 
                     {/* Pagination footer */}
-                    <div className="flex-shrink-0 rounded-b-2xl" style={{ borderTop: '1px solid var(--border-divider)', background: '#ffffff' }}>
+                    <div className="flex-shrink-0 rounded-b-2xl" style={{ borderTop: '1px solid var(--border-divider)', background: 'var(--surface-card)' }}>
                         <div className="w-full px-6 py-4">
                             <div className="flex items-center justify-between">
 
@@ -1251,7 +1251,7 @@ const ShipmentPage = () => {
                                             <HiMiniChevronUpDown className="ml-2 -mr-1 mt-0.5 h-4 w-4 text-[var(--endeavour)]" />
                                         </MenuButton>
                                         <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
-                                            <MenuItems className="absolute right-0 bottom-10 w-[4.2rem] origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-[var(--selago)] focus:outline-none z-50">
+                                            <MenuItems className="absolute right-0 bottom-10 w-[4.2rem] origin-top-right rounded-lg bg-[var(--surface-card)] shadow-lg ring-1 ring-[var(--selago)] focus:outline-none z-50">
                                                 <div className="px-1 py-1">
                                                     {[5, 10, 20, 25, 50, 100].map(x => (
                                                         <MenuItem key={x}>

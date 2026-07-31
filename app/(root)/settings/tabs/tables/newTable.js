@@ -83,9 +83,9 @@ const Customtable = ({
       <div>
         {/* Custom header: Search + Edit + Columns + Filter icons */}
         <div className="flex items-center gap-2 p-2">
-          <div className="flex items-center relative w-[140px] h-7 border border-[var(--selago)] rounded-2xl bg-white shadow-sm">
+          <div className="flex items-center relative w-[140px] h-7 border border-[var(--selago)] rounded-2xl bg-[var(--surface-card)] shadow-sm">
             <input
-              className="bg-white border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full text-[0.75rem] rounded-2xl"
+              className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full text-[0.75rem] rounded-2xl"
               placeholder="Search..."
               value={globalFilter ?? ''}
               onChange={e => setGlobalFilter(e.target.value)}
@@ -149,7 +149,7 @@ const Customtable = ({
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-[var(--selago)] bg-white">
+            <tbody className="divide-y divide-[var(--selago)] bg-[var(--surface-card)]">
               {table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
@@ -186,7 +186,7 @@ const Customtable = ({
             </tbody>
           </table>
         </div>
-        <div className="flex items-center justify-between p-3 border-[var(--border-divider)] bg-white rounded-b-lg">
+        <div className="flex items-center justify-between p-3 border-[var(--border-divider)] bg-[var(--surface-card)] rounded-b-lg">
           {/* LEFT — Showing text */}
           <div className="hidden lg:flex text-[var(--endeavour)] text-[0.72rem]">
             {`${getTtl("Showing", ln)} ${table.getState().pagination.pageIndex *

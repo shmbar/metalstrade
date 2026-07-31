@@ -112,7 +112,7 @@ const SalesContracts = () => {
                 accessorFn: (c) => contractQty(c) - (shippedByContract[c.id] || 0),
                 cell: (props) => {
                     const v = props.getValue();
-                    return <span style={{ color: v > 0.0001 ? '#b45309' : '#15803d', fontWeight: 600 }}>
+                    return <span style={{ color: v > 0.0001 ? 'var(--warn-strong)' : 'var(--ok-strong)', fontWeight: 600 }}>
                         <NumericFormat value={v} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
                     </span>;
                 },
@@ -140,9 +140,9 @@ const SalesContracts = () => {
                 },
                 cell: (props) => {
                     const v = props.getValue();
-                    const tone = v === 'Fully shipped' ? ['#dcfce7', '#166534', '#bbf7d0']
+                    const tone = v === 'Fully shipped' ? ['var(--ok-bg)', 'var(--ok-strong)', 'var(--ok-border)']
                         : v === 'Partial' ? ['var(--border-cell)', 'var(--primary-bright)', 'var(--border-divider)']
-                            : ['#fef9c3', '#92400e', '#fde68a'];
+                            : ['var(--warn-bg)', 'var(--warn-strong)', 'var(--warn-border)'];
                     return <span className="rounded-full responsiveTextTable font-medium" style={{
                         background: tone[0], color: tone[1], border: `1px solid ${tone[2]}`, padding: '2px 12px', whiteSpace: 'nowrap'
                     }}>{v}</span>;

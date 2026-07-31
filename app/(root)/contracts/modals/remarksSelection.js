@@ -70,7 +70,7 @@ const Remraks = ({ value, setValue, settings }) => {
             <ul className="flex flex-col mt-1">
                 {value.remarks.map((x, i) => {
                     return (
-                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-0.5 px-2 responsiveTextTable bg-white border text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg relative">
+                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-0.5 px-2 responsiveTextTable bg-[var(--surface-card)] border text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg relative">
                             {!x.isRmrkText ?
                                 <div className='w-full flex items-center gap-3'>
                                     <Selector

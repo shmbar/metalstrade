@@ -1051,7 +1051,7 @@ const Cashflow = () => {
                             onCancel={() => setAutoCancelled(true)}
                         />
                         <VideoLoader loading={loading} fullScreen={true} />
-                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-lg w-full bg-white">
+                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-lg w-full bg-[var(--surface-card)]">
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
                                 <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                                     {getTtl('Cashflow', ln)}
@@ -1091,7 +1091,7 @@ const Cashflow = () => {
 
 
                             {activeTab === 'unsold' ? (
-                                <div className="w-full max-w-2xl border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-white p-4">
+                                <div className="w-full max-w-2xl border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)] p-4">
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="text-[var(--chathams-blue)] responsiveText font-semibold">Unsold Stocks</div>
                                         <div className="flex items-center gap-2">
@@ -1110,7 +1110,7 @@ const Cashflow = () => {
                                     ) : (
                                         <>
                                             {stockDataNoSold.map((x, i) => (
-                                                <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                     <MyAccordion title={
                                                         <div className="flex w-full justify-between">
                                                             <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
@@ -1194,10 +1194,10 @@ const Cashflow = () => {
                                         </div>
 
                                     }
-                                    <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-white">
+                                    <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
                                             <div className="w-full">
-                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
                                                         <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Stocks - Paid</span>
                                                         <div className="flex items-center gap-2">
@@ -1207,7 +1207,7 @@ const Cashflow = () => {
                                                     </div>
                                                     {stockData1.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0"
@@ -1260,7 +1260,7 @@ const Cashflow = () => {
 
 
 
-                                                {stockData2.length > 0 && <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                {stockData2.length > 0 && <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
                                                         <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Stocks - UnPaid</span>
                                                         <div className="flex items-center gap-2">
@@ -1271,7 +1271,7 @@ const Cashflow = () => {
 
                                                     {stockData2.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
@@ -1320,7 +1320,7 @@ const Cashflow = () => {
                                                 </div>}
 
 
-                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
                                                         <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Clients - Payment</span>
                                                         <div className="flex items-center gap-2">
@@ -1331,7 +1331,7 @@ const Cashflow = () => {
 
                                                     {clientInvoices2.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="flex items-center gap-1.5 min-w-0">
@@ -1379,7 +1379,7 @@ const Cashflow = () => {
                                                 </div>
 
 
-                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
                                                         <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Clients - Balances</span>
                                                         <div className="flex items-center gap-2">
@@ -1390,7 +1390,7 @@ const Cashflow = () => {
 
                                                     {clientInvoices1.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="flex items-center gap-1.5 min-w-0">
@@ -1498,7 +1498,7 @@ const Cashflow = () => {
 
                                             <div className="w-full border-l border-[var(--border-divider)] pt-0">
 
-                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
                                                         <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Supplier - Payment</span>
                                                         <div className="flex items-center gap-2">
@@ -1511,7 +1511,7 @@ const Cashflow = () => {
 
                                                     {supPayments2.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                                         <div className="flex items-center gap-1.5 w-full min-w-0">
@@ -1560,7 +1560,7 @@ const Cashflow = () => {
                                                 </div>
 
 
-                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
                                                         <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Supplier - Balances</span>
                                                         <div className="flex items-center gap-2">
@@ -1573,7 +1573,7 @@ const Cashflow = () => {
 
                                                     {supPayments1.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                                         <div className="flex items-center gap-1.5 w-full min-w-0">
@@ -1621,7 +1621,7 @@ const Cashflow = () => {
                                                     </div>
                                                 </div>
 
-                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
                                                     <div className="flex items-center justify-between mb-1">
                                                         <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Expenses</span>
                                                         <div className="flex items-center gap-2">
@@ -1632,7 +1632,7 @@ const Cashflow = () => {
 
                                                     {expenses.map((x, i) => {
                                                         return (
-                                                            <div className="bg-white py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex justify-between leading-4 2xl:leading-6 w-full">
                                                                         <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"              >
@@ -1678,7 +1678,7 @@ const Cashflow = () => {
                                                     </div>
                                                 </div>
 
-                                                <div className="p-2 bg-white mb-3 flex flex-col cf-card">
+                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
                                                     {
                                                         userTitle === 'Admin' &&
                                                         <div className='mt-1 p-1'>

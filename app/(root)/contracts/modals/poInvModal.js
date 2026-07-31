@@ -424,7 +424,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                             <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Balance', ln)}:</p>
                                             <div className='flex pr-3'>
                                                 <input type='text' disabled className="number-separator input border-slate-300 h-7 responsiveTextTable" name='blnc'
-                                                    style={{ color: Number(x.blnc) > 0 ? '#dc2626' : undefined }}
+                                                    style={{ color: Number(x.blnc) > 0 ? 'var(--danger-text)' : undefined }}
                                                     value={addComma(x.blnc, true, 'total')} />
                                                 <div className='group relative'>
                                                     <ArrowBigRight className='text-[var(--regent-gray)] ml-3 cursor-pointer' onClick={switchToStocks} />
@@ -438,7 +438,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                             <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]'>Draft:</p>
                                             <label className='flex items-center gap-1.5 h-7 cursor-pointer' title='Draft — keep this purchase invoice off the Cashflow'>
                                                 <input type='checkbox' checked={!!x.draft} onChange={() => toggleDraft(x)} className='w-4 h-4 accent-[var(--endeavour)]' />
-                                                <span className='responsiveTextTable' style={{ color: x.draft ? '#b45309' : 'var(--regent-gray)' }}>{x.draft ? 'Hidden from Cashflow' : 'On Cashflow'}</span>
+                                                <span className='responsiveTextTable' style={{ color: x.draft ? 'var(--warn-strong)' : 'var(--regent-gray)' }}>{x.draft ? 'Hidden from Cashflow' : 'On Cashflow'}</span>
                                             </label>
                                         </div>
                                     </div>
@@ -571,7 +571,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
             {showMirror && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center' style={{ background: 'rgba(16,42,74,0.35)' }}
                     onClick={() => setShowMirror(false)}>
-                    <div className='bg-white rounded-2xl shadow-2xl w-[560px] max-w-[94vw] p-4 flex flex-col gap-2'
+                    <div className='bg-[var(--surface-card)] rounded-2xl shadow-2xl w-[560px] max-w-[94vw] p-4 flex flex-col gap-2'
                         onClick={e => e.stopPropagation()}>
                         <div className='flex items-center justify-between'>
                             <p className='responsiveText font-semibold text-[var(--chathams-blue)]'>
@@ -610,8 +610,8 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                             {rec && (
                                                 <span className='responsiveTextTable px-2 py-0.5 rounded-full whitespace-nowrap'
                                                     style={recDiff
-                                                        ? { background: '#fee2e2', color: '#b91c1c' }
-                                                        : { background: '#dcfce7', color: '#15803d' }}>
+                                                        ? { background: 'var(--danger-bg)', color: 'var(--danger-strong)' }
+                                                        : { background: 'var(--ok-bg)', color: 'var(--ok-strong)' }}>
                                                     {recDiff ? 'recorded — value differs' : 'recorded ✓'}
                                                 </span>
                                             )}

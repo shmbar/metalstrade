@@ -23,6 +23,25 @@ module.exports = {
 				customLavender: '#B1A0C7',
 				customOrange: '#E26B0A',
 				customLime: '#92D050',
+				/* Palette shades re-pointed at the themable tokens so utility classes
+				   like bg-gray-50 / text-red-600 / border-slate-500 follow dark mode.
+				   Light values ≈ Tailwind defaults (visually identical). Shades NOT
+				   listed keep their defaults on purpose: mid tones (400/500 accents,
+				   button bgs like bg-green-500 / bg-red-500) read fine on both modes. */
+				gray: { 50: 'var(--surface-base)', 100: 'var(--surface-muted)', 200: 'var(--border-neutral)', 300: 'var(--border-neutral-strong)', 500: 'var(--text-mid)', 600: 'var(--text-mid)', 700: 'var(--text-strong)' },
+				slate: { 50: 'var(--surface-base)', 100: 'var(--surface-muted)', 200: 'var(--border-neutral)', 300: 'var(--border-neutral-strong)', 500: 'var(--text-mid)', 600: 'var(--text-mid)', 700: 'var(--text-strong)' },
+				zinc: { 50: 'var(--surface-base)', 100: 'var(--surface-muted)', 200: 'var(--border-neutral)', 300: 'var(--border-neutral-strong)' },
+				neutral: { 50: 'var(--surface-base)', 100: 'var(--surface-muted)', 200: 'var(--border-neutral)' },
+				red: { 50: 'var(--danger-soft)', 100: 'var(--danger-bg)', 200: 'var(--danger-border)', 300: 'var(--danger-border)', 600: 'var(--danger-text)', 700: 'var(--danger-strong)' },
+				green: { 50: 'var(--ok-soft)', 100: 'var(--ok-bg)', 200: 'var(--ok-border)', 300: 'var(--ok-border)', 600: 'var(--ok-text)', 700: 'var(--ok-strong)' },
+				emerald: { 50: 'var(--ok-soft)', 100: 'var(--ok-bg)' },
+				amber: { 50: 'var(--warn-soft)', 100: 'var(--warn-bg)', 200: 'var(--warn-border)', 300: 'var(--warn-border)', 600: 'var(--warn-text)', 700: 'var(--warn-strong)', 800: 'var(--warn-strong)' },
+				yellow: { 50: 'var(--warn-soft)', 100: 'var(--warn-bg)', 200: 'var(--warn-border)' },
+				blue: { 50: 'var(--selago)', 100: 'var(--surface-header)', 200: 'var(--border-divider)', 300: 'var(--rock-blue)', 500: 'var(--primary-bright)', 600: 'var(--primary-bright)', 900: 'var(--chathams-blue)' },
+				purple: { 50: 'var(--violet-soft)', 100: 'var(--violet-bg)' },
+				violet: { 50: 'var(--violet-soft)', 100: 'var(--violet-bg)' },
+				indigo: { 50: 'var(--violet-soft)', 100: 'var(--violet-bg)' },
+				pink: { 50: 'var(--pink-soft)', 100: 'var(--pink-bg)' },
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				card: {

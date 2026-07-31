@@ -13,7 +13,7 @@ const Switcher = ({ enabled, setEnabled }) => {
                 <span
                     aria-hidden="true"
                     className={`${enabled ? 'translate-x-9' : 'translate-x-0'}
-            pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
+            pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-[var(--surface-card)] shadow-lg ring-0 transition duration-200 ease-in-out`}
                 />
             </Switch>
 

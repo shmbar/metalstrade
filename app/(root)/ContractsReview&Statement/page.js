@@ -41,8 +41,8 @@ const fmtMT = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }
 const FALLBACK_STATUS_STYLES = {
     shipped: { backgroundColor: 'var(--surface-header)', border: '1px solid var(--border-divider)', color: 'var(--chathams-blue)' },
     partial: { backgroundColor: 'var(--surface-header)', border: '1px solid var(--border-divider)', color: 'var(--chathams-blue)' },
-    pending: { backgroundColor: '#fef9c3', border: '1px solid #fde68a', color: '#92400e' },
-    unsold:  { backgroundColor: '#fee2e2', border: '1px solid #fecaca', color: '#dc2626' },
+    pending: { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)' },
+    unsold:  { backgroundColor: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-text)' },
 };
 
 // Status chip that follows the software lifecycle: the contract's shipment status (Pending /
@@ -64,7 +64,7 @@ const ProgressBar = ({ shipped, total }) => {
     const t = parseFloat(total) || 0;
     const s = parseFloat(shipped) || 0;
     const pct = t > 0 ? Math.max(0, Math.min(100, Math.round((s / t) * 100))) : 0;
-    const color = pct >= 100 ? '#16a34a' : pct > 0 ? 'var(--endeavour)' : '#cbd5e1';
+    const color = pct >= 100 ? 'var(--ok-text)' : pct > 0 ? 'var(--endeavour)' : '#cbd5e1';
     return (
         <div className="flex flex-col items-center gap-1" style={{ minWidth: 84 }}>
             <div style={{ width: '100%', height: 6, borderRadius: 9999, background: 'var(--selago)', overflow: 'hidden' }}>
@@ -823,8 +823,8 @@ const ContractsMerged = () => {
                     onClick={() => setEnabledSwitch(!enabledSwitch)}
                     className="relative w-9 h-5 rounded-full focus:outline-none transition-colors duration-200 border-2 flex items-center"
                     style={{
-                        background: enabledSwitch ? "var(--endeavour)" : "#a0a0a0",
-                        borderColor: enabledSwitch ? "var(--endeavour)" : "#a0a0a0",
+                        background: enabledSwitch ? "var(--endeavour)" : "var(--text-faint)",
+                        borderColor: enabledSwitch ? "var(--endeavour)" : "var(--text-faint)",
                         minWidth: trackWidth,
                         borderWidth: 2,
                         padding: 0,
@@ -838,7 +838,7 @@ const ContractsMerged = () => {
                             width: `${knobSize}px`,
                             height: `${knobSize}px`,
                             borderRadius: "50%",
-                            background: "radial-gradient(circle at 60% 40%, #f5f5f5 70%, #e0e0e0 100%)",
+                            background: "radial-gradient(circle at 60% 40%, var(--surface-muted) 70%, var(--border-neutral) 100%)",
                             boxShadow: "0 2px 6px rgba(0,0,0,0.10)",
                             transform: `translateY(-50%) ${enabledSwitch ? `translateX(${translateX}px)` : "translateX(0)"}`,
                             transition: "transform 0.2s",
@@ -858,7 +858,7 @@ const ContractsMerged = () => {
                         <Toast />
                         <VideoLoader loading={loading} fullScreen={true} />
                         {/* Main Card */}
-                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)]  w-full bg-white">
+                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)]  w-full bg-[var(--surface-card)]">
                             {/* Header Section */}
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-1'>
                                 <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">

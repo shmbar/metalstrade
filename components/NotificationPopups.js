@@ -15,13 +15,13 @@ const AUTO_DISMISS_MS = 8000;
 // part of the same system.
 const ENTITY_ICON = {
     contract: { Icon: FileText, color: 'var(--endeavour)', bg: 'var(--surface-header)' },
-    invoice: { Icon: Receipt, color: '#15803d', bg: '#f0fdf4' },
-    expense: { Icon: Banknote, color: '#b45309', bg: '#fffbeb' },
-    companyexpense: { Icon: Banknote, color: '#b45309', bg: '#fffbeb' },
-    stock: { Icon: Package, color: '#7c3aed', bg: '#f5f3ff' },
-    settings: { Icon: SettingsIcon, color: '#475569', bg: '#f1f5f9' },
+    invoice: { Icon: Receipt, color: 'var(--ok-strong)', bg: 'var(--ok-soft)' },
+    expense: { Icon: Banknote, color: 'var(--warn-strong)', bg: 'var(--warn-soft)' },
+    companyexpense: { Icon: Banknote, color: 'var(--warn-strong)', bg: 'var(--warn-soft)' },
+    stock: { Icon: Package, color: 'var(--violet-text)', bg: 'var(--violet-soft)' },
+    settings: { Icon: SettingsIcon, color: 'var(--text-mid)', bg: '#f1f5f9' },
 };
-const SEVERITY_ACCENT = { success: '#16a34a', warning: '#d97706', error: '#dc2626', info: 'var(--endeavour)' };
+const SEVERITY_ACCENT = { success: 'var(--ok-text)', warning: 'var(--warn-text)', error: 'var(--danger-text)', info: 'var(--endeavour)' };
 
 function PopupCard({ n, onDismiss, onOpen }) {
     const [hovered, setHovered] = useState(false);
@@ -41,7 +41,7 @@ function PopupCard({ n, onDismiss, onOpen }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hovered, n.popupId]);
 
-    const { Icon, color, bg } = ENTITY_ICON[n.entityType] || { Icon: Activity, color: '#475569', bg: '#f1f5f9' };
+    const { Icon, color, bg } = ENTITY_ICON[n.entityType] || { Icon: Activity, color: 'var(--text-mid)', bg: '#f1f5f9' };
     const accent = SEVERITY_ACCENT[n.severity] || SEVERITY_ACCENT.info;
 
     return (
@@ -49,7 +49,7 @@ function PopupCard({ n, onDismiss, onOpen }) {
             className='pointer-events-auto w-[340px] max-w-[92vw] rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-0.5'
             style={{
                 animation: 'notifPopIn 0.32s cubic-bezier(0.21, 1.02, 0.73, 1)',
-                background: 'rgba(255,255,255,0.92)',
+                background: 'rgba(var(--surface-card-rgb),0.92)',
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
                 border: '1px solid var(--border-cell)',

@@ -322,9 +322,9 @@ const Invoices = () => {
 				const isUSD = cur === 'USD' || cur === '$' || cur.toLowerCase() === 'us';
 				const isEUR = cur === 'EUR' || cur === '€' || cur.toLowerCase() === 'eu';
 				const symbol = isUSD ? '$' : isEUR ? '€' : cur;
-				const bg = isUSD ? '#dcfce7' : isEUR ? 'var(--surface-header)' : '#e5e7eb';
-				const border = isUSD ? '1px solid #bbf7d0' : isEUR ? '1px solid var(--border-divider)' : '1px solid #d1d5db';
-				const color = isUSD ? '#166534' : 'var(--chathams-blue)';
+				const bg = isUSD ? 'var(--ok-bg)' : isEUR ? 'var(--surface-header)' : 'var(--border-neutral)';
+				const border = isUSD ? '1px solid var(--ok-border)' : isEUR ? '1px solid var(--border-divider)' : '1px solid var(--border-neutral-strong)';
+				const color = isUSD ? 'var(--ok-strong)' : 'var(--chathams-blue)';
 				return (
 					<span
 						style={{
@@ -446,8 +446,8 @@ const Invoices = () => {
 				// Same status-indicator language as the Cashflow finalized chips:
 				// soft tint + 1px inset ring + matching status dot.
 				const tone = yes
-					? { dot: '#10b981', text: '#047857', bg: '#ecfdf5', ring: '#a7f3d0' }
-					: { dot: '#f59e0b', text: '#b45309', bg: '#fffbeb', ring: '#fde68a' };
+					? { dot: 'var(--ok-text)', text: 'var(--ok-strong)', bg: 'var(--ok-soft)', ring: 'var(--ok-border)' }
+					: { dot: 'var(--warn-text)', text: 'var(--warn-strong)', bg: 'var(--warn-soft)', ring: 'var(--warn-border)' };
 				return (
 					<span
 						className="inline-flex items-center gap-1.5 rounded-full responsiveTextTable font-semibold leading-none whitespace-nowrap"
@@ -477,9 +477,9 @@ const Invoices = () => {
 						<div
 							className="px-3 py-1 rounded-xl responsiveTextTable font-normal"
 							style={{
-								backgroundColor: value ? '#dcfce7' : '#fce7f3',
-								color: value ? '#166534' : '#be185d',
-								border: `1px solid ${value ? '#bbf7d0' : '#fbcfe8'}`
+								backgroundColor: value ? 'var(--ok-bg)' : 'var(--pink-bg)',
+								color: value ? 'var(--ok-strong)' : 'var(--pink-text)',
+								border: `1px solid ${value ? 'var(--ok-border)' : 'var(--pink-bg)'}`
 							}}
 						>
 							{value ? 'Completed' : 'Incompleted'}
@@ -563,7 +563,7 @@ const Invoices = () => {
 						aria-label={titleText}
 						className='relative p-1 rounded-full transition-colors hover:opacity-80 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
 						style={{
-							color: onCooldown ? '#9ca3af' : isOverdue ? '#ef4444' : '#f59e0b',
+							color: onCooldown ? 'var(--text-faint)' : isOverdue ? 'var(--danger-text)' : 'var(--warn-text)',
 							opacity: onCooldown ? 0.4 : 1,
 						}}
 					>
@@ -575,7 +575,7 @@ const Invoices = () => {
 								style={{
 									width: '6px',
 									height: '6px',
-									background: '#ef4444',
+									background: 'var(--danger-text)',
 									boxShadow: '0 0 0 1.5px white',
 								}}
 							/>
@@ -756,7 +756,7 @@ const Invoices = () => {
 						{/* Alert Section */}
 						{alertArr.length > 0 && (
 							<div className='mt-4 px-2 sm:px-3'>
-								<div className="responsiveText font-medium border border-[var(--border-divider)] p-4 rounded-2xl shadow-sm bg-white w-full max-w-2xl">
+								<div className="responsiveText font-medium border border-[var(--border-divider)] p-4 rounded-2xl shadow-sm bg-[var(--surface-card)] w-full max-w-2xl">
 									<div style={{ color: 'var(--chathams-blue)' }}>
 										<span className='responsiveText border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
 										<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />

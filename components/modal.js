@@ -35,7 +35,7 @@ const Modal = ({ isOpen, setIsOpen, title, children, w }) => {
                                 leaveTo="opacity-0 scale-95"
                             >
                                 <DialogPanel className={`w-full ${w == null ? 'max-w-7xl' : w} transform rounded-xl
-                                 bg-white text-left align-middle shadow-lg transition-all border border-[var(--selago)]
+                                 bg-[var(--surface-card)] text-left align-middle shadow-lg transition-all border border-[var(--selago)]
 
                                  `}>
                                     <DialogTitle

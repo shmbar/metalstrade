@@ -51,7 +51,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
 
   return (
     <div
-      className="bg-white rounded-xl shadow border overflow-hidden"
+      className="bg-[var(--surface-card)] rounded-xl shadow border overflow-hidden"
       style={{
         width: TABLE_WIDTH,
         borderColor: 'var(--border-divider)',
@@ -93,7 +93,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         <div
           className="grid grid-cols-[1fr_auto] px-4 py-2"
           style={{
-            background: '#ffffff',
+            background: 'var(--surface-card)',
             borderTop: '1px solid var(--border-divider)',
             borderBottom: '1px solid var(--border-divider)'
           }}

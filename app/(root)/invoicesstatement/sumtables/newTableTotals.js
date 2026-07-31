@@ -40,7 +40,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
     const eurTotals = calculateTotals("eur")
 
     return (
-        <div className="custom-table-totals bg-white rounded-xl shadow border overflow-hidden"
+        <div className="custom-table-totals bg-[var(--surface-card)] rounded-xl shadow border overflow-hidden"
             style={{
                 borderColor: 'var(--border-divider)',
                 borderWidth: 1,
@@ -160,7 +160,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 <div className="md:hidden">
                     <div className="divide-y" style={{ borderColor: 'var(--selago)' }}>
                         {table1.getRowModel().rows.map(row => (
-                            <div key={row.id} className="p-4 bg-white hover:bg-[var(--surface-pill)] transition-colors" style={{ borderBottom: '1px solid var(--selago)' }}>
+                            <div key={row.id} className="p-4 bg-[var(--surface-card)] hover:bg-[var(--surface-pill)] transition-colors" style={{ borderBottom: '1px solid var(--selago)' }}>
                                 <Tltip direction='top' tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}>
                                     <div className="space-y-2.5">
                                         {row.getVisibleCells().map((cell) => (

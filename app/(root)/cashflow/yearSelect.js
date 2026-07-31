@@ -26,7 +26,7 @@ const YearSelect = ({ yr, setYr }) => {
                     return i === yr.length - 1 ? z : z + ', '
                 }) : yr.length === 1 ? yr[0] : 'Select Year'}
             </MenuButton>
-            <MenuItems anchor="bottom" className="z-50 border border-slate-400 rounded-2xl p-2 mt-1 bg-white">
+            <MenuItems anchor="bottom" className="z-50 border border-slate-400 rounded-2xl p-2 mt-1 bg-[var(--surface-card)]">
                 {yrArr.map((z) => (
                     <MenuItem as="div" key={z} className="text-[var(--port-gore)] text-sm">
                         <div className='flex items-center gap-2'>

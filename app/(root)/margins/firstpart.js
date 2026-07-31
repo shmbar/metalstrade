@@ -27,9 +27,9 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'}
                 decimalScale={0}
                 fixedDecimalScale={false}
-                style={{ fontWeight: '500', color: '#92400e' }}
+                style={{ fontWeight: '500', color: 'var(--warn-strong)' }}
             />,
-            bg: '#fef9c3', border: '#fde68a', color: '#92400e'
+            bg: 'var(--warn-bg)', border: 'var(--warn-border)', color: 'var(--warn-strong)'
         },
         {
             label: "Quantity (MT):",
@@ -40,9 +40,9 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative
                 decimalScale={0}
                 fixedDecimalScale={false}
-                style={{ fontWeight: '500', color: '#7c3aed' }}
+                style={{ fontWeight: '500', color: 'var(--violet-text)' }}
             />,
-            bg: '#ede9fe', border: '#ddd6fe', color: '#7c3aed'
+            bg: 'var(--violet-bg)', border: 'var(--violet-border)', color: 'var(--violet-text)'
         },
         {
             label: "Profits:",
@@ -54,9 +54,9 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'}
                 decimalScale={0}
                 fixedDecimalScale={false}
-                style={{ fontWeight: '500', color: '#166534' }}
+                style={{ fontWeight: '500', color: 'var(--ok-strong)' }}
             />,
-            bg: '#dcfce7', border: '#bbf7d0', color: '#166534'
+            bg: 'var(--ok-bg)', border: 'var(--ok-border)', color: 'var(--ok-strong)'
         },
         {
             label: "Shipped:",
@@ -67,9 +67,9 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative
                 decimalScale={0}
                 fixedDecimalScale={false}
-                style={{ fontWeight: '500', color: '#be185d' }}
+                style={{ fontWeight: '500', color: 'var(--pink-text)' }}
             />,
-            bg: '#fce7f3', border: '#fbcfe8', color: '#be185d'
+            bg: 'var(--pink-bg)', border: 'var(--pink-bg)', color: 'var(--pink-text)'
         },
     ];
 

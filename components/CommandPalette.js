@@ -83,7 +83,7 @@ export default function CommandPalette() {
         onClick={() => setOpen(true)}
         aria-label="Open command palette (Ctrl+K)"
         title="Search & navigate (Ctrl+K)"
-        className="fixed bottom-4 right-20 z-40 hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[var(--border-cell)] shadow-md hover:shadow-lg transition-shadow"
+        className="fixed bottom-4 right-20 z-40 hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-cell)] shadow-md hover:shadow-lg transition-shadow"
       >
         <Search className="w-3.5 h-3.5 text-[var(--chathams-blue)]" />
         <span className="text-[0.62rem] text-[var(--regent-gray)] font-medium">
@@ -104,7 +104,7 @@ export default function CommandPalette() {
       />
       <Command
         label="Command Palette"
-        className="relative w-full max-w-xl rounded-xl bg-white shadow-2xl border border-[var(--border-cell)] overflow-hidden"
+        className="relative w-full max-w-xl rounded-xl bg-[var(--surface-card)] shadow-2xl border border-[var(--border-cell)] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         loop
       >

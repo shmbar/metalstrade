@@ -10,16 +10,16 @@ import {
 
 const ENTITY = {
     contract: { icon: FileText, color: 'var(--endeavour)', bg: 'var(--surface-header)', route: (id) => `/contracts?openId=${id}` },
-    invoice: { icon: Receipt, color: '#15803d', bg: '#f0fdf4', route: (id) => `/invoices?openId=${id}` },
-    expense: { icon: Banknote, color: '#b45309', bg: '#fffbeb', route: (id) => `/expenses?openId=${id}` },
-    companyexpense: { icon: Banknote, color: '#b45309', bg: '#fffbeb', route: () => `/companyexpenses` },
-    stock: { icon: Package, color: '#7c3aed', bg: '#f5f3ff', route: () => `/stocks` },
-    settings: { icon: SettingsIcon, color: '#475569', bg: '#f1f5f9', route: () => `/settings` },
+    invoice: { icon: Receipt, color: 'var(--ok-strong)', bg: 'var(--ok-soft)', route: (id) => `/invoices?openId=${id}` },
+    expense: { icon: Banknote, color: 'var(--warn-strong)', bg: 'var(--warn-soft)', route: (id) => `/expenses?openId=${id}` },
+    companyexpense: { icon: Banknote, color: 'var(--warn-strong)', bg: 'var(--warn-soft)', route: () => `/companyexpenses` },
+    stock: { icon: Package, color: 'var(--violet-text)', bg: 'var(--violet-soft)', route: () => `/stocks` },
+    settings: { icon: SettingsIcon, color: 'var(--text-mid)', bg: '#f1f5f9', route: () => `/settings` },
 };
-const FALLBACK = { icon: Activity, color: '#475569', bg: '#f1f5f9', route: () => `/activity` };
+const FALLBACK = { icon: Activity, color: 'var(--text-mid)', bg: '#f1f5f9', route: () => `/activity` };
 const metaFor = (t) => ENTITY[t] || FALLBACK;
 
-const SEVERITY_DOT = { success: '#16a34a', warning: '#d97706', error: '#dc2626', info: 'var(--endeavour)' };
+const SEVERITY_DOT = { success: 'var(--ok-text)', warning: 'var(--warn-text)', error: 'var(--danger-text)', info: 'var(--endeavour)' };
 const PRIORITY_ICON = { high: AlertTriangle, medium: ArrowUp, low: Minus };
 
 // Group notifications by subject so the stream stays organized rather than mixed.
@@ -198,7 +198,7 @@ const NotificationBell = () => {
                         <span className='whitespace-nowrap' title={n.createdAt}>{relativeTime(n.createdAtMs)}</span>
                     </div>
                     {receipts.length > 0 && (
-                        <div className='flex items-center gap-1 mt-0.5' style={{ fontSize: '0.55rem', color: '#16a34a' }} title={seenTitle}>
+                        <div className='flex items-center gap-1 mt-0.5' style={{ fontSize: '0.55rem', color: 'var(--ok-text)' }} title={seenTitle}>
                             <CheckCheck className='w-2.5 h-2.5' /> Seen by {seenSummary}
                         </div>
                     )}
@@ -216,7 +216,7 @@ const NotificationBell = () => {
                     </div>
                 )}
                 {snoozeFor === n.id && (
-                    <div className='absolute right-2 top-9 z-10 bg-white rounded-lg shadow-lg border border-[var(--selago)] py-1'>
+                    <div className='absolute right-2 top-9 z-10 bg-[var(--surface-card)] rounded-lg shadow-lg border border-[var(--selago)] py-1'>
                         {SNOOZE_OPTS.map(opt => (
                             <button
                                 key={opt.label}
@@ -244,7 +244,7 @@ const NotificationBell = () => {
                 {unreadCount > 0 && (
                     <span
                         className='absolute top-1 right-1 min-w-[15px] h-[15px] px-1 rounded-full text-white flex items-center justify-center'
-                        style={{ background: '#dc2626', fontSize: '0.55rem', fontWeight: 700, lineHeight: 1 }}
+                        style={{ background: 'var(--danger-text)', fontSize: '0.55rem', fontWeight: 700, lineHeight: 1 }}
                     >
                         {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
@@ -252,14 +252,14 @@ const NotificationBell = () => {
             </button>
 
             {open && (
-                <div className='absolute right-0 top-full mt-2 w-[360px] bg-white rounded-xl shadow-lg border border-[var(--selago)] z-[9999] overflow-hidden'>
+                <div className='absolute right-0 top-full mt-2 w-[360px] bg-[var(--surface-card)] rounded-xl shadow-lg border border-[var(--selago)] z-[9999] overflow-hidden'>
                     {/* Header */}
                     <div className='flex items-center justify-between px-3 py-2' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
                         <span className='font-semibold' style={{ fontSize: '0.72rem', color: 'var(--chathams-blue)' }}>
                             Notifications{unreadCount > 0 ? ` · ${unreadCount} new` : ''}
                         </span>
                         <div className='flex items-center gap-1'>
-                            <button onClick={toggleMute} title={muted ? 'Unmute sound' : 'Mute sound'} className='p-1 rounded-full hover:bg-white/60'>
+                            <button onClick={toggleMute} title={muted ? 'Unmute sound' : 'Mute sound'} className='p-1 rounded-full hover:bg-[rgba(var(--surface-card-rgb),0.6)]'>
                                 {muted
                                     ? <BellOff className='w-3.5 h-3.5' style={{ color: 'var(--regent-gray)' }} />
                                     : <Bell className='w-3.5 h-3.5' style={{ color: 'var(--chathams-blue)' }} />}
@@ -328,7 +328,7 @@ const NotificationBell = () => {
                                             When: <span style={{ color: 'var(--port-gore)' }}>{detail.createdAtMs ? new Date(detail.createdAtMs).toLocaleString() : detail.createdAt || '—'}</span>
                                         </p>
                                         {receipts.length > 0 && (
-                                            <p className='mt-0.5 flex items-center gap-1' style={{ fontSize: '0.62rem', color: '#16a34a' }}>
+                                            <p className='mt-0.5 flex items-center gap-1' style={{ fontSize: '0.62rem', color: 'var(--ok-text)' }}>
                                                 <CheckCheck className='w-3 h-3' /> Seen by {receipts.map(r => r.name).join(', ')}
                                             </p>
                                         )}

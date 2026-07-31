@@ -1,6 +1,8 @@
 'use client';
 import { useContext, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import { cssVar, cssVarRgba } from '../../../utils/chartTheme';
+import { useTheme } from '../../../contexts/useThemeContext';
 import Customtable from './newTable';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import MonthSelect from '../../../components/monthSelect';
@@ -134,6 +136,8 @@ const Accounting = () => {
 
   const { settings, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
   const { uidCollection } = UserAuth();
+  // Re-render on theme/mode switch so chart configs rebuild with fresh token values
+  useTheme();
   const { upsertSourceItems } = useGlobalSearch();
   const settingsLoaded = Object.keys(settings).length > 0;
   const clientCount = settings.Client?.Client?.length || 0;
@@ -445,14 +449,14 @@ const Accounting = () => {
         {
           label: 'Debit',
           data: debitByDay,
-          backgroundColor: '#103a7a',
+          backgroundColor: cssVar('--chathams-blue', '#103a7a'),
           borderRadius: 6,
           barPercentage: 0.6,
         },
         {
           label: 'Credit',
           data: creditByDay,
-          backgroundColor: '#9fb8d4',
+          backgroundColor: cssVar('--rock-blue', '#9fb8d4'),
           borderRadius: 6,
           barPercentage: 0.6,
         },
@@ -474,10 +478,10 @@ const Accounting = () => {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: 'rgba(255,255,255,0.95)',
-        titleColor: '#28264f',
-        bodyColor: '#838ca7',
-        borderColor: '#ebf2fc',
+        backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
+        titleColor: cssVar('--port-gore', '#28264f'),
+        bodyColor: cssVar('--regent-gray', '#838ca7'),
+        borderColor: cssVar('--selago', '#ebf2fc'),
         borderWidth: 1,
         cornerRadius: 8,
         padding: 12,
@@ -489,13 +493,13 @@ const Accounting = () => {
     scales: {
       y: {
         beginAtZero: true,
-        grid: { color: 'rgba(159,184,212,0.2)' },
-        ticks: { color: '#838ca7', font: { size: 11 }, callback: fmtChartVal },
+        grid: { color: cssVarRgba('--rock-blue-rgb', 0.2, 'rgba(159,184,212,0.2)') },
+        ticks: { color: cssVar('--regent-gray', '#838ca7'), font: { size: 11 }, callback: fmtChartVal },
         border: { display: false },
       },
       x: {
         grid: { display: false },
-        ticks: { color: '#838ca7', font: { size: 11 } },
+        ticks: { color: cssVar('--regent-gray', '#838ca7'), font: { size: 11 } },
         border: { display: false },
       },
     },
@@ -642,19 +646,19 @@ const Accounting = () => {
                     alignItems: 'center',
                     flexWrap: 'nowrap',
                     gap: '8px',
-                    background: '#ede9fe',
+                    background: 'var(--violet-bg)',
                     borderRadius: '999px',
                     padding: '7px 14px',
-                    border: '1.5px solid #ddd6fe',
+                    border: '1.5px solid var(--violet-border)',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <FaWallet className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#7c3aed' }} />
-                  <span className="responsiveText" style={{ color: '#7c3aed', fontWeight: 500 }}>
+                  <FaWallet className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--violet-text)' }} />
+                  <span className="responsiveText" style={{ color: 'var(--violet-text)', fontWeight: 500 }}>
                     {formatCurrency(totals.balance)}
                   </span>
-                  <span className="responsiveTextTable" style={{ color: '#7c3aed', fontWeight: 400 }}>
+                  <span className="responsiveTextTable" style={{ color: 'var(--violet-text)', fontWeight: 400 }}>
                     My Balance
                   </span>
                 </div>
@@ -666,19 +670,19 @@ const Accounting = () => {
                     alignItems: 'center',
                     flexWrap: 'nowrap',
                     gap: '8px',
-                    background: '#fef9c3',
+                    background: 'var(--warn-bg)',
                     borderRadius: '999px',
                     padding: '7px 14px',
-                    border: '1.5px solid #fde68a',
+                    border: '1.5px solid var(--warn-border)',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <FaArrowTrendUp className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#92400e' }} />
-                  <span className="responsiveText" style={{ color: '#92400e', fontWeight: 500 }}>
+                  <FaArrowTrendUp className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--warn-strong)' }} />
+                  <span className="responsiveText" style={{ color: 'var(--warn-strong)', fontWeight: 500 }}>
                     {formatCurrency(totals.totalIncome)}
                   </span>
-                  <span className="responsiveTextTable" style={{ color: '#92400e', fontWeight: 400 }}>
+                  <span className="responsiveTextTable" style={{ color: 'var(--warn-strong)', fontWeight: 400 }}>
                     Income
                   </span>
                 </div>
@@ -690,19 +694,19 @@ const Accounting = () => {
                     alignItems: 'center',
                     flexWrap: 'nowrap',
                     gap: '8px',
-                    background: '#fce7f3',
+                    background: 'var(--pink-bg)',
                     borderRadius: '999px',
                     padding: '7px 14px',
-                    border: '1.5px solid #fbcfe8',
+                    border: '1.5px solid var(--pink-bg)',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <FaArrowTrendDown className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#be185d' }} />
-                  <span className="responsiveText" style={{ color: '#be185d', fontWeight: 500 }}>
+                  <FaArrowTrendDown className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--pink-text)' }} />
+                  <span className="responsiveText" style={{ color: 'var(--pink-text)', fontWeight: 500 }}>
                     {formatCurrency(totals.totalExpense)}
                   </span>
-                  <span className="responsiveTextTable" style={{ color: '#be185d', fontWeight: 400 }}>
+                  <span className="responsiveTextTable" style={{ color: 'var(--pink-text)', fontWeight: 400 }}>
                     Expense
                   </span>
                 </div>
@@ -714,19 +718,19 @@ const Accounting = () => {
                     alignItems: 'center',
                     flexWrap: 'nowrap',
                     gap: '8px',
-                    background: '#dcfce7',
+                    background: 'var(--ok-bg)',
                     borderRadius: '999px',
                     padding: '7px 14px',
-                    border: '1.5px solid #bbf7d0',
+                    border: '1.5px solid var(--ok-border)',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <FaPiggyBank className="w-[17px] h-[17px] flex-shrink-0" style={{ color: '#166534' }} />
-                  <span className="responsiveText" style={{ color: '#166534', fontWeight: 500 }}>
+                  <FaPiggyBank className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--ok-strong)' }} />
+                  <span className="responsiveText" style={{ color: 'var(--ok-strong)', fontWeight: 500 }}>
                     {formatCurrency(totals.savings)}
                   </span>
-                  <span className="responsiveTextTable" style={{ color: '#166534', fontWeight: 400 }}>
+                  <span className="responsiveTextTable" style={{ color: 'var(--ok-strong)', fontWeight: 400 }}>
                     Savings
                   </span>
                 </div>
@@ -796,7 +800,7 @@ const Accounting = () => {
                       </div>
                       <div className="text-right flex-shrink-0 ml-2">
                         <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-0.5">{formatCurrency(item.amountInv || 0)}</p>
-                        <span className={`inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-poppins ${idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-[#f3f4f6] text-[var(--regent-gray)]'
+                        <span className={`inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-poppins ${idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-[var(--surface-muted)] text-[var(--regent-gray)]'
                           }`}>
                           {idx % 2 === 0 ? 'Paid' : 'Pending'}
                         </span>

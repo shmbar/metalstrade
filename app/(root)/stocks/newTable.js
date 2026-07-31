@@ -71,7 +71,7 @@ const Customtable = ({
               }}
               onChange={table.getToggleAllPageRowsSelectedHandler()}
               className="w-4 h-4 cursor-pointer rounded"
-              style={{ accentColor: '#9333EA' }}
+              style={{ accentColor: 'var(--violet-text)' }}
             />
           </div>
         ),
@@ -137,25 +137,25 @@ const Customtable = ({
         /* Professional gradient scrollbar matching cards */
         .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
         .dashboard-scroll::-webkit-scrollbar-track { 
-          background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
+          background: linear-gradient(180deg, var(--surface-base), var(--surface-muted)); 
           border-radius: 6px; 
         }
         .dashboard-scroll::-webkit-scrollbar-thumb { 
-          background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
+          background: linear-gradient(180deg, var(--border-neutral), var(--border-neutral-strong)); 
           border-radius: 6px; 
-          border: 2px solid #F8F8F8;
+          border: 2px solid var(--surface-base);
         }
         .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-          background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
-          border-color: #F0F0F0;
+          background: linear-gradient(180deg, var(--border-neutral-strong), var(--text-faint));
+          border-color: var(--surface-muted);
         }
 
         /* Glassmorphic professional table */
         .glass-table {
           background: linear-gradient(135deg, 
-            rgba(255, 255, 255, 0.85) 0%, 
-            rgba(250, 250, 250, 0.90) 50%,
-            rgba(255, 255, 255, 0.85) 100%
+            rgba(var(--surface-card-rgb),0.85) 0%, 
+            rgba(var(--surface-base-rgb),0.90) 50%,
+            rgba(var(--surface-card-rgb),0.85) 100%
           );
         }
 
@@ -194,8 +194,8 @@ const Customtable = ({
         }
 
         .custom-table td {
-          background-color: #fff;
-          border: 1px solid #e0e0e0;
+          background-color: var(--surface-card);
+          border: 1px solid var(--border-neutral);
         }
       `}</style>
 
@@ -211,7 +211,7 @@ const Customtable = ({
             className="flex-shrink-0"
             style={{
               borderBottom: '1px solid var(--border-divider)',
-              background: '#ffffff',
+              background: 'var(--surface-card)',
             }}
           >
             <Header
@@ -264,13 +264,13 @@ const Customtable = ({
 
                       {/* Filter Row */}
                       {filterOn && (
-                        <tr style={{ backgroundColor: '#FFFFFF' }}>
+                        <tr style={{ backgroundColor: 'var(--surface-card)' }}>
                           {group.headers.map(header => (
                             <th
                               key={header.id}
                               className="px-2 py-1.5"
                               style={{
-                                backgroundColor: '#FFFFFF',
+                                backgroundColor: 'var(--surface-card)',
                                 borderBottom: '2px solid var(--border-divider)',
                                 minWidth: header.column.id === 'select' ? '50px' : '90px',
                                 maxWidth: header.column.id === 'select' ? '50px' : 'none',
@@ -301,10 +301,10 @@ const Customtable = ({
                         const isCompleted = cell.column.id === 'completed';
                         const isStatus = cell.column.id === 'status' && cell.getValue();
                         let bg = undefined;
-                        if (isCompleted) bg = cell.getValue() ? '#dcfce7' : '#fee2e2';
+                        if (isCompleted) bg = cell.getValue() ? 'var(--ok-bg)' : 'var(--danger-bg)';
                         if (isStatus) {
-                          if (cell.getValue() === 'Completed') bg = '#dcfce7';
-                          else if (cell.getValue() === 'Incompleted') bg = '#fee2e2';
+                          if (cell.getValue() === 'Completed') bg = 'var(--ok-bg)';
+                          else if (cell.getValue() === 'Incompleted') bg = 'var(--danger-bg)';
                         }
 
                         return (
@@ -325,11 +325,11 @@ const Customtable = ({
                               </div>
                             ) : isCompleted ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="px-3 py-1 rounded-xl responsiveTextTable font-normal" style={{ backgroundColor: cell.getValue() ? '#dcfce7' : '#fee2e2', color: cell.getValue() ? '#16a34a' : '#dc2626', border: `1px solid ${cell.getValue() ? '#bbf7d0' : '#fecaca'}` }}>{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
+                                <span className="px-3 py-1 rounded-xl responsiveTextTable font-normal" style={{ backgroundColor: cell.getValue() ? 'var(--ok-bg)' : 'var(--danger-bg)', color: cell.getValue() ? 'var(--ok-text)' : 'var(--danger-text)', border: `1px solid ${cell.getValue() ? 'var(--ok-border)' : 'var(--danger-border)'}` }}>{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
                               </div>
                             ) : isStatus ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="px-3 py-1 rounded-xl responsiveTextTable font-normal" style={{ backgroundColor: bg || undefined, color: bg === '#dcfce7' ? '#16a34a' : bg === '#fee2e2' ? '#dc2626' : undefined }}>{cell.getValue()}</span>
+                                <span className="px-3 py-1 rounded-xl responsiveTextTable font-normal" style={{ backgroundColor: bg || undefined, color: bg === 'var(--ok-bg)' ? 'var(--ok-text)' : bg === 'var(--danger-bg)' ? 'var(--danger-text)' : undefined }}>{cell.getValue()}</span>
                               </div>
                             ) : (
                               <div className="flex justify-center">
@@ -408,7 +408,7 @@ const Customtable = ({
                   onDoubleClick={() => SelectRow(row.original)}
                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                   style={{
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: 'var(--surface-card)',
                     border: '1px solid var(--border-divider)',
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
                   }}
@@ -417,7 +417,7 @@ const Customtable = ({
                   <div 
                     className="px-3 py-2 flex items-center justify-between bg-[var(--border-divider)]"
                     // style={{ 
-                    //   background: 'linear-gradient(135deg, #6366F1, #9333EA, #0D9488)',
+                    //   background: 'linear-gradient(135deg, var(--violet-text), var(--violet-text), #0D9488)',
                     // }}
                   >
                     <span 
@@ -467,7 +467,7 @@ const Customtable = ({
                             className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                             style={{ 
                               color: 'var(--port-gore)',
-                              background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                              background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
                               fontSize: '0.62rem',
                               border: '1px solid var(--border-divider)'
                             }}
@@ -487,7 +487,7 @@ const Customtable = ({
                   <div 
                     className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
                     style={{ 
-                      background: 'linear-gradient(135deg, #6366F1, #A855F7)',
+                      background: 'linear-gradient(135deg, var(--violet-text), var(--violet-text))',
                     }}
                   >
                     <svg 
@@ -528,7 +528,7 @@ const Customtable = ({
   className="flex-shrink-0 rounded-b-2xl"
   style={{
     borderTop: '1px solid var(--border-divider)',
-    background: '#ffffff',
+    background: 'var(--surface-card)',
   }}
 >
   <div className="w-full px-4 py-3">

@@ -70,11 +70,11 @@ function MonthPickerPill({ value, onChange }) {
             {open && typeof document !== 'undefined' && createPortal(
                 <>
                     <div className="fixed inset-0 z-[9998]" onClick={() => setOpen(false)} />
-                    <div className="fixed z-[9999] rounded-2xl shadow-xl bg-white border border-[var(--surface-header)] overflow-hidden" style={{ top: pos.top, bottom: pos.bottom, left: pos.left, width: 224 }}>
+                    <div className="fixed z-[9999] rounded-2xl shadow-xl bg-[var(--surface-card)] border border-[var(--surface-header)] overflow-hidden" style={{ top: pos.top, bottom: pos.bottom, left: pos.left, width: 224 }}>
                         <div className="flex items-center justify-between py-1.5 px-2" style={{ background: 'var(--surface-header)' }}>
-                            <button type="button" onClick={() => setViewYear(y => y - 1)} className="p-1 rounded hover:bg-white/60"><ChevronLeft className="w-4 h-4 text-[var(--endeavour)]" /></button>
+                            <button type="button" onClick={() => setViewYear(y => y - 1)} className="p-1 rounded hover:bg-[rgba(var(--surface-card-rgb),0.6)]"><ChevronLeft className="w-4 h-4 text-[var(--endeavour)]" /></button>
                             <span className="font-semibold" style={{ fontSize: '0.8rem', color: 'var(--chathams-blue)' }}>{viewYear}</span>
-                            <button type="button" onClick={() => setViewYear(y => y + 1)} className="p-1 rounded hover:bg-white/60"><ChevronRight className="w-4 h-4 text-[var(--endeavour)]" /></button>
+                            <button type="button" onClick={() => setViewYear(y => y + 1)} className="p-1 rounded hover:bg-[rgba(var(--surface-card-rgb),0.6)]"><ChevronRight className="w-4 h-4 text-[var(--endeavour)]" /></button>
                         </div>
                         <div className="grid grid-cols-3 gap-1 p-2">
                             {MONTHS.map((m, i) => {
@@ -263,19 +263,19 @@ const StorageCosts = () => {
 
                 {/* Real actuals — exact figures from your expenses & stock, shown even before tagging */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-3">
-                    <div className="rounded-2xl p-4 bg-white border border-[var(--border-divider)] shadow-sm">
+                    <div className="rounded-2xl p-4 bg-[var(--surface-card)] border border-[var(--border-divider)] shadow-sm">
                         <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: '0.62rem' }}><Receipt className="w-3.5 h-3.5" /> Storage spend · {year === 'all' ? 'all years' : year}</div>
                         <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: '1.35rem' }}>{fmtUsd(actuals.totalSpend)}</div>
                         <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: '0.6rem' }}>
                             {actuals.count} invoice{actuals.count === 1 ? '' : 's'} · {actuals.taggedCount} tagged · {actuals.count - actuals.taggedCount} to tag
                         </div>
                     </div>
-                    <div className="rounded-2xl p-4 bg-white border border-[var(--border-divider)] shadow-sm">
+                    <div className="rounded-2xl p-4 bg-[var(--surface-card)] border border-[var(--border-divider)] shadow-sm">
                         <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: '0.62rem' }}><Boxes className="w-3.5 h-3.5" /> In storage now</div>
                         <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: '1.35rem' }}>{fmtMt(actuals.totalMt)} MT</div>
                         <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: '0.6rem' }}>{actuals.whMt.length} warehouse{actuals.whMt.length === 1 ? '' : 's'} with stock</div>
                     </div>
-                    <div className="rounded-2xl p-4 bg-white border border-[var(--border-divider)] shadow-sm">
+                    <div className="rounded-2xl p-4 bg-[var(--surface-card)] border border-[var(--border-divider)] shadow-sm">
                         <div className="flex items-center gap-1.5 text-[var(--regent-gray)] mb-1" style={{ fontSize: '0.62rem' }}><Warehouse className="w-3.5 h-3.5" /> By warehouse (MT now)</div>
                         <div className="flex flex-col gap-0.5 max-h-[4.5rem] overflow-y-auto pr-1">
                             {actuals.whMt.length === 0
@@ -300,21 +300,21 @@ const StorageCosts = () => {
                         </div>
                     </div>
                     {metric.rows.map(r => (
-                        <div key={r.wh} className="rounded-2xl p-4 bg-white border border-[var(--border-divider)] shadow-sm">
+                        <div key={r.wh} className="rounded-2xl p-4 bg-[var(--surface-card)] border border-[var(--border-divider)] shadow-sm">
                             <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: '0.62rem' }}><Warehouse className="w-3.5 h-3.5" /> {r.name}</div>
                             <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: '1.2rem' }}>{rateStr(r.rate)}</div>
                             <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: '0.6rem' }}>{fmtUsd(r.cost)} · {new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(r.mt)} MT-months</div>
                         </div>
                     ))}
                     {metric.rows.length === 0 && (
-                        <div className="sm:col-span-2 xl:col-span-3 rounded-2xl p-4 bg-white border border-dashed border-[var(--border-divider)] flex items-center text-[var(--regent-gray)] responsiveTextTable">
+                        <div className="sm:col-span-2 xl:col-span-3 rounded-2xl p-4 bg-[var(--surface-card)] border border-dashed border-[var(--border-divider)] flex items-center text-[var(--regent-gray)] responsiveTextTable">
                             No storage invoices tagged yet for this period — tag some below to see the rate.
                         </div>
                     )}
                 </div>
 
                 {/* Per-year summary — storage spend, MT-months and the average rate for each year */}
-                <div className="rounded-2xl border border-[var(--border-divider)] bg-white overflow-hidden mb-5">
+                <div className="rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-card)] overflow-hidden mb-5">
                     <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'var(--surface-header)' }}>
                         <Calendar className="w-4 h-4 text-[var(--endeavour)]" />
                         <span className="responsiveText font-semibold text-[var(--chathams-blue)]">Per-year summary</span>
@@ -353,19 +353,19 @@ const StorageCosts = () => {
                 </div>
 
                 {/* Triage: untagged storage invoices */}
-                <div className="rounded-2xl border border-[var(--border-divider)] bg-white overflow-hidden">
+                <div className="rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-card)] overflow-hidden">
                     <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'var(--surface-header)' }}>
-                        {untagged.length > 0 ? <AlertTriangle className="w-4 h-4" style={{ color: '#b45309' }} /> : <Check className="w-4 h-4" style={{ color: '#15803d' }} />}
+                        {untagged.length > 0 ? <AlertTriangle className="w-4 h-4" style={{ color: 'var(--warn-strong)' }} /> : <Check className="w-4 h-4" style={{ color: 'var(--ok-strong)' }} />}
                         <span className="responsiveText font-semibold text-[var(--chathams-blue)]">
                             Storage invoices needing a warehouse + month
                         </span>
-                        <span className="rounded-full px-2 py-0.5 font-semibold" style={{ fontSize: '0.6rem', background: untagged.length ? '#fffbeb' : '#f0fdf4', color: untagged.length ? '#b45309' : '#15803d', boxShadow: `inset 0 0 0 1px ${untagged.length ? '#fde68a' : '#bbf7d0'}` }}>
+                        <span className="rounded-full px-2 py-0.5 font-semibold" style={{ fontSize: '0.6rem', background: untagged.length ? 'var(--warn-soft)' : 'var(--ok-soft)', color: untagged.length ? 'var(--warn-strong)' : 'var(--ok-strong)', boxShadow: `inset 0 0 0 1px ${untagged.length ? 'var(--warn-border)' : 'var(--ok-border)'}` }}>
                             {untagged.length}
                         </span>
                         {actuals.count > 0 && (
                             <div className="ml-auto flex items-center gap-2 flex-1 justify-end">
-                                <div className="h-1.5 rounded-full overflow-hidden bg-white/70 w-full" style={{ boxShadow: 'inset 0 0 0 1px var(--border-divider)', maxWidth: 160 }}>
-                                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.round((actuals.taggedCount / actuals.count) * 100)}%`, background: '#15803d' }} />
+                                <div className="h-1.5 rounded-full overflow-hidden bg-[rgba(var(--surface-card-rgb),0.7)] w-full" style={{ boxShadow: 'inset 0 0 0 1px var(--border-divider)', maxWidth: 160 }}>
+                                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.round((actuals.taggedCount / actuals.count) * 100)}%`, background: 'var(--ok-strong)' }} />
                                 </div>
                                 <span className="whitespace-nowrap font-medium" style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>{actuals.taggedCount}/{actuals.count} tagged</span>
                             </div>

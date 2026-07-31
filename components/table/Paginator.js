@@ -51,7 +51,7 @@ export const Paginator = ({ table }) => {
                 style={{
                   backgroundColor: isActive ? 'var(--endeavour)' : '#FFFFFF',
                   color: isActive ? '#FFFFFF' : 'var(--endeavour)',
-                  borderColor: isActive ? 'var(--endeavour)' : '#E5E7EB'
+                  borderColor: isActive ? 'var(--endeavour)' : 'var(--border-neutral)'
                 }}
               >
                 {pageIndex + 1}

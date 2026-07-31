@@ -68,7 +68,7 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
             onClick={onClose}
         >
             <div
-                className='w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col'
+                className='w-full max-w-4xl rounded-2xl bg-[var(--surface-card)] shadow-2xl overflow-hidden flex flex-col'
                 style={{ border: '1px solid var(--border-divider)', height: '92vh' }}
                 onClick={e => e.stopPropagation()}
             >
@@ -81,14 +81,14 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
                         <button
                             onClick={download}
                             className='flex items-center gap-1 px-2.5 py-1 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                            style={{ fontSize: '0.65rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)', background: 'white' }}
+                            style={{ fontSize: '0.65rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)', background: 'var(--surface-card)' }}
                         >
                             <Download className='w-3 h-3' /> Download
                         </button>
                         <button
                             onClick={print}
                             className='flex items-center gap-1 px-2.5 py-1 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                            style={{ fontSize: '0.65rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)', background: 'white' }}
+                            style={{ fontSize: '0.65rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)', background: 'var(--surface-card)' }}
                         >
                             <Printer className='w-3 h-3' /> Print
                         </button>
@@ -103,7 +103,7 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
                 </div>
 
                 {/* Viewer */}
-                <div className='flex-1 min-h-0' style={{ background: '#525659' }}>
+                <div className='flex-1 min-h-0' style={{ background: 'var(--text-mid)' }}>
                     {url ? (
                         // #navpanes=0 hints the browser's built-in PDF viewer to open with the
                         // thumbnail/outline sidebar collapsed, so the document fills the frame.

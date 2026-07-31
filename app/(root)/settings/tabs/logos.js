@@ -34,7 +34,7 @@ const Logos = ({ compData, setCompData }) => {
                         <Radio
                             key={plan.logo}
                             value={plan}
-                            className="group relative flex cursor-pointer rounded-lg bg-white/5 py-2"
+                            className="group relative flex cursor-pointer rounded-lg bg-[rgba(var(--surface-card-rgb),0.05)] py-2"
                         >
                             <div className={`flex w-full items-center justify-between border-2
                                 ${selected?.link === plan.link ? 'border-slate-500' : ''} `}>

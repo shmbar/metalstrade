@@ -364,7 +364,7 @@ const ContractModal = () => {
 										<li key={i} onClick={() => selectRow(i)}
 											className={`shrink-0 items-center py-1 px-1.5 responsiveTextTable truncate
 									${valueCon.invoices[i]['id'] === valueInv.id && 'font-medium bg-slate-100 '}
-									${(isInvCreationCNFL && x.invType !== '1111') ? 'bg-[#f3f4f6] pointer-events-none cursor-not-allowed text-[var(--regent-gray)]' : 'cursor-pointer text-[var(--port-gore)]'}
+									${(isInvCreationCNFL && x.invType !== '1111') ? 'bg-[var(--surface-muted)] pointer-events-none cursor-not-allowed text-[var(--regent-gray)]' : 'cursor-pointer text-[var(--port-gore)]'}
 								
 								}
 									`}
@@ -405,7 +405,7 @@ const ContractModal = () => {
 									{valueInv.salesContractId ?
 										// Auto-matched from the Client Contract # — compact confirmation instead of
 										// repeating the same number (shows the sales-contract # only if it differs).
-										<span className='responsiveText font-medium flex items-center gap-1.5' style={{ color: '#15803d' }}>
+										<span className='responsiveText font-medium flex items-center gap-1.5' style={{ color: 'var(--ok-strong)' }}>
 											✓ Linked to sales contract{(() => { const n = (Array.isArray(salesContracts) ? salesContracts : []).find(s => s.id === valueInv.salesContractId)?.contractNo; return n && n !== valueInv.clientContractNo ? ` · ${n}` : ''; })()}
 											<button type='button' onClick={() => clear('salesContractId')} title='Unlink' className='text-[var(--regent-gray)] hover:text-red-500'>✕</button>
 										</span>
@@ -859,7 +859,7 @@ const ContractModal = () => {
 						</Tltip>}
 					{/*(!fnl && valueInv.id !== '') && showButton && <button
 					type="button"
-					className="flex items-center gap-2 justify-center rounded-md border bg-red-600 px-3 py-2 responsiveTextTable font-medium
+					className="flex items-center gap-2 justify-center rounded-md border bg-[#dc2626] px-3 py-2 responsiveTextTable font-medium
 						text-white hover:bg-red-400 focus:outline-none drop-shadow-lg" onClick={() => setIsFinilizeOpen(true)}
 				>
 					<BsFillSendCheckFill className='scale-110' />
@@ -867,7 +867,7 @@ const ContractModal = () => {
 				</button>*/}
 					{/*(fnl && !valueInv.canceled) && showButton && <button
 					type="button"
-					className="flex items-center gap-2 justify-center rounded-md border bg-red-600 px-3 py-2 responsiveTextTable font-medium
+					className="flex items-center gap-2 justify-center rounded-md border bg-[#dc2626] px-3 py-2 responsiveTextTable font-medium
 						text-white hover:bg-red-400 focus:outline-none drop-shadow-lg" onClick={() => setIsCancelOpen(true)}
 
 				>

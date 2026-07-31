@@ -120,12 +120,12 @@ const SideBarMini = () => {
                     setQuery(e.target.value);
                     setShowDropdown(true);
                   }}
-                  className="w-full pl-4 pr-10 py-2.5 rounded-lg bg-gray-50 border border-transparent focus:border-[var(--rock-blue)] focus:bg-white focus:outline-none placeholder-gray-400 transition-all"
+                  className="w-full pl-4 pr-10 py-2.5 rounded-lg bg-gray-50 border border-transparent focus:border-[var(--rock-blue)] focus:bg-[var(--surface-card)] focus:outline-none placeholder-gray-400 transition-all"
                   style={{ fontSize: 'inherit', color: 'var(--port-gore)' }}
                 />
                 {/* Search Dropdown */}
                 {showDropdown && searchResults.length > 0 && (
-                  <div className='absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-[var(--selago)] z-[101] overflow-auto max-h-80 w-full min-w-[16rem]'>
+                  <div className='absolute left-0 right-0 mt-2 bg-[var(--surface-card)] rounded-xl shadow-lg border border-[var(--selago)] z-[101] overflow-auto max-h-80 w-full min-w-[16rem]'>
                     {searchResults.map((r) => (
                       <button
                         key={r.key}
@@ -196,8 +196,8 @@ const SideBarMini = () => {
                         <Link href={`/${sub.page}`} key={subIdx} onClick={e => { close(); }}>
                           <div className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-150 responsiveText mt-1
                             ${isSubActive
-                              ? 'bg-white text-[var(--chathams-blue)] font-medium scale-[1.01]'
-                              : 'text-[var(--chathams-blue)] hover:bg-white/50 hover:translate-x-0.5'}`}
+                              ? 'bg-[var(--surface-card)] text-[var(--chathams-blue)] font-medium scale-[1.01]'
+                              : 'text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)] hover:translate-x-0.5'}`}
                           >
                             <span style={{color: 'var(--chathams-blue)'}}>{sub.img}</span>
                             <span className="responsiveText whitespace-nowrap font-normal">{getTtl(sub.item, ln)}</span>
@@ -215,8 +215,8 @@ const SideBarMini = () => {
                 <div className="flex px-2 py-1 responsiveText items-center">
                   <div className={`gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150
                     ${isActive
-                      ? 'bg-white text-[var(--chathams-blue)] font-medium scale-[1.01]'
-                      : 'text-[var(--chathams-blue)] hover:bg-white/50 hover:translate-x-0.5'}`}>
+                      ? 'bg-[var(--surface-card)] text-[var(--chathams-blue)] font-medium scale-[1.01]'
+                      : 'text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)] hover:translate-x-0.5'}`}>
                     <span className="transition-colors" style={{color: 'var(--chathams-blue)'}}>{y.img}</span>
                     <span className="responsiveText whitespace-nowrap font-normal">{getTtl(y.item, ln)}</span>
                   </div>
@@ -232,7 +232,7 @@ const SideBarMini = () => {
   <div className='py-2'>
     <Link href='/settings' onClick={e => close()}>
       <div className="flex px-2 py-1 responsiveText items-center">
-        <div className="gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150 text-[var(--chathams-blue)] hover:bg-white/50">
+        <div className="gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150 text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)]">
           <FiSettings className='w-4 h-4' style={{color: 'var(--chathams-blue)'}} />
           <span className='responsiveText font-normal'>{getTtl('Settings', ln)}</span>
         </div>
@@ -241,7 +241,7 @@ const SideBarMini = () => {
   </div>
   <div className='py-2'>
     <div className="flex px-2 py-1 responsiveText items-center cursor-pointer" onClick={() => { LogOut(); close(); }}>
-      <div className="gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150 text-[var(--chathams-blue)] hover:bg-white/50">
+      <div className="gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150 text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)]">
         <BiLogOutCircle className='w-4 h-4' style={{color: 'var(--chathams-blue)'}} />
         <span className='responsiveText font-normal'>{getTtl('Logout', ln)}</span>
       </div>

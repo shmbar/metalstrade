@@ -5,7 +5,7 @@ import { UserAuth } from '../../../contexts/useAuthContext'
 import { SettingsContext } from '../../../contexts/useSettingsContext'
 import { getTtl } from '../../../utils/languages'
 import { useRouter } from 'next/navigation'
-import { IoClose } from 'react-icons/io5';
+import { IoClose, IoMoonOutline, IoSunnyOutline } from 'react-icons/io5';
 import Image from 'next/image';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext'
 import Tltip from '../../../components/tlTip'
@@ -41,7 +41,7 @@ const Clock = () => {
 
 export const MainNav = () => {
   const { SignOut, user, gisAccount } = UserAuth();
-  const { themeId, setTheme } = useTheme();
+  const { themeId, mode, setTheme, toggleMode } = useTheme();
   const { compData, accounts, uidCollection, setUidCollection } = useContext(SettingsContext)
   const ln = compData?.lng || 'English'
   const router = useRouter()
@@ -149,7 +149,7 @@ export const MainNav = () => {
                 autoFocus
                 onBlur={() => setOpenSearch(false)}
                 onChange={(e) => setQuery(e.target.value)}
-                className='ml-2 w-60 pl-3 pr-8 py-2 rounded-full bg-gray-50 border border-gray-200 shadow-sm focus:border-[var(--rock-blue)] focus:bg-white focus:outline-none placeholder:text-[var(--regent-gray)] placeholder:opacity-100 transition-all'
+                className='ml-2 w-60 pl-3 pr-8 py-2 rounded-full bg-gray-50 border border-gray-200 shadow-sm focus:border-[var(--rock-blue)] focus:bg-[var(--surface-card)] focus:outline-none placeholder:text-[var(--regent-gray)] placeholder:opacity-100 transition-all'
                 style={{ fontSize: 'inherit', color: query ? 'var(--port-gore)' : 'var(--port-gore)' }}
               />
               <button
@@ -166,7 +166,7 @@ export const MainNav = () => {
 
           {/* Results dropdown, only if openSearch and query */}
           {openSearch && query && (
-            <div className='absolute left-0 top-full mt-2 w-72 bg-white rounded-xl shadow-lg border border-[var(--selago)] z-[9999] max-h-96 overflow-y-auto p-3'>
+            <div className='absolute left-0 top-full mt-2 w-72 bg-[var(--surface-card)] rounded-xl shadow-lg border border-[var(--selago)] z-[9999] max-h-96 overflow-y-auto p-3'>
               {searchResults.length > 0 ? (
                 searchResults.map((r) => (
                   <button
@@ -198,6 +198,19 @@ export const MainNav = () => {
             <img src='/logo/Ai bot.svg' alt='Chatbot' className='w-5 h-5' />
           </button>
         </Tltip>
+        {/* Light / dark mode toggle — pairs with the colour swatches in the
+            profile dropdown; both save per member */}
+        <Tltip tltpText={mode === 'dark' ? (getTtl('Light mode', ln) || 'Light mode') : (getTtl('Dark mode', ln) || 'Dark mode')} direction='bottom'>
+          <button
+            className='flex items-center justify-center w-10 h-10'
+            onClick={toggleMode}
+            aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {mode === 'dark'
+              ? <IoSunnyOutline className='w-5 h-5 text-[var(--chathams-blue)]' />
+              : <IoMoonOutline className='w-5 h-5 text-[var(--chathams-blue)]' />}
+          </button>
+        </Tltip>
         {/* Notification center — live bell with unread badge, snooze & sound */}
         <NotificationBell />
         {/* Logout Icon */}
@@ -227,7 +240,7 @@ export const MainNav = () => {
           <div className='relative' ref={dropdownRef} style={{ marginLeft: 0 }}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className='flex items-center bg-white gap-2 p-1 rounded-md hover:bg-[var(--selago)] transition-all'
+              className='flex items-center bg-[var(--surface-card)] gap-2 p-1 rounded-md hover:bg-[var(--selago)] transition-all'
               aria-label='User menu'
             >
               <div className='w-6  flex items-center justify-center text-white overflow-hidden'>
@@ -235,7 +248,7 @@ export const MainNav = () => {
               </div>
             </button>
             {showDropdown && (
-              <div className='absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-lg border border-[var(--selago)] py-2 z-[9999] overflow-visible'>
+              <div className='absolute right-0 top-full mt-2 w-64 bg-[var(--surface-card)] rounded-xl shadow-lg border border-[var(--selago)] py-2 z-[9999] overflow-visible'>
                 <div className='px-4 py-3 border-b border-[var(--selago)]'>
                   <p className='responsiveTextTable font-medium text-[var(--port-gore)]'>
                     {user?.displayName || user?.email?.split('@')[0] || 'User'}

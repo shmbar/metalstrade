@@ -156,22 +156,22 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
         /* Professional gradient scrollbar matching cards */
         .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
         .dashboard-scroll::-webkit-scrollbar-track { 
-          background: linear-gradient(180deg, #F8F8F8, #F0F0F0); 
+          background: linear-gradient(180deg, var(--surface-base), var(--surface-muted)); 
           border-radius: 6px; 
         }
         .dashboard-scroll::-webkit-scrollbar-thumb { 
-          background: linear-gradient(180deg, #E0E0E0, #CCCCCC); 
+          background: linear-gradient(180deg, var(--border-neutral), var(--border-neutral-strong)); 
           border-radius: 6px; 
-          border: 2px solid #F8F8F8;
+          border: 2px solid var(--surface-base);
         }
         .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-          background: linear-gradient(180deg, #CCCCCC, #B0B0B0);
-          border-color: #F0F0F0;
+          background: linear-gradient(180deg, var(--border-neutral-strong), var(--text-faint));
+          border-color: var(--surface-muted);
         }
 
         /* Table background */
         .glass-table {
-          background: #ffffff;
+          background: var(--surface-card);
         }
 
         .custom-table, .custom-table *, .glass-table, .glass-table * {
@@ -196,7 +196,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
         }
 
         .custom-table td {
-          background-color: #fff;
+          background-color: var(--surface-card);
           text-align: center;
           vertical-align: middle;
           padding: 6px;
@@ -220,7 +220,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
             className="flex-shrink-0 rounded-t-2xl"
             style={{
               borderBottom: '1px solid var(--border-divider)',
-              background: '#ffffff'
+              background: 'var(--surface-card)'
             }}
           >
             <Header
@@ -281,13 +281,13 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
 
                       {/* Filter Row */}
                       {filterOn && (
-                        <tr style={{ backgroundColor: '#FFFFFF' }}>
+                        <tr style={{ backgroundColor: 'var(--surface-card)' }}>
                           {hdGroup.headers.map(header => (
                             <th
                               key={header.id}
                               className="px-2 py-1.5"
                               style={{
-                                backgroundColor: '#FFFFFF',
+                                backgroundColor: 'var(--surface-card)',
                                 borderBottom: '2px solid var(--border-divider)',
                                 minWidth: header.column.id === 'select' ? '50px' : '90px',
                                 maxWidth: header.column.id === 'select' ? '50px' : 'none',
@@ -330,18 +330,18 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                         let badgeConfig = null;
                         if (isCompleted) {
                           badgeConfig = cell.getValue()
-                            ? { bg: '#dcfce7', color: '#16a34a', label: 'Completed' }
-                            : { bg: '#fee2e2', color: '#dc2626', label: 'Incompleted' };
+                            ? { bg: 'var(--ok-bg)', color: 'var(--ok-text)', label: 'Completed' }
+                            : { bg: 'var(--danger-bg)', color: 'var(--danger-text)', label: 'Incompleted' };
                         }
                         if (isStatus && cell.getValue()) {
                           if (cell.getValue() === 'Completed')
-                            badgeConfig = { bg: '#dcfce7', color: '#16a34a', label: 'Completed' };
+                            badgeConfig = { bg: 'var(--ok-bg)', color: 'var(--ok-text)', label: 'Completed' };
                           else if (cell.getValue() === 'Incompleted')
-                            badgeConfig = { bg: '#fee2e2', color: '#dc2626', label: 'Incompleted' };
+                            badgeConfig = { bg: 'var(--danger-bg)', color: 'var(--danger-text)', label: 'Incompleted' };
                           else if (cell.getValue() === 'Paid')
-                            badgeConfig = { bg: '#dcfce7', color: '#166534', border: '#bbf7d0', label: 'Paid' };
+                            badgeConfig = { bg: 'var(--ok-bg)', color: 'var(--ok-strong)', border: 'var(--ok-border)', label: 'Paid' };
                           else if (cell.getValue() === 'Unpaid')
-                            badgeConfig = { bg: '#fef9c3', color: '#92400e', border: '#fde68a', label: 'Unpaid' };
+                            badgeConfig = { bg: 'var(--warn-bg)', color: 'var(--warn-strong)', border: 'var(--warn-border)', label: 'Unpaid' };
                         }
 
                         return (
@@ -438,7 +438,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                   key={row.id}
                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                   style={{
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: 'var(--surface-card)',
                     border: '1px solid var(--border-divider)',
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
                   }}
@@ -446,7 +446,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                   <div 
                     className="px-3 py-2 flex items-center justify-between bg-[var(--border-divider)]"
                     // style={{ 
-                    //   background: 'linear-gradient(135deg, #6366F1, #9333EA, #0D9488)',
+                    //   background: 'linear-gradient(135deg, var(--violet-text), var(--violet-text), #0D9488)',
                     // }}
                   >
                     <span 
@@ -496,7 +496,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                             className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                             style={{
                               color: 'var(--port-gore)',
-                              background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                              background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
                               fontSize: '0.62rem',
                               border: '1px solid var(--border-divider)'
                             }}
@@ -539,7 +539,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
             className="flex-shrink-0 rounded-b-2xl"
             style={{
               borderTop: '1px solid var(--border-divider)',
-              background: '#ffffff'
+              background: 'var(--surface-card)'
             }}
           >
             <div className="w-full px-6 py-4">

@@ -32,7 +32,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                 }
 
                 .margins-table td {
-                    background-color: #fff;
+                    background-color: var(--surface-card);
                     border: 1px solid var(--selago);
                     color: var(--chathams-blue);
                 }
@@ -200,7 +200,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             >
                                                 {isGIS ? (
                                                 <Tltip direction="top" tltpText={"IMS: " + addComma(z.totalMargin / 2)}>
-                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] transition-all duration-200 ease-in-out bg-[var(--surface-pill)]  hover:shadow-[inset_0_0_0_1px_#d1d1d1]  fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] transition-all duration-200 ease-in-out bg-[var(--surface-pill)]  hover:shadow-[inset_0_0_0_1px_var(--border-neutral-strong)]  fade-in">
                                                     <NumericFormat
                                                         value={z.totalMargin}
                                                         displayType="text"
@@ -214,7 +214,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 </div>
                                                 </Tltip>
                                                 ) : (
-                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] transition-all duration-200 ease-in-out bg-[var(--surface-pill)]  hover:shadow-[inset_0_0_0_1px_#d1d1d1]  fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] transition-all duration-200 ease-in-out bg-[var(--surface-pill)]  hover:shadow-[inset_0_0_0_1px_var(--border-neutral-strong)]  fade-in">
                                                     <NumericFormat
                                                         value={z.totalMargin}
                                                         displayType="text"
@@ -249,7 +249,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         decimalScale={!Number.isInteger(z.openShip) && '2'}
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
-                                                        style={{ color: Number(z.openShip) > 0 ? '#dc2626' : undefined }}
+                                                        style={{ color: Number(z.openShip) > 0 ? 'var(--danger-text)' : undefined }}
                                                     />
                                                 </div>
                                             </td>
@@ -277,7 +277,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         decimalScale="2"
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
-                                                        style={{ color: Number(z.remaining) > 0 ? '#dc2626' : undefined }}
+                                                        style={{ color: Number(z.remaining) > 0 ? 'var(--danger-text)' : undefined }}
                                                     />
                                                 </div>
                                                 </Tltip>
@@ -292,7 +292,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         decimalScale="2"
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
-                                                        style={{ color: Number(z.remaining) > 0 ? '#dc2626' : undefined }}
+                                                        style={{ color: Number(z.remaining) > 0 ? 'var(--danger-text)' : undefined }}
                                                     />
                                                 </div>
                                                 )}
@@ -403,7 +403,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     allowNegative={true}
                                                     decimalScale="2"
                                                     fixedDecimalScale
-                                                    style={{ color: Number(outStandingShip) > 0 ? '#dc2626' : undefined }}
+                                                    style={{ color: Number(outStandingShip) > 0 ? 'var(--danger-text)' : undefined }}
                                                 />
                                             </div>
                                         </td>
@@ -431,7 +431,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     prefix={'$'}
                                                     decimalScale="2"
                                                     fixedDecimalScale
-                                                    style={{ color: Number(remaining) > 0 ? '#dc2626' : undefined }}
+                                                    style={{ color: Number(remaining) > 0 ? 'var(--danger-text)' : undefined }}
                                                 />
                                             </div>
                                             </Tltip>
@@ -445,7 +445,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     prefix={'$'}
                                                     decimalScale="2"
                                                     fixedDecimalScale
-                                                    style={{ color: Number(remaining) > 0 ? '#dc2626' : undefined }}
+                                                    style={{ color: Number(remaining) > 0 ? 'var(--danger-text)' : undefined }}
                                                 />
                                             </div>
                                             )}
@@ -464,7 +464,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                     key={i}
                                     className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                                     style={{
-                                        backgroundColor: '#FFFFFF',
+                                        backgroundColor: 'var(--surface-card)',
                                         border: '1px solid var(--border-divider)',
                                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
                                     }}
@@ -532,7 +532,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                                 style={{ 
                                                     color: 'var(--chathams-blue)',
-                                                    background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                                                    background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
                                                     fontSize: '0.62rem',
                                                     border: '1px solid var(--border-divider)'
                                                 }}
@@ -565,7 +565,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                                 style={{ 
                                                     color: 'var(--chathams-blue)',
-                                                    background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                                                    background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
                                                     fontSize: '0.62rem',
                                                     border: '1px solid var(--border-divider)'
                                                 }}
@@ -589,7 +589,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                             <div
                                 className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                                 style={{
-                                    backgroundColor: '#FFFFFF',
+                                    backgroundColor: 'var(--surface-card)',
                                     border: '2px solid var(--chathams-blue)',
                                     boxShadow: '0 8px 24px rgba(24, 61, 121, 0.15)'
                                 }}
@@ -631,7 +631,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             className="font-medium break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                             style={{ 
                                                 color: 'var(--chathams-blue)',
-                                                background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                                                background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
                                                 fontSize: '0.62rem',
                                                 border: '1px solid var(--border-divider)'
                                             }}
@@ -664,7 +664,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             className="font-medium break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                             style={{ 
                                                 color: 'var(--chathams-blue)',
-                                                background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                                                background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
                                                 fontSize: '0.62rem',
                                                 border: '1px solid var(--border-divider)'
                                             }}
@@ -698,7 +698,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             className="font-medium break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                             style={{ 
                                                 color: 'var(--chathams-blue)',
-                                                background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                                                background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
                                                 fontSize: '0.62rem',
                                                 border: '1px solid var(--border-divider)'
                                             }}
@@ -730,7 +730,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             className="font-medium break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                             style={{ 
                                                 color: 'var(--chathams-blue)',
-                                                background: 'linear-gradient(135deg, #FAFAFA, #F5F5F5)',
+                                                background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
                                                 fontSize: '0.62rem',
                                                 border: '1px solid var(--border-divider)'
                                             }}
@@ -743,7 +743,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 prefix={'$'}
                                                 decimalScale="2"
                                                 fixedDecimalScale
-                                                style={{ color: Number(remaining) > 0 ? '#dc2626' : undefined }}
+                                                style={{ color: Number(remaining) > 0 ? 'var(--danger-text)' : undefined }}
                                             />
                                         </div>
                                     </div>

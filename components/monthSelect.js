@@ -114,7 +114,7 @@ export default function MonthSelect(props) {
                     leave="transition-opacity "
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0">
-                    <div className="overflow-hidden rounded-2xl shadow-xl bg-white w-full border border-[var(--surface-header)]">
+                    <div className="overflow-hidden rounded-2xl shadow-xl bg-[var(--surface-card)] w-full border border-[var(--surface-header)]">
                         <div className='py-1.5 px-3 text-[11px] font-semibold' style={{ background: 'var(--surface-header)', color: 'var(--chathams-blue)' }}>Select Month</div>
                         <div className='py-1 px-1 overflow-auto max-h-72'>
                             {months.map((x, i) => {

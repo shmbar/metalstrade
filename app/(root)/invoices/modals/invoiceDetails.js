@@ -409,7 +409,7 @@ const InvoiceModal = () => {
 								// Auto-matched from the Client Contract # — a compact confirmation, so the same
 								// number isn't shown twice (the "PO shown 4×" the client flagged). Shows the
 								// sales-contract number only when it actually differs from what was typed.
-								<span className='responsiveText font-medium flex items-center gap-1.5' style={{ color: '#15803d' }}>
+								<span className='responsiveText font-medium flex items-center gap-1.5' style={{ color: 'var(--ok-strong)' }}>
 									✓ Linked{(() => { const n = salesContracts.find(s => s.id === valueInv.salesContractId)?.contractNo; return n && n !== valueInv.clientContractNo ? ` · ${n}` : ''; })()}
 									<button type='button' onClick={() => clear('salesContractId')} title='Unlink' className='text-[var(--regent-gray)] hover:text-red-500'>✕</button>
 								</span>

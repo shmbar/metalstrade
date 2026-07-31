@@ -63,7 +63,7 @@ const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, clas
         <div className="w-full">
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="my-1">
-                    <div className={`relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left \n                     focus:outline-none sm:text-sm border border-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}
+                    <div className={`relative w-full cursor-default overflow-hidden rounded-lg bg-[var(--surface-card)] text-left \n                     focus:outline-none sm:text-sm border border-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}
                         >
                         <Combobox.Input
                             className="w-full py-2 pl-3 pr-10 text-xs leading-5 text-[var(--endeavour)] focus:outline-none "
@@ -86,7 +86,7 @@ const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, clas
                         afterLeave={() => setQuery('')}
                     >
                         <ComboboxOptions className={`w-[var(--input-width)] z-10 absolute mt-1 max-h-60 overflow-auto rounded-md 
-                        bg-white py-1 text-base shadow-lg ring-1 ring-[var(--selago)] focus:outline-none 
+                        bg-[var(--surface-card)] py-1 text-base shadow-lg ring-1 ring-[var(--selago)] focus:outline-none 
                         sm:text-sm ${classes1}
                         [--anchor-gap:var(--spacing-1)]`} 
                         >

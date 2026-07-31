@@ -127,7 +127,7 @@ const Page = () => {
 				<>
 					<Toast />
 					<VideoLoader loading={loading} fullScreen={true} />
-					<div className="bg-white rounded-2xl p-2 sm:p-3 mt-4 border border-[var(--border-divider)]">
+					<div className="bg-[var(--surface-card)] rounded-2xl p-2 sm:p-3 mt-4 border border-[var(--border-divider)]">
 						<div className='pb-2'>
 							<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">Formulas</h1>
 
@@ -153,9 +153,9 @@ const Page = () => {
 									</TabList>
 
 									{value.general != null && !loading && (
-										<div className='bg-white rounded-xl p-3 mb-2 w-fit border border-[var(--border-divider)]'>
+										<div className='bg-[var(--surface-card)] rounded-xl p-3 mb-2 w-fit border border-[var(--border-divider)]'>
 											<div className='flex flex-wrap items-end gap-2.5'>
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium flex items-center justify-center gap-1'>
 														Ni LME
 														<button onClick={refreshMetal} title="Refresh live price" className="hover:text-[var(--chathams-blue)] transition-colors">
@@ -164,7 +164,7 @@ const Page = () => {
 													</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none w-full text-[0.75rem]'
+														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none w-full text-[0.75rem]'
 																						name='nilme'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
@@ -173,11 +173,11 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Mo Oxide - Lb</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
+														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none text-[0.75rem]'
 																						value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
 														name='MoOxideLb'
 														onChange={(e) => handleChange(e, 'general')}
@@ -186,11 +186,11 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Charge Cr - Lb</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
+														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none text-[0.75rem]'
 																						name='chargeCrLb'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'chargeCrLb' ? value.general?.chargeCrLb || '' : addComma(value.general?.chargeCrLb || '0')}
@@ -199,22 +199,22 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>1 MT</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
+														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none text-[0.75rem]'
 																						value={(value.general?.mt || '0') + ' Lb'}
 														name='mt'
 														onChange={(e) => handleChange(e, 'general')}
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-white overflow-hidden min-w-[100px] flex-1'>
+												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Euro / USD</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[#F44336] text-center bg-white focus:outline-none text-[0.75rem]'
+														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none text-[0.75rem]'
 																						value={(value.general?.euroRate || '0')}
 														name='euroRate'
 														onChange={(e) => handleChange(e, 'general')}

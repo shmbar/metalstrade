@@ -115,23 +115,23 @@ const Customtable = ({
       <style jsx global>{`
         .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
         .dashboard-scroll::-webkit-scrollbar-track { 
-          background: linear-gradient(180deg, #F5F5F5, #FAFAFA); 
+          background: linear-gradient(180deg, var(--surface-muted), var(--surface-base)); 
           border-radius: 6px; 
         }
         .dashboard-scroll::-webkit-scrollbar-thumb { 
-          background: linear-gradient(180deg, #6366F1, #4338CA); 
+          background: linear-gradient(180deg, var(--violet-text), var(--violet-strong)); 
           border-radius: 6px; 
-          border: 2px solid #F5F5F5;
+          border: 2px solid var(--surface-muted);
         }
         .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-          background: linear-gradient(180deg, #A855F7, #7E22CE);
-          border-color: #FAFAFA;
+          background: linear-gradient(180deg, var(--violet-text), var(--violet-strong));
+          border-color: var(--surface-base);
         }
         .glass-table {
           background: linear-gradient(135deg, 
-            rgba(255, 255, 255, 0.85) 0%, 
-            rgba(250, 250, 250, 0.90) 50%,
-            rgba(255, 255, 255, 0.85) 100%
+            rgba(var(--surface-card-rgb),0.85) 0%, 
+            rgba(var(--surface-base-rgb),0.90) 50%,
+            rgba(var(--surface-card-rgb),0.85) 100%
           );
         }
         .custom-table, .custom-table *, .glass-table, .glass-table * {
@@ -152,8 +152,8 @@ const Customtable = ({
           background-color: var(--border-cell);
         }
         .custom-table td {
-          background-color: #fff;
-          border: 1px solid #e0e0e0;
+          background-color: var(--surface-card);
+          border: 1px solid var(--border-neutral);
           font-size: 9px !important;
         }
       `}</style>
@@ -161,7 +161,7 @@ const Customtable = ({
       <div className="custom-table">
         <div className="flex flex-col" style={{ boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset' }}>
           {/* HEADER */}
-          <div className="flex-shrink-0" style={{ borderBottom: '2px solid var(--border-divider)', background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))' }}>
+          <div className="flex-shrink-0" style={{ borderBottom: '2px solid var(--border-divider)', background: 'linear-gradient(90deg, rgba(var(--surface-card-rgb),0.95), rgba(var(--surface-base-rgb),0.98))' }}>
             <Header
               globalFilter={globalFilter}
               setGlobalFilter={setGlobalFilter}
@@ -314,7 +314,7 @@ const Customtable = ({
 
           {/* FOOTER */}
           <div className="flex-shrink-0">
-            <div className="flex items-center justify-between p-4" style={{ borderTop: '2px solid var(--border-divider)', background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))' }}>
+            <div className="flex items-center justify-between p-4" style={{ borderTop: '2px solid var(--border-divider)', background: 'linear-gradient(90deg, rgba(var(--surface-card-rgb),0.95), rgba(var(--surface-base-rgb),0.98))' }}>
               <RowsIndicator
                 table={table}
                 quickSumEnabled={quickSumEnabled}
@@ -326,7 +326,7 @@ const Customtable = ({
                 buttonClassName="px-3 py-1 responsiveText"
                 disabledClassName="opacity-50 cursor-not-allowed"
                 activeClassName="bg-blue-600 text-white"
-                inactiveClassName="bg-[#f3f4f6] text-[var(--port-gore)]"
+                inactiveClassName="bg-[var(--surface-muted)] text-[var(--port-gore)]"
               />
             </div>
           </div>

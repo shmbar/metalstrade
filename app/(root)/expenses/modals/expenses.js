@@ -182,7 +182,7 @@ const Expenses = () => {
                         <div>
                             <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Invoice', ln)}</p>
                             <div className='w-full '>
-                                <input className="input h-7 text-xs rounded-full border-[var(--border-divider)] bg-white" name='expense' value={valueExp.expense} onChange={handleValue} />
+                                <input className="input h-7 text-xs rounded-full border-[var(--border-divider)] bg-[var(--surface-card)]" name='expense' value={valueExp.expense} onChange={handleValue} />
                                 <ErrDiv field='expense' errors={errorsExp} />
                             </div>
                         </div>
@@ -201,7 +201,7 @@ const Expenses = () => {
                         <div className='pt-2'>
                             <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Amount', ln)}:</p>
                             <div className='w-full '>
-                                <input type='number' className="input h-7 text-xs rounded-full border-[var(--border-divider)] bg-white" name='amount' value={valueExp.amount} onChange={handleValue} />
+                                <input type='number' className="input h-7 text-xs rounded-full border-[var(--border-divider)] bg-[var(--surface-card)]" name='amount' value={valueExp.amount} onChange={handleValue} />
                                 <ErrDiv field='amount' errors={errorsExp} />
                             </div>
                         </div>
@@ -227,7 +227,7 @@ const Expenses = () => {
                                         className='flex items-center gap-1 px-2 py-0.5 rounded-full text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
                                         style={{
                                             fontSize: '0.6rem',
-                                            backgroundColor: catResult === 'error' ? '#ef4444' : catResult ? '#16a34a' : 'var(--endeavour)'
+                                            backgroundColor: catResult === 'error' ? 'var(--danger-text)' : catResult ? 'var(--ok-text)' : 'var(--endeavour)'
                                         }}
                                     >
                                         {categorizing
@@ -244,7 +244,7 @@ const Expenses = () => {
                                 <Selector arr={settings.Expenses.Expenses} value={valueExp} onChange={(e) => handleChange(e, 'expType')} name='expType' clear={clear} />
                                 <ErrDiv field='expType' errors={errorsExp} />
                                 {catResult === 'low' && (
-                                    <p className='text-xs mt-0.5 px-2 py-0.5 rounded-full inline-block' style={{ backgroundColor: '#fff3cd', color: '#92400e', fontSize: '0.6rem' }}>
+                                    <p className='text-xs mt-0.5 px-2 py-0.5 rounded-full inline-block' style={{ backgroundColor: 'var(--surface-card)3cd', color: 'var(--warn-strong)', fontSize: '0.6rem' }}>
                                         Low confidence — please verify
                                     </p>
                                 )}
@@ -270,7 +270,7 @@ const Expenses = () => {
                         <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
                         <div>
                             <textarea rows="5" name="comments"
-                                className="input h-32 p-1 rounded-xl border-[var(--border-divider)] bg-white w-full"
+                                className="input h-32 p-1 rounded-xl border-[var(--border-divider)] bg-[var(--surface-card)] w-full"
                                 style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
                                 value={valueExp.comments} onChange={handleValue} />
                         </div>
@@ -301,7 +301,7 @@ const Expenses = () => {
                 <Tltip direction='top' tltpText='Delete expense'>
                 <button
                     className="whiteButton py-1"
-                    style={{ color: '#c0392b', borderColor: '#c0392b' }}
+                    style={{ color: 'var(--danger-strong)', borderColor: 'var(--danger-strong)' }}
                     onClick={() => deleteExpenseFromExpPage(uidCollection)}
                 >
                     <MdDeleteOutline className='scale-110' />

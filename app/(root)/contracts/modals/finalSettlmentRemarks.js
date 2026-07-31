@@ -78,7 +78,7 @@ const FinalRemarks = ({ value, setValue }) => {
 
                 {value?.finalSRemarks?.map((x, i) => {
                     return (
-                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-2 px-4 text-sm  bg-white border text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg ">
+                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-2 px-4 text-sm  bg-[var(--surface-card)] border text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg ">
                             {edit.status && edit.id === x.id ?
                                 <input
                                     className="w-full border rounded-md border-slate-400 h-7 

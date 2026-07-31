@@ -1,3 +1,4 @@
+import { cssVar, cssVarRgba } from '../../../utils/chartTheme';
 function addCommas(x) {
     var parts = Math.round(x).toString().split('.');
     return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -16,35 +17,35 @@ export const LineChart = (data1, data2) => {
             {
                 label: 'Total Sales',
                 data: data1,
-                borderColor: '#9fb8d4', // rock-blue
+                borderColor: cssVar('--rock-blue', '#9fb8d4'), // rock-blue
                 backgroundColor: 'transparent',
                 borderWidth: 2.5,
                 tension: 0.4,
                 fill: false,
                 pointRadius: 4,
-                pointBackgroundColor: '#9fb8d4',
-                pointBorderColor: '#fff',
+                pointBackgroundColor: cssVar('--rock-blue', '#9fb8d4'),
+                pointBorderColor: cssVar('--surface-card', '#fff'),
                 pointBorderWidth: 2,
                 pointHoverRadius: 6,
-                pointHoverBackgroundColor: '#9fb8d4',
-                pointHoverBorderColor: '#fff',
+                pointHoverBackgroundColor: cssVar('--rock-blue', '#9fb8d4'),
+                pointHoverBorderColor: cssVar('--surface-card', '#fff'),
                 pointHoverBorderWidth: 2,
             },
             {
                 label: 'Total Revenue',
                 data: data2,
-                borderColor: '#103a7a', // chathams-blue
+                borderColor: cssVar('--chathams-blue', '#103a7a'), // chathams-blue
                 backgroundColor: 'transparent',
                 borderWidth: 2.5,
                 tension: 0.4,
                 fill: false,
                 pointRadius: 4,
-                pointBackgroundColor: '#103a7a',
-                pointBorderColor: '#fff',
+                pointBackgroundColor: cssVar('--chathams-blue', '#103a7a'),
+                pointBorderColor: cssVar('--surface-card', '#fff'),
                 pointBorderWidth: 2,
                 pointHoverRadius: 6,
-                pointHoverBackgroundColor: '#103a7a',
-                pointHoverBorderColor: '#fff',
+                pointHoverBackgroundColor: cssVar('--chathams-blue', '#103a7a'),
+                pointHoverBorderColor: cssVar('--surface-card', '#fff'),
                 pointHoverBorderWidth: 2,
             },
         ]
@@ -60,10 +61,10 @@ export const LineChart = (data1, data2) => {
                 display: false,
             },
             tooltip: {
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                titleColor: '#28264f', // port-gore
-                bodyColor: '#838ca7', // regent-gray
-                borderColor: '#ebf2fc', // selago
+                backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
+                titleColor: cssVar('--port-gore', '#28264f'), // port-gore
+                bodyColor: cssVar('--regent-gray', '#838ca7'), // regent-gray
+                borderColor: cssVar('--selago', '#ebf2fc'), // selago
                 borderWidth: 1,
                 cornerRadius: 8,
                 padding: 12,
@@ -94,18 +95,18 @@ export const LineChart = (data1, data2) => {
                         return value;
                     },
                     font: { size: 11 },
-                    color: '#838ca7', // regent-gray
+                    color: cssVar('--regent-gray', '#838ca7'), // regent-gray
                     padding: 10,
                 },
                 grid: {
-                    color: 'rgba(159, 184, 212, 0.3)', // rock-blue with opacity
+                    color: cssVarRgba('--rock-blue-rgb', 0.3, 'rgba(159,184,212,0.3)'), // rock-blue with opacity
                     drawBorder: false,
                 }
             },
             x: {
                 ticks: { 
                     font: { size: 11 }, 
-                    color: '#838ca7', // regent-gray
+                    color: cssVar('--regent-gray', '#838ca7'), // regent-gray
                     padding: 5,
                 },
                 grid: {
@@ -128,7 +129,7 @@ export const GroupedBarChart = (data1, data2) => {
         datasets: [
             {
                 label: 'Total Income',
-                backgroundColor: '#9fb8d4', // rock-blue
+                backgroundColor: cssVar('--rock-blue', '#9fb8d4'), // rock-blue
                 data: data1,
                 borderRadius: 4,
                 borderSkipped: false,
@@ -137,7 +138,7 @@ export const GroupedBarChart = (data1, data2) => {
             },
             {
                 label: 'Total Outcome',
-                backgroundColor: '#103a7a', // chathams-blue
+                backgroundColor: cssVar('--chathams-blue', '#103a7a'), // chathams-blue
                 data: data2,
                 borderRadius: 4,
                 borderSkipped: false,
@@ -157,10 +158,10 @@ export const GroupedBarChart = (data1, data2) => {
                 display: false,
             },
             tooltip: {
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                titleColor: '#28264f', // port-gore
-                bodyColor: '#838ca7', // regent-gray
-                borderColor: '#ebf2fc', // selago
+                backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
+                titleColor: cssVar('--port-gore', '#28264f'), // port-gore
+                bodyColor: cssVar('--regent-gray', '#838ca7'), // regent-gray
+                borderColor: cssVar('--selago', '#ebf2fc'), // selago
                 borderWidth: 1,
                 cornerRadius: 8,
                 padding: 12,
@@ -187,18 +188,18 @@ export const GroupedBarChart = (data1, data2) => {
                         return value;
                     },
                     font: { size: 11 },
-                    color: '#838ca7', // regent-gray
+                    color: cssVar('--regent-gray', '#838ca7'), // regent-gray
                     padding: 10,
                 },
                 grid: {
-                    color: 'rgba(159, 184, 212, 0.3)', // rock-blue with opacity
+                    color: cssVarRgba('--rock-blue-rgb', 0.3, 'rgba(159,184,212,0.3)'), // rock-blue with opacity
                     drawBorder: false,
                 }
             },
             x: {
                 ticks: { 
                     font: { size: 11 }, 
-                    color: '#838ca7', // regent-gray
+                    color: cssVar('--regent-gray', '#838ca7'), // regent-gray
                     padding: 5,
                 },
                 grid: {
@@ -229,7 +230,7 @@ export const LineChartSmall = (data, color) => {
                 pointRadius: 0,
                 pointHoverRadius: 6,
                 pointHoverBackgroundColor: color,
-                pointHoverBorderColor: '#fff',
+                pointHoverBorderColor: cssVar('--surface-card', '#fff'),
                 pointHoverBorderWidth: 2,
             },
         ]
@@ -248,10 +249,10 @@ export const LineChartSmall = (data, color) => {
                 display: false,
             },
             tooltip: {
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                titleColor: '#28264f',
-                bodyColor: '#28264f',
-                borderColor: '#ebf2fc',
+                backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
+                titleColor: cssVar('--port-gore', '#28264f'),
+                bodyColor: cssVar('--port-gore', '#28264f'),
+                borderColor: cssVar('--selago', '#ebf2fc'),
                 borderWidth: 1,
                 cornerRadius: 8,
                 padding: 10,
@@ -291,7 +292,7 @@ export const BarChart = (data, color) => {
             {
                 //label: 2021,//date.year,
                 backgroundColor: color,
-                hoverBackgroundColor: '#0366ae',
+                hoverBackgroundColor: cssVar('--endeavour', '#0366ae'),
                 data: data,
                 borderRadius: 4,
                 borderSkipped: false,
@@ -315,10 +316,10 @@ export const BarChart = (data, color) => {
                 display: false,
             },
             tooltip: {
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                titleColor: '#28264f',
-                bodyColor: '#28264f',
-                borderColor: '#ebf2fc',
+                backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
+                titleColor: cssVar('--port-gore', '#28264f'),
+                bodyColor: cssVar('--port-gore', '#28264f'),
+                borderColor: cssVar('--selago', '#ebf2fc'),
                 borderWidth: 1,
                 cornerRadius: 8,
                 padding: 10,
@@ -344,15 +345,15 @@ export const BarChart = (data, color) => {
                         return YesNo ? 0 : value / 1000000;
                     },
                     font: { size: 11 },
-                    color: '#838ca7'
+                    color: cssVar('--regent-gray', '#838ca7')
                 },
                 grid: {
-                    color: 'rgba(159, 184, 212, 0.2)',
+                    color: cssVarRgba('--rock-blue-rgb', 0.2, 'rgba(159,184,212,0.2)'),
                     drawBorder: false,
                 }
             },
             x: {
-                ticks: { font: { size: 11 }, color: '#838ca7' },
+                ticks: { font: { size: 11 }, color: cssVar('--regent-gray', '#838ca7') },
                 grid: {
                     display: false
                 },
@@ -374,7 +375,7 @@ export const BarChartContracts = (data, data1, color, color1) => {
             {
                 stack: 'Stack 0',
                 backgroundColor: color,
-                hoverBackgroundColor: '#0366ae',
+                hoverBackgroundColor: cssVar('--endeavour', '#0366ae'),
                 data: data,
                 borderRadius: 4,
                 borderSkipped: false,
@@ -382,7 +383,7 @@ export const BarChartContracts = (data, data1, color, color1) => {
             {
                 stack: 'Stack 0',
                 backgroundColor: color1,
-                hoverBackgroundColor: '#9fb8d4',
+                hoverBackgroundColor: cssVar('--rock-blue', '#9fb8d4'),
                 data: data1,
                 borderRadius: 4,
                 borderSkipped: 'start',
@@ -407,10 +408,10 @@ export const BarChartContracts = (data, data1, color, color1) => {
                 display: false,
             },
             tooltip: {
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                titleColor: '#28264f',
-                bodyColor: '#28264f',
-                borderColor: '#ebf2fc',
+                backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
+                titleColor: cssVar('--port-gore', '#28264f'),
+                bodyColor: cssVar('--port-gore', '#28264f'),
+                borderColor: cssVar('--selago', '#ebf2fc'),
                 borderWidth: 1,
                 cornerRadius: 8,
                 padding: 10,
@@ -436,15 +437,15 @@ export const BarChartContracts = (data, data1, color, color1) => {
                         return YesNo ? 0 : value / 1000000;
                     },
                     font: { size: 11 },
-                    color: '#838ca7'
+                    color: cssVar('--regent-gray', '#838ca7')
                 },
                 grid: {
-                    color: 'rgba(159, 184, 212, 0.2)',
+                    color: cssVarRgba('--rock-blue-rgb', 0.2, 'rgba(159,184,212,0.2)'),
                     drawBorder: false,
                 }
             },
             x: {
-                ticks: { font: { size: 11 }, color: '#838ca7' },
+                ticks: { font: { size: 11 }, color: cssVar('--regent-gray', '#838ca7') },
                 grid: {
                     display: false
                 },
@@ -488,7 +489,7 @@ export const HorizontalBar = (arr, text) => {
             borderRadius: 8,
             borderSkipped: false,
             backgroundColor: generateGradientColors(arrNums.length),
-            hoverBackgroundColor: '#0366ae',
+            hoverBackgroundColor: cssVar('--endeavour', '#0366ae'),
         }]
     };
 
@@ -510,10 +511,10 @@ export const HorizontalBar = (arr, text) => {
                 display: false,
             },
             tooltip: {
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                titleColor: '#28264f',
-                bodyColor: '#838ca7',
-                borderColor: '#ebf2fc',
+                backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
+                titleColor: cssVar('--port-gore', '#28264f'),
+                bodyColor: cssVar('--regent-gray', '#838ca7'),
+                borderColor: cssVar('--selago', '#ebf2fc'),
                 borderWidth: 1,
                 cornerRadius: 10,
                 padding: 12,
@@ -535,7 +536,7 @@ export const HorizontalBar = (arr, text) => {
                 beginAtZero: true,
                 ticks: {
                     font: { size: 11 },
-                    color: '#28264f'
+                    color: cssVar('--port-gore', '#28264f')
                 },
                 grid: {
                     display: false
@@ -544,7 +545,7 @@ export const HorizontalBar = (arr, text) => {
             x: {
                 ticks: { 
                     font: { size: 11 }, 
-                    color: '#838ca7',
+                    color: cssVar('--regent-gray', '#838ca7'),
                     callback: function (value) {
                         if (value >= 1000000) {
                             return (value / 1000000).toFixed(1) + 'M';
@@ -555,7 +556,7 @@ export const HorizontalBar = (arr, text) => {
                     }
                 },
                 grid: {
-                    color: 'rgba(159, 184, 212, 0.2)',
+                    color: cssVarRgba('--rock-blue-rgb', 0.2, 'rgba(159,184,212,0.2)'),
                 },
                 border: {
                     display: false,
@@ -583,7 +584,7 @@ export const ExpCompare = (dtCrnt, dtCrntPrev, date, cur) => {
             },
             {
                 label: date.year - 1,
-                backgroundColor: '#999999',
+                backgroundColor: cssVar('--text-faint', '#999999'),
                 data: Object.values(dtCrntPrev),
                 borderRadius: 10,
                 borderSkipped: false,
@@ -675,7 +676,7 @@ export const RevenueCompare = (dtCrnt, dtPrev, dtCrnt1, dtPrev1, date, cur) => {
             {
                 label: date.year - 1 + ' Rev',
                 stack: 'Stack 1',
-                backgroundColor: '#999999',
+                backgroundColor: cssVar('--text-faint', '#999999'),
                 data: Object.values(dtPrev),
                 borderRadius: 10,
                 borderSkipped: false,
@@ -684,7 +685,7 @@ export const RevenueCompare = (dtCrnt, dtPrev, dtCrnt1, dtPrev1, date, cur) => {
             {
                 label: date.year - 1 + ' Ex Rev',
                 stack: 'Stack 1',
-                backgroundColor: '#D5D5D5',
+                backgroundColor: cssVar('--border-neutral-strong', '#D5D5D5'),
                 data: Object.values(dtPrev1),
                 borderRadius: 10,
                 borderSkipped: false,
@@ -766,7 +767,7 @@ export const PLCompare = (dtCrnt, dtPrev, date, cur) => {
             },
             {
                 label: date.year - 1,
-                backgroundColor: '#999999',
+                backgroundColor: cssVar('--text-faint', '#999999'),
                 data: Object.values(dtPrev),
                 borderRadius: 10,
                 borderSkipped: false,
@@ -923,7 +924,7 @@ export const OccupPrcnt = (dtCrnt, dtCrntPrev, date) => {
             },
             {
                 label: date.year - 1,
-                backgroundColor: '#999999',
+                backgroundColor: cssVar('--text-faint', '#999999'),
                 data: Object.values(dtCrntPrev),
                 borderRadius: 10,
                 borderSkipped: false,

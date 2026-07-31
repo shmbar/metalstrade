@@ -62,14 +62,14 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="w-full bg-white min-h-screen font-sans">
+    <div className="w-full bg-[var(--surface-card)] min-h-screen font-sans">
       <main>
         <section className="relative bg-gradient-to-br from-[var(--endeavour)] via-[var(--rock-blue)] to-[var(--port-gore)] text-white overflow-hidden min-h-screen flex items-center justify-center py-6">
           
           {/* Sign In Card */}
           <div className="container px-4 relative z-20 py-8">
             <div className="max-w-md mx-auto">
-              <div className="bg-white rounded-lg shadow-2xl w-full p-8 relative">
+              <div className="bg-[var(--surface-card)] rounded-lg shadow-2xl w-full p-8 relative">
 
                 {/* Back Arrow */}
                 <button className="absolute top-8 left-8 text-gray-600 hover:text-gray-800 transition-colors">

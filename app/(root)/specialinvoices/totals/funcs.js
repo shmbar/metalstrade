@@ -13,7 +13,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
 
     return (
         <div style={{
-            background: '#fff',
+            background: 'var(--surface-card)',
             borderRadius: '16px',
             overflow: 'hidden',
             boxShadow: '0 8px 32px rgba(var(--endeavour-rgb),0.13)',

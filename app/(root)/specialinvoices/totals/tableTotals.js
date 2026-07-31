@@ -36,7 +36,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     padding: 8px 6px !important;
                     border: none;
                     border-bottom: 1px solid var(--border-cell);
-                    background: #fff;
+                    background: var(--surface-card);
                 }
                 .glass-table th > *, .glass-table td > * {
                     display: flex;
@@ -100,7 +100,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         style={{
                             borderRadius: '16px',
                             boxShadow: '0 3px 8px rgba(0,0,0,0.06)',
-                            background: '#ffffff'
+                            background: 'var(--surface-card)'
                         }}
                         >
 
@@ -187,7 +187,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                             {title}
                         </div>
                         {table1.getRowModel().rows.map(row => (
-                            <div key={row.id} className="bg-white border border-[var(--selago)] rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+                            <div key={row.id} className="bg-[var(--surface-card)] border border-[var(--selago)] rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
                                 {row.getVisibleCells().map(cell => (
                                     <div key={cell.id} className="flex justify-between items-start py-2 border-b border-[var(--selago)] last:border-b-0">
                                         <span className="responsiveTextTable font-normal uppercase w-2/5 flex-shrink-0" style={{color:'var(--chathams-blue)'}}>

@@ -35,7 +35,7 @@ export default function ContactForm() {
       transition={{ duration: 0.6 }}
       className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
     >
-      <div className="bg-white p-10 sm:p-12 lg:p-16 rounded-3xl shadow-2xl">
+      <div className="bg-[var(--surface-card)] p-10 sm:p-12 lg:p-16 rounded-3xl shadow-2xl">
         {submitted && (
           <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-md text-center font-medium">
             Thank you! Your message has been sent.

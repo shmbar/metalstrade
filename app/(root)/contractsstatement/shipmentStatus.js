@@ -9,15 +9,15 @@ const LEGACY_ALIASES = { 'At Port': 'Arrived', 'Delivered': 'Completed' };
 export const normalizeStatus = (s) => LEGACY_ALIASES[s] || s || '';
 
 export const SHIPMENT_STATUS_STYLES = {
-    'Pending':    { backgroundColor: '#fef9c3', border: '1px solid #fde68a', color: '#78350f' },
+    'Pending':    { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)' },
     'Shipped':    { backgroundColor: 'var(--surface-header)', border: '1px solid var(--border-divider)', color: 'var(--chathams-blue)' },
     'In Transit': { backgroundColor: 'var(--surface-header)', border: '1px solid var(--border-divider)', color: 'var(--chathams-blue)' },
-    'Arrived':    { backgroundColor: '#ede9fe', border: '1px solid #ddd6fe', color: '#4c1d95' },
-    'Completed':  { backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#14532d' },
-    'On Hold':    { backgroundColor: '#fce7f3', border: '1px solid #fbcfe8', color: '#831843' },
+    'Arrived':    { backgroundColor: 'var(--violet-bg)', border: '1px solid var(--violet-border)', color: 'var(--violet-strong)' },
+    'Completed':  { backgroundColor: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok-strong)' },
+    'On Hold':    { backgroundColor: 'var(--pink-bg)', border: '1px solid var(--pink-bg)', color: 'var(--pink-strong)' },
     // Legacy keys kept as a safety net for any raw (un-normalized) value.
-    'At Port':    { backgroundColor: '#ede9fe', border: '1px solid #ddd6fe', color: '#4c1d95' },
-    'Delivered':  { backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#14532d' },
+    'At Port':    { backgroundColor: 'var(--violet-bg)', border: '1px solid var(--violet-border)', color: 'var(--violet-strong)' },
+    'Delivered':  { backgroundColor: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok-strong)' },
     '':           { backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)', color: 'var(--port-gore)' },
 };
 

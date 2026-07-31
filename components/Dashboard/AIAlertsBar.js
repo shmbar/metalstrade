@@ -10,9 +10,9 @@ import { receivables as financeReceivables, groupInvoices, isOverdue, invoiceBal
 // Compact pill button used for each alert chip
 function AlertPill({ icon: Icon, label, count, severity, onClick }) {
     const palette = {
-        red: { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b' },
-        amber: { bg: '#fff3cd', border: '#ffc107', text: '#92400e' },
-        green: { bg: '#d1fae5', border: '#86efac', text: '#065f46' },
+        red: { bg: 'var(--danger-bg)', border: 'var(--danger-border)', text: 'var(--danger-strong)' },
+        amber: { bg: 'var(--warn-soft)', border: '#ffc107', text: 'var(--warn-strong)' },
+        green: { bg: 'var(--ok-bg)', border: 'var(--ok-border)', text: 'var(--ok-strong)' },
         blue: { bg: 'var(--surface-header)', border: 'var(--border-divider)', text: 'var(--chathams-blue)' },
     }[severity];
     return (
@@ -32,7 +32,7 @@ function AlertPill({ icon: Icon, label, count, severity, onClick }) {
             <span>{label}</span>
             <span
                 className='px-1.5 py-0.5 rounded-full'
-                style={{ background: 'white', fontSize: '0.58rem', minWidth: '18px', textAlign: 'center' }}
+                style={{ background: 'var(--surface-card)', fontSize: '0.58rem', minWidth: '18px', textAlign: 'center' }}
             >
                 {count}
             </span>
@@ -175,7 +175,7 @@ const AIAlertsBar = () => {
 
     if (loading) {
         return (
-            <div className='flex items-center gap-2 px-3 py-2.5 rounded-xl mb-3 shadow-sm' style={{ border: '1px solid var(--selago)', background: '#ffffff' }}>
+            <div className='flex items-center gap-2 px-3 py-2.5 rounded-xl mb-3 shadow-sm' style={{ border: '1px solid var(--selago)', background: 'var(--surface-card)' }}>
                 <Loader2 className='w-3.5 h-3.5 animate-spin' style={{ color: 'var(--endeavour)' }} />
                 <span style={{ fontSize: '0.65rem', color: 'var(--regent-gray)' }}>Checking alerts…</span>
             </div>
@@ -185,9 +185,9 @@ const AIAlertsBar = () => {
     const hasAny = counts.balance > 0 || counts.due > 0 || counts.marginAlerts > 0 || counts.recentReminders > 0;
     if (!hasAny) {
         return (
-            <div className='flex items-center gap-2 px-3 py-2 rounded-xl mb-3' style={{ border: '1px solid #86efac', background: '#f0fdf4' }}>
-                <AlertTriangle className='w-3.5 h-3.5' style={{ color: '#16a34a' }} />
-                <span style={{ fontSize: '0.65rem', color: '#15803d', fontWeight: 600 }}>
+            <div className='flex items-center gap-2 px-3 py-2 rounded-xl mb-3' style={{ border: '1px solid var(--ok-border)', background: 'var(--ok-soft)' }}>
+                <AlertTriangle className='w-3.5 h-3.5' style={{ color: 'var(--ok-text)' }} />
+                <span style={{ fontSize: '0.65rem', color: 'var(--ok-strong)', fontWeight: 600 }}>
                     All clear — no outstanding receivables or margin alerts.
                 </span>
             </div>
@@ -197,7 +197,7 @@ const AIAlertsBar = () => {
     return (
         <div
             className='flex flex-wrap items-center gap-2 px-3 py-2.5 rounded-xl mb-3 shadow-sm'
-            style={{ border: '1px solid var(--selago)', background: '#ffffff' }}
+            style={{ border: '1px solid var(--selago)', background: 'var(--surface-card)' }}
             role='region'
             aria-label='AI alerts summary'
         >

@@ -3,11 +3,13 @@
 ===================================================== */
 :root {
   --ui-font-size: 0.78rem;
-  --ui-font-color: #1f2937; /* slate-800 */
-  --ui-muted-color: #6b7280;
+  /* Neutral aliases — resolve through the themable base layer in globals.css
+     so dark mode flips every global-table style automatically. */
+  --ui-font-color: var(--text-strong);
+  --ui-muted-color: var(--text-mid);
 
-  --ui-bg: #ffffff;
-  --ui-border: #d1d5db;
+  --ui-bg: var(--surface-card);
+  --ui-border: var(--border-neutral-strong);
 
   --ui-primary: var(--endeavour);
   --ui-primary-soft: var(--selago);

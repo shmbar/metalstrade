@@ -511,7 +511,7 @@ const Margins = () => {
                         <VideoLoader loading={loading} fullScreen={true} />
 
                         {/* Main Card */}
-                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-xl w-full bg-white">
+                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-card)]">
 
                             {/* Header Section */}
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
@@ -522,7 +522,7 @@ const Margins = () => {
                                 <div className='flex items-center gap-3'>
                                     {/* Margin alert threshold — flags items whose total margin (profit) is at/below this amount */}
                                     <div className='flex items-center gap-1.5' title='Flag items whose Total Margin (profit) is at or below this amount. 0 = flag zero/negative profit.'>
-                                        <AlertTriangle className='w-3 h-3' style={{ color: '#f59e0b' }} />
+                                        <AlertTriangle className='w-3 h-3' style={{ color: 'var(--warn-text)' }} />
                                         <span className='text-xs font-medium whitespace-nowrap' style={{ color: 'var(--chathams-blue)', fontSize: '0.65rem' }}>Alert if total margin ≤</span>
                                         <input
                                             type='number'
@@ -546,21 +546,21 @@ const Margins = () => {
 
                             {/* Margin Alert Banner */}
                             {!loading && !alertDismissed && alertedItems.length > 0 && (
-                                <div className='rounded-xl mb-3 overflow-hidden' style={{ border: '1px solid #ffc107', background: '#fff3cd' }} role='alert' aria-live='polite'>
+                                <div className='rounded-xl mb-3 overflow-hidden' style={{ border: '1px solid #ffc107', background: 'var(--surface-card)3cd' }} role='alert' aria-live='polite'>
                                     <div className='flex items-center justify-between px-3 py-2'>
                                         <div className='flex items-center gap-2'>
-                                            <AlertTriangle className='w-4 h-4 flex-shrink-0' style={{ color: '#d97706' }} />
-                                            <span className='font-medium' style={{ fontSize: '0.72rem', color: '#92400e' }}>
+                                            <AlertTriangle className='w-4 h-4 flex-shrink-0' style={{ color: 'var(--warn-text)' }} />
+                                            <span className='font-medium' style={{ fontSize: '0.72rem', color: 'var(--warn-strong)' }}>
                                                 {alertedItems.length} item{alertedItems.length > 1 ? 's' : ''} with total margin ≤ {Number(threshold).toLocaleString()}
                                             </span>
                                             <div className='flex flex-wrap gap-1'>
                                                 {alertedItems.slice(0, 3).map((item, i) => (
-                                                    <span key={i} className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.58rem', background: '#fde68a', color: '#78350f' }}>
+                                                    <span key={i} className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.58rem', background: 'var(--warn-border)', color: 'var(--warn-strong)' }}>
                                                         {item.description || 'Item'} · {Number(item.totalMarginVal || 0).toLocaleString()} ({item.month})
                                                     </span>
                                                 ))}
                                                 {alertedItems.length > 3 && (
-                                                    <span className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.58rem', background: '#fde68a', color: '#78350f' }}>
+                                                    <span className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.58rem', background: 'var(--warn-border)', color: 'var(--warn-strong)' }}>
                                                         +{alertedItems.length - 3} more
                                                     </span>
                                                 )}
@@ -571,7 +571,7 @@ const Margins = () => {
                                                 onClick={handleExplainAlerts}
                                                 disabled={explaining}
                                                 className='flex items-center gap-1 px-2.5 py-1 rounded-full text-white transition-all disabled:opacity-60'
-                                                style={{ fontSize: '0.62rem', background: '#d97706' }}
+                                                style={{ fontSize: '0.62rem', background: 'var(--warn-text)' }}
                                             >
                                                 {explaining ? <Loader2 className='w-3 h-3 animate-spin' /> : null}
                                                 Explain with AI
@@ -583,9 +583,9 @@ const Margins = () => {
                                             <button
                                                 onClick={() => setAlertDismissed(true)}
                                                 aria-label='Dismiss margin alert banner'
-                                                className='p-1 rounded-full hover:bg-[#fde68a] transition-colors focus:outline-none focus:ring-2 focus:ring-[#d97706]/40'
+                                                className='p-1 rounded-full hover:bg-[var(--warn-border)] transition-colors focus:outline-none focus:ring-2 focus:ring-[rgba(var(--warn-text-rgb),0.4)]'
                                             >
-                                                <X className='w-3.5 h-3.5' style={{ color: '#92400e' }} aria-hidden='true' />
+                                                <X className='w-3.5 h-3.5' style={{ color: 'var(--warn-strong)' }} aria-hidden='true' />
                                             </button>
                                         </div>
                                     </div>
@@ -594,16 +594,16 @@ const Margins = () => {
                                             <div
                                                 ref={explainScrollRef}
                                                 className='rounded-lg p-2.5 overflow-y-auto'
-                                                style={{ background: 'white', border: '1px solid #fde68a', minHeight: '48px', maxHeight: '320px' }}
+                                                style={{ background: 'var(--surface-card)', border: '1px solid var(--warn-border)', minHeight: '48px', maxHeight: '320px' }}
                                             >
                                                 {explanation ? (
-                                                    <p className='whitespace-pre-wrap' style={{ fontSize: '0.68rem', color: '#78350f', lineHeight: '1.5' }}>
+                                                    <p className='whitespace-pre-wrap' style={{ fontSize: '0.68rem', color: 'var(--warn-strong)', lineHeight: '1.5' }}>
                                                         {explanation}
                                                     </p>
                                                 ) : explaining ? (
                                                     <div className='flex items-center gap-2'>
-                                                        <Loader2 className='w-3 h-3 animate-spin' style={{ color: '#d97706' }} />
-                                                        <span style={{ fontSize: '0.65rem', color: '#92400e' }}>Analyzing margins…</span>
+                                                        <Loader2 className='w-3 h-3 animate-spin' style={{ color: 'var(--warn-text)' }} />
+                                                        <span style={{ fontSize: '0.65rem', color: 'var(--warn-strong)' }}>Analyzing margins…</span>
                                                     </div>
                                                 ) : null}
                                             </div>
@@ -616,14 +616,14 @@ const Margins = () => {
                                             <button
                                                 onClick={() => setHistoryOpen(o => !o)}
                                                 className='flex items-center gap-1 text-left'
-                                                style={{ fontSize: '0.62rem', color: '#92400e', fontWeight: 600 }}
+                                                style={{ fontSize: '0.62rem', color: 'var(--warn-strong)', fontWeight: 600 }}
                                                 aria-expanded={historyOpen}
                                             >
                                                 {historyOpen ? <ChevronUp className='w-3 h-3' /> : <ChevronDown className='w-3 h-3' />}
                                                 Alert trend across {alertHistory.length} month{alertHistory.length !== 1 ? 's' : ''}
                                             </button>
                                             {historyOpen && (
-                                                <div className='rounded-lg p-2 mt-1.5' style={{ background: 'white', border: '1px solid #fde68a' }}>
+                                                <div className='rounded-lg p-2 mt-1.5' style={{ background: 'var(--surface-card)', border: '1px solid var(--warn-border)' }}>
                                                     <div className='flex items-end gap-1.5 mb-2' style={{ height: '40px' }}>
                                                         {(() => {
                                                             const max = Math.max(...alertHistory.map(h => h.count), 1);
@@ -633,16 +633,16 @@ const Margins = () => {
                                                                     <div key={h.month} className='flex-1 flex flex-col items-center gap-0.5' title={`Month ${h.month}: ${h.count} alert(s)`}>
                                                                         <div className='w-full rounded-t' style={{
                                                                             height: `${Math.max(heightPct, 8)}%`,
-                                                                            background: h.count >= 5 ? '#dc2626' : h.count >= 3 ? '#f59e0b' : '#fbbf24',
+                                                                            background: h.count >= 5 ? 'var(--danger-text)' : h.count >= 3 ? 'var(--warn-text)' : 'var(--warn-border)',
                                                                             minHeight: '4px'
                                                                         }} />
-                                                                        <span style={{ fontSize: '0.5rem', color: '#92400e' }}>{h.month}</span>
+                                                                        <span style={{ fontSize: '0.5rem', color: 'var(--warn-strong)' }}>{h.month}</span>
                                                                     </div>
                                                                 );
                                                             });
                                                         })()}
                                                     </div>
-                                                    <p style={{ fontSize: '0.55rem', color: '#78350f', textAlign: 'center' }}>
+                                                    <p style={{ fontSize: '0.55rem', color: 'var(--warn-strong)', textAlign: 'center' }}>
                                                         Months with alerts (bar height = count). Tap above to see current items.
                                                     </p>
                                                 </div>
@@ -692,12 +692,12 @@ const Margins = () => {
                                         </span>
                                     ) : dirty ? (
                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
-                                            style={{ fontSize: '0.62rem', background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a' }}>
+                                            style={{ fontSize: '0.62rem', background: 'var(--surface-card)beb', color: 'var(--warn-strong)', border: '1px solid var(--warn-border)' }}>
                                             <AlertTriangle className="w-3 h-3" /> Unsaved — autosaving…
                                         </span>
                                     ) : savedFlash ? (
                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
-                                            style={{ fontSize: '0.62rem', background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>
+                                            style={{ fontSize: '0.62rem', background: 'var(--ok-soft)', color: 'var(--ok-strong)', border: '1px solid var(--ok-border)' }}>
                                             ✓ Saved
                                         </span>
                                     ) : null}

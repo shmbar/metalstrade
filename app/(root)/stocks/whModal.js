@@ -244,7 +244,7 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
             <div className={`${showBlock ? 'flex' : 'hidden'} gap-4 px-3 pb-2 mx-3 mb-2 rounded-2xl border border-[var(--border-divider)] p-3`} style={{ background: 'var(--surface-pill)' }}>
                 <div className='flex flex-col'>
                     <p className={labelCls}>{getTtl('Weight', ln)}</p>
-                    <input type='text' className={inputCls + ' w-24 !bg-white'} name='qnty' value={addComma(newItemStock.qnty, false)} onChange={e => handleValueQnty1(e)} />
+                    <input type='text' className={inputCls + ' w-24 !bg-[var(--surface-card)]'} name='qnty' value={addComma(newItemStock.qnty, false)} onChange={e => handleValueQnty1(e)} />
                 </div>
                 <div className='flex flex-col w-48'>
                     <p className={labelCls}>{getTtl('Stock', ln)}:</p>

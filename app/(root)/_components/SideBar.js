@@ -179,7 +179,7 @@ export default function Sidebar() {
       {/* Collapse/Expand button */}
       <button
         onClick={() => setCollapsed((c) => !c)}
-        className="absolute z-20 bg-white shadow rounded-full w-7 h-7 flex items-center justify-center"
+        className="absolute z-20 bg-[var(--surface-card)] shadow rounded-full w-7 h-7 flex items-center justify-center"
         style={{ top: "clamp(56px, 7vh, 80px)", right: 0, transition: "transform 0.2s" }}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
@@ -446,7 +446,7 @@ export default function Sidebar() {
             }}>
               <div style={{
                 display: "flex", alignItems: "center",
-                background: "#fff", borderRadius: "999px",
+                background: "var(--surface-card)", borderRadius: "999px",
                 boxShadow: "0 2px 8px 0 rgba(44,130,201,0.10)",
                 padding: collapsed ? "4px" : "4px 14px 4px 8px",
                 minWidth: 0, width: "100%", maxWidth: 260, gap: collapsed ? 0 : 10,

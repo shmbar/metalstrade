@@ -31,7 +31,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
           <tr
             style={{
               background: "var(--selago)",
-              borderBottom: "1px solid #e0e0e0",
+              borderBottom: "1px solid var(--border-neutral)",
             }}
           >
             <th
@@ -120,8 +120,8 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
               <tr
                 key={i}
                 style={{
-                  borderBottom: "1px solid #e0e0e0",
-                  background: i % 2 === 0 ? "#fff" : "#f9f9f9",
+                  borderBottom: "1px solid var(--border-neutral)",
+                  background: i % 2 === 0 ? "#fff" : "var(--surface-base)",
                   transition: "background-color 150ms ease-in-out",
                 }}
               >

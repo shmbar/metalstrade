@@ -98,8 +98,8 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
     const watermark = gisAccount ? '/logo/gisBlur.jpg' : '/logo/imsblur1.jpeg';
 
     const status = balance === 0 ? 'PAID' : paid > 0 ? 'PARTIALLY PAID' : 'UNPAID';
-    const statusBg = balance === 0 ? '#dcfce7' : paid > 0 ? '#fef3c7' : '#fee2e2';
-    const statusFg = balance === 0 ? '#16a34a' : paid > 0 ? '#d97706' : '#dc2626';
+    const statusBg = balance === 0 ? 'var(--ok-bg)' : paid > 0 ? 'var(--warn-bg)' : 'var(--danger-bg)';
+    const statusFg = balance === 0 ? 'var(--ok-text)' : paid > 0 ? 'var(--warn-text)' : 'var(--danger-text)';
 
     return (
         <Dialog open={!!inv} onOpenChange={onClose}>
@@ -128,7 +128,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                         <span style={{ color: '#cbd5e1' }}>•</span>
                         <span><span style={{ color: 'var(--regent-gray)' }}>Paid:</span> <strong style={{ color: 'var(--chathams-blue)' }}>{fmtAmt(paid)}</strong></span>
                         <span style={{ color: '#cbd5e1' }}>•</span>
-                        <span><span style={{ color: 'var(--regent-gray)' }}>Balance:</span> <strong style={{ color: balance > 0 ? '#dc2626' : '#16a34a' }}>{fmtAmt(balance)}</strong></span>
+                        <span><span style={{ color: 'var(--regent-gray)' }}>Balance:</span> <strong style={{ color: balance > 0 ? 'var(--danger-text)' : 'var(--ok-text)' }}>{fmtAmt(balance)}</strong></span>
                     </div>
                     <span style={{
                         padding: '3px 10px', borderRadius: '12px',
@@ -139,7 +139,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
 
                 <div className="overflow-y-auto flex-1" style={{ background: 'var(--selago)' }}>
                     <div className="mx-auto my-4" style={{
-                        background: '#fff',
+                        background: 'var(--surface-card)',
                         width: 'calc(100% - 32px)',
                         maxWidth: '800px',
                         boxShadow: '0 2px 16px rgba(0,0,0,0.10)',
@@ -204,7 +204,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                     // open. It's a viewer hint, not guaranteed on every browser, but covers
                                     // the common ones and the user can still open the panel themselves.
                                     <iframe title={primaryFile.name} src={`${primaryFile.url}#toolbar=1&navpanes=0`}
-                                        style={{ width: '100%', height: '68vh', border: '1px solid var(--border-cell)', borderRadius: '6px', background: '#fff' }} />
+                                        style={{ width: '100%', height: '68vh', border: '1px solid var(--border-cell)', borderRadius: '6px', background: 'var(--surface-card)' }} />
                                 ) : isImage(primaryFile.name) ? (
                                     <img src={primaryFile.url} alt={primaryFile.name}
                                         style={{ display: 'block', maxWidth: '100%', margin: '0 auto', borderRadius: '6px', border: '1px solid var(--border-cell)' }} />
@@ -239,7 +239,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                         <tr>
                                             <td colSpan={3} />
                                             <td className="text-left text-[10px] px-2" style={{ padding: '4px 8px', whiteSpace: 'nowrap' }}>Balance:</td>
-                                            <td className="text-right text-[10px] px-2" style={{ padding: '4px 8px', color: balance > 0 ? '#dc2626' : '#16a34a' }}>{fmtAmt(balance)}</td>
+                                            <td className="text-right text-[10px] px-2" style={{ padding: '4px 8px', color: balance > 0 ? 'var(--danger-text)' : 'var(--ok-text)' }}>{fmtAmt(balance)}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -250,7 +250,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                     <FileUploader handleChange={handleUpload} name="file" types={['PDF', 'PNG', 'JPG', 'JPEG']} disabled={uploading || !contractId} />
                                 </div>
                                 {uploading && <p style={{ marginTop: '8px', textAlign: 'center', fontSize: '10px', color: 'var(--endeavour)' }}>Uploading…</p>}
-                                {uploadErr && <p style={{ marginTop: '8px', textAlign: 'center', fontSize: '10px', color: '#dc2626' }}>{uploadErr}</p>}
+                                {uploadErr && <p style={{ marginTop: '8px', textAlign: 'center', fontSize: '10px', color: 'var(--danger-text)' }}>{uploadErr}</p>}
                             </div>
                         )}
 
@@ -317,8 +317,8 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
     const totalPaid = (inv.payments || []).reduce((s, p) => s + (p.pmnt * 1 || 0), 0);
     const dbBalance = inv.debtBlnc != null ? (inv.debtBlnc * 1) : (totalAmt - totalPaid);
     const cStatus = dbBalance === 0 ? 'PAID' : totalPaid > 0 ? 'PARTIALLY PAID' : 'UNPAID';
-    const cStatusBg = dbBalance === 0 ? '#dcfce7' : totalPaid > 0 ? '#fef3c7' : '#fee2e2';
-    const cStatusFg = dbBalance === 0 ? '#16a34a' : totalPaid > 0 ? '#d97706' : '#dc2626';
+    const cStatusBg = dbBalance === 0 ? 'var(--ok-bg)' : totalPaid > 0 ? 'var(--warn-bg)' : 'var(--danger-bg)';
+    const cStatusFg = dbBalance === 0 ? 'var(--ok-text)' : totalPaid > 0 ? 'var(--warn-text)' : 'var(--danger-text)';
 
     const TH = 'text-left text-[10px] font-semibold py-2 px-2 text-white';
     const TH_R = 'text-right text-[10px] font-semibold py-2 px-2 text-white';
@@ -376,7 +376,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         <span style={{ color: '#cbd5e1' }}>•</span>
                         <span><span style={{ color: 'var(--regent-gray)' }}>Paid:</span> <strong style={{ color: 'var(--chathams-blue)' }}>{fmtAmt(totalPaid)}</strong></span>
                         <span style={{ color: '#cbd5e1' }}>•</span>
-                        <span><span style={{ color: 'var(--regent-gray)' }}>Balance:</span> <strong style={{ color: dbBalance > 0 ? '#dc2626' : '#16a34a' }}>{fmtAmt(dbBalance)}</strong></span>
+                        <span><span style={{ color: 'var(--regent-gray)' }}>Balance:</span> <strong style={{ color: dbBalance > 0 ? 'var(--danger-text)' : 'var(--ok-text)' }}>{fmtAmt(dbBalance)}</strong></span>
                     </div>
                     <div className="flex items-center gap-2">
                         <button
@@ -404,7 +404,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                 {/* Scrollable document area */}
                 <div className="overflow-y-auto flex-1" style={{ background: 'var(--selago)' }}>
                     <div className="mx-auto my-4" style={{
-                        background: '#fff',
+                        background: 'var(--surface-card)',
                         width: 'calc(100% - 32px)',
                         maxWidth: '800px',
                         boxShadow: '0 2px 16px rgba(0,0,0,0.10)',

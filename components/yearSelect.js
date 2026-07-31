@@ -9,7 +9,7 @@ const YearSelect = ({yr, setYr}) => {
     return (
         <Menu>
             <MenuButton className='border border-[var(--endeavour)] rounded-full p-2 text-[var(--endeavour)] text-sm px-3 font-poppins text-xs'>{yr}</MenuButton>
-            <MenuItems anchor="bottom" className='z-50 border border-[var(--endeavour)] rounded-full p-2 mt-1 bg-white font-poppins text-xs'>
+            <MenuItems anchor="bottom" className='z-50 border border-[var(--endeavour)] rounded-full p-2 mt-1 bg-[var(--surface-card)] font-poppins text-xs'>
                 {yrArr.map(z => {
                     return (
                         <MenuItem className='text-[var(--endeavour)] font-poppins text-xs' key={z} >

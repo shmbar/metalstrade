@@ -57,7 +57,7 @@ const Page = () => {
                                 <Tab.Panel
                                     key={idx}
                                     className={classNames(
-                                        'rounded-xl bg-white', ' focus:outline-none'
+                                        'rounded-xl bg-[var(--surface-card)]', ' focus:outline-none'
                                     )}
                                 >
                                     {SetDiv(idx)}

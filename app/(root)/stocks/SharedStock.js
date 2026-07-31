@@ -150,7 +150,7 @@ const SharedStock = () => {
             accessorKey: 'ownersLabel', header: 'Owners',
             cell: p => (
                 <span className='inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap'
-                    style={{ fontSize: '0.6rem', background: '#eef2ff', color: '#3730a3', border: '1px solid #c7d2fe' }}>
+                    style={{ fontSize: '0.6rem', background: 'var(--violet-soft)', color: 'var(--violet-strong)', border: '1px solid var(--violet-border)' }}>
                     <Share2 className='w-2.5 h-2.5' />{p.getValue()}
                 </span>
             ),
@@ -161,9 +161,9 @@ const SharedStock = () => {
                 <span className='inline-flex items-center px-2 py-0.5 rounded-full font-semibold whitespace-nowrap'
                     style={{
                         fontSize: '0.6rem',
-                        background: p.getValue() === 'IMS' ? '#ecfdf5' : p.getValue() === 'GIS' ? '#fff7ed' : '#f1f5f9',
-                        color: p.getValue() === 'IMS' ? '#047857' : p.getValue() === 'GIS' ? '#b45309' : '#475569',
-                        border: `1px solid ${p.getValue() === 'IMS' ? '#a7f3d0' : p.getValue() === 'GIS' ? '#fed7aa' : '#cbd5e1'}`,
+                        background: p.getValue() === 'IMS' ? 'var(--ok-soft)' : p.getValue() === 'GIS' ? 'var(--warn-soft)' : '#f1f5f9',
+                        color: p.getValue() === 'IMS' ? 'var(--ok-strong)' : p.getValue() === 'GIS' ? 'var(--warn-strong)' : 'var(--text-mid)',
+                        border: `1px solid ${p.getValue() === 'IMS' ? 'var(--ok-border)' : p.getValue() === 'GIS' ? 'var(--warn-bg)' : '#cbd5e1'}`,
                     }}>
                     {p.getValue()}
                 </span>
@@ -271,7 +271,7 @@ const SharedStock = () => {
             </div>
 
             {rows.length === 0 ? (
-                <div className='rounded-2xl border border-dashed border-[var(--border-divider)] bg-white p-8 text-center responsiveTextTable text-[var(--regent-gray)]'>
+                <div className='rounded-2xl border border-dashed border-[var(--border-divider)] bg-[var(--surface-card)] p-8 text-center responsiveTextTable text-[var(--regent-gray)]'>
                     No shared stock yet. Use <b>Add shared stock</b> to record inventory jointly held by IMS &amp; GIS —
                     no contract or invoice needed. It appears here for both accounts.
                 </div>

@@ -90,7 +90,7 @@ const StorageAging = ({ data = [] }) => {
 
     if (!data?.length) return null;
 
-    const bucketColor = { '0-30': '#16a34a', '31-60': 'var(--endeavour)', '61-90': '#d97706', '90+': '#dc2626' };
+    const bucketColor = { '0-30': 'var(--ok-text)', '31-60': 'var(--endeavour)', '61-90': 'var(--warn-text)', '90+': 'var(--danger-text)' };
 
     return (
         <div className='w-full mt-6'>
@@ -98,7 +98,7 @@ const StorageAging = ({ data = [] }) => {
                 <Warehouse className='w-4 h-4' style={{ color: 'var(--chathams-blue)' }} />
                 <h3 className='responsiveTextTitle font-medium text-[var(--chathams-blue)]'>Storage Aging by Terminal</h3>
                 {staleRows.length > 0 && (
-                    <span className='flex items-center gap-1 px-2 py-0.5 rounded-full' style={{ fontSize: '0.6rem', background: '#fee2e2', color: '#991b1b' }}>
+                    <span className='flex items-center gap-1 px-2 py-0.5 rounded-full' style={{ fontSize: '0.6rem', background: 'var(--danger-bg)', color: 'var(--danger-strong)' }}>
                         <AlertTriangle className='w-3 h-3' /> {staleRows.length} sitting {STALE_DAYS}d+
                     </span>
                 )}
@@ -110,10 +110,10 @@ const StorageAging = ({ data = [] }) => {
                     const danger = g.oldest >= DEMURRAGE_DAYS;
                     const warn = g.oldest >= STALE_DAYS;
                     return (
-                        <div key={g.terminal} className='rounded-2xl border p-3' style={{ borderColor: danger ? '#fca5a5' : warn ? '#fde68a' : 'var(--border-divider)', background: 'white' }}>
+                        <div key={g.terminal} className='rounded-2xl border p-3' style={{ borderColor: danger ? 'var(--danger-border)' : warn ? 'var(--warn-border)' : 'var(--border-divider)', background: 'var(--surface-card)' }}>
                             <div className='flex items-center justify-between mb-1.5'>
                                 <span className='font-medium responsiveText text-[var(--chathams-blue)] truncate'>{g.name}</span>
-                                <span className='flex items-center gap-1' style={{ fontSize: '0.6rem', color: danger ? '#dc2626' : warn ? '#d97706' : 'var(--regent-gray)' }}>
+                                <span className='flex items-center gap-1' style={{ fontSize: '0.6rem', color: danger ? 'var(--danger-text)' : warn ? 'var(--warn-text)' : 'var(--regent-gray)' }}>
                                     <Clock className='w-3 h-3' /> oldest {g.oldest}d
                                 </span>
                             </div>
@@ -143,17 +143,17 @@ const StorageAging = ({ data = [] }) => {
 
             {/* Stale cargo list */}
             {staleRows.length > 0 && (
-                <div className='mt-3 rounded-2xl border border-[#fde68a] bg-[#fffbeb] p-3'>
-                    <p className='font-medium mb-1.5' style={{ fontSize: '0.68rem', color: '#92400e' }}>
+                <div className='mt-3 rounded-2xl border border-[var(--warn-border)] bg-[var(--warn-soft)] p-3'>
+                    <p className='font-medium mb-1.5' style={{ fontSize: '0.68rem', color: 'var(--warn-strong)' }}>
                         Cargo sitting {STALE_DAYS}+ days without movement
                     </p>
                     <div className='flex flex-col gap-1 max-h-56 overflow-y-auto'>
                         {staleRows.slice(0, 100).map(r => (
-                            <div key={r.id} className='flex items-center justify-between gap-2 px-2 py-1 rounded-lg bg-white border border-[#fde68a]'>
+                            <div key={r.id} className='flex items-center justify-between gap-2 px-2 py-1 rounded-lg bg-[var(--surface-card)] border border-[var(--warn-border)]'>
                                 <span className='truncate' style={{ fontSize: '0.62rem', color: 'var(--port-gore)' }}>
                                     {r.descriptionName || 'Cargo'} · {stockName(r.stock)} · {fmtQty(r.qnty)}
                                 </span>
-                                <span className='flex-shrink-0 px-2 py-0.5 rounded-full' style={{ fontSize: '0.55rem', background: r._days >= DEMURRAGE_DAYS ? '#fee2e2' : '#fef3c7', color: r._days >= DEMURRAGE_DAYS ? '#991b1b' : '#92400e' }}>
+                                <span className='flex-shrink-0 px-2 py-0.5 rounded-full' style={{ fontSize: '0.55rem', background: r._days >= DEMURRAGE_DAYS ? 'var(--danger-bg)' : 'var(--warn-bg)', color: r._days >= DEMURRAGE_DAYS ? 'var(--danger-strong)' : 'var(--warn-strong)' }}>
                                     {r._days}d{r._days >= DEMURRAGE_DAYS ? ' · demurrage risk' : ''}
                                 </span>
                             </div>

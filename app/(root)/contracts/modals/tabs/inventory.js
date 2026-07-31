@@ -151,7 +151,7 @@ const Inventory = () => {
                         x === 'remaining' ?
                             loading ? '' : (() => {
                                 const rem = setNum(totalInvWeight, valueCon, settings) - Total(data.slice(0, i + 1), 'productsDataInvoice', 'qnty');
-                                return <span style={{ color: rem > 0 ? '#dc2626' : undefined }}>{frm(rem)}</span>;
+                                return <span style={{ color: rem > 0 ? 'var(--danger-text)' : undefined }}>{frm(rem)}</span>;
                             })()
                             :
                             ''

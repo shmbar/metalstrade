@@ -9,12 +9,12 @@ const VideoLoader = ({ loading = true, fullScreen = true }) => {
   if (!loading) return null;
 
   const containerClasses = fullScreen
-    ? "fixed inset-0 flex items-center justify-center z-50 bg-white/60 backdrop-blur-[2px]"
+    ? "fixed inset-0 flex items-center justify-center z-50 bg-[rgba(var(--surface-card-rgb),0.6)] backdrop-blur-[2px]"
     : "flex items-center justify-center py-12";
 
   return (
     <div className={containerClasses} role="status" aria-label="Loading">
-      <div className="flex items-center gap-3 bg-white rounded-full shadow-lg border border-[var(--selago)] px-5 py-3">
+      <div className="flex items-center gap-3 bg-[var(--surface-card)] rounded-full shadow-lg border border-[var(--selago)] px-5 py-3">
         <div
           className="w-5 h-5 rounded-full border-[3px] border-[var(--surface-header)] animate-spin"
           style={{ borderTopColor: 'var(--endeavour)' }}

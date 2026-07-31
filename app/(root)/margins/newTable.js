@@ -465,7 +465,7 @@ const Customtable = (props) => {
                                                                     fixedDecimalScale
                                                                     className="text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]"
                                                                     style={{
-                                                                        color: ['openShip', 'remaining'].includes(accessorKey) && total > 0 ? '#dc2626' : 'var(--chathams-blue)',
+                                                                        color: ['openShip', 'remaining'].includes(accessorKey) && total > 0 ? 'var(--danger-text)' : 'var(--chathams-blue)',
                                                                         fontWeight: '500',
                                                                         lineHeight: '1.2'
                                                                     }}
@@ -488,7 +488,7 @@ const Customtable = (props) => {
                             data.map((row, rowIdx) => (
                                 <div 
                                     key={row.id || rowIdx} 
-                                    className="rounded-lg border border-[var(--selago)] bg-white shadow-sm overflow-hidden"
+                                    className="rounded-lg border border-[var(--selago)] bg-[var(--surface-card)] shadow-sm overflow-hidden"
                                 >
                                     {/* Compact Card Header */}
                                     <div className="bg-[var(--surface-header)] px-3 py-2 border-b border-[var(--border-divider)] flex justify-between items-center min-h-[32px]">
@@ -574,7 +574,7 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
 }
                                                             if (['purchase', 'description', 'margin', 'shipped'].includes(col.accessorKey)) {
                                                                 return (
-                                                                    <div className="w-full max-w-[100px] bg-[#fafafa]">
+                                                                    <div className="w-full max-w-[100px] bg-[var(--surface-base)]">
                                                                         <Input 
                                                                             props={{ 
                                                                                 row: { original: row }, 
@@ -608,7 +608,7 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                                         fixedDecimalScale
                                                                         className="responsiveTextTable"
                                                                         style={{
-                                                                            color: ['openShip', 'remaining'].includes(col.accessorKey) && Number(displayVal) > 0 ? '#dc2626' : 'var(--chathams-blue)',
+                                                                            color: ['openShip', 'remaining'].includes(col.accessorKey) && Number(displayVal) > 0 ? 'var(--danger-text)' : 'var(--chathams-blue)',
                                                                             fontWeight: '400',
                                                                             lineHeight: '1.2'
                                                                         }}

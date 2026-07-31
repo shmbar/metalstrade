@@ -133,7 +133,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
             aria-modal='true'
             aria-labelledby='reminder-modal-title'
         >
-            <div className='w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden' style={{ border: '1px solid var(--border-divider)', maxHeight: '92vh' }}>
+            <div className='w-full max-w-lg rounded-2xl bg-[var(--surface-card)] shadow-2xl overflow-hidden' style={{ border: '1px solid var(--border-divider)', maxHeight: '92vh' }}>
 
                 {/* Header */}
                 <div className='flex items-center justify-between px-4 py-3' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
@@ -162,14 +162,14 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                     {/* Last reminder notice */}
                     {lastReminder && (
                         <div className='flex items-center gap-2 px-3 py-2 rounded-lg' style={{
-                            background: onCooldown ? '#fef3c7' : '#f0fdf4',
-                            border: onCooldown ? '1px solid #fcd34d' : '1px solid #86efac'
+                            background: onCooldown ? 'var(--warn-bg)' : 'var(--ok-soft)',
+                            border: onCooldown ? '1px solid var(--warn-border)' : '1px solid var(--ok-border)'
                         }}>
                             {onCooldown
-                                ? <AlertTriangle className='w-3 h-3 flex-shrink-0' style={{ color: '#d97706' }} />
-                                : <CheckCircle2 className='w-3 h-3 flex-shrink-0' style={{ color: '#16a34a' }} />
+                                ? <AlertTriangle className='w-3 h-3 flex-shrink-0' style={{ color: 'var(--warn-text)' }} />
+                                : <CheckCircle2 className='w-3 h-3 flex-shrink-0' style={{ color: 'var(--ok-text)' }} />
                             }
-                            <span style={{ fontSize: '0.6rem', color: onCooldown ? '#92400e' : '#15803d' }}>
+                            <span style={{ fontSize: '0.6rem', color: onCooldown ? 'var(--warn-strong)' : 'var(--ok-strong)' }}>
                                 {onCooldown
                                     ? `Reminder sent ${Math.round(hoursSinceLastReminder)}h ago to ${lastReminder.to}. Wait ${cooldownHoursLeft}h to send another.`
                                     : `Last reminder sent ${new Date(lastReminder.sentAt).toLocaleDateString()} to ${lastReminder.to}`}
@@ -195,7 +195,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                             />
                         </div>
                         {!initialEmail && (
-                            <p style={{ fontSize: '0.57rem', color: '#d97706', marginTop: '3px' }}>
+                            <p style={{ fontSize: '0.57rem', color: 'var(--warn-text)', marginTop: '3px' }}>
                                 Add client email in Settings → Clients to pre-fill this field.
                             </p>
                         )}
@@ -248,7 +248,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                     {body && !sent && (
                         <label
                             className='flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors'
-                            style={{ background: attachSummary ? '#f0fdf4' : 'var(--surface-pill)', border: `1px solid ${attachSummary ? '#86efac' : 'var(--surface-header)'}` }}
+                            style={{ background: attachSummary ? 'var(--ok-soft)' : 'var(--surface-pill)', border: `1px solid ${attachSummary ? 'var(--ok-border)' : 'var(--surface-header)'}` }}
                         >
                             <input
                                 type='checkbox'
@@ -256,8 +256,8 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                                 onChange={e => setAttachSummary(e.target.checked)}
                                 className='cursor-pointer'
                             />
-                            <Paperclip className='w-3 h-3' style={{ color: attachSummary ? '#16a34a' : 'var(--regent-gray)' }} />
-                            <span style={{ fontSize: '0.62rem', color: attachSummary ? '#15803d' : 'var(--chathams-blue)' }}>
+                            <Paperclip className='w-3 h-3' style={{ color: attachSummary ? 'var(--ok-text)' : 'var(--regent-gray)' }} />
+                            <span style={{ fontSize: '0.62rem', color: attachSummary ? 'var(--ok-strong)' : 'var(--chathams-blue)' }}>
                                 Attach invoice summary PDF
                             </span>
                         </label>
@@ -265,17 +265,17 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
 
                     {/* Error */}
                     {error && (
-                        <div className='flex items-center gap-2 px-3 py-2 rounded-lg' style={{ background: '#fee2e2', border: '1px solid #fca5a5' }}>
-                            <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0' style={{ color: '#991b1b' }} />
-                            <span style={{ fontSize: '0.65rem', color: '#991b1b' }}>{error}</span>
+                        <div className='flex items-center gap-2 px-3 py-2 rounded-lg' style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)' }}>
+                            <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0' style={{ color: 'var(--danger-strong)' }} />
+                            <span style={{ fontSize: '0.65rem', color: 'var(--danger-strong)' }}>{error}</span>
                         </div>
                     )}
 
                     {/* Success */}
                     {sent && (
-                        <div className='flex items-center gap-2 px-3 py-2 rounded-lg' style={{ background: '#f0fdf4', border: '1px solid #86efac' }}>
-                            <CheckCircle2 className='w-3.5 h-3.5 flex-shrink-0' style={{ color: '#16a34a' }} />
-                            <span style={{ fontSize: '0.68rem', color: '#15803d', fontWeight: 600 }}>Reminder sent to {email}</span>
+                        <div className='flex items-center gap-2 px-3 py-2 rounded-lg' style={{ background: 'var(--ok-soft)', border: '1px solid var(--ok-border)' }}>
+                            <CheckCircle2 className='w-3.5 h-3.5 flex-shrink-0' style={{ color: 'var(--ok-text)' }} />
+                            <span style={{ fontSize: '0.68rem', color: 'var(--ok-strong)', fontWeight: 600 }}>Reminder sent to {email}</span>
                         </div>
                     )}
                 </div>
@@ -289,7 +289,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                     {!sent && body && (
                         <button onClick={send} disabled={sending || onCooldown || !email.trim() || !subject.trim() || !body.trim()}
                             className='flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed'
-                            style={{ fontSize: '0.65rem', background: onCooldown ? '#9ca3af' : 'var(--endeavour)' }}
+                            style={{ fontSize: '0.65rem', background: onCooldown ? 'var(--text-faint)' : 'var(--endeavour)' }}
                             title={onCooldown ? `Cooldown active — wait ${cooldownHoursLeft}h` : undefined}>
                             {sending ? <Loader2 className='w-3 h-3 animate-spin' /> : <Send className='w-3 h-3' />}
                             {sending ? 'Sending…' : onCooldown ? `Wait ${cooldownHoursLeft}h` : 'Send Reminder'}

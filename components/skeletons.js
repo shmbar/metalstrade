@@ -19,7 +19,7 @@ export const TableSkeleton = ({ rows = 9, title = true }) => (
                 <Bar w={95} h={10} />
             </div>
         )}
-        <div className="rounded-2xl bg-white shadow-md border border-[var(--selago)] overflow-hidden">
+        <div className="rounded-2xl bg-[var(--surface-card)] shadow-md border border-[var(--selago)] overflow-hidden">
             <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--selago)] flex-wrap">
                 <Bar w={140} h={26} className="rounded-full" />
                 <Bar w={95} h={26} className="rounded-full" />
@@ -59,7 +59,7 @@ export const CardsSkeleton = () => (
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-4">
             {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-2xl bg-white shadow-md border border-[var(--selago)] p-4">
+                <div key={i} className="rounded-2xl bg-[var(--surface-card)] shadow-md border border-[var(--selago)] p-4">
                     <Bar w="55%" h={10} className="mb-3" />
                     <Bar w="75%" h={20} className="mb-2" />
                     <Bar w="40%" h={9} />
@@ -67,7 +67,7 @@ export const CardsSkeleton = () => (
             ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-            <div className="lg:col-span-2 rounded-2xl bg-white shadow-md border border-[var(--selago)] p-5">
+            <div className="lg:col-span-2 rounded-2xl bg-[var(--surface-card)] shadow-md border border-[var(--selago)] p-5">
                 <Bar w={160} h={13} className="mb-5" />
                 <div className="flex items-end gap-2" style={{ height: 180 }}>
                     {[60, 100, 75, 130, 90, 150, 110, 70, 125, 95, 140, 85].map((h, i) => (
@@ -75,7 +75,7 @@ export const CardsSkeleton = () => (
                     ))}
                 </div>
             </div>
-            <div className="rounded-2xl bg-white shadow-md border border-[var(--selago)] p-5">
+            <div className="rounded-2xl bg-[var(--surface-card)] shadow-md border border-[var(--selago)] p-5">
                 <Bar w={130} h={13} className="mb-5" />
                 {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="flex items-center gap-3 py-2.5">

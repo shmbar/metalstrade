@@ -122,7 +122,7 @@ export function QuickSumButton({
             ref={triggerRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="h-7 px-2 rounded-2xl text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium transition-all bg-white text-[var(--port-gore)] border border-[var(--border-divider)] hover:border-[var(--border-divider)]"
+            className="h-7 px-2 rounded-2xl text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium transition-all bg-[var(--surface-card)] text-[var(--port-gore)] border border-[var(--border-divider)] hover:border-[var(--border-divider)]"
             title="Choose columns"
           >
             Columns ▾
@@ -136,7 +136,7 @@ export function QuickSumButton({
               />
               <div
                 style={dropdownStyle}
-                className="bg-white border border-[var(--border-divider)] rounded-xl shadow-lg p-3"
+                className="bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-xl shadow-lg p-3"
               >
                 <div className="text-sm font-medium text-[var(--port-gore)] mb-2 pl-1">
                   Select numeric columns
@@ -210,7 +210,7 @@ export function QuickSumTotals({
   if (selectedCount === 0) return null;
 
   return (
-    <div className="inline-flex flex-wrap items-center gap-1.5 text-xs text-[var(--port-gore)] border border-[var(--endeavour)] rounded-2xl bg-white px-3 py-1.5 shadow-sm">
+    <div className="inline-flex flex-wrap items-center gap-1.5 text-xs text-[var(--port-gore)] border border-[var(--endeavour)] rounded-2xl bg-[var(--surface-card)] px-3 py-1.5 shadow-sm">
       <span className="font-semibold text-[var(--endeavour)]">{selectedCount} selected</span>
       <span className="text-[var(--rock-blue)]">|</span>
       {(totals || []).map((t) => {
@@ -225,7 +225,7 @@ export function QuickSumTotals({
           if (t.byCurrency.EUR != null) parts.push(`€${fmt(t.byCurrency.EUR)}`);
           if (t.byCurrency.plain != null) parts.push(fmt(t.byCurrency.plain));
           return (
-            <span key={t.id} className="bg-white border border-[var(--border-divider)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
+            <span key={t.id} className="bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
               {label}: <span className="text-[var(--endeavour)]">{parts.join(' | ')}</span>
             </span>
           );
@@ -233,7 +233,7 @@ export function QuickSumTotals({
 
         // Single currency / plain number
         return (
-          <span key={t.id} className="bg-white border border-[var(--border-divider)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
+          <span key={t.id} className="bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
             {label}: <span className="text-[var(--endeavour)]">{fmt(t.total)}</span>
           </span>
         );

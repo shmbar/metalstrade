@@ -297,7 +297,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                 onClick={writeOffSelected}
                 className="whiteButton whitespace-nowrap"
                 style={armed
-                  ? { background: '#dc2626', color: '#fff', borderColor: '#dc2626' }
+                  ? { background: 'var(--danger-text)', color: '#fff', borderColor: 'var(--danger-text)' }
                   : { background: 'var(--chathams-blue)', color: '#fff', borderColor: 'var(--border-divider)' }}
               >
                 {writing ? 'Writing off…'
@@ -335,7 +335,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                   {audit.left.map(g => {
                     const k = keyOf(g)
                     return (
-                      <tr key={k} style={sel.includes(k) ? { background: '#fff7ed' } : undefined}>
+                      <tr key={k} style={sel.includes(k) ? { background: 'var(--surface-card)7ed' } : undefined}>
                         <td style={cellTd}>
                           <input type="checkbox" className="w-3.5 h-3.5 accent-[var(--endeavour)] align-middle"
                             checked={sel.includes(k)} onChange={() => toggleSel(k)} />
@@ -415,7 +415,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                       <td style={cellTd}>{g.stockNm}</td>
                       <td style={cellTd}>{fmtQ(g.inQty)}</td>
                       <td style={cellTd}>{fmtQ(g.outQty)}</td>
-                      <td style={{ ...cellTd, color: '#dc2626', fontWeight: 500 }}>{fmtQ(g.outQty - g.inQty)}</td>
+                      <td style={{ ...cellTd, color: 'var(--danger-text)', fontWeight: 500 }}>{fmtQ(g.outQty - g.inQty)}</td>
                       <td style={cellTd}>{g.inRows}</td>
                       <td style={cellTd}>{g.outRows}</td>
                       <td style={cellTd}><ShortId id={g.descId} /></td>

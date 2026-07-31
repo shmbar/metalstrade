@@ -96,7 +96,7 @@ const EditableCell = ({
                         onKeyDown={handleKeyDown}
                         onBlur={handleBlur}
                         disabled={isSaving}
-                        className="w-full px-2 py-1 text-xs border border-blue-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                        className="w-full px-2 py-1 text-xs border border-blue-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-[var(--surface-card)]"
                     >
                         <option value="">-</option>
                         {options.map((opt) => (

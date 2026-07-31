@@ -151,7 +151,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
     >
       <Listbox.Options
         static
-        className="z-[9999] max-h-48 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg focus:outline-none border border-[var(--surface-header)] custom-scrollbar"
+        className="z-[9999] max-h-48 overflow-auto rounded-xl bg-[var(--surface-card)] py-1 text-xs shadow-lg focus:outline-none border border-[var(--surface-header)] custom-scrollbar"
         style={{
           position: "absolute",
           ...(dropUp
@@ -197,7 +197,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
 
   // Custom scrollbar styles (add to your global CSS or Tailwind config)
   // .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-  // .custom-scrollbar::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 8px; }
+  // .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border-neutral); border-radius: 8px; }
 
   return (
     <div className="relative w-full">

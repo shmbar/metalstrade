@@ -252,14 +252,14 @@ const Customtable = ({
     const hdrBg = (colId) => {
         if (colId === 'material' || colId === 'kgs' || colId === 'container') return 'var(--border-cell)'
         if (colId === 'fe') return 'var(--surface-header)'
-        if (colId === 'costPmt' || colId === 'costTotal') return '#dcfce7'
-        return '#fde8e8'
+        if (colId === 'costPmt' || colId === 'costTotal') return 'var(--ok-bg)'
+        return 'var(--danger-soft)'
     }
     const ftrBg = (colId) => {
         if (colId === 'material' || colId === 'kgs' || colId === 'container') return 'var(--border-cell)'
         if (colId === 'fe') return 'var(--border-divider)'
-        if (colId === 'costPmt' || colId === 'costTotal') return '#bbf7d0'
-        return '#fdd6d6'
+        if (colId === 'costPmt' || colId === 'costTotal') return 'var(--ok-border)'
+        return 'var(--danger-bg)'
     }
 
     const headers = table.getHeaderGroups()[0]?.headers ?? []
@@ -293,7 +293,7 @@ const Customtable = ({
 
             {/* ── Toolbar ── */}
             {showHeader && (
-                <div className="flex-shrink-0" style={{ borderBottom: '2px solid var(--selago)', background: 'linear-gradient(90deg,rgba(255,255,255,.95),rgba(250,250,250,.98))', borderTopLeftRadius: '1rem', borderTopRightRadius: '1rem' }}>
+                <div className="flex-shrink-0" style={{ borderBottom: '2px solid var(--selago)', background: 'linear-gradient(90deg,rgba(var(--surface-card-rgb),.95),rgba(var(--surface-base-rgb),.98))', borderTopLeftRadius: '1rem', borderTopRightRadius: '1rem' }}>
                     {/* Table name */}
                     <div style={{ padding: '6px 14px 2px' }}>
                         <input
@@ -368,7 +368,7 @@ const Customtable = ({
                             {showPresets && (
                                 <div style={{
                                     position: 'absolute', top: '26px', left: 0, zIndex: 50,
-                                    background: '#fff', border: '1px solid var(--border-cell)',
+                                    background: 'var(--surface-card)', border: '1px solid var(--border-cell)',
                                     borderRadius: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
                                     padding: '6px', minWidth: '148px',
                                     display: 'flex', flexDirection: 'column', gap: '2px',
@@ -408,7 +408,7 @@ const Customtable = ({
                             {showHelp && (
                                 <div style={{
                                     position: 'absolute', top: '26px', left: 0, zIndex: 60,
-                                    background: '#fff', border: '1px solid var(--border-divider)',
+                                    background: 'var(--surface-card)', border: '1px solid var(--border-divider)',
                                     borderRadius: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
                                     padding: '10px 14px', minWidth: '340px',
                                     fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
@@ -426,7 +426,7 @@ const Customtable = ({
                                     ].map(([action, desc]) => (
                                         <div key={action} style={{ display: 'flex', gap: '6px', marginBottom: '4px' }}>
                                             <span className="responsiveTextTable" style={{ fontWeight: '500', color: 'var(--endeavour)', minWidth: '110px', paddingTop: '1px' }}>{action}</span>
-                                            <span className="responsiveTextTable" style={{ color: '#475569' }}>{desc}</span>
+                                            <span className="responsiveTextTable" style={{ color: 'var(--text-mid)' }}>{desc}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -469,7 +469,7 @@ const Customtable = ({
                             return (
                                 <div key={el.key} style={{
                                     display: 'flex', alignItems: 'center', gap: '2px',
-                                    background: 'white',
+                                    background: 'var(--surface-card)',
                                     border: `1px solid ${isNi ? 'var(--rock-blue)' : 'var(--border-cell)'}`,
                                     borderRadius: '8px', padding: '2px 6px', minWidth: '68px',
                                 }}>
@@ -493,7 +493,7 @@ const Customtable = ({
                                     {isNi && (
                                         <>
                                             <span style={{ fontSize: '0.58rem', color: 'var(--rock-blue)', fontWeight: '500' }}>LME</span>
-                                            <span style={{ fontSize: '0.62rem', color: '#94a3b8', margin: '0 2px' }}>×</span>
+                                            <span style={{ fontSize: '0.62rem', color: 'var(--text-faint)', margin: '0 2px' }}>×</span>
                                             <input
                                                 value={niPercent}
                                                 onChange={e => setNiPercent(e.target.value)}
@@ -548,7 +548,7 @@ const Customtable = ({
                                                 if (isDel) {
                                                     // + button to add custom element, inserted before del column
                                                     const addBtn = (
-                                                        <th key="__addElem" style={{ ...thStyle, backgroundColor: '#fde8e8', minWidth: '26px', padding: '5px 3px', borderTopRightRadius: '0' }}>
+                                                        <th key="__addElem" style={{ ...thStyle, backgroundColor: 'var(--danger-soft)', minWidth: '26px', padding: '5px 3px', borderTopRightRadius: '0' }}>
                                                             {showAddElem ? (
                                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                                                                     <input
@@ -604,7 +604,7 @@ const Customtable = ({
                         </thead>
 
                         {/* TBODY */}
-                        <tbody style={{ backgroundColor: '#fff' }}>
+                        <tbody style={{ backgroundColor: 'var(--surface-card)' }}>
                             {table.getRowModel().rows.map((row, rIdx) => (
                                 <tr key={row.id} className="transition-colors">
                                     {row.getVisibleCells().map((cell, cIdx) => {
@@ -616,16 +616,16 @@ const Customtable = ({
                                         const ck = `${row.id}-${colId}`
                                         const focused = focusedCell === ck
                                         return (
-                                            <td key={cell.id} style={{ backgroundColor: '#fff', padding: '2px 2px', borderTop: rIdx === 0 ? '1px solid var(--border-divider)' : 'none', borderBottom: '1px solid var(--border-divider)', borderRight: '1px solid var(--border-divider)', borderLeft: cIdx === 0 ? '1px solid var(--border-divider)' : 'none', verticalAlign: 'middle' }}>
+                                            <td key={cell.id} style={{ backgroundColor: 'var(--surface-card)', padding: '2px 2px', borderTop: rIdx === 0 ? '1px solid var(--border-divider)' : 'none', borderBottom: '1px solid var(--border-divider)', borderRight: '1px solid var(--border-divider)', borderLeft: cIdx === 0 ? '1px solid var(--border-divider)' : 'none', verticalAlign: 'middle' }}>
                                                 {isDel ? (
                                                     <div className="flex justify-center items-center">
                                                         <button
                                                             onClick={() => delMaterial(table1, cell)}
-                                                            style={{ fontSize: '15px', fontWeight: '500', color: '#e87070', background: 'none', border: 'none', cursor: 'pointer', padding: '1px 5px', lineHeight: 1 }}
+                                                            style={{ fontSize: '15px', fontWeight: '500', color: 'var(--danger-text)', background: 'none', border: 'none', cursor: 'pointer', padding: '1px 5px', lineHeight: 1 }}
                                                         >×</button>
                                                     </div>
                                                 ) : isCost ? (
-                                                    <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '7px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '62px', minHeight: '23px' }}>
+                                                    <div style={{ backgroundColor: 'var(--ok-soft)', border: '1px solid var(--ok-border)', borderRadius: '7px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '62px', minHeight: '23px' }}>
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                     </div>
                                                 ) : (
@@ -698,7 +698,7 @@ const Customtable = ({
             <div className="sm:hidden">
                 <div className="overflow-y-auto dashboard-scroll px-2 py-2 space-y-2" style={{ maxHeight: '700px' }}>
                     {table.getRowModel().rows.map((row, ri) => (
-                        <div key={row.id} className="rounded-2xl overflow-hidden shadow-md" style={{ backgroundColor: '#fff', border: '1px solid var(--selago)' }}>
+                        <div key={row.id} className="rounded-2xl overflow-hidden shadow-md" style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--selago)' }}>
                             <div className="px-3 py-2" style={{ background: 'var(--border-cell)' }}>
                                 <span className="responsiveTextTable" style={{ color: 'var(--chathams-blue)', fontWeight: '500' }}>Row {ri + 1}</span>
                             </div>

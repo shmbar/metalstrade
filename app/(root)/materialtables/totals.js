@@ -81,7 +81,7 @@ const Customtable = ({ data, columns }) => {
                                             key={cell.id}
                                             className="responsiveTextTable"
                                             style={{
-                                                backgroundColor: isDel ? 'transparent' : '#ede9fe',
+                                                backgroundColor: isDel ? 'transparent' : 'var(--violet-bg)',
                                                 color: 'var(--chathams-blue)',
                                                 padding: isDel ? '0' : '5px 6px',
                                                                                                 fontWeight: '500',
@@ -115,7 +115,7 @@ const Customtable = ({ data, columns }) => {
                     <div
                         key={row.id}
                         className="rounded-2xl overflow-hidden"
-                        style={{ backgroundColor: '#ede9fe', border: 'none' }}
+                        style={{ backgroundColor: 'var(--violet-bg)', border: 'none' }}
                     >
                         <div className="p-3 space-y-2">
                             {row.getVisibleCells().map((cell) => {

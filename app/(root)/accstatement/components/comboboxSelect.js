@@ -32,7 +32,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
         <div className="w-full">
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="relative">
-                    <div className={`relative w-full cursor-default overflow-hidden rounded-2xl bg-white text-left 
+                    <div className={`relative w-full cursor-default overflow-hidden rounded-2xl bg-[var(--surface-card)] text-left 
                      focus:outline-none responsiveText border border-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes} items-center flex`}>
                         <ComboboxInput
                             className={cn('w-full py-2 pl-3 pr-10 responsiveText leading-5 focus:outline-none',
@@ -55,7 +55,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                         afterLeave={() => setQuery('')}
                     >
                         <ComboboxOptions className={`z-[9999] absolute mt-1 max-h-60 w-full overflow-auto custom-scroll rounded-xl
-                        bg-white py-1 text-base shadow-lg border border-[var(--surface-header)] focus:outline-none
+                        bg-[var(--surface-card)] py-1 text-base shadow-lg border border-[var(--surface-header)] focus:outline-none
                         responsiveText ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (
                                 <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] responsiveText">

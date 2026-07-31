@@ -9,7 +9,7 @@ const ACCEPTED = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
 
 function ConfidencePill({ level }) {
     if (!level) return null;
-    const s = { high: ['#d1fae5', '#065f46'], medium: ['#fef3c7', '#92400e'], low: ['#fee2e2', '#991b1b'] }[level] || ['#f3f4f6', '#374151'];
+    const s = { high: ['var(--ok-bg)', 'var(--ok-strong)'], medium: ['var(--warn-bg)', 'var(--warn-strong)'], low: ['var(--danger-bg)', 'var(--danger-strong)'] }[level] || ['var(--surface-muted)', 'var(--text-strong)'];
     return <span className='px-1.5 py-0.5 rounded-full font-medium' style={{ fontSize: '0.55rem', background: s[0], color: s[1] }}>{level}</span>;
 }
 
@@ -22,12 +22,12 @@ function FieldRow({ label, value, confidence, selected, onToggle }) {
         <div
             onClick={onToggle}
             className='flex items-start justify-between gap-2 px-3 py-2 cursor-pointer rounded-lg transition-colors'
-            style={{ background: selected ? '#f0fdf4' : 'var(--surface-pill)', border: `1px solid ${selected ? '#86efac' : 'var(--surface-header)'}`, marginBottom: '4px' }}
+            style={{ background: selected ? 'var(--ok-soft)' : 'var(--surface-pill)', border: `1px solid ${selected ? 'var(--ok-border)' : 'var(--surface-header)'}`, marginBottom: '4px' }}
         >
             <div className='flex items-start gap-2 min-w-0'>
                 <div className='mt-0.5 flex-shrink-0'>
                     {selected
-                        ? <CheckSquare className='w-3.5 h-3.5' style={{ color: '#16a34a' }} />
+                        ? <CheckSquare className='w-3.5 h-3.5' style={{ color: 'var(--ok-text)' }} />
                         : <Square className='w-3.5 h-3.5' style={{ color: 'var(--border-divider)' }} />
                     }
                 </div>
@@ -53,8 +53,8 @@ function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
         <div
             className='rounded-lg mt-3 p-3'
             style={{
-                background: totalDriftBad ? '#fef2f2' : '#f0fdf4',
-                border: `1px solid ${totalDriftBad ? '#fca5a5' : '#86efac'}`,
+                background: totalDriftBad ? 'var(--danger-soft)' : 'var(--ok-soft)',
+                border: `1px solid ${totalDriftBad ? 'var(--danger-border)' : 'var(--ok-border)'}`,
             }}
             role='region'
             aria-label='Contract reconciliation'
@@ -62,15 +62,15 @@ function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
             <div className='flex items-center justify-between mb-2'>
                 <div className='flex items-center gap-1.5'>
                     {totalDriftBad
-                        ? <AlertTriangle className='w-3.5 h-3.5' style={{ color: '#991b1b' }} />
-                        : <CheckCircle2 className='w-3.5 h-3.5' style={{ color: '#16a34a' }} />
+                        ? <AlertTriangle className='w-3.5 h-3.5' style={{ color: 'var(--danger-strong)' }} />
+                        : <CheckCircle2 className='w-3.5 h-3.5' style={{ color: 'var(--ok-text)' }} />
                     }
-                    <span className='font-semibold' style={{ fontSize: '0.68rem', color: totalDriftBad ? '#991b1b' : '#15803d' }}>
+                    <span className='font-semibold' style={{ fontSize: '0.68rem', color: totalDriftBad ? 'var(--danger-strong)' : 'var(--ok-strong)' }}>
                         Reconciliation vs contract {linkedContract?.order}
                     </span>
                 </div>
                 {reconcile.currencyMatch === false && (
-                    <span className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.55rem', background: '#fee2e2', color: '#991b1b' }}>
+                    <span className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.55rem', background: 'var(--danger-bg)', color: 'var(--danger-strong)' }}>
                         ⚠ currency mismatch
                     </span>
                 )}
@@ -82,9 +82,9 @@ function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
                     {reconcile.rows.map((r, i) => {
                         if (!r.contractFound) {
                             return (
-                                <div key={i} className='flex items-center gap-1.5 px-2 py-1 rounded' style={{ background: 'white', border: '1px solid #fde68a' }}>
-                                    <AlertTriangle className='w-3 h-3 flex-shrink-0' style={{ color: '#d97706' }} />
-                                    <span style={{ fontSize: '0.6rem', color: '#92400e' }}>
+                                <div key={i} className='flex items-center gap-1.5 px-2 py-1 rounded' style={{ background: 'var(--surface-card)', border: '1px solid var(--warn-border)' }}>
+                                    <AlertTriangle className='w-3 h-3 flex-shrink-0' style={{ color: 'var(--warn-text)' }} />
+                                    <span style={{ fontSize: '0.6rem', color: 'var(--warn-strong)' }}>
                                         {r.description}: no matching product on contract — invoice qty {r.qntyInvoice} @ {r.priceInvoice}
                                     </span>
                                 </div>
@@ -94,13 +94,13 @@ function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
                         const pBad = isDrift(r.pricePct);
                         const lineBad = qBad || pBad;
                         return (
-                            <div key={i} className='px-2 py-1 rounded' style={{ background: 'white', border: `1px solid ${lineBad ? '#fca5a5' : '#bbf7d0'}` }}>
+                            <div key={i} className='px-2 py-1 rounded' style={{ background: 'var(--surface-card)', border: `1px solid ${lineBad ? 'var(--danger-border)' : 'var(--ok-border)'}` }}>
                                 <p className='font-semibold' style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>{r.description}</p>
                                 <div className='flex flex-wrap gap-x-3' style={{ fontSize: '0.58rem', color: 'var(--port-gore)' }}>
-                                    <span style={{ color: qBad ? '#991b1b' : '#15803d' }}>
+                                    <span style={{ color: qBad ? 'var(--danger-strong)' : 'var(--ok-strong)' }}>
                                         Qty: {r.qntyContract} → {r.qntyInvoice} ({pct(r.qntyPct)})
                                     </span>
-                                    <span style={{ color: pBad ? '#991b1b' : '#15803d' }}>
+                                    <span style={{ color: pBad ? 'var(--danger-strong)' : 'var(--ok-strong)' }}>
                                         Price: {r.priceContract} → {r.priceInvoice} ({pct(r.pricePct)})
                                     </span>
                                 </div>
@@ -111,14 +111,14 @@ function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
             )}
 
             {/* Total comparison */}
-            <div className='flex flex-wrap items-center gap-x-3 gap-y-1 pt-1.5 mt-1 border-t' style={{ borderColor: totalDriftBad ? '#fca5a5' : '#bbf7d0', fontSize: '0.6rem' }}>
+            <div className='flex flex-wrap items-center gap-x-3 gap-y-1 pt-1.5 mt-1 border-t' style={{ borderColor: totalDriftBad ? 'var(--danger-border)' : 'var(--ok-border)', fontSize: '0.6rem' }}>
                 <span style={{ color: 'var(--regent-gray)' }}>
                     Expected: {cur} {fmt(reconcile.expectedTotal)}
                 </span>
                 <span style={{ color: 'var(--regent-gray)' }}>
                     Invoiced: <strong style={{ color: 'var(--port-gore)' }}>{cur} {fmt(reconcile.invoicedTotal)}</strong>
                 </span>
-                <span style={{ color: totalDriftBad ? '#991b1b' : '#15803d', fontWeight: 600 }}>
+                <span style={{ color: totalDriftBad ? 'var(--danger-strong)' : 'var(--ok-strong)', fontWeight: 600 }}>
                     Diff: {cur} {fmt(reconcile.totalDiff)} ({pct(reconcile.totalPct)})
                 </span>
             </div>
@@ -403,7 +403,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             aria-modal='true'
             aria-labelledby='doc-import-title'
         >
-            <div className='w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden' style={{ border: '1px solid var(--border-divider)', maxHeight: '92vh' }}>
+            <div className='w-full max-w-lg rounded-2xl bg-[var(--surface-card)] shadow-2xl overflow-hidden' style={{ border: '1px solid var(--border-divider)', maxHeight: '92vh' }}>
                 {/* Header */}
                 <div className='flex items-center justify-between px-4 py-3' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
                     <div className='flex items-center gap-2'>
@@ -460,9 +460,9 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
 
                     {/* Error */}
                     {error && (
-                        <div className='flex items-center gap-2 p-2.5 rounded-lg' style={{ background: '#fee2e2', border: '1px solid #fca5a5' }}>
-                            <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0' style={{ color: '#991b1b' }} />
-                            <span style={{ fontSize: '0.65rem', color: '#991b1b' }}>{error}</span>
+                        <div className='flex items-center gap-2 p-2.5 rounded-lg' style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)' }}>
+                            <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0' style={{ color: 'var(--danger-strong)' }} />
+                            <span style={{ fontSize: '0.65rem', color: 'var(--danger-strong)' }}>{error}</span>
                         </div>
                     )}
 
@@ -471,7 +471,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                         <div className='space-y-1'>
                             <div className='flex items-center justify-between mb-2'>
                                 <div className='flex items-center gap-1.5'>
-                                    <CheckCircle2 className='w-3.5 h-3.5' style={{ color: '#16a34a' }} />
+                                    <CheckCircle2 className='w-3.5 h-3.5' style={{ color: 'var(--ok-text)' }} />
                                     <span className='font-semibold' style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)' }}>
                                         Fields extracted — select which to apply
                                     </span>
@@ -485,9 +485,9 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
 
                             {/* Scanned-document warning — digits were read visually, not from a text layer */}
                             {result.visionUsed && (
-                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: '#fff3cd', border: '1px solid #ffc107' }}>
-                                    <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: '#d97706' }} />
-                                    <span style={{ fontSize: '0.62rem', color: '#92400e' }}>
+                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: 'var(--surface-card)3cd', border: '1px solid #ffc107' }}>
+                                    <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: 'var(--warn-text)' }} />
+                                    <span style={{ fontSize: '0.62rem', color: 'var(--warn-strong)' }}>
                                         Scanned document — digits were read visually. Double-check quantities, prices and totals before applying.
                                     </span>
                                 </div>
@@ -495,9 +495,9 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
 
                             {/* Multi-invoice warning — this PDF holds more than one invoice */}
                             {isExpense && result.multipleInvoices && (
-                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: '#fff3cd', border: '1px solid #ffc107' }}>
-                                    <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: '#d97706' }} />
-                                    <span style={{ fontSize: '0.62rem', color: '#92400e' }}>
+                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: 'var(--surface-card)3cd', border: '1px solid #ffc107' }}>
+                                    <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: 'var(--warn-text)' }} />
+                                    <span style={{ fontSize: '0.62rem', color: 'var(--warn-strong)' }}>
                                         This PDF appears to contain more than one invoice. Only the FIRST one was extracted — record the others as separate expenses.
                                     </span>
                                 </div>

@@ -88,7 +88,7 @@ const ColFilter = ({ table }) => {
 	const DropdownContent = (
 		<div ref={dropdownRef} style={dropdownStyle} className="w-64 rounded-2xl shadow-xl border border-[var(--surface-header)] overflow-hidden" aria-hidden={open ? 'false' : 'true'}>
 			<div className='py-2 px-4 text-sm font-semibold' style={{ background: 'var(--surface-header)', color: 'var(--chathams-blue)' }}>{getTtl('Columns', ln)}</div>
-			<div className='overflow-y-auto bg-white' style={{ maxHeight: '60vh', scrollbarWidth: 'thin', scrollbarColor: 'var(--rock-blue) var(--selago)' }}>
+			<div className='overflow-y-auto bg-[var(--surface-card)]' style={{ maxHeight: '60vh', scrollbarWidth: 'thin', scrollbarColor: 'var(--rock-blue) var(--selago)' }}>
 				<style>{`#columns-filter-portal ::-webkit-scrollbar { width: 6px; } #columns-filter-portal ::-webkit-scrollbar-track { background: var(--selago); } #columns-filter-portal ::-webkit-scrollbar-thumb { background: var(--rock-blue); border-radius: 6px; }`}</style>
 				{table.getAllColumns().filter(column => column.getCanHide()).map(col => (
 					<div key={col.id}

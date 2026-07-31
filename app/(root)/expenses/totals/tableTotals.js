@@ -35,7 +35,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
 
   return (
     <div
-      className="bg-white rounded-xl shadow border overflow-hidden"
+      className="bg-[var(--surface-card)] rounded-xl shadow border overflow-hidden"
       style={{
         width: TABLE_WIDTH,
         borderColor: 'var(--border-divider)',
@@ -92,7 +92,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
                     borderBottom: '1px solid var(--selago)',
                     borderRight: '1px solid var(--selago)',
                     borderLeft: '1px solid var(--selago)',
-                    background: '#ffffff'
+                    background: 'var(--surface-card)'
                   }}>
                   {row.getVisibleCells().map((cell, idx) => (
                     <div
