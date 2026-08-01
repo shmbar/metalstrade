@@ -2,7 +2,7 @@
 'use client';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { cssVar } from '../../../utils/chartTheme';
+import { cssVar, cssVarRgba } from '../../../utils/chartTheme';
 import { useTheme } from '../../../contexts/useThemeContext';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
 import VideoLoader from '@components/videoLoader';
@@ -1135,7 +1135,8 @@ const Dash = () => {
         labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 6, padding: 16, font: { size: 11 }, color: cssVar('--port-gore', '#28264f') },
       },
       tooltip: {
-        backgroundColor: 'rgba(var(--surface-card-rgb),0.97)',
+        // Canvas can't parse 'rgba(var(--x),a)' — the black unreadable tooltip.
+        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(255,255,255,0.97)'),
         titleColor: cssVar('--port-gore', '#28264f'),
         bodyColor: cssVar('--port-gore', '#28264f'),
         borderColor: cssVar('--selago', '#e6eef8'),
@@ -1192,7 +1193,8 @@ const Dash = () => {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: 'rgba(var(--surface-card-rgb),0.97)',
+        // Canvas can't parse 'rgba(var(--x),a)' — the black unreadable tooltip.
+        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(255,255,255,0.97)'),
         titleColor: cssVar('--port-gore', '#28264f'),
         bodyColor: cssVar('--port-gore', '#28264f'),
         borderColor: cssVar('--selago', '#e6eef8'),
