@@ -14,19 +14,24 @@
 // the pairings that matter (white on primary; text tokens on dark surfaces),
 // so any future preset is safe by construction.
 
+// Tuned 2026-07-30 after client review ("needs to look sharper, not outdated"):
+// modern dashboard treatment — near-neutral surfaces with whisper tints, lighter
+// desaturated borders, near-neutral dark text, and a brighter more vivid primary.
+// NOTE: Ocean bypasses this entirely (stylesheet defaults), so the app's classic
+// blue is unaffected; this signature shapes the other presets.
 const LIGHT_SIGNATURE = {
-  endeavour: { dh: 0, s: 97, l: 35 },
-  'chathams-blue': { dh: 11, s: 77, l: 27 },
-  'port-gore': { dh: 38, s: 35, l: 23 },
-  bunting: { dh: 44, s: 60, l: 19 },
-  'rock-blue': { dh: 7, s: 38, l: 73 },
-  'regent-gray': { dh: 20, s: 17, l: 58 },
-  selago: { dh: 10, s: 74, l: 96 },
-  'primary-bright': { dh: 13, s: 71, l: 52 },
-  'surface-header': { dh: 3, s: 100, l: 93 },
-  'surface-pill': { dh: 9, s: 100, l: 99 },
-  'border-cell': { dh: 2, s: 59, l: 90 },
-  'border-divider': { dh: 0, s: 82, l: 85 },
+  endeavour: { dh: 0, s: 88, l: 45 },
+  'chathams-blue': { dh: 11, s: 62, l: 29 },
+  'port-gore': { dh: 30, s: 18, l: 18 },
+  bunting: { dh: 44, s: 45, l: 16 },
+  'rock-blue': { dh: 7, s: 32, l: 71 },
+  'regent-gray': { dh: 18, s: 13, l: 53 },
+  selago: { dh: 10, s: 50, l: 96 },
+  'primary-bright': { dh: 13, s: 75, l: 55 },
+  'surface-header': { dh: 3, s: 62, l: 94 },
+  'surface-pill': { dh: 9, s: 55, l: 98 },
+  'border-cell': { dh: 2, s: 32, l: 89 },
+  'border-divider': { dh: 0, s: 42, l: 86 },
 };
 
 // Same tokens, dark values. Text-role tokens (port-gore, chathams-blue, …)
@@ -76,6 +81,7 @@ const DARK_STATUS = {
 
 export const THEMES = [
   { id: 'ocean', label: 'Ocean', hue: 205 },
+  { id: 'azure', label: 'Azure', hue: 214 },
   { id: 'sky', label: 'Sky', hue: 193 },
   { id: 'teal', label: 'Teal', hue: 175, sat: 0.9, darken: 2 },
   { id: 'emerald', label: 'Emerald', hue: 150, sat: 0.9, darken: 3 },
