@@ -1109,7 +1109,9 @@ const Dash = () => {
       {
         label: 'Profit',
         data: profitSeries,
-        borderColor: 'var(--ok-text)',
+        // Canvas can't parse CSS var() strings — it silently fell back to black
+        // (and a blank tooltip swatch). Resolve the variable to a real color.
+        borderColor: cssVar('--ok-text', '#16a34a'),
         backgroundColor: 'transparent',
         borderWidth: 2,
         borderDash: [5, 4],
@@ -1141,7 +1143,27 @@ const Dash = () => {
         cornerRadius: 10,
         padding: 12,
         usePointStyle: true,
-        callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${fmtAutoKM(ctx.parsed.y)}` },
+        callbacks: {
+          label: (ctx) => {
+            // Rounding all three lines independently made the tooltip read e.g.
+            // "12.24 − 10.24 = 1.99". Profit is exactly revenue − costs in the
+            // data, so display it as the difference of the ROUNDED revenue and
+            // costs — the tooltip is then always internally consistent.
+            if (ctx.dataset.label === 'Profit') {
+              const rev = Number(ctx.chart.data.datasets[0]?.data?.[ctx.dataIndex]);
+              const cost = Number(ctx.chart.data.datasets[1]?.data?.[ctx.dataIndex]);
+              if (Number.isFinite(rev) && Number.isFinite(cost)) {
+                // Match fmtAutoKM's display precision: 2 decimals of the M/K unit
+                // both figures are shown in (they share a scale on this chart).
+                const unit = Math.max(Math.abs(rev), Math.abs(cost)) >= 1_000_000 ? 1_000_000
+                  : Math.max(Math.abs(rev), Math.abs(cost)) >= 1_000 ? 1_000 : 1;
+                const r2 = (v) => Math.round((v / unit) * 100) / 100;
+                return ` Profit: ${fmtAutoKM((r2(rev) - r2(cost)) * unit)}`;
+              }
+            }
+            return ` ${ctx.dataset.label}: ${fmtAutoKM(ctx.parsed.y)}`;
+          },
+        },
       },
     },
     scales: {
