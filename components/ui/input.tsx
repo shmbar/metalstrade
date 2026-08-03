@@ -9,7 +9,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
         type={type}
         className={cn(
           /* Matched to the .input spec (TOKENS.md §4): h-7 not h-9, pill not
-             rounded-md, ladder type not text-base / text-sm, themed surface not
+             a pill not a small radius, ladder type not a fixed size, themed surface not
              bg-transparent. It previously sat 8px taller than every other input
              in the app. */
           "flex h-7 w-full rounded-full border border-[var(--border-cell)] bg-[var(--surface-pill)] px-3 shadow-sm transition-colors " +

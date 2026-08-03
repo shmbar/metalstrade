@@ -79,7 +79,7 @@ function PopupCard({ n, onDismiss, onOpen }) {
                                 style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
                                 {n.entityLabel || 'Notification'}
                             </span>
-                            <span className='shrink-0 rounded-full px-1.5 py-[1px] font-medium uppercase tracking-wide'
+                            <span className='shrink-0 rounded-full px-1.5 py-0.5 font-medium uppercase tracking-wide'
                                 style={{ fontSize: 'var(--fs-caption)', color: accent, background: `color-mix(in srgb, ${accent} 12%, white)` }}>
                                 {n.severity || 'info'}
                             </span>

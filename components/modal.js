@@ -36,7 +36,7 @@ const Modal = ({ isOpen, setIsOpen, title, children, w }) => {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                {/* Panel: rounded-2xl (was rounded-xl — one card radius, TOKENS.md §3),
+                                {/* Panel: one card radius (TOKENS.md §3),
                                     border on --border-cell so it stays visible in dark mode. */}
                                 <DialogPanel className={`w-full ${w == null ? 'max-w-7xl' : w} transform rounded-2xl
                                  bg-[var(--surface-card)] text-left align-middle shadow-lg transition-all border border-[var(--border-cell)]

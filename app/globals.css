@@ -270,7 +270,7 @@ thead th {
 
 @layer components {
   .table_cell {
-    @apply px-6 py-3 whitespace-nowrap text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem] text-[var(--port-gore)] leading-4;
+    @apply px-6 py-3 whitespace-nowrap text-[0.75rem] xl:text-[0.8125rem] 2xl:text-[0.875rem] 3xl:text-[0.9375rem] text-[var(--port-gore)] leading-4;
   }
 
   .paginator_arrow {
@@ -347,11 +347,11 @@ textarea:focus-visible,
 
 @layer components {
   .title_style {
-    @apply text-[var(--port-gore)] border-b border-[var(--rock-blue)] items-center flex justify-center text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem] font-semibold;
+    @apply text-[var(--port-gore)] border-b border-[var(--rock-blue)] items-center flex justify-center text-[0.75rem] xl:text-[0.8125rem] 2xl:text-[0.875rem] 3xl:text-[0.9375rem] font-semibold;
   }
 
   .input_style {
-    @apply text-[0.72rem] 2xl:text-[0.78rem] 3xl:text-[0.8125rem] py-0.5 text-center border-0 rounded-none w-full focus:outline-0 focus:border-[var(--endeavour)] text-[var(--port-gore)];
+    @apply text-[0.6875rem] xl:text-[0.75rem] 2xl:text-[0.8125rem] 3xl:text-[0.875rem] py-0.5 text-center border-0 rounded-none w-full focus:outline-0 focus:border-[var(--endeavour)] text-[var(--port-gore)];
   }
 }
 
@@ -583,7 +583,7 @@ input::-webkit-inner-spin-button {
   vertical-align: middle;
   line-height: 1.3;
   padding: 4px 8px;
-  font-size: 0.72rem;
+  font-size: var(--fs-body);
 }
 
 .cashflow-detail-table thead tr {
@@ -614,7 +614,7 @@ input::-webkit-inner-spin-button {
 .cashflow-detail-table tfoot th {
   font-weight: 500;
   color: var(--chathams-blue);
-  font-size: 0.72rem;
+  font-size: var(--fs-body);
   border-top: 1.5px solid var(--border-divider);
 }
 
@@ -640,7 +640,7 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 /* ========== Datepicker Global Theme ========== */
 .header-datepicker input,
 .react-tailwindcss-datepicker-container input {
-  font-size: 0.72rem !important;
+  font-size: var(--fs-body) !important;
   font-weight: 500 !important;
   color: var(--chathams-blue) !important;
 }

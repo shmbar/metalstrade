@@ -69,7 +69,7 @@ const PdfPagesView = ({ src, height = '68vh' }) => {
     }
 
     return (
-        <div className='overflow-y-auto rounded-lg border' style={{ height, borderColor: 'var(--border-cell)', background: '#eef2f6' }}>
+        <div className='overflow-y-auto rounded-lg border' style={{ height, borderColor: 'var(--border-cell)', background: 'var(--surface-muted)' }}>
             {pages.map((p, i) => (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img key={i} src={p} alt={`Page ${i + 1}`}
