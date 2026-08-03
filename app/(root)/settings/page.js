@@ -62,7 +62,7 @@ const Page = () => {
       <div className="p-1 md:p-4 bg-[var(--surface-card)] rounded-2xl border border-[var(--border-divider)] shadow-sm">
         <div className="mt-5 text-[var(--chathams-blue)] font-poppins text-[0.875rem] xl:text-[0.9375rem] 2xl:text-[1rem] 3xl:text-[1.0625rem] font-medium border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Settings', ln)}</div>
 
-        <div className="w-full px-3 mt-2 border border-[var(--border-divider)] rounded-xl bg-[var(--surface-card)] p-3">
+        <div className="w-full px-3 mt-2 border border-[var(--border-divider)] rounded-2xl bg-[var(--surface-card)] p-3">
           <TabGroup >
 <TabList
   className="
@@ -110,7 +110,7 @@ const Page = () => {
   className="
     relative
     mt-[-1px]
-    rounded-xl
+    rounded-2xl
     border border-[var(--border-divider)]
     bg-[var(--surface-card)]
     shadow-sm

@@ -27,13 +27,16 @@ const Toast = () => {
         }
     }, [secondaryToast]);
 
+    // z-toast (300), not z-[70]: a toast fired from inside a modal used to appear
+    // BEHIND it. Error colours now come from the status tokens, so they follow
+    // dark mode like everything else.
     return (
         <div>
             {toast?.show && (
-                <div className={`gap-3 flex text-sm px-4 py-3 bottom-4 right-4 z-[70] fixed rounded-xl items-center shadow-lg fadeInToast border
+                <div className={`gap-3 flex responsiveTextInput px-4 py-3 bottom-4 right-4 z-toast fixed rounded-2xl items-center shadow-lg fadeInToast border
                 ${toast?.clr === 'success'
                     ? 'bg-[var(--endeavour)] border-[var(--endeavour)] text-white'
-                    : 'bg-[#dc2626] border-[#b91c1c] text-white'}`}>
+                    : 'bg-[var(--danger-text)] border-[var(--danger-strong)] text-white'}`}>
                     {toast?.clr === 'success'
                         ? <FaRegCheckCircle className='scale-150 text-white flex-shrink-0' />
                         : <FaRegTimesCircle className='scale-150 text-white flex-shrink-0' />}
@@ -41,7 +44,7 @@ const Toast = () => {
                 </div>
             )}
             {secondaryToast && toast?.clr === 'success' && (
-                <div className="gap-3 flex text-sm px-4 py-3 bottom-4 right-4 z-[70] fixed rounded-xl items-center shadow-lg fadeInToast border border-[var(--border-divider)] bg-[var(--selago)] text-[var(--chathams-blue)]">
+                <div className="gap-3 flex responsiveTextInput px-4 py-3 bottom-4 right-4 z-toast fixed rounded-2xl items-center shadow-lg fadeInToast border border-[var(--border-divider)] bg-[var(--selago)] text-[var(--chathams-blue)]">
                     <FaRegCheckCircle className='scale-125 text-[var(--endeavour)] flex-shrink-0' />
                     <div>Please verify the saved data again!</div>
                 </div>

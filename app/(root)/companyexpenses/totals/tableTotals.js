@@ -33,7 +33,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
   const sortIndicator = (col) => {
     const dir = col?.getIsSorted()
     return (
-      <span style={{ marginLeft: 4, fontSize: '0.8em', opacity: dir ? 1 : 0.35 }}>
+      <span style={{ marginLeft: 4, fontSize: 'var(--fs-title)', opacity: dir ? 1 : 0.35 }}>
         {dir === 'desc' ? '▼' : '▲'}
       </span>
     )
@@ -51,7 +51,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
 
   return (
     <div
-      className="bg-[var(--surface-card)] rounded-xl shadow border overflow-hidden"
+      className="bg-[var(--surface-card)] rounded-2xl shadow border overflow-hidden"
       style={{
         width: TABLE_WIDTH,
         borderColor: 'var(--border-divider)',

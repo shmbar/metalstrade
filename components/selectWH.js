@@ -18,13 +18,13 @@ const SelectHW = ({ data, value, setValue, idx, name }) => {
                 value={value?.id ?? ''}
                 onValueChange={(e) => setValue(e, idx)}
             >
-                <SelectTrigger className="h-8 text-xs border border-[var(--endeavour)] text-[var(--endeavour)] focus:ring-1 focus:ring-offset-0 focus:border-[var(--endeavour)] focus:ring-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors">
+                <SelectTrigger className="h-8 responsiveTextInput border border-[var(--endeavour)] text-[var(--endeavour)] focus:ring-1 focus:ring-offset-0 focus:border-[var(--endeavour)] focus:ring-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors">
                     <SelectValue placeholder="Select stock" />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectGroup>
                         {sortArr(data, 'nname').map((z, i) => (
-                            <SelectItem value={z.id} key={i} className='text-slate-600 text-xs'>
+                            <SelectItem value={z.id} key={i} className='text-slate-600 responsiveTextInput'>
                                 {z.nname}
                             </SelectItem>
                         ))}

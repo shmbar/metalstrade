@@ -60,7 +60,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                     <PopoverContent
                       align="start"
                       sideOffset={4}
-                      className="p-0 w-[var(--radix-popover-trigger-width)] min-w-[180px] z-40 bg-[var(--surface-pill)] rounded-xl border border-[var(--border-cell)] shadow-lg"
+                      className="p-0 w-[var(--radix-popover-trigger-width)] min-w-[180px] z-40 bg-[var(--surface-pill)] rounded-2xl border border-[var(--border-cell)] shadow-lg"
                     >
                       <Command className="bg-transparent">
                         <CommandInput

@@ -55,7 +55,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
 
 
             </SelectTrigger>
-            <SelectContent className="z-[9999] rounded-xl border border-[var(--surface-header)] shadow-md text-[0.75rem] text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
+            <SelectContent className="z-[9999] rounded-2xl border border-[var(--surface-header)] shadow-md text-[0.75rem] text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
                 {searchable && (
                     <div className="sticky top-0 z-10 bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
                         <input
@@ -74,7 +74,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                     {sortArr(shown, secondaryName || name).map(k => {
                         return (
                             <SelectItem key={k.id} value={k.id}
-                                className={cn('text-[0.75rem] rounded-xl', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks' || k.id === 'EditTextTermPmnt') ?
+                                className={cn('text-[0.75rem] rounded-2xl', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks' || k.id === 'EditTextTermPmnt') ?
                                     'font-semibold italic text-purple-900' : 'text-[var(--chathams-blue)]')} >
                                 {secondaryName ? k[secondaryName] : k[name]}
                             </SelectItem>

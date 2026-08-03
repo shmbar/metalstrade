@@ -373,7 +373,7 @@ const Stocks = () => {
                   <button key={key} type='button' onClick={() => setActiveTab(key)}
                     className='rounded-full font-medium transition-colors'
                     style={{
-                      fontSize: '0.72rem', padding: '5px 14px',
+                      fontSize: 'var(--fs-input)', padding: '5px 14px',
                       background: activeTab === key ? 'var(--endeavour)' : 'white',
                       color: activeTab === key ? 'white' : 'var(--chathams-blue)',
                       border: `1px solid ${activeTab === key ? 'var(--endeavour)' : 'var(--border-cell)'}`,

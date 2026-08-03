@@ -198,7 +198,7 @@ const DescCell = ({ text }) => (
 )
 
 const ShortId = ({ id }) => (
-  <span title={id} style={{ fontFamily: 'monospace', fontSize: '0.7rem', color: 'var(--regent-gray)' }}>
+  <span title={id} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>
     {id ? id.slice(0, 8) : ''}
   </span>
 )
@@ -308,7 +308,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
           </div>
         )}
 
-        <div className="rounded-xl border border-[var(--border-divider)] overflow-hidden">
+        <div className="rounded-2xl border border-[var(--border-divider)] overflow-hidden">
           <div className="overflow-auto" style={{ maxHeight: '60vh' }}>
             {tab === 'left' && (
               <table className="w-full responsiveTextTable" style={{ borderCollapse: 'collapse' }}>

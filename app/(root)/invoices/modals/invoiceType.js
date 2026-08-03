@@ -25,14 +25,14 @@ export default function InvType({ setSelected, plans, value, ln }) {
                                     }
                                     ${(value.id !== '' && value.invType === '1111' && (plan.id === '2222' || plan.id === '3333')) ||
                                         (value.id !== '' && (value.invType === '2222' || value.invType === '3333') && plan.id === '1111') ? 'bg-gray-100 cursor-not-allowed' : 'cursor-pointer'}
-                    relative flex rounded-md px-4 py-1.5 shadow-lg focus:outline-none`
+                    relative flex rounded-lg px-4 py-1.5 shadow-lg focus:outline-none`
                                 }
                             >
                                 {({ active, checked }) => (
                                     <>
                                         <div className="flex w-full items-center justify-between">
                                             <div className="flex items-center">
-                                                <div className="text-xs">
+                                                <div className="responsiveTextInput">
                                                     <RadioGroup.Label
                                                         as="p"
                                                         className={`font-medium ${checked ? 'text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`}

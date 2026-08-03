@@ -39,7 +39,7 @@ export default function Example({ languages, compData, setCompData, lang }) {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-xl bg-[var(--surface-card)] py-1 responsiveText shadow-lg border border-[var(--surface-header)] focus:outline-none z-50 text-[0.75rem]">
+            <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-2xl bg-[var(--surface-card)] py-1 responsiveText shadow-lg border border-[var(--surface-header)] focus:outline-none z-50 text-[0.75rem]">
               {languages.map((language, personIdx) => (
                 <Listbox.Option
                   key={personIdx}

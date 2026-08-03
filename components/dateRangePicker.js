@@ -84,7 +84,7 @@ const DateRangePicker = ({ displayLabel }) => {
             }
 
             /* ── Month/Year header pill ── */
-            .flex.items-center.space-x-1\\.5.border.border-gray-300.rounded-md.px-2.py-1\\.5 {
+            .flex.items-center.space-x-1\\.5.border.border-gray-300.rounded-lg.px-2.py-1\\.5 {
                 background: var(--surface-header) !important;
                 border: 1px solid var(--border-divider) !important;
                 border-radius: 999px !important;
@@ -100,11 +100,11 @@ const DateRangePicker = ({ displayLabel }) => {
             }
 
             /* ── Month/Year text buttons (uppercase label) ── */
-            .tracking-wide.px-3.py-\\[0\\.55rem\\].uppercase.hover\\:bg-gray-100.rounded-md {
+            .tracking-wide.px-3.py-\\[0\\.55rem\\].uppercase.hover\\:bg-gray-100.rounded-lg {
                 border-radius: 999px !important;
                 color: var(--chathams-blue) !important;
             }
-            .tracking-wide.px-3.py-\\[0\\.55rem\\].uppercase.hover\\:bg-gray-100.rounded-md:hover {
+            .tracking-wide.px-3.py-\\[0\\.55rem\\].uppercase.hover\\:bg-gray-100.rounded-lg:hover {
                 background: var(--surface-header) !important;
             }
 
@@ -184,7 +184,7 @@ const DateRangePicker = ({ displayLabel }) => {
             <div className="relative w-full header-datepicker">
                 <Datepicker
                     toggleIcon={() => (
-                        <FaRegCalendarAlt className="text-xs" style={{ color: 'var(--chathams-blue)' }} />
+                        <FaRegCalendarAlt className="responsiveTextInput" style={{ color: 'var(--chathams-blue)' }} />
                     )}
                     inputClassName="
                         responsiveText font-medium h-7 py-0 pl-7 pr-4

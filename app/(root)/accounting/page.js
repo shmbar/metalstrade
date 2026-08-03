@@ -841,21 +841,21 @@ const Accounting = () => {
               <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--border-divider)] shadow-xl bg-[var(--surface-pill)] overflow-hidden">
                 <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-4">Financial Summary</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-[var(--surface-header)] rounded-xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
+                  <div className="bg-[var(--surface-header)] rounded-2xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Total Transactions</p>
                     <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">{invoicesAccData.length}</p>
                   </div>
-                  <div className="bg-[var(--surface-header)] rounded-xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
+                  <div className="bg-[var(--surface-header)] rounded-2xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Avg. Transaction</p>
                     <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">
                       {formatCurrency(invoicesAccData.length > 0 ? (totals.totalIncome + totals.totalExpense) / invoicesAccData.length : 0)}
                     </p>
                   </div>
-                  <div className="bg-[var(--surface-header)] rounded-xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
+                  <div className="bg-[var(--surface-header)] rounded-2xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Net Profit</p>
                     <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">{formatCurrency(totals.balance)}</p>
                   </div>
-                  <div className="bg-[var(--surface-header)] rounded-xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
+                  <div className="bg-[var(--surface-header)] rounded-2xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Profit Margin</p>
                     <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">
                       {formatPercent(totals.totalIncome > 0 ? (totals.balance / totals.totalIncome) * 100 : 0)}

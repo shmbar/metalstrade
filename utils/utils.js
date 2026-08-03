@@ -64,7 +64,7 @@ export const ErrDiv = ({ field, errors, ln }) => {
   return (
     <>
       {errors[field] &&
-        <div className='text-xs text-red-600'>
+        <div className='responsiveTextInput text-red-600'>
           {getTtl('mustFilled', ln)}
         </div>
       }

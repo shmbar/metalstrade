@@ -347,7 +347,7 @@ const AssistantChat = () => {
                 {Object.keys(settings).length === 0 ? <Spinner /> :
                     <>
                         <Toast />
-                        <div className="border border-[var(--border-divider)] rounded-xl shadow-sm bg-[var(--surface-card)] mt-4 flex flex-col flex-1 overflow-hidden">
+                        <div className="border border-[var(--border-divider)] rounded-2xl shadow-sm bg-[var(--surface-card)] mt-4 flex flex-col flex-1 overflow-hidden">
 
                             {/* Top Bar — flex-wrap + nowrap pills: on narrow screens the chip
                                 row drops WHOLE onto its own line under the title instead of
@@ -387,7 +387,7 @@ const AssistantChat = () => {
                                     <button
                                         onClick={handleClearChat}
                                         className="flex items-center gap-1.5 px-2 py-0.5 md:px-3 md:py-1 rounded-full font-medium transition-colors whitespace-nowrap shrink-0"
-                                        style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-strong)', border: '1px solid var(--danger-border)', fontSize: '0.62rem' }}
+                                        style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-strong)', border: '1px solid var(--danger-border)', fontSize: 'var(--fs-table)' }}
                                         title="Reset conversation"
                                     >
                                         <MdRestartAlt className="w-4 h-4" />
@@ -441,7 +441,7 @@ const AssistantChat = () => {
                                                         dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
                                                     />
                                                     {message.isStreaming && (
-                                                        <span className="inline-block w-1.5 h-4 bg-[var(--endeavour)] ml-0.5 animate-pulse rounded-sm" />
+                                                        <span className="inline-block w-1.5 h-4 bg-[var(--endeavour)] ml-0.5 animate-pulse rounded-lg" />
                                                     )}
                                                     <div className="responsiveTextTable mt-1.5 text-right text-[var(--regent-gray)]">
                                                         {message.time}
@@ -509,7 +509,7 @@ const AssistantChat = () => {
                                             onClick={() => handleSendMessage(action.text)}
                                             disabled={isLoading || dataLoading}
                                             className="flex items-center gap-1 px-2.5 py-1 bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                                            style={{ fontSize: '0.68rem' }}
+                                            style={{ fontSize: 'var(--fs-body)' }}
                                         >
                                             {action.icon}
                                             {action.text}

@@ -17,7 +17,7 @@ function CodeBlock({ children }) {
     return (
         <div
             className='relative rounded-lg p-2.5 mt-1 mb-2 font-mono'
-            style={{ background: 'var(--text-strong)', color: 'var(--border-neutral)', fontSize: '0.65rem' }}
+            style={{ background: 'var(--text-strong)', color: 'var(--border-neutral)', fontSize: 'var(--fs-table)' }}
         >
             <button
                 onClick={copy}
@@ -82,11 +82,11 @@ const EmailSetup = () => {
     return (
         <div className='p-3 space-y-3'>
             {/* Status card */}
-            <div className='rounded-xl p-4' style={{ border: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
+            <div className='rounded-2xl p-4' style={{ border: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
                 <div className='flex items-center justify-between mb-3'>
                     <div className='flex items-center gap-2'>
                         <Mail className='w-4 h-4' style={{ color: 'var(--endeavour)' }} />
-                        <span className='font-semibold' style={{ fontSize: '0.78rem', color: 'var(--chathams-blue)' }}>
+                        <span className='font-semibold' style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
                             Payment Reminder Emails
                         </span>
                     </div>
@@ -94,7 +94,7 @@ const EmailSetup = () => {
                         onClick={fetchStatus}
                         disabled={loading}
                         className='px-2.5 py-1 rounded-full border transition-colors hover:border-[var(--endeavour)] disabled:opacity-50'
-                        style={{ fontSize: '0.6rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}
+                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}
                     >
                         {loading ? <Loader2 className='w-2.5 h-2.5 animate-spin inline' /> : 'Re-check'}
                     </button>
@@ -103,14 +103,14 @@ const EmailSetup = () => {
                 {loading && (
                     <div className='flex items-center gap-2'>
                         <Loader2 className='w-3.5 h-3.5 animate-spin' style={{ color: 'var(--endeavour)' }} />
-                        <span style={{ fontSize: '0.7rem', color: 'var(--regent-gray)' }}>Checking server config…</span>
+                        <span style={{ fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>Checking server config…</span>
                     </div>
                 )}
 
                 {!loading && error && (
                     <div className='flex items-center gap-2 px-3 py-2 rounded-lg' style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)' }}>
                         <AlertTriangle className='w-3.5 h-3.5' style={{ color: 'var(--danger-strong)' }} />
-                        <span style={{ fontSize: '0.65rem', color: 'var(--danger-strong)' }}>{error}</span>
+                        <span style={{ fontSize: 'var(--fs-table)', color: 'var(--danger-strong)' }}>{error}</span>
                     </div>
                 )}
 
@@ -120,10 +120,10 @@ const EmailSetup = () => {
                             <div className='flex items-start gap-2 px-3 py-2.5 rounded-lg' style={{ background: 'var(--ok-soft)', border: '1px solid var(--ok-border)' }}>
                                 <CheckCircle2 className='w-4 h-4 flex-shrink-0 mt-0.5' style={{ color: 'var(--ok-text)' }} />
                                 <div>
-                                    <p className='font-semibold' style={{ fontSize: '0.7rem', color: 'var(--ok-strong)' }}>
+                                    <p className='font-semibold' style={{ fontSize: 'var(--fs-body)', color: 'var(--ok-strong)' }}>
                                         Email sending is configured
                                     </p>
-                                    <p style={{ fontSize: '0.62rem', color: 'var(--ok-strong)', marginTop: '2px' }}>
+                                    <p style={{ fontSize: 'var(--fs-table)', color: 'var(--ok-strong)', marginTop: '2px' }}>
                                         Sending from <code style={{ background: 'var(--ok-bg)', padding: '1px 4px', borderRadius: '3px' }}>{status.fromEmail}</code>
                                         {status.fromDomain && (
                                             <> — make sure <strong>{status.fromDomain}</strong> is verified in your Resend dashboard for best deliverability.</>
@@ -135,10 +135,10 @@ const EmailSetup = () => {
                             <div className='flex items-start gap-2 px-3 py-2.5 rounded-lg' style={{ background: 'var(--surface-card)3cd', border: '1px solid #ffc107' }}>
                                 <AlertTriangle className='w-4 h-4 flex-shrink-0 mt-0.5' style={{ color: 'var(--warn-text)' }} />
                                 <div>
-                                    <p className='font-semibold' style={{ fontSize: '0.7rem', color: 'var(--warn-strong)' }}>
+                                    <p className='font-semibold' style={{ fontSize: 'var(--fs-body)', color: 'var(--warn-strong)' }}>
                                         Email sending is NOT configured
                                     </p>
-                                    <p style={{ fontSize: '0.62rem', color: 'var(--warn-strong)', marginTop: '2px' }}>
+                                    <p style={{ fontSize: 'var(--fs-table)', color: 'var(--warn-strong)', marginTop: '2px' }}>
                                         Missing:{' '}
                                         {!status.hasApiKey && <code style={{ background: 'var(--warn-border)', padding: '1px 4px', borderRadius: '3px', marginRight: '4px' }}>RESEND_API_KEY</code>}
                                         {!status.hasFromEmail && <code style={{ background: 'var(--warn-border)', padding: '1px 4px', borderRadius: '3px' }}>RESEND_FROM_EMAIL</code>}
@@ -151,15 +151,15 @@ const EmailSetup = () => {
             </div>
 
             {/* Cadence */}
-            <div className='rounded-xl p-4' style={{ border: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
+            <div className='rounded-2xl p-4' style={{ border: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
                 <div className='flex items-center justify-between gap-3 flex-wrap'>
                     <div className='flex items-start gap-2 min-w-0 flex-1'>
                         <Clock className='w-4 h-4 mt-0.5 flex-shrink-0' style={{ color: 'var(--endeavour)' }} />
                         <div>
-                            <p className='font-semibold' style={{ fontSize: '0.72rem', color: 'var(--chathams-blue)' }}>
+                            <p className='font-semibold' style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
                                 Reminder cadence
                             </p>
-                            <p style={{ fontSize: '0.62rem', color: 'var(--regent-gray)', marginTop: '2px' }}>
+                            <p style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)', marginTop: '2px' }}>
                                 The Bell icon on the Invoices page shows a red dot when an invoice is still unpaid this many days after the last reminder.
                             </p>
                         </div>
@@ -174,20 +174,20 @@ const EmailSetup = () => {
                             onChange={e => handleCadenceChange(e.target.value)}
                             aria-label='Reminder cadence in days'
                             className='w-16 text-center rounded-full border px-2 py-1 outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20'
-                            style={{ fontSize: '0.68rem', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }}
+                            style={{ fontSize: 'var(--fs-body)', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }}
                         />
-                        <span style={{ fontSize: '0.65rem', color: 'var(--chathams-blue)' }}>days</span>
+                        <span style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>days</span>
                     </div>
                 </div>
             </div>
 
             {/* Setup steps */}
-            <div className='rounded-xl p-4' style={{ border: '1px solid var(--border-divider)', background: 'var(--surface-card)' }}>
-                <p className='font-semibold mb-2' style={{ fontSize: '0.72rem', color: 'var(--chathams-blue)' }}>
+            <div className='rounded-2xl p-4' style={{ border: '1px solid var(--border-divider)', background: 'var(--surface-card)' }}>
+                <p className='font-semibold mb-2' style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
                     Setup steps {status?.ready && <span style={{ color: 'var(--ok-text)' }}>(complete ✓)</span>}
                 </p>
 
-                <ol className='space-y-3' style={{ fontSize: '0.68rem', color: 'var(--port-gore)' }}>
+                <ol className='space-y-3' style={{ fontSize: 'var(--fs-body)', color: 'var(--port-gore)' }}>
                     <li>
                         <span className='font-semibold' style={{ color: 'var(--chathams-blue)' }}>1. Create a Resend account.</span>
                         <a
@@ -195,7 +195,7 @@ const EmailSetup = () => {
                             target='_blank'
                             rel='noopener noreferrer'
                             className='inline-flex items-center gap-1 ml-2 underline'
-                            style={{ color: 'var(--endeavour)', fontSize: '0.65rem' }}
+                            style={{ color: 'var(--endeavour)', fontSize: 'var(--fs-table)' }}
                         >
                             resend.com/signup <ExternalLink className='w-2.5 h-2.5' />
                         </a>
@@ -205,7 +205,7 @@ const EmailSetup = () => {
                     </li>
                     <li>
                         <span className='font-semibold' style={{ color: 'var(--chathams-blue)' }}>3. Verify your sending domain</span> in Resend (Domains → Add Domain → add the DNS records).
-                        <p style={{ fontSize: '0.6rem', color: 'var(--regent-gray)', marginTop: '2px' }}>
+                        <p style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)', marginTop: '2px' }}>
                             Without domain verification, emails will go to spam or bounce. This is the most common reason reminders fail.
                         </p>
                     </li>
@@ -220,7 +220,7 @@ RESEND_FROM_EMAIL=billing@yourdomain.com`}</CodeBlock>
                 </ol>
             </div>
 
-            <p style={{ fontSize: '0.58rem', color: 'var(--regent-gray)', textAlign: 'center' }}>
+            <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)', textAlign: 'center' }}>
                 The Bell icon on the Invoices page sends AI-generated reminders. The 24-hour cooldown prevents spam.
             </p>
         </div>

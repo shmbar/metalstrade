@@ -30,8 +30,8 @@ const SortTh = ({ colKey, label, sortKey, sortDir, onSort, className = '' }) => 
     <th className={`cursor-pointer select-none ${className}`} onClick={() => onSort(colKey)}>
         <span className="inline-flex items-center gap-1">
             {label}
-            {sortKey === colKey && sortDir === 'asc' && <TbSortAscending className="shrink-0" style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
-            {sortKey === colKey && sortDir === 'desc' && <TbSortDescending className="shrink-0" style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+            {sortKey === colKey && sortDir === 'asc' && <TbSortAscending className="shrink-0" style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+            {sortKey === colKey && sortDir === 'desc' && <TbSortDescending className="shrink-0" style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
         </span>
     </th>
 );
@@ -100,7 +100,7 @@ const FinalBadge = ({ fnlzing, invType, invoiceNo }) => {
                     color: tone.text,
                     backgroundColor: tone.bg,
                     boxShadow: `inset 0 0 0 1px ${tone.ring}`,
-                    fontSize: '0.6rem',
+                    fontSize: 'var(--fs-table)',
                     padding: '3px 7px',
                 }}
             >
@@ -567,7 +567,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
     });
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-[var(--surface-card)]">
+        <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -740,7 +740,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
     });
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-[var(--surface-card)]">
+        <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -1113,7 +1113,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
     const filteredArr1 = sortKey ? sortRows(rawInDebt, sortKey, sortDir) : rawInDebt;
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-[var(--surface-card)]">
+        <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             {type === 'PartPaid' &&
                 <div className="pt-1 w-full">
@@ -1573,7 +1573,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     });
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-[var(--surface-card)]">
+        <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -1784,7 +1784,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
     const allEur = filteredArr.length > 0 && filteredArr.every(z => z.cur === 'eu');
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-xl overflow-hidden bg-[var(--surface-card)]">
+        <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>

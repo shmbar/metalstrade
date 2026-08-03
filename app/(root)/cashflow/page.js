@@ -1179,7 +1179,7 @@ const Cashflow = () => {
                                                             <NumericFormat className='input w-44 h-6 responsiveTextTotal rounded-full'
                                                                 value={z.num} thousandSeparator allowNegative={false} decimalScale={2} fixedDecimalScale prefix='$'
                                                                 onValueChange={values => handleChangeInitial({ target: { value: values.value } }, i, 'num')} />
-                                                            <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-md hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
+                                                            <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-lg hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
                                                         </div>
                                                     )
                                                 })}
@@ -1457,7 +1457,7 @@ const Cashflow = () => {
                                                                 {
                                                                     financedLeft?.map((z, i) => {
                                                                         return (
-                                                                            <div className="flex items-center justify-between rounded-xl px-0 responsiveTextInput hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                                            <div className="flex items-center justify-between rounded-2xl px-0 responsiveTextInput hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                                 <div className="flex items-center gap-1 min-w-0 flex-1">
                                                                                     <button onClick={() => setFinancedLeft(financedLeft.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
                                                                                     <input className={cn('flex-1 min-w-0 outline-none h-6 bg-transparent text-[var(--chathams-blue)]',
@@ -1696,7 +1696,7 @@ const Cashflow = () => {
                                                                 {
                                                                     financedRight?.map((z, i) => {
                                                                         return (
-                                                                            <div className="flex items-center justify-between rounded-xl px-0 responsiveTextInput hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                                            <div className="flex items-center justify-between rounded-2xl px-0 responsiveTextInput hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                                 <div className="flex items-center gap-1 min-w-0 flex-1">
                                                                                     <button onClick={() => setFinancedRight(financedRight.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
                                                                                     <input className={cn('flex-1 min-w-0 outline-none h-6 text-[var(--chathams-blue)] bg-transparent',
@@ -1737,7 +1737,7 @@ const Cashflow = () => {
                                         </div>
 
                                         {userTitle === 'Admin' && (
-                                            <div className="mt-1 w-full border border-[var(--border-divider)] rounded-xl p-2">
+                                            <div className="mt-1 w-full border border-[var(--border-divider)] rounded-2xl p-2">
 
                                                 {/* TOTALS AND BALANCE IN ONE ROW */}
                                                 <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">

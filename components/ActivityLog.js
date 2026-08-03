@@ -133,22 +133,22 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                             onChange={e => setQ(e.target.value)}
                             placeholder='Search activity…'
                             className='flex-1 bg-transparent outline-none'
-                            style={{ fontSize: '0.72rem', color: 'var(--port-gore)' }}
+                            style={{ fontSize: 'var(--fs-input)', color: 'var(--port-gore)' }}
                         />
                     </div>
-                    <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className={`${pill} px-3 py-1`} style={{ fontSize: '0.72rem', color: 'var(--port-gore)' }}>
+                    <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className={`${pill} px-3 py-1`} style={{ fontSize: 'var(--fs-input)', color: 'var(--port-gore)' }}>
                         <option value='all'>All types</option>
                         {Object.entries(ENTITY_META).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
                     </select>
-                    <select value={actorFilter} onChange={e => setActorFilter(e.target.value)} className={`${pill} px-3 py-1`} style={{ fontSize: '0.72rem', color: 'var(--port-gore)' }}>
+                    <select value={actorFilter} onChange={e => setActorFilter(e.target.value)} className={`${pill} px-3 py-1`} style={{ fontSize: 'var(--fs-input)', color: 'var(--port-gore)' }}>
                         <option value='all'>All users</option>
                         {actors.map(a => <option key={a} value={a}>{a}</option>)}
                     </select>
-                    <button onClick={load} aria-label='Refresh activity' className={`${pill} flex items-center gap-1 px-2.5 py-1 hover:border-[var(--endeavour)]`} style={{ fontSize: '0.72rem', color: 'var(--chathams-blue)' }}>
+                    <button onClick={load} aria-label='Refresh activity' className={`${pill} flex items-center gap-1 px-2.5 py-1 hover:border-[var(--endeavour)]`} style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
                         <RefreshCw className='w-3 h-3' /> Refresh
                     </button>
                     {!loading && items.length > 0 && (
-                        <span className='ml-auto pr-1' style={{ fontSize: '0.65rem', color: 'var(--regent-gray)' }}>
+                        <span className='ml-auto pr-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>
                             {filtered.length === items.length
                                 ? `${items.length} ${items.length === 1 ? 'entry' : 'entries'}`
                                 : `${filtered.length} of ${items.length}`}
@@ -161,12 +161,12 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
             {loading ? (
                 <div className='flex items-center justify-center gap-2 py-8'>
                     <Loader2 className='w-4 h-4 animate-spin' style={{ color: 'var(--endeavour)' }} />
-                    <span style={{ fontSize: '0.72rem', color: 'var(--chathams-blue)' }}>Loading activity…</span>
+                    <span style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>Loading activity…</span>
                 </div>
             ) : filtered.length === 0 ? (
                 <div className='flex flex-col items-center justify-center py-8 gap-1'>
                     <Activity className='w-5 h-5' style={{ color: 'var(--border-divider)' }} />
-                    <span style={{ fontSize: '0.72rem', color: 'var(--regent-gray)' }}>
+                    <span style={{ fontSize: 'var(--fs-input)', color: 'var(--regent-gray)' }}>
                         {items.length === 0 ? 'No activity recorded yet.' : 'No activity matches your filters.'}
                     </span>
                 </div>
@@ -178,7 +178,7 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                     {groups.map(group => (
                         <section key={group.key} className='mb-3 last:mb-0'>
                             <div className='flex items-center gap-2 mb-1.5'>
-                                <span className='font-medium tracking-wide uppercase' style={{ fontSize: '0.6rem', color: 'var(--regent-gray)' }}>
+                                <span className='font-medium tracking-wide uppercase' style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>
                                     {group.label}
                                 </span>
                                 <span className='flex-1 h-px' style={{ background: 'var(--selago)' }} />
@@ -190,7 +190,7 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                                     return (
                                         <li
                                             key={r.id}
-                                            className='flex items-start gap-2.5 px-2.5 py-2 rounded-xl border border-[var(--selago)] bg-[var(--surface-card)] transition-colors hover:border-[var(--border-divider)] hover:bg-[var(--surface-pill)]'
+                                            className='flex items-start gap-2.5 px-2.5 py-2 rounded-2xl border border-[var(--selago)] bg-[var(--surface-card)] transition-colors hover:border-[var(--border-divider)] hover:bg-[var(--surface-pill)]'
                                         >
                                             <span className='inline-flex items-center justify-center rounded-full flex-shrink-0' style={{ width: 26, height: 26, background: meta.bg }}>
                                                 <Icon className='w-3.5 h-3.5' style={{ color: meta.color }} />
@@ -198,26 +198,26 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                                             {/* One line on wide screens — metadata right-aligned so the row
                                                 uses the full width instead of wrapping under the message. */}
                                             <div className='min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between sm:gap-3'>
-                                                <p className='break-words min-w-0 flex items-center gap-1.5' style={{ fontSize: '0.72rem', color: 'var(--port-gore)' }}>
+                                                <p className='break-words min-w-0 flex items-center gap-1.5' style={{ fontSize: 'var(--fs-input)', color: 'var(--port-gore)' }}>
                                                     <span className='min-w-0'>{r.message || `${meta.label} ${r.action || 'updated'}`}</span>
                                                     {r.repeat > 1 && (
                                                         <span
                                                             className='flex-shrink-0 px-1.5 rounded-full font-medium'
                                                             title={`${r.repeat} identical entries`}
-                                                            style={{ fontSize: '0.6rem', background: meta.bg, color: meta.color }}
+                                                            style={{ fontSize: 'var(--fs-table)', background: meta.bg, color: meta.color }}
                                                         >
                                                             ×{r.repeat}
                                                         </span>
                                                     )}
                                                 </p>
-                                                <div className='flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 sm:mt-0 sm:flex-shrink-0 sm:justify-end' style={{ fontSize: '0.6rem', color: 'var(--regent-gray)' }}>
+                                                <div className='flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 sm:mt-0 sm:flex-shrink-0 sm:justify-end' style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>
                                                     {r.entityLabel && (
                                                         <span className='px-1.5 py-0.5 rounded-full' style={{ background: meta.bg, color: meta.color }}>
                                                             {r.entityLabel}
                                                         </span>
                                                     )}
                                                     <span className='inline-flex items-center gap-1'>
-                                                        <span className='inline-flex items-center justify-center rounded-full text-white' style={{ width: 14, height: 14, fontSize: '0.5rem', background: meta.color }}>
+                                                        <span className='inline-flex items-center justify-center rounded-full text-white' style={{ width: 14, height: 14, fontSize: 'var(--fs-caption)', background: meta.color }}>
                                                             {initials(r.actorName)}
                                                         </span>
                                                         {r.actorName || 'Unknown'}

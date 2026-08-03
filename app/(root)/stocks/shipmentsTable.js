@@ -129,7 +129,7 @@ const Customtable = ({ data, item }) => {
 								<HiArrowDownTray className='font-semibold scale-110 text-green-600' />
 								<span >{obj[x]}</span>
 								<span className="absolute hidden group-hover:flex -top-2 w-fit p-1
-    bg-slate-400 rounded-md text-center text-white responsiveText z-10 whitespace-nowrap -left-36 ">
+    bg-slate-400 rounded-lg text-center text-white responsiveText z-10 whitespace-nowrap -left-36 ">
 									<span>{`Moved from:`}&nbsp;</span> <span className='font-medium'>{`${settings.Stocks.Stocks.find(x => x.id === obj.oldStock)['stock']}`}</span></span>
 							</div> :
 							(x === 'type' && obj.moveType === 'out') ?
@@ -137,7 +137,7 @@ const Customtable = ({ data, item }) => {
 									<HiArrowUpTray className='font-semibold scale-110 text-red-600' />
 									<span >{obj[x]}</span>
 									<span className="absolute hidden group-hover:flex -top-2 w-fit p-1
-    bg-slate-400 rounded-md text-center text-white responsiveText z-10 whitespace-nowrap -left-36 ">
+    bg-slate-400 rounded-lg text-center text-white responsiveText z-10 whitespace-nowrap -left-36 ">
 										<span>{`Moved to:`}&nbsp;</span> <span className='font-medium'>{`${settings.Stocks.Stocks.find(x => x.id === obj.newStock)['stock']}`}</span></span>
 								</div> :
 								x === 'qnty' ?
@@ -159,7 +159,7 @@ const Customtable = ({ data, item }) => {
 	return (
 		<div className='mx-4 mb-4 rounded-2xl overflow-hidden border border-[var(--border-divider)]' style={{ boxShadow: '0 2px 12px rgba(var(--endeavour-rgb),0.08)' }}>
 			<div className="w-full overflow-x-auto">
-				<table className="w-full" style={{ borderCollapse: 'collapse', fontFamily: "var(--font-poppins), 'Poppins', sans-serif", fontSize: '0.72rem' }}>
+				<table className="w-full" style={{ borderCollapse: 'collapse', fontFamily: "var(--font-poppins), 'Poppins', sans-serif", fontSize: 'var(--fs-input)' }}>
 					<thead>
 						<tr>
 							{cols.map((x, k) => (
@@ -167,7 +167,7 @@ const Customtable = ({ data, item }) => {
 									background: 'var(--surface-header)',
 									color: 'var(--chathams-blue)',
 									fontWeight: 600,
-									fontSize: '0.72rem',
+									fontSize: 'var(--fs-input)',
 									textAlign: 'center',
 									padding: '7px 10px',
 									border: '1px solid var(--border-divider)',
@@ -188,7 +188,7 @@ const Customtable = ({ data, item }) => {
 									<td key={x.field} style={{
 										padding: '5px 10px',
 										border: '1px solid var(--selago)',
-										fontSize: '0.72rem',
+										fontSize: 'var(--fs-input)',
 										color: 'var(--chathams-blue)',
 										textAlign: 'center',
 										whiteSpace: x.field === 'description' || x.field === 'supplier' ? 'normal' : 'nowrap',

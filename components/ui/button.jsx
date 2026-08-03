@@ -4,26 +4,52 @@ import { cva } from "class-variance-authority";
 
 import { cn } from "@lib/utils"
 
+/* Design-audit note (design-audit/TOKENS.md §1.5, §4):
+ *
+ * Every `dark:` variant was removed from this file on purpose. This app does NOT
+ * theme with Tailwind's `dark:` variants — it swaps CSS-variable *values* on
+ * <html> (utils/themes.js -> applyTheme). The `dark:` classes that used to live
+ * here were actively harmful: `dark:bg-slate-50 dark:text-slate-900` resolved to
+ * a DARK background (slate-50 is remapped to --surface-base in tailwind.config)
+ * with NEAR-BLACK text (slate-900 is NOT remapped), i.e. invisible button labels
+ * in dark mode across 16 files.
+ *
+ * Sizes are the three from the spec (24 / 28 / 32px) and match .input, so a
+ * button and the field beside it always line up. Type ramps with the ladder
+ * instead of sitting at the rogue 0.72rem it used before.
+ */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-[0.72rem] font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium transition-colors " +
+  "text-[0.5625rem] xl:text-[0.625rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem] " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--endeavour)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-card)] " +
+  "disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-[var(--endeavour)] text-white hover:opacity-90 shadow-lg dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90",
+        default:
+          "bg-[var(--endeavour)] text-white hover:opacity-90 shadow-md",
         destructive:
-          "bg-red-500 text-white hover:bg-red-500/90 dark:bg-red-900 dark:text-white dark:hover:bg-red-900/90",
+          "bg-[var(--danger-text)] text-white hover:opacity-90 shadow-md",
         outline:
-          "border border-[var(--rock-blue)] bg-[var(--surface-card)] hover:bg-[var(--selago)] text-[color:var(--endeavour)] shadow-md dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-white",
+          "border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--endeavour)] hover:bg-[var(--selago)] shadow-sm",
         secondary:
-          "bg-slate-100 text-slate-900 hover:bg-slate-100/80 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-800/80",
-        ghost: "hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white",
-        link: "text-slate-900 underline-offset-4 hover:underline dark:text-white",
+          "bg-[var(--surface-header)] text-[var(--chathams-blue)] hover:bg-[var(--selago)] shadow-sm",
+        ghost:
+          "text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]",
+        link:
+          "text-[var(--endeavour)] underline-offset-4 hover:underline",
+        /* Kept for source compatibility — these were only defined in the
+           duplicate button.tsx. They are aliases of default/outline. */
+        customBlue:
+          "bg-[var(--endeavour)] text-white hover:opacity-90 shadow-md px-2",
+        customWhite:
+          "border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--endeavour)] hover:bg-[var(--selago)] shadow-sm px-2",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-full px-3",
-        lg: "h-11 rounded-full px-8",
-        icon: "h-10 w-10",
+        sm: "h-6 px-2.5",
+        default: "h-7 px-3",
+        lg: "h-8 px-4",
+        icon: "h-7 w-7 px-0",
       },
     },
     defaultVariants: {

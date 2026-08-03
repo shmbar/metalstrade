@@ -34,21 +34,21 @@ const MyModal = ({ isDeleteOpen, setIsDeleteOpen, ttl, txt, doAction }) => {
           </DialogTitle>
         </DialogHeader>
 
-        <p className="text-sm text-[var(--endeavour)] mt-2">
+        <p className="responsiveTextTitle text-[var(--endeavour)] mt-2">
           {txt}
         </p>
 
         <DialogFooter className="flex gap-4 mt-4">
           <button
             onClick={confirmDel}
-            className="inline-flex justify-center rounded-full bg-[var(--endeavour)] px-4 py-1.5 text-sm font-medium text-white hover:opacity-90 transition-all"
+            className="inline-flex justify-center rounded-full bg-[var(--endeavour)] px-4 py-1.5 responsiveTextTitle font-medium text-white hover:opacity-90 transition-all"
           >
             {getTtl("Confirm", ln)}
           </button>
 
           <button
             onClick={closeModal}
-            className="inline-flex justify-center rounded-full border border-[var(--endeavour)] bg-[var(--surface-card)] px-4 py-1.5 text-sm font-medium text-[var(--endeavour)] hover:bg-[var(--selago)] transition-all"
+            className="inline-flex justify-center rounded-full border border-[var(--endeavour)] bg-[var(--surface-card)] px-4 py-1.5 responsiveTextTitle font-medium text-[var(--endeavour)] hover:bg-[var(--selago)] transition-all"
           >
             {getTtl("Cancel", ln)}
           </button>

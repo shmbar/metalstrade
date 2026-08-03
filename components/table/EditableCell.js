@@ -96,7 +96,7 @@ const EditableCell = ({
                         onKeyDown={handleKeyDown}
                         onBlur={handleBlur}
                         disabled={isSaving}
-                        className="w-full px-2 py-1 text-xs border border-blue-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-[var(--surface-card)]"
+                        className="w-full px-2 py-1 responsiveTextInput border border-blue-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-[var(--surface-card)]"
                     >
                         <option value="">-</option>
                         {options.map((opt) => (
@@ -114,12 +114,12 @@ const EditableCell = ({
                         onKeyDown={handleKeyDown}
                         onBlur={handleBlur}
                         disabled={isSaving}
-                        className="w-full px-2 py-1 text-xs border border-blue-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="w-full px-2 py-1 responsiveTextInput border border-blue-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                         style={{ minWidth: '60px' }}
                     />
                 )}
                 {isSaving && (
-                    <span className="text-xs text-blue-500 animate-pulse">...</span>
+                    <span className="responsiveTextInput text-blue-500 animate-pulse">...</span>
                 )}
             </div>
         );

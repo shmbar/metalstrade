@@ -409,7 +409,7 @@ const Expenses = () => {
 											title='Show only invoices not yet split between IMS & GIS'
 											className='inline-flex items-center gap-1.5 rounded-full transition-colors'
 											style={{
-												fontSize: '0.66rem', padding: '4px 12px',
+												fontSize: 'var(--fs-body)', padding: '4px 12px',
 												color: onlyUnsplit ? 'white' : 'var(--chathams-blue)',
 												background: onlyUnsplit ? 'var(--endeavour)' : 'var(--surface-pill)',
 												border: '1px solid var(--border-divider)',
@@ -417,7 +417,7 @@ const Expenses = () => {
 										>
 											<Split className='w-3.5 h-3.5' />
 											Needs IMS/GIS split
-											<span className='rounded-full px-1.5' style={{ fontSize: '0.6rem', background: onlyUnsplit ? 'rgba(255,255,255,0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
+											<span className='rounded-full px-1.5' style={{ fontSize: 'var(--fs-table)', background: onlyUnsplit ? 'rgba(255,255,255,0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
 												{pendingCount}
 											</span>
 										</button>

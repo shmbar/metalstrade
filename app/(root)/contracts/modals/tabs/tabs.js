@@ -40,7 +40,7 @@ const Page = () => {
                                     key={z}
                                     className={({ selected }) =>
                                         classNames(
-                                            'rounded-full py-1.5 px-4 text-xs font-medium leading-4 transition-colors whitespace-nowrap',
+                                            'rounded-full py-1.5 px-4 responsiveTextInput font-medium leading-4 transition-colors whitespace-nowrap',
                                             'focus:outline-none',
                                             selected
                                                 ? 'text-white bg-[var(--endeavour)] shadow-sm'
@@ -57,7 +57,7 @@ const Page = () => {
                                 <Tab.Panel
                                     key={idx}
                                     className={classNames(
-                                        'rounded-xl bg-[var(--surface-card)]', ' focus:outline-none'
+                                        'rounded-2xl bg-[var(--surface-card)]', ' focus:outline-none'
                                     )}
                                 >
                                     {SetDiv(idx)}

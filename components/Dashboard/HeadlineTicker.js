@@ -37,7 +37,7 @@ export default function HeadlineTicker({
       shell:         'border border-[var(--selago)] bg-[var(--surface-card)] shadow-sm',
       headerIconWrap:'bg-[var(--endeavour)] text-white',
       titleText:     'text-[var(--chathams-blue)]',
-      subText:       'text-[var(--endeavour)] text-xs',
+      subText:       'text-[var(--endeavour)] responsiveTextInput',
       tickerDot:     'bg-[var(--border-divider)]',
       itemLabel:     'text-[var(--regent-gray)] responsiveTextTable',
       itemValue:     'text-[var(--port-gore)] responsiveTextTable font-bold',
@@ -228,13 +228,13 @@ export default function HeadlineTicker({
         <div className="flex items-center justify-between px-4 pt-3 pb-2">
           <div className="flex items-center gap-3 min-w-0">
             {LeftIcon ? (
-              <div className="w-8 h-8 rounded-xl bg-[var(--selago)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-2xl bg-[var(--selago)] flex items-center justify-center">
                 <LeftIcon className="w-4 h-4 text-[var(--endeavour)]" />
               </div>
             ) : null}
             <div className="min-w-0">
-              {title    ? <div className={['text-sm font-bold leading-tight truncate', theme.titleText].join(' ')}>{title}</div>    : null}
-              {subtitle ? <div className={['text-xs leading-tight truncate',           theme.subText].join(' ')}>{subtitle}</div> : null}
+              {title    ? <div className={['responsiveTextTitle font-bold leading-tight truncate', theme.titleText].join(' ')}>{title}</div>    : null}
+              {subtitle ? <div className={['responsiveTextInput leading-tight truncate',           theme.subText].join(' ')}>{subtitle}</div> : null}
             </div>
           </div>
           {rightSlot ? <div className="shrink-0">{rightSlot}</div> : null}
@@ -285,13 +285,13 @@ export default function HeadlineTicker({
                       return (
                         <span
                           className="inline-flex items-center gap-0.5 rounded-full font-semibold"
-                          style={{ background: c.bg, color: c.fg, fontSize: '0.56rem', padding: '1px 6px' }}
+                          style={{ background: c.bg, color: c.fg, fontSize: 'var(--fs-caption)', padding: '1px 6px' }}
                         >
                           {c.arrow} {pct}
                         </span>
                       );
                     })()}
-                    {it.subValue ? <span className={['text-xs ml-1', theme.itemSub].join(' ')}>{it.subValue}</span> : null}
+                    {it.subValue ? <span className={['responsiveTextInput ml-1', theme.itemSub].join(' ')}>{it.subValue}</span> : null}
                   </div>
                   {it.subValue ? <span className={['w-1.5 h-1.5 rounded-full ml-1', theme.tickerDot].join(' ')} /> : null}
                 </div>

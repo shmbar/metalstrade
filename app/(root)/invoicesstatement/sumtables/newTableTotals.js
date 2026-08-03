@@ -40,7 +40,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
     const eurTotals = calculateTotals("eur")
 
     return (
-        <div className="custom-table-totals bg-[var(--surface-card)] rounded-xl shadow border overflow-hidden"
+        <div className="custom-table-totals bg-[var(--surface-card)] rounded-2xl shadow border overflow-hidden"
             style={{
                 borderColor: 'var(--border-divider)',
                 borderWidth: 1,

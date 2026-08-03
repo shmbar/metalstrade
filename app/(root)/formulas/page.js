@@ -153,9 +153,9 @@ const Page = () => {
 									</TabList>
 
 									{value.general != null && !loading && (
-										<div className='bg-[var(--surface-card)] rounded-xl p-3 mb-2 w-fit border border-[var(--border-divider)]'>
+										<div className='bg-[var(--surface-card)] rounded-2xl p-3 mb-2 w-fit border border-[var(--border-divider)]'>
 											<div className='flex flex-wrap items-end gap-2.5'>
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
+												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium flex items-center justify-center gap-1'>
 														Ni LME
 														<button onClick={refreshMetal} title="Refresh live price" className="hover:text-[var(--chathams-blue)] transition-colors">
@@ -173,7 +173,7 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
+												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Mo Oxide - Lb</span>
 													<input
 														type='text'
@@ -186,7 +186,7 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
+												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Charge Cr - Lb</span>
 													<input
 														type='text'
@@ -199,7 +199,7 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
+												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>1 MT</span>
 													<input
 														type='text'
@@ -210,7 +210,7 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
+												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
 													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Euro / USD</span>
 													<input
 														type='text'

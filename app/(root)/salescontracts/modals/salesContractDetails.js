@@ -123,8 +123,8 @@ const SalesContractDetails = () => {
             <div className="border border-[var(--border-divider)] p-2 rounded-2xl mt-1.5">
                 <p className="responsiveText text-[var(--port-gore)] font-medium">{getTtl('Comments', ln)}:</p>
                 <textarea rows="2" name="comments"
-                    className="input w-full p-1.5 !rounded-xl mt-1"
-                    style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
+                    className="input w-full p-1.5 !rounded-2xl mt-1"
+                    style={{ fontSize: 'var(--fs-input)', fontFamily: 'inherit' }}
                     value={valueSC.comments} onChange={handleValue} />
             </div>
 

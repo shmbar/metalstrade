@@ -136,14 +136,14 @@ export function QuickSumButton({
               />
               <div
                 style={dropdownStyle}
-                className="bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-xl shadow-lg p-3"
+                className="bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-2xl shadow-lg p-3"
               >
-                <div className="text-sm font-medium text-[var(--port-gore)] mb-2 pl-1">
+                <div className="responsiveTextTitle font-medium text-[var(--port-gore)] mb-2 pl-1">
                   Select numeric columns
                 </div>
 
                 {numericCols.length === 0 ? (
-                  <div className="text-sm text-[var(--port-gore)] p-2">
+                  <div className="responsiveTextTitle text-[var(--port-gore)] p-2">
                     No numeric columns detected.
                   </div>
                 ) : (
@@ -151,7 +151,7 @@ export function QuickSumButton({
                     {numericCols.map((c) => (
                       <label
                         key={c.id}
-                        className="flex items-center gap-2 text-xs py-2 px-2 cursor-pointer hover:bg-[var(--selago)]/50 rounded-lg transition-colors"
+                        className="flex items-center gap-2 responsiveTextInput py-2 px-2 cursor-pointer hover:bg-[var(--selago)]/50 rounded-lg transition-colors"
                       >
                         <input
                           type="checkbox"
@@ -168,14 +168,14 @@ export function QuickSumButton({
                 <div className="mt-2 pt-2 border-t border-[var(--border-divider)] flex items-center justify-between">
                   <button
                     type="button"
-                    className="text-xs text-[var(--endeavour)] hover:underline"
+                    className="responsiveTextInput text-[var(--endeavour)] hover:underline"
                     onClick={() => setSelectedColumnIds([])}
                   >
                     Clear columns
                   </button>
                   <button
                     type="button"
-                    className="text-xs text-[var(--endeavour)] hover:underline"
+                    className="responsiveTextInput text-[var(--endeavour)] hover:underline"
                     onClick={() => setOpen(false)}
                   >
                     Close
@@ -210,7 +210,7 @@ export function QuickSumTotals({
   if (selectedCount === 0) return null;
 
   return (
-    <div className="inline-flex flex-wrap items-center gap-1.5 text-xs text-[var(--port-gore)] border border-[var(--endeavour)] rounded-2xl bg-[var(--surface-card)] px-3 py-1.5 shadow-sm">
+    <div className="inline-flex flex-wrap items-center gap-1.5 responsiveTextInput text-[var(--port-gore)] border border-[var(--endeavour)] rounded-2xl bg-[var(--surface-card)] px-3 py-1.5 shadow-sm">
       <span className="font-semibold text-[var(--endeavour)]">{selectedCount} selected</span>
       <span className="text-[var(--rock-blue)]">|</span>
       {(totals || []).map((t) => {

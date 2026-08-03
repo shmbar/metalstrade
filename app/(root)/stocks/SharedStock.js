@@ -150,7 +150,7 @@ const SharedStock = () => {
             accessorKey: 'ownersLabel', header: 'Owners',
             cell: p => (
                 <span className='inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap'
-                    style={{ fontSize: '0.6rem', background: 'var(--violet-soft)', color: 'var(--violet-strong)', border: '1px solid var(--violet-border)' }}>
+                    style={{ fontSize: 'var(--fs-table)', background: 'var(--violet-soft)', color: 'var(--violet-strong)', border: '1px solid var(--violet-border)' }}>
                     <Share2 className='w-2.5 h-2.5' />{p.getValue()}
                 </span>
             ),
@@ -160,7 +160,7 @@ const SharedStock = () => {
             cell: p => (
                 <span className='inline-flex items-center px-2 py-0.5 rounded-full font-semibold whitespace-nowrap'
                     style={{
-                        fontSize: '0.6rem',
+                        fontSize: 'var(--fs-table)',
                         background: p.getValue() === 'IMS' ? 'var(--ok-soft)' : p.getValue() === 'GIS' ? 'var(--warn-soft)' : '#f1f5f9',
                         color: p.getValue() === 'IMS' ? 'var(--ok-strong)' : p.getValue() === 'GIS' ? 'var(--warn-strong)' : 'var(--text-mid)',
                         border: `1px solid ${p.getValue() === 'IMS' ? 'var(--ok-border)' : p.getValue() === 'GIS' ? 'var(--warn-bg)' : '#cbd5e1'}`,
@@ -253,7 +253,7 @@ const SharedStock = () => {
             .map(([cur, v]) => (curSym(cur) || '$') + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v));
         return parts.length ? parts.join(' · ') : (curSym('us') || '$') + '0.00';
     };
-    const inputCls = 'w-full rounded-lg bg-[var(--surface-pill)] border border-[var(--border-cell)] px-2 h-8 text-xs text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]';
+    const inputCls = 'w-full rounded-lg bg-[var(--surface-pill)] border border-[var(--border-cell)] px-2 h-8 responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]';
     const labelCls = 'text-[11px] font-medium text-[var(--chathams-blue)] mb-0.5 block';
 
     if (loading) return <div className='p-6'><TableSkeleton rows={6} title={false} /></div>;
@@ -265,7 +265,7 @@ const SharedStock = () => {
                     <Share2 className='w-4 h-4 text-[var(--endeavour)]' />
                     <span>Inventory shared between IMS &amp; GIS · {rows.length} lot{rows.length !== 1 ? 's' : ''} · {new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(totalMt)} MT</span>
                 </div>
-                <button onClick={openAdd} className='blackButton flex items-center gap-1 text-xs'>
+                <button onClick={openAdd} className='blackButton flex items-center gap-1 responsiveTextInput'>
                     <Plus className='w-3.5 h-3.5' /> Add shared stock
                 </button>
             </div>
@@ -280,7 +280,7 @@ const SharedStock = () => {
                     <Customtable data={rows} columns={columns} invisible={{}} SelectRow={openEdit} type='sharedStock' ln={ln} />
 
                     {/* Bottom summary: total value + who finances how much */}
-                    <div className='flex flex-wrap items-center gap-x-6 gap-y-1 mt-3 rounded-xl border border-[var(--border-divider)] bg-[var(--surface-pill)] px-4 py-2.5 responsiveTextTable'>
+                    <div className='flex flex-wrap items-center gap-x-6 gap-y-1 mt-3 rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-pill)] px-4 py-2.5 responsiveTextTable'>
                         <span style={{ color: 'var(--regent-gray)' }}>
                             Total:&nbsp;<b style={{ color: 'var(--chathams-blue)' }}>
                                 {new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(totalMt)} MT</b>
@@ -290,7 +290,7 @@ const SharedStock = () => {
                             Financing —&nbsp;IMS:&nbsp;<b style={{ color: 'var(--chathams-blue)' }}>{fmtMoney(money.fin.IMS)}</b>
                             &nbsp;·&nbsp;GIS:&nbsp;<b style={{ color: 'var(--chathams-blue)' }}>{fmtMoney(money.fin.GIS)}</b>
                         </span>
-                        <span style={{ fontSize: '10px', color: 'var(--regent-gray)' }}>
+                        <span style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>
                             From each lot&apos;s &quot;Financed by&quot; — Both counts half to each company.
                         </span>
                     </div>
@@ -303,7 +303,7 @@ const SharedStock = () => {
             <Modal isOpen={open} setIsOpen={setOpen} title={lot.id ? 'Edit shared stock' : 'Add shared stock'} w='max-w-2xl'>
                 <div className='p-3'>
                     <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-                        <div className='sm:col-span-2 rounded-xl border border-[var(--border-divider)] bg-[var(--surface-pill)] p-2.5'>
+                        <div className='sm:col-span-2 rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-pill)] p-2.5'>
                             <label className={labelCls}>Pick from my current stock</label>
                             <Selector
                                 arr={pickOptions}
@@ -349,7 +349,7 @@ const SharedStock = () => {
                             <label className={labelCls}>Owners</label>
                             <div className='flex items-center gap-3'>
                                 {OWNERS.map(o => (
-                                    <label key={o} className='flex items-center gap-1.5 text-xs text-[var(--port-gore)] cursor-pointer'>
+                                    <label key={o} className='flex items-center gap-1.5 responsiveTextInput text-[var(--port-gore)] cursor-pointer'>
                                         <input type='checkbox' checked={lot.owners.includes(o)} onChange={() => toggleOwner(o)} className='w-3.5 h-3.5 accent-[var(--endeavour)]' />
                                         {o}
                                     </label>
@@ -361,7 +361,7 @@ const SharedStock = () => {
                             <label className={labelCls}>Financed by</label>
                             <div className='flex items-center gap-3'>
                                 {FINANCING.map(f => (
-                                    <label key={f} className='flex items-center gap-1.5 text-xs text-[var(--port-gore)] cursor-pointer'>
+                                    <label key={f} className='flex items-center gap-1.5 responsiveTextInput text-[var(--port-gore)] cursor-pointer'>
                                         <input type='radio' name='financedBy' checked={(lot.financedBy || 'BOTH') === f}
                                             onChange={() => setF('financedBy', f)} className='w-3.5 h-3.5 accent-[var(--endeavour)]' />
                                         {f === 'BOTH' ? 'Both (50/50)' : f}
@@ -374,13 +374,13 @@ const SharedStock = () => {
 
                     <div className='flex items-center justify-between gap-2 mt-4'>
                         {lot.id ? (
-                            <button onClick={remove} disabled={saving} className='flex items-center gap-1 text-xs text-red-600 hover:text-red-700 disabled:opacity-50'>
+                            <button onClick={remove} disabled={saving} className='flex items-center gap-1 responsiveTextInput text-red-600 hover:text-red-700 disabled:opacity-50'>
                                 <Trash2 className='w-3.5 h-3.5' /> Remove
                             </button>
                         ) : <span />}
                         <div className='flex items-center gap-2'>
-                            <button onClick={() => setOpen(false)} className='whiteButton text-xs'>Cancel</button>
-                            <button onClick={save} disabled={saving} className='blackButton flex items-center gap-1 text-xs disabled:opacity-50'>
+                            <button onClick={() => setOpen(false)} className='whiteButton responsiveTextInput'>Cancel</button>
+                            <button onClick={save} disabled={saving} className='blackButton flex items-center gap-1 responsiveTextInput disabled:opacity-50'>
                                 <Save className='w-3.5 h-3.5' /> {saving ? 'Saving…' : 'Save'}
                             </button>
                         </div>

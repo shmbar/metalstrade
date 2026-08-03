@@ -88,9 +88,9 @@ const MyCombobox = ({ data, setValue, value, dt, indx, name, classes, disabled, 
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="my-1">
                     <div className={`relative w-full cursor-default overflow-hidden rounded-lg bg-[var(--surface-card)] text-left 
-                     focus:outline-none sm:text-sm border border-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
+                     focus:outline-none border border-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors h-7 ${classes}`}>
                         <Combobox.Input
-                            className="w-full py-2 pl-3 pr-10 text-xs leading-5 text-[var(--endeavour)] focus:outline-none "
+                            className="w-full py-1 pl-3 pr-10 responsiveTextInput leading-5 text-[var(--endeavour)] focus:outline-none "
                             displayValue={(value) => (data.find(y => y.id === dt[indx][name]) || {})[name] || selected[name]}
                             onChange={(event) => setQuery(event.target.value)}
                         />
@@ -109,11 +109,10 @@ const MyCombobox = ({ data, setValue, value, dt, indx, name, classes, disabled, 
                         afterLeave={() => setQuery('')}
                     >
                         <Portal>
-                            <ComboboxOptions style={dropdownStyle} className={`z-50 mt-1 max-h-60 overflow-auto rounded-md 
-                            bg-[var(--surface-card)] py-1 text-base shadow-lg ring-1 ring-[var(--selago)] focus:outline-none 
-                            sm:text-sm ${classes1} `}>
+                            <ComboboxOptions style={dropdownStyle} className={`z-50 mt-1 max-h-60 overflow-auto rounded-lg 
+                            bg-[var(--surface-card)] py-1 responsiveTextInput shadow-lg ring-1 ring-[var(--selago)] focus:outline-none ${classes1} `}>
                             {filteredData.length === 0 && query !== '' ? (
-                                <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] text-xs">
+                                <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] responsiveTextInput">
                                     Nothing found.
                                 </div>
                             ) : (
@@ -122,7 +121,7 @@ const MyCombobox = ({ data, setValue, value, dt, indx, name, classes, disabled, 
                                     <ComboboxOption
                                         key={x.id}
                                         className={({ active }) =>
-                                            `relative cursor-default select-none py-1 text-xs pl-10 pr-4 ${active ? 'bg-[var(--endeavour)] text-white' : 'text-[var(--port-gore)]'
+                                            `relative cursor-default select-none py-1 responsiveTextInput pl-10 pr-4 ${active ? 'bg-[var(--endeavour)] text-white' : 'text-[var(--port-gore)]'
                                             }`
                                         }
                                         value={x}

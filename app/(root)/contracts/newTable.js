@@ -302,8 +302,8 @@ const Customtable = ({
                         >
                           <span className="inline-flex items-center justify-center gap-1">
                             {flexRender(header.column.columnDef.header, header.getContext())}
-                            {header.column.getIsSorted() === 'asc' && <TbSortAscending className="shrink-0" style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
-                            {header.column.getIsSorted() === 'desc' && <TbSortDescending className="shrink-0" style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                            {header.column.getIsSorted() === 'asc' && <TbSortAscending className="shrink-0" style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+                            {header.column.getIsSorted() === 'desc' && <TbSortDescending className="shrink-0" style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
                           </span>
                         </th>
                         ))}
@@ -380,7 +380,7 @@ const Customtable = ({
                             ) : isCompleted ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-3 py-1 rounded-xl responsiveTextTable font-normal"
+                                  className="px-3 py-1 rounded-2xl responsiveTextTable font-normal"
                                   style={{
                                     backgroundColor: value ? 'var(--ok-bg)' : 'var(--pink-bg)',
                                     color: value ? 'var(--ok-strong)' : 'var(--pink-text)',
@@ -393,7 +393,7 @@ const Customtable = ({
                             ) : isStatus ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-3 py-1 rounded-xl responsiveTextTable font-normal"
+                                  className="px-3 py-1 rounded-2xl responsiveTextTable font-normal"
                                   style={{
                                     backgroundColor:
                                       value === 'Paid'
@@ -442,7 +442,7 @@ const Customtable = ({
                                   })()
                                 ) : hasValue ? (
                                   <div
-                                    className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]"
+                                    className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px]"
                                     style={{
                                       backgroundColor: 'var(--surface-pill)',
                                       border: '1px solid var(--border-cell)',
@@ -455,7 +455,7 @@ const Customtable = ({
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal w-full" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
+                                  <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal w-full" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}
@@ -532,7 +532,7 @@ const Customtable = ({
                           <div className="uppercase tracking-wider font-medium responsiveTextTable" style={{ color: 'var(--regent-gray)' }}>
                             {cell.column.columnDef.header}
                           </div>
-                          <div className="responsiveTextTable font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center"
+                          <div className="responsiveTextTable font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center"
                             style={{ color: 'var(--port-gore)', backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>

@@ -411,7 +411,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                             </td>
                                             {certOpen && <td>
                                                 <input value={obj.cert} onChange={e => handleCert(e, i)}
-                                                    className="w-14 border rounded-md border-slate-400 h-7 
+                                                    className="w-14 border rounded-lg border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
                                                     style={{ fontSize: 'inherit' }}
                                                 />
@@ -426,7 +426,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                     edit.header === 'po' ? (
 
                                                     <input
-                                                        className="input w-full border rounded-md border-slate-400 h-7 
+                                                        className="input w-full border rounded-lg border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
                                                         style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                         onKeyDown={handleKeyPress}
@@ -459,7 +459,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                 edit.id === obj['id'] &&
                                                                 edit.header === 'description' ?
                                                                 <input
-                                                                    className="inpiut  w-full border rounded-md border-slate-400 h-7 
+                                                                    className="inpiut  w-full border rounded-lg border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
                                                                     style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                                     onKeyDown={handleKeyPress3}
@@ -496,7 +496,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                         edit.header === key ? (
                                                         <div className='group relative  whitespace-normal'>
                                                             <input
-                                                                className="input w-full border rounded-md border-slate-400 h-7 
+                                                                className="input w-full border rounded-lg border-slate-400 h-7 
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
                                                                 style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                                 onKeyDown={handleKeyPress}
@@ -507,7 +507,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                 ref={inputRef}
                                                             />
                                                             <span className={`absolute hidden ${(key === 'unitPrc' || key === 'qnty') && value1?.substring(0, 1) === "=" ? 'group-hover:flex' : ''}
-                                                                 bottom-[30px] w-fit p-1  bg-slate-400 rounded-md text-center
+                                                                 bottom-[30px] w-fit p-1  bg-slate-400 rounded-lg text-center
                                                                   text-white responsiveTextTable z-50 whitespace-nowrap -left-0.5`}>
                                                                 {value1}
                                                             </span>
@@ -527,7 +527,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                     fixedDecimalScale
                                                                 />
                                                                 {(obj.eqUnitPrc || obj.eq) && (
-                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-slate-400 rounded-md text-center text-white responsiveTextTable z-50 whitespace-nowrap -left-0.5'>
+                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-slate-400 rounded-lg text-center text-white responsiveTextTable z-50 whitespace-nowrap -left-0.5'>
                                                                         {obj.eqUnitPrc || obj.eq}
                                                                     </span>
                                                                 )}
@@ -555,7 +555,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                     :
                                                                     <span>Service</span>}
                                                                 {obj.eqQnty && (
-                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-slate-400 rounded-md text-center text-white responsiveTextTable z-50 whitespace-nowrap -left-0.5'>
+                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-slate-400 rounded-lg text-center text-white responsiveTextTable z-50 whitespace-nowrap -left-0.5'>
                                                                         {obj.eqQnty}
                                                                     </span>
                                                                 )}
@@ -627,7 +627,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <td className="px-1 py-2 responsiveText text-[var(--port-gore)] whitespace-nowrap" onClick={() => !fnl && handleClick1()}>
                                         {percent ?
                                             <input
-                                                className="w-full border rounded-md border-slate-400 h-7 
+                                                className="w-full border rounded-lg border-slate-400 h-7 
                 focus:outline-0 focus:border-slate-600 indent-1.5"
                                                 style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                 onKeyDown={handleKeyPress1}
@@ -676,7 +676,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                         <td className="px-1 py-2 responsiveText text-[var(--port-gore)] whitespace-nowrap" onClick={() => !fnl && handleClick2()}>
                                             {prepayment ?
                                                 <input
-                                                    className="w-full border rounded-md border-slate-400 h-7 
+                                                    className="w-full border rounded-lg border-slate-400 h-7 
                 focus:outline-0 focus:border-slate-600 indent-1.5"
                                                     style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                     onKeyDown={handleKeyPress2}

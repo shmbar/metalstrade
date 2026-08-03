@@ -23,7 +23,7 @@ function AlertPill({ icon: Icon, label, count, severity, onClick }) {
             style={{
                 background: palette.bg,
                 border: `1px solid ${palette.border}`,
-                fontSize: '0.65rem',
+                fontSize: 'var(--fs-table)',
                 color: palette.text,
                 fontWeight: 600,
             }}
@@ -32,7 +32,7 @@ function AlertPill({ icon: Icon, label, count, severity, onClick }) {
             <span>{label}</span>
             <span
                 className='px-1.5 py-0.5 rounded-full'
-                style={{ background: 'var(--surface-card)', fontSize: '0.58rem', minWidth: '18px', textAlign: 'center' }}
+                style={{ background: 'var(--surface-card)', fontSize: 'var(--fs-caption)', minWidth: '18px', textAlign: 'center' }}
             >
                 {count}
             </span>
@@ -175,9 +175,9 @@ const AIAlertsBar = () => {
 
     if (loading) {
         return (
-            <div className='flex items-center gap-2 px-3 py-2.5 rounded-xl mb-3 shadow-sm' style={{ border: '1px solid var(--selago)', background: 'var(--surface-card)' }}>
+            <div className='flex items-center gap-2 px-3 py-2.5 rounded-2xl mb-3 shadow-sm' style={{ border: '1px solid var(--selago)', background: 'var(--surface-card)' }}>
                 <Loader2 className='w-3.5 h-3.5 animate-spin' style={{ color: 'var(--endeavour)' }} />
-                <span style={{ fontSize: '0.65rem', color: 'var(--regent-gray)' }}>Checking alerts…</span>
+                <span style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>Checking alerts…</span>
             </div>
         );
     }
@@ -185,9 +185,9 @@ const AIAlertsBar = () => {
     const hasAny = counts.balance > 0 || counts.due > 0 || counts.marginAlerts > 0 || counts.recentReminders > 0;
     if (!hasAny) {
         return (
-            <div className='flex items-center gap-2 px-3 py-2 rounded-xl mb-3' style={{ border: '1px solid var(--ok-border)', background: 'var(--ok-soft)' }}>
+            <div className='flex items-center gap-2 px-3 py-2 rounded-2xl mb-3' style={{ border: '1px solid var(--ok-border)', background: 'var(--ok-soft)' }}>
                 <AlertTriangle className='w-3.5 h-3.5' style={{ color: 'var(--ok-text)' }} />
-                <span style={{ fontSize: '0.65rem', color: 'var(--ok-strong)', fontWeight: 600 }}>
+                <span style={{ fontSize: 'var(--fs-table)', color: 'var(--ok-strong)', fontWeight: 600 }}>
                     All clear — no outstanding receivables or margin alerts.
                 </span>
             </div>
@@ -196,12 +196,12 @@ const AIAlertsBar = () => {
 
     return (
         <div
-            className='flex flex-wrap items-center gap-2 px-3 py-2.5 rounded-xl mb-3 shadow-sm'
+            className='flex flex-wrap items-center gap-2 px-3 py-2.5 rounded-2xl mb-3 shadow-sm'
             style={{ border: '1px solid var(--selago)', background: 'var(--surface-card)' }}
             role='region'
             aria-label='AI alerts summary'
         >
-            <span className='flex items-center gap-1.5' style={{ fontSize: '0.65rem', color: 'var(--chathams-blue)', fontWeight: 600 }}>
+            <span className='flex items-center gap-1.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)', fontWeight: 600 }}>
                 <span className='relative flex h-2 w-2'>
                     <span className='absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping' />
                     <span className='relative inline-flex rounded-full h-2 w-2 bg-emerald-500' />

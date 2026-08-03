@@ -192,7 +192,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('FinalSettlmnt', ln)} w='max-w-6xl'>
             <div className='flex flex-col p-1 justify-between gap-4 max-h-[50rem] overflow-y-auto'>
                 {isDraft &&
-                    <div className='rounded-xl px-3 py-2 responsiveTextTable font-medium' style={{ background: 'var(--surface-card)beb', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)' }}>
+                    <div className='rounded-2xl px-3 py-2 responsiveTextTable font-medium' style={{ background: 'var(--surface-card)beb', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)' }}>
                         Draft mode — these settlement figures are held back and won’t affect cashflow or stocks until you turn off Draft and save.
                     </div>
                 }
@@ -280,7 +280,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 <div className='border border-[var(--border-divider)] rounded-2xl bg-[var(--surface-card)] p-3'>
                     <div className='flex items-center justify-between mb-2'>
                         <span className='responsiveText font-semibold text-[var(--chathams-blue)]'>Settlement summary</span>
-                        <button type='button' onClick={addCalc} className='flex items-center gap-1 rounded-full px-3 h-7 text-white hover:opacity-90' style={{ fontSize: '0.66rem', background: 'var(--endeavour)' }}>
+                        <button type='button' onClick={addCalc} className='flex items-center gap-1 rounded-full px-3 h-7 text-white hover:opacity-90' style={{ fontSize: 'var(--fs-body)', background: 'var(--endeavour)' }}>
                             <Plus className='w-3 h-3' /> Add calculation
                         </button>
                     </div>
@@ -298,7 +298,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 <input type='text' placeholder='Label (e.g. Half balance)' value={c.label} onChange={e => updateCalc(c.id, 'label', e.target.value)}
                                     className='input h-7 responsiveTextTable border-slate-300 flex-1 shadow-sm' style={{ fontFamily: 'inherit' }} />
                                 <Tltip direction='top' tltpText='Set to half of the items total'>
-                                    <button type='button' onClick={() => updateCalc(c.id, 'amount', (sumTotal / 2).toFixed(2))} className='rounded-md px-2 h-7 border border-[var(--border-cell)] text-[var(--endeavour)] font-medium hover:bg-[var(--surface-header)]' style={{ fontSize: '0.7rem' }}>½</button>
+                                    <button type='button' onClick={() => updateCalc(c.id, 'amount', (sumTotal / 2).toFixed(2))} className='rounded-lg px-2 h-7 border border-[var(--border-cell)] text-[var(--endeavour)] font-medium hover:bg-[var(--surface-header)]' style={{ fontSize: 'var(--fs-body)' }}>½</button>
                                 </Tltip>
                                 <input type='text' placeholder='Amount' value={c.amount} onChange={e => updateCalc(c.id, 'amount', e.target.value)}
                                     className='input h-7 responsiveTextTable border-slate-300 w-28 text-right shadow-sm' style={{ fontFamily: 'inherit' }} />

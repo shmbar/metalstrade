@@ -211,7 +211,7 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
     }
 
     const labelCls = 'text-[11px] font-medium text-[var(--chathams-blue)] whitespace-nowrap mb-0.5'
-    const inputCls = 'w-full rounded-full border border-[var(--border-divider)] bg-[var(--surface-pill)] text-[var(--chathams-blue)] text-xs h-7 px-2 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] disabled:opacity-70'
+    const inputCls = 'w-full rounded-full border border-[var(--border-divider)] bg-[var(--surface-pill)] text-[var(--chathams-blue)] responsiveTextInput h-7 px-2 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] disabled:opacity-70'
 
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)} w='max-w-4xl'>
@@ -251,7 +251,7 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
                     <Selector arr={settings.Stocks.Stocks} value={newItemStock} onChange={(e) => handleChange(e, 'stock')} name='stock' clear={clear} />
                 </div>
                 <div className='flex items-end'>
-                    <Button className='h-8 text-xs rounded-full' onClick={moveStock} disabled={item.stock === newItemStock.stock}>
+                    <Button className='h-8 responsiveTextInput rounded-full' onClick={moveStock} disabled={item.stock === newItemStock.stock}>
                         <FilePen />
                         {getTtl('Move to new Stock', ln)}
                     </Button>
@@ -261,13 +261,13 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
             {/* Action buttons */}
             <div className='flex gap-3 px-3 py-2 border-t border-[var(--selago)]'>
                 <Tltip direction='top' tltpText='Move item to a different stock'>
-                    <Button className="h-8 text-xs rounded-full" onClick={moveItems}>
+                    <Button className="h-8 responsiveTextInput rounded-full" onClick={moveItems}>
                         <Archive />
                         {getTtl('Change Stock', ln)}
                     </Button>
                 </Tltip>
                 <Tltip direction='top' tltpText='View the contract for this item'>
-                    <Button className="h-8 text-xs rounded-full" onClick={() => moveToContracts()}>
+                    <Button className="h-8 responsiveTextInput rounded-full" onClick={() => moveToContracts()}>
                         <FileText />
                         {getTtl('Contract', ln)}
                     </Button>
@@ -276,7 +276,7 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
 
             {/* Show Shipments toggle */}
             <div className='flex items-center px-3 py-2 gap-2'>
-                <p className='text-xs text-[var(--chathams-blue)]'>{!enabledSwitch ? getTtl('Hide Shipments', ln) : getTtl('Show Shipments', ln)}</p>
+                <p className='responsiveTextInput text-[var(--chathams-blue)]'>{!enabledSwitch ? getTtl('Hide Shipments', ln) : getTtl('Show Shipments', ln)}</p>
                 <Switch enabled={enabledSwitch} setEnabled={setEnabledSwitch} />
             </div>
 

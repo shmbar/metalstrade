@@ -170,7 +170,7 @@ const Customtable = ({
                             </div>
                           ) : (
                             <div
-                              className="px-3 py-1 rounded-xl responsiveTextTable font-normal w-full"
+                              className="px-3 py-1 rounded-2xl responsiveTextTable font-normal w-full"
                               style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}
                             >
                               {cell.getValue() != null && cell.getValue() !== ''

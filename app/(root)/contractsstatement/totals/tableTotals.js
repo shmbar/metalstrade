@@ -150,7 +150,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                         >
                             {/* Card Header */}
                             <div className="px-3 py-2 flex items-center justify-between" style={{ background: 'var(--border-divider)' }}>
-                                <span className="font-normal" style={{ fontSize: '0.62rem', textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)' }}>
+                                <span className="font-normal" style={{ fontSize: 'var(--fs-table)', textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)' }}>
                                     {getTtl('Row', settings?.ln || 'en')} {rowIndex + 1}
                                 </span>
                             </div>
@@ -158,10 +158,10 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                             <div className="p-4 space-y-2.5">
                                 {row.getVisibleCells().map(cell => (
                                     <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0" style={{ borderBottom: '1px solid var(--border-divider)' }}>
-                                        <div className="uppercase tracking-wider font-normal" style={{ color: 'var(--regent-gray)', fontSize: '0.58rem' }}>
+                                        <div className="uppercase tracking-wider font-normal" style={{ color: 'var(--regent-gray)', fontSize: 'var(--fs-caption)' }}>
                                             {cell.column.columnDef.header}
                                         </div>
-                                        <div className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" style={{ color: 'var(--port-gore)', background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))', fontSize: '0.62rem', border: '1px solid var(--border-divider)' }}>
+                                        <div className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" style={{ color: 'var(--port-gore)', background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))', fontSize: 'var(--fs-table)', border: '1px solid var(--border-divider)' }}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </div>
                                     </div>

@@ -151,7 +151,7 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                             onClick={() => setRef(y, x)}
                                         >
                                             <div className='flex items-center justify-center'>
-                                                <span className={`inline-flex items-center justify-center size-4 rounded-md transition-all
+                                                <span className={`inline-flex items-center justify-center size-4 rounded-lg transition-all
                                                 ${active
                                                         ? 'bg-[var(--endeavour)] text-white shadow-sm'
                                                         : 'border border-[var(--border-divider)] bg-[var(--surface-card)]'}`}>

@@ -33,7 +33,7 @@ export default function InvType({ setSelected, plans, value , ln}) {
                                     <>
                                         <div className="flex w-full items-center justify-between">
                                             <div className="flex items-center">
-                                                <div className="text-xs">
+                                                <div className="responsiveTextInput">
                                                     <RadioGroup.Label
                                                         as="p"
                                                         className={`font-medium ${checked ? 'text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`}

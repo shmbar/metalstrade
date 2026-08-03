@@ -133,7 +133,7 @@ function StatKpiCard({
 
   return (
     <m.div
-      className="relative h-full min-h-[140px] rounded-xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm flex flex-col overflow-hidden"
+      className="relative h-full min-h-[140px] rounded-2xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm flex flex-col overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
@@ -158,7 +158,7 @@ function StatKpiCard({
         {/* Hero number */}
         <div
           className="mt-2 font-semibold text-[var(--port-gore)] leading-none"
-          style={{ fontSize: 'clamp(1.15rem, 0.9rem + 0.7vw, 1.6rem)' }}
+          style={{ fontSize: 'var(--fs-stat)' }}
         >
           {value}
         </div>
@@ -169,11 +169,11 @@ function StatKpiCard({
             <>
               <span
                 className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 font-semibold"
-                style={{ background: deltaBg, color: deltaColor, fontSize: '0.6rem' }}
+                style={{ background: deltaBg, color: deltaColor, fontSize: 'var(--fs-table)' }}
               >
                 {trend.up ? '▲' : '▼'} {Math.abs(trend.pct).toFixed(1)}%
               </span>
-              <span className="text-[var(--regent-gray)]" style={{ fontSize: '0.58rem' }}>vs prev mo</span>
+              <span className="text-[var(--regent-gray)]" style={{ fontSize: 'var(--fs-caption)' }}>vs prev mo</span>
             </>
           )}
         </div>
@@ -248,7 +248,7 @@ function ReceivablesSplitCard({ byCur = {} }) {
 
   return (
     <m.div
-      className="relative rounded-xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden"
+      className="relative rounded-2xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
@@ -265,7 +265,7 @@ function ReceivablesSplitCard({ byCur = {} }) {
           </div>
           <div className="text-right flex-shrink-0">
             {totalsLine.map((t, i) => (
-              <div key={i} className="font-semibold text-[var(--port-gore)] leading-tight" style={{ fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.35rem)' }}>{t}</div>
+              <div key={i} className="font-semibold text-[var(--port-gore)] leading-tight" style={{ fontSize: 'var(--fs-stat)' }}>{t}</div>
             ))}
           </div>
         </div>
@@ -283,7 +283,7 @@ function ReceivablesSplitCard({ byCur = {} }) {
             </div>
             <div className="mt-1 leading-tight" style={{ color: 'var(--ok-strong)' }}>
               {amountsFor('finalized').map((a, i) => (
-                <div key={i} className="font-semibold" style={{ fontSize: 'clamp(0.9rem, 0.78rem + 0.4vw, 1.15rem)' }}>{a}</div>
+                <div key={i} className="font-semibold" style={{ fontSize: 'var(--fs-page)' }}>{a}</div>
               ))}
             </div>
             <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">{finCount} invoice{finCount === 1 ? '' : 's'} · after final invoice</div>
@@ -295,7 +295,7 @@ function ReceivablesSplitCard({ byCur = {} }) {
             </div>
             <div className="mt-1 leading-tight" style={{ color: 'var(--warn-strong)' }}>
               {amountsFor('provisional').map((a, i) => (
-                <div key={i} className="font-semibold" style={{ fontSize: 'clamp(0.9rem, 0.78rem + 0.4vw, 1.15rem)' }}>{a}</div>
+                <div key={i} className="font-semibold" style={{ fontSize: 'var(--fs-page)' }}>{a}</div>
               ))}
             </div>
             <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">{provCount} invoice{provCount === 1 ? '' : 's'} · before final invoice</div>
@@ -336,9 +336,9 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
 
         {/* Column headers */}
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-[116px] font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0 whitespace-nowrap" style={{ fontSize: '0.62rem' }}>Name</div>
-          <div className="flex-1 font-medium text-[var(--regent-gray)] uppercase tracking-wide text-center" style={{ fontSize: '0.62rem' }}>Contribution Share (0 – 1.0)</div>
-          <div className="w-16 text-right font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0" style={{ fontSize: '0.62rem' }}>Value</div>
+          <div className="w-[116px] font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0 whitespace-nowrap" style={{ fontSize: 'var(--fs-table)' }}>Name</div>
+          <div className="flex-1 font-medium text-[var(--regent-gray)] uppercase tracking-wide text-center" style={{ fontSize: 'var(--fs-table)' }}>Contribution Share (0 – 1.0)</div>
+          <div className="w-16 text-right font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0" style={{ fontSize: 'var(--fs-table)' }}>Value</div>
         </div>
 
         <div className="overflow-y-auto custom-scroll" style={{ maxHeight: 360 }}>
@@ -357,7 +357,7 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
                 {/* Avatar */}
                 <m.div
                   className="flex items-center justify-center rounded-full font-medium text-white flex-shrink-0"
-                  style={{ fontSize: '0.62rem', width: avatarSize, height: avatarSize, background: color }}
+                  style={{ fontSize: 'var(--fs-table)', width: avatarSize, height: avatarSize, background: color }}
                   whileHover={{ scale: 1.1 }}
                   transition={{ type: 'spring', stiffness: 300 }}
                 >
@@ -377,7 +377,7 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.5, delay: idx * 0.04, ease: 'easeOut' }}
                     >
-                      <span className="font-medium text-white/95 leading-none" style={{ fontSize: '0.58rem' }}>
+                      <span className="font-medium text-white/95 leading-none" style={{ fontSize: 'var(--fs-caption)' }}>
                         {(max > 0 ? value / max : 0).toFixed(2)}
                       </span>
                     </m.div>
@@ -472,7 +472,7 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
           {metrics.map((metric, i) => (
             <m.div
               key={i}
-              className="p-3 rounded-xl border border-[var(--selago)] bg-[var(--surface-pill)]"
+              className="p-3 rounded-2xl border border-[var(--selago)] bg-[var(--surface-pill)]"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: i * 0.06 }}
@@ -482,7 +482,7 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
                 {metric.icon}
                 <span className="responsiveTextTable text-[var(--regent-gray)] leading-tight">{metric.label}</span>
               </div>
-              <div className="font-semibold leading-none" style={{ color: metric.valueColor, fontSize: 'clamp(1.05rem, 0.85rem + 0.6vw, 1.45rem)' }}>
+              <div className="font-semibold leading-none" style={{ color: metric.valueColor, fontSize: 'var(--fs-stat)' }}>
                 {metric.value}
               </div>
               <div className="responsiveTextTable text-[var(--regent-gray)] mt-1 leading-tight">{metric.sub}</div>
@@ -511,7 +511,7 @@ function FilterSelect({ label, icon, value, onChange, options }) {
       <SelectTrigger
         className="group h-8 w-auto min-w-[122px] max-w-[210px] gap-1.5 rounded-full pl-2.5 pr-1.5 shadow-sm focus:ring-0 focus:ring-offset-0"
         style={{
-          fontSize: '0.7rem',
+          fontSize: 'var(--fs-body)',
           background: active ? 'var(--selago)' : 'var(--surface-pill)',
           borderColor: active ? 'var(--endeavour)' : 'var(--border-cell)',
           boxShadow: active ? '0 1px 8px rgba(3,102,174,0.16)' : undefined,
@@ -519,12 +519,12 @@ function FilterSelect({ label, icon, value, onChange, options }) {
       >
         <span className="flex items-center gap-1.5 min-w-0">
           <span className="flex shrink-0" style={{ color: active ? 'var(--endeavour)' : 'var(--rock-blue)' }}>{icon}</span>
-          <span className="font-medium shrink-0" style={{ fontSize: '0.7rem', color: 'var(--regent-gray)' }}>{label}</span>
+          <span className="font-medium shrink-0" style={{ fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>{label}</span>
           <SelectValue className="font-semibold truncate"
-            style={{ fontSize: '0.7rem', color: active ? 'var(--endeavour)' : 'var(--chathams-blue)' }} />
+            style={{ fontSize: 'var(--fs-body)', color: active ? 'var(--endeavour)' : 'var(--chathams-blue)' }} />
         </span>
       </SelectTrigger>
-      <SelectContent className="rounded-xl border border-[var(--surface-header)] shadow-md max-h-72 min-w-[var(--radix-select-trigger-width)]">
+      <SelectContent className="rounded-2xl border border-[var(--surface-header)] shadow-md max-h-72 min-w-[var(--radix-select-trigger-width)]">
         {options.length > 7 && (
           <div className="sticky top-0 z-10 bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
             <input
@@ -534,18 +534,18 @@ function FilterSelect({ label, icon, value, onChange, options }) {
               onPointerDown={(e) => e.stopPropagation()}
               placeholder="Search…"
               className="w-full h-7 px-2 rounded-lg border border-[var(--border-cell)] bg-[var(--surface-pill)] focus:outline-none focus:border-[var(--endeavour)]"
-              style={{ fontSize: '0.7rem', color: 'var(--chathams-blue)' }}
+              style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}
             />
           </div>
         )}
-        <SelectItem value="all" className="rounded-lg text-[var(--chathams-blue)]" style={{ fontSize: '0.7rem' }}>All</SelectItem>
+        <SelectItem value="all" className="rounded-lg text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-body)' }}>All</SelectItem>
         {shown.map((o) => (
-          <SelectItem key={o.value} value={o.value} className="rounded-lg text-[var(--chathams-blue)]" style={{ fontSize: '0.7rem' }}>
+          <SelectItem key={o.value} value={o.value} className="rounded-lg text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-body)' }}>
             {o.label}
           </SelectItem>
         ))}
         {q && shown.length === 0 && (
-          <div className="px-3 py-2" style={{ fontSize: '0.7rem', color: 'var(--regent-gray)' }}>No matches</div>
+          <div className="px-3 py-2" style={{ fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>No matches</div>
         )}
       </SelectContent>
     </Select>
@@ -563,7 +563,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
   ];
   return (
     <m.div
-      className="relative rounded-xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden"
+      className="relative rounded-2xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
@@ -593,7 +593,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
                 <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: p.dot }} />
                 <span className="text-[0.6rem] font-semibold tracking-wide" style={{ color: p.color }}>{p.label}</span>
               </div>
-              <div className="font-semibold mt-1 leading-none" style={{ color: p.color, fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem)' }}>{fmtMT(p.value)}</div>
+              <div className="font-semibold mt-1 leading-none" style={{ color: p.color, fontSize: 'var(--fs-page)' }}>{fmtMT(p.value)}</div>
             </div>
           ))}
         </div>
@@ -625,7 +625,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
 
   return (
     <m.div
-      className="relative rounded-xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden h-full flex flex-col"
+      className="relative rounded-2xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden h-full flex flex-col"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
@@ -639,7 +639,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
             </span>
             <div className="min-w-0">
               <div className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Misc Invoices · not linked to contracts</div>
-              <div className="text-[var(--regent-gray)] leading-tight" style={{ fontSize: '0.6rem' }}>{count} invoice{count === 1 ? '' : 's'} in period</div>
+              <div className="text-[var(--regent-gray)] leading-tight" style={{ fontSize: 'var(--fs-table)' }}>{count} invoice{count === 1 ? '' : 's'} in period</div>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -647,7 +647,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
               ? <span className="responsiveTextTable text-[var(--regent-gray)]">None in this period</span>
               : entries.map(([cur, v]) => (
                 <span key={cur} className="rounded-full px-3 py-1 font-semibold"
-                  style={{ background: 'var(--pink-soft)', boxShadow: 'inset 0 0 0 1px var(--pink-bg)', color: 'var(--pink-strong)', fontSize: '0.82rem' }}>
+                  style={{ background: 'var(--pink-soft)', boxShadow: 'inset 0 0 0 1px var(--pink-bg)', color: 'var(--pink-strong)', fontSize: 'var(--fs-title)' }}>
                   {fmtCur(cur, v)}
                 </span>
               ))}
@@ -672,10 +672,10 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
                       <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: c.dot }} />
                       <span className="text-[0.6rem] font-semibold tracking-wide truncate" style={{ color: c.color }}>{c.label.toUpperCase()}</span>
                     </div>
-                    <div className="font-semibold mt-1 leading-none truncate" style={{ color: c.color, fontSize: 'clamp(0.8rem, 0.65rem + 0.4vw, 1rem)' }}>
+                    <div className="font-semibold mt-1 leading-none truncate" style={{ color: c.color, fontSize: 'var(--fs-title)' }}>
                       {ents.length === 0 ? '—' : ents.map(([cur, v]) => fmtCur(cur, v)).join(' / ')}
                     </div>
-                    <div className="leading-none mt-1" style={{ fontSize: '0.58rem', color: 'var(--regent-gray)' }}>{c.count} inv · {c.sharePct.toFixed(0)}%</div>
+                    <div className="leading-none mt-1" style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)' }}>{c.count} inv · {c.sharePct.toFixed(0)}%</div>
                   </div>
                 );
               })}
@@ -702,7 +702,7 @@ function UnsoldStockCard({ value = 0, mt = 0 }) {
   const fmtMT = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
   return (
     <m.div
-      className="relative rounded-xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden"
+      className="relative rounded-2xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden"
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}
       whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
     >
@@ -713,9 +713,9 @@ function UnsoldStockCard({ value = 0, mt = 0 }) {
           </span>
           <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Unsold Stock · not a cost</span>
         </div>
-        <div className="font-semibold text-[var(--port-gore)] leading-none mt-1" style={{ fontSize: 'clamp(1.15rem, 0.9rem + 0.7vw, 1.6rem)' }}>{fmtAutoKM(value)}</div>
+        <div className="font-semibold text-[var(--port-gore)] leading-none mt-1" style={{ fontSize: 'var(--fs-stat)' }}>{fmtAutoKM(value)}</div>
         <div className="rounded-lg p-2.5 mt-auto" style={{ backgroundColor: 'var(--surface-card)beb', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
-          <div className="font-semibold leading-none" style={{ color: 'var(--warn-strong)', fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem)' }}>{fmtMT(mt)}</div>
+          <div className="font-semibold leading-none" style={{ color: 'var(--warn-strong)', fontSize: 'var(--fs-page)' }}>{fmtMT(mt)}</div>
           <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">in stock · capital tied up, excluded from profit</div>
         </div>
       </div>
@@ -1261,10 +1261,10 @@ const Dash = () => {
                 <span className="inline-flex items-center justify-center rounded-lg" style={{ background: 'var(--endeavour)', color: '#fff', width: 22, height: 22 }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 5h18M6 12h12M10 19h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                 </span>
-                <span className="font-semibold" style={{ fontSize: '0.7rem', color: 'var(--chathams-blue)' }}>Filters</span>
+                <span className="font-semibold" style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>Filters</span>
                 {filtersActive && (
                   <span className="inline-flex items-center justify-center rounded-full text-white font-semibold"
-                    style={{ background: 'var(--endeavour)', minWidth: 15, height: 15, fontSize: '0.58rem', padding: '0 4px' }}>
+                    style={{ background: 'var(--endeavour)', minWidth: 15, height: 15, fontSize: 'var(--fs-caption)', padding: '0 4px' }}>
                     {[fSupplier, fClient, fMaterial].filter(Boolean).length}
                   </span>
                 )}
@@ -1283,7 +1283,7 @@ const Dash = () => {
               {filtersActive && (
                 <button onClick={clearFilters}
                   className="ml-auto inline-flex items-center gap-1 rounded-full px-2.5 h-7 font-semibold transition-colors hover:brightness-95"
-                  style={{ fontSize: '0.7rem', color: 'var(--endeavour)', background: 'var(--selago)', border: '1px solid var(--border-cell)' }}>
+                  style={{ fontSize: 'var(--fs-body)', color: 'var(--endeavour)', background: 'var(--selago)', border: '1px solid var(--border-cell)' }}>
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                   Clear all
                 </button>
@@ -1293,7 +1293,7 @@ const Dash = () => {
 
           {/* FX data-gap warning — a missing rate is counted at 1:1, not silently zeroed */}
           {missingRate > 0 && (
-            <div className="mb-4 flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: 'var(--surface-card)7ed', border: '1px solid var(--warn-bg)' }}>
+            <div className="mb-4 flex items-center gap-2 rounded-2xl px-3 py-2" style={{ background: 'var(--surface-card)7ed', border: '1px solid var(--warn-bg)' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0" style={{ color: 'var(--warn-strong)' }}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
               <span className="responsiveTextTable" style={{ color: 'var(--warn-strong)' }}>
                 {missingRate} EUR contract{missingRate === 1 ? '' : 's'} missing an FX rate — counted at 1:1, so USD totals may be understated. Set the EUR→USD rate on those contracts for accurate figures.
@@ -1391,7 +1391,7 @@ const Dash = () => {
                   <Doughnut data={donutData} options={donutOptions} />
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                     <span className="responsiveTextTable text-[var(--regent-gray)]">Revenue</span>
-                    <span className="font-semibold text-[var(--port-gore)]" style={{ fontSize: 'clamp(1rem, 0.8rem + 0.6vw, 1.35rem)' }}>
+                    <span className="font-semibold text-[var(--port-gore)]" style={{ fontSize: 'var(--fs-stat)' }}>
                       {fmtAutoKM(totalInvoices)}
                     </span>
                   </div>

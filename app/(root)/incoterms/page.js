@@ -110,7 +110,7 @@ const ModeTag = ({ mode }) => {
     const sea = mode === 'sea'
     return (
         <span className="inline-flex items-center gap-1 rounded-full font-medium whitespace-nowrap"
-            style={{ fontSize: '0.6rem', padding: '2px 8px', background: sea ? 'var(--selago)' : 'var(--ok-soft)', color: sea ? 'var(--endeavour)' : 'var(--ok-strong)', boxShadow: `inset 0 0 0 1px ${sea ? 'var(--border-divider)' : 'var(--ok-border)'}` }}>
+            style={{ fontSize: 'var(--fs-table)', padding: '2px 8px', background: sea ? 'var(--selago)' : 'var(--ok-soft)', color: sea ? 'var(--endeavour)' : 'var(--ok-strong)', boxShadow: `inset 0 0 0 1px ${sea ? 'var(--border-divider)' : 'var(--ok-border)'}` }}>
             {sea ? <Ship className="w-2.5 h-2.5" /> : <Globe2 className="w-2.5 h-2.5" />}
             {sea ? 'Sea / inland waterway' : 'Any mode'}
         </span>
@@ -134,7 +134,7 @@ const IncotermCard = ({ t }) => (
     <div className="rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-card)] overflow-hidden shadow-sm flex flex-col">
         <div className="flex items-center gap-3 px-4 py-3" style={{ background: 'var(--surface-header)' }}>
             <span className="grid place-items-center rounded-lg font-bold text-white shrink-0"
-                style={{ background: 'var(--endeavour)', width: 46, height: 36, fontSize: '0.95rem', letterSpacing: '0.02em' }}>
+                style={{ background: 'var(--endeavour)', width: 46, height: 36, fontSize: 'var(--fs-page)', letterSpacing: '0.02em' }}>
                 {t.code}
             </span>
             <div className="min-w-0">
@@ -144,7 +144,7 @@ const IncotermCard = ({ t }) => (
         </div>
         <div className="px-4 py-3 flex flex-col gap-3 grow">
             <p className="responsiveTextTable text-[var(--port-gore)] leading-snug">{t.desc}</p>
-            <div className="rounded-xl bg-[var(--surface-pill)] border border-[var(--border-cell)] px-3 py-1.5">
+            <div className="rounded-2xl bg-[var(--surface-pill)] border border-[var(--border-cell)] px-3 py-1.5">
                 <Row label="Risk transfers" value={t.risk} />
                 <Row label="Carriage" value={t.carriage} />
                 <Row label="Insurance" value={t.insurance} />
@@ -197,7 +197,7 @@ const Incoterms = () => {
                             <button key={f.key} type="button" onClick={() => setMode(f.key)}
                                 className="rounded-full font-medium transition-colors"
                                 style={{
-                                    fontSize: '0.68rem', padding: '5px 12px',
+                                    fontSize: 'var(--fs-body)', padding: '5px 12px',
                                     background: mode === f.key ? 'var(--endeavour)' : 'white',
                                     color: mode === f.key ? 'white' : 'var(--chathams-blue)',
                                     border: `1px solid ${mode === f.key ? 'var(--endeavour)' : 'var(--border-cell)'}`,

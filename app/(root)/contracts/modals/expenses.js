@@ -209,8 +209,8 @@ const Expenses = ({ showExpenses }) => {
                             <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
                             <div>
                                 <textarea rows="5" name="comments"
-                                    className="input shadow-lg h-24 px-3 py-2 !rounded-xl w-full"
-                                    style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
+                                    className="input shadow-lg h-24 px-3 py-2 !rounded-2xl w-full"
+                                    style={{ fontSize: 'var(--fs-input)', fontFamily: 'inherit' }}
                                     value={valueExp.comments} onChange={handleValue} />
                             </div>
                             <div className='flex gap-3 m-2 flex-wrap'>

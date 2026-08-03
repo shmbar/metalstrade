@@ -7,7 +7,7 @@
 // can't JIT-compile runtime-generated width classes.
 
 const Bar = ({ w = '100%', h = 12, className = '' }) => (
-    <div className={`skel rounded-md ${className}`} style={{ width: w, height: h }} />
+    <div className={`skel rounded-lg ${className}`} style={{ width: w, height: h }} />
 );
 
 // Generic table page: title, toolbar pills, row bars, footer strip.

@@ -122,7 +122,7 @@ export default function SplitControl({
           disabled={busy}
           title="Put under control — flag this invoice for IMS/GIS split"
           className="inline-flex items-center gap-1 rounded-full transition-colors disabled:opacity-50"
-          style={{ fontSize: '0.6rem', padding: '3px 10px', color: 'var(--endeavour)', background: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}
+          style={{ fontSize: 'var(--fs-table)', padding: '3px 10px', color: 'var(--endeavour)', background: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}
         >
           {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Split className="w-3 h-3" />}
           Put under control
@@ -176,32 +176,32 @@ export default function SplitControl({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-4 py-2.5" style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
-              <span className="font-semibold" style={{ fontSize: '0.8rem', color: 'var(--chathams-blue)' }}>IMS / GIS split</span>
+              <span className="font-semibold" style={{ fontSize: 'var(--fs-title)', color: 'var(--chathams-blue)' }}>IMS / GIS split</span>
               <button type="button" onClick={() => setOpen(false)} className="p-1 rounded-full hover:bg-[rgba(var(--surface-card-rgb),0.6)]">
                 <X className="w-4 h-4" style={{ color: 'var(--chathams-blue)' }} />
               </button>
             </div>
 
             <div className="p-4 space-y-3" style={{ color: 'var(--port-gore)' }}>
-              <div className="flex items-center justify-between" style={{ fontSize: '0.72rem' }}>
+              <div className="flex items-center justify-between" style={{ fontSize: 'var(--fs-input)' }}>
                 <span style={{ color: 'var(--regent-gray)' }}>{entityLabel || 'Item'}</span>
                 <span className="font-semibold">{sym}{fmt(amount)}</span>
               </div>
 
               <div>
-                <label className="block mb-1 font-medium" style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)' }}>% to IMS</label>
+                <label className="block mb-1 font-medium" style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>% to IMS</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number" min="0" max="100" value={ratio}
                     onChange={(e) => setRatio(e.target.value)}
-                    className="h-7 px-3 rounded-full w-24" style={{ fontSize: '0.75rem', background: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}
+                    className="h-7 px-3 rounded-full w-24" style={{ fontSize: 'var(--fs-input)', background: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}
                   />
-                  <span style={{ fontSize: '0.7rem', color: 'var(--regent-gray)' }}>% → GIS gets {100 - (Math.min(100, Math.max(0, Number(ratio) || 0)))}%</span>
+                  <span style={{ fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>% → GIS gets {100 - (Math.min(100, Math.max(0, Number(ratio) || 0)))}%</span>
                 </div>
                 <div className="flex gap-1 mt-2">
                   {[50, 60, 70, 100].map(p => (
                     <button key={p} type="button" onClick={() => setRatio(p)}
-                      className="rounded-full" style={{ fontSize: '0.58rem', padding: '2px 8px', background: Number(ratio) === p ? 'var(--endeavour)' : 'var(--surface-pill)', color: Number(ratio) === p ? 'white' : 'var(--chathams-blue)', border: '1px solid var(--border-cell)' }}>
+                      className="rounded-full" style={{ fontSize: 'var(--fs-caption)', padding: '2px 8px', background: Number(ratio) === p ? 'var(--endeavour)' : 'var(--surface-pill)', color: Number(ratio) === p ? 'white' : 'var(--chathams-blue)', border: '1px solid var(--border-cell)' }}>
                       {p}/{100 - p}
                     </button>
                   ))}
@@ -209,20 +209,20 @@ export default function SplitControl({
               </div>
 
               <div className="flex gap-2">
-                <div className="flex-1 rounded-xl p-2 text-center" style={{ background: 'var(--ok-soft)', border: '1px solid var(--ok-border)' }}>
-                  <div style={{ fontSize: '0.58rem', color: 'var(--ok-strong)' }}>IMS</div>
-                  <div className="font-semibold" style={{ fontSize: '0.8rem', color: 'var(--ok-strong)' }}>{sym}{fmt(preview.imsShare)}</div>
+                <div className="flex-1 rounded-2xl p-2 text-center" style={{ background: 'var(--ok-soft)', border: '1px solid var(--ok-border)' }}>
+                  <div style={{ fontSize: 'var(--fs-caption)', color: 'var(--ok-strong)' }}>IMS</div>
+                  <div className="font-semibold" style={{ fontSize: 'var(--fs-title)', color: 'var(--ok-strong)' }}>{sym}{fmt(preview.imsShare)}</div>
                 </div>
-                <div className="flex-1 rounded-xl p-2 text-center" style={{ background: 'var(--selago)', border: '1px solid var(--border-divider)' }}>
-                  <div style={{ fontSize: '0.58rem', color: 'var(--endeavour)' }}>GIS</div>
-                  <div className="font-semibold" style={{ fontSize: '0.8rem', color: 'var(--endeavour)' }}>{sym}{fmt(preview.gisShare)}</div>
+                <div className="flex-1 rounded-2xl p-2 text-center" style={{ background: 'var(--selago)', border: '1px solid var(--border-divider)' }}>
+                  <div style={{ fontSize: 'var(--fs-caption)', color: 'var(--endeavour)' }}>GIS</div>
+                  <div className="font-semibold" style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }}>{sym}{fmt(preview.gisShare)}</div>
                 </div>
               </div>
 
               <div>
-                <label className="block mb-1 font-medium" style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)' }}>Note (optional)</label>
+                <label className="block mb-1 font-medium" style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>Note (optional)</label>
                 <textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)}
-                  className="w-full p-2 rounded-xl" style={{ fontSize: '0.72rem', background: 'var(--surface-pill)', border: '1px solid var(--border-cell)', fontFamily: 'inherit' }} />
+                  className="w-full p-2 rounded-2xl" style={{ fontSize: 'var(--fs-input)', background: 'var(--surface-pill)', border: '1px solid var(--border-cell)', fontFamily: 'inherit' }} />
               </div>
             </div>
 

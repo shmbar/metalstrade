@@ -40,7 +40,7 @@
 // //                     <div className='flex gap-6 pt-2'>
 // //                         <div>
 // //                             <div>
-// //                                 <p className='text-center text-slate-600 text-sm font-semibold'>Composition</p>
+// //                                 <p className='text-center text-slate-600 responsiveTextTitle font-semibold'>Composition</p>
 // //                                 <div className='flex justify-center'>
 // //                                     <div className='border border-slate-500 w-24 flex flex-col justify-center'>
 // //                                         <span className='title_style'>Ni</span>
@@ -131,7 +131,7 @@
 // //                                 </div>
 // //                             </div>
 // //                             <div className=''>
-// //                                 <p className='text-center text-slate-600 text-sm font-semibold'>Price</p>
+// //                                 <p className='text-center text-slate-600 responsiveTextTitle font-semibold'>Price</p>
 // //                                 <div className='flex justify-center'>
 // //                                     <div className='border border-slate-500 w-24 flex flex-col justify-center'>
 // //                                         <span className='title_style bg-customLavender'>Ni</span>
@@ -271,8 +271,8 @@
 // //                     </div>
 
 // //                     <div className='pt-4 text-red-600'>
-// //                         <p className="text-xs">* Fill in the red and + Formula x Ni</p>
-// //                         <p className="text-xs">* Fe is calculated automatically</p>
+// //                         <p className="responsiveTextInput">* Fill in the red and + Formula x Ni</p>
+// //                         <p className="responsiveTextInput">* Fe is calculated automatically</p>
 // //                     </div>
 
 // //                 </div>
@@ -284,7 +284,7 @@
 // //                     <div className='flex gap-6 pt-2'>
 // //                         <div>
 // //                             <div>
-// //                                 <p className='text-center text-slate-600 text-sm font-semibold'>Composition</p>
+// //                                 <p className='text-center text-slate-600 responsiveTextTitle font-semibold'>Composition</p>
 // //                                 <div className='flex justify-center'>
 // //                                     <div className='border border-slate-500 w-24 flex flex-col justify-center'>
 // //                                         <span className='title_style'>Ni</span>
@@ -309,7 +309,7 @@
 // //                                 </div>
 // //                             </div>
 // //                             <div className=''>
-// //                                 <p className='text-center text-slate-600 text-sm font-semibold'>Price</p>
+// //                                 <p className='text-center text-slate-600 responsiveTextTitle font-semibold'>Price</p>
 // //                                 <div className='flex justify-center'>
 // //                                     <div className='border border-slate-500 w-24 flex flex-col justify-center'>
 // //                                         <span className='title_style bg-customLavender'>Ni</span>
@@ -356,14 +356,14 @@
 // //                             <div className='justify-start flex'>
 // //                                 <div className='flex justify-center'>
 // //                                     <div className='w-24 flex flex-col justify-center'>
-// //                                         <span className='justify-center text-xs text-slate-500 items-center flex'>{'Lb ' + addComma(((value?.general?.nilme * value?.fenicr?.formulaNiPrice / 100) / (value?.general?.mt)).toFixed(2))}</span>
+// //                                         <span className='justify-center responsiveTextInput text-slate-500 items-center flex'>{'Lb ' + addComma(((value?.general?.nilme * value?.fenicr?.formulaNiPrice / 100) / (value?.general?.mt)).toFixed(2))}</span>
 // //                                     </div>
 // //                                     <div className='w-24 flex flex-col justify-center'>
-// //                                         <input type='input' className='input w-full h-7 text-center border-none  cursor-default rounded-none text-red-700 text-xs'
+// //                                         <input type='input' className='input w-full h-7 text-center border-none  cursor-default rounded-none text-red-700 responsiveTextInput'
 // //                                             name='crPriceArgus' value={'Argus ' + value?.fenicr?.crPriceArgus + '%'} onChange={(e) => handleChange(e, 'fenicr')} />
 // //                                     </div>
 // //                                     <div className=' w-24 flex flex-col justify-center'>
-// //                                         <input type='input' className='input w-full h-7 text-center border-none cursor-default rounded-none text-red-700 text-xs'
+// //                                         <input type='input' className='input w-full h-7 text-center border-none cursor-default rounded-none text-red-700 responsiveTextInput'
 // //                                             name='moPriceArgus' value={'Argus ' + value?.fenicr?.moPriceArgus + '%'} onChange={(e) => handleChange(e, 'fenicr')} />
 // //                                     </div>
 
@@ -426,8 +426,8 @@
 // //                     </div>
 
 // //                     <div className='pt-4 text-red-600'>
-// //                         <p className="text-xs">* Fill in the red and + Formula x Ni</p>
-// //                         <p className="text-xs">* Fe is calculated automatically</p>
+// //                         <p className="responsiveTextInput">* Fill in the red and + Formula x Ni</p>
+// //                         <p className="responsiveTextInput">* Fe is calculated automatically</p>
 // //                     </div>
 // //                 </div>
 // //             </div>
@@ -474,12 +474,12 @@
 //                     <p className='text-center text-slate-600 text-base sm:text-lg font-semibold mb-3'>Cost</p>
                     
 //                     {/* Composition */}
-//                     <p className='text-center text-slate-600 text-sm font-semibold mb-2'>Composition</p>
+//                     <p className='text-center text-slate-600 responsiveTextTitle font-semibold mb-2'>Composition</p>
 //                     <div className='overflow-x-auto mb-4'>
 //                         <div className='flex justify-center min-w-[400px]'>
 //                             <div className='border border-slate-500 w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Ni</span>
-//                                 <input type='text' className='input_style text-red-700 text-xs sm:text-sm' 
+//                                 <span className='title_style responsiveTextInput'>Ni</span>
+//                                 <input type='text' className='input_style text-red-700 responsiveTextInput' 
 //                                     value={value?.fenicr?.ni + '%'}
 //                                     name='ni' 
 //                                     onChange={(e) => {
@@ -504,8 +504,8 @@
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Cr</span>
-//                                 <input type='text' className='input_style text-red-700 text-xs sm:text-sm' 
+//                                 <span className='title_style responsiveTextInput'>Cr</span>
+//                                 <input type='text' className='input_style text-red-700 responsiveTextInput' 
 //                                     value={value?.fenicr?.cr + '%'}
 //                                     name='cr' 
 //                                     onChange={(e) => {
@@ -530,8 +530,8 @@
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Mo</span>
-//                                 <input type='text' className='input_style text-red-700 text-xs sm:text-sm' 
+//                                 <span className='title_style responsiveTextInput'>Mo</span>
+//                                 <input type='text' className='input_style text-red-700 responsiveTextInput' 
 //                                     value={value?.fenicr?.mo + '%'}
 //                                     name='mo' 
 //                                     onChange={(e) => {
@@ -556,8 +556,8 @@
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Fe</span>
-//                                 <input type='text' className='input_style bg-slate-100 text-xs sm:text-sm' 
+//                                 <span className='title_style responsiveTextInput'>Fe</span>
+//                                 <input type='text' className='input_style bg-slate-100 responsiveTextInput' 
 //                                     value={fe + '%'}
 //                                     name='fe' 
 //                                     readOnly 
@@ -567,19 +567,19 @@
 //                     </div>
 
 //                     {/* Price */}
-//                     <p className='text-center text-slate-600 text-sm font-semibold mb-2'>Price</p>
+//                     <p className='text-center text-slate-600 responsiveTextTitle font-semibold mb-2'>Price</p>
 //                     <div className='overflow-x-auto mb-4'>
 //                         <div className='flex justify-center min-w-[400px]'>
 //                             <div className='border border-slate-500 w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Ni</span>
-//                                 <input type='text' className='input_style bg-slate-100 text-xs sm:text-sm' 
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Ni</span>
+//                                 <input type='text' className='input_style bg-slate-100 responsiveTextInput' 
 //                                     value={addComma(value.general?.nilme * value.fenicr?.formulaNiCost / 100)}
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Cr</span>
-//                                 <input type='text' className='input_style text-red-700 text-xs sm:text-sm'
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Cr</span>
+//                                 <input type='text' className='input_style text-red-700 responsiveTextInput'
 //                                     name='crPrice' 
 //                                     onChange={(e) => handleChange(e, 'fenicr')}
 //                                     value={focusedField === 'crPrice' ? value.fenicr?.crPrice : addComma(value.fenicr?.crPrice)}
@@ -599,8 +599,8 @@
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Mo</span>
-//                                 <input type='text' className='input_style text-red-700 text-xs sm:text-sm'
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Mo</span>
+//                                 <input type='text' className='input_style text-red-700 responsiveTextInput'
 //                                     name='moPrice' 
 //                                     onChange={(e) => handleChange(e, 'fenicr')}
 //                                     value={focusedField === 'moPrice' ? value.fenicr?.moPrice : addComma(value.fenicr?.moPrice)}
@@ -620,8 +620,8 @@
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Fe</span>
-//                                 <input type='text' className='input_style text-red-700 text-xs sm:text-sm'
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Fe</span>
+//                                 <input type='text' className='input_style text-red-700 responsiveTextInput'
 //                                     name='fePrice' 
 //                                     onChange={(e) => handleChange(e, 'fenicr')}
 //                                     value={focusedField === 'fePrice' ? value.fenicr?.fePrice : addComma(value.fenicr?.fePrice)}
@@ -646,8 +646,8 @@
 //                     {/* Ni LME Display */}
 //                     <div className='flex justify-center mb-4'>
 //                         <div className='border border-slate-500 w-24 sm:w-28 flex flex-col'>
-//                             <span className='title_style bg-blue-300 text-xs sm:text-sm'>Ni LME</span>
-//                             <input type='text' className='input_style bg-slate-100 text-xs sm:text-sm' 
+//                             <span className='title_style bg-blue-300 responsiveTextInput'>Ni LME</span>
+//                             <input type='text' className='input_style bg-slate-100 responsiveTextInput' 
 //                                 value={addComma(value?.general?.nilme)}
 //                                 readOnly 
 //                             />
@@ -657,8 +657,8 @@
 //                     {/* Formula x Ni */}
 //                     <div className='flex justify-center mb-4'>
 //                         <div className='border border-slate-500 w-24 sm:w-28 flex flex-col'>
-//                             <span className='title_style bg-customOrange text-xs sm:text-sm'>Formula x Ni</span>
-//                             <input type='text' className='input_style bg-orange-200 text-red-600 text-xs sm:text-sm' 
+//                             <span className='title_style bg-customOrange responsiveTextInput'>Formula x Ni</span>
+//                             <input type='text' className='input_style bg-orange-200 text-red-600 responsiveTextInput' 
 //                                 value={value?.fenicr?.formulaNiCost + '%'}
 //                                 name='formulaNiCost' 
 //                                 onChange={(e) => handleChange(e, 'fenicr')}
@@ -680,30 +680,30 @@
 //                     {/* Results */}
 //                     <div className='grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-4'>
 //                         <div className='border border-slate-500 flex flex-col'>
-//                             <span className='title_style bg-customLavender text-xs sm:text-sm'>Cost</span>
-//                             <span className='title_style text-xs sm:text-sm'>Solids Price:</span>
-//                             <input type='text' className='input_style bg-orange-200 text-xs sm:text-sm'
+//                             <span className='title_style bg-customLavender responsiveTextInput'>Cost</span>
+//                             <span className='title_style responsiveTextInput'>Solids Price:</span>
+//                             <input type='text' className='input_style bg-orange-200 responsiveTextInput'
 //                                 value={addComma(solidsPrice.toFixed(2))}
 //                                 readOnly 
 //                             />
 //                         </div>
 //                         <div className='border border-slate-500 flex flex-col'>
-//                             <span className='title_style text-xs sm:text-sm'>Turnings Price:</span>
-//                             <input type='text' className='input_style bg-orange-200 text-xs sm:text-sm'
+//                             <span className='title_style responsiveTextInput'>Turnings Price:</span>
+//                             <input type='text' className='input_style bg-orange-200 responsiveTextInput'
 //                                 value={addComma((solidsPrice * 0.92).toFixed(2))}
 //                                 readOnly 
 //                             />
 //                         </div>
 //                         <div className='border border-slate-500 flex flex-col'>
-//                             <span className='title_style text-xs sm:text-sm'>Price/Euro:</span>
-//                             <input type='text' className='input_style bg-customLime text-xs sm:text-sm'
+//                             <span className='title_style responsiveTextInput'>Price/Euro:</span>
+//                             <input type='text' className='input_style bg-customLime responsiveTextInput'
 //                                 value={addComma((solidsPrice / value.general?.euroRate).toFixed(2), 'a')}
 //                                 readOnly 
 //                             />
 //                         </div>
 //                     </div>
 
-//                     <div className='text-red-600 text-xs'>
+//                     <div className='text-red-600 responsiveTextInput'>
 //                         <p>* Fill in the red and + Formula x Ni</p>
 //                         <p>* Fe is calculated automatically</p>
 //                     </div>
@@ -714,33 +714,33 @@
 //                     <p className='text-center text-slate-600 text-base sm:text-lg font-semibold mb-3'>Sales</p>
                     
 //                     {/* Composition (Read-only) */}
-//                     <p className='text-center text-slate-600 text-sm font-semibold mb-2'>Composition</p>
+//                     <p className='text-center text-slate-600 responsiveTextTitle font-semibold mb-2'>Composition</p>
 //                     <div className='overflow-x-auto mb-4'>
 //                         <div className='flex justify-center min-w-[400px]'>
 //                             <div className='border border-slate-500 w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Ni</span>
-//                                 <input type='text' className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                 <span className='title_style responsiveTextInput'>Ni</span>
+//                                 <input type='text' className='input_style bg-slate-100 responsiveTextInput'
 //                                     value={value?.fenicr?.ni + '%'} 
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Cr</span>
-//                                 <input type='text' className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                 <span className='title_style responsiveTextInput'>Cr</span>
+//                                 <input type='text' className='input_style bg-slate-100 responsiveTextInput'
 //                                     value={value?.fenicr?.cr + '%'} 
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Mo</span>
-//                                 <input type='text' className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                 <span className='title_style responsiveTextInput'>Mo</span>
+//                                 <input type='text' className='input_style bg-slate-100 responsiveTextInput'
 //                                     value={value?.fenicr?.mo + '%'} 
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Fe</span>
-//                                 <input type='text' className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                 <span className='title_style responsiveTextInput'>Fe</span>
+//                                 <input type='text' className='input_style bg-slate-100 responsiveTextInput'
 //                                     value={fe + '%'} 
 //                                     readOnly 
 //                                 />
@@ -749,33 +749,33 @@
 //                     </div>
 
 //                     {/* Price */}
-//                     <p className='text-center text-slate-600 text-sm font-semibold mb-2'>Price</p>
+//                     <p className='text-center text-slate-600 responsiveTextTitle font-semibold mb-2'>Price</p>
 //                     <div className='overflow-x-auto mb-2'>
 //                         <div className='flex justify-center min-w-[400px]'>
 //                             <div className='border border-slate-500 w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Ni</span>
-//                                 <input type='text' className='input_style bg-slate-100 text-xs sm:text-sm' 
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Ni</span>
+//                                 <input type='text' className='input_style bg-slate-100 responsiveTextInput' 
 //                                     value={addComma(value?.general?.nilme * value?.fenicr?.formulaNiPrice / 100)}
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Cr</span>
-//                                 <input type='text' className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Cr</span>
+//                                 <input type='text' className='input_style bg-slate-100 responsiveTextInput'
 //                                     value={addComma((value.general?.chargeCrLb * value.general?.mt * value?.fenicr?.crPriceArgus / 100).toFixed(2))} 
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Mo</span>
-//                                 <input type='text' className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Mo</span>
+//                                 <input type='text' className='input_style bg-slate-100 responsiveTextInput'
 //                                     value={addComma((value.general?.MoOxideLb * value?.fenicr?.moPriceArgus * value.general?.mt / 100).toFixed(2))} 
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Fe</span>
-//                                 <input type='text' className='input_style text-red-600 text-xs sm:text-sm'
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Fe</span>
+//                                 <input type='text' className='input_style text-red-600 responsiveTextInput'
 //                                     name='fePrice1' 
 //                                     onChange={(e) => handleChange(e, 'fenicr')}
 //                                     value={focusedField === 'fePrice1' ? value.fenicr?.fePrice1 : addComma(value.fenicr?.fePrice1)}
@@ -801,17 +801,17 @@
 //                     <div className='overflow-x-auto mb-4'>
 //                         <div className='flex justify-center min-w-[400px]'>
 //                             <div className='w-20 sm:w-24 flex justify-center items-center'>
-//                                 <span className='text-xs text-slate-500'>{'Lb ' + addComma(((value?.general?.nilme * value?.fenicr?.formulaNiPrice / 100) / (value?.general?.mt)).toFixed(2))}</span>
+//                                 <span className='responsiveTextInput text-slate-500'>{'Lb ' + addComma(((value?.general?.nilme * value?.fenicr?.formulaNiPrice / 100) / (value?.general?.mt)).toFixed(2))}</span>
 //                             </div>
 //                             <div className='w-20 sm:w-24 flex justify-center items-center'>
-//                                 <input type='text' className='input w-full h-7 text-center border-none cursor-default rounded-none text-red-700 text-xs'
+//                                 <input type='text' className='input w-full h-7 text-center border-none cursor-default rounded-none text-red-700 responsiveTextInput'
 //                                     name='crPriceArgus' 
 //                                     value={'Argus ' + value?.fenicr?.crPriceArgus + '%'} 
 //                                     onChange={(e) => handleChange(e, 'fenicr')} 
 //                                 />
 //                             </div>
 //                             <div className='w-20 sm:w-24 flex justify-center items-center'>
-//                                 <input type='text' className='input w-full h-7 text-center border-none cursor-default rounded-none text-red-700 text-xs'
+//                                 <input type='text' className='input w-full h-7 text-center border-none cursor-default rounded-none text-red-700 responsiveTextInput'
 //                                     name='moPriceArgus' 
 //                                     value={'Argus ' + value?.fenicr?.moPriceArgus + '%'} 
 //                                     onChange={(e) => handleChange(e, 'fenicr')} 
@@ -823,8 +823,8 @@
 //                     {/* Ni LME Display */}
 //                     <div className='flex justify-center mb-4'>
 //                         <div className='border border-slate-500 w-24 sm:w-28 flex flex-col'>
-//                             <span className='title_style bg-blue-300 text-xs sm:text-sm'>Ni LME</span>
-//                             <input type='text' className='input_style bg-slate-100 text-xs sm:text-sm'
+//                             <span className='title_style bg-blue-300 responsiveTextInput'>Ni LME</span>
+//                             <input type='text' className='input_style bg-slate-100 responsiveTextInput'
 //                                 value={addComma(value?.general?.nilme)}
 //                                 readOnly 
 //                             />
@@ -834,8 +834,8 @@
 //                     {/* Formula x Ni */}
 //                     <div className='flex justify-center mb-4'>
 //                         <div className='border border-slate-500 w-24 sm:w-28 flex flex-col'>
-//                             <span className='title_style bg-customOrange text-xs sm:text-sm'>Formula x Ni</span>
-//                             <input type='text' className='input_style bg-orange-200 text-red-600 text-xs sm:text-sm' 
+//                             <span className='title_style bg-customOrange responsiveTextInput'>Formula x Ni</span>
+//                             <input type='text' className='input_style bg-orange-200 text-red-600 responsiveTextInput' 
 //                                 value={value?.fenicr?.formulaNiPrice + '%'}
 //                                 name='formulaNiPrice' 
 //                                 onChange={(e) => handleChange(e, 'fenicr')}
@@ -857,30 +857,30 @@
 //                     {/* Results */}
 //                     <div className='grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-4'>
 //                         <div className='border border-slate-500 flex flex-col'>
-//                             <span className='title_style bg-customLavender text-xs sm:text-sm'>Sales</span>
-//                             <span className='title_style text-xs sm:text-sm'>Solids Price:</span>
-//                             <input type='text' className='input_style bg-orange-200 text-xs sm:text-sm'
+//                             <span className='title_style bg-customLavender responsiveTextInput'>Sales</span>
+//                             <span className='title_style responsiveTextInput'>Solids Price:</span>
+//                             <input type='text' className='input_style bg-orange-200 responsiveTextInput'
 //                                 value={addComma((solidsPrice1).toFixed(2))}
 //                                 readOnly 
 //                             />
 //                         </div>
 //                         <div className='border border-slate-500 flex flex-col'>
-//                             <span className='title_style text-xs sm:text-sm'>Turnings Price:</span>
-//                             <input type='text' className='input_style bg-orange-200 text-xs sm:text-sm'
+//                             <span className='title_style responsiveTextInput'>Turnings Price:</span>
+//                             <input type='text' className='input_style bg-orange-200 responsiveTextInput'
 //                                 value={addComma((solidsPrice1 * 0.9).toFixed(2))}
 //                                 readOnly 
 //                             />
 //                         </div>
 //                         <div className='border border-slate-500 flex flex-col'>
-//                             <span className='title_style text-xs sm:text-sm'>Price/Euro:</span>
-//                             <input type='text' className='input_style bg-customLime text-xs sm:text-sm'
+//                             <span className='title_style responsiveTextInput'>Price/Euro:</span>
+//                             <input type='text' className='input_style bg-customLime responsiveTextInput'
 //                                 value={addComma((solidsPrice1 / value.general?.euroRate).toFixed(2), 'a')}
 //                                 readOnly 
 //                             />
 //                         </div>
 //                     </div>
 
-//                     <div className='text-red-600 text-xs'>
+//                     <div className='text-red-600 responsiveTextInput'>
 //                         <p>* Fill in the red and + Formula x Ni</p>
 //                         <p>* Fe is calculated automatically</p>
 //                     </div>
@@ -917,24 +917,24 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
     }
 
     return value.fenicr != null ? (
-        <div className="w-full rounded-xl p-1">
+        <div className="w-full rounded-2xl p-1">
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
                 {/* COST SECTION */}
-                <div className="w-full bg-[var(--surface-card)] rounded-xl border border-[var(--border-divider)] shadow-sm p-2 text-center">
-                    <h3 className="text-xs font-medium text-[var(--endeavour)] mb-1 text-left pl-3">Cost</h3>
+                <div className="w-full bg-[var(--surface-card)] rounded-2xl border border-[var(--border-divider)] shadow-sm p-2 text-center">
+                    <h3 className="responsiveTextInput font-medium text-[var(--endeavour)] mb-1 text-left pl-3">Cost</h3>
 
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end mb-1.5 mt-1">
                     <div className="px-2">
-                        <p className="text-xs text-[var(--text-faint)] mb-1 text-center">Composition</p>
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] mb-1">
-                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--selago)] text-[var(--primary-bright)] text-xs">
+                        <p className="responsiveTextInput text-[var(--text-faint)] mb-1 text-center">Composition</p>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] mb-1">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--selago)] text-[var(--primary-bright)] responsiveTextInput">
                                 <div className="py-1 text-center">Ni</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)]">Cr</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)]">Mo</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)]">Fe</div>
                             </div>
-                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--surface-card)] text-xs">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--surface-card)] responsiveTextInput">
                                 <input type="text" className="w-full text-center py-1 outline-none text-[var(--danger-text)] bg-[var(--surface-base)]"
                                     value={value?.fenicr?.ni + '%'} name="ni"
                                     onChange={(e) => handleChange({ target: { name: e.target.name, value: e.target.value.replace('%','') } }, "fenicr")}
@@ -955,15 +955,15 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                                 />
                             </div>
                         </div>
-                        <p className="text-xs text-[var(--text-faint)] mb-1 text-center">Price</p>
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)]">
-                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--violet-bg)] text-[var(--primary-bright)] text-xs">
+                        <p className="responsiveTextInput text-[var(--text-faint)] mb-1 text-center">Price</p>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)]">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--violet-bg)] text-[var(--primary-bright)] responsiveTextInput">
                                 <div className="py-1 text-center">Ni</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)]">Cr</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)]">Mo</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)]">Fe</div>
                             </div>
-                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--surface-card)] text-xs">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--surface-card)] responsiveTextInput">
                                 <input readOnly className="w-full text-center py-1 bg-[var(--surface-card)] outline-none text-[var(--primary-bright)]"
                                     value={formatCurrency((value.general?.nilme * value.fenicr?.formulaNiCost / 100).toFixed(2))}
                                 />
@@ -988,17 +988,17 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                             </div>
                         </div>
                     </div>
-                    <div className="w-20 flex-shrink-0 rounded-xl overflow-hidden border border-[var(--border-divider)]">
-                        <div className="py-1 text-center bg-[var(--surface-header)] text-xs text-[var(--endeavour)] font-medium">Ni LME</div>
-                        <div className="py-1 text-center text-xs text-[var(--primary-bright)] bg-[var(--selago)]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
+                    <div className="w-20 flex-shrink-0 rounded-2xl overflow-hidden border border-[var(--border-divider)]">
+                        <div className="py-1 text-center bg-[var(--surface-header)] responsiveTextInput text-[var(--endeavour)] font-medium">Ni LME</div>
+                        <div className="py-1 text-center responsiveTextInput text-[var(--primary-bright)] bg-[var(--selago)]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
                     </div>
                     </div>
 
                     {/* Formula x Ni */}
                     <div className="mb-1 mt-1 flex pl-2 pr-24">
-                    <div className="w-32 rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)]">
-                        <div className="bg-[var(--danger-bg)] text-[var(--danger-text)] text-xs py-1 text-center">Formula x Ni</div>
-                        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[var(--danger-text)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]"
+                    <div className="w-32 rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)]">
+                        <div className="bg-[var(--danger-bg)] text-[var(--danger-text)] responsiveTextInput py-1 text-center">Formula x Ni</div>
+                        <input type="text" className="w-full text-center py-1 outline-none responsiveTextInput text-[var(--danger-text)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]"
                             value={value?.fenicr?.formulaNiCost + '%'} name="formulaNiCost"
                             onChange={(e) => handleChange(e, 'fenicr')}
                             onBlur={(e) => { const num = parseFloat(e.target.value.replace('%', '')); if (!isNaN(num)) handleChange({ target: { name: e.target.name, value: num.toFixed(2) } }, 'fenicr'); }}
@@ -1008,61 +1008,61 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                     {/* Results */}
                     <div className="flex flex-wrap gap-1.5 mt-1 mb-1 pl-2">
-                    <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
-                        <div className="bg-[var(--danger-soft)] py-1"><p className="text-xs text-[var(--primary-bright)]">Solids Price</p></div>
-                        <div className="py-1 text-xs text-[var(--primary-bright)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]">{formatCurrency(solidsPrice.toFixed(2))}</div>
+                    <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
+                        <div className="bg-[var(--danger-soft)] py-1"><p className="responsiveTextInput text-[var(--primary-bright)]">Solids Price</p></div>
+                        <div className="py-1 responsiveTextInput text-[var(--primary-bright)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]">{formatCurrency(solidsPrice.toFixed(2))}</div>
                     </div>
-                    <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
-                        <div className="bg-[var(--danger-soft)] py-1"><p className="text-xs text-[var(--primary-bright)]">Turnings Price</p></div>
-                        <div className="py-1 text-xs text-[var(--primary-bright)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice * 0.92).toFixed(2))}</div>
+                    <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
+                        <div className="bg-[var(--danger-soft)] py-1"><p className="responsiveTextInput text-[var(--primary-bright)]">Turnings Price</p></div>
+                        <div className="py-1 responsiveTextInput text-[var(--primary-bright)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice * 0.92).toFixed(2))}</div>
                     </div>
-                    <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
-                        <div className="bg-[var(--ok-soft)] py-1"><p className="text-xs text-[var(--primary-bright)]">Price / Euro</p></div>
-                        <div className="py-1 text-xs text-[var(--primary-bright)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice / value.general?.euroRate).toFixed(2), '€')}</div>
+                    <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
+                        <div className="bg-[var(--ok-soft)] py-1"><p className="responsiveTextInput text-[var(--primary-bright)]">Price / Euro</p></div>
+                        <div className="py-1 responsiveTextInput text-[var(--primary-bright)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice / value.general?.euroRate).toFixed(2), '€')}</div>
                     </div>
                     </div>
 
-                    <div className='text-xs mt-3 text-[var(--endeavour)] space-y-0.5 text-left pl-2'>
+                    <div className='responsiveTextInput mt-3 text-[var(--endeavour)] space-y-0.5 text-left pl-2'>
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>
                 </div>
 
                 {/* SALES SECTION */}
-                <div className="w-full bg-[var(--surface-card)] rounded-xl border border-[var(--border-divider)] shadow-sm p-2 text-center">
-                    <h3 className="text-xs font-medium text-[var(--endeavour)] mb-1 text-left pl-3">Sales</h3>
+                <div className="w-full bg-[var(--surface-card)] rounded-2xl border border-[var(--border-divider)] shadow-sm p-2 text-center">
+                    <h3 className="responsiveTextInput font-medium text-[var(--endeavour)] mb-1 text-left pl-3">Sales</h3>
 
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end mb-1.5 mt-1">
                     <div className="px-2">
-                        <p className="text-xs text-[var(--text-faint)] mb-1 text-center">Composition</p>
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] mb-1">
-                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--selago)] text-[var(--primary-bright)] text-xs">
+                        <p className="responsiveTextInput text-[var(--text-faint)] mb-1 text-center">Composition</p>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] mb-1">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--selago)] text-[var(--primary-bright)] responsiveTextInput">
                                 <div className="py-1 text-center">Ni</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)]">Cr</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)]">Mo</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)]">Fe</div>
                             </div>
-                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--surface-base)] text-xs">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--surface-base)] responsiveTextInput">
                                 <div className="py-1 text-center text-[var(--danger-text)]">{value?.fenicr?.ni}%</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)] text-[var(--danger-text)]">{value?.fenicr?.cr}%</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)] text-[var(--primary-bright)]">{value?.fenicr?.mo}%</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)] text-[var(--primary-bright)]">{fe}%</div>
                             </div>
                         </div>
-                        <p className="text-xs text-[var(--text-faint)] mb-1 text-center">Price</p>
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)]">
-                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--violet-bg)] text-[var(--primary-bright)] text-xs">
+                        <p className="responsiveTextInput text-[var(--text-faint)] mb-1 text-center">Price</p>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)]">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--violet-bg)] text-[var(--primary-bright)] responsiveTextInput">
                                 <div className="py-1 text-center">Ni</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)]">Cr</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)]">Mo</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)]">Fe</div>
                             </div>
-                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--surface-base)] text-xs">
+                            <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--surface-base)] responsiveTextInput">
                                 <div className="py-1 text-center text-[var(--primary-bright)]">{formatCurrency((value.general?.nilme * value.fenicr?.formulaNiPrice / 100).toFixed(2))}</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)] text-[var(--danger-text)]">{formatCurrency((value.general?.chargeCrLb * value.general?.mt * value.fenicr?.crPriceArgus / 100).toFixed(2))}</div>
                                 <div className="py-1 text-center border-l border-[var(--border-divider)] text-[var(--danger-text)]">{formatCurrency((value.general?.MoOxideLb * value.fenicr?.moPriceArgus * value.general?.mt / 100).toFixed(2))}</div>
-                                <input type="text" className="w-full text-center py-1 outline-none border-l border-[var(--border-divider)] bg-[var(--surface-base)] text-[var(--danger-text)] text-xs"
+                                <input type="text" className="w-full text-center py-1 outline-none border-l border-[var(--border-divider)] bg-[var(--surface-base)] text-[var(--danger-text)] responsiveTextInput"
                                     name="fePrice1"
                                     value={focusedField === 'fePrice1' ? value.fenicr?.fePrice1 : formatCurrency(value.fenicr?.fePrice1)}
                                     onFocus={() => setFocusedField('fePrice1')}
@@ -1072,17 +1072,17 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                             </div>
                         </div>
                     </div>
-                    <div className="w-20 flex-shrink-0 rounded-xl overflow-hidden border border-[var(--border-divider)]">
-                        <div className="py-1 text-center bg-[var(--surface-header)] text-xs text-[var(--endeavour)] font-medium">Ni LME</div>
-                        <div className="py-1 text-center text-xs text-[var(--primary-bright)] bg-[var(--selago)]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
+                    <div className="w-20 flex-shrink-0 rounded-2xl overflow-hidden border border-[var(--border-divider)]">
+                        <div className="py-1 text-center bg-[var(--surface-header)] responsiveTextInput text-[var(--endeavour)] font-medium">Ni LME</div>
+                        <div className="py-1 text-center responsiveTextInput text-[var(--primary-bright)] bg-[var(--selago)]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
                     </div>
                     </div>
 
                     {/* Formula x Ni */}
                     <div className="mb-1 mt-1 flex pl-2 pr-24">
-                        <div className="w-32 rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)]">
-                            <div className="bg-[var(--danger-bg)] text-[var(--danger-text)] text-xs py-1 text-center">Formula x Ni</div>
-                            <input type="text" className="w-full text-center py-1 outline-none text-xs text-[var(--danger-text)] bg-[var(--surface-base)] border-[var(--border-divider)]"
+                        <div className="w-32 rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)]">
+                            <div className="bg-[var(--danger-bg)] text-[var(--danger-text)] responsiveTextInput py-1 text-center">Formula x Ni</div>
+                            <input type="text" className="w-full text-center py-1 outline-none responsiveTextInput text-[var(--danger-text)] bg-[var(--surface-base)] border-[var(--border-divider)]"
                                 value={value?.fenicr?.formulaNiPrice + '%'} name="formulaNiPrice"
                                 onChange={(e) => handleChange(e, 'fenicr')}
                                 onBlur={(e) => { const num = parseFloat(e.target.value.replace('%', '')); if (!isNaN(num)) handleChange({ target: { name: 'formulaNiPrice', value: num.toFixed(2) } }, 'fenicr'); }}
@@ -1092,21 +1092,21 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
 
                     {/* Results */}
                     <div className="flex flex-wrap gap-1.5 mt-1 mb-1 pl-2">
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
-                            <div className="bg-[var(--danger-soft)] py-1 text-xs text-[var(--primary-bright)]">Solids Price</div>
-                            <div className="py-1 text-xs text-[var(--primary-bright)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]">{formatCurrency(solidsPrice1.toFixed(2))}</div>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
+                            <div className="bg-[var(--danger-soft)] py-1 responsiveTextInput text-[var(--primary-bright)]">Solids Price</div>
+                            <div className="py-1 responsiveTextInput text-[var(--primary-bright)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]">{formatCurrency(solidsPrice1.toFixed(2))}</div>
                         </div>
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
-                            <div className="bg-[var(--danger-soft)] py-1 text-xs text-[var(--primary-bright)]">Turnings Price</div>
-                            <div className="py-1 text-xs text-[var(--primary-bright)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice1 * 0.9).toFixed(2))}</div>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
+                            <div className="bg-[var(--danger-soft)] py-1 responsiveTextInput text-[var(--primary-bright)]">Turnings Price</div>
+                            <div className="py-1 responsiveTextInput text-[var(--primary-bright)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice1 * 0.9).toFixed(2))}</div>
                         </div>
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
-                            <div className="bg-[var(--ok-soft)] py-1"><p className="text-xs text-[var(--primary-bright)]">Price / Euro</p></div>
-                            <div className="py-1 text-xs text-[var(--primary-bright)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice1 / value.general?.euroRate).toFixed(2), '€')}</div>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
+                            <div className="bg-[var(--ok-soft)] py-1"><p className="responsiveTextInput text-[var(--primary-bright)]">Price / Euro</p></div>
+                            <div className="py-1 responsiveTextInput text-[var(--primary-bright)] border-t border-[var(--border-divider)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice1 / value.general?.euroRate).toFixed(2), '€')}</div>
                         </div>
                     </div>
 
-                    <div className="text-xs mt-3 text-[var(--endeavour)] space-y-0.5 text-left pl-2">
+                    <div className="responsiveTextInput mt-3 text-[var(--endeavour)] space-y-0.5 text-left pl-2">
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>

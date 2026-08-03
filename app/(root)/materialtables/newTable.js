@@ -492,8 +492,8 @@ const Customtable = ({
                                     />
                                     {isNi && (
                                         <>
-                                            <span style={{ fontSize: '0.58rem', color: 'var(--rock-blue)', fontWeight: '500' }}>LME</span>
-                                            <span style={{ fontSize: '0.62rem', color: 'var(--text-faint)', margin: '0 2px' }}>×</span>
+                                            <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--rock-blue)', fontWeight: '500' }}>LME</span>
+                                            <span style={{ fontSize: 'var(--fs-table)', color: 'var(--text-faint)', margin: '0 2px' }}>×</span>
                                             <input
                                                 value={niPercent}
                                                 onChange={e => setNiPercent(e.target.value)}
@@ -562,7 +562,7 @@ const Customtable = ({
                                                                     <button onClick={() => { setAddElemInput(''); setShowAddElem(false) }} className="responsiveTextTable" style={{ color: 'var(--chathams-blue)', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
                                                                 </div>
                                                             ) : (
-                                                                <button onClick={() => setShowAddElem(true)} title="Add custom element column" style={{ fontSize: '14px', fontWeight: '500', color: 'var(--rock-blue)', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>+</button>
+                                                                <button onClick={() => setShowAddElem(true)} title="Add custom element column" style={{ fontSize: 'var(--fs-title)', fontWeight: '500', color: 'var(--rock-blue)', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>+</button>
                                                             )}
                                                         </th>
                                                     )
@@ -621,7 +621,7 @@ const Customtable = ({
                                                     <div className="flex justify-center items-center">
                                                         <button
                                                             onClick={() => delMaterial(table1, cell)}
-                                                            style={{ fontSize: '15px', fontWeight: '500', color: 'var(--danger-text)', background: 'none', border: 'none', cursor: 'pointer', padding: '1px 5px', lineHeight: 1 }}
+                                                            style={{ fontSize: 'var(--fs-page)', fontWeight: '500', color: 'var(--danger-text)', background: 'none', border: 'none', cursor: 'pointer', padding: '1px 5px', lineHeight: 1 }}
                                                         >×</button>
                                                     </div>
                                                 ) : isCost ? (
@@ -712,13 +712,13 @@ const Customtable = ({
                                     const focused = focusedCell === ck
                                     if (isCost) return (
                                         <div key={cell.id} className="flex justify-between items-center pb-2" style={{ borderBottom: '1px solid var(--selago)' }}>
-                                            <span style={{ color: 'var(--regent-gray)', fontSize: '0.58rem', textTransform: 'uppercase' }}>{cell.column.columnDef.header}</span>
+                                            <span style={{ color: 'var(--regent-gray)', fontSize: 'var(--fs-caption)', textTransform: 'uppercase' }}>{cell.column.columnDef.header}</span>
                                             <span className="responsiveTextTable" style={{ color: 'var(--chathams-blue)', fontWeight: '500' }}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
                                         </div>
                                     )
                                     return (
                                         <div key={cell.id} className="flex flex-col space-y-1 pb-2 last:pb-0" style={{ borderBottom: '1px solid var(--selago)' }}>
-                                            <div style={{ color: 'var(--regent-gray)', fontSize: '0.58rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cell.column.columnDef.header}</div>
+                                            <div style={{ color: 'var(--regent-gray)', fontSize: 'var(--fs-caption)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cell.column.columnDef.header}</div>
                                             <div style={{ backgroundColor: isFe ? 'var(--selago)' : '#fff', border: `1px solid ${isFe ? 'var(--rock-blue)' : 'var(--border-cell)'}`, borderRadius: '8px', padding: '4px 8px', minHeight: '28px', display: 'flex', alignItems: 'center' }}>
                                                 <input
                                                     type="text"

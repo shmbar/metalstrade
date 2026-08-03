@@ -53,10 +53,10 @@ const PdfPagesView = ({ src, height = '68vh' }) => {
 
     if (pages === null) {
         return (
-            <div className='flex items-center justify-center gap-2 rounded-md border'
+            <div className='flex items-center justify-center gap-2 rounded-lg border'
                 style={{ height, borderColor: '#d8e8f5', background: '#fff' }}>
                 <Loader2 className='w-4 h-4 animate-spin' style={{ color: 'var(--endeavour)' }} />
-                <span style={{ fontSize: '0.68rem', color: 'var(--regent-gray)' }}>Rendering document…</span>
+                <span style={{ fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>Rendering document…</span>
             </div>
         );
     }
@@ -69,7 +69,7 @@ const PdfPagesView = ({ src, height = '68vh' }) => {
     }
 
     return (
-        <div className='overflow-y-auto rounded-md border' style={{ height, borderColor: '#d8e8f5', background: '#eef2f6' }}>
+        <div className='overflow-y-auto rounded-lg border' style={{ height, borderColor: '#d8e8f5', background: '#eef2f6' }}>
             {pages.map((p, i) => (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img key={i} src={p} alt={`Page ${i + 1}`}

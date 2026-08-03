@@ -60,9 +60,9 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="relative">
                     <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-[var(--surface-card)] text-left
-                     focus:outline-none text-xs border border-[var(--border-divider)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
+                     focus:outline-none responsiveTextInput border border-[var(--border-divider)] hover:border-[var(--endeavour)] transition-colors h-7 ${classes}`}>
                         <ComboboxInput
-                            className={cn('w-full py-2 pl-3 pr-10 text-xs leading-5 focus:outline-none',
+                            className={cn('w-full py-2 pl-3 pr-10 responsiveTextInput leading-5 focus:outline-none',
                                 selected[name] !== plcHolder ? 'text-[var(--endeavour)]' : 'text-[var(--endeavour)]')}
                             displayValue={(value) => (value || {})[name] || selected ? selected[name] : plcHolder}
                             onChange={(event) => setQuery(event.target.value)}
@@ -82,10 +82,10 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                         afterLeave={() => setQuery('')}
                     >
                         <Portal>
-                            <ComboboxOptions style={dropdownStyle} className={`z-50 max-h-60 overflow-auto custom-scroll rounded-xl
-                            bg-[var(--surface-card)] py-1 text-xs shadow-lg border border-[var(--surface-header)] focus:outline-none ${classes1}`}>
+                            <ComboboxOptions style={dropdownStyle} className={`z-50 max-h-60 overflow-auto custom-scroll rounded-2xl
+                            bg-[var(--surface-card)] py-1 responsiveTextInput shadow-lg border border-[var(--surface-header)] focus:outline-none ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (
-                                <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] text-xs">
+                                <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] responsiveTextInput">
                                     Nothing found.
                                 </div>
                             ) : (

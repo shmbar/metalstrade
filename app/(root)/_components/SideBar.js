@@ -286,7 +286,7 @@ export default function Sidebar() {
                                     {getTtl(link.item, ln)}
                                   </span>
                                   <span style={{
-                                    fontSize: "0.62rem",
+                                    fontSize: 'var(--fs-table)',
                                     color: "var(--chathams-blue)", opacity: 0.7,
                                     whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                                   }}>

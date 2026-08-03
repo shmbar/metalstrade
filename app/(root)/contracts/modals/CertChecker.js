@@ -124,9 +124,9 @@ const CertChecker = () => {
         <div className='p-3 space-y-3'>
 
             {/* Optional spec input */}
-            <div className='rounded-xl p-3' style={{ border: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
+            <div className='rounded-2xl p-3' style={{ border: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
                 <div className='flex items-center justify-between mb-2'>
-                    <p className='font-semibold' style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)' }}>
+                    <p className='font-semibold' style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>
                         Contract Specification {valueCon?.certSpec?.length ? '(saved)' : '(optional)'}
                     </p>
                     {valueCon?.id && spec.length > 0 && (
@@ -134,7 +134,7 @@ const CertChecker = () => {
                             onClick={saveSpecToContract}
                             disabled={savingSpec}
                             className='flex items-center gap-1 px-2 py-0.5 rounded-full text-white disabled:opacity-50'
-                            style={{ fontSize: '0.58rem', background: 'var(--endeavour)' }}
+                            style={{ fontSize: 'var(--fs-caption)', background: 'var(--endeavour)' }}
                         >
                             {savingSpec ? <Loader2 className='w-2.5 h-2.5 animate-spin' /> : <Save className='w-2.5 h-2.5' />}
                             Save spec to contract
@@ -142,13 +142,13 @@ const CertChecker = () => {
                     )}
                 </div>
                 {materialContext && (
-                    <p style={{ fontSize: '0.58rem', color: 'var(--regent-gray)', marginBottom: '6px' }}>
+                    <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)', marginBottom: '6px' }}>
                         Material context: <span style={{ color: 'var(--chathams-blue)', fontWeight: 600 }}>{materialContext}</span>
                     </p>
                 )}
                 <div className='flex flex-wrap gap-1.5 mb-2'>
                     {spec.map((s, i) => (
-                        <div key={i} className='flex items-center gap-1 px-2 py-1 rounded-full' style={{ background: 'var(--surface-header)', border: '1px solid var(--border-divider)', fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>
+                        <div key={i} className='flex items-center gap-1 px-2 py-1 rounded-full' style={{ background: 'var(--surface-header)', border: '1px solid var(--border-divider)', fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>
                             <span className='font-semibold'>{s.element}</span>
                             {(s.min !== '' || s.max !== '') && <span>{s.min || '—'}–{s.max || '—'}%</span>}
                             {s.tolerance && parseFloat(s.tolerance) > 0 && <span>±{s.tolerance}</span>}
@@ -161,7 +161,7 @@ const CertChecker = () => {
                         value={newElement}
                         onChange={e => setNewElement(e.target.value)}
                         className='rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
-                        style={{ fontSize: '0.62rem', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }}
+                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }}
                     >
                         <option value=''>Element</option>
                         {ELEMENT_PRESETS.filter(e => !spec.find(s => s.element === e)).map(e => (
@@ -170,16 +170,16 @@ const CertChecker = () => {
                     </select>
                     <input placeholder='Min %' value={newMin} onChange={e => setNewMin(e.target.value)} type='number' step='any'
                         className='w-16 rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
-                        style={{ fontSize: '0.62rem', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }} />
+                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }} />
                     <input placeholder='Max %' value={newMax} onChange={e => setNewMax(e.target.value)} type='number' step='any'
                         className='w-16 rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
-                        style={{ fontSize: '0.62rem', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }} />
+                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }} />
                     <input placeholder='±tol' value={newTolerance} onChange={e => setNewTolerance(e.target.value)} type='number' step='any' title='Tolerance — allowed deviation from min/max (e.g. 0.05)'
                         className='w-14 rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
-                        style={{ fontSize: '0.62rem', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }} />
+                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }} />
                     <button onClick={addSpec} disabled={!newElement}
                         className='flex items-center gap-1 px-2.5 py-0.5 rounded-full text-white disabled:opacity-40'
-                        style={{ fontSize: '0.62rem', background: 'var(--endeavour)' }}>
+                        style={{ fontSize: 'var(--fs-table)', background: 'var(--endeavour)' }}>
                         <Plus className='w-2.5 h-2.5' /> Add
                     </button>
                 </div>
@@ -195,7 +195,7 @@ const CertChecker = () => {
                 role='button'
                 tabIndex={file ? -1 : 0}
                 aria-label='Upload certificate — drop a PDF, JPG or PNG here, or click to browse'
-                className='rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
+                className='rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
                 style={{
                     border: `2px dashed ${dragging ? 'var(--endeavour)' : 'var(--border-divider)'}`,
                     background: dragging ? 'var(--surface-header)' : 'var(--surface-pill)',
@@ -208,7 +208,7 @@ const CertChecker = () => {
                 {file ? (
                     <div className='flex items-center gap-2'>
                         <FileText className='w-4 h-4' style={{ color: 'var(--endeavour)' }} />
-                        <span style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)' }}>{file.name}</span>
+                        <span style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>{file.name}</span>
                         <button onClick={e => { e.stopPropagation(); setFile(null); setResult(null); }} className='ml-1'>
                             <X className='w-3 h-3' style={{ color: 'var(--danger-text)' }} />
                         </button>
@@ -216,8 +216,8 @@ const CertChecker = () => {
                 ) : (
                     <>
                         <Upload className='w-5 h-5 mb-1' style={{ color: 'var(--border-divider)' }} />
-                        <p style={{ fontSize: '0.65rem', color: 'var(--chathams-blue)' }}>Drop certificate here or click to upload</p>
-                        <p style={{ fontSize: '0.58rem', color: 'var(--regent-gray)' }}>PDF, JPG, PNG · max 10 MB</p>
+                        <p style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>Drop certificate here or click to upload</p>
+                        <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)' }}>PDF, JPG, PNG · max 10 MB</p>
                     </>
                 )}
             </div>
@@ -225,8 +225,8 @@ const CertChecker = () => {
             {/* Analyze button */}
             {file && !result && (
                 <button onClick={analyze} disabled={analyzing}
-                    className='w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white font-medium transition-all disabled:opacity-60'
-                    style={{ background: 'var(--endeavour)', fontSize: '0.72rem' }}>
+                    className='w-full flex items-center justify-center gap-2 py-2 rounded-2xl text-white font-medium transition-all disabled:opacity-60'
+                    style={{ background: 'var(--endeavour)', fontSize: 'var(--fs-input)' }}>
                     {analyzing ? <><Loader2 className='w-4 h-4 animate-spin' /> Analyzing certificate…</> : '✦ Analyze Certificate'}
                 </button>
             )}
@@ -235,7 +235,7 @@ const CertChecker = () => {
             {error && (
                 <div className='flex items-center gap-2 p-2.5 rounded-lg' style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)' }}>
                     <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0' style={{ color: 'var(--danger-strong)' }} />
-                    <span style={{ fontSize: '0.65rem', color: 'var(--danger-strong)' }}>{error}</span>
+                    <span style={{ fontSize: 'var(--fs-table)', color: 'var(--danger-strong)' }}>{error}</span>
                 </div>
             )}
 
@@ -245,17 +245,17 @@ const CertChecker = () => {
                     {/* Cert metadata */}
                     <div className='flex flex-wrap gap-2'>
                         {result.certificateNumber && (
-                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.6rem', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
+                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
                                 Cert # {result.certificateNumber}
                             </span>
                         )}
                         {result.date && (
-                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.6rem', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
+                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
                                 {result.date}
                             </span>
                         )}
                         {result.material && (
-                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.6rem', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
+                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
                                 {result.material}
                             </span>
                         )}
@@ -264,27 +264,27 @@ const CertChecker = () => {
                     {/* Results table (with spec comparison) */}
                     {result.results?.length > 0 && (
                         <div>
-                            <p className='font-semibold mb-1' style={{ fontSize: '0.65rem', color: 'var(--chathams-blue)' }}>Specification Check</p>
-                            <div className='rounded-xl overflow-hidden' style={{ border: '1px solid var(--border-divider)' }}>
+                            <p className='font-semibold mb-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>Specification Check</p>
+                            <div className='rounded-2xl overflow-hidden' style={{ border: '1px solid var(--border-divider)' }}>
                                 <table className='w-full'>
                                     <thead>
                                         <tr style={{ background: 'var(--selago)' }}>
                                             {['Element', 'Spec', 'Certificate', 'Result'].map(h => (
-                                                <th key={h} className='px-3 py-1.5 text-left font-semibold' style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>{h}</th>
+                                                <th key={h} className='px-3 py-1.5 text-left font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>{h}</th>
                                             ))}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {result.results.map((row, i) => (
                                             <tr key={i} style={{ background: i % 2 === 0 ? 'white' : 'var(--surface-pill)', borderTop: '1px solid var(--surface-header)' }}>
-                                                <td className='px-3 py-1.5 font-semibold' style={{ fontSize: '0.65rem', color: 'var(--port-gore)' }}>{row.element}</td>
-                                                <td className='px-3 py-1.5' style={{ fontSize: '0.62rem', color: 'var(--regent-gray)' }}>{row.spec || '—'}</td>
-                                                <td className='px-3 py-1.5 font-semibold' style={{ fontSize: '0.65rem', color: 'var(--port-gore)' }}>{row.actual ?? '—'}{row.actual != null ? '%' : ''}</td>
+                                                <td className='px-3 py-1.5 font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--port-gore)' }}>{row.element}</td>
+                                                <td className='px-3 py-1.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>{row.spec || '—'}</td>
+                                                <td className='px-3 py-1.5 font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--port-gore)' }}>{row.actual ?? '—'}{row.actual != null ? '%' : ''}</td>
                                                 <td className='px-3 py-1.5'>
                                                     {row.pass ? (
                                                         <span
                                                             className='flex items-center gap-1 px-2 py-0.5 rounded-full w-fit'
-                                                            style={{ fontSize: '0.58rem', background: 'var(--ok-bg)', color: 'var(--ok-strong)' }}
+                                                            style={{ fontSize: 'var(--fs-caption)', background: 'var(--ok-bg)', color: 'var(--ok-strong)' }}
                                                             role='status'
                                                             aria-label={`${row.element} pass`}
                                                         >
@@ -294,14 +294,14 @@ const CertChecker = () => {
                                                         <div className='flex flex-col gap-0.5'>
                                                             <span
                                                                 className='flex items-center gap-1 px-2 py-0.5 rounded-full w-fit'
-                                                                style={{ fontSize: '0.58rem', background: 'var(--danger-bg)', color: 'var(--danger-strong)' }}
+                                                                style={{ fontSize: 'var(--fs-caption)', background: 'var(--danger-bg)', color: 'var(--danger-strong)' }}
                                                                 role='status'
                                                                 aria-label={`${row.element} fail${row.reason ? ': ' + row.reason : ''}`}
                                                             >
                                                                 <XCircle className='w-3 h-3' aria-hidden='true' /> Fail
                                                             </span>
                                                             {row.reason && (
-                                                                <span style={{ fontSize: '0.55rem', color: 'var(--danger-strong)' }}>{row.reason}</span>
+                                                                <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--danger-strong)' }}>{row.reason}</span>
                                                             )}
                                                         </div>
                                                     )}
@@ -317,10 +317,10 @@ const CertChecker = () => {
                     {/* Extracted elements (no spec) */}
                     {result.extractedElements?.length > 0 && !result.results?.length && (
                         <div>
-                            <p className='font-semibold mb-1' style={{ fontSize: '0.65rem', color: 'var(--chathams-blue)' }}>Extracted Composition</p>
+                            <p className='font-semibold mb-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>Extracted Composition</p>
                             <div className='flex flex-wrap gap-1.5'>
                                 {result.extractedElements.map((el, i) => (
-                                    <span key={i} className='px-2.5 py-1 rounded-full font-medium' style={{ fontSize: '0.62rem', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
+                                    <span key={i} className='px-2.5 py-1 rounded-full font-medium' style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
                                         {el.element}: {el.value}{el.unit || '%'}
                                     </span>
                                 ))}
@@ -330,7 +330,7 @@ const CertChecker = () => {
 
                     <button onClick={() => { setFile(null); setResult(null); setError(null); }}
                         className='flex items-center gap-1 px-3 py-1 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                        style={{ fontSize: '0.62rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}>
+                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}>
                         <Trash2 className='w-3 h-3' /> Check another certificate
                     </button>
                 </div>

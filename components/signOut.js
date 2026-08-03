@@ -21,7 +21,7 @@ const SignOut = () => {
 
     return (
             <button className='gap-2 px-3 py-1 border border-slate-300 rounded-lg text-slate-600 shadow-sm flex items-center
-            text-sm hover:bg-slate-200'
+            responsiveTextTitle hover:bg-slate-200'
                 onClick={LogOut}
             >
                 <BiLogOutCircle />

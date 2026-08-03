@@ -81,12 +81,12 @@ const CommentThread = ({ entityType, entityId, entityLabel }) => {
                 {loading ? (
                     <div className='flex items-center justify-center gap-2 py-8'>
                         <Loader2 className='w-4 h-4 animate-spin' style={{ color: 'var(--endeavour)' }} />
-                        <span style={{ fontSize: '0.72rem', color: 'var(--chathams-blue)' }}>Loading comments…</span>
+                        <span style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>Loading comments…</span>
                     </div>
                 ) : comments.length === 0 ? (
                     <div className='flex flex-col items-center justify-center py-8 gap-1'>
                         <MessageSquare className='w-5 h-5' style={{ color: 'var(--border-divider)' }} />
-                        <span style={{ fontSize: '0.72rem', color: 'var(--regent-gray)' }}>No comments yet — start the conversation.</span>
+                        <span style={{ fontSize: 'var(--fs-input)', color: 'var(--regent-gray)' }}>No comments yet — start the conversation.</span>
                     </div>
                 ) : (
                     <ul className='flex flex-col gap-2'>
@@ -94,17 +94,17 @@ const CommentThread = ({ entityType, entityId, entityLabel }) => {
                             const mine = c.authorUid && c.authorUid === currentUser?.uid;
                             return (
                                 <li key={c.id} className='flex items-start gap-2'>
-                                    <span className='inline-flex items-center justify-center rounded-full text-white flex-shrink-0 mt-0.5' style={{ width: 24, height: 24, fontSize: '0.55rem', background: colorFor(c.authorName || c.authorUid) }}>
+                                    <span className='inline-flex items-center justify-center rounded-full text-white flex-shrink-0 mt-0.5' style={{ width: 24, height: 24, fontSize: 'var(--fs-caption)', background: colorFor(c.authorName || c.authorUid) }}>
                                         {initials(c.authorName)}
                                     </span>
                                     <div className='min-w-0 flex-1'>
                                         <div className='flex items-center gap-2'>
-                                            <span className='font-medium' style={{ fontSize: '0.66rem', color: 'var(--chathams-blue)' }}>
+                                            <span className='font-medium' style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>
                                                 {mine ? 'You' : (c.authorName || 'Unknown')}
                                             </span>
-                                            <span style={{ fontSize: '0.58rem', color: 'var(--regent-gray)' }} title={c.createdAt}>{relativeTime(c.createdAtMs)}</span>
+                                            <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)' }} title={c.createdAt}>{relativeTime(c.createdAtMs)}</span>
                                         </div>
-                                        <div className='rounded-lg px-2.5 py-1.5 mt-0.5 whitespace-pre-wrap break-words' style={{ fontSize: '0.7rem', color: 'var(--port-gore)', background: mine ? 'var(--surface-header)' : 'var(--surface-pill)', border: '1px solid var(--selago)' }}>
+                                        <div className='rounded-lg px-2.5 py-1.5 mt-0.5 whitespace-pre-wrap break-words' style={{ fontSize: 'var(--fs-body)', color: 'var(--port-gore)', background: mine ? 'var(--surface-header)' : 'var(--surface-pill)', border: '1px solid var(--selago)' }}>
                                             {c.text}
                                         </div>
                                     </div>
@@ -124,14 +124,14 @@ const CommentThread = ({ entityType, entityId, entityLabel }) => {
                     onKeyDown={onKeyDown}
                     rows={2}
                     placeholder='Write a comment…  (Enter to send, Shift+Enter for a new line)'
-                    className='flex-1 rounded-xl border px-3 py-2 outline-none focus:border-[var(--endeavour)] resize-none'
-                    style={{ fontSize: '0.72rem', borderColor: 'var(--border-divider)', background: 'var(--surface-pill)', color: 'var(--port-gore)', fontFamily: 'inherit' }}
+                    className='flex-1 rounded-2xl border px-3 py-2 outline-none focus:border-[var(--endeavour)] resize-none'
+                    style={{ fontSize: 'var(--fs-input)', borderColor: 'var(--border-divider)', background: 'var(--surface-pill)', color: 'var(--port-gore)', fontFamily: 'inherit' }}
                 />
                 <button
                     onClick={send}
                     disabled={!text.trim() || sending}
-                    className='flex items-center gap-1 px-3 py-2 rounded-xl text-white font-medium transition-all disabled:opacity-50'
-                    style={{ fontSize: '0.7rem', background: 'var(--endeavour)' }}
+                    className='flex items-center gap-1 px-3 py-2 rounded-2xl text-white font-medium transition-all disabled:opacity-50'
+                    style={{ fontSize: 'var(--fs-body)', background: 'var(--endeavour)' }}
                 >
                     {sending ? <Loader2 className='w-3.5 h-3.5 animate-spin' /> : <Send className='w-3.5 h-3.5' />}
                     Send

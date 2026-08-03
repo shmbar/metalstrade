@@ -199,7 +199,7 @@
 //             <span style={{
 //               position: 'absolute',
 //               left: '14px',
-//               fontSize: '0.75rem',
+//               fontSize: 'var(--fs-input)',
 //               fontWeight: '600',
 //               color: 'var(--chathams-blue)',
 //               whiteSpace: 'nowrap',
@@ -213,7 +213,7 @@
 //                 position: 'absolute',
 //                 left: `${cPos.left + cPos.width / 2}px`,
 //                 transform: 'translateX(-50%)',
-//                 fontSize: '0.72rem',
+//                 fontSize: 'var(--fs-input)',
 //                 fontWeight: '600',
 //                 color: 'var(--chathams-blue)',
 //                 whiteSpace: 'nowrap',
@@ -228,7 +228,7 @@
 //                 position: 'absolute',
 //                 left: `${aPos.left + aPos.width / 2}px`,
 //                 transform: 'translateX(-50%)',
-//                 fontSize: '0.72rem',
+//                 fontSize: 'var(--fs-input)',
 //                 fontWeight: '700',
 //                 color: 'var(--chathams-blue)',
 //                 whiteSpace: 'nowrap',
@@ -348,7 +348,7 @@
 //                       }}
 //                     >
 //                       <div style={{ position: 'relative', width: '100%', height: '34px', display: 'flex', alignItems: 'center' }}>
-//                         <span style={{ position: 'absolute', left: '14px', fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }}>
+//                         <span style={{ position: 'absolute', left: '14px', fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }}>
 //                           Total $:
 //                         </span>
 //                         {colPositions.currency && (
@@ -356,7 +356,7 @@
 //                             position: 'absolute',
 //                             left: `${colPositions.currency.left + colPositions.currency.width / 2}px`,
 //                             transform: 'translateX(-50%)',
-//                             fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+//                             fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
 //                           }}>
 //                             {summaryUSD.currency}
 //                           </span>
@@ -366,7 +366,7 @@
 //                             position: 'absolute',
 //                             left: `${colPositions.amount.left + colPositions.amount.width / 2}px`,
 //                             transform: 'translateX(-50%)',
-//                             fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+//                             fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
 //                           }}>
 //                             {summaryUSD.amount}
 //                           </span>
@@ -388,7 +388,7 @@
 //                       }}
 //                     >
 //                       <div style={{ position: 'relative', width: '100%', height: '34px', display: 'flex', alignItems: 'center' }}>
-//                         <span style={{ position: 'absolute', left: '14px', fontSize: '0.75rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }}>
+//                         <span style={{ position: 'absolute', left: '14px', fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }}>
 //                           Total €:
 //                         </span>
 //                         {colPositions.currency && (
@@ -396,7 +396,7 @@
 //                             position: 'absolute',
 //                             left: `${colPositions.currency.left + colPositions.currency.width / 2}px`,
 //                             transform: 'translateX(-50%)',
-//                             fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+//                             fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
 //                           }}>
 //                             {summaryEUR.currency}
 //                           </span>
@@ -406,7 +406,7 @@
 //                             position: 'absolute',
 //                             left: `${colPositions.amount.left + colPositions.amount.width / 2}px`,
 //                             transform: 'translateX(-50%)',
-//                             fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+//                             fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
 //                           }}>
 //                             {summaryEUR.amount}
 //                           </span>
@@ -454,7 +454,7 @@
 //                           <td key={cell.id} className="px-2 py-2 text-center">
 //                             {isCompleted ? (
 //                               <div className="flex justify-center">
-//                                 <div className="px-3 py-1.5 rounded-xl responsiveTextTable font-normal"
+//                                 <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-normal"
 //                                   style={{
 //                                     backgroundColor: value ? 'var(--ok-text)' : 'var(--danger-text)',
 //                                     color: '#FFFFFF', border: '1px solid var(--border-cell)'
@@ -464,7 +464,7 @@
 //                               </div>
 //                             ) : isStatus ? (
 //                               <div className="flex justify-center">
-//                                 <div className="px-3 py-1.5 rounded-xl responsiveTextTable font-normal"
+//                                 <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-normal"
 //                                   style={{
 //                                     backgroundColor: value === 'Completed' ? 'var(--ok-text)' : 'var(--danger-text)',
 //                                     color: '#FFFFFF', border: '1px solid var(--border-cell)'
@@ -474,7 +474,7 @@
 //                               </div>
 //                             ) : isPaid && hasValue ? (
 //                               <div className="flex justify-center">
-//                                 <div className="px-3 py-1.5 rounded-xl responsiveTextTable font-normal min-w-[70px] text-center"
+//                                 <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-normal min-w-[70px] text-center"
 //                                   style={{
 //                                     backgroundColor:
 //                                       value === 'Paid'   ? 'var(--violet-border)' :
@@ -489,7 +489,7 @@
 //                             ) : (
 //                               <div className="flex justify-center">
 //                                 {hasValue ? (
-//                                   <div className="px-3 py-1.5 rounded-xl responsiveTextTable font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
+//                                   <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
 //                                     style={{
 //                                       backgroundColor: 'var(--surface-pill)',
 //                                       border: '1px solid var(--border-cell)',
@@ -524,10 +524,10 @@
 //                             </svg>
 //                           </div>
 //                           <p className="font-normal mb-2"
-//                             style={{ color: 'var(--text-strong)', fontSize: 'clamp(12px, 1.0vw, 14px)' }}>
+//                             style={{ color: 'var(--text-strong)', fontSize: 'var(--fs-title)' }}>
 //                             {getTtl('No data available', ln)}
 //                           </p>
-//                           <p style={{ color: 'var(--text-mid)', fontSize: 'clamp(10px, 0.9vw, 12px)' }}>
+//                           <p style={{ color: 'var(--text-mid)', fontSize: 'var(--fs-body)' }}>
 //                             Try adjusting your filters or date range
 //                           </p>
 //                         </div>
@@ -546,14 +546,14 @@
 //               <div className="flex items-center justify-between px-4 py-2"
 //                 style={{ backgroundColor: 'var(--ok-border)' }}>
 //                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total $:</span>
-//                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryUSD.currency}</span>
-//                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
+//                 <span style={{ fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryUSD.currency}</span>
+//                 <span style={{ fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
 //               </div>
 //               <div className="flex items-center justify-between px-4 py-2"
 //                 style={{ backgroundColor: 'var(--rock-blue)' }}>
 //                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total €:</span>
-//                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.currency}</span>
-//                 <span style={{ fontSize: '0.72rem', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
+//                 <span style={{ fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.currency}</span>
+//                 <span style={{ fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
 //               </div>
 //             </div>
 
@@ -572,7 +572,7 @@
 //                   }}>
 //                   <div className="px-3 py-2 flex items-center justify-between"
 //                     style={{ background: 'var(--border-divider)' }}>
-//                     <span className="font-normal" style={{ fontSize: 'clamp(9px, 0.8vw, 10px)' }}>
+//                     <span className="font-normal" style={{ fontSize: 'var(--fs-caption)' }}>
 //                       {getTtl('Row', ln)} {rowIndex + 1}
 //                     </span>
 //                     {quickSumEnabled && (
@@ -593,26 +593,26 @@
 //                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
 //                           style={{ borderBottom: '1px solid var(--border-divider)' }}>
 //                           <div className="uppercase tracking-wider font-normal"
-//                             style={{ color: 'var(--text-mid)', fontSize: 'clamp(6px, 0.6vw, 7px)' }}>
+//                             style={{ color: 'var(--text-mid)', fontSize: 'var(--fs-caption)' }}>
 //                             {cell.column.columnDef.header}
 //                           </div>
-//                           <div className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+//                           <div className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
 //                             style={{
 //                               color: 'var(--text-strong)',
 //                               background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
-//                               fontSize: 'clamp(8px, 0.7vw, 10px)',
+//                               fontSize: 'var(--fs-caption)',
 //                               border: '1px solid var(--border-divider)'
 //                             }}>
 //                             {cell.column.id === 'completed' ? (
 //                               cell.getValue() ? (
-//                                 <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-md"
+//                                 <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-md"
 //                                   style={{ backgroundColor: 'var(--ok-text)', color: '#FFFFFF' }}>Completed</div>
 //                               ) : (
-//                                 <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-sm"
+//                                 <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-sm"
 //                                   style={{ backgroundColor: 'var(--danger-text)', color: '#FFFFFF' }}>Pending</div>
 //                               )
 //                             ) : cell.column.id === 'paid' && cell.getValue() ? (
-//                               <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
+//                               <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
 //                                 style={{
 //                                   backgroundColor:
 //                                     cell.getValue() === 'Paid'   ? 'var(--violet-border)' :
@@ -642,10 +642,10 @@
 //                     </svg>
 //                   </div>
 //                   <p className="font-normal mb-2 text-center"
-//                     style={{ color: 'var(--text-strong)', fontSize: 'clamp(9px, 0.8vw, 10px)' }}>
+//                     style={{ color: 'var(--text-strong)', fontSize: 'var(--fs-caption)' }}>
 //                     {getTtl('No data available', ln)}
 //                   </p>
-//                   <p className="text-center" style={{ color: 'var(--text-mid)', fontSize: 'clamp(7px, 0.6vw, 9px)' }}>
+//                   <p className="text-center" style={{ color: 'var(--text-mid)', fontSize: 'var(--fs-caption)' }}>
 //                     Try adjusting your filters or date range
 //                   </p>
 //                 </div>
@@ -663,7 +663,7 @@
 //               <div className="grid grid-cols-3 items-center">
 //                 <div className="flex justify-start">
 //                   <div className="whitespace-nowrap font-normal"
-//                     style={{ color: 'var(--text-mid)', fontSize: 'clamp(7px, 0.6vw, 9px)' }}>
+//                     style={{ color: 'var(--text-mid)', fontSize: 'var(--fs-caption)' }}>
 //                     {`${
 //                       table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
 //                       (table.getFilteredRowModel().rows.length ? 1 : 0)
@@ -1143,8 +1143,8 @@ const Customtable = ({
                         >
                           <span className="inline-flex items-center justify-center gap-1">
                             {flexRender(header.column.columnDef.header, header.getContext())}
-                            {header.column.getIsSorted() === 'asc'  && <TbSortAscending  style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
-                            {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                            {header.column.getIsSorted() === 'asc'  && <TbSortAscending  style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+                            {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
                           </span>
                         </th>
                       ))}
@@ -1200,7 +1200,7 @@ const Customtable = ({
                           <td key={cell.id} className="px-1 py-0.5 text-center" style={{ whiteSpace: 'nowrap' }}>
                             {isCompleted ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal"
+                                <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal"
                                   style={{
                                     backgroundColor: value ? 'var(--ok-bg)' : 'var(--danger-bg)',
                                     color: value ? 'var(--ok-text)' : 'var(--danger-text)',
@@ -1211,7 +1211,7 @@ const Customtable = ({
                               </div>
                             ) : isPaid ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px] text-center"
+                                <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px] text-center"
                                   style={{
                                     backgroundColor: isUnpaidValue ? 'var(--danger-bg)' : isPaidValue ? 'var(--ok-bg)' : 'var(--surface-pill)',
                                     color: isPaidValue ? 'var(--ok-strong)' : isUnpaidValue ? 'var(--danger-text)' : 'var(--port-gore)',
@@ -1246,12 +1246,12 @@ const Customtable = ({
                                     )
                                   })()
                                 ) : hasValue ? (
-                                  <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]"
+                                  <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px]"
                                     style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal w-full"
+                                  <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal w-full"
                                     style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
                                 )}
                               </div>
@@ -1317,7 +1317,7 @@ const Customtable = ({
                   }}>
                   <div className="px-3 py-2 flex items-center justify-between"
                     style={{ background: 'var(--border-divider)' }}>
-                    <span className="font-normal" style={{ fontSize: '0.62rem' }}>
+                    <span className="font-normal" style={{ fontSize: 'var(--fs-table)' }}>
                       {getTtl('Row', ln)} {rowIndex + 1}
                     </span>
                     {quickSumEnabled && (
@@ -1346,10 +1346,10 @@ const Customtable = ({
                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
                           style={{ borderBottom: '1px solid var(--border-divider)' }}>
                           <div className="uppercase tracking-wider font-normal"
-                            style={{ color: 'var(--regent-gray)', fontSize: '0.58rem' }}>
+                            style={{ color: 'var(--regent-gray)', fontSize: 'var(--fs-caption)' }}>
                             {cell.column.columnDef.header}
                           </div>
-                          <div className="responsiveTextTable font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                          <div className="responsiveTextTable font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
                             style={{
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg,var(--surface-base),var(--surface-muted))',
@@ -1357,14 +1357,14 @@ const Customtable = ({
                             }}>
                             {cell.column.id === 'completed' ? (
                               cell.getValue() ? (
-                                <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-md"
+                                <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-md"
                                   style={{ backgroundColor: 'var(--ok-bg)', color: 'var(--ok-text)' }}>Completed</div>
                               ) : (
-                                <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-sm"
+                                <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-sm"
                                   style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-text)' }}>Pending</div>
                               )
                             ) : cell.column.id === 'paid' && cell.getValue() ? (
-                              <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
+                              <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
                                 style={{
                                   backgroundColor:
                                     isUnpaidValue ? 'var(--warn-bg)' :
@@ -1375,7 +1375,7 @@ const Customtable = ({
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                               </div>
                             ) : cell.column.id === 'cur' && cell.getValue() ? (
-                              <div className="w-full px-2 py-2 rounded-md responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
+                              <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
                                 style={{
                                   backgroundColor:
                                     isUSDValue ? 'var(--ok-bg)' :

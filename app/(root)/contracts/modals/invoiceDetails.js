@@ -690,7 +690,7 @@ const ContractModal = () => {
 						<p className='flex responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Comments', ln)}:</p>
 						<textarea rows="2" name="comments"
 							className={`input w-full p-1 !rounded-full`}
-							style={{ fontSize: '0.75rem', fontFamily: 'inherit', height: valueInv.remarks.length === 0 ? '40px' : valueInv.remarks.length * 40 + 'px' }}
+							style={{ fontSize: 'var(--fs-input)', fontFamily: 'inherit', height: valueInv.remarks.length === 0 ? '40px' : valueInv.remarks.length * 40 + 'px' }}
 							value={valueInv.comments}
 							onChange={handleValue}
 						/>
@@ -859,7 +859,7 @@ const ContractModal = () => {
 						</Tltip>}
 					{/*(!fnl && valueInv.id !== '') && showButton && <button
 					type="button"
-					className="flex items-center gap-2 justify-center rounded-md border bg-[#dc2626] px-3 py-2 responsiveTextTable font-medium
+					className="flex items-center gap-2 justify-center rounded-lg border bg-[#dc2626] px-3 py-2 responsiveTextTable font-medium
 						text-white hover:bg-red-400 focus:outline-none drop-shadow-lg" onClick={() => setIsFinilizeOpen(true)}
 				>
 					<BsFillSendCheckFill className='scale-110' />
@@ -867,7 +867,7 @@ const ContractModal = () => {
 				</button>*/}
 					{/*(fnl && !valueInv.canceled) && showButton && <button
 					type="button"
-					className="flex items-center gap-2 justify-center rounded-md border bg-[#dc2626] px-3 py-2 responsiveTextTable font-medium
+					className="flex items-center gap-2 justify-center rounded-lg border bg-[#dc2626] px-3 py-2 responsiveTextTable font-medium
 						text-white hover:bg-red-400 focus:outline-none drop-shadow-lg" onClick={() => setIsCancelOpen(true)}
 
 				>

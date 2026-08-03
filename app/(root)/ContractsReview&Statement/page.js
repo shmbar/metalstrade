@@ -53,7 +53,7 @@ const StatusChip = ({ shipmentStatus, rollup }) => {
     if (key === 'none') return <span className="responsiveTextTable" style={{ color: 'var(--regent-gray)' }}>—</span>;
     const style = isShipment ? (SHIPMENT_STATUS_STYLES[key] || SHIPMENT_STATUS_STYLES['']) : FALLBACK_STATUS_STYLES[key];
     return (
-        <span className="px-3 py-1 rounded-xl responsiveTextTable font-normal whitespace-nowrap" style={style}>
+        <span className="px-3 py-1 rounded-2xl responsiveTextTable font-normal whitespace-nowrap" style={style}>
             {label}
         </span>
     );
@@ -70,7 +70,7 @@ const ProgressBar = ({ shipped, total }) => {
             <div style={{ width: '100%', height: 6, borderRadius: 9999, background: 'var(--selago)', overflow: 'hidden' }}>
                 <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 9999, transition: 'width .2s' }} />
             </div>
-            <span style={{ color: 'var(--port-gore)', fontSize: '0.6rem', fontWeight: 500 }}>{fmtMT(s)} / {fmtMT(t)} · {pct}%</span>
+            <span style={{ color: 'var(--port-gore)', fontSize: 'var(--fs-table)', fontWeight: 500 }}>{fmtMT(s)} / {fmtMT(t)} · {pct}%</span>
         </div>
     );
 };
@@ -815,7 +815,7 @@ const ContractsMerged = () => {
 
         return (
             <div className='flex items-center gap-3'>
-                <span className='text-sm text-[var(--port-gore)] font-medium select-none'>
+                <span className='responsiveTextTitle text-[var(--port-gore)] font-medium select-none'>
                     {enabledSwitch ? 'Expanded mode' : 'Table mode'}
                 </span>
                 <button

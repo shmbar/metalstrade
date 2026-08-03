@@ -143,7 +143,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
         padding: '6px 10px',
         color: 'var(--chathams-blue)',
         fontWeight: 500,
-        fontSize: '0.68rem',
+        fontSize: 'var(--fs-body)',
         border: '1px solid var(--border-divider)',
         background: 'var(--surface-header)',
         whiteSpace: 'nowrap',
@@ -152,7 +152,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
         textAlign: 'center',
         padding: '5px 10px',
         border: '1px solid var(--selago)',
-        fontSize: '0.68rem',
+        fontSize: 'var(--fs-body)',
         color: 'var(--chathams-blue)',
         whiteSpace: 'nowrap',
         fontWeight: 400,
@@ -169,7 +169,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
 
         return (
             <div style={containerStyle}>
-                <div style={{ background: 'var(--surface-header)', padding: '7px 14px', fontWeight: 500, fontSize: '0.68rem', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
+                <div style={{ background: 'var(--surface-header)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
                     Supplier Details
                 </div>
                 <table style={tableStyle}>
@@ -237,7 +237,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
 
         return (
             <div style={containerStyle}>
-                <div style={{ background: 'var(--surface-header)', padding: '7px 14px', fontWeight: 500, fontSize: '0.68rem', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
+                <div style={{ background: 'var(--surface-header)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
                     Client Details
                 </div>
                 <table style={tableStyle}>

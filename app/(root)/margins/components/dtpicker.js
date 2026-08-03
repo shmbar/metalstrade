@@ -117,7 +117,7 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
                     <button
                         onClick={handleClear}
                         className="absolute top-0 right-0 text-[var(--endeavour)] hover:text-red-500 transition-colors z-10 font-medium leading-none"
-                        style={{ fontSize: '0.75rem', padding: '1px 2px' }}
+                        style={{ fontSize: 'var(--fs-input)', padding: '1px 2px' }}
                     >
                         ×
                     </button>

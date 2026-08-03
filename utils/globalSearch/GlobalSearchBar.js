@@ -57,9 +57,9 @@ export default function GlobalSearchBar() {
               onClick={() => onPick(r)}
               className="w-full text-left px-3 py-2 hover:bg-gray-100"
             >
-              <div className="text-sm font-medium">{r.title}</div>
+              <div className="responsiveTextTitle font-medium">{r.title}</div>
               {r.subtitle ? (
-                <div className="text-xs text-gray-600">{r.subtitle}</div>
+                <div className="responsiveTextInput text-gray-600">{r.subtitle}</div>
               ) : null}
             </button>
           ))}

@@ -292,7 +292,7 @@ const Customtable = ({
                           }}
                         >
                           <div
-                            className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-xl border-transparent transition-all duration-200  ease-in-out hover:bg-[var(--surface-pill)] hover:text-[var(--port-gore)] hover:shadow-[inset_0_0_0_1px_var(--border-neutral-strong)] fade-in"
+                            className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-2xl border-transparent transition-all duration-200  ease-in-out hover:bg-[var(--surface-pill)] hover:text-[var(--port-gore)] hover:shadow-[inset_0_0_0_1px_var(--border-neutral-strong)] fade-in"
                           >
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
@@ -354,7 +354,7 @@ const Customtable = ({
                     <span
                       className="font-normal"
                       style={{
-                        fontSize: '0.62rem',
+                        fontSize: 'var(--fs-table)',
                         textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                       }}
                     >
@@ -385,17 +385,17 @@ const Customtable = ({
                             className="uppercase tracking-wider font-normal"
                             style={{
                               color: 'var(--regent-gray)',
-                              fontSize: '0.58rem'
+                              fontSize: 'var(--fs-caption)'
                             }}
                           >
                             {cell.column.columnDef.header}
                           </div>
                           <div
-                            className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                            className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
                             style={{
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
-                              fontSize: '0.62rem',
+                              fontSize: 'var(--fs-table)',
                               border: '1px solid var(--border-divider)'
                             }}
                           >
@@ -420,7 +420,7 @@ const Customtable = ({
                     className="text-center"
                     style={{
                       color: 'var(--regent-gray)',
-                      fontSize: '0.58rem'
+                      fontSize: 'var(--fs-caption)'
                     }}
                   >
                     Try adjusting your filters or date range

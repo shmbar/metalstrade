@@ -34,7 +34,7 @@ export default function Example({ isSelection, selectOrEdit, indx, ln }) {
     }, [open])
 
     const itemCls = (active, disabled) =>
-        `group flex w-full items-center rounded-md px-3 py-2 text-xs whitespace-nowrap
+        `group flex w-full items-center rounded-lg px-3 py-2 responsiveTextInput whitespace-nowrap
         ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
         ${active && !disabled ? 'bg-[var(--surface-header)] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`
 
@@ -48,7 +48,7 @@ export default function Example({ isSelection, selectOrEdit, indx, ln }) {
                 <div
                     ref={menuRef}
                     style={{ position: 'absolute', top: pos.top + 4, left: pos.left, zIndex: 9999 }}
-                    className="divide-y divide-[var(--surface-header)] rounded-xl bg-[var(--surface-card)] shadow-lg border border-[var(--surface-header)] min-w-[160px]"
+                    className="divide-y divide-[var(--surface-header)] rounded-2xl bg-[var(--surface-card)] shadow-lg border border-[var(--surface-header)] min-w-[160px]"
                 >
                     <div className="px-1 py-1">
                         <button

@@ -140,10 +140,10 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                     <div className='flex items-center gap-2'>
                         <Bell className='w-4 h-4' style={{ color: 'var(--endeavour)' }} />
                         <div>
-                            <p id='reminder-modal-title' className='font-semibold' style={{ fontSize: '0.75rem', color: 'var(--chathams-blue)' }}>
+                            <p id='reminder-modal-title' className='font-semibold' style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
                                 Payment Reminder — Invoice #{invoice.number}
                             </p>
-                            <p style={{ fontSize: '0.6rem', color: 'var(--regent-gray)' }}>
+                            <p style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>
                                 {invoice.client} · {invoice.currency} {Number(invoice.balanceDue || 0).toFixed(2)} outstanding · {invoice.paymentStatus}
                             </p>
                         </div>
@@ -169,7 +169,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                                 ? <AlertTriangle className='w-3 h-3 flex-shrink-0' style={{ color: 'var(--warn-text)' }} />
                                 : <CheckCircle2 className='w-3 h-3 flex-shrink-0' style={{ color: 'var(--ok-text)' }} />
                             }
-                            <span style={{ fontSize: '0.6rem', color: onCooldown ? 'var(--warn-strong)' : 'var(--ok-strong)' }}>
+                            <span style={{ fontSize: 'var(--fs-table)', color: onCooldown ? 'var(--warn-strong)' : 'var(--ok-strong)' }}>
                                 {onCooldown
                                     ? `Reminder sent ${Math.round(hoursSinceLastReminder)}h ago to ${lastReminder.to}. Wait ${cooldownHoursLeft}h to send another.`
                                     : `Last reminder sent ${new Date(lastReminder.sentAt).toLocaleDateString()} to ${lastReminder.to}`}
@@ -179,7 +179,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
 
                     {/* Recipient email */}
                     <div>
-                        <label className='block font-semibold mb-1' style={{ fontSize: '0.65rem', color: 'var(--chathams-blue)' }}>
+                        <label className='block font-semibold mb-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>
                             Recipient Email
                         </label>
                         <div className='flex items-center gap-2 px-3 py-1.5 rounded-full border focus-within:border-[var(--endeavour)] transition-colors'
@@ -191,11 +191,11 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                                 onChange={e => setEmail(e.target.value)}
                                 placeholder='client@email.com'
                                 className='flex-1 outline-none bg-transparent'
-                                style={{ fontSize: '0.68rem', color: 'var(--port-gore)' }}
+                                style={{ fontSize: 'var(--fs-body)', color: 'var(--port-gore)' }}
                             />
                         </div>
                         {!initialEmail && (
-                            <p style={{ fontSize: '0.57rem', color: 'var(--warn-text)', marginTop: '3px' }}>
+                            <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--warn-text)', marginTop: '3px' }}>
                                 Add client email in Settings → Clients to pre-fill this field.
                             </p>
                         )}
@@ -204,8 +204,8 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                     {/* Generate button */}
                     {!body && (
                         <button onClick={generate} disabled={generating || !email.trim()}
-                            className='w-full flex items-center justify-center gap-2 py-2 rounded-xl font-medium transition-all disabled:opacity-50'
-                            style={{ background: 'var(--endeavour)', color: 'white', fontSize: '0.72rem' }}>
+                            className='w-full flex items-center justify-center gap-2 py-2 rounded-2xl font-medium transition-all disabled:opacity-50'
+                            style={{ background: 'var(--endeavour)', color: 'white', fontSize: 'var(--fs-input)' }}>
                             {generating ? <><Loader2 className='w-4 h-4 animate-spin' /> Generating email…</> : <><Sparkles className='w-4 h-4' /> Generate Reminder Email</>}
                         </button>
                     )}
@@ -214,21 +214,21 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                     {(subject || body) && (
                         <div className='space-y-2'>
                             <div>
-                                <label className='block font-semibold mb-1' style={{ fontSize: '0.65rem', color: 'var(--chathams-blue)' }}>Subject</label>
+                                <label className='block font-semibold mb-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>Subject</label>
                                 <input
                                     type='text'
                                     value={subject}
                                     onChange={e => setSubject(e.target.value)}
                                     className='w-full px-3 py-1.5 rounded-full border outline-none focus:border-[var(--endeavour)] transition-colors'
-                                    style={{ fontSize: '0.68rem', borderColor: 'var(--border-divider)', background: 'var(--surface-pill)', color: 'var(--port-gore)' }}
+                                    style={{ fontSize: 'var(--fs-body)', borderColor: 'var(--border-divider)', background: 'var(--surface-pill)', color: 'var(--port-gore)' }}
                                 />
                             </div>
                             <div>
                                 <div className='flex items-center justify-between mb-1'>
-                                    <label className='font-semibold' style={{ fontSize: '0.65rem', color: 'var(--chathams-blue)' }}>Email Body</label>
+                                    <label className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>Email Body</label>
                                     <button onClick={generate} disabled={generating}
                                         className='flex items-center gap-1 px-2 py-0.5 rounded-full transition-colors disabled:opacity-50'
-                                        style={{ fontSize: '0.58rem', background: 'var(--surface-pill)', border: '1px solid var(--border-divider)', color: 'var(--chathams-blue)' }}>
+                                        style={{ fontSize: 'var(--fs-caption)', background: 'var(--surface-pill)', border: '1px solid var(--border-divider)', color: 'var(--chathams-blue)' }}>
                                         {generating ? <Loader2 className='w-2.5 h-2.5 animate-spin' /> : <Sparkles className='w-2.5 h-2.5' />}
                                         Regenerate
                                     </button>
@@ -237,8 +237,8 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                                     rows={7}
                                     value={body}
                                     onChange={e => setBody(e.target.value)}
-                                    className='w-full px-3 py-2 rounded-xl border outline-none focus:border-[var(--endeavour)] transition-colors resize-none'
-                                    style={{ fontSize: '0.68rem', borderColor: 'var(--border-divider)', background: 'var(--surface-pill)', color: 'var(--port-gore)', fontFamily: 'inherit', lineHeight: '1.5' }}
+                                    className='w-full px-3 py-2 rounded-2xl border outline-none focus:border-[var(--endeavour)] transition-colors resize-none'
+                                    style={{ fontSize: 'var(--fs-body)', borderColor: 'var(--border-divider)', background: 'var(--surface-pill)', color: 'var(--port-gore)', fontFamily: 'inherit', lineHeight: '1.5' }}
                                 />
                             </div>
                         </div>
@@ -257,7 +257,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                                 className='cursor-pointer'
                             />
                             <Paperclip className='w-3 h-3' style={{ color: attachSummary ? 'var(--ok-text)' : 'var(--regent-gray)' }} />
-                            <span style={{ fontSize: '0.62rem', color: attachSummary ? 'var(--ok-strong)' : 'var(--chathams-blue)' }}>
+                            <span style={{ fontSize: 'var(--fs-table)', color: attachSummary ? 'var(--ok-strong)' : 'var(--chathams-blue)' }}>
                                 Attach invoice summary PDF
                             </span>
                         </label>
@@ -267,7 +267,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                     {error && (
                         <div className='flex items-center gap-2 px-3 py-2 rounded-lg' style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)' }}>
                             <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0' style={{ color: 'var(--danger-strong)' }} />
-                            <span style={{ fontSize: '0.65rem', color: 'var(--danger-strong)' }}>{error}</span>
+                            <span style={{ fontSize: 'var(--fs-table)', color: 'var(--danger-strong)' }}>{error}</span>
                         </div>
                     )}
 
@@ -275,7 +275,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                     {sent && (
                         <div className='flex items-center gap-2 px-3 py-2 rounded-lg' style={{ background: 'var(--ok-soft)', border: '1px solid var(--ok-border)' }}>
                             <CheckCircle2 className='w-3.5 h-3.5 flex-shrink-0' style={{ color: 'var(--ok-text)' }} />
-                            <span style={{ fontSize: '0.68rem', color: 'var(--ok-strong)', fontWeight: 600 }}>Reminder sent to {email}</span>
+                            <span style={{ fontSize: 'var(--fs-body)', color: 'var(--ok-strong)', fontWeight: 600 }}>Reminder sent to {email}</span>
                         </div>
                     )}
                 </div>
@@ -283,13 +283,13 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                 {/* Footer */}
                 <div className='flex items-center justify-end gap-2 px-4 py-3' style={{ borderTop: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
                     <button onClick={onClose} className='px-3 py-1.5 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                        style={{ fontSize: '0.65rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}>
+                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}>
                         {sent ? 'Close' : 'Cancel'}
                     </button>
                     {!sent && body && (
                         <button onClick={send} disabled={sending || onCooldown || !email.trim() || !subject.trim() || !body.trim()}
                             className='flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed'
-                            style={{ fontSize: '0.65rem', background: onCooldown ? 'var(--text-faint)' : 'var(--endeavour)' }}
+                            style={{ fontSize: 'var(--fs-table)', background: onCooldown ? 'var(--text-faint)' : 'var(--endeavour)' }}
                             title={onCooldown ? `Cooldown active — wait ${cooldownHoursLeft}h` : undefined}>
                             {sending ? <Loader2 className='w-3 h-3 animate-spin' /> : <Send className='w-3 h-3' />}
                             {sending ? 'Sending…' : onCooldown ? `Wait ${cooldownHoursLeft}h` : 'Send Reminder'}

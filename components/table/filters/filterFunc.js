@@ -79,7 +79,7 @@ export const Filter = ({ column, table, filterOn }) => {
                     className={inputCls}
                     max={columnFilterValue?.[1] || ''}
                 />
-                <span className="text-[var(--rock-blue)] text-xs">-</span>
+                <span className="text-[var(--rock-blue)] responsiveTextInput">-</span>
                 <input
                     type="date"
                     value={columnFilterValue?.[1] || ''}

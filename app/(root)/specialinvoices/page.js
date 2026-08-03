@@ -331,7 +331,7 @@ const SpecialInvoices = () => {
                                         ['Category', (MISC_CATS.find(c => c.id === detail.category) || {}).label || 'Uncategorized'],
                                     ].map(([k, v]) => (
                                         <div key={k} className='flex flex-col'>
-                                            <span className='uppercase tracking-wide text-[var(--regent-gray)]' style={{ fontSize: '0.58rem' }}>{k}</span>
+                                            <span className='uppercase tracking-wide text-[var(--regent-gray)]' style={{ fontSize: 'var(--fs-caption)' }}>{k}</span>
                                             <span className='text-[var(--port-gore)] font-medium break-words responsiveTextTable'>{(v === 0 ? '0' : v) || '—'}</span>
                                         </div>
                                     ))}

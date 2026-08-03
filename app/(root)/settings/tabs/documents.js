@@ -164,7 +164,7 @@ const Documents = () => {
                     <p className="text-[0.75rem] font-medium text-[var(--chathams-blue)] mb-3 border-l-4 border-[var(--chathams-blue)] pl-2">
                         {editId ? `Edit ${listLabel}` : `New ${listLabel}`}
                     </p>
-                    {error && <p className="text-xs text-red-500 mb-2">{error}</p>}
+                    {error && <p className="responsiveTextInput text-red-500 mb-2">{error}</p>}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {fields.map(f => (

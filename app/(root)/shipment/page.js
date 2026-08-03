@@ -48,7 +48,7 @@ function NotesCell({ value, contractId, contractDate, uidCollection, onChange, o
     };
 
     return (
-        <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
+        <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
             <textarea
                 value={local}
                 onChange={handleChange}
@@ -112,7 +112,7 @@ function DateCell({ rawDate, onOpen, onClear, urgency }) {
                 <button
                     onClick={(e) => { e.stopPropagation(); onClear(); }}
                     className="absolute right-1 top-1/2 -translate-y-1/2 text-[var(--regent-gray)] hover:text-red-400 transition-colors leading-none"
-                    style={{ fontSize: '13px' }}
+                    style={{ fontSize: 'var(--fs-title)' }}
                 >×</button>
             )}
         </div>
@@ -138,7 +138,7 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                 onClick={() => setOpen(p => !p)}
                 className="flex items-center gap-1.5 font-medium px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none transition-colors whitespace-nowrap"
                 style={{
-                    fontSize: '0.68rem',
+                    fontSize: 'var(--fs-body)',
                     borderColor: active ? 'var(--endeavour)' : 'var(--border-divider)',
                     color: active ? '#fff' : 'var(--chathams-blue)',
                     backgroundColor: active ? 'var(--endeavour)' : '#fff',
@@ -152,7 +152,7 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                     <div
                         onClick={() => { onChange(''); setOpen(false); }}
                         className="px-3 py-1.5 cursor-pointer transition-colors"
-                        style={{ fontSize: '0.68rem', color: value === '' ? 'var(--endeavour)' : 'var(--chathams-blue)', fontWeight: value === '' ? 600 : 400, backgroundColor: value === '' ? 'var(--selago)' : '#fff' }}
+                        style={{ fontSize: 'var(--fs-body)', color: value === '' ? 'var(--endeavour)' : 'var(--chathams-blue)', fontWeight: value === '' ? 600 : 400, backgroundColor: value === '' ? 'var(--selago)' : '#fff' }}
                         onMouseEnter={e => { if (value !== '') e.currentTarget.style.backgroundColor = 'var(--selago)'; }}
                         onMouseLeave={e => { if (value !== '') e.currentTarget.style.backgroundColor = '#fff'; }}
                     >
@@ -163,7 +163,7 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                             key={o.id}
                             onClick={() => { onChange(o.id); setOpen(false); }}
                             className="px-3 py-1.5 cursor-pointer transition-colors"
-                            style={{ fontSize: '0.68rem', color: value === o.id ? 'var(--endeavour)' : 'var(--port-gore)', fontWeight: value === o.id ? 600 : 400, backgroundColor: value === o.id ? 'var(--selago)' : '#fff' }}
+                            style={{ fontSize: 'var(--fs-body)', color: value === o.id ? 'var(--endeavour)' : 'var(--port-gore)', fontWeight: value === o.id ? 600 : 400, backgroundColor: value === o.id ? 'var(--selago)' : '#fff' }}
                             onMouseEnter={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = 'var(--selago)'; }}
                             onMouseLeave={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = '#fff'; }}
                         >
@@ -209,7 +209,7 @@ function StatusSelect({ value, onChange }) {
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggle(); } }}
-                className="px-3 py-1 rounded-xl font-normal responsiveTextTable text-center whitespace-nowrap cursor-pointer"
+                className="px-3 py-1 rounded-2xl font-normal responsiveTextTable text-center whitespace-nowrap cursor-pointer"
                 style={STATUS_STYLES[value]}
             >
                 {value || '— Select —'}
@@ -218,14 +218,14 @@ function StatusSelect({ value, onChange }) {
             {open && typeof document !== 'undefined' && createPortal(
                 <div
                     ref={dropRef}
-                    className="rounded-xl overflow-hidden shadow-lg"
+                    className="rounded-2xl overflow-hidden shadow-lg"
                     style={{ position: 'fixed', top: pos.top, left: pos.left, minWidth: pos.width, zIndex: 99999, border: '1px solid var(--border-cell)', backgroundColor: 'var(--surface-card)' }}
                 >
                     {STATUSES.map(s => (
                         <div
                             key={s}
                             onClick={() => { onChange(s); setOpen(false); }}
-                            className="px-3 py-1 responsiveText font-normal cursor-pointer mx-1.5 my-1 rounded-xl transition-all"
+                            className="px-3 py-1 responsiveText font-normal cursor-pointer mx-1.5 my-1 rounded-2xl transition-all"
                             style={{ ...STATUS_STYLES[s], opacity: value === s ? 1 : 0.85 }}
                         >
                             {s || '— Select —'}
@@ -844,7 +844,7 @@ const ShipmentPage = () => {
                                 <button
                                     onClick={() => setStatusFilter('')}
                                     className={`font-medium px-2.5 py-0.5 rounded-full border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]' : 'bg-[var(--surface-card)] text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
-                                    style={{ fontSize: '0.68rem' }}
+                                    style={{ fontSize: 'var(--fs-body)' }}
                                 >
                                     All ({contracts.length})
                                 </button>
@@ -855,7 +855,7 @@ const ShipmentPage = () => {
                                             key={s}
                                             onClick={() => setStatusFilter(prev => prev === s ? '' : s)}
                                             className="font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                            style={{ ...STATUS_STYLES[s], fontSize: '0.68rem', opacity: statusFilter === s ? 1 : 0.75, outline: statusFilter === s ? `2px solid ${STATUS_STYLES[s].color}` : 'none', outlineOffset: '1px' }}
+                                            style={{ ...STATUS_STYLES[s], fontSize: 'var(--fs-body)', opacity: statusFilter === s ? 1 : 0.75, outline: statusFilter === s ? `2px solid ${STATUS_STYLES[s].color}` : 'none', outlineOffset: '1px' }}
                                         >
                                             {s}: {count}
                                         </button>
@@ -909,7 +909,7 @@ const ShipmentPage = () => {
                                 <button
                                     onClick={() => setUrgencyFilter(prev => prev === 'overdue' ? '' : 'overdue')}
                                     className="font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                    style={{ fontSize: '0.68rem', backgroundColor: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-strong)', outline: urgencyFilter === 'overdue' ? '2px solid var(--danger-strong)' : 'none', outlineOffset: '1px' }}
+                                    style={{ fontSize: 'var(--fs-body)', backgroundColor: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-strong)', outline: urgencyFilter === 'overdue' ? '2px solid var(--danger-strong)' : 'none', outlineOffset: '1px' }}
                                 >
                                     {overdueCount} overdue
                                 </button>
@@ -918,7 +918,7 @@ const ShipmentPage = () => {
                                 <button
                                     onClick={() => setUrgencyFilter(prev => prev === 'soon' ? '' : 'soon')}
                                     className="font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                    style={{ fontSize: '0.68rem', backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)', outline: urgencyFilter === 'soon' ? '2px solid var(--warn-strong)' : 'none', outlineOffset: '1px' }}
+                                    style={{ fontSize: 'var(--fs-body)', backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)', outline: urgencyFilter === 'soon' ? '2px solid var(--warn-strong)' : 'none', outlineOffset: '1px' }}
                                 >
                                     {soonCount} arriving ≤7d
                                 </button>
@@ -927,7 +927,7 @@ const ShipmentPage = () => {
                                 <button
                                     onClick={() => setStatusFilter(prev => prev === 'In Transit' ? '' : 'In Transit')}
                                     className="font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                    style={{ fontSize: '0.68rem', ...STATUS_STYLES['In Transit'], outline: statusFilter === 'In Transit' ? `2px solid ${STATUS_STYLES['In Transit'].color}` : 'none', outlineOffset: '1px' }}
+                                    style={{ fontSize: 'var(--fs-body)', ...STATUS_STYLES['In Transit'], outline: statusFilter === 'In Transit' ? `2px solid ${STATUS_STYLES['In Transit'].color}` : 'none', outlineOffset: '1px' }}
                                 >
                                     {inTransitCount} in transit
                                 </button>
@@ -965,8 +965,8 @@ const ShipmentPage = () => {
                                             style={{ color: 'var(--chathams-blue)', letterSpacing: '0.05em', textAlign: 'center', width, cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
                                             <span className="inline-flex items-center justify-center gap-1">
                                                 {label}
-                                                {col && sortCol === col && sortDir === 'asc' && <TbSortAscending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
-                                                {col && sortCol === col && sortDir === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                                                {col && sortCol === col && sortDir === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+                                                {col && sortCol === col && sortDir === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
                                             </span>
                                         </th>
                                     ))}
@@ -987,7 +987,7 @@ const ShipmentPage = () => {
                                         <tr key={contract.id} className="hover-row cursor-pointer transition-colors">
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={contract.order || '—'}>
-                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
+                                                    <div className="px-2 py-1 rounded-2xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         <button onClick={() => navigateTo(contract.id)} className="text-[var(--endeavour)] hover:underline w-full overflow-hidden text-ellipsis whitespace-nowrap block">
                                                             {contract.order || '—'}
                                                         </button>
@@ -996,14 +996,14 @@ const ShipmentPage = () => {
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getSupplierName(contract)}>
-                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
+                                                    <div className="px-2 py-1 rounded-2xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         {getSupplierName(contract)}
                                                     </div>
                                                 </Tltip>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
+                                                    <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         {mainInv ? (
                                                             <button onClick={() => navigateTo(contract.id)} className="text-[var(--endeavour)] hover:underline">
                                                                 {mainInv.invoice}
@@ -1014,7 +1014,7 @@ const ShipmentPage = () => {
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getClientName(contract.id)}>
-                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
+                                                    <div className="px-2 py-1 rounded-2xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         {getClientName(contract.id)}
                                                     </div>
                                                 </Tltip>
@@ -1040,21 +1040,21 @@ const ShipmentPage = () => {
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getPOL(contract)}>
-                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
+                                                    <div className="px-2 py-1 rounded-2xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         {getPOL(contract)}
                                                     </div>
                                                 </Tltip>
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getPOD(contract)}>
-                                                    <div className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
+                                                    <div className="px-2 py-1 rounded-2xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         {getPOD(contract)}
                                                     </div>
                                                 </Tltip>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
+                                                    <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
                                                         {getShpType(contract)}
                                                     </div>
                                                 </div>
@@ -1074,7 +1074,7 @@ const ShipmentPage = () => {
                                                         const recent = isRecent(ts);
                                                         return (
                                                             <div
-                                                                className="px-2 py-1 rounded-xl responsiveTextTable font-normal text-center whitespace-nowrap inline-flex items-center gap-1"
+                                                                className="px-2 py-1 rounded-2xl responsiveTextTable font-normal text-center whitespace-nowrap inline-flex items-center gap-1"
                                                                 style={recent
                                                                     ? { backgroundColor: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok-strong)' }
                                                                     : { backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)', color: ts ? 'var(--port-gore)' : 'var(--regent-gray)' }}
@@ -1107,7 +1107,7 @@ const ShipmentPage = () => {
                     {/* Cards — Mobile */}
                     <div className="block md:hidden px-2 py-2 space-y-3">
                         {filtered.length === 0 && !loading && (
-                            <div className="text-center py-8 text-[var(--regent-gray)] text-sm">No shipments found.</div>
+                            <div className="text-center py-8 text-[var(--regent-gray)] responsiveTextTitle">No shipments found.</div>
                         )}
                         {paginated.map((contract) => {
                             const mainInv = getMainInvoice(contract);
@@ -1163,7 +1163,7 @@ const ShipmentPage = () => {
                                         ].map(({ label, value }) => (
                                             <div key={label} className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid var(--selago)' }}>
                                                 <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">{label}</span>
-                                                <div className="px-2 py-1 rounded-xl responsiveTextTable text-[var(--port-gore)]" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
+                                                <div className="px-2 py-1 rounded-2xl responsiveTextTable text-[var(--port-gore)]" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
                                                     {value || '—'}
                                                 </div>
                                             </div>
@@ -1202,7 +1202,7 @@ const ShipmentPage = () => {
                             <div className="flex items-center justify-between">
 
                                 {/* Left — count */}
-                                <div className="text-sm font-medium" style={{ color: 'var(--regent-gray)' }}>
+                                <div className="responsiveTextTitle font-medium" style={{ color: 'var(--regent-gray)' }}>
                                     {startRow}–{endRow} of {filtered.length}
                                 </div>
 

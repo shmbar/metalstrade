@@ -104,7 +104,7 @@ export default function CommandPalette() {
       />
       <Command
         label="Command Palette"
-        className="relative w-full max-w-xl rounded-xl bg-[var(--surface-card)] shadow-2xl border border-[var(--border-cell)] overflow-hidden"
+        className="relative w-full max-w-xl rounded-2xl bg-[var(--surface-card)] shadow-2xl border border-[var(--border-cell)] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         loop
       >
@@ -114,7 +114,7 @@ export default function CommandPalette() {
             value={query}
             onValueChange={setQuery}
             placeholder="Search invoices, contracts, expenses, or jump to a page…"
-            className="w-full h-11 outline-none bg-transparent text-sm text-[var(--port-gore)] placeholder:text-[var(--regent-gray)]"
+            className="w-full h-11 outline-none bg-transparent responsiveTextTitle text-[var(--port-gore)] placeholder:text-[var(--regent-gray)]"
             autoFocus
           />
           <kbd className="text-[0.6rem] px-1.5 py-0.5 rounded border border-[var(--border-cell)] text-[var(--regent-gray)]">
@@ -123,7 +123,7 @@ export default function CommandPalette() {
         </div>
 
         <Command.List className="max-h-[60vh] overflow-y-auto p-2">
-          <Command.Empty className="py-6 text-center text-xs text-[var(--regent-gray)]">
+          <Command.Empty className="py-6 text-center responsiveTextInput text-[var(--regent-gray)]">
             No results.
           </Command.Empty>
 
@@ -136,11 +136,11 @@ export default function CommandPalette() {
                 key={route}
                 value={`${label} ${keywords}`}
                 onSelect={() => go(route)}
-                className="flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer text-sm text-[var(--port-gore)] aria-selected:bg-[var(--surface-header)]"
+                className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer responsiveTextTitle text-[var(--port-gore)] aria-selected:bg-[var(--surface-header)]"
               >
                 <Icon className="w-4 h-4 text-[var(--endeavour)]" />
                 <span className="flex-1">{label}</span>
-                <span className="text-[var(--regent-gray)] text-xs">{route}</span>
+                <span className="text-[var(--regent-gray)] responsiveTextInput">{route}</span>
                 <ArrowRight className="w-3 h-3 text-[var(--regent-gray)] opacity-0 aria-[selected=true]:opacity-100" />
               </Command.Item>
             ))}
@@ -156,13 +156,13 @@ export default function CommandPalette() {
                   key={item.key}
                   value={item.searchText}
                   onSelect={() => go(item.route, item.rowId, item.source)}
-                  className="flex flex-col items-start gap-0.5 px-2 py-2 rounded-md cursor-pointer aria-selected:bg-[var(--surface-header)]"
+                  className="flex flex-col items-start gap-0.5 px-2 py-2 rounded-lg cursor-pointer aria-selected:bg-[var(--surface-header)]"
                 >
-                  <span className="text-sm text-[var(--port-gore)] truncate w-full">
+                  <span className="responsiveTextTitle text-[var(--port-gore)] truncate w-full">
                     {item.title}
                   </span>
                   {item.subtitle && (
-                    <span className="text-xs text-[var(--regent-gray)] truncate w-full">
+                    <span className="responsiveTextInput text-[var(--regent-gray)] truncate w-full">
                       {item.subtitle}
                     </span>
                   )}

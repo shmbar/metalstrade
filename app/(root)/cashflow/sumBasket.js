@@ -98,15 +98,15 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                 </div>
                 <div className="flex items-center gap-0.5 shrink-0">
                     <button onPointerDown={e => e.stopPropagation()} onClick={copySummary}
-                        title="Copy summary" className="p-1 rounded-md hover:bg-[rgba(var(--surface-card-rgb),0.2)] transition-colors">
+                        title="Copy summary" className="p-1 rounded-lg hover:bg-[rgba(var(--surface-card-rgb),0.2)] transition-colors">
                         {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
                     <button onPointerDown={e => e.stopPropagation()} onClick={() => setCollapsed(c => !c)}
-                        title={collapsed ? 'Show list' : 'Hide list'} className="p-1 rounded-md hover:bg-[rgba(var(--surface-card-rgb),0.2)] transition-colors">
+                        title={collapsed ? 'Show list' : 'Hide list'} className="p-1 rounded-lg hover:bg-[rgba(var(--surface-card-rgb),0.2)] transition-colors">
                         {collapsed ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                     </button>
                     <button onPointerDown={e => e.stopPropagation()} onClick={onClear}
-                        title="Clear all" className="p-1 rounded-md hover:bg-[rgba(var(--surface-card-rgb),0.2)] transition-colors">
+                        title="Clear all" className="p-1 rounded-lg hover:bg-[rgba(var(--surface-card-rgb),0.2)] transition-colors">
                         <X className="w-3.5 h-3.5" />
                     </button>
                 </div>
@@ -127,7 +127,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             {/* Subtotals — always visible, shown as soft stat pills */}
             <div className="px-3 py-2.5 flex flex-col gap-1.5 bg-[rgba(var(--surface-card-rgb),0.7)]">
                 {hasUsd &&
-                    <div className="flex items-center justify-between rounded-xl px-2.5 py-1.5 bg-gradient-to-r from-[var(--selago)] to-[rgba(var(--surface-header-rgb),0.7)] border border-[var(--border-cell)]">
+                    <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-gradient-to-r from-[var(--selago)] to-[rgba(var(--surface-header-rgb),0.7)] border border-[var(--border-cell)]">
                         <span className="flex items-center gap-1.5 text-[0.6rem] font-semibold tracking-wide uppercase text-[var(--regent-gray)]">
                             <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--endeavour)] text-white text-[0.62rem] font-bold leading-none">$</span>
                             {metricLabel[metric]}
@@ -138,7 +138,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                     </div>
                 }
                 {hasEur &&
-                    <div className="flex items-center justify-between rounded-xl px-2.5 py-1.5 bg-gradient-to-r from-[var(--selago)] to-[rgba(var(--surface-header-rgb),0.7)] border border-[var(--border-cell)]">
+                    <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-gradient-to-r from-[var(--selago)] to-[rgba(var(--surface-header-rgb),0.7)] border border-[var(--border-cell)]">
                         <span className="flex items-center gap-1.5 text-[0.6rem] font-semibold tracking-wide uppercase text-[var(--regent-gray)]">
                             <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--chathams-blue)] text-white text-[0.62rem] font-bold leading-none">€</span>
                             {metricLabel[metric]}

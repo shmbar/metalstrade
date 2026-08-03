@@ -37,14 +37,14 @@
 //                     <p className='text-center text-slate-600 text-base sm:text-lg font-semibold mb-3'>Cost</p>
                     
 //                     {/* Composition */}
-//                     <p className='text-center text-slate-600 text-sm font-semibold mb-2'>Composition</p>
+//                     <p className='text-center text-slate-600 responsiveTextTitle font-semibold mb-2'>Composition</p>
 //                     <div className='overflow-x-auto mb-4'>
 //                         <div className='flex justify-center min-w-[400px]'>
 //                             <div className='border border-slate-500 w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Ni</span>
+//                                 <span className='title_style responsiveTextInput'>Ni</span>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input_style text-red-700 text-xs sm:text-sm' 
+//                                     className='input_style text-red-700 responsiveTextInput' 
 //                                     value={value?.stainless?.ni + '%'}
 //                                     name='ni' 
 //                                     onChange={(e) => {
@@ -71,10 +71,10 @@
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Cr</span>
+//                                 <span className='title_style responsiveTextInput'>Cr</span>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input_style text-red-700 text-xs sm:text-sm' 
+//                                     className='input_style text-red-700 responsiveTextInput' 
 //                                     value={value?.stainless?.cr + '%'}
 //                                     name='cr' 
 //                                     onChange={(e) => {
@@ -101,10 +101,10 @@
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Mo</span>
+//                                 <span className='title_style responsiveTextInput'>Mo</span>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input_style text-red-700 text-xs sm:text-sm' 
+//                                     className='input_style text-red-700 responsiveTextInput' 
 //                                     value={value?.stainless?.mo + '%'}
 //                                     name='mo' 
 //                                     onChange={(e) => {
@@ -131,10 +131,10 @@
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Fe</span>
+//                                 <span className='title_style responsiveTextInput'>Fe</span>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input_style bg-slate-100 text-xs sm:text-sm' 
+//                                     className='input_style bg-slate-100 responsiveTextInput' 
 //                                     value={fe + '%'}
 //                                     readOnly 
 //                                 />
@@ -143,23 +143,23 @@
 //                     </div>
 
 //                     {/* Price */}
-//                     <p className='text-center text-slate-600 text-sm font-semibold mb-2'>Price</p>
+//                     <p className='text-center text-slate-600 responsiveTextTitle font-semibold mb-2'>Price</p>
 //                     <div className='overflow-x-auto mb-4'>
 //                         <div className='flex justify-center min-w-[400px]'>
 //                             <div className='border border-slate-500 w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Ni</span>
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Ni</span>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input_style bg-slate-100 text-xs sm:text-sm' 
+//                                     className='input_style bg-slate-100 responsiveTextInput' 
 //                                     value={addComma(value.general?.nilme * value.stainless?.formulaNiCost / 100)}
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Cr</span>
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Cr</span>
 //                                 <input
 //                                     type="text"
-//                                     className="input_style text-red-700 text-xs sm:text-sm"
+//                                     className="input_style text-red-700 responsiveTextInput"
 //                                     name="crPrice"
 //                                     value={
 //                                         focusedField === "crPrice"
@@ -187,10 +187,10 @@
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Mo</span>
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Mo</span>
 //                                 <input
 //                                     type="text"
-//                                     className="input_style text-red-700 text-xs sm:text-sm"
+//                                     className="input_style text-red-700 responsiveTextInput"
 //                                     name="moPrice"
 //                                     value={
 //                                         focusedField === "moPrice"
@@ -218,10 +218,10 @@
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Fe</span>
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Fe</span>
 //                                 <input
 //                                     type="text"
-//                                     className="input_style text-red-700 text-xs sm:text-sm"
+//                                     className="input_style text-red-700 responsiveTextInput"
 //                                     name="fePrice"
 //                                     value={
 //                                         focusedField === "fePrice"
@@ -254,10 +254,10 @@
 //                     {/* Ni LME Display */}
 //                     <div className='flex justify-center mb-4'>
 //                         <div className='border border-slate-500 w-24 sm:w-28 flex flex-col'>
-//                             <span className='title_style bg-blue-300 text-xs sm:text-sm'>Ni LME</span>
+//                             <span className='title_style bg-blue-300 responsiveTextInput'>Ni LME</span>
 //                             <input 
 //                                 type='text' 
-//                                 className='input_style bg-slate-100 text-xs sm:text-sm' 
+//                                 className='input_style bg-slate-100 responsiveTextInput' 
 //                                 value={addComma(value?.general?.nilme)}
 //                                 readOnly 
 //                             />
@@ -267,10 +267,10 @@
 //                     {/* Formula x Ni */}
 //                     <div className='flex justify-center mb-4'>
 //                         <div className='border border-slate-500 w-24 sm:w-28 flex flex-col'>
-//                             <span className='title_style bg-customOrange text-xs sm:text-sm'>Formula x Ni</span>
+//                             <span className='title_style bg-customOrange responsiveTextInput'>Formula x Ni</span>
 //                             <input
 //                                 type="text"
-//                                 className="input_style bg-orange-200 text-red-600 text-xs sm:text-sm"
+//                                 className="input_style bg-orange-200 text-red-600 responsiveTextInput"
 //                                 name="formulaNiCost"
 //                                 value={
 //                                     value?.stainless?.formulaNiCost !== undefined && value.stainless.formulaNiCost !== ""
@@ -308,36 +308,36 @@
 //                     {/* Results */}
 //                     <div className='grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-4'>
 //                         <div className='border border-slate-500 flex flex-col'>
-//                             <span className='title_style bg-customLavender text-xs sm:text-sm'>Cost</span>
-//                             <span className='title_style text-xs sm:text-sm'>Solids Price:</span>
+//                             <span className='title_style bg-customLavender responsiveTextInput'>Cost</span>
+//                             <span className='title_style responsiveTextInput'>Solids Price:</span>
 //                             <input 
 //                                 type='text' 
-//                                 className='input_style bg-orange-200 text-xs sm:text-sm'
+//                                 className='input_style bg-orange-200 responsiveTextInput'
 //                                 value={addComma(solidsPrice.toFixed(2))}
 //                                 readOnly 
 //                             />
 //                         </div>
 //                         <div className='border border-slate-500 flex flex-col'>
-//                             <span className='title_style text-xs sm:text-sm'>Turnings Price:</span>
+//                             <span className='title_style responsiveTextInput'>Turnings Price:</span>
 //                             <input 
 //                                 type='text' 
-//                                 className='input_style bg-orange-200 text-xs sm:text-sm'
+//                                 className='input_style bg-orange-200 responsiveTextInput'
 //                                 value={addComma((solidsPrice * 0.9).toFixed(2))}
 //                                 readOnly 
 //                             />
 //                         </div>
 //                         <div className='border border-slate-500 flex flex-col'>
-//                             <span className='title_style text-xs sm:text-sm'>Price/Euro:</span>
+//                             <span className='title_style responsiveTextInput'>Price/Euro:</span>
 //                             <input 
 //                                 type='text' 
-//                                 className='input_style bg-customLime text-xs sm:text-sm'
+//                                 className='input_style bg-customLime responsiveTextInput'
 //                                 value={addComma((solidsPrice / value.general?.euroRate).toFixed(2), 'a')}
 //                                 readOnly 
 //                             />
 //                         </div>
 //                     </div>
 
-//                     <div className='text-red-600 text-xs'>
+//                     <div className='text-red-600 responsiveTextInput'>
 //                         <p>* Fill in the red and + Formula x Ni</p>
 //                         <p>* Fe is calculated automatically</p>
 //                     </div>
@@ -348,41 +348,41 @@
 //                     <p className='text-center text-slate-600 text-base sm:text-lg font-semibold mb-3'>Sales</p>
                     
 //                     {/* Composition (Read-only) */}
-//                     <p className='text-center text-slate-600 text-sm font-semibold mb-2'>Composition</p>
+//                     <p className='text-center text-slate-600 responsiveTextTitle font-semibold mb-2'>Composition</p>
 //                     <div className='overflow-x-auto mb-4'>
 //                         <div className='flex justify-center min-w-[400px]'>
 //                             <div className='border border-slate-500 w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Ni</span>
+//                                 <span className='title_style responsiveTextInput'>Ni</span>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                     className='input_style bg-slate-100 responsiveTextInput'
 //                                     value={value?.stainless?.ni + '%'} 
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Cr</span>
+//                                 <span className='title_style responsiveTextInput'>Cr</span>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                     className='input_style bg-slate-100 responsiveTextInput'
 //                                     value={value?.stainless?.cr + '%'} 
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Mo</span>
+//                                 <span className='title_style responsiveTextInput'>Mo</span>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                     className='input_style bg-slate-100 responsiveTextInput'
 //                                     value={value?.stainless?.mo + '%'} 
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style text-xs sm:text-sm'>Fe</span>
+//                                 <span className='title_style responsiveTextInput'>Fe</span>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                     className='input_style bg-slate-100 responsiveTextInput'
 //                                     value={value?.stainless?.fe + '%'} 
 //                                     readOnly 
 //                                 />
@@ -391,41 +391,41 @@
 //                     </div>
 
 //                     {/* Price */}
-//                     <p className='text-center text-slate-600 text-sm font-semibold mb-2'>Price</p>
+//                     <p className='text-center text-slate-600 responsiveTextTitle font-semibold mb-2'>Price</p>
 //                     <div className='overflow-x-auto mb-2'>
 //                         <div className='flex justify-center min-w-[400px]'>
 //                             <div className='border border-slate-500 w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Ni</span>
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Ni</span>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input_style bg-slate-100 text-xs sm:text-sm' 
+//                                     className='input_style bg-slate-100 responsiveTextInput' 
 //                                     value={addComma(value?.general?.nilme * value?.stainless?.formulaNiPrice / 100)}
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Cr</span>
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Cr</span>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                     className='input_style bg-slate-100 responsiveTextInput'
 //                                     value={addComma((value.general?.chargeCrLb * value.general?.mt * value?.stainless?.crPriceArgus / 100).toFixed(2))} 
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Mo</span>
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Mo</span>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                     className='input_style bg-slate-100 responsiveTextInput'
 //                                     value={addComma((value.general?.MoOxideLb * value?.stainless?.moPriceArgus * value.general?.mt / 100).toFixed(2))} 
 //                                     readOnly 
 //                                 />
 //                             </div>
 //                             <div className='border-y border-slate-500 border-r bg-slate-100 w-20 sm:w-24 flex flex-col justify-center'>
-//                                 <span className='title_style bg-customLavender text-xs sm:text-sm'>Fe</span>
+//                                 <span className='title_style bg-customLavender responsiveTextInput'>Fe</span>
 //                                 <input
 //                                     type="text"
-//                                     className="input_style text-red-600 text-xs sm:text-sm"
+//                                     className="input_style text-red-600 responsiveTextInput"
 //                                     name="fePrice1"
 //                                     value={
 //                                         focusedField === "fePrice1"
@@ -459,12 +459,12 @@
 //                     <div className='overflow-x-auto mb-4'>
 //                         <div className='flex justify-center min-w-[400px]'>
 //                             <div className='w-20 sm:w-24 flex justify-center items-center'>
-//                                 <span className='text-xs text-slate-500'>{'Lb ' + addComma(((value?.general?.nilme * value?.stainless?.formulaNiPrice / 100) / (value.general?.mt)).toFixed(2))}</span>
+//                                 <span className='responsiveTextInput text-slate-500'>{'Lb ' + addComma(((value?.general?.nilme * value?.stainless?.formulaNiPrice / 100) / (value.general?.mt)).toFixed(2))}</span>
 //                             </div>
 //                             <div className='w-20 sm:w-24 flex justify-center items-center'>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input w-full h-7 text-center border-none cursor-default rounded-none text-red-700 text-xs'
+//                                     className='input w-full h-7 text-center border-none cursor-default rounded-none text-red-700 responsiveTextInput'
 //                                     name='crPriceArgus' 
 //                                     value={'Argus ' + value?.stainless?.crPriceArgus + '%'} 
 //                                     onChange={(e) => handleChange(e, 'stainless')} 
@@ -473,7 +473,7 @@
 //                             <div className='w-20 sm:w-24 flex justify-center items-center'>
 //                                 <input 
 //                                     type='text' 
-//                                     className='input w-full h-7 text-center border-none cursor-default rounded-none text-red-700 text-xs'
+//                                     className='input w-full h-7 text-center border-none cursor-default rounded-none text-red-700 responsiveTextInput'
 //                                     name='moPriceArgus' 
 //                                     value={'Argus ' + value?.stainless?.moPriceArgus + '%'} 
 //                                     onChange={(e) => handleChange(e, 'stainless')} 
@@ -485,10 +485,10 @@
 //                     {/* Ni LME Display */}
 //                     <div className='flex justify-center mb-4'>
 //                         <div className='border border-slate-500 w-24 sm:w-28 flex flex-col'>
-//                             <span className='title_style bg-blue-300 text-xs sm:text-sm'>Ni LME</span>
+//                             <span className='title_style bg-blue-300 responsiveTextInput'>Ni LME</span>
 //                             <input 
 //                                 type='text' 
-//                                 className='input_style bg-slate-100 text-xs sm:text-sm'
+//                                 className='input_style bg-slate-100 responsiveTextInput'
 //                                 value={addComma(value?.general?.nilme)}
 //                                 readOnly 
 //                             />
@@ -498,10 +498,10 @@
 //                     {/* Formula x Ni */}
 //                     <div className='flex justify-center mb-4'>
 //                         <div className='border border-slate-500 w-24 sm:w-28 flex flex-col'>
-//                             <span className='title_style bg-customOrange text-xs sm:text-sm'>Formula x Ni</span>
+//                             <span className='title_style bg-customOrange responsiveTextInput'>Formula x Ni</span>
 //                             <input
 //                                 type="text"
-//                                 className="input_style bg-orange-200 text-red-600 text-xs sm:text-sm"
+//                                 className="input_style bg-orange-200 text-red-600 responsiveTextInput"
 //                                 name="formulaNiPrice"
 //                                 value={
 //                                     value?.stainless?.formulaNiPrice !== undefined && value.stainless.formulaNiPrice !== ""
@@ -539,36 +539,36 @@
 //                     {/* Results */}
 //                     <div className='grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-4'>
 //                         <div className='border border-slate-500 flex flex-col'>
-//                             <span className='title_style bg-customLavender text-xs sm:text-sm'>Sales</span>
-//                             <span className='title_style text-xs sm:text-sm'>Solids Price:</span>
+//                             <span className='title_style bg-customLavender responsiveTextInput'>Sales</span>
+//                             <span className='title_style responsiveTextInput'>Solids Price:</span>
 //                             <input 
 //                                 type='text' 
-//                                 className='input_style bg-orange-200 text-xs sm:text-sm'
+//                                 className='input_style bg-orange-200 responsiveTextInput'
 //                                 value={addComma((solidsPrice1).toFixed(2))}
 //                                 readOnly 
 //                             />
 //                         </div>
 //                         <div className='border border-slate-500 flex flex-col'>
-//                             <span className='title_style text-xs sm:text-sm'>Turnings Price:</span>
+//                             <span className='title_style responsiveTextInput'>Turnings Price:</span>
 //                             <input 
 //                                 type='text' 
-//                                 className='input_style bg-orange-200 rounded-none text-xs sm:text-sm'
+//                                 className='input_style bg-orange-200 rounded-none responsiveTextInput'
 //                                 value={addComma((solidsPrice1 * 0.9).toFixed(2))}
 //                                 readOnly 
 //                             />
 //                         </div>
 //                         <div className='border border-slate-500 flex flex-col'>
-//                             <span className='title_style text-xs sm:text-sm'>Price/Euro:</span>
+//                             <span className='title_style responsiveTextInput'>Price/Euro:</span>
 //                             <input 
 //                                 type='text' 
-//                                 className='input_style bg-customLime text-xs sm:text-sm'
+//                                 className='input_style bg-customLime responsiveTextInput'
 //                                 value={addComma((solidsPrice1 / value.general?.euroRate).toFixed(2), 'a')}
 //                                 readOnly 
 //                             />
 //                         </div>
 //                     </div>
 
-//                     <div className='text-red-600 text-xs'>
+//                     <div className='text-red-600 responsiveTextInput'>
 //                         <p>* Fill in the red and + Formula x Ni</p>
 //                         <p>* Fe is calculated automatically</p>
 //                     </div>
@@ -608,26 +608,26 @@ const Stainless = ({ value, handleChange }) => {
         return value.stainless != null ? (
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 items-start">
                 {/* COST SECTION */}
-                <div className="w-full bg-[var(--surface-card)] rounded-xl border border-[var(--border-divider)] shadow-sm p-3 text-center">
-                    <h3 className='text-xs font-medium text-[var(--endeavour)] mb-1 text-left pl-3'>Cost</h3>
+                <div className="w-full bg-[var(--surface-card)] rounded-2xl border border-[var(--border-divider)] shadow-sm p-3 text-center">
+                    <h3 className='responsiveTextInput font-medium text-[var(--endeavour)] mb-1 text-left pl-3'>Cost</h3>
 
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end">
                     <div className="px-2">
                     <div className="mb-2">
-                    <p className="text-xs text-[var(--text-faint)] mb-1 text-center">
+                    <p className="responsiveTextInput text-[var(--text-faint)] mb-1 text-center">
                         Composition
                     </p>
 
-                    <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] grid grid-cols-[85px_85px_85px_85px]">
+                    <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] grid grid-cols-[85px_85px_85px_85px]">
                         {/* Ni */}
                         <div>
-                        <div className="bg-[var(--selago)]  py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                        <div className="bg-[var(--selago)]  py-1 responsiveTextInput text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Ni
                         </div>
                         <input
                             type="text"
-                            className="w-full py-1 text-center text-xs outline-none bg-[var(--surface-base)]"
+                            className="w-full py-1 text-center responsiveTextInput outline-none bg-[var(--surface-base)]"
                             value={value?.stainless?.ni + '%'}
                             name="ni"
                             onChange={(e) =>
@@ -657,12 +657,12 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Cr */}
                         <div className="border-l border-[var(--border-divider)]">
-                        <div className="bg-[var(--selago)] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                        <div className="bg-[var(--selago)] py-1 responsiveTextInput text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Cr
                         </div>
                         <input
                             type="text"
-                            className="w-full py-1 text-center text-xs outline-none bg-[var(--surface-base)]"
+                            className="w-full py-1 text-center responsiveTextInput outline-none bg-[var(--surface-base)]"
                             value={value?.stainless?.cr + '%'}
                             name="cr"
                             onChange={(e) =>
@@ -692,12 +692,12 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Mo */}
                         <div className="border-l border-[var(--border-divider)]">
-                        <div className="bg-[var(--selago)] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                        <div className="bg-[var(--selago)] py-1 responsiveTextInput text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Mo
                         </div>
                         <input
                             type="text"
-                            className="w-full py-1 text-center text-xs outline-none bg-[var(--surface-base)]"
+                            className="w-full py-1 text-center responsiveTextInput outline-none bg-[var(--surface-base)]"
                             value={value?.stainless?.mo + '%'}
                             name="mo"
                             onChange={(e) =>
@@ -727,12 +727,12 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Fe */}
                         <div className="border-l border-[var(--border-divider)]">
-                        <div className="bg-[var(--selago)] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                        <div className="bg-[var(--selago)] py-1 responsiveTextInput text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Fe
                         </div>
                         <input
                             type="text"
-                            className="w-full py-1 text-center text-xs cursor-not-allowed border-0 bg-[var(--surface-base)]"
+                            className="w-full py-1 text-center responsiveTextInput cursor-not-allowed border-0 bg-[var(--surface-base)]"
                             value={fe + '%'}
                             readOnly
                         />
@@ -743,19 +743,19 @@ const Stainless = ({ value, handleChange }) => {
 
                     {/* Price Row */}
                     <div className="mt-2">
-                    <p className="text-xs font-normal text-[var(--text-faint)] mb-1 text-center">
+                    <p className="responsiveTextInput font-normal text-[var(--text-faint)] mb-1 text-center">
                         Price
                     </p>
 
-                    <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] grid grid-cols-[85px_85px_85px_85px]">
+                    <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] grid grid-cols-[85px_85px_85px_85px]">
                         {/* Ni */}
                         <div>
-                        <div className="bg-[var(--violet-bg)] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                        <div className="bg-[var(--violet-bg)] py-1 responsiveTextInput text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Ni
                         </div>
                         <input
                             type="text"
-                            className="w-full py-1 text-center text-xs bg-[var(--surface-card)] text-[var(--endeavour)] border-0 cursor-not-allowed bg-[var(--surface-base)]"
+                            className="w-full py-1 text-center responsiveTextInput bg-[var(--surface-card)] text-[var(--endeavour)] border-0 cursor-not-allowed bg-[var(--surface-base)]"
                             value={formatCurrency(
                             (value.general?.nilme * value.stainless?.formulaNiCost / 100).toFixed(2)
                             )}
@@ -765,12 +765,12 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Cr */}
                         <div className="border-l border-[var(--border-divider)]">
-                        <div className="bg-[var(--violet-bg)] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                        <div className="bg-[var(--violet-bg)] py-1 responsiveTextInput text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Cr
                         </div>
                         <input
                             type="text"
-                            className="w-full py-1 text-center text-xs outline-none text-[var(--danger-text)] focus:ring-1 focus:ring-[var(--endeavour)]"
+                            className="w-full py-1 text-center responsiveTextInput outline-none text-[var(--danger-text)] focus:ring-1 focus:ring-[var(--endeavour)]"
                             name="crPrice"
                             value={
                             focusedField === 'crPrice'
@@ -796,12 +796,12 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Mo */}
                         <div className="border-l border-[var(--border-divider)]">
-                        <div className="bg-[var(--violet-bg)] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                        <div className="bg-[var(--violet-bg)] py-1 responsiveTextInput text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Mo
                         </div>
                         <input
                             type="text"
-                            className="w-full py-1 text-center text-xs outline-none text-[var(--danger-text)] focus:ring-1 focus:ring-[var(--endeavour)]"
+                            className="w-full py-1 text-center responsiveTextInput outline-none text-[var(--danger-text)] focus:ring-1 focus:ring-[var(--endeavour)]"
                             name="moPrice"
                             value={
                             focusedField === 'moPrice'
@@ -827,12 +827,12 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Fe */}
                         <div className="border-l border-[var(--border-divider)]">
-                        <div className="bg-[var(--violet-bg)] py-1 text-xs text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                        <div className="bg-[var(--violet-bg)] py-1 responsiveTextInput text-center text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Fe
                         </div>
                         <input
                             type="text"
-                            className="w-full py-1 text-center text-xs outline-none text-[var(--danger-text)] focus:ring-1 focus:ring-[var(--endeavour)]"
+                            className="w-full py-1 text-center responsiveTextInput outline-none text-[var(--danger-text)] focus:ring-1 focus:ring-[var(--endeavour)]"
                             name="fePrice"
                             value={
                             focusedField === 'fePrice'
@@ -858,17 +858,17 @@ const Stainless = ({ value, handleChange }) => {
                     </div>
                     </div>
                     </div>
-                    <div className="w-20 flex-shrink-0 rounded-xl overflow-hidden border border-[var(--border-divider)]">
-                        <div className="py-1 text-center bg-[var(--surface-header)] text-xs text-[var(--endeavour)] font-medium">Ni LME</div>
-                        <div className="py-1 text-center text-xs text-[var(--primary-bright)] bg-[var(--selago)]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
+                    <div className="w-20 flex-shrink-0 rounded-2xl overflow-hidden border border-[var(--border-divider)]">
+                        <div className="py-1 text-center bg-[var(--surface-header)] responsiveTextInput text-[var(--endeavour)] font-medium">Ni LME</div>
+                        <div className="py-1 text-center responsiveTextInput text-[var(--primary-bright)] bg-[var(--selago)]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
                     </div>
                     </div>
 
                     {/* Formula x Ni */}
                     <div className="mb-2 mt-2 flex pl-2 pr-24">
-                    <div className="w-32 rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)]">
-                        <div className="bg-[var(--danger-bg)] text-[var(--danger-text)] text-xs py-1 text-center">Formula x Ni</div>
-                        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[var(--danger-text)] bg-[var(--surface-base)]"
+                    <div className="w-32 rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)]">
+                        <div className="bg-[var(--danger-bg)] text-[var(--danger-text)] responsiveTextInput py-1 text-center">Formula x Ni</div>
+                        <input type="text" className="w-full text-center py-1 outline-none responsiveTextInput text-[var(--danger-text)] bg-[var(--surface-base)]"
                             name="formulaNiCost" value={value?.stainless?.formulaNiCost + '%'}
                             onChange={(e) => handleChange({ target: { name: e.target.name, value: e.target.value.replace('%', '') } }, 'stainless')}
                             onBlur={(e) => { const num = parseFloat(e.target.value.replace('%', '')); if (!isNaN(num)) handleChange({ target: { name: e.target.name, value: num.toFixed(2) } }, 'stainless'); }}
@@ -878,36 +878,36 @@ const Stainless = ({ value, handleChange }) => {
 
                     {/* Results */}
                     <div className="flex flex-wrap gap-2 mb-2 mt-2 pl-2">
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
-                            <div className="bg-[var(--danger-soft)] py-1"><p className="text-xs text-[var(--primary-bright)]">Solids Price</p></div>
-                            <div className="py-1 text-xs text-[var(--primary-bright)] bg-[var(--surface-base)]">{formatCurrency(solidsPrice.toFixed(2))}</div>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
+                            <div className="bg-[var(--danger-soft)] py-1"><p className="responsiveTextInput text-[var(--primary-bright)]">Solids Price</p></div>
+                            <div className="py-1 responsiveTextInput text-[var(--primary-bright)] bg-[var(--surface-base)]">{formatCurrency(solidsPrice.toFixed(2))}</div>
                         </div>
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
-                            <div className="bg-[var(--danger-soft)] py-1"><p className="text-xs text-[var(--primary-bright)]">Turnings Price</p></div>
-                            <div className="py-1 text-xs text-[var(--primary-bright)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice * 0.92).toFixed(2))}</div>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
+                            <div className="bg-[var(--danger-soft)] py-1"><p className="responsiveTextInput text-[var(--primary-bright)]">Turnings Price</p></div>
+                            <div className="py-1 responsiveTextInput text-[var(--primary-bright)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice * 0.92).toFixed(2))}</div>
                         </div>
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
-                            <div className="bg-[var(--ok-soft)] py-1"><p className="text-xs text-[var(--primary-bright)]">Price / Euro</p></div>
-                            <div className="py-1 text-xs text-[var(--primary-bright)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice / value.general?.euroRate).toFixed(2), '€')}</div>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
+                            <div className="bg-[var(--ok-soft)] py-1"><p className="responsiveTextInput text-[var(--primary-bright)]">Price / Euro</p></div>
+                            <div className="py-1 responsiveTextInput text-[var(--primary-bright)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice / value.general?.euroRate).toFixed(2), '€')}</div>
                         </div>
                     </div>
 
-                    <div className='text-xs mt-3 text-[var(--endeavour)] space-y-0.5 text-left pl-2'>
+                    <div className='responsiveTextInput mt-3 text-[var(--endeavour)] space-y-0.5 text-left pl-2'>
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>
                 </div>
 
                 {/* SALES SECTION */}
-                <div className="w-full bg-[var(--surface-card)] rounded-xl border border-[var(--border-divider)] shadow-sm p-3 text-center">
-                    <h3 className='text-xs font-medium text-[var(--endeavour)] mb-1 text-left pl-3'>Sales</h3>
+                <div className="w-full bg-[var(--surface-card)] rounded-2xl border border-[var(--border-divider)] shadow-sm p-3 text-center">
+                    <h3 className='responsiveTextInput font-medium text-[var(--endeavour)] mb-1 text-left pl-3'>Sales</h3>
                     {/* Composition + Price with Ni LME aside */}
                     <div className="flex gap-2 items-end">
                     <div className="px-2">
                     <div className="mb-2">
-                    <p className="text-xs text-[var(--text-faint)] mb-1 text-center">Composition</p>
+                    <p className="responsiveTextInput text-[var(--text-faint)] mb-1 text-center">Composition</p>
 
-                    <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] grid grid-cols-[85px_85px_85px_85px]">
+                    <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] grid grid-cols-[85px_85px_85px_85px]">
                         {[
                         { label: 'Ni', value: value?.stainless?.ni + '%' },
                         { label: 'Cr', value: value?.stainless?.cr + '%' },
@@ -915,10 +915,10 @@ const Stainless = ({ value, handleChange }) => {
                         { label: 'Fe', value: fe + '%' },
                         ].map((item, idx) => (
                         <div key={item.label} className={idx > 0 ? 'border-l border-[var(--border-divider)]' : ''}>
-                            <div className="bg-[var(--selago)] text-center py-1 text-xs text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                            <div className="bg-[var(--selago)] text-center py-1 responsiveTextInput text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             {item.label}
                             </div>
-                            <div className="py-1 text-xs text-center bg-[var(--surface-base)]">
+                            <div className="py-1 responsiveTextInput text-center bg-[var(--surface-base)]">
                             {item.value}
                             </div>
                         </div>
@@ -929,15 +929,15 @@ const Stainless = ({ value, handleChange }) => {
 
                     {/* Price */}
                     <div className="mt-2">
-                    <p className="text-xs font-normal text-[var(--text-faint)] mb-1 text-center">Price</p>
+                    <p className="responsiveTextInput font-normal text-[var(--text-faint)] mb-1 text-center">Price</p>
 
-                    <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] grid grid-cols-[85px_85px_85px_85px]">
+                    <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] grid grid-cols-[85px_85px_85px_85px]">
                         {/* Ni */}
                         <div>
-                        <div className="bg-[var(--violet-bg)] text-center py-1 text-xs text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                        <div className="bg-[var(--violet-bg)] text-center py-1 responsiveTextInput text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Ni
                         </div>
-                        <div className="py-1 text-xs text-center text-[var(--primary-bright)] bg-[var(--surface-base)]">
+                        <div className="py-1 responsiveTextInput text-center text-[var(--primary-bright)] bg-[var(--surface-base)]">
                             {formatCurrency(
                             (value?.general?.nilme * value?.stainless?.formulaNiPrice / 100).toFixed(2)
                             )}
@@ -946,10 +946,10 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Cr */}
                         <div className="border-l border-[var(--border-divider)]">
-                        <div className="bg-[var(--violet-bg)] text-center py-1 text-xs text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                        <div className="bg-[var(--violet-bg)] text-center py-1 responsiveTextInput text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Cr
                         </div>
-                        <div className="py-1 text-xs text-center text-[var(--danger-text)] bg-[var(--surface-base)]">
+                        <div className="py-1 responsiveTextInput text-center text-[var(--danger-text)] bg-[var(--surface-base)]">
                             {formatCurrency(
                             (value.general?.chargeCrLb * value.general?.mt * value?.stainless?.crPriceArgus / 100).toFixed(2)
                             )}
@@ -958,10 +958,10 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Mo */}
                         <div className="border-l border-[var(--border-divider)]">
-                        <div className="bg-[var(--violet-bg)] text-center py-1 text-xs  text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                        <div className="bg-[var(--violet-bg)] text-center py-1 responsiveTextInput  text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Mo
                         </div>
-                        <div className="py-1 text-xs text-center text-[var(--danger-text)] bg-[var(--surface-base)]">
+                        <div className="py-1 responsiveTextInput text-center text-[var(--danger-text)] bg-[var(--surface-base)]">
                             {formatCurrency(
                             (value.general?.MoOxideLb * value?.stainless?.moPriceArgus * value.general?.mt / 100).toFixed(2)
                             )}
@@ -970,12 +970,12 @@ const Stainless = ({ value, handleChange }) => {
 
                         {/* Fe (editable) */}
                         <div className="border-l border-[var(--border-divider)]">
-                        <div className="bg-[var(--violet-bg)] text-center py-1 text-xs text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
+                        <div className="bg-[var(--violet-bg)] text-center py-1 responsiveTextInput text-[var(--primary-bright)] border-b border-[var(--border-divider)] font-normal">
                             Fe
                         </div>
                         <input
                             type="text"
-                            className="w-full py-1 text-xs text-center text-[var(--danger-text)] outline-none bg-[var(--surface-base)]"
+                            className="w-full py-1 responsiveTextInput text-center text-[var(--danger-text)] outline-none bg-[var(--surface-base)]"
                             name="fePrice1"
                             value={
                             focusedField === 'fePrice1'
@@ -999,17 +999,17 @@ const Stainless = ({ value, handleChange }) => {
                     </div>
                     </div>
                     </div>
-                    <div className="w-20 flex-shrink-0 rounded-xl overflow-hidden border border-[var(--border-divider)]">
-                        <div className="py-1 text-center bg-[var(--surface-header)] text-xs text-[var(--endeavour)] font-medium">Ni LME</div>
-                        <div className="py-1 text-center text-xs text-[var(--primary-bright)] bg-[var(--selago)]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
+                    <div className="w-20 flex-shrink-0 rounded-2xl overflow-hidden border border-[var(--border-divider)]">
+                        <div className="py-1 text-center bg-[var(--surface-header)] responsiveTextInput text-[var(--endeavour)] font-medium">Ni LME</div>
+                        <div className="py-1 text-center responsiveTextInput text-[var(--primary-bright)] bg-[var(--selago)]">{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
                     </div>
                     </div>
 
                     {/* Formula x Ni */}
                     <div className="mb-2 mt-2 flex pl-2 pr-24">
-                    <div className="w-32 rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)]">
-                        <div className="bg-[var(--danger-bg)] text-[var(--danger-text)] text-xs py-1 text-center">Formula x Ni</div>
-                        <input type="text" className="w-full text-center py-1 outline-none text-xs text-[var(--danger-text)] bg-[var(--surface-base)]"
+                    <div className="w-32 rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)]">
+                        <div className="bg-[var(--danger-bg)] text-[var(--danger-text)] responsiveTextInput py-1 text-center">Formula x Ni</div>
+                        <input type="text" className="w-full text-center py-1 outline-none responsiveTextInput text-[var(--danger-text)] bg-[var(--surface-base)]"
                             name="formulaNiPrice" value={value?.stainless?.formulaNiPrice + '%'}
                             onChange={(e) => handleChange({ target: { name: e.target.name, value: e.target.value.replace('%', '') } }, 'stainless')}
                             onBlur={(e) => { const num = parseFloat(e.target.value.replace('%', '')); if (!isNaN(num)) handleChange({ target: { name: e.target.name, value: num.toFixed(2) } }, 'stainless'); }}
@@ -1019,21 +1019,21 @@ const Stainless = ({ value, handleChange }) => {
 
                     {/* Results */}
                     <div className="flex flex-wrap gap-2 mb-2 mt-2 pl-2">
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
-                            <div className="bg-[var(--danger-soft)] py-1"><p className="text-xs text-[var(--primary-bright)]">Solids Price</p></div>
-                            <div className="py-1 text-xs text-[var(--primary-bright)] bg-[var(--surface-base)]">{formatCurrency(solidsPrice1.toFixed(2))}</div>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
+                            <div className="bg-[var(--danger-soft)] py-1"><p className="responsiveTextInput text-[var(--primary-bright)]">Solids Price</p></div>
+                            <div className="py-1 responsiveTextInput text-[var(--primary-bright)] bg-[var(--surface-base)]">{formatCurrency(solidsPrice1.toFixed(2))}</div>
                         </div>
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
-                            <div className="bg-[var(--danger-soft)] py-1"><p className="text-xs text-[var(--primary-bright)]">Turnings Price</p></div>
-                            <div className="py-1 text-xs text-[var(--primary-bright)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice1 * 0.92).toFixed(2))}</div>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
+                            <div className="bg-[var(--danger-soft)] py-1"><p className="responsiveTextInput text-[var(--primary-bright)]">Turnings Price</p></div>
+                            <div className="py-1 responsiveTextInput text-[var(--primary-bright)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice1 * 0.92).toFixed(2))}</div>
                         </div>
-                        <div className="rounded-xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
-                            <div className="bg-[var(--ok-soft)] py-1"><p className="text-xs text-[var(--primary-bright)]">Price / Euro</p></div>
-                            <div className="py-1 text-xs text-[var(--primary-bright)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice1 / value.general?.euroRate).toFixed(2), '€')}</div>
+                        <div className="rounded-2xl overflow-hidden border border-[var(--border-divider)] bg-[var(--surface-card)] text-center min-w-[120px]">
+                            <div className="bg-[var(--ok-soft)] py-1"><p className="responsiveTextInput text-[var(--primary-bright)]">Price / Euro</p></div>
+                            <div className="py-1 responsiveTextInput text-[var(--primary-bright)] bg-[var(--surface-base)]">{formatCurrency((solidsPrice1 / value.general?.euroRate).toFixed(2), '€')}</div>
                         </div>
                     </div>
 
-                    <div className='text-xs mt-3 text-[var(--endeavour)] space-y-0.5 text-left pl-2'>
+                    <div className='responsiveTextInput mt-3 text-[var(--endeavour)] space-y-0.5 text-left pl-2'>
                         <p>* Fill in the red and + Formula x Ni</p>
                         <p>* Fe is calculated automatically</p>
                     </div>

@@ -7,7 +7,9 @@ export default function StatusBadge({ label, tone, size = 'sm', className = '', 
     if (label == null || label === '') return null;
     const t = TONES[tone || statusTone(label)] || TONES.gray;
     const pad = size === 'xs' ? 'px-2 py-0.5' : 'px-3 py-1';
-    const fontSize = size === 'xs' ? '0.55rem' : '0.65rem';
+    // On the ladder (TOKENS.md §1.2) instead of the rogue 8.8px / 10.4px these
+    // used to be — two sizes that appeared nowhere else in the app.
+    const fontSize = size === 'xs' ? 'var(--fs-caption)' : 'var(--fs-table)';
     return (
         <span
             className={`inline-flex items-center justify-center rounded-full font-medium whitespace-nowrap ${pad} ${className}`}

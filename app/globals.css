@@ -87,6 +87,24 @@
      and it is a system stack (no extra webfont download). */
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
+  /* ── The type ladder, as variables ────────────────────────────────────────
+     The .responsiveText* classes cover markup that can take a className. But
+     533 sizes in this app are written as inline React style objects
+     (style={{ fontSize: '0.62rem' }}), which a class cannot reach — that is
+     where most of the "uneven text sizes" came from, and it is invisible to a
+     scan that only greps for text-[...] classes.
+
+     These variables carry the SAME ladder and are re-declared per breakpoint
+     below, so `fontSize: 'var(--fs-body)'` ramps exactly like `.responsiveText`.
+     One ladder, reachable from both styling systems. */
+  --fs-caption: 0.5625rem; /*  9px — chips, badges, footnotes */
+  --fs-table:   0.625rem;  /* 10px — dense table cells        */
+  --fs-body:    0.6875rem; /* 11px — body                     */
+  --fs-input:   0.75rem;   /* 12px — labels, controls         */
+  --fs-title:   0.8125rem; /* 13px — card / section titles    */
+  --fs-page:    1rem;      /* 16px — page titles              */
+  --fs-stat:    1.25rem;   /* 20px — KPI figures              */
+
   /* Stacking ladder — a closed set of 8. Nothing may invent its own z-index.
      Replaces the 22 competing values found in the Phase-1 scan. */
   --z-sticky: 20;        /* sticky table headers / toolbars                    */
@@ -127,6 +145,42 @@
   --chart-3: 197 37% 24%;
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
+}
+
+/* The type ladder stepping up at the same 4 breakpoints the .responsiveText*
+   classes use (xl 1280 / 2xl 1536 / 3xl 1920). Keep in sync with @layer app. */
+@media (min-width: 1280px) {
+  :root {
+    --fs-caption: 0.625rem;  /* 10 */
+    --fs-table:   0.6875rem; /* 11 */
+    --fs-body:    0.75rem;   /* 12 */
+    --fs-input:   0.8125rem; /* 13 */
+    --fs-title:   0.875rem;  /* 14 */
+    --fs-page:    1.0625rem; /* 17 */
+    --fs-stat:    1.375rem;  /* 22 */
+  }
+}
+@media (min-width: 1536px) {
+  :root {
+    --fs-caption: 0.6875rem; /* 11 */
+    --fs-table:   0.75rem;   /* 12 */
+    --fs-body:    0.8125rem; /* 13 */
+    --fs-input:   0.875rem;  /* 14 */
+    --fs-title:   0.9375rem; /* 15 */
+    --fs-page:    1.125rem;  /* 18 */
+    --fs-stat:    1.5rem;    /* 24 */
+  }
+}
+@media (min-width: 1920px) {
+  :root {
+    --fs-caption: 0.75rem;   /* 12 */
+    --fs-table:   0.8125rem; /* 13 */
+    --fs-body:    0.875rem;  /* 14 */
+    --fs-input:   0.9375rem; /* 15 */
+    --fs-title:   1rem;      /* 16 */
+    --fs-page:    1.25rem;   /* 20 */
+    --fs-stat:    1.625rem;  /* 26 */
+  }
 }
 
 /* Example usage:

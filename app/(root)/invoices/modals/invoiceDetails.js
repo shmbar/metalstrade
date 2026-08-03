@@ -333,7 +333,7 @@ const InvoiceModal = () => {
 				</div>
 				<div className='lg:col-span-3 border border-[var(--border-divider)] p-2 rounded-2xl flex flex-col'>
 					<p className='responsiveText text-[var(--port-gore)] font-medium indent-1'>{getTtl('PO', ln)}#:</p>
-					{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col mt-1 ring-1 ring-[var(--border-divider)] rounded-xl divide-y divide-[var(--border-divider)]" >
+					{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col mt-1 ring-1 ring-[var(--border-divider)] rounded-2xl divide-y divide-[var(--border-divider)]" >
 						{poArr.map((x, i) => {
 							return (
 								<li key={i}
@@ -666,7 +666,7 @@ const InvoiceModal = () => {
 					<p className='flex responsiveText text-[var(--port-gore)] font-medium'>{getTtl('Comments', ln)}:</p>
 					<textarea rows="1" name="comments"
 						className="input w-full h-8 p-1 !rounded-full"
-						style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
+						style={{ fontSize: 'var(--fs-input)', fontFamily: 'inherit' }}
 						value={valueInv.comments}
 						onChange={handleValue}
 					/>

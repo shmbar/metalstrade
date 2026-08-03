@@ -16,11 +16,11 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-4">
-        <button className="p-2 rounded-xl hover:bg-[var(--surface-card)] transition-colors text-muted-foreground relative">
+        <button className="p-2 rounded-2xl hover:bg-[var(--surface-card)] transition-colors text-muted-foreground relative">
           <Bell className="h-5 w-5" />
           <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border-2 border-background"></span>
         </button>
-        <button className="p-2 rounded-xl hover:bg-[var(--surface-card)] transition-colors text-muted-foreground">
+        <button className="p-2 rounded-2xl hover:bg-[var(--surface-card)] transition-colors text-muted-foreground">
           <MessageSquare className="h-5 w-5" />
         </button>
         <Avatar className="h-9 w-9 border border-white shadow-sm cursor-pointer">

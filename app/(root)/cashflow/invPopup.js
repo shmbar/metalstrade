@@ -120,7 +120,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                     padding: '8px 16px 8px 16px',
                     paddingRight: '44px',
                     display: 'flex', justifyContent: 'flex-start', gap: '6px', alignItems: 'center',
-                    fontSize: '11px',
+                    fontSize: 'var(--fs-body)',
                     fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                     flexShrink: 0,
                 }}>
@@ -133,7 +133,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                     </div>
                     <span style={{
                         padding: '3px 10px', borderRadius: '12px',
-                        fontSize: '10px', fontWeight: '700',
+                        fontSize: 'var(--fs-table)', fontWeight: '700',
                         background: statusBg, color: statusFg,
                     }}>{status}</span>
                 </div>
@@ -162,17 +162,17 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                         {/* Supplier (From) + Invoice details */}
                         <div className="flex justify-between items-start mb-4 flex-wrap gap-x-6 gap-y-2">
                             <div style={{ minWidth: '200px' }}>
-                                <p style={{ fontSize: '10px', fontWeight: '700', borderBottom: '1px solid var(--chathams-blue)', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
+                                <p style={{ fontSize: 'var(--fs-table)', fontWeight: '700', borderBottom: '1px solid var(--chathams-blue)', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
                                     From (Supplier):
                                 </p>
-                                <p style={{ fontSize: '10px', fontWeight: '700' }}>{supplier?.nname || inv.supplierName || ''}</p>
-                                <p style={{ fontSize: '10px' }}>{supplier?.street || ''}</p>
-                                <p style={{ fontSize: '10px' }}>{supplier?.city || ''}</p>
-                                <p style={{ fontSize: '10px' }}>{supplier?.country || ''}</p>
-                                <p style={{ fontSize: '10px' }}>{supplier?.other1 || ''}</p>
+                                <p style={{ fontSize: 'var(--fs-table)', fontWeight: '700' }}>{supplier?.nname || inv.supplierName || ''}</p>
+                                <p style={{ fontSize: 'var(--fs-table)' }}>{supplier?.street || ''}</p>
+                                <p style={{ fontSize: 'var(--fs-table)' }}>{supplier?.city || ''}</p>
+                                <p style={{ fontSize: 'var(--fs-table)' }}>{supplier?.country || ''}</p>
+                                <p style={{ fontSize: 'var(--fs-table)' }}>{supplier?.other1 || ''}</p>
                             </div>
                             <div style={{ minWidth: '220px', display: 'flex', justifyContent: 'flex-end' }}>
-                                <table style={{ fontSize: '10px', borderCollapse: 'collapse' }}>
+                                <table style={{ fontSize: 'var(--fs-table)', borderCollapse: 'collapse' }}>
                                     <tbody>
                                         <tr>
                                             <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>Invoice No:</td>
@@ -193,7 +193,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
 
                         {/* Original uploaded supplier invoice — or a clean summary if none */}
                         {loadingFiles ? (
-                            <div style={{ textAlign: 'center', fontSize: '11px', color: 'var(--regent-gray)', padding: '40px 0' }}>
+                            <div style={{ textAlign: 'center', fontSize: 'var(--fs-body)', color: 'var(--regent-gray)', padding: '40px 0' }}>
                                 Loading original invoice…
                             </div>
                         ) : primaryFile ? (
@@ -208,14 +208,14 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                     <img src={primaryFile.url} alt={primaryFile.name}
                                         style={{ display: 'block', maxWidth: '100%', margin: '0 auto', borderRadius: '6px', border: '1px solid var(--border-cell)' }} />
                                 ) : (
-                                    <div style={{ fontSize: '11px', color: 'var(--regent-gray)', padding: '12px 0' }}>
+                                    <div style={{ fontSize: 'var(--fs-body)', color: 'var(--regent-gray)', padding: '12px 0' }}>
                                         This file type can’t be previewed inline — open it with the link below.
                                     </div>
                                 )}
                                 <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                     {files.map((f, i) => (
                                         <a key={i} href={f.url} target="_blank" rel="noreferrer"
-                                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', color: 'var(--endeavour)' }}>
+                                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: 'var(--fs-table)', color: 'var(--endeavour)' }}>
                                             <FaFilePdf size={11} /> {f.name}{f === primaryFile ? ' (shown above)' : ''}
                                         </a>
                                     ))}
@@ -223,7 +223,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                             </div>
                         ) : (
                             <div>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px', fontSize: '10px' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px', fontSize: 'var(--fs-table)' }}>
                                     <tbody>
                                         <tr>
                                             <td colSpan={3} />
@@ -242,14 +242,14 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                         </tr>
                                     </tbody>
                                 </table>
-                                <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '11px', color: 'var(--regent-gray)' }}>
+                                <p style={{ marginTop: '24px', textAlign: 'center', fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>
                                     No original invoice uploaded for this contract.
                                 </p>
                                 <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
                                     <FileUploader handleChange={handleUpload} name="file" types={['PDF', 'PNG', 'JPG', 'JPEG']} disabled={uploading || !contractId} />
                                 </div>
-                                {uploading && <p style={{ marginTop: '8px', textAlign: 'center', fontSize: '10px', color: 'var(--endeavour)' }}>Uploading…</p>}
-                                {uploadErr && <p style={{ marginTop: '8px', textAlign: 'center', fontSize: '10px', color: 'var(--danger-text)' }}>{uploadErr}</p>}
+                                {uploading && <p style={{ marginTop: '8px', textAlign: 'center', fontSize: 'var(--fs-table)', color: 'var(--endeavour)' }}>Uploading…</p>}
+                                {uploadErr && <p style={{ marginTop: '8px', textAlign: 'center', fontSize: 'var(--fs-table)', color: 'var(--danger-text)' }}>{uploadErr}</p>}
                             </div>
                         )}
 
@@ -366,7 +366,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                     padding: '8px 16px 8px 16px',
                     paddingRight: '44px',
                     display: 'flex', justifyContent: 'flex-start', gap: '6px', alignItems: 'center',
-                    fontSize: '11px',
+                    fontSize: 'var(--fs-body)',
                     fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                     flexShrink: 0,
                 }}>
@@ -386,7 +386,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 display: 'inline-flex', alignItems: 'center', gap: '5px',
                                 padding: '4px 12px', borderRadius: '20px',
                                 background: 'var(--endeavour)', color: '#fff',
-                                fontSize: '10px', fontWeight: '600', cursor: 'pointer',
+                                fontSize: 'var(--fs-table)', fontWeight: '600', cursor: 'pointer',
                                 border: 'none', letterSpacing: '0.3px',
                             }}
                         >
@@ -394,7 +394,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         </button>
                         <span style={{
                             padding: '3px 10px', borderRadius: '12px',
-                            fontSize: '10px', fontWeight: '700',
+                            fontSize: 'var(--fs-table)', fontWeight: '700',
                             background: cStatusBg, color: cStatusFg,
                         }}>{cStatus}</span>
                     </div>
@@ -425,17 +425,17 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         {/* ── Consignee + Invoice details ── */}
                         <div className="flex justify-between items-start mb-4 flex-wrap gap-x-6 gap-y-2">
                             <div style={{ minWidth: '200px' }}>
-                                <p style={{ fontSize: '10px', fontWeight: '700', borderBottom: '1px solid var(--chathams-blue)', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
+                                <p style={{ fontSize: 'var(--fs-table)', fontWeight: '700', borderBottom: '1px solid var(--chathams-blue)', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
                                     Consignee:
                                 </p>
-                                <p style={{ fontSize: '10px', fontWeight: '700' }}>{client?.nname || inv.clientName || ''}</p>
-                                <p style={{ fontSize: '10px' }}>{client?.street || ''}</p>
-                                <p style={{ fontSize: '10px' }}>{client?.city || ''}</p>
-                                <p style={{ fontSize: '10px' }}>{client?.country || ''}</p>
-                                <p style={{ fontSize: '10px' }}>{client?.other1 || ''}</p>
+                                <p style={{ fontSize: 'var(--fs-table)', fontWeight: '700' }}>{client?.nname || inv.clientName || ''}</p>
+                                <p style={{ fontSize: 'var(--fs-table)' }}>{client?.street || ''}</p>
+                                <p style={{ fontSize: 'var(--fs-table)' }}>{client?.city || ''}</p>
+                                <p style={{ fontSize: 'var(--fs-table)' }}>{client?.country || ''}</p>
+                                <p style={{ fontSize: 'var(--fs-table)' }}>{client?.other1 || ''}</p>
                             </div>
                             <div style={{ minWidth: '220px', display: 'flex', justifyContent: 'flex-end' }}>
-                                <table style={{ fontSize: '10px', borderCollapse: 'collapse' }}>
+                                <table style={{ fontSize: 'var(--fs-table)', borderCollapse: 'collapse' }}>
                                     <tbody>
                                         <tr>
                                             <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>{getInvTypeLabel(inv)}</td>
@@ -459,7 +459,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         </div>
 
                         {/* ── Shipment details ── */}
-                        <div style={{ marginBottom: '48px', fontSize: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', color: 'var(--chathams-blue)' }}>
+                        <div style={{ marginBottom: '48px', fontSize: 'var(--fs-table)', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', color: 'var(--chathams-blue)' }}>
                             {/* Left: Shipment / Origin / Delivery Terms */}
                             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                                 <table style={{ borderCollapse: 'collapse' }}>
@@ -494,7 +494,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         </div>
 
                         {/* ── Products table ── */}
-                        <table className="inv-preview-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4px', fontSize: '10px' }}>
+                        <table className="inv-preview-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4px', fontSize: 'var(--fs-table)' }}>
                             <thead>
                                 <tr style={{ background: 'var(--endeavour)', color: '#fff' }}>
                                     <th className={TH} style={{ width: '4%' }}>#</th>

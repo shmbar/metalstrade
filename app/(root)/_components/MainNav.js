@@ -29,10 +29,10 @@ const Clock = () => {
   if (!now) return null
   return (
     <div className='flex flex-col items-end leading-tight select-none pointer-events-none pl-4 border-l border-[var(--border-divider)]'>
-      <span style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)', fontWeight: 500, opacity: 0.8 }}>
+      <span style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', fontWeight: 500, opacity: 0.8 }}>
         {now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
       </span>
-      <span style={{ fontSize: '0.85rem', color: 'var(--chathams-blue)', fontWeight: 600, letterSpacing: '0.05em' }}>
+      <span style={{ fontSize: 'var(--fs-title)', color: 'var(--chathams-blue)', fontWeight: 600, letterSpacing: '0.05em' }}>
         {now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
       </span>
     </div>
@@ -166,7 +166,7 @@ export const MainNav = () => {
 
           {/* Results dropdown, only if openSearch and query */}
           {openSearch && query && (
-            <div className='absolute left-0 top-full mt-2 w-72 bg-[var(--surface-card)] rounded-xl shadow-lg border border-[var(--selago)] z-[9999] max-h-96 overflow-y-auto p-3'>
+            <div className='absolute left-0 top-full mt-2 w-72 bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] z-[9999] max-h-96 overflow-y-auto p-3'>
               {searchResults.length > 0 ? (
                 searchResults.map((r) => (
                   <button
@@ -226,7 +226,7 @@ export const MainNav = () => {
         {/* User Role Button and Profile Icon: no gap between */}
         <div className="flex items-center ml-2">
           <span
-            className="inline-flex items-center px-2 py-1.5 rounded-md bg-[var(--endeavour)] text-white responsiveText font-medium shadow-md"
+            className="inline-flex items-center px-2 py-1.5 rounded-lg bg-[var(--endeavour)] text-white responsiveText font-medium shadow-md"
             style={{
               minWidth: 60,
               justifyContent: 'center',
@@ -240,7 +240,7 @@ export const MainNav = () => {
           <div className='relative' ref={dropdownRef} style={{ marginLeft: 0 }}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className='flex items-center bg-[var(--surface-card)] gap-2 p-1 rounded-md hover:bg-[var(--selago)] transition-all'
+              className='flex items-center bg-[var(--surface-card)] gap-2 p-1 rounded-lg hover:bg-[var(--selago)] transition-all'
               aria-label='User menu'
             >
               <div className='w-6  flex items-center justify-center text-white overflow-hidden'>
@@ -248,7 +248,7 @@ export const MainNav = () => {
               </div>
             </button>
             {showDropdown && (
-              <div className='absolute right-0 top-full mt-2 w-64 bg-[var(--surface-card)] rounded-xl shadow-lg border border-[var(--selago)] py-2 z-[9999] overflow-visible'>
+              <div className='absolute right-0 top-full mt-2 w-64 bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] py-2 z-[9999] overflow-visible'>
                 <div className='px-4 py-3 border-b border-[var(--selago)]'>
                   <p className='responsiveTextTable font-medium text-[var(--port-gore)]'>
                     {user?.displayName || user?.email?.split('@')[0] || 'User'}

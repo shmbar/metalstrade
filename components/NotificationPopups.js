@@ -68,7 +68,7 @@ function PopupCard({ n, onDismiss, onOpen }) {
 
                 <div className='flex items-start gap-2.5 p-3 pl-2.5 min-w-0 flex-1'>
                     {/* Entity icon tile, same tints as the bell dropdown */}
-                    <span className='mt-0.5 flex items-center justify-center rounded-xl shrink-0'
+                    <span className='mt-0.5 flex items-center justify-center rounded-2xl shrink-0'
                         style={{ width: 32, height: 32, background: bg }}>
                         <Icon className='w-4 h-4' style={{ color }} />
                     </span>
@@ -76,22 +76,22 @@ function PopupCard({ n, onDismiss, onOpen }) {
                     <div className='min-w-0 flex-1'>
                         <div className='flex items-center justify-between gap-2'>
                             <span className='font-semibold truncate font-poppins'
-                                style={{ fontSize: '0.72rem', color: 'var(--chathams-blue)' }}>
+                                style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
                                 {n.entityLabel || 'Notification'}
                             </span>
                             <span className='shrink-0 rounded-full px-1.5 py-[1px] font-medium uppercase tracking-wide'
-                                style={{ fontSize: '0.5rem', color: accent, background: `color-mix(in srgb, ${accent} 12%, white)` }}>
+                                style={{ fontSize: 'var(--fs-caption)', color: accent, background: `color-mix(in srgb, ${accent} 12%, white)` }}>
                                 {n.severity || 'info'}
                             </span>
                         </div>
-                        <p className='mt-0.5' style={{ fontSize: '0.68rem', color: 'var(--port-gore)', lineHeight: 1.4 }}>
+                        <p className='mt-0.5' style={{ fontSize: 'var(--fs-body)', color: 'var(--port-gore)', lineHeight: 1.4 }}>
                             {n.message || n.type}
                         </p>
                         <div className='mt-1 flex items-center justify-between'>
-                            <span style={{ fontSize: '0.56rem', color: 'var(--regent-gray)' }}>
+                            <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)' }}>
                                 {n.actorName && n.actorName !== 'System' ? `by ${n.actorName}` : 'System'} · just now
                             </span>
-                            <span className='font-medium' style={{ fontSize: '0.58rem', color: 'var(--endeavour)' }}>
+                            <span className='font-medium' style={{ fontSize: 'var(--fs-caption)', color: 'var(--endeavour)' }}>
                                 Open →
                             </span>
                         </div>

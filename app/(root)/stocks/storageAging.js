@@ -98,7 +98,7 @@ const StorageAging = ({ data = [] }) => {
                 <Warehouse className='w-4 h-4' style={{ color: 'var(--chathams-blue)' }} />
                 <h3 className='responsiveTextTitle font-medium text-[var(--chathams-blue)]'>Storage Aging by Terminal</h3>
                 {staleRows.length > 0 && (
-                    <span className='flex items-center gap-1 px-2 py-0.5 rounded-full' style={{ fontSize: '0.6rem', background: 'var(--danger-bg)', color: 'var(--danger-strong)' }}>
+                    <span className='flex items-center gap-1 px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--danger-bg)', color: 'var(--danger-strong)' }}>
                         <AlertTriangle className='w-3 h-3' /> {staleRows.length} sitting {STALE_DAYS}d+
                     </span>
                 )}
@@ -113,11 +113,11 @@ const StorageAging = ({ data = [] }) => {
                         <div key={g.terminal} className='rounded-2xl border p-3' style={{ borderColor: danger ? 'var(--danger-border)' : warn ? 'var(--warn-border)' : 'var(--border-divider)', background: 'var(--surface-card)' }}>
                             <div className='flex items-center justify-between mb-1.5'>
                                 <span className='font-medium responsiveText text-[var(--chathams-blue)] truncate'>{g.name}</span>
-                                <span className='flex items-center gap-1' style={{ fontSize: '0.6rem', color: danger ? 'var(--danger-text)' : warn ? 'var(--warn-text)' : 'var(--regent-gray)' }}>
+                                <span className='flex items-center gap-1' style={{ fontSize: 'var(--fs-table)', color: danger ? 'var(--danger-text)' : warn ? 'var(--warn-text)' : 'var(--regent-gray)' }}>
                                     <Clock className='w-3 h-3' /> oldest {g.oldest}d
                                 </span>
                             </div>
-                            <div className='flex items-center gap-3 mb-2' style={{ fontSize: '0.62rem', color: 'var(--port-gore)' }}>
+                            <div className='flex items-center gap-3 mb-2' style={{ fontSize: 'var(--fs-table)', color: 'var(--port-gore)' }}>
                                 <span className='flex items-center gap-1'><PackageCheck className='w-3 h-3' style={{ color: 'var(--endeavour)' }} /> {g.count} item(s)</span>
                                 <span>{fmtQty(g.qty)} qty</span>
                             </div>
@@ -128,7 +128,7 @@ const StorageAging = ({ data = [] }) => {
                                     return pct > 0 ? <div key={b} style={{ width: `${pct}%`, background: bucketColor[b] }} title={`${b}d: ${g.buckets[b]}`} /> : null;
                                 })}
                             </div>
-                            <div className='flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5' style={{ fontSize: '0.55rem', color: 'var(--regent-gray)' }}>
+                            <div className='flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5' style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)' }}>
                                 {['0-30', '31-60', '61-90', '90+'].map(b => g.buckets[b] > 0 && (
                                     <span key={b} className='flex items-center gap-1'>
                                         <span className='inline-block w-2 h-2 rounded-full' style={{ background: bucketColor[b] }} /> {b}d: {g.buckets[b]}
@@ -144,16 +144,16 @@ const StorageAging = ({ data = [] }) => {
             {/* Stale cargo list */}
             {staleRows.length > 0 && (
                 <div className='mt-3 rounded-2xl border border-[var(--warn-border)] bg-[var(--warn-soft)] p-3'>
-                    <p className='font-medium mb-1.5' style={{ fontSize: '0.68rem', color: 'var(--warn-strong)' }}>
+                    <p className='font-medium mb-1.5' style={{ fontSize: 'var(--fs-body)', color: 'var(--warn-strong)' }}>
                         Cargo sitting {STALE_DAYS}+ days without movement
                     </p>
                     <div className='flex flex-col gap-1 max-h-56 overflow-y-auto'>
                         {staleRows.slice(0, 100).map(r => (
                             <div key={r.id} className='flex items-center justify-between gap-2 px-2 py-1 rounded-lg bg-[var(--surface-card)] border border-[var(--warn-border)]'>
-                                <span className='truncate' style={{ fontSize: '0.62rem', color: 'var(--port-gore)' }}>
+                                <span className='truncate' style={{ fontSize: 'var(--fs-table)', color: 'var(--port-gore)' }}>
                                     {r.descriptionName || 'Cargo'} · {stockName(r.stock)} · {fmtQty(r.qnty)}
                                 </span>
-                                <span className='flex-shrink-0 px-2 py-0.5 rounded-full' style={{ fontSize: '0.55rem', background: r._days >= DEMURRAGE_DAYS ? 'var(--danger-bg)' : 'var(--warn-bg)', color: r._days >= DEMURRAGE_DAYS ? 'var(--danger-strong)' : 'var(--warn-strong)' }}>
+                                <span className='flex-shrink-0 px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-caption)', background: r._days >= DEMURRAGE_DAYS ? 'var(--danger-bg)' : 'var(--warn-bg)', color: r._days >= DEMURRAGE_DAYS ? 'var(--danger-strong)' : 'var(--warn-strong)' }}>
                                     {r._days}d{r._days >= DEMURRAGE_DAYS ? ' · demurrage risk' : ''}
                                 </span>
                             </div>

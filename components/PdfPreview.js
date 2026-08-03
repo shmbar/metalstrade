@@ -74,21 +74,21 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
             >
                 {/* Header */}
                 <div className='flex items-center justify-between px-4 py-3 flex-shrink-0' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
-                    <span className='font-semibold truncate' style={{ fontSize: '0.75rem', color: 'var(--chathams-blue)' }}>
+                    <span className='font-semibold truncate' style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
                         {title || filename}
                     </span>
                     <div className='flex items-center gap-2'>
                         <button
                             onClick={download}
                             className='flex items-center gap-1 px-2.5 py-1 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                            style={{ fontSize: '0.65rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)', background: 'var(--surface-card)' }}
+                            style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)', background: 'var(--surface-card)' }}
                         >
                             <Download className='w-3 h-3' /> Download
                         </button>
                         <button
                             onClick={print}
                             className='flex items-center gap-1 px-2.5 py-1 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                            style={{ fontSize: '0.65rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)', background: 'var(--surface-card)' }}
+                            style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)', background: 'var(--surface-card)' }}
                         >
                             <Printer className='w-3 h-3' /> Print
                         </button>
@@ -117,7 +117,7 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
                     ) : (
                         <div className='flex items-center justify-center h-full gap-2'>
                             <Loader2 className='w-5 h-5 animate-spin' style={{ color: 'white' }} />
-                            <span style={{ fontSize: '0.72rem', color: 'white' }}>Preparing preview…</span>
+                            <span style={{ fontSize: 'var(--fs-input)', color: 'white' }}>Preparing preview…</span>
                         </div>
                     )}
                 </div>

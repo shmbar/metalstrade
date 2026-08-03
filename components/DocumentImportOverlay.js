@@ -10,7 +10,7 @@ const ACCEPTED = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
 function ConfidencePill({ level }) {
     if (!level) return null;
     const s = { high: ['var(--ok-bg)', 'var(--ok-strong)'], medium: ['var(--warn-bg)', 'var(--warn-strong)'], low: ['var(--danger-bg)', 'var(--danger-strong)'] }[level] || ['var(--surface-muted)', 'var(--text-strong)'];
-    return <span className='px-1.5 py-0.5 rounded-full font-medium' style={{ fontSize: '0.55rem', background: s[0], color: s[1] }}>{level}</span>;
+    return <span className='px-1.5 py-0.5 rounded-full font-medium' style={{ fontSize: 'var(--fs-caption)', background: s[0], color: s[1] }}>{level}</span>;
 }
 
 function FieldRow({ label, value, confidence, selected, onToggle }) {
@@ -32,8 +32,8 @@ function FieldRow({ label, value, confidence, selected, onToggle }) {
                     }
                 </div>
                 <div className='min-w-0'>
-                    <p className='font-semibold' style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>{label}</p>
-                    <p className='break-words' style={{ fontSize: '0.68rem', color: 'var(--port-gore)' }}>{displayVal}</p>
+                    <p className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>{label}</p>
+                    <p className='break-words' style={{ fontSize: 'var(--fs-body)', color: 'var(--port-gore)' }}>{displayVal}</p>
                 </div>
             </div>
             <ConfidencePill level={confidence} />
@@ -65,12 +65,12 @@ function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
                         ? <AlertTriangle className='w-3.5 h-3.5' style={{ color: 'var(--danger-strong)' }} />
                         : <CheckCircle2 className='w-3.5 h-3.5' style={{ color: 'var(--ok-text)' }} />
                     }
-                    <span className='font-semibold' style={{ fontSize: '0.68rem', color: totalDriftBad ? 'var(--danger-strong)' : 'var(--ok-strong)' }}>
+                    <span className='font-semibold' style={{ fontSize: 'var(--fs-body)', color: totalDriftBad ? 'var(--danger-strong)' : 'var(--ok-strong)' }}>
                         Reconciliation vs contract {linkedContract?.order}
                     </span>
                 </div>
                 {reconcile.currencyMatch === false && (
-                    <span className='px-2 py-0.5 rounded-full' style={{ fontSize: '0.55rem', background: 'var(--danger-bg)', color: 'var(--danger-strong)' }}>
+                    <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-caption)', background: 'var(--danger-bg)', color: 'var(--danger-strong)' }}>
                         ⚠ currency mismatch
                     </span>
                 )}
@@ -84,7 +84,7 @@ function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
                             return (
                                 <div key={i} className='flex items-center gap-1.5 px-2 py-1 rounded' style={{ background: 'var(--surface-card)', border: '1px solid var(--warn-border)' }}>
                                     <AlertTriangle className='w-3 h-3 flex-shrink-0' style={{ color: 'var(--warn-text)' }} />
-                                    <span style={{ fontSize: '0.6rem', color: 'var(--warn-strong)' }}>
+                                    <span style={{ fontSize: 'var(--fs-table)', color: 'var(--warn-strong)' }}>
                                         {r.description}: no matching product on contract — invoice qty {r.qntyInvoice} @ {r.priceInvoice}
                                     </span>
                                 </div>
@@ -95,8 +95,8 @@ function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
                         const lineBad = qBad || pBad;
                         return (
                             <div key={i} className='px-2 py-1 rounded' style={{ background: 'var(--surface-card)', border: `1px solid ${lineBad ? 'var(--danger-border)' : 'var(--ok-border)'}` }}>
-                                <p className='font-semibold' style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}>{r.description}</p>
-                                <div className='flex flex-wrap gap-x-3' style={{ fontSize: '0.58rem', color: 'var(--port-gore)' }}>
+                                <p className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>{r.description}</p>
+                                <div className='flex flex-wrap gap-x-3' style={{ fontSize: 'var(--fs-caption)', color: 'var(--port-gore)' }}>
                                     <span style={{ color: qBad ? 'var(--danger-strong)' : 'var(--ok-strong)' }}>
                                         Qty: {r.qntyContract} → {r.qntyInvoice} ({pct(r.qntyPct)})
                                     </span>
@@ -111,7 +111,7 @@ function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
             )}
 
             {/* Total comparison */}
-            <div className='flex flex-wrap items-center gap-x-3 gap-y-1 pt-1.5 mt-1 border-t' style={{ borderColor: totalDriftBad ? 'var(--danger-border)' : 'var(--ok-border)', fontSize: '0.6rem' }}>
+            <div className='flex flex-wrap items-center gap-x-3 gap-y-1 pt-1.5 mt-1 border-t' style={{ borderColor: totalDriftBad ? 'var(--danger-border)' : 'var(--ok-border)', fontSize: 'var(--fs-table)' }}>
                 <span style={{ color: 'var(--regent-gray)' }}>
                     Expected: {cur} {fmt(reconcile.expectedTotal)}
                 </span>
@@ -408,7 +408,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                 <div className='flex items-center justify-between px-4 py-3' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
                     <div className='flex items-center gap-2'>
                         <FileText className='w-4 h-4' style={{ color: 'var(--endeavour)' }} />
-                        <span id='doc-import-title' className='font-semibold' style={{ fontSize: '0.75rem', color: 'var(--chathams-blue)' }}>
+                        <span id='doc-import-title' className='font-semibold' style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
                             {isContract ? 'Autofill contract from supplier proforma' : isSalesContract ? 'Autofill sales contract from client contract' : isExpense ? 'Autofill expense from supplier invoice' : 'Import from Document — Invoice'}
                         </span>
                     </div>
@@ -434,7 +434,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                             role='button'
                             tabIndex={0}
                             aria-label='Upload document — drop a PDF, JPG or PNG here, or click to browse'
-                            className='rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
+                            className='rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
                             style={{
                                 border: `2px dashed ${dragging ? 'var(--endeavour)' : 'var(--border-divider)'}`,
                                 background: dragging ? 'var(--surface-header)' : 'var(--surface-pill)',
@@ -446,13 +446,13 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                             {reading ? (
                                 <div className='flex flex-col items-center gap-2'>
                                     <Loader2 className='w-6 h-6 animate-spin' style={{ color: 'var(--endeavour)' }} />
-                                    <p style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)' }}>Reading document…</p>
+                                    <p style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>Reading document…</p>
                                 </div>
                             ) : (
                                 <>
                                     <Upload className='w-6 h-6 mb-1' style={{ color: 'var(--border-divider)' }} />
-                                    <p className='font-medium' style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)' }}>Drop document or click to upload</p>
-                                    <p style={{ fontSize: '0.58rem', color: 'var(--regent-gray)' }}>PDF, JPG, PNG · max 10 MB</p>
+                                    <p className='font-medium' style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>Drop document or click to upload</p>
+                                    <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)' }}>PDF, JPG, PNG · max 10 MB</p>
                                 </>
                             )}
                         </div>
@@ -462,7 +462,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                     {error && (
                         <div className='flex items-center gap-2 p-2.5 rounded-lg' style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)' }}>
                             <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0' style={{ color: 'var(--danger-strong)' }} />
-                            <span style={{ fontSize: '0.65rem', color: 'var(--danger-strong)' }}>{error}</span>
+                            <span style={{ fontSize: 'var(--fs-table)', color: 'var(--danger-strong)' }}>{error}</span>
                         </div>
                     )}
 
@@ -472,13 +472,13 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                             <div className='flex items-center justify-between mb-2'>
                                 <div className='flex items-center gap-1.5'>
                                     <CheckCircle2 className='w-3.5 h-3.5' style={{ color: 'var(--ok-text)' }} />
-                                    <span className='font-semibold' style={{ fontSize: '0.68rem', color: 'var(--chathams-blue)' }}>
+                                    <span className='font-semibold' style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>
                                         Fields extracted — select which to apply
                                     </span>
                                 </div>
                                 <button onClick={() => { setFile(null); setResult(null); setError(null); }}
-                                    className='flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs hover:border-[var(--endeavour)] transition-colors'
-                                    style={{ fontSize: '0.58rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}>
+                                    className='flex items-center gap-1 px-2 py-0.5 rounded-full border responsiveTextInput hover:border-[var(--endeavour)] transition-colors'
+                                    style={{ fontSize: 'var(--fs-caption)', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}>
                                     Try another file
                                 </button>
                             </div>
@@ -487,7 +487,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                             {result.visionUsed && (
                                 <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: 'var(--surface-card)3cd', border: '1px solid #ffc107' }}>
                                     <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: 'var(--warn-text)' }} />
-                                    <span style={{ fontSize: '0.62rem', color: 'var(--warn-strong)' }}>
+                                    <span style={{ fontSize: 'var(--fs-table)', color: 'var(--warn-strong)' }}>
                                         Scanned document — digits were read visually. Double-check quantities, prices and totals before applying.
                                     </span>
                                 </div>
@@ -497,7 +497,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                             {isExpense && result.multipleInvoices && (
                                 <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: 'var(--surface-card)3cd', border: '1px solid #ffc107' }}>
                                     <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: 'var(--warn-text)' }} />
-                                    <span style={{ fontSize: '0.62rem', color: 'var(--warn-strong)' }}>
+                                    <span style={{ fontSize: 'var(--fs-table)', color: 'var(--warn-strong)' }}>
                                         This PDF appears to contain more than one invoice. Only the FIRST one was extracted — record the others as separate expenses.
                                     </span>
                                 </div>
@@ -564,17 +564,17 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                 {/* Footer */}
                 {result && (
                     <div className='flex items-center justify-between px-4 py-3' style={{ borderTop: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
-                        <p style={{ fontSize: '0.58rem', color: 'var(--regent-gray)' }}>
+                        <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)' }}>
                             Unmatched entities won&apos;t be applied. Verify after import.
                         </p>
                         <div className='flex gap-2'>
                             <button onClick={onClose} className='px-3 py-1.5 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                                style={{ fontSize: '0.65rem', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}>
+                                style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}>
                                 Cancel
                             </button>
                             <button onClick={handleApply}
                                 className='flex items-center gap-1 px-3 py-1.5 rounded-full text-white font-medium transition-all'
-                                style={{ fontSize: '0.65rem', background: 'var(--endeavour)' }}>
+                                style={{ fontSize: 'var(--fs-table)', background: 'var(--endeavour)' }}>
                                 Apply Selected <ChevronRight className='w-3 h-3' />
                             </button>
                         </div>

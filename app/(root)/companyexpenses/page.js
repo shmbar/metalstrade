@@ -158,7 +158,7 @@ const Expenses = () => {
             },
             filterFn: 'dateBetweenFilterFn'
         },
-        { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toUpperCase(); const isUsd = v === 'USD' || v === 'US'; const isEur = v === 'EUR' || v === 'EU'; return <span style={{ background: isUsd ? 'var(--ok-border)' : isEur ? 'var(--surface-header)' : 'var(--surface-muted)', color: isUsd ? 'var(--ok-strong)' : isEur ? 'var(--chathams-blue)' : '#555', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: '0.75rem', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
+        { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toUpperCase(); const isUsd = v === 'USD' || v === 'US'; const isEur = v === 'EUR' || v === 'EU'; return <span style={{ background: isUsd ? 'var(--ok-border)' : isEur ? 'var(--surface-header)' : 'var(--surface-muted)', color: isUsd ? 'var(--ok-strong)' : isEur ? 'var(--chathams-blue)' : '#555', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: 'var(--fs-input)', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
         {
             accessorKey: 'amount', header: getTtl('Amount', ln), cell: (props) => <p>{showAmount(props)}</p>,
             meta: {
@@ -306,7 +306,7 @@ const Expenses = () => {
                                             title='Show only expenses not yet split between IMS & GIS'
                                             className='inline-flex items-center gap-1.5 rounded-full transition-colors'
                                             style={{
-                                                fontSize: '0.66rem', padding: '4px 12px',
+                                                fontSize: 'var(--fs-body)', padding: '4px 12px',
                                                 color: onlyUnsplit ? 'white' : 'var(--chathams-blue)',
                                                 background: onlyUnsplit ? 'var(--endeavour)' : 'var(--surface-pill)',
                                                 border: '1px solid var(--border-divider)',
@@ -314,7 +314,7 @@ const Expenses = () => {
                                         >
                                             <Split className='w-3.5 h-3.5' />
                                             Needs IMS/GIS split
-                                            <span className='rounded-full px-1.5' style={{ fontSize: '0.6rem', background: onlyUnsplit ? 'rgba(255,255,255,0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
+                                            <span className='rounded-full px-1.5' style={{ fontSize: 'var(--fs-table)', background: onlyUnsplit ? 'rgba(255,255,255,0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
                                                 {pendingCount}
                                             </span>
                                         </button>

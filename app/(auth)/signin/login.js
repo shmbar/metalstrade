@@ -80,18 +80,18 @@ export default function SignInPage() {
                 <div className="text-center mb-8 pt-6">
                   <div className="inline-block">
                     <div className="flex items-center justify-center gap-1">
-                      <span className="text-4xl font-bold text-[var(--endeavour)]">IMS</span>
+                      <span className="responsiveTextStat font-bold text-[var(--endeavour)]">IMS</span>
                     </div>
-                    <p className="text-xs text-gray-500 tracking-[0.2em] mt-1">METALS & ALLOYS</p>
+                    <p className="responsiveTextInput text-gray-500 tracking-[0.2em] mt-1">METALS & ALLOYS</p>
                   </div>
                 </div>
 
                 {/* Welcome Text */}
                 <div className="text-center mb-8">
-                  <h1 className="text-2xl font-semibold text-gray-800 mb-2">
+                  <h1 className="responsiveTextPage font-semibold text-[var(--port-gore)] mb-2">
                     Welcome to IMS
                   </h1>
-                  <p className="text-sm text-gray-500">
+                  <p className="responsiveTextTitle text-gray-500">
                     Login to your account
                   </p>
                 </div>
@@ -101,7 +101,7 @@ export default function SignInPage() {
 
                   {/* Email */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block responsiveTextTitle font-medium text-gray-700 mb-2">
                       Email
                     </label>
                     <input
@@ -110,13 +110,13 @@ export default function SignInPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="abc@gmail.com"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)] focus:border-transparent transition-all text-gray-800 placeholder-gray-400"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)] focus:border-transparent transition-all text-gray-800 placeholder-gray-400"
                     />
                   </div>
 
                   {/* Password */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block responsiveTextTitle font-medium text-gray-700 mb-2">
                       Password
                     </label>
                     <div className="relative">
@@ -126,7 +126,7 @@ export default function SignInPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder="Enter your password"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)] focus:border-transparent transition-all text-gray-800 placeholder-gray-400 pr-12"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)] focus:border-transparent transition-all text-gray-800 placeholder-gray-400 pr-12"
                       />
                       <button
                         type="button"
@@ -141,7 +141,7 @@ export default function SignInPage() {
                   {/* Error */}
                   {err && (
                     <div className="text-center">
-                      <span className="text-sm text-red-500 font-medium uppercase">
+                      <span className="responsiveTextTitle text-red-500 font-medium uppercase">
                         {err.slice(22, err.length - 2)}
                       </span>
                     </div>
@@ -154,12 +154,12 @@ export default function SignInPage() {
                       checked={remember}
                       onChange={() => setRemember(!remember)}
                     />
-                    <label className="text-sm text-gray-600">Remember me</label>
+                    <label className="responsiveTextTitle text-gray-600">Remember me</label>
                   </div>
 
                   {/* Forgot */}
                   <div className="flex justify-end">
-                    <a href="#" className="text-sm text-[var(--endeavour)] hover:text-[var(--port-gore)] transition-colors">
+                    <a href="#" className="responsiveTextTitle text-[var(--endeavour)] hover:text-[var(--port-gore)] transition-colors">
                       Forgot Password?
                     </a>
                   </div>
@@ -168,7 +168,7 @@ export default function SignInPage() {
                   <button
                     onClick={handleSubmit}
                     disabled={disabled && !err}
-                    className="w-full bg-[var(--endeavour)] text-white py-3 rounded-md font-medium hover:bg-[var(--port-gore)] transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                    className="w-full bg-[var(--endeavour)] text-white py-3 rounded-lg font-medium hover:bg-[var(--port-gore)] transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                   >
                     {(disabled && !err) ? 'Connecting' : 'Sign In'}
                     {(disabled && !err) && <div className="animate-spin"><RiRefreshLine className="scale-125" /></div>}
@@ -178,7 +178,7 @@ export default function SignInPage() {
 
                 {/* Register */}
                 <div className="text-center mt-6">
-                  <p className="text-sm text-gray-600">
+                  <p className="responsiveTextTitle text-gray-600">
                     Don&#39;t have an account?{' '}
                     <a href="#" className="text-[var(--endeavour)] hover:text-[var(--port-gore)] font-medium transition-colors">
                       Register
@@ -188,7 +188,7 @@ export default function SignInPage() {
 
                 {/* Footer */}
                 <div className="text-center mt-8 pt-6 border-t border-gray-200">
-                  <p className="text-xs text-gray-400">© 2025 IMS. All Rights Reserved</p>
+                  <p className="responsiveTextInput text-gray-400">© 2025 IMS. All Rights Reserved</p>
                 </div>
               </div>
             </div>

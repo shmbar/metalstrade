@@ -92,7 +92,7 @@ export default function App() {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <div className="fixed inset-0 bg-black/25" />
+                        <div className="fixed inset-0 bg-[var(--overlay)] backdrop-blur-[2px]" />
                     </TransitionChild>
 
                     <div className="fixed inset-0 overflow-y-auto">
@@ -109,17 +109,17 @@ export default function App() {
                                 <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-[var(--surface-card)] p-6 text-left align-middle shadow-xl transition-all">
                                     <DialogTitle
                                         as="h3"
-                                        className="text-lg font-medium leading-6 text-gray-900"
+                                        className="responsiveTextTitle font-semibold leading-tight text-[var(--chathams-blue)]"
                                     >
                                         No-Activity Notification
                                     </DialogTitle>
                                     <div className="mt-2">
-                                        <p className="text-sm text-gray-500">
+                                        <p className="responsiveTextTitle text-gray-500">
                                             It looks like you&#39;ve been inactive for a while.
                                             To ensure the activity, please press the button below.
                                         </p>
                                         <br />
-                                        <p className="text-sm text-gray-500">
+                                        <p className="responsiveTextTitle text-gray-500">
                                             {`You will be loged out in ${remaining} seconds`}
                                         </p>
                                     </div>
@@ -127,7 +127,7 @@ export default function App() {
                                     <div className="mt-4">
                                         <button
                                             type="button"
-                                            className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                            className="inline-flex justify-center rounded-lg border border-transparent bg-blue-100 px-4 py-2 responsiveTextTitle font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                                             onClick={handleStillHere}
                                         >
                                             Still here...

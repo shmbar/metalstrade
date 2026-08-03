@@ -336,7 +336,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                             edit.header === key ? (
                                                             <div className='group relative whitespace-normal flex items-center gap-1'>
                                                                 <input
-                                                                    className="input flex-1 min-w-0 border rounded-md border-slate-400 h-7
+                                                                    className="input flex-1 min-w-0 border rounded-lg border-slate-400 h-7
                                 focus:outline-0 focus:border-slate-600 indent-1.5"
                                                                     style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                                     onKeyDown={handleKeyPress}
@@ -353,7 +353,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                             value={inputUnit}
                                                                             onChange={(e) => handleUnitSwitch(e.target.value)}
                                                                             title={`Switch the unit to convert the value; it's stored in the contract's ${UNIT_LABEL[baseUnit]} base on Enter`}
-                                                                            className={`appearance-none h-7 rounded-md border bg-[var(--surface-pill)] pl-2 pr-5 font-semibold cursor-pointer focus:outline-0 transition-colors
+                                                                            className={`appearance-none h-7 rounded-lg border bg-[var(--surface-pill)] pl-2 pr-5 font-semibold cursor-pointer focus:outline-0 transition-colors
                                                                                 ${inputUnit === baseUnit
                                                                                     ? 'border-[var(--border-cell)] text-[var(--chathams-blue)]'
                                                                                     : 'border-[var(--endeavour)] text-[var(--endeavour)] bg-[var(--selago)]'}`}
@@ -374,7 +374,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                     </span>
                                                                 )}
                                                                 <span className={`absolute hidden ${key === 'unitPrc' && String(value1).substr(0, 1) === "=" ? 'group-hover:flex' : ''}
-                                                                 bottom-[30px] w-fit p-1  bg-slate-400 rounded-md text-center
+                                                                 bottom-[30px] w-fit p-1  bg-slate-400 rounded-lg text-center
                                                                   text-white responsiveTextTable z-50 whitespace-nowrap -left-0.5`}>
                                                                     {value1}</span>
                                                             </div>

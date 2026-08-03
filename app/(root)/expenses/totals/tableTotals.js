@@ -35,7 +35,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
 
   return (
     <div
-      className="bg-[var(--surface-card)] rounded-xl shadow border overflow-hidden"
+      className="bg-[var(--surface-card)] rounded-2xl shadow border overflow-hidden"
       style={{
         width: TABLE_WIDTH,
         borderColor: 'var(--border-divider)',

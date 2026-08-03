@@ -74,7 +74,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                             className="overflow-auto"
                            
                         >
-                            <table className="w-full rounded-xl" style={{ tableLayout: 'auto', borderSpacing: '6px' }}>
+                            <table className="w-full rounded-2xl" style={{ tableLayout: 'auto', borderSpacing: '6px' }}>
                                 {/* THEAD - matching newTable header exactly */}
                                 <thead className="sticky top-0 z-10">
                                     <tr>
@@ -479,7 +479,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <span 
                                             className="font-normal"
                                             style={{ 
-                                                fontSize: '0.62rem',
+                                                fontSize: 'var(--fs-table)',
                                                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                                             }}
                                         >
@@ -497,17 +497,17 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 className="font-medium" 
                                                 style={{ 
                                                     color: 'var(--regent-gray)',
-                                                    fontSize: '0.58rem' 
+                                                    fontSize: 'var(--fs-caption)' 
                                                 }}
                                             >
                                                 Month
                                             </div>
                                             <div
-                                                className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                                                className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
                                                 style={{
                                                     color: 'var(--endeavour)',
                                                     background: 'var(--surface-header)',
-                                                    fontSize: '0.62rem',
+                                                    fontSize: 'var(--fs-table)',
                                                     border: '1px solid var(--border-divider)'
                                                 }}
                                             >
@@ -523,17 +523,17 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 className="font-medium" 
                                                 style={{ 
                                                     color: 'var(--regent-gray)',
-                                                    fontSize: '0.58rem' 
+                                                    fontSize: 'var(--fs-caption)' 
                                                 }}
                                             >
                                                 Purchase
                                             </div>
                                             <div 
-                                                className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                                className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                                 style={{ 
                                                     color: 'var(--chathams-blue)',
                                                     background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
-                                                    fontSize: '0.62rem',
+                                                    fontSize: 'var(--fs-table)',
                                                     border: '1px solid var(--border-divider)'
                                                 }}
                                             >
@@ -556,17 +556,17 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 className="font-medium" 
                                                 style={{ 
                                                     color: 'var(--regent-gray)',
-                                                    fontSize: '0.58rem' 
+                                                    fontSize: 'var(--fs-caption)' 
                                                 }}
                                             >
                                                 Profit
                                             </div>
                                             <div 
-                                                className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                                className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                                 style={{ 
                                                     color: 'var(--chathams-blue)',
                                                     background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
-                                                    fontSize: '0.62rem',
+                                                    fontSize: 'var(--fs-table)',
                                                     border: '1px solid var(--border-divider)'
                                                 }}
                                             >
@@ -604,7 +604,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                     <span 
                                         className="font-medium"
                                         style={{ 
-                                            fontSize: '0.62rem',
+                                            fontSize: 'var(--fs-table)',
                                             color: 'var(--chathams-blue)'
                                         }}
                                     >
@@ -622,17 +622,17 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             className="font-medium" 
                                             style={{ 
                                                 color: 'var(--regent-gray)',
-                                                fontSize: '0.58rem' 
+                                                fontSize: 'var(--fs-caption)' 
                                             }}
                                         >
                                             Total Purchase
                                         </div>
                                         <div 
-                                            className="font-medium break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                            className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                             style={{ 
                                                 color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
-                                                fontSize: '0.62rem',
+                                                fontSize: 'var(--fs-table)',
                                                 border: '1px solid var(--border-divider)'
                                             }}
                                         >
@@ -655,17 +655,17 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             className="font-medium" 
                                             style={{ 
                                                 color: 'var(--regent-gray)',
-                                                fontSize: '0.58rem' 
+                                                fontSize: 'var(--fs-caption)' 
                                             }}
                                         >
                                             Total Profit
                                         </div>
                                         <div 
-                                            className="font-medium break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                            className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                             style={{ 
                                                 color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
-                                                fontSize: '0.62rem',
+                                                fontSize: 'var(--fs-table)',
                                                 border: '1px solid var(--border-divider)'
                                             }}
                                         >
@@ -689,17 +689,17 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             className="font-medium" 
                                             style={{ 
                                                 color: 'var(--regent-gray)',
-                                                fontSize: '0.58rem' 
+                                                fontSize: 'var(--fs-caption)' 
                                             }}
                                         >
                                             Outstanding Shipment
                                         </div>
                                         <div 
-                                            className="font-medium break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                            className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                             style={{ 
                                                 color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
-                                                fontSize: '0.62rem',
+                                                fontSize: 'var(--fs-table)',
                                                 border: '1px solid var(--border-divider)'
                                             }}
                                         >
@@ -721,17 +721,17 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             className="font-medium" 
                                             style={{ 
                                                 color: 'var(--regent-gray)',
-                                                fontSize: '0.58rem' 
+                                                fontSize: 'var(--fs-caption)' 
                                             }}
                                         >
                                             Remaining
                                         </div>
                                         <div 
-                                            className="font-medium break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                            className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                                             style={{ 
                                                 color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
-                                                fontSize: '0.62rem',
+                                                fontSize: 'var(--fs-table)',
                                                 border: '1px solid var(--border-divider)'
                                             }}
                                         >

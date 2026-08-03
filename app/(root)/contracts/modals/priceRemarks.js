@@ -66,7 +66,7 @@ const PriceRemarks = ({ value, setValue }) => {
                         <CirclePlus size={10}/> {getTtl('Add', ln)}
                     </Button>
                     <span className="absolute hidden group-hover:flex top-8 w-fit p-1
-    bg-slate-400 rounded-md text-center text-white responsiveTextTable z-10 whitespace-nowrap -left-1.5">
+    bg-slate-400 rounded-lg text-center text-white responsiveTextTable z-10 whitespace-nowrap -left-1.5">
                         {getTtl('AddFormula', ln)}</span>
                 </div>
 
@@ -79,7 +79,7 @@ const PriceRemarks = ({ value, setValue }) => {
                         <li key={i} className="justify-between inline-flex items-center gap-x-2 py-2 px-4 responsiveTextTable bg-[var(--surface-card)] border text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg">
                             {edit.status && edit.id === x.id ?
                                 <input
-                                    className="w-full border rounded-md border-slate-400 h-7 
+                                    className="w-full border rounded-lg border-slate-400 h-7 
 focus:outline-0 focus:border-slate-600 indent-1.5 responsiveTextTable text-[var(--regent-gray)]"
                                     onKeyDown={handleKeyPress}
                                     value={value1}

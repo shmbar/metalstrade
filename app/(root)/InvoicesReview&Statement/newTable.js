@@ -289,7 +289,7 @@ const Customtable = ({
                                                     borderRadius: 0,
                               letterSpacing: '0.02em',
                               textAlign: 'center',
-                              fontSize: '0.72rem',
+                              fontSize: 'var(--fs-input)',
                             }}
                           >
                             {(header.column.columnDef.ttlUS ?? header.column.columnDef.ttlEU ?? header.column.columnDef.ttl) || ''}
@@ -315,8 +315,8 @@ const Customtable = ({
                           >
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                               {flexRender(header.column.columnDef.header, header.getContext())}
-                              {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
-                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                              {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
                             </div>
                           </th>
                         ))}
@@ -398,7 +398,7 @@ const Customtable = ({
                             {(isCompleted || isStatus) && badgeConfig ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-3 py-1 rounded-xl responsiveTextTable font-normal"
+                                  className="px-3 py-1 rounded-2xl responsiveTextTable font-normal"
                                   style={{
                                     backgroundColor: badgeConfig.bg,
                                     color: badgeConfig.color,
@@ -410,19 +410,19 @@ const Customtable = ({
                               </div>
                             ) : (isCompleted || isStatus) && !badgeConfig ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal w-full" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
+                                <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal w-full" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
                               </div>
                             ) : (
                               <div className="flex justify-center">
                                 {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
                                   <div
-                                    className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]"
+                                    className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px]"
                                     style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}
                                   >
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal w-full" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
+                                  <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal w-full" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
                                 )}
                               </div>
                             )}
@@ -496,7 +496,7 @@ const Customtable = ({
                             className="font-normal"
                             style={{ 
                               color: 'var(--endeavour)',
-                              fontSize: '0.62rem',
+                              fontSize: 'var(--fs-table)',
                               textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                             }}
                           >
@@ -528,17 +528,17 @@ const Customtable = ({
                             className="uppercase tracking-wider font-normal" 
                             style={{ 
                               color: 'var(--regent-gray)',
-                              fontSize: '0.58rem'
+                              fontSize: 'var(--fs-caption)'
                             }}
                           >
                             {cell.column.columnDef.header}
                           </div>
                           <div
-                            className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                            className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
                             style={{
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
-                              fontSize: '0.62rem',
+                              fontSize: 'var(--fs-table)',
                               border: '1px solid var(--border-divider)'
                             }}
                           >
@@ -546,7 +546,7 @@ const Customtable = ({
                             {cell.column.id === 'completed' ? (
                               cell.getValue() ? (
                                 <div 
-                                      className="w-full px-2 py-2 rounded-md responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-md"
+                                      className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-md"
                                       style={{
                                         backgroundColor: 'var(--ok-bg)',
                                         color: 'var(--ok-text)'
@@ -556,7 +556,7 @@ const Customtable = ({
                                 </div>
                               ) : (
                                 <div
-                                  className="w-full px-2 py-2 rounded-md responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-sm"
+                                  className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-sm"
                                   style={{
                                     backgroundColor: 'var(--danger-bg)',
                                     color: 'var(--danger-text)'
@@ -591,7 +591,7 @@ const Customtable = ({
                     className="text-center"
                     style={{
                       color: 'var(--regent-gray)',
-                      fontSize: '0.58rem'
+                      fontSize: 'var(--fs-caption)'
                     }}
                   >
                     Try adjusting your filters or date range

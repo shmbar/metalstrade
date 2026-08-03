@@ -134,7 +134,7 @@ const Expenses = () => {
                         type='button'
                         onClick={() => setShowFiles(true)}
                         className='flex items-center gap-1 px-3 py-1 rounded-full transition-all border'
-                        style={{ fontSize: '0.62rem', color: 'var(--endeavour)', background: 'var(--surface-header)', borderColor: 'var(--border-cell)' }}
+                        style={{ fontSize: 'var(--fs-table)', color: 'var(--endeavour)', background: 'var(--surface-header)', borderColor: 'var(--border-cell)' }}
                     >
                         <Paperclip className='w-3 h-3' />
                         Files
@@ -145,7 +145,7 @@ const Expenses = () => {
                         type='button'
                         onClick={() => setShowDocImport(true)}
                         className='flex items-center gap-1 px-3 py-1 rounded-full text-white transition-all'
-                        style={{ fontSize: '0.62rem', background: 'var(--endeavour)' }}
+                        style={{ fontSize: 'var(--fs-table)', background: 'var(--endeavour)' }}
                     >
                         <FileText className='w-3 h-3' />
                         Autofill from supplier invoice
@@ -180,35 +180,35 @@ const Expenses = () => {
                 <div className='grid grid-cols-1 md:grid-cols-12 gap-3 w-full p-2'>
                     <div className='md:col-span-4 px-2'>
                         <div>
-                            <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Invoice', ln)}</p>
+                            <p className='flex responsiveTextTitle font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Invoice', ln)}</p>
                             <div className='w-full '>
-                                <input className="input h-7 text-xs rounded-full border-[var(--border-divider)] bg-[var(--surface-card)]" name='expense' value={valueExp.expense} onChange={handleValue} />
+                                <input className="input h-7 responsiveTextInput rounded-full border-[var(--border-divider)] bg-[var(--surface-card)]" name='expense' value={valueExp.expense} onChange={handleValue} />
                                 <ErrDiv field='expense' errors={errorsExp} />
                             </div>
                         </div>
                         <div className='pt-2'>
-                            <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Date', ln)}:</p>
+                            <p className='flex responsiveTextTitle font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Date', ln)}:</p>
                             <Datepicker useRange={false}
                                 asSingle={true}
                                 value={valueExp.dateRange}
                                 popoverDirection='down'
                                 onChange={handleDateChangeDate}
                                 displayFormat={"DD-MMM-YYYY"}
-                                inputClassName='input w-full shadow-lg h-7 text-xs z-20'
+                                inputClassName='input w-full shadow-lg h-7 responsiveTextInput z-20'
                             />
                             <ErrDiv field='date' errors={errorsExp} />
                         </div>
                         <div className='pt-2'>
-                            <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Amount', ln)}:</p>
+                            <p className='flex responsiveTextTitle font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Amount', ln)}:</p>
                             <div className='w-full '>
-                                <input type='number' className="input h-7 text-xs rounded-full border-[var(--border-divider)] bg-[var(--surface-card)]" name='amount' value={valueExp.amount} onChange={handleValue} />
+                                <input type='number' className="input h-7 responsiveTextInput rounded-full border-[var(--border-divider)] bg-[var(--surface-card)]" name='amount' value={valueExp.amount} onChange={handleValue} />
                                 <ErrDiv field='amount' errors={errorsExp} />
                             </div>
                         </div>
                     </div>
                     <div className='md:col-span-4 px-2'>
                         <div>
-                            <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Vendor', ln)}:</p>
+                            <p className='flex responsiveTextTitle font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Vendor', ln)}:</p>
                             <div className='w-full '>
                                 <Selector arr={sups} value={valueExp} onChange={(e) => handleChange(e, 'supplier')} name='supplier' clear={clear} />
                                 <ErrDiv field='supplier' errors={errorsExp} />
@@ -216,7 +216,7 @@ const Expenses = () => {
                         </div>
                         <div className='pt-1'>
                             <div className='flex items-center justify-between mb-0.5'>
-                                <p className='text-sm font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Type', ln)}:</p>
+                                <p className='responsiveTextTitle font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Type', ln)}:</p>
                                 <Tltip direction='top' tltpText={(valueExp.supplier || valueExp.comments?.trim()) ? 'Auto-categorize from Vendor + Comments' : 'Select a Vendor or add Comments first'}>
                                     <button
                                         type='button'
@@ -226,7 +226,7 @@ const Expenses = () => {
                                         aria-busy={categorizing}
                                         className='flex items-center gap-1 px-2 py-0.5 rounded-full text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
                                         style={{
-                                            fontSize: '0.6rem',
+                                            fontSize: 'var(--fs-table)',
                                             backgroundColor: catResult === 'error' ? 'var(--danger-text)' : catResult ? 'var(--ok-text)' : 'var(--endeavour)'
                                         }}
                                     >
@@ -244,7 +244,7 @@ const Expenses = () => {
                                 <Selector arr={settings.Expenses.Expenses} value={valueExp} onChange={(e) => handleChange(e, 'expType')} name='expType' clear={clear} />
                                 <ErrDiv field='expType' errors={errorsExp} />
                                 {catResult === 'low' && (
-                                    <p className='text-xs mt-0.5 px-2 py-0.5 rounded-full inline-block' style={{ backgroundColor: 'var(--surface-card)3cd', color: 'var(--warn-strong)', fontSize: '0.6rem' }}>
+                                    <p className='responsiveTextInput mt-0.5 px-2 py-0.5 rounded-full inline-block' style={{ backgroundColor: 'var(--surface-card)3cd', color: 'var(--warn-strong)', fontSize: 'var(--fs-table)' }}>
                                         Low confidence — please verify
                                     </p>
                                 )}
@@ -252,14 +252,14 @@ const Expenses = () => {
                         </div>
                         <div className='pt-1 gap-3 flex'>
                             <div className='flex-1 min-w-0'>
-                                <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Currency', ln)}:</p>
+                                <p className='flex responsiveTextTitle font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Currency', ln)}:</p>
                                 <div className='w-full'>
                                     <Selector arr={settings.Currency.Currency} value={valueExp} onChange={(e) => handleChange(e, 'cur')} name='cur' clear={clear} />
                                     <ErrDiv field='cur' errors={errorsExp} />
                                 </div>
                             </div>
                             <div className='flex-1 min-w-0'>
-                                <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Payment', ln)}:</p>
+                                <p className='flex responsiveTextTitle font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Payment', ln)}:</p>
                                 <div className='w-full'>
                                     <Selector arr={settings.ExpPmnt.ExpPmnt} value={valueExp} onChange={(e) => handleChange(e, 'paid')} name='paid' clear={clear} />
                                 </div>
@@ -267,11 +267,11 @@ const Expenses = () => {
                         </div>
                     </div>
                     <div className='md:col-span-4 px-2'>
-                        <p className='flex text-sm font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
+                        <p className='flex responsiveTextTitle font-medium whitespace-nowrap mb-0.5' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
                         <div>
                             <textarea rows="5" name="comments"
-                                className="input h-32 p-1 rounded-xl border-[var(--border-divider)] bg-[var(--surface-card)] w-full"
-                                style={{ fontSize: '0.75rem', fontFamily: 'inherit' }}
+                                className="input h-32 p-1 rounded-2xl border-[var(--border-divider)] bg-[var(--surface-card)] w-full"
+                                style={{ fontSize: 'var(--fs-input)', fontFamily: 'inherit' }}
                                 value={valueExp.comments} onChange={handleValue} />
                         </div>
 

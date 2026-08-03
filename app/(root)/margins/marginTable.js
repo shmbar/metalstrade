@@ -199,7 +199,7 @@ const MarginTable = memo(function MarginTable(props) {
                                     style={{
                                         background: 'var(--endeavour)',
                                         color: '#FFFFFF',
-                                        fontSize: '0.62rem',
+                                        fontSize: 'var(--fs-table)',
                                         fontWeight: '400',
                                         border: '1px solid transparent',
                                         minWidth: '45px',

@@ -37,8 +37,8 @@ const EMPTY_STATE_VIDEO_SRC = '/logo/no-data.mp4';
 // Expandable detail for a contract line: warehouse lots + shipments
 const DetailPanel = ({ lots = [], shipments = [] }) => {
   const fmt = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(Number(n) || 0);
-  const headSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: '0.56rem', background: 'var(--surface-pill)', color: 'var(--regent-gray)', fontWeight: 500, letterSpacing: '0.04em' };
-  const cellSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: '0.64rem', color: 'var(--port-gore)', background: 'var(--surface-card)' };
+  const headSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: 'var(--fs-caption)', background: 'var(--surface-pill)', color: 'var(--regent-gray)', fontWeight: 500, letterSpacing: '0.04em' };
+  const cellSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: 'var(--fs-table)', color: 'var(--port-gore)', background: 'var(--surface-card)' };
   const lotChip = (status) => {
     const s = (status || '').toLowerCase();
     const map = {
@@ -46,13 +46,13 @@ const DetailPanel = ({ lots = [], shipments = [] }) => {
       unsold: { bg: 'var(--danger-bg)', c: 'var(--danger-text)', b: 'var(--danger-border)', t: 'Unsold' },
     };
     const v = map[s] || { bg: '#f1f5f9', c: 'var(--text-mid)', b: 'var(--border-neutral)', t: status || '—' };
-    return <span style={{ backgroundColor: v.bg, color: v.c, border: `1px solid ${v.b}`, borderRadius: 8, padding: '1px 8px', fontSize: '0.6rem' }}>{v.t}</span>;
+    return <span style={{ backgroundColor: v.bg, color: v.c, border: `1px solid ${v.b}`, borderRadius: 8, padding: '1px 8px', fontSize: 'var(--fs-table)' }}>{v.t}</span>;
   };
   return (
     <div className="flex flex-col lg:flex-row gap-3" style={{ animation: 'fadeIn .2s ease-in' }}>
       {/* Lots */}
-      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-cell)', flex: '1.4 1 0', minWidth: 0 }}>
-        <div style={{ background: 'var(--surface-header)', color: 'var(--chathams-blue)', fontSize: '0.62rem', fontWeight: 600, padding: '5px 12px' }}>Lots in warehouse</div>
+      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border-cell)', flex: '1.4 1 0', minWidth: 0 }}>
+        <div style={{ background: 'var(--surface-header)', color: 'var(--chathams-blue)', fontSize: 'var(--fs-table)', fontWeight: 600, padding: '5px 12px' }}>Lots in warehouse</div>
         {lots.length ? (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr><th style={headSt}>QUANTITY</th><th style={headSt}>STATUS</th><th style={headSt}>CONSIGNEE</th><th style={headSt}>SALES PO</th></tr></thead>
@@ -67,11 +67,11 @@ const DetailPanel = ({ lots = [], shipments = [] }) => {
               ))}
             </tbody>
           </table>
-        ) : <div style={{ padding: '8px 12px', fontSize: '0.62rem', color: 'var(--regent-gray)' }}>No lots in warehouse</div>}
+        ) : <div style={{ padding: '8px 12px', fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>No lots in warehouse</div>}
       </div>
       {/* Shipments */}
-      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-cell)', flex: '2 1 0', minWidth: 0 }}>
-        <div style={{ background: 'var(--surface-header)', color: 'var(--chathams-blue)', fontSize: '0.62rem', fontWeight: 600, padding: '5px 12px' }}>Shipments</div>
+      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border-cell)', flex: '2 1 0', minWidth: 0 }}>
+        <div style={{ background: 'var(--surface-header)', color: 'var(--chathams-blue)', fontSize: 'var(--fs-table)', fontWeight: 600, padding: '5px 12px' }}>Shipments</div>
         {shipments.length ? (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr>{['INVOICE', 'CONSIGNEE', 'PO CLIENT', 'DESTINATION', 'QTY'].map(h => <th key={h} style={headSt}>{h}</th>)}</tr></thead>
@@ -87,7 +87,7 @@ const DetailPanel = ({ lots = [], shipments = [] }) => {
               ))}
             </tbody>
           </table>
-        ) : <div style={{ padding: '8px 12px', fontSize: '0.62rem', color: 'var(--regent-gray)' }}>No shipments yet</div>}
+        ) : <div style={{ padding: '8px 12px', fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>No shipments yet</div>}
       </div>
     </div>
   );
@@ -385,8 +385,8 @@ const Customtable = ({
                           >
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                               {flexRender(header.column.columnDef.header, header.getContext())}
-                              {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
-                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: '0.85rem', color: 'var(--endeavour)' }} />}
+                              {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
                             </div>
                           </th>
                         ))}
@@ -470,13 +470,13 @@ const Customtable = ({
                                 <div className="flex justify-center">
                                   {val !== null && val !== undefined && val !== '' ? (
                                     <div
-                                      className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center"
+                                      className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center"
                                       style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}
                                     >
                                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </div>
                                   ) : (
-                                    <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
+                                    <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px]" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
                                   )}
                                 </div>
                               )}
@@ -561,7 +561,7 @@ const Customtable = ({
                                       {hasDetail && (
                                         <IoIosArrowDown size={11} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} style={{ color: 'var(--endeavour)', flexShrink: 0 }} />
                                       )}
-                                      <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center" style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-cell)' }}>
+                                      <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center" style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-cell)' }}>
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                       </div>
                                     </div>
@@ -578,7 +578,7 @@ const Customtable = ({
                                   {isStatus ? (
                                     <div className="flex justify-center">
                                       <div
-                                        className="px-3 py-1 rounded-xl responsiveTextTable font-normal flex items-center justify-center"
+                                        className="px-3 py-1 rounded-2xl responsiveTextTable font-normal flex items-center justify-center"
                                         style={{
                                           backgroundColor: val === 'Paid' ? 'var(--ok-bg)' : val === 'Unpaid' ? 'var(--warn-bg)' : '#ffffff',
                                           border: val ? `1px solid ${val === 'Paid' ? 'var(--ok-border)' : val === 'Unpaid' ? 'var(--warn-border)' : 'var(--border-neutral-strong)'}` : 'none',
@@ -592,13 +592,13 @@ const Customtable = ({
                                     <div className="flex justify-center">
                                       {val !== null && val !== undefined && val !== '' ? (
                                         <div
-                                          className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center"
+                                          className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center"
                                           style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-cell)' }}
                                         >
                                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </div>
                                       ) : (
-                                        <div className="px-3 py-1 rounded-xl responsiveTextTable font-normal min-w-[70px]" style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
+                                        <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px]" style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
                                       )}
                                     </div>
                                   )}
@@ -681,7 +681,7 @@ const Customtable = ({
                       className="font-normal"
                       style={{ 
                         color: 'var(--endeavour)',
-                        fontSize: '0.62rem',
+                        fontSize: 'var(--fs-table)',
                         textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
                       }}
                     >
@@ -715,17 +715,17 @@ const Customtable = ({
                             className="uppercase tracking-wider font-normal" 
                             style={{ 
                               color: 'var(--regent-gray)',
-                              fontSize: '0.58rem'
+                              fontSize: 'var(--fs-caption)'
                             }}
                           >
                             {cell.column.columnDef.header}
                           </div>
                           <div 
-                            className="font-normal break-words px-2 py-1 rounded-xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                            className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
                             style={{ 
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
-                              fontSize: '0.62rem',
+                              fontSize: 'var(--fs-table)',
                               border: '1px solid var(--border-divider)'
                             }}
                           >
@@ -814,7 +814,7 @@ const Customtable = ({
                     className="text-center"
                     style={{
                       color: 'var(--regent-gray)',
-                      fontSize: '0.58rem'
+                      fontSize: 'var(--fs-caption)'
                     }}
                   >
                     Try adjusting your filters or date range

@@ -125,7 +125,7 @@ const SideBarMini = () => {
                 />
                 {/* Search Dropdown */}
                 {showDropdown && searchResults.length > 0 && (
-                  <div className='absolute left-0 right-0 mt-2 bg-[var(--surface-card)] rounded-xl shadow-lg border border-[var(--selago)] z-[101] overflow-auto max-h-80 w-full min-w-[16rem]'>
+                  <div className='absolute left-0 right-0 mt-2 bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] z-[101] overflow-auto max-h-80 w-full min-w-[16rem]'>
                     {searchResults.map((r) => (
                       <button
                         key={r.key}
@@ -167,7 +167,7 @@ const SideBarMini = () => {
                 >
                 <MenuItems
   data-ims-sidebar="1"
-  className="fixed right-2 top-14 w-76 origin-top-left divide-y divide-[rgba(var(--chathams-blue-rgb),0.2)] rounded-xl shadow-lg border border-[var(--selago)] bg-[var(--border-divider)] focus:outline-none h-[450px] overflow-auto z-[20000]"
+  className="fixed right-2 top-14 w-76 origin-top-left divide-y divide-[rgba(var(--chathams-blue-rgb),0.2)] rounded-2xl shadow-lg border border-[var(--selago)] bg-[var(--border-divider)] focus:outline-none h-[450px] overflow-auto z-[20000]"
 >
   <div className='px-4 py-3 border-b border-[var(--selago)]'>
     <p className='responsiveText font-medium text-[var(--chathams-blue)]'>
@@ -213,7 +213,7 @@ const SideBarMini = () => {
             return (
               <Link href={`/${y.page}`} key={k} onClick={e => { close(); }}>
                 <div className="flex px-2 py-1 responsiveText items-center">
-                  <div className={`gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150
+                  <div className={`gap-3 w-full flex items-center px-3 py-2 rounded-2xl transition-all duration-150
                     ${isActive
                       ? 'bg-[var(--surface-card)] text-[var(--chathams-blue)] font-medium scale-[1.01]'
                       : 'text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)] hover:translate-x-0.5'}`}>
@@ -232,7 +232,7 @@ const SideBarMini = () => {
   <div className='py-2'>
     <Link href='/settings' onClick={e => close()}>
       <div className="flex px-2 py-1 responsiveText items-center">
-        <div className="gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150 text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)]">
+        <div className="gap-3 w-full flex items-center px-3 py-2 rounded-2xl transition-all duration-150 text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)]">
           <FiSettings className='w-4 h-4' style={{color: 'var(--chathams-blue)'}} />
           <span className='responsiveText font-normal'>{getTtl('Settings', ln)}</span>
         </div>
@@ -241,7 +241,7 @@ const SideBarMini = () => {
   </div>
   <div className='py-2'>
     <div className="flex px-2 py-1 responsiveText items-center cursor-pointer" onClick={() => { LogOut(); close(); }}>
-      <div className="gap-3 w-full flex items-center px-3 py-2 rounded-xl transition-all duration-150 text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)]">
+      <div className="gap-3 w-full flex items-center px-3 py-2 rounded-2xl transition-all duration-150 text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)]">
         <BiLogOutCircle className='w-4 h-4' style={{color: 'var(--chathams-blue)'}} />
         <span className='responsiveText font-normal'>{getTtl('Logout', ln)}</span>
       </div>

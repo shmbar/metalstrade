@@ -48,7 +48,7 @@ const SalesProductsTable = ({ value, setValue }) => {
                                 <td className="px-1 py-1 text-center">{i + 1}</td>
                                 <td className="px-1 py-1">
                                     <input
-                                        className="input w-full h-7 rounded-md indent-1.5"
+                                        className="input w-full h-7 rounded-lg indent-1.5"
                                         style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                         value={r.description}
                                         maxLength={120}
@@ -57,7 +57,7 @@ const SalesProductsTable = ({ value, setValue }) => {
                                 </td>
                                 <td className="px-1 py-1">
                                     <input
-                                        className="input w-full h-7 rounded-md indent-1.5"
+                                        className="input w-full h-7 rounded-lg indent-1.5"
                                         style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                         value={r.qnty}
                                         inputMode="decimal"
@@ -66,7 +66,7 @@ const SalesProductsTable = ({ value, setValue }) => {
                                 </td>
                                 <td className="px-1 py-1">
                                     <input
-                                        className="input w-full h-7 rounded-md indent-1.5"
+                                        className="input w-full h-7 rounded-lg indent-1.5"
                                         style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                         value={r.unitPrc}
                                         inputMode="decimal"

@@ -76,37 +76,37 @@ const FindInvoiceModal = ({ open, setOpen, uidCollection, value, setValue }) => 
         <Modal isOpen={open} setIsOpen={setOpen} title="Find Invoice" w="max-w-sm">
             <div className="flex flex-col gap-3 p-3">
                 <div className="flex flex-col gap-1">
-                    <p className="text-xs font-medium text-[var(--chathams-blue)]">Invoice Number:</p>
+                    <p className="responsiveTextInput font-medium text-[var(--chathams-blue)]">Invoice Number:</p>
                     <input
-                        className="input h-7 text-xs rounded-full border-[var(--border-divider)] bg-[var(--surface-card)] w-40"
+                        className="input h-7 responsiveTextInput rounded-full border-[var(--border-divider)] bg-[var(--surface-card)] w-40"
                         value={invoice}
                         onChange={(e) => setInvoice(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && findInvoice()}
                     />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <p className="text-xs font-medium text-[var(--chathams-blue)]">Year:</p>
+                    <p className="responsiveTextInput font-medium text-[var(--chathams-blue)]">Year:</p>
                     <input
-                        className="input h-7 text-xs rounded-full border-[var(--border-divider)] bg-[var(--surface-card)] w-20"
+                        className="input h-7 responsiveTextInput rounded-full border-[var(--border-divider)] bg-[var(--surface-card)] w-20"
                         value={year}
                         onChange={(e) => setYear(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && findInvoice()}
                     />
                 </div>
                 {!foundInvoice &&
-                    <span className="text-xs text-red-600 pl-1">Invoice not found</span>
+                    <span className="responsiveTextInput text-red-600 pl-1">Invoice not found</span>
                 }
                 <div className="flex gap-2 pt-1">
                     <button
                         type="button"
-                        className="blackButton py-1 text-xs"
+                        className="blackButton py-1 responsiveTextInput"
                         onClick={findInvoice}
                     >
                         <Search size={14} className="" />     Find
                     </button>
                     <button
                         type="button"
-                        className="whiteButton py-1 text-xs"
+                        className="whiteButton py-1 responsiveTextInput"
                         onClick={() => setOpen(false)}
                     >
                         <CircleX size={14} className="text-[var(--chathams-blue)]" />  Close

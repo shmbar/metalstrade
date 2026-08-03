@@ -41,28 +41,28 @@ const FindCOntract4Materials = ({ open, setOpen, uidCollection, value, setValue 
         <Modal isOpen={open} setIsOpen={setOpen} title="Insert Contract" w="max-w-sm">
             <div className="flex flex-col gap-3 p-3">
                 <div className="flex flex-col gap-1">
-                    <p className="text-xs font-medium text-[var(--chathams-blue)]">Order Number:</p>
+                    <p className="responsiveTextInput font-medium text-[var(--chathams-blue)]">Order Number:</p>
                     <input
-                        className="input h-7 text-xs rounded-xl border-[var(--border-divider)] bg-[var(--surface-card)] w-full"
+                        className="input h-7 responsiveTextInput rounded-2xl border-[var(--border-divider)] bg-[var(--surface-card)] w-full"
                         value={value1}
                         onChange={(e) => setValue1(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && findContract()}
                     />
                     {(contract?.length === 0 && contract != null) &&
-                        <span className="text-xs text-red-600 pl-1">Contract not found</span>
+                        <span className="responsiveTextInput text-red-600 pl-1">Contract not found</span>
                     }
                 </div>
                 <div className="flex gap-2 pt-1">
                     <button
                         type="button"
-                        className="blackButton py-1 text-xs"
+                        className="blackButton py-1 responsiveTextInput"
                         onClick={findContract}
                     >
                         Find
                     </button>
                     <button
                         type="button"
-                        className="whiteButton py-1 text-xs"
+                        className="whiteButton py-1 responsiveTextInput"
                         onClick={() => setOpen(false)}
                     >
                         Close

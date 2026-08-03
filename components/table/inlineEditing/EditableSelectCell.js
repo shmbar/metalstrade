@@ -151,7 +151,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
     >
       <Listbox.Options
         static
-        className="z-[9999] max-h-48 overflow-auto rounded-xl bg-[var(--surface-card)] py-1 text-xs shadow-lg focus:outline-none border border-[var(--surface-header)] custom-scrollbar"
+        className="z-[9999] max-h-48 overflow-auto rounded-2xl bg-[var(--surface-card)] py-1 responsiveTextInput shadow-lg focus:outline-none border border-[var(--surface-header)] custom-scrollbar"
         style={{
           position: "absolute",
           ...(dropUp
@@ -163,7 +163,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
         }}
       >
         {options.length === 0 ? (
-          <div className="px-4 py-2 text-[var(--regent-gray)] text-center text-xs">No options</div>
+          <div className="px-4 py-2 text-[var(--regent-gray)] text-center responsiveTextInput">No options</div>
         ) : (
           options.map((o) => (
             <Listbox.Option
@@ -206,7 +206,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
           <Listbox.Button
             ref={buttonRef}
             onClick={handleOpen}
-            className="w-full cursor-pointer rounded-xl py-1.5 pl-3 pr-8 text-left text-xs flex items-center"
+            className="w-full cursor-pointer rounded-2xl py-1.5 pl-3 pr-8 text-left responsiveTextInput flex items-center"
             aria-label={column?.columnDef?.header || "Select option"}
           >
             <span className="flex-1 block truncate overflow-hidden text-ellipsis text-left">

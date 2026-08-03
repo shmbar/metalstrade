@@ -421,7 +421,7 @@ const General = () => {
                     <div className='flex flex-wrap gap-4 border border-slate-300 p-4 rounded-2xl  mt-5 max-w-3xl'>
 
                         <div className='flex flex-wrap gap-4 items-center' >
-                            <p className='text-sm font-medium whitespace-nowrap text-slate-600'>Start Invoice Number From:</p>
+                            <p className='responsiveTextTitle font-medium whitespace-nowrap text-slate-600'>Start Invoice Number From:</p>
                             <input type='number' className='input max-w-[10rem] w-full  h-[26px]' value={invNum}
                                 onChange={(e) => setInvNum(e.target.value)} />
                         </div>
@@ -429,7 +429,7 @@ const General = () => {
 
                         <button
                             className=" flex items-center justify-center text-white gap-1.5 border p-1 px-4
-         border-slate-400 bg-slate-400 rounded-md  text-sm text-white hover:bg-slate-500 shadow-lg"
+         border-slate-400 bg-slate-400 rounded-lg  responsiveTextTitle text-white hover:bg-slate-500 shadow-lg"
                             onClick={()=>setIsOpen(true)}
                         >
                             <MdOutlineSaveAs className='scale-110' />

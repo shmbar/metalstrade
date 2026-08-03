@@ -13,8 +13,8 @@ Generated Phase 1.1, scoped Phase 0. **Source of truth for audit progress.**
 | 1 | actions/pass.js | util | [ ] | - |
 | 2 | actions/validations.js | util | [ ] | - |
 | 3 | app/(auth)/passes/page.js | page | [ ] | - |
-| 4 | app/(auth)/signin/login.js | component | [ ] | - |
-| 5 | app/(auth)/signup/page.js | page | [ ] | - |
+| 4 | app/(auth)/signin/login.js | component | [x] | 032,034 |
+| 5 | app/(auth)/signup/page.js | page | [x] | 032 |
 | 6 | app/(root)/ContractsReview&Statement/excel.js | export-doc | [ ] | - |
 | 7 | app/(root)/ContractsReview&Statement/funcs.js | component | [ ] | - |
 | 8 | app/(root)/ContractsReview&Statement/newTable.js | component | [ ] | - |
@@ -31,7 +31,7 @@ Generated Phase 1.1, scoped Phase 0. **Source of truth for audit progress.**
 | 19 | app/(root)/accounting/excel.js | export-doc | [ ] | - |
 | 20 | app/(root)/accounting/newTable.js | component | [ ] | - |
 | 21 | app/(root)/accounting/page.js | page | [ ] | - |
-| 22 | app/(root)/accstatement/components/comboboxSelect.js | component | [ ] | - |
+| 22 | app/(root)/accstatement/components/comboboxSelect.js | component | [x] | 030 |
 | 23 | app/(root)/accstatement/components/select.js | component | [ ] | - |
 | 24 | app/(root)/accstatement/disabledDates.js | component | [ ] | - |
 | 25 | app/(root)/accstatement/excel.js | export-doc | [ ] | - |
@@ -217,40 +217,40 @@ Generated Phase 1.1, scoped Phase 0. **Source of truth for audit progress.**
 | 205 | components/PdfPagesView.js | component | [ ] | - |
 | 206 | components/PdfPreview.js | component | [ ] | - |
 | 207 | components/SplitControl.js | component | [ ] | - |
-| 208 | components/StatusBadge.js | component | [ ] | - |
+| 208 | components/StatusBadge.js | component | [x] | 024 |
 | 209 | components/backToLoginPage.js | component | [ ] | - |
 | 210 | components/calculate.js | component | [ ] | - |
-| 211 | components/checkbox.js | component | [ ] | - |
-| 212 | components/combobox.js | component | [ ] | - |
-| 213 | components/comboboxPNL.js | component | [ ] | - |
-| 214 | components/comboboxProductSelect.js | component | [ ] | - |
-| 215 | components/comboboxRemarks.js | component | [ ] | - |
-| 216 | components/comboboxSelectStock.js | component | [ ] | - |
-| 217 | components/comboboxStockAvailability.js | component | [ ] | - |
-| 218 | components/comboboxWH.js | component | [ ] | - |
+| 211 | components/checkbox.js | component | [x] | none |
+| 212 | components/combobox.js | component | [x] | 030 |
+| 213 | components/comboboxPNL.js | component | [x] | 029,030 |
+| 214 | components/comboboxProductSelect.js | component | [x] | 029,030 |
+| 215 | components/comboboxRemarks.js | component | [x] | 029,030 |
+| 216 | components/comboboxSelectStock.js | component | [x] | 030 |
+| 217 | components/comboboxStockAvailability.js | component | [x] | 029,030 |
+| 218 | components/comboboxWH.js | component | [x] | 029,030 |
 | 219 | components/const.js | component | [ ] | - |
 | 220 | components/dateRangePicker.js | component | [ ] | - |
 | 221 | components/exchangeApi.js | component | [ ] | - |
 | 222 | components/findContract4Materials.js | component | [ ] | - |
-| 223 | components/idle.js | component | [ ] | - |
+| 223 | components/idle.js | component | [x] | 019,034 |
 | 224 | components/index.js | component | [ ] | - |
 | 225 | components/invoicePrdSlct.js | component | [ ] | - |
 | 226 | components/invoices/ReminderModal.js | modal | [ ] | - |
 | 227 | components/layout/Header.tsx | component | [ ] | - |
 | 228 | components/list.js | component | [ ] | - |
-| 229 | components/modal.js | modal | [ ] | - |
-| 230 | components/modalCopyInvoice.js | modal | [ ] | - |
+| 229 | components/modal.js | modal | [x] | 017,020,022,033 |
+| 230 | components/modalCopyInvoice.js | modal | [x] | 032 |
 | 231 | components/modalToProceed.js | modal | [ ] | - |
 | 232 | components/monthSelect.js | component | [ ] | - |
 | 233 | components/selectWH.js | component | [ ] | - |
 | 234 | components/selectors/selectShad.js | component | [ ] | - |
 | 235 | components/selectors/selectWH.js | component | [ ] | - |
 | 236 | components/signOut.js | component | [ ] | - |
-| 237 | components/skeletons.js | component | [ ] | - |
+| 237 | components/skeletons.js | component | [x] | 033 |
 | 238 | components/spinTable.js | component | [ ] | - |
-| 239 | components/spinner.js | component | [ ] | - |
-| 240 | components/statusUtils.js | component | [ ] | - |
-| 241 | components/switch.js | component | [ ] | - |
+| 239 | components/spinner.js | component | [x] | 027 |
+| 240 | components/statusUtils.js | component | [x] | none |
+| 241 | components/switch.js | component | [x] | none |
 | 242 | components/table/ColumnsFilter.js | component | [ ] | - |
 | 243 | components/table/EditableCell.js | component | [ ] | - |
 | 244 | components/table/Paginator.js | component | [ ] | - |
@@ -268,21 +268,21 @@ Generated Phase 1.1, scoped Phase 0. **Source of truth for audit progress.**
 | 256 | components/table/quicksum/numberUtils.js | component | [ ] | - |
 | 257 | components/table/quicksum/useQuickSum.js | hook | [ ] | - |
 | 258 | components/tablePnl.js | component | [ ] | - |
-| 259 | components/tlTip.js | component | [ ] | - |
-| 260 | components/toast.js | component | [ ] | - |
-| 261 | components/tooltip.js | component | [ ] | - |
-| 262 | components/ui/accordion.tsx | component | [ ] | - |
-| 263 | components/ui/avatar.tsx | component | [ ] | - |
-| 264 | components/ui/button.jsx | component | [ ] | - |
+| 259 | components/tlTip.js | component | [x] | none |
+| 260 | components/toast.js | component | [x] | 025,026,033 |
+| 261 | components/tooltip.js | component | [x] | 032 |
+| 262 | components/ui/accordion.tsx | component | [x] | 032 |
+| 263 | components/ui/avatar.tsx | component | [x] | none |
+| 264 | components/ui/button.jsx | component | [x] | 014,016 |
 | 265 | components/ui/button.tsx | component | [ ] | - |
-| 266 | components/ui/command.tsx | component | [ ] | - |
-| 267 | components/ui/dialog.tsx | modal | [ ] | - |
-| 268 | components/ui/input.tsx | component | [ ] | - |
-| 269 | components/ui/popover.tsx | component | [ ] | - |
-| 270 | components/ui/select.tsx | component | [ ] | - |
-| 271 | components/ui/switch.tsx | component | [ ] | - |
-| 272 | components/ui/table.tsx | component | [ ] | - |
-| 273 | components/ui/tooltip.tsx | component | [ ] | - |
+| 266 | components/ui/command.tsx | component | [x] | 036,033 |
+| 267 | components/ui/dialog.tsx | modal | [x] | 018,020,021,022,033 |
+| 268 | components/ui/input.tsx | component | [x] | 023,033 |
+| 269 | components/ui/popover.tsx | component | [x] | 033 |
+| 270 | components/ui/select.tsx | component | [x] | 028,030,033 |
+| 271 | components/ui/switch.tsx | component | [x] | none |
+| 272 | components/ui/table.tsx | component | [x] | 036 |
+| 273 | components/ui/tooltip.tsx | component | [x] | 027 |
 | 274 | components/videoLoader.js | component | [ ] | - |
 | 275 | components/yearSelect.js | component | [ ] | - |
 | 276 | contexts/useAuthContext.js | context | [ ] | - |

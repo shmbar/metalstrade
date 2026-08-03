@@ -613,13 +613,13 @@ const FloatingChat = () => {
                                 <Loader2 className="w-3 h-3 text-[var(--endeavour)] animate-spin" />
                             ) : (
                                 <div className="flex items-center gap-1">
-                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.6rem', backgroundColor: 'var(--ok-bg)', color: 'var(--ok-strong)', border: '1px solid var(--ok-border)' }}>
+                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: 'var(--fs-table)', backgroundColor: 'var(--ok-bg)', color: 'var(--ok-strong)', border: '1px solid var(--ok-border)' }}>
                                         {contractsData.length} Con
                                     </span>
-                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.6rem', backgroundColor: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
+                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: 'var(--fs-table)', backgroundColor: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
                                         {invoicesData.length} Inv
                                     </span>
-                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: '0.6rem', backgroundColor: 'var(--warn-bg)', color: 'var(--warn-strong)', border: '1px solid var(--warn-border)' }}>
+                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: 'var(--fs-table)', backgroundColor: 'var(--warn-bg)', color: 'var(--warn-strong)', border: '1px solid var(--warn-border)' }}>
                                         {stocksData.length} Stk
                                     </span>
                                 </div>
@@ -660,12 +660,12 @@ const FloatingChat = () => {
                                         dangerouslySetInnerHTML={{ __html: formatMessageContent(msg.content) }}
                                     />
                                     {msg.isStreaming && (
-                                        <span className="inline-block w-1.5 h-3.5 bg-[var(--endeavour)] ml-0.5 animate-pulse rounded-sm" />
+                                        <span className="inline-block w-1.5 h-3.5 bg-[var(--endeavour)] ml-0.5 animate-pulse rounded-lg" />
                                     )}
                                     {/* Citation chips — clicking opens the record in its page via ?focus= */}
                                     {Array.isArray(msg.sources) && msg.sources.length > 0 && (
                                         <div className="mt-2 pt-2 border-t border-[var(--selago)] flex flex-wrap gap-1">
-                                            <span style={{ fontSize: '0.55rem', color: 'var(--regent-gray)', textTransform: 'uppercase', letterSpacing: '0.04em' }} className="font-semibold w-full mb-0.5">
+                                            <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)', textTransform: 'uppercase', letterSpacing: '0.04em' }} className="font-semibold w-full mb-0.5">
                                                 Sources ({msg.sources.length})
                                             </span>
                                             {msg.sources.slice(0, 12).map((src) => {
@@ -681,7 +681,7 @@ const FloatingChat = () => {
                                                         }}
                                                         title={`Open ${src.label} in ${src.route.replace('/', '')}`}
                                                         className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[var(--surface-card)] border border-[var(--border-cell)] hover:border-[var(--endeavour)] hover:bg-[var(--selago)] transition-colors"
-                                                        style={{ fontSize: '0.6rem', color: 'var(--chathams-blue)' }}
+                                                        style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}
                                                     >
                                                         <Icon className="w-2.5 h-2.5" aria-hidden="true" />
                                                         <span className="truncate max-w-[120px]">{src.label}</span>
@@ -689,13 +689,13 @@ const FloatingChat = () => {
                                                 );
                                             })}
                                             {msg.sources.length > 12 && (
-                                                <span style={{ fontSize: '0.58rem', color: 'var(--regent-gray)' }} className="self-center">
+                                                <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)' }} className="self-center">
                                                     +{msg.sources.length - 12} more
                                                 </span>
                                             )}
                                         </div>
                                     )}
-                                    <span className="mt-1 block text-right text-[var(--regent-gray)]" style={{ fontSize: '0.6rem' }}>
+                                    <span className="mt-1 block text-right text-[var(--regent-gray)]" style={{ fontSize: 'var(--fs-table)' }}>
                                         {msg.time}
                                     </span>
                                 </div>
@@ -739,7 +739,7 @@ const FloatingChat = () => {
                                             key={p.route}
                                             href={p.route}
                                             className="flex items-center gap-1 px-2.5 py-1 bg-[var(--endeavour)] text-white rounded-full hover:bg-[var(--chathams-blue)] transition-colors"
-                                            style={{ fontSize: '0.62rem' }}
+                                            style={{ fontSize: 'var(--fs-table)' }}
                                         >
                                             <ExternalLink className="w-2.5 h-2.5" />
                                             Go to {p.route.replace('/', '')}
@@ -760,7 +760,7 @@ const FloatingChat = () => {
                                 placeholder="Ask me anything"
                                 disabled={isLoading || dataLoading}
                                 className="flex-1 outline-none text-[var(--port-gore)] placeholder-[var(--rock-blue)] disabled:opacity-50 disabled:cursor-not-allowed"
-                                style={{ fontSize: '0.68rem', backgroundColor: 'transparent' }}
+                                style={{ fontSize: 'var(--fs-body)', backgroundColor: 'transparent' }}
                             />
                             <button
                                 onClick={() => handleSendMessage()}
@@ -779,7 +779,7 @@ const FloatingChat = () => {
                                         key={action}
                                         onClick={() => handleSendMessage(action)}
                                         className="px-2.5 py-1 bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
-                                        style={{ fontSize: '0.65rem' }}
+                                        style={{ fontSize: 'var(--fs-table)' }}
                                     >
                                         {action}
                                     </button>
@@ -795,7 +795,7 @@ const FloatingChat = () => {
                                         key={action}
                                         onClick={() => handleSendMessage(action)}
                                         className="px-2.5 py-1 bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors"
-                                        style={{ fontSize: '0.65rem' }}
+                                        style={{ fontSize: 'var(--fs-table)' }}
                                     >
                                         {action}
                                     </button>

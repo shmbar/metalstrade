@@ -93,7 +93,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
             )}
 
             {/* Auto-populated info */}
-            <div className="md:col-span-2 bg-[var(--surface-pill)] border border-[var(--surface-header)] rounded-xl p-2 mb-3">
+            <div className="md:col-span-2 bg-[var(--surface-pill)] border border-[var(--surface-header)] rounded-2xl p-2 mb-3">
                 <p className="text-[0.68rem] font-medium text-[var(--endeavour)] mb-1.5">Auto-populated from Contract / Invoice</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-[0.68rem] text-[var(--port-gore)]">
                     <div><span className="font-medium">Seller (our company):</span> {compData.name || '—'}</div>
