@@ -122,7 +122,7 @@ export function QuickSumButton({
             ref={triggerRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="h-7 px-2 rounded-2xl text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium transition-all bg-[var(--surface-card)] text-[var(--port-gore)] border border-[var(--border-divider)] hover:border-[var(--border-divider)]"
+            className="h-7 px-2 rounded-2xl responsiveTextTableTitle font-medium transition-all bg-[var(--surface-card)] text-[var(--port-gore)] border border-[var(--border-divider)] hover:border-[var(--border-divider)]"
             title="Choose columns"
           >
             Columns ▾
@@ -225,7 +225,7 @@ export function QuickSumTotals({
           if (t.byCurrency.EUR != null) parts.push(`€${fmt(t.byCurrency.EUR)}`);
           if (t.byCurrency.plain != null) parts.push(fmt(t.byCurrency.plain));
           return (
-            <span key={t.id} className="bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
+            <span key={t.id} className="bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-full px-3 py-0.5 responsiveText whitespace-nowrap font-medium">
               {label}: <span className="text-[var(--endeavour)]">{parts.join(' | ')}</span>
             </span>
           );
@@ -233,14 +233,14 @@ export function QuickSumTotals({
 
         // Single currency / plain number
         return (
-          <span key={t.id} className="bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-full px-3 py-0.5 text-[11px] whitespace-nowrap font-medium">
+          <span key={t.id} className="bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-full px-3 py-0.5 responsiveText whitespace-nowrap font-medium">
             {label}: <span className="text-[var(--endeavour)]">{fmt(t.total)}</span>
           </span>
         );
       })}
       <button
         type="button"
-        className="text-[11px] underline text-[var(--endeavour)] ml-1"
+        className="responsiveText underline text-[var(--endeavour)] ml-1"
         onClick={() => table.resetRowSelection()}
       >
         Clear rows

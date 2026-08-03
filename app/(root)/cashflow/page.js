@@ -1061,7 +1061,7 @@ const Cashflow = () => {
                                         <button
                                             type="button"
                                             onClick={handleExportCashflow}
-                                            className="flex items-center gap-1.5 border border-[var(--border-cell)] text-[var(--endeavour)] px-3 h-8 text-[0.72rem] font-medium rounded-full bg-[var(--surface-header)] hover:bg-[var(--surface-header)] transition-all"
+                                            className="flex items-center gap-1.5 border border-[var(--border-cell)] text-[var(--endeavour)] px-3 h-8 responsiveTextInput font-medium rounded-full bg-[var(--surface-header)] hover:bg-[var(--surface-header)] transition-all"
                                         >
                                             <FiDownload className="scale-110" /> Export
                                         </button>
@@ -1077,13 +1077,13 @@ const Cashflow = () => {
                             <div className="inline-flex gap-1 mb-2 bg-[var(--surface-header)] border border-[var(--border-divider)] rounded-full p-0">
                                 <button
                                     onClick={() => setActiveTab('general')}
-                                    className={`px-4 py-1 text-[0.72rem] xl:text-[0.75rem] rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}
+                                    className={`px-4 py-1 responsiveTextInput rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}
                                 >
                                     General Cashflow
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('unsold')}
-                                    className={`px-4 py-1 text-[0.72rem] xl:text-[0.75rem] rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}
+                                    className={`px-4 py-1 responsiveTextInput rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}
                                 >
                                     Unsold Stocks
                                 </button>
@@ -1185,10 +1185,10 @@ const Cashflow = () => {
                                                 })}
                                             <div className="flex gap-2 my-1">
                                                 <Tltip direction='bottom' tltpText='Save added data'>
-                                                    <button type="button" className="bg-[var(--endeavour)] border border-[var(--border-cell)] text-white px-5 h-7 text-[0.72rem] font-medium rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
+                                                    <button type="button" className="bg-[var(--endeavour)] border border-[var(--border-cell)] text-white px-5 h-7 responsiveTextInput font-medium rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
                                                 </Tltip>
                                                 <Tltip direction='bottom' tltpText='Add new item'>
-                                                    <button type="button" className="border border-[var(--border-cell)] text-[var(--endeavour)] px-5 h-7 text-[0.72rem] font-medium rounded-full bg-[var(--surface-header)] hover:bg-[var(--surface-header)] transition-all" onClick={addItem}>Add</button>
+                                                    <button type="button" className="border border-[var(--border-cell)] text-[var(--endeavour)] px-5 h-7 responsiveTextInput font-medium rounded-full bg-[var(--surface-header)] hover:bg-[var(--surface-header)] transition-all" onClick={addItem}>Add</button>
                                                 </Tltip>
                                             </div>
                                         </div>
@@ -1447,7 +1447,7 @@ const Cashflow = () => {
                                                                 <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Financing</span>
                                                                 <button
                                                                     type="button"
-                                                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
+                                                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 responsiveTextInput rounded-full hover:opacity-90 transition-all"
                                                                     onClick={() => setFinancedLeft([...financedLeft, { title: '', num: '' }])}
                                                                 >
                                                                     Add
@@ -1686,7 +1686,7 @@ const Cashflow = () => {
                                                                 <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Financing</span>
                                                                 <button
                                                                     type="button"
-                                                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.72rem] rounded-full hover:opacity-90 transition-all"
+                                                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 responsiveTextInput rounded-full hover:opacity-90 transition-all"
                                                                     onClick={() => setFinancedRight([...financedRight, { title: '', num: '' }])}
                                                                 >
                                                                     Add

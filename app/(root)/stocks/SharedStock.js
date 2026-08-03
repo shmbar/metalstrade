@@ -161,9 +161,9 @@ const SharedStock = () => {
                 <span className='inline-flex items-center px-2 py-0.5 rounded-full font-semibold whitespace-nowrap'
                     style={{
                         fontSize: 'var(--fs-table)',
-                        background: p.getValue() === 'IMS' ? 'var(--ok-soft)' : p.getValue() === 'GIS' ? 'var(--warn-soft)' : '#f1f5f9',
+                        background: p.getValue() === 'IMS' ? 'var(--ok-soft)' : p.getValue() === 'GIS' ? 'var(--warn-soft)' : 'var(--surface-muted)',
                         color: p.getValue() === 'IMS' ? 'var(--ok-strong)' : p.getValue() === 'GIS' ? 'var(--warn-strong)' : 'var(--text-mid)',
-                        border: `1px solid ${p.getValue() === 'IMS' ? 'var(--ok-border)' : p.getValue() === 'GIS' ? 'var(--warn-bg)' : '#cbd5e1'}`,
+                        border: `1px solid ${p.getValue() === 'IMS' ? 'var(--ok-border)' : p.getValue() === 'GIS' ? 'var(--warn-bg)' : 'var(--border-neutral-strong)'}`,
                     }}>
                     {p.getValue()}
                 </span>
@@ -254,7 +254,7 @@ const SharedStock = () => {
         return parts.length ? parts.join(' · ') : (curSym('us') || '$') + '0.00';
     };
     const inputCls = 'w-full rounded-lg bg-[var(--surface-pill)] border border-[var(--border-cell)] px-2 h-8 responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]';
-    const labelCls = 'text-[11px] font-medium text-[var(--chathams-blue)] mb-0.5 block';
+    const labelCls = 'responsiveText font-medium text-[var(--chathams-blue)] mb-0.5 block';
 
     if (loading) return <div className='p-6'><TableSkeleton rows={6} title={false} /></div>;
 
@@ -313,7 +313,7 @@ const SharedStock = () => {
                                 secondaryName='_label'
                                 clear={() => setLot(prev => ({ ...prev, sourceId: '', sourceAccount: '', sourcePo: '' }))}
                             />
-                            <p className='text-[10px] text-[var(--regent-gray)] mt-1'>
+                            <p className='responsiveTextTable text-[var(--regent-gray)] mt-1'>
                                 Selecting a lot fills everything in from your inventory ({accountName}) — lower the quantity if you&apos;re sharing only part of it. The lot also stays in your own stock list.
                             </p>
                         </div>
@@ -354,7 +354,7 @@ const SharedStock = () => {
                                         {o}
                                     </label>
                                 ))}
-                                <span className='text-[10px] text-[var(--regent-gray)]'>Both accounts see this lot regardless; owners records who holds it.</span>
+                                <span className='responsiveTextTable text-[var(--regent-gray)]'>Both accounts see this lot regardless; owners records who holds it.</span>
                             </div>
                         </div>
                         <div className='sm:col-span-2'>
@@ -367,7 +367,7 @@ const SharedStock = () => {
                                         {f === 'BOTH' ? 'Both (50/50)' : f}
                                     </label>
                                 ))}
-                                <span className='text-[10px] text-[var(--regent-gray)]'>Who paid for this stock — drives the financing totals below the table.</span>
+                                <span className='responsiveTextTable text-[var(--regent-gray)]'>Who paid for this stock — drives the financing totals below the table.</span>
                             </div>
                         </div>
                     </div>

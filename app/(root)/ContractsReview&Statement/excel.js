@@ -128,7 +128,7 @@ export const EXD = (dataTable, settings, name, ln, valCur) => {
             <Tltip direction='bottom' tltpText={getTtl('Excel', ln)}>
                 <div onClick={() => exportExcel()}
                     className="hover:bg-[var(--selago)] justify-center w-8 h-8 inline-flex
-     items-center text-sm rounded-full  hover:drop-shadow-md focus:outline-none"
+     items-center responsiveTextTitle rounded-full  hover:drop-shadow-md focus:outline-none"
                 >
                     <FileSpreadsheet className="w-5 h-5" style={{ color: 'var(--endeavour)' }} strokeWidth={2} />
                 </div>

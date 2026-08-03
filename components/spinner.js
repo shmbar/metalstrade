@@ -10,7 +10,7 @@ const Spinner = () => {
                     className="w-5 h-5 rounded-full border-[3px] border-[var(--surface-header)] animate-spin"
                     style={{ borderTopColor: 'var(--endeavour)' }}
                 />
-                <span className="text-[12px] font-medium" style={{ color: 'var(--chathams-blue)' }}>
+                <span className="responsiveTextInput font-medium" style={{ color: 'var(--chathams-blue)' }}>
                     Loading…
                 </span>
             </div>

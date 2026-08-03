@@ -223,7 +223,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                     decimalScale={2}
                     fixedDecimalScale
                     className={cn(
-                      "w-full bg-transparent border-none outline-none px-1 text-center text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]",
+                      "w-full bg-transparent border-none outline-none px-1 text-center responsiveText",
                       cell.column.id === "remaining" && Number(cell.getValue()) > 0
                         ? "text-red-600"
                         : "text-[var(--port-gore)]"
@@ -243,7 +243,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                 decimalScale={currs.includes(cell.column.id) ? 2 : 3}
                 fixedDecimalScale
                 className={cn(
-                  "w-full bg-transparent border-none outline-none px-1 text-center text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]",
+                  "w-full bg-transparent border-none outline-none px-1 text-center responsiveText",
                   ["openShip", "remaining"].includes(cell.column.id) && Number(cell.getValue()) > 0
                     ? "text-red-600"
                     : "text-[var(--port-gore)]"
@@ -386,7 +386,7 @@ const Customtable = (props) => {
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
 >
-  <div className="w-full flex items-center justify-center font-medium font-poppins text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
+  <div className="w-full flex items-center justify-center font-medium font-poppins responsiveTextInput">
     {header.isPlaceholder
       ? null
       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -463,7 +463,7 @@ const Customtable = (props) => {
                                                                     prefix={currs.includes(accessorKey) ? '$' : ''}
                                                                     decimalScale={currs.includes(accessorKey) ? 2 : 3}
                                                                     fixedDecimalScale
-                                                                    className="text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]"
+                                                                    className="responsiveTextInput"
                                                                     style={{
                                                                         color: ['openShip', 'remaining'].includes(accessorKey) && total > 0 ? 'var(--danger-text)' : 'var(--chathams-blue)',
                                                                         fontWeight: '500',
@@ -491,7 +491,7 @@ const Customtable = (props) => {
                                     className="rounded-lg border border-[var(--selago)] bg-[var(--surface-card)] shadow-sm overflow-hidden"
                                 >
                                     {/* Compact Card Header */}
-                                    <div className="bg-[var(--surface-header)] px-3 py-2 border-b border-[var(--border-divider)] flex justify-between items-center min-h-[32px]">
+                                    <div className="bg-[var(--surface-header)] px-3 py-2 border-b border-[var(--border-divider)] flex justify-between items-center min-h-8">
                                         <span
                                             className="responsiveTextTable font-normal text-[var(--chathams-blue)]"
                                             style={{ lineHeight: '1.2' }}
@@ -514,7 +514,7 @@ const Customtable = (props) => {
                                             .map((col, colIdx) => (
                                                 <div
                                                     key={col.accessorKey || colIdx}
-                                                    className="flex justify-between items-center gap-2 py-1.5 border-b border-gray-100 last:border-b-0 min-h-[28px]"
+                                                    className="flex justify-between items-center gap-2 py-1.5 border-b border-gray-100 last:border-b-0 min-h-7"
                                                 >
                                                     <span
                                                         className="responsiveTextTable font-normal text-[var(--chathams-blue)] min-w-[80px] flex-shrink-0"

@@ -14,9 +14,9 @@ const ENTITY = {
     expense: { icon: Banknote, color: 'var(--warn-strong)', bg: 'var(--warn-soft)', route: (id) => `/expenses?openId=${id}` },
     companyexpense: { icon: Banknote, color: 'var(--warn-strong)', bg: 'var(--warn-soft)', route: () => `/companyexpenses` },
     stock: { icon: Package, color: 'var(--violet-text)', bg: 'var(--violet-soft)', route: () => `/stocks` },
-    settings: { icon: SettingsIcon, color: 'var(--text-mid)', bg: '#f1f5f9', route: () => `/settings` },
+    settings: { icon: SettingsIcon, color: 'var(--text-mid)', bg: 'var(--surface-muted)', route: () => `/settings` },
 };
-const FALLBACK = { icon: Activity, color: 'var(--text-mid)', bg: '#f1f5f9', route: () => `/activity` };
+const FALLBACK = { icon: Activity, color: 'var(--text-mid)', bg: 'var(--surface-muted)', route: () => `/activity` };
 const metaFor = (t) => ENTITY[t] || FALLBACK;
 
 const SEVERITY_DOT = { success: 'var(--ok-text)', warning: 'var(--warn-text)', error: 'var(--danger-text)', info: 'var(--endeavour)' };
@@ -67,7 +67,7 @@ function Chip({ active, onClick, label, count, unread }) {
             }}
         >
             {label}
-            <span className='px-1 rounded-full' style={{ fontSize: 'var(--fs-caption)', background: active ? 'rgba(255,255,255,0.25)' : 'var(--selago)', color: active ? 'white' : 'var(--regent-gray)' }}>
+            <span className='px-1 rounded-full' style={{ fontSize: 'var(--fs-caption)', background: active ? 'rgba(var(--surface-card-rgb), 0.25)' : 'var(--selago)', color: active ? 'white' : 'var(--regent-gray)' }}>
                 {unread > 0 ? unread : count}
             </span>
         </button>
@@ -192,7 +192,7 @@ const NotificationBell = () => {
                         and the row's left accent; repeating a red pill on every row made
                         the whole panel read as one long alarm. */}
                     <div className='flex items-center gap-1.5 mt-0.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>
-                        <span className='rounded-full shrink-0' style={{ width: 5, height: 5, background: SEVERITY_DOT[n.severity] || '#cbd5e1' }} />
+                        <span className='rounded-full shrink-0' style={{ width: 5, height: 5, background: SEVERITY_DOT[n.severity] || 'var(--border-neutral-strong)' }} />
                         <span className='truncate'>{n.actorName || 'System'}</span>
                         <span>·</span>
                         <span className='whitespace-nowrap' title={n.createdAt}>{relativeTime(n.createdAtMs)}</span>
@@ -252,7 +252,7 @@ const NotificationBell = () => {
             </button>
 
             {open && (
-                <div className='absolute right-0 top-full mt-2 w-[360px] bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] z-[9999] overflow-hidden'>
+                <div className='absolute right-0 top-full mt-2 w-[360px] bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] z-dropdown overflow-hidden'>
                     {/* Header */}
                     <div className='flex items-center justify-between px-3 py-2' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
                         <span className='font-semibold' style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>

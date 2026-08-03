@@ -91,8 +91,8 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                     <span className="grid place-items-center w-6 h-6 rounded-lg bg-[rgba(var(--surface-card-rgb),0.2)] shrink-0">
                         <Sigma className="w-3.5 h-3.5" />
                     </span>
-                    <span className="font-semibold text-[0.78rem] truncate">Selected invoices</span>
-                    <span className="shrink-0 text-[0.64rem] font-bold px-1.5 py-0.5 rounded-full bg-[rgba(var(--surface-card-rgb),0.25)]">
+                    <span className="font-semibold responsiveTextInput truncate">Selected invoices</span>
+                    <span className="shrink-0 responsiveTextTable font-bold px-1.5 py-0.5 rounded-full bg-[rgba(var(--surface-card-rgb),0.25)]">
                         {items.length}
                     </span>
                 </div>
@@ -116,7 +116,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             <div className="flex items-center gap-1 px-2 py-1.5 bg-[rgba(var(--surface-card-rgb),0.6)] border-b border-[var(--selago)]">
                 {METRICS.map(m => (
                     <button key={m} onClick={() => setMetric(m)}
-                        className={`flex-1 text-[0.62rem] font-semibold py-1 rounded-lg transition-colors ${metric === m
+                        className={`flex-1 responsiveTextTable font-semibold py-1 rounded-lg transition-colors ${metric === m
                             ? 'bg-[var(--endeavour)] text-white shadow-sm'
                             : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}>
                         {metricLabel[m]}
@@ -128,28 +128,28 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             <div className="px-3 py-2.5 flex flex-col gap-1.5 bg-[rgba(var(--surface-card-rgb),0.7)]">
                 {hasUsd &&
                     <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-gradient-to-r from-[var(--selago)] to-[rgba(var(--surface-header-rgb),0.7)] border border-[var(--border-cell)]">
-                        <span className="flex items-center gap-1.5 text-[0.6rem] font-semibold tracking-wide uppercase text-[var(--regent-gray)]">
-                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--endeavour)] text-white text-[0.62rem] font-bold leading-none">$</span>
+                        <span className="flex items-center gap-1.5 responsiveTextTable font-semibold tracking-wide uppercase text-[var(--regent-gray)]">
+                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--endeavour)] text-white responsiveTextTable font-bold leading-none">$</span>
                             {metricLabel[metric]}
                         </span>
                         <NumericFormat value={usd} displayType="text" thousandSeparator prefix="$"
                             decimalScale={2} fixedDecimalScale
-                            className="tabular-nums text-[1rem] font-bold text-[var(--chathams-blue)] leading-none" />
+                            className="tabular-nums responsiveTextPage font-bold text-[var(--chathams-blue)] leading-none" />
                     </div>
                 }
                 {hasEur &&
                     <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-gradient-to-r from-[var(--selago)] to-[rgba(var(--surface-header-rgb),0.7)] border border-[var(--border-cell)]">
-                        <span className="flex items-center gap-1.5 text-[0.6rem] font-semibold tracking-wide uppercase text-[var(--regent-gray)]">
-                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--chathams-blue)] text-white text-[0.62rem] font-bold leading-none">€</span>
+                        <span className="flex items-center gap-1.5 responsiveTextTable font-semibold tracking-wide uppercase text-[var(--regent-gray)]">
+                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--chathams-blue)] text-white responsiveTextTable font-bold leading-none">€</span>
                             {metricLabel[metric]}
                         </span>
                         <NumericFormat value={eur} displayType="text" thousandSeparator prefix="€"
                             decimalScale={2} fixedDecimalScale
-                            className="tabular-nums text-[1rem] font-bold text-[var(--chathams-blue)] leading-none" />
+                            className="tabular-nums responsiveTextPage font-bold text-[var(--chathams-blue)] leading-none" />
                     </div>
                 }
                 {naCount > 0 &&
-                    <div className="text-[0.6rem] text-[var(--regent-gray)] italic">
+                    <div className="responsiveTextTable text-[var(--regent-gray)] italic">
                         {naCount} item{naCount > 1 ? 's' : ''} ha{naCount > 1 ? 've' : 's'} no {metricLabel[metric].toLowerCase()} — excluded
                     </div>
                 }
@@ -160,10 +160,10 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                 <div className="max-h-52 overflow-y-auto border-t border-[var(--selago)] bg-[rgba(var(--surface-card-rgb),0.4)]">
                     {rows.map(r => (
                         <div key={r.key}
-                            className="group flex items-center justify-between gap-2 px-3 py-1.5 hover:bg-[var(--selago)] transition-colors text-[0.7rem]">
+                            className="group flex items-center justify-between gap-2 px-3 py-1.5 hover:bg-[var(--selago)] transition-colors responsiveText">
                             <div className="min-w-0">
                                 <div className="truncate text-[var(--port-gore)] font-medium leading-tight">{r.label || kindLabel[r.kind]}</div>
-                                {r.sub && <div className="truncate text-[0.62rem] text-[var(--regent-gray)] leading-tight">{r.sub}</div>}
+                                {r.sub && <div className="truncate responsiveTextTable text-[var(--regent-gray)] leading-tight">{r.sub}</div>}
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">
                                 {r.v == null

@@ -20,7 +20,7 @@ import { cn } from "@lib/utils"
  */
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium transition-colors " +
-  "text-[0.5625rem] xl:text-[0.625rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem] " +
+  "responsiveTextTableTitle " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--endeavour)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-card)] " +
   "disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {

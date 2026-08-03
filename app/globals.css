@@ -68,6 +68,9 @@
   --pink-bg: #fce7f3;
   --pink-text: #db2777;
   --pink-strong: #9d174d;
+  /* 6th avatar hue (components/CommentThread.js). The other five already came
+     from tokens; this one was the last literal in the set. */
+  --teal-text: #0e7490;
   --radius: 0.75rem;
 
   /* ── Design-audit token layer (see design-audit/TOKENS.md) ─────────────────
@@ -76,6 +79,14 @@
 
   /* Modal/dialog overlay — ONE value for every overlay in the app. */
   --overlay: rgb(0 0 0 / 0.45);
+
+  /* Text/iconography sitting ON a brand-coloured surface (endeavour buttons,
+     status chips, table header bands). Stays white in BOTH modes on purpose:
+     utils/themes.js fits every brand colour to >=4.5:1 against white, so white
+     is the correct foreground in dark mode too. Having it as a token means a
+     scan for hardcoded colour can be exhaustive — literal #fff in the source
+     is now always a bug, never "the one legitimate white". */
+  --on-brand: #ffffff;
   /* Shadow colour as an RGB triplet so alpha can be composed. Light mode tints
      shadows with the brand blue (softer on white); dark mode uses pure black. */
   --shadow-rgb: 16, 58, 122;
@@ -209,6 +220,9 @@ html.dark {
      tint that softens them on white is invisible on a dark surface. */
   --overlay: rgb(0 0 0 / 0.60);
   --shadow-rgb: 0, 0, 0;
+  /* Avatar teal, lightened for dark surfaces (the status tokens get the same
+     treatment from DARK_STATUS in utils/themes.js). */
+  --teal-text: #2dd4bf;
 }
 /* The /logo/ SVG assets are drawn in brand blue — on dark surfaces they'd
    vanish. White-silhouette them. Rasters (.png company logos) are excluded:

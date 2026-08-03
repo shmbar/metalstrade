@@ -41,7 +41,7 @@ export const detailsToolTip = (row, data, settings, dataTable,) => {
                 </thead>
                 <tbody>
                     {filteredArr.map((z, i) => (
-                        <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : 'var(--surface-pill)' }}>
+                        <tr key={i} style={{ background: i % 2 === 0 ? 'var(--surface-card)' : 'var(--surface-pill)' }}>
                             <td style={tdStyle}>{z.order}</td>
                             <td style={tdStyle}>{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td>
                             <td style={tdStyle}>{z.descriptionName}</td>

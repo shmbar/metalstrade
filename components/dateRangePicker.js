@@ -176,7 +176,7 @@ const DateRangePicker = ({ displayLabel }) => {
     return (
         <div className="relative flex items-center w-full max-w-[200px] rounded-full">
             {displayLabel && (
-                <span className="text-[10px] font-medium text-[var(--port-gore)] bg-gray-100 px-2 py-0.5 rounded-2xl shadow-sm whitespace-nowrap mr-2">
+                <span className="responsiveTextTable font-medium text-[var(--port-gore)] bg-gray-100 px-2 py-0.5 rounded-2xl shadow-sm whitespace-nowrap mr-2">
                     {displayLabel}
                 </span>
             )}
@@ -208,7 +208,7 @@ const DateRangePicker = ({ displayLabel }) => {
                     showShortcuts={true}
                     readOnly={true}
                     popoverDirection="down"
-                    containerClassName="relative z-[50]"
+                    containerClassName="relative z-popover"
                     configs={{
                         shortcuts: {
                             today: {

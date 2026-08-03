@@ -159,7 +159,7 @@ const Customtable = ({
       `}</style>
 
       <div className="custom-table">
-        <div className="flex flex-col" style={{ boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset' }}>
+        <div className="flex flex-col" style={{ boxShadow: '0 20px 60px rgba(var(--shadow-rgb), 0.08), 0 0 1px rgba(var(--shadow-rgb), 0.1) inset' }}>
           {/* HEADER */}
           <div className="flex-shrink-0" style={{ borderBottom: '2px solid var(--border-divider)', background: 'linear-gradient(90deg, rgba(var(--surface-card-rgb),0.95), rgba(var(--surface-base-rgb),0.98))' }}>
             <Header
@@ -184,7 +184,7 @@ const Customtable = ({
               <table className="w-full" style={{ tableLayout: 'auto' }}>
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(hdGroup => (
-                    <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                    <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
@@ -251,7 +251,7 @@ const Customtable = ({
               <table className="w-full" style={{ tableLayout: 'auto' }}>
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(hdGroup => (
-                    <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                    <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}

@@ -31,7 +31,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
     return (
         <Select className='border-slate-400' value={value[name]} onValueChange={onChange}
             defaultValue="df" onOpenChange={(open) => { if (!open) setQuery('') }}>
-            <SelectTrigger className={`group relative border-[var(--border-divider)] hover:border-[var(--rock-blue)] rounded-full h-8 text-[0.75rem] gap-0.5 px-2
+            <SelectTrigger className={`group relative border-[var(--border-divider)] hover:border-[var(--rock-blue)] rounded-full h-8 responsiveTextInput gap-0.5 px-2
                     text-[var(--chathams-blue)] outline-none focus:ring-0
                     focus:outline-none focus:ring-offset-0 shadow-sm pointer-events-auto
                     w-full max-w-full overflow-hidden [&>span]:truncate [&>span]:pr-4
@@ -55,7 +55,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
 
 
             </SelectTrigger>
-            <SelectContent className="z-[9999] rounded-2xl border border-[var(--surface-header)] shadow-md text-[0.75rem] text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
+            <SelectContent className="z-dropdown rounded-2xl border border-[var(--surface-header)] shadow-md responsiveTextInput text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
                 {searchable && (
                     <div className="sticky top-0 z-10 bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
                         <input
@@ -64,7 +64,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                             onKeyDown={(e) => e.stopPropagation()}
                             onPointerDown={(e) => e.stopPropagation()}
                             placeholder="Search…"
-                            className="w-full h-7 px-2 rounded-lg border border-[var(--border-cell)] bg-[var(--surface-pill)] text-[0.72rem] text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]"
+                            className="w-full h-7 px-2 rounded-lg border border-[var(--border-cell)] bg-[var(--surface-pill)] responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]"
                         />
                     </div>
                 )}
@@ -74,14 +74,14 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                     {sortArr(shown, secondaryName || name).map(k => {
                         return (
                             <SelectItem key={k.id} value={k.id}
-                                className={cn('text-[0.75rem] rounded-2xl', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks' || k.id === 'EditTextTermPmnt') ?
+                                className={cn('responsiveTextInput rounded-2xl', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks' || k.id === 'EditTextTermPmnt') ?
                                     'font-semibold italic text-purple-900' : 'text-[var(--chathams-blue)]')} >
                                 {secondaryName ? k[secondaryName] : k[name]}
                             </SelectItem>
                         )
                     })}
                     {searchable && shown.length === 0 && (
-                        <div className="px-3 py-2 text-[0.7rem] text-[var(--regent-gray)]">No matches</div>
+                        <div className="px-3 py-2 responsiveText text-[var(--regent-gray)]">No matches</div>
                     )}
                 </SelectGroup>
             </SelectContent>

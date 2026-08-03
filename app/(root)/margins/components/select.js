@@ -39,7 +39,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                         className="
                           group w-full flex items-center justify-between
                           bg-[var(--surface-pill)] rounded-lg px-2
-                          text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
+                          responsiveText
                           text-[var(--port-gore)]
                           border border-[var(--border-cell)]
                           focus:border-[var(--endeavour)]
@@ -65,10 +65,10 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                       <Command className="bg-transparent">
                         <CommandInput
                           placeholder="Search..."
-                          className="text-[0.72rem] h-8"
+                          className="responsiveTextInput h-8"
                         />
                         <CommandList style={{ maxHeight: '200px' }}>
-                          <CommandEmpty className="py-3 text-center text-[0.7rem] text-[var(--regent-gray)]">
+                          <CommandEmpty className="py-3 text-center responsiveText text-[var(--regent-gray)]">
                             No match
                           </CommandEmpty>
                           <CommandGroup>
@@ -80,7 +80,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                                   handleChangeSelect(z.id, props.row.original.id, month, name);
                                   setOpen(false);
                                 }}
-                                className="text-[0.7rem] xl:text-[0.72rem] 2xl:text-[0.75rem] px-2 py-1.5 hover:bg-blue-50 cursor-pointer text-[var(--port-gore)] data-[selected=true]:bg-[var(--surface-header)] data-[selected=true]:text-[var(--endeavour)]"
+                                className="responsiveText px-2 py-1.5 hover:bg-blue-50 cursor-pointer text-[var(--port-gore)] data-[selected=true]:bg-[var(--surface-header)] data-[selected=true]:text-[var(--endeavour)]"
                               >
                                 <Check
                                   className={cn(
@@ -101,7 +101,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
               {fullName && !open && (
                 <TooltipContent
                   side="top"
-                  className="bg-[var(--chathams-blue)] text-white text-[0.72rem] rounded-lg px-2.5 py-1 border-0 shadow-md"
+                  className="bg-[var(--chathams-blue)] text-white responsiveTextInput rounded-lg px-2.5 py-1 border-0 shadow-md"
                   style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
                 >
                   {fullName}

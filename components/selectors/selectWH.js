@@ -18,7 +18,7 @@ const SelectHW = ({ data, value, setValue, idx, name }) => {
                 value={value?.id ?? ''}
                 onValueChange={(e) => setValue(e, idx)}
             >
-                <SelectTrigger className="shad-input h-[28px] responsiveTextInput w-36 border-slate-400 text-[var(--port-gore)] focus:ring-1 focus:ring-offset-0 focus:border-slate-100 focus:ring-slate-400">
+                <SelectTrigger className="shad-input h-7 responsiveTextInput w-36 border-slate-400 text-[var(--port-gore)] focus:ring-1 focus:ring-offset-0 focus:border-slate-100 focus:ring-slate-400">
                     <SelectValue placeholder="Select stock" />
                 </SelectTrigger>
                 <SelectContent>

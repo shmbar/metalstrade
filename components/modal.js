@@ -41,7 +41,7 @@ const Modal = ({ isOpen, setIsOpen, title, children, w }) => {
                                 <DialogPanel className={`w-full ${w == null ? 'max-w-7xl' : w} transform rounded-2xl
                                  bg-[var(--surface-card)] text-left align-middle shadow-lg transition-all border border-[var(--border-cell)]
                                  `}>
-                                    {/* Header: was a rogue text-[0.85rem] (13.6px, used nowhere else).
+                                    {/* Header: was a rogue 0.85rem (13.6px, a size used nowhere else).
                                         Now on the ladder via .responsiveTextTitle. */}
                                     <DialogTitle
                                         as="h3"

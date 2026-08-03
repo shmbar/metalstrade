@@ -134,7 +134,7 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                     <div className='flex flex-col items-center justify-center leading-tight gap-0.5'>
                                         <span className='font-medium'>{y.inv}</span>
                                         {y._source &&
-                                            <span className='text-[0.6rem] px-1.5 rounded-full bg-[var(--surface-header)] text-[var(--chathams-blue)] not-italic'>
+                                            <span className='responsiveTextTable px-1.5 rounded-full bg-[var(--surface-header)] text-[var(--chathams-blue)] not-italic'>
                                                 {y._source.order}
                                             </span>
                                         }

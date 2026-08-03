@@ -202,7 +202,7 @@ export default function HeadlineTicker({
         cursor: 'pointer',
         fontSize: 9,
         color: 'var(--endeavour)',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+        boxShadow: '0 2px 8px rgba(var(--shadow-rgb), 0.10)',
         lineHeight: 1,
       }}
     >

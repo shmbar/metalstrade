@@ -16,10 +16,10 @@ const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, di
 
     return (
         <div className='flex gap-4 justify-between my-3 w-full'>
-            <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem] shrink-0'>{title}:</p>
+            <p className='flex responsiveText font-medium whitespace-nowrap pt-1 responsiveTextInput shrink-0'>{title}:</p>
             <div className='flex-1'>
                 <input
-                    className="input shadow-lg h-7 !rounded-full text-[0.75rem] w-full"
+                    className="input shadow-lg h-7 !rounded-full responsiveTextInput w-full"
                     type={type}
                     name={name}
                     value={value[name] || ''}  // Dynamically bind value
@@ -39,7 +39,7 @@ const USerDSelect = ({ data, value, setValue, name, errors, ln }) => {
 
     return (
         <div className='flex gap-4 justify-between'>
-            <p className='flex items-center responsiveText font-medium whitespace-nowrap text-[0.75rem]'>Title:</p>
+            <p className='flex items-center responsiveText font-medium whitespace-nowrap responsiveTextInput'>Title:</p>
             <div className='w-full'>
                 <Selector arr={data} value={value}
                     onChange={(e) => setValue(prev => ({ ...prev, [name]: e }))}
@@ -183,10 +183,10 @@ const UserData = ({ setIsOpen, data, setData, user, setUser }) => {
             </div>
 
             <div className='flex gap-4 justify-between my-3 w-full'>
-                <p className='flex responsiveText font-medium whitespace-nowrap pt-1 text-[0.75rem] shrink-0'>Password Verification:</p>
+                <p className='flex responsiveText font-medium whitespace-nowrap pt-1 responsiveTextInput shrink-0'>Password Verification:</p>
                 <div className='flex-1'>
                     <input
-                        className="input shadow-lg h-7 !rounded-full text-[0.75rem] w-full"
+                        className="input shadow-lg h-7 !rounded-full responsiveTextInput w-full"
                         type='password'
                         name='password1'
                         value={user.password1 || ''}

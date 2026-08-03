@@ -4,13 +4,13 @@ import { FileText } from 'lucide-react';
 
 const Field = ({ label, name, value, onChange, placeholder = '', wide = false }) => (
     <div className={wide ? 'md:col-span-2' : ''}>
-        <label className="block text-[0.68rem] font-medium text-[var(--chathams-blue)] mb-0.5">{label}</label>
+        <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">{label}</label>
         <input
             name={name}
             value={value || ''}
             onChange={onChange}
             placeholder={placeholder}
-            className="border border-[var(--border-divider)] rounded-full px-3 h-7 text-[0.75rem] w-full
+            className="border border-[var(--border-divider)] rounded-full px-3 h-7 responsiveTextInput w-full
                 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
             style={{ fontFamily: 'inherit' }}
         />
@@ -18,7 +18,7 @@ const Field = ({ label, name, value, onChange, placeholder = '', wide = false })
 );
 
 const SectionLabel = ({ text }) => (
-    <p className="md:col-span-2 text-[0.7rem] font-medium text-[var(--endeavour)] mt-2 border-b border-[var(--surface-header)] pb-0.5">{text}</p>
+    <p className="md:col-span-2 responsiveText font-medium text-[var(--endeavour)] mt-2 border-b border-[var(--surface-header)] pb-0.5">{text}</p>
 );
 
 const SHIPMENT_TYPES = ['FCL', 'LCL', 'BULK', 'CONSOL'];
@@ -68,7 +68,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 <p className="responsiveText font-medium text-[var(--chathams-blue)]">ISF — Importer Security Filing (10+2)</p>
                 <button
                     onClick={generatePdf}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.72rem] font-medium
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-full responsiveTextInput font-medium
                         bg-emerald-600 text-white hover:opacity-90 transition-all"
                 >
                     <FileText size={13} /> ISF PDF
@@ -78,7 +78,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
             {/* Template selector */}
             {templates.length > 0 && (
                 <div className="mb-3 flex items-center gap-2">
-                    <label className="text-[0.68rem] font-medium text-[var(--chathams-blue)] whitespace-nowrap">Load Template:</label>
+                    <label className="responsiveText font-medium text-[var(--chathams-blue)] whitespace-nowrap">Load Template:</label>
                     <div className="w-64">
                         <Selector
                             arr={templates}
@@ -94,8 +94,8 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
 
             {/* Auto-populated info */}
             <div className="md:col-span-2 bg-[var(--surface-pill)] border border-[var(--surface-header)] rounded-2xl p-2 mb-3">
-                <p className="text-[0.68rem] font-medium text-[var(--endeavour)] mb-1.5">Auto-populated from Contract / Invoice</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-[0.68rem] text-[var(--port-gore)]">
+                <p className="responsiveText font-medium text-[var(--endeavour)] mb-1.5">Auto-populated from Contract / Invoice</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 responsiveText text-[var(--port-gore)]">
                     <div><span className="font-medium">Seller (our company):</span> {compData.name || '—'}</div>
                     <div><span className="font-medium">Ship To / Buyer:</span> {shipToName || '—'}</div>
                     <div><span className="font-medium">Country of Origin:</span> {originLabel || '—'}</div>
@@ -109,13 +109,13 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
 
                 {/* Shipment Type */}
                 <div>
-                    <label className="block text-[0.68rem] font-medium text-[var(--chathams-blue)] mb-0.5">Shipment Type</label>
+                    <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">Shipment Type</label>
                     <div className="flex gap-2 flex-wrap">
                         {SHIPMENT_TYPES.map(type => (
                             <button
                                 key={type}
                                 onClick={() => update('shipmentType', isf.shipmentType === type ? '' : type)}
-                                className={`px-3 py-0.5 rounded-full text-[0.72rem] border transition-all
+                                className={`px-3 py-0.5 rounded-full responsiveTextInput border transition-all
                                     ${isf.shipmentType === type
                                         ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]'
                                         : 'text-[var(--chathams-blue)] border-[var(--border-divider)] hover:bg-[var(--selago)]'}`}
@@ -128,7 +128,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
 
                 {/* Ship To override */}
                 <div>
-                    <label className="block text-[0.68rem] font-medium text-[var(--chathams-blue)] mb-0.5">Ship To / ISF Importer (override)</label>
+                    <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">Ship To / ISF Importer (override)</label>
                     <Selector
                         arr={clts.filter(c => !c.deleted).sort((a, b) => (a.nname || '').localeCompare(b.nname || ''))}
                         value={isf}
@@ -152,13 +152,13 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
 
                 {/* BL Type */}
                 <div className="md:col-span-2">
-                    <label className="block text-[0.68rem] font-medium text-[var(--chathams-blue)] mb-0.5">B/L Type</label>
+                    <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">B/L Type</label>
                     <div className="flex gap-2 flex-wrap">
                         {BL_TYPES.map(type => (
                             <button
                                 key={type}
                                 onClick={() => update('blType', isf.blType === type ? '' : type)}
-                                className={`px-3 py-0.5 rounded-full text-[0.72rem] border transition-all
+                                className={`px-3 py-0.5 rounded-full responsiveTextInput border transition-all
                                     ${isf.blType === type
                                         ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]'
                                         : 'text-[var(--chathams-blue)] border-[var(--border-divider)] hover:bg-[var(--selago)]'}`}

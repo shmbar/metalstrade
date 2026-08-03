@@ -103,7 +103,7 @@ const Customtable = ({ data, propDefaults, val, mult }) => {
 									<th
 										scope="col"
 										key={k}
-										className="px-3 py-1 text-left text-[0.6rem] font-medium uppercase text-[var(--chathams-blue)]"
+										className="px-3 py-1 text-left responsiveTextTable font-medium uppercase text-[var(--chathams-blue)]"
 									>
 										{y}
 									</th>
@@ -115,7 +115,7 @@ const Customtable = ({ data, propDefaults, val, mult }) => {
 						{sortedData(data).map((obj, i) => (
 							<tr key={i}>
 								{cols.map(x => (
-									<td key={x.field} data-label={x.header} className={`table_cell px-3 py-0.5 text-[0.6rem] items-center
+									<td key={x.field} data-label={x.header} className={`table_cell px-3 py-0.5 responsiveTextTable items-center
 									${data.length === (i + 1) && 'font-medium'}`} >
 										<div className='py-1'>
 											{showDetail(obj, x.field)}
@@ -126,7 +126,7 @@ const Customtable = ({ data, propDefaults, val, mult }) => {
 						))}
 						{data.length > 1 && <tr>
 							{cols.map(x => (
-								<td key={x.field} data-label={x.header} className='table_cell px-3 py-0.5 text-[0.6rem] items-center' >
+								<td key={x.field} data-label={x.header} className='table_cell px-3 py-0.5 responsiveTextTable items-center' >
 									<div className='py-1 font-medium'>
 										{x.field === 'expenses' ? frmNum(accumExp(data.reduce((accumulator, item) => {
 											if (item.expenses && item.expenses.length) {

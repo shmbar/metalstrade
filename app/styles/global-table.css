@@ -15,7 +15,7 @@
   --ui-primary-soft: var(--selago);
 
   --ui-radius: 8px;
-  --ui-shadow-soft: 0 1px 3px rgba(0,0,0,.08);
+  --ui-shadow-soft: 0 1px 3px rgba(var(--shadow-rgb), .08);
 
   --ui-row-height: 28px;
   --ui-cell-padding-x: 6px;
@@ -85,7 +85,7 @@ table select {
 table input:focus {
   outline: none;
   border-color: var(--ui-primary);
-  box-shadow: 0 0 0 2px rgba(9,110,182,.12);
+  box-shadow: 0 0 0 2px rgba(var(--endeavour-rgb), .12);
 }
 
 /* =====================================================

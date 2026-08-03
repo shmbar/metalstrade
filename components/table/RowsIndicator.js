@@ -14,10 +14,10 @@ const RowsIndicator = ({ table }) => {
 
 	return (
 		<div className="py-1 px-1 md:px-4 self-center flex items-center space-x-2 m-auto md:m-0">
-			<span className="text-[var(--endeavour)] text-[0.72rem]">Rows:</span>
+			<span className="text-[var(--endeavour)] responsiveTextInput">Rows:</span>
 			<Menu as="div" className="relative inline-block">
 				<MenuButton
-					className="inline-flex w-full justify-center border border-[var(--endeavour)]/50 rounded-lg px-4 py-1 text-[0.72rem] font-medium text-[var(--port-gore)]
+					className="inline-flex w-full justify-center border border-[var(--endeavour)]/50 rounded-lg px-4 py-1 responsiveTextInput font-medium text-[var(--port-gore)]
 									hover:border-[var(--endeavour)] transition-colors"
 				>
 					<span className='items-center flex pt-[2px] text-[var(--endeavour)]'>{table.getState().pagination.pageSize}</span>
@@ -46,7 +46,7 @@ const RowsIndicator = ({ table }) => {
 											className={`${table.getState().pagination.pageSize === x
 												? 'bg-[var(--surface-header)] text-[var(--endeavour)] font-semibold'
 												: 'text-[var(--port-gore)]'
-												} flex w-full items-center rounded-lg px-2 py-1.5 text-[0.72rem] mt-0.5 justify-center
+												} flex w-full items-center rounded-lg px-2 py-1.5 responsiveTextInput mt-0.5 justify-center
 														${table.getState().pagination.pageSize !== x ? ' hover:bg-[var(--selago)]' : null}`}
 											onClick={() => setClickHandler(x)}
 										>

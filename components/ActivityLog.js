@@ -10,9 +10,9 @@ const ENTITY_META = {
     invoice: { label: 'Invoice', icon: Receipt, color: 'var(--ok-strong)', bg: 'var(--ok-soft)' },
     expense: { label: 'Expense', icon: Banknote, color: 'var(--warn-strong)', bg: 'var(--warn-soft)' },
     stock: { label: 'Stock', icon: Package, color: 'var(--violet-text)', bg: 'var(--violet-soft)' },
-    settings: { label: 'Settings', icon: SettingsIcon, color: 'var(--text-mid)', bg: '#f1f5f9' },
+    settings: { label: 'Settings', icon: SettingsIcon, color: 'var(--text-mid)', bg: 'var(--surface-muted)' },
 };
-const FALLBACK_META = { label: 'Activity', icon: Activity, color: 'var(--text-mid)', bg: '#f1f5f9' };
+const FALLBACK_META = { label: 'Activity', icon: Activity, color: 'var(--text-mid)', bg: 'var(--surface-muted)' };
 const metaFor = (t) => ENTITY_META[t] || FALLBACK_META;
 
 function relativeTime(ms) {

@@ -6,7 +6,7 @@ export const TONES = {
     amber: { bg: 'var(--warn-bg)', text: 'var(--warn-strong)', border: 'var(--warn-border)' },
     red: { bg: 'var(--danger-bg)', text: 'var(--danger-strong)', border: 'var(--danger-border)' },
     blue: { bg: 'var(--surface-header)', text: 'var(--endeavour)', border: 'var(--border-divider)' },
-    gray: { bg: '#f1f5f9', text: 'var(--text-mid)', border: 'var(--border-neutral)' },
+    gray: { bg: 'var(--surface-muted)', text: 'var(--text-mid)', border: 'var(--border-neutral)' },
 };
 
 // Map a free-text status label to a tone. Order matters: negative/partial checks

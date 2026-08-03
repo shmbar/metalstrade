@@ -11,7 +11,7 @@ import { receivables as financeReceivables, groupInvoices, isOverdue, invoiceBal
 function AlertPill({ icon: Icon, label, count, severity, onClick }) {
     const palette = {
         red: { bg: 'var(--danger-bg)', border: 'var(--danger-border)', text: 'var(--danger-strong)' },
-        amber: { bg: 'var(--warn-soft)', border: '#ffc107', text: 'var(--warn-strong)' },
+        amber: { bg: 'var(--warn-soft)', border: 'var(--warn-text)', text: 'var(--warn-strong)' },
         green: { bg: 'var(--ok-bg)', border: 'var(--ok-border)', text: 'var(--ok-strong)' },
         blue: { bg: 'var(--surface-header)', border: 'var(--border-divider)', text: 'var(--chathams-blue)' },
     }[severity];

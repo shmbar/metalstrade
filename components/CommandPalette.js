@@ -86,7 +86,7 @@ export default function CommandPalette() {
         className="fixed bottom-4 right-20 z-40 hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-cell)] shadow-md hover:shadow-lg transition-shadow"
       >
         <Search className="w-3.5 h-3.5 text-[var(--chathams-blue)]" />
-        <span className="text-[0.62rem] text-[var(--regent-gray)] font-medium">
+        <span className="responsiveTextTable text-[var(--regent-gray)] font-medium">
           Ctrl <span className="opacity-50">+</span> K
         </span>
       </button>
@@ -95,7 +95,7 @@ export default function CommandPalette() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center pt-[12vh] px-4"
+      className="fixed inset-0 z-sticky flex items-start justify-center pt-[12vh] px-4"
       onClick={() => setOpen(false)}
     >
       <div
@@ -117,7 +117,7 @@ export default function CommandPalette() {
             className="w-full h-11 outline-none bg-transparent responsiveTextTitle text-[var(--port-gore)] placeholder:text-[var(--regent-gray)]"
             autoFocus
           />
-          <kbd className="text-[0.6rem] px-1.5 py-0.5 rounded border border-[var(--border-cell)] text-[var(--regent-gray)]">
+          <kbd className="responsiveTextTable px-1.5 py-0.5 rounded border border-[var(--border-cell)] text-[var(--regent-gray)]">
             Esc
           </kbd>
         </div>
@@ -129,7 +129,7 @@ export default function CommandPalette() {
 
           <Command.Group
             heading="Navigation"
-            className="text-[0.6rem] uppercase tracking-wide text-[var(--regent-gray)] font-semibold px-2 py-1"
+            className="responsiveTextTable uppercase tracking-wide text-[var(--regent-gray)] font-semibold px-2 py-1"
           >
             {NAV_ITEMS.map(({ label, route, icon: Icon, keywords }) => (
               <Command.Item
@@ -149,7 +149,7 @@ export default function CommandPalette() {
           {filteredItems.length > 0 && (
             <Command.Group
               heading="Records"
-              className="text-[0.6rem] uppercase tracking-wide text-[var(--regent-gray)] font-semibold px-2 py-1 mt-1"
+              className="responsiveTextTable uppercase tracking-wide text-[var(--regent-gray)] font-semibold px-2 py-1 mt-1"
             >
               {filteredItems.map((item) => (
                 <Command.Item
@@ -172,7 +172,7 @@ export default function CommandPalette() {
           )}
         </Command.List>
 
-        <div className="flex items-center gap-3 px-3 py-2 border-t border-[var(--selago)] text-[0.58rem] text-[var(--regent-gray)]">
+        <div className="flex items-center gap-3 px-3 py-2 border-t border-[var(--selago)] responsiveTextTableTitle text-[var(--regent-gray)]">
           <span><kbd className="px-1 py-0.5 rounded border border-[var(--border-cell)]">↑↓</kbd> navigate</span>
           <span><kbd className="px-1 py-0.5 rounded border border-[var(--border-cell)]">↵</kbd> open</span>
           <span><kbd className="px-1 py-0.5 rounded border border-[var(--border-cell)]">Esc</kbd> close</span>

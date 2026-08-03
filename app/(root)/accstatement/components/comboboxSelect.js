@@ -54,7 +54,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                         leaveTo="opacity-0"
                         afterLeave={() => setQuery('')}
                     >
-                        <ComboboxOptions className={`z-[9999] absolute mt-1 max-h-60 w-full overflow-auto custom-scroll rounded-2xl
+                        <ComboboxOptions className={`z-dropdown absolute mt-1 max-h-60 w-full overflow-auto custom-scroll rounded-2xl
                         bg-[var(--surface-card)] py-1 responsiveTextInput shadow-lg border border-[var(--surface-header)] focus:outline-none
                         responsiveText ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (

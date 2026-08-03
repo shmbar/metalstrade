@@ -88,7 +88,7 @@ export const MainNav = () => {
 
   return (
     <div
-      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[var(--surface-header)] z-[100] rounded-lg'
+      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[var(--surface-header)] z-sticky rounded-lg'
       style={{
         height: 'clamp(56px, 7vh, 80px)',
         borderRadius: '12px',
@@ -166,7 +166,7 @@ export const MainNav = () => {
 
           {/* Results dropdown, only if openSearch and query */}
           {openSearch && query && (
-            <div className='absolute left-0 top-full mt-2 w-72 bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] z-[9999] max-h-96 overflow-y-auto p-3'>
+            <div className='absolute left-0 top-full mt-2 w-72 bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] z-dropdown max-h-96 overflow-y-auto p-3'>
               {searchResults.length > 0 ? (
                 searchResults.map((r) => (
                   <button
@@ -248,7 +248,7 @@ export const MainNav = () => {
               </div>
             </button>
             {showDropdown && (
-              <div className='absolute right-0 top-full mt-2 w-64 bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] py-2 z-[9999] overflow-visible'>
+              <div className='absolute right-0 top-full mt-2 w-64 bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] py-2 z-dropdown overflow-visible'>
                 <div className='px-4 py-3 border-b border-[var(--selago)]'>
                   <p className='responsiveTextTable font-medium text-[var(--port-gore)]'>
                     {user?.displayName || user?.email?.split('@')[0] || 'User'}
@@ -281,14 +281,14 @@ export const MainNav = () => {
                       router.push('/settings')
                       setShowDropdown(false)
                     }}
-                    className='w-full flex items-center gap-3 px-4 py-2 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] text-[var(--port-gore)] hover:bg-[var(--selago)] hover:text-[var(--endeavour)] transition-all'
+                    className='w-full flex items-center gap-3 px-4 py-2 responsiveTextTableTitle text-[var(--port-gore)] hover:bg-[var(--selago)] hover:text-[var(--endeavour)] transition-all'
                   >
                     <img src='/logo/Settings.svg' alt='Settings' className='w-4 h-4 mr-2' />
                     {getTtl('Settings', ln) || 'Settings'}
                   </button>
                   <button
                     onClick={LogOut}
-                    className='w-full flex items-center gap-3 px-4 py-2 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] text-red-500 hover:bg-red-50 transition-all'
+                    className='w-full flex items-center gap-3 px-4 py-2 responsiveTextTableTitle text-red-500 hover:bg-red-50 transition-all'
                   >
                     <img src='/logo/logout.svg' alt='Logout' className='w-4 h-4 mr-2' />
                     {getTtl('Logout', ln) || 'Logout'}

@@ -60,8 +60,8 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
 
     const overlay = (
         <div
-            className='fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-4'
-            style={{ background: 'rgba(0,0,0,0.5)' }}
+            className='fixed inset-0 z-command flex items-center justify-center p-3 sm:p-4'
+            style={{ background: 'rgba(var(--shadow-rgb), 0.5)' }}
             role='dialog'
             aria-modal='true'
             aria-label='PDF preview'

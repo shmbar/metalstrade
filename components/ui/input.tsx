@@ -13,7 +13,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
              bg-transparent. It previously sat 8px taller than every other input
              in the app. */
           "flex h-7 w-full rounded-full border border-[var(--border-cell)] bg-[var(--surface-pill)] px-3 shadow-sm transition-colors " +
-          "text-[0.6875rem] xl:text-[0.75rem] 2xl:text-[0.8125rem] 3xl:text-[0.875rem] text-[var(--port-gore)] " +
+          "responsiveText text-[var(--port-gore)] " +
           "file:border-0 file:bg-transparent file:font-medium file:text-[var(--chathams-blue)] placeholder:text-[var(--regent-gray)] " +
           "focus-visible:outline-none focus-visible:border-[var(--endeavour)] disabled:cursor-not-allowed disabled:opacity-50",
           className

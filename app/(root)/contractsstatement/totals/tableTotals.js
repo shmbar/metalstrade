@@ -77,7 +77,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                     <table className="custom-table w-full" style={{ tableLayout: 'auto' }}>
                         <thead className="sticky top-0 z-10">
                             {table1.getHeaderGroups().map(hdGroup =>
-                                <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
+                                <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
                                     {hdGroup.headers.map(header => (
                                         <th key={header.id}
                                             className="responsiveTextTable px-2 py-2 text-center font-normal font-poppins"
@@ -145,12 +145,12 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                             style={{
                                 backgroundColor: 'var(--surface-card)',
                                 border: '1px solid var(--border-divider)',
-                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
+                                boxShadow: '0 4px 12px rgba(var(--shadow-rgb), 0.06)'
                             }}
                         >
                             {/* Card Header */}
                             <div className="px-3 py-2 flex items-center justify-between" style={{ background: 'var(--border-divider)' }}>
-                                <span className="font-normal" style={{ fontSize: 'var(--fs-table)', textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)' }}>
+                                <span className="font-normal" style={{ fontSize: 'var(--fs-table)', textShadow: '0 1px 2px rgba(var(--shadow-rgb), 0.2)' }}>
                                     {getTtl('Row', settings?.ln || 'en')} {rowIndex + 1}
                                 </span>
                             </div>
@@ -161,7 +161,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                                         <div className="uppercase tracking-wider font-normal" style={{ color: 'var(--regent-gray)', fontSize: 'var(--fs-caption)' }}>
                                             {cell.column.columnDef.header}
                                         </div>
-                                        <div className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" style={{ color: 'var(--port-gore)', background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))', fontSize: 'var(--fs-table)', border: '1px solid var(--border-divider)' }}>
+                                        <div className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" style={{ color: 'var(--port-gore)', background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))', fontSize: 'var(--fs-table)', border: '1px solid var(--border-divider)' }}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </div>
                                     </div>

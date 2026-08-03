@@ -54,7 +54,7 @@ const PdfPagesView = ({ src, height = '68vh' }) => {
     if (pages === null) {
         return (
             <div className='flex items-center justify-center gap-2 rounded-lg border'
-                style={{ height, borderColor: '#d8e8f5', background: '#fff' }}>
+                style={{ height, borderColor: 'var(--border-cell)', background: 'var(--surface-card)' }}>
                 <Loader2 className='w-4 h-4 animate-spin' style={{ color: 'var(--endeavour)' }} />
                 <span style={{ fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>Rendering document…</span>
             </div>
@@ -64,16 +64,16 @@ const PdfPagesView = ({ src, height = '68vh' }) => {
     if (pages.length === 0) {
         return (
             <iframe title='document' src={`${src}#toolbar=1&navpanes=0`}
-                style={{ width: '100%', height, border: '1px solid #d8e8f5', borderRadius: '6px', background: '#fff' }} />
+                style={{ width: '100%', height, border: '1px solid var(--border-cell)', borderRadius: '6px', background: 'var(--surface-card)' }} />
         );
     }
 
     return (
-        <div className='overflow-y-auto rounded-lg border' style={{ height, borderColor: '#d8e8f5', background: '#eef2f6' }}>
+        <div className='overflow-y-auto rounded-lg border' style={{ height, borderColor: 'var(--border-cell)', background: '#eef2f6' }}>
             {pages.map((p, i) => (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img key={i} src={p} alt={`Page ${i + 1}`}
-                    style={{ display: 'block', width: '100%', maxWidth: '900px', margin: '10px auto', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', background: '#fff' }} />
+                    style={{ display: 'block', width: '100%', maxWidth: '900px', margin: '10px auto', boxShadow: '0 1px 4px rgba(var(--shadow-rgb), 0.15)', background: 'var(--surface-card)' }} />
             ))}
         </div>
     );

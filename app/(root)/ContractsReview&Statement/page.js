@@ -64,7 +64,7 @@ const ProgressBar = ({ shipped, total }) => {
     const t = parseFloat(total) || 0;
     const s = parseFloat(shipped) || 0;
     const pct = t > 0 ? Math.max(0, Math.min(100, Math.round((s / t) * 100))) : 0;
-    const color = pct >= 100 ? 'var(--ok-text)' : pct > 0 ? 'var(--endeavour)' : '#cbd5e1';
+    const color = pct >= 100 ? 'var(--ok-text)' : pct > 0 ? 'var(--endeavour)' : 'var(--border-neutral-strong)';
     return (
         <div className="flex flex-col items-center gap-1" style={{ minWidth: 84 }}>
             <div style={{ width: '100%', height: 6, borderRadius: 9999, background: 'var(--selago)', overflow: 'hidden' }}>
@@ -196,7 +196,7 @@ const statusRollupFilter = (row, columnId, filterValue) => {
 const CB = (settings, setValCur, valCur) => {
     return (
         <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='input border-slate-300 shadow-sm items-center flex max-w-[100px] !h-7'
-            classes2='text-[0.7rem]' dis={true} />
+            classes2='responsiveText' dis={true} />
     )
 }
 const ContractsMerged = () => {
@@ -613,7 +613,7 @@ const ContractsMerged = () => {
                             <IoIosArrowDown size={13} className={`transition-transform duration-200 ${row.getIsExpanded() ? 'rotate-180' : 'rotate-0'}`} />
                         </button>
                     ) : (
-                        <span className='inline-block w-1.5 h-1.5 rounded-full' style={{ background: '#cbd5e1' }} />
+                        <span className='inline-block w-1.5 h-1.5 rounded-full' style={{ background: 'var(--border-neutral-strong)' }} />
                     )}
                 </div>
             ),
@@ -839,7 +839,7 @@ const ContractsMerged = () => {
                             height: `${knobSize}px`,
                             borderRadius: "50%",
                             background: "radial-gradient(circle at 60% 40%, var(--surface-muted) 70%, var(--border-neutral) 100%)",
-                            boxShadow: "0 2px 6px rgba(0,0,0,0.10)",
+                            boxShadow: "0 2px 6px rgba(var(--shadow-rgb), 0.10)",
                             transform: `translateY(-50%) ${enabledSwitch ? `translateX(${translateX}px)` : "translateX(0)"}`,
                             transition: "transform 0.2s",
                             display: "block",

@@ -126,9 +126,9 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                 }}>
                     <div className="flex gap-3 items-center">
                         <span style={{ color: 'var(--regent-gray)', fontWeight: '600', letterSpacing: '0.5px' }}>SUPPLIER INVOICE {invNo}</span>
-                        <span style={{ color: '#cbd5e1' }}>•</span>
+                        <span style={{ color: 'var(--border-neutral-strong)' }}>•</span>
                         <span><span style={{ color: 'var(--regent-gray)' }}>Paid:</span> <strong style={{ color: 'var(--chathams-blue)' }}>{fmtAmt(paid)}</strong></span>
-                        <span style={{ color: '#cbd5e1' }}>•</span>
+                        <span style={{ color: 'var(--border-neutral-strong)' }}>•</span>
                         <span><span style={{ color: 'var(--regent-gray)' }}>Balance:</span> <strong style={{ color: balance > 0 ? 'var(--danger-text)' : 'var(--ok-text)' }}>{fmtAmt(balance)}</strong></span>
                     </div>
                     <span style={{
@@ -143,7 +143,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                         background: 'var(--surface-card)',
                         width: 'calc(100% - 32px)',
                         maxWidth: '800px',
-                        boxShadow: '0 2px 16px rgba(0,0,0,0.10)',
+                        boxShadow: '0 2px 16px rgba(var(--shadow-rgb), 0.10)',
                         borderRadius: '4px',
                         padding: '32px 36px 28px',
                         color: 'var(--chathams-blue)',
@@ -227,18 +227,18 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                     <tbody>
                                         <tr>
                                             <td colSpan={3} />
-                                            <td className="text-left text-[10px] px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px', whiteSpace: 'nowrap', width: '18%' }}>Total Amount:</td>
-                                            <td className="text-right text-[10px] px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px', width: '15%' }}>{fmtAmt(total)}</td>
+                                            <td className="text-left responsiveTextTable px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px', whiteSpace: 'nowrap', width: '18%' }}>Total Amount:</td>
+                                            <td className="text-right responsiveTextTable px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px', width: '15%' }}>{fmtAmt(total)}</td>
                                         </tr>
                                         <tr>
                                             <td colSpan={3} />
-                                            <td className="text-left text-[10px] px-2" style={{ padding: '4px 8px', whiteSpace: 'nowrap' }}>Paid:</td>
-                                            <td className="text-right text-[10px] px-2" style={{ padding: '4px 8px' }}>{fmtAmt(paid)}</td>
+                                            <td className="text-left responsiveTextTable px-2" style={{ padding: '4px 8px', whiteSpace: 'nowrap' }}>Paid:</td>
+                                            <td className="text-right responsiveTextTable px-2" style={{ padding: '4px 8px' }}>{fmtAmt(paid)}</td>
                                         </tr>
                                         <tr>
                                             <td colSpan={3} />
-                                            <td className="text-left text-[10px] px-2" style={{ padding: '4px 8px', whiteSpace: 'nowrap' }}>Balance:</td>
-                                            <td className="text-right text-[10px] px-2" style={{ padding: '4px 8px', color: balance > 0 ? 'var(--danger-text)' : 'var(--ok-text)' }}>{fmtAmt(balance)}</td>
+                                            <td className="text-left responsiveTextTable px-2" style={{ padding: '4px 8px', whiteSpace: 'nowrap' }}>Balance:</td>
+                                            <td className="text-right responsiveTextTable px-2" style={{ padding: '4px 8px', color: balance > 0 ? 'var(--danger-text)' : 'var(--ok-text)' }}>{fmtAmt(balance)}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -319,11 +319,11 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
     const cStatusBg = dbBalance === 0 ? 'var(--ok-bg)' : totalPaid > 0 ? 'var(--warn-bg)' : 'var(--danger-bg)';
     const cStatusFg = dbBalance === 0 ? 'var(--ok-text)' : totalPaid > 0 ? 'var(--warn-text)' : 'var(--danger-text)';
 
-    const TH = 'text-left text-[10px] font-semibold py-2 px-2 text-white';
-    const TH_R = 'text-right text-[10px] font-semibold py-2 px-2 text-white';
-    const TD = 'text-left text-[10px] py-1 px-2 align-top';
-    const TD_R = 'text-right text-[10px] py-1 px-2 align-top';
-    const TD_C = 'text-center text-[10px] py-1 px-2 align-top';
+    const TH = 'text-left responsiveTextTable font-semibold py-2 px-2 text-white';
+    const TH_R = 'text-right responsiveTextTable font-semibold py-2 px-2 text-white';
+    const TD = 'text-left responsiveTextTable py-1 px-2 align-top';
+    const TD_R = 'text-right responsiveTextTable py-1 px-2 align-top';
+    const TD_C = 'text-center responsiveTextTable py-1 px-2 align-top';
 
     const handleDownload = () => {
         if (!settings || !compData) return;
@@ -372,9 +372,9 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                 }}>
                     <div className="flex gap-3 items-center">
                         <span style={{ color: 'var(--regent-gray)', fontWeight: '600', letterSpacing: '0.5px' }}>{getInvTypeLabel(inv).replace(':', '').toUpperCase()} {invNo}</span>
-                        <span style={{ color: '#cbd5e1' }}>•</span>
+                        <span style={{ color: 'var(--border-neutral-strong)' }}>•</span>
                         <span><span style={{ color: 'var(--regent-gray)' }}>Paid:</span> <strong style={{ color: 'var(--chathams-blue)' }}>{fmtAmt(totalPaid)}</strong></span>
-                        <span style={{ color: '#cbd5e1' }}>•</span>
+                        <span style={{ color: 'var(--border-neutral-strong)' }}>•</span>
                         <span><span style={{ color: 'var(--regent-gray)' }}>Balance:</span> <strong style={{ color: dbBalance > 0 ? 'var(--danger-text)' : 'var(--ok-text)' }}>{fmtAmt(dbBalance)}</strong></span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -385,7 +385,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                             style={{
                                 display: 'inline-flex', alignItems: 'center', gap: '5px',
                                 padding: '4px 12px', borderRadius: '20px',
-                                background: 'var(--endeavour)', color: '#fff',
+                                background: 'var(--endeavour)', color: 'var(--on-brand)',
                                 fontSize: 'var(--fs-table)', fontWeight: '600', cursor: 'pointer',
                                 border: 'none', letterSpacing: '0.3px',
                             }}
@@ -406,7 +406,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         background: 'var(--surface-card)',
                         width: 'calc(100% - 32px)',
                         maxWidth: '800px',
-                        boxShadow: '0 2px 16px rgba(0,0,0,0.10)',
+                        boxShadow: '0 2px 16px rgba(var(--shadow-rgb), 0.10)',
                         borderRadius: '4px',
                         padding: '32px 36px 28px',
                         color: 'var(--chathams-blue)',
@@ -496,7 +496,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         {/* ── Products table ── */}
                         <table className="inv-preview-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4px', fontSize: 'var(--fs-table)' }}>
                             <thead>
-                                <tr style={{ background: 'var(--endeavour)', color: '#fff' }}>
+                                <tr style={{ background: 'var(--endeavour)', color: 'var(--on-brand)' }}>
                                     <th className={TH} style={{ width: '4%' }}>#</th>
                                     <th className={TH} style={{ width: '13%' }}>PO#</th>
                                     <th className={TH} style={{ width: '38%' }}>Description</th>
@@ -521,32 +521,32 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 {/* Total rows */}
                                 <tr>
                                     <td colSpan={4} style={{ border: 'none' }} />
-                                    <td className="text-left text-[10px] px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px', whiteSpace: 'nowrap' }}>Total Amount:</td>
+                                    <td className="text-left responsiveTextTable px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px', whiteSpace: 'nowrap' }}>Total Amount:</td>
                                     <td style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px' }} />
-                                    <td className="text-right text-[10px] px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px' }}>{fmtAmt(inv.totalAmount)}</td>
+                                    <td className="text-right responsiveTextTable px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px' }}>{fmtAmt(inv.totalAmount)}</td>
                                 </tr>
                                 {isInvoice && inv.percentage && (
                                     <tr>
                                         <td colSpan={4} style={{ border: 'none' }} />
-                                        <td className="text-left text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>Prepayment:</td>
-                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{inv.percentage}%</td>
-                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{fmtAmt(Math.round((inv.totalPrepayment || 0) * 100) / 100)}</td>
+                                        <td className="text-left responsiveTextTable px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>Prepayment:</td>
+                                        <td className="text-right responsiveTextTable px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{inv.percentage}%</td>
+                                        <td className="text-right responsiveTextTable px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{fmtAmt(Math.round((inv.totalPrepayment || 0) * 100) / 100)}</td>
                                     </tr>
                                 )}
                                 {(isCN || (!isInvoice && !isCN)) && inv.totalPrepayment && (
                                     <tr>
                                         <td colSpan={4} style={{ border: 'none' }} />
-                                        <td className="text-left text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '4px', whiteSpace: 'nowrap' }}>Prepaid Amount:</td>
+                                        <td className="text-left responsiveTextTable px-2" style={{ paddingTop: '4px', paddingBottom: '4px', whiteSpace: 'nowrap' }}>Prepaid Amount:</td>
                                         <td style={{ paddingTop: '4px', paddingBottom: '4px' }} />
-                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '4px' }}>{fmtAmt(Math.round((inv.totalPrepayment || 0) * 100) / 100)}</td>
+                                        <td className="text-right responsiveTextTable px-2" style={{ paddingTop: '4px', paddingBottom: '4px' }}>{fmtAmt(Math.round((inv.totalPrepayment || 0) * 100) / 100)}</td>
                                     </tr>
                                 )}
                                 {(isCN || (!isInvoice && !isCN)) && inv.balanceDue != null && (
                                     <tr>
                                         <td colSpan={4} style={{ border: 'none' }} />
-                                        <td className="text-left text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px', whiteSpace: 'nowrap' }}>Balance Due:</td>
+                                        <td className="text-left responsiveTextTable px-2" style={{ paddingTop: '4px', paddingBottom: '8px', whiteSpace: 'nowrap' }}>Balance Due:</td>
                                         <td style={{ paddingTop: '4px', paddingBottom: '8px' }} />
-                                        <td className="text-right text-[10px] px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{fmtAmt(Math.round((inv.totalAmount || 0) * 100) / 100 - Math.round((inv.totalPrepayment || 0) * 100) / 100)}</td>
+                                        <td className="text-right responsiveTextTable px-2" style={{ paddingTop: '4px', paddingBottom: '8px' }}>{fmtAmt(Math.round((inv.totalAmount || 0) * 100) / 100 - Math.round((inv.totalPrepayment || 0) * 100) / 100)}</td>
                                     </tr>
                                 )}
                             </tbody>

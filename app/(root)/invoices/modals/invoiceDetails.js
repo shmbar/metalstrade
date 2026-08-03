@@ -278,7 +278,7 @@ const InvoiceModal = () => {
 				<button
 					onClick={() => setDocsOpen(v => !v)}
 					className="flex items-center gap-2 w-full px-3 py-1.5 rounded-full border border-[var(--border-divider)]
-						bg-[var(--surface-pill)] text-[0.72rem] font-medium text-[var(--chathams-blue)] hover:bg-[var(--selago)] transition-all"
+						bg-[var(--surface-pill)] responsiveTextInput font-medium text-[var(--chathams-blue)] hover:bg-[var(--selago)] transition-all"
 				>
 					<ScrollText size={13} />
 					<span>Annex VII / ISF Documents</span>
@@ -395,7 +395,7 @@ const InvoiceModal = () => {
 				<div className='border border-[var(--border-divider)] p-2 rounded-2xl flex items-center gap-2'>
 					<p className='responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>Client Contract #:</p>
 					{!fnl ?
-						<input className="input shadow-sm h-8 text-[0.75rem] w-full" name='clientContractNo'
+						<input className="input shadow-sm h-8 responsiveTextInput w-full" name='clientContractNo'
 							value={valueInv.clientContractNo || ''} onChange={handleClientContractNo} />
 						:
 						<p className='pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.clientContractNo}</p>
@@ -556,7 +556,7 @@ const InvoiceModal = () => {
 						<div className='flex items-center responsiveText font-medium whitespace-nowrap'>{(fourthRule || fifthRule) ? '' :
 							<div className='flex-1 min-w-0 max-w-[15rem]'>
 								{!fnl ?
-									<input className="input shadow-lg h-7 text-[0.75rem] w-full" name='ttlGross' value={valueInv.ttlGross} onChange={handleValue} />
+									<input className="input shadow-lg h-7 responsiveTextInput w-full" name='ttlGross' value={valueInv.ttlGross} onChange={handleValue} />
 									:
 									<p className='responsiveText pr-5 text-[var(--port-gore)]'>{(valueInv.ttlGross * 1).toLocaleString(locale, options)}</p>
 								}
@@ -569,7 +569,7 @@ const InvoiceModal = () => {
 							<div className='flex items-center responsiveText font-medium whitespace-nowrap'>{(fourthRule || thirdRule) ? '' :
 								<div className='flex-1 min-w-0 max-w-[15rem]'>
 									{!fnl ?
-										<input className="input shadow-lg h-7 text-[0.75rem] w-full" name='ttlPackages' value={valueInv.ttlPackages} onChange={handleValue} />
+										<input className="input shadow-lg h-7 responsiveTextInput w-full" name='ttlPackages' value={valueInv.ttlPackages} onChange={handleValue} />
 										:
 										<p className='responsiveText pr-5 text-[var(--port-gore)]'>{valueInv.ttlPackages}</p>
 									}

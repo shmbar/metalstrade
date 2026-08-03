@@ -109,7 +109,7 @@ const SideBarMini = () => {
               }}
             />
             {searchOpen && (
-              <div className="absolute top-12 left-0 w-72 z-[100] responsiveText">
+              <div className="absolute top-12 left-0 w-72 z-sticky responsiveText">
                 <input
                   type="text"
                   placeholder={placeholderText}
@@ -125,7 +125,7 @@ const SideBarMini = () => {
                 />
                 {/* Search Dropdown */}
                 {showDropdown && searchResults.length > 0 && (
-                  <div className='absolute left-0 right-0 mt-2 bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] z-[101] overflow-auto max-h-80 w-full min-w-[16rem]'>
+                  <div className='absolute left-0 right-0 mt-2 bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] z-dropdown overflow-auto max-h-80 w-full min-w-[16rem]'>
                     {searchResults.map((r) => (
                       <button
                         key={r.key}
@@ -167,7 +167,7 @@ const SideBarMini = () => {
                 >
                 <MenuItems
   data-ims-sidebar="1"
-  className="fixed right-2 top-14 w-76 origin-top-left divide-y divide-[rgba(var(--chathams-blue-rgb),0.2)] rounded-2xl shadow-lg border border-[var(--selago)] bg-[var(--border-divider)] focus:outline-none h-[450px] overflow-auto z-[20000]"
+  className="fixed right-2 top-14 w-76 origin-top-left divide-y divide-[rgba(var(--chathams-blue-rgb),0.2)] rounded-2xl shadow-lg border border-[var(--selago)] bg-[var(--border-divider)] focus:outline-none h-[450px] overflow-auto z-command"
 >
   <div className='px-4 py-3 border-b border-[var(--selago)]'>
     <p className='responsiveText font-medium text-[var(--chathams-blue)]'>

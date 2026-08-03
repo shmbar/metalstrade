@@ -29,7 +29,7 @@ export const Paginator = ({ table }) => {
         <button
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
-          className="text-[0.75rem] font-medium transition-colors"
+          className="responsiveTextInput font-medium transition-colors"
           style={{
             color: table.getCanPreviousPage() ? 'var(--endeavour)' : 'var(--rock-blue)',
             cursor: table.getCanPreviousPage() ? 'pointer' : 'not-allowed'
@@ -47,10 +47,10 @@ export const Paginator = ({ table }) => {
               <button
                 key={pageIndex}
                 onClick={() => table.setPageIndex(pageIndex)}
-                className="min-w-[2rem] h-8 text-[0.75rem] font-medium rounded-full border transition-all duration-200"
+                className="min-w-[2rem] h-8 responsiveTextInput font-medium rounded-full border transition-all duration-200"
                 style={{
-                  backgroundColor: isActive ? 'var(--endeavour)' : '#FFFFFF',
-                  color: isActive ? '#FFFFFF' : 'var(--endeavour)',
+                  backgroundColor: isActive ? 'var(--endeavour)' : 'var(--surface-card)',
+                  color: isActive ? 'var(--on-brand)' : 'var(--endeavour)',
                   borderColor: isActive ? 'var(--endeavour)' : 'var(--border-neutral)'
                 }}
               >
@@ -64,7 +64,7 @@ export const Paginator = ({ table }) => {
         <button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
-          className="text-[0.75rem] font-medium transition-colors"
+          className="responsiveTextInput font-medium transition-colors"
           style={{
             color: table.getCanNextPage() ? 'var(--endeavour)' : 'var(--rock-blue)',
             cursor: table.getCanNextPage() ? 'pointer' : 'not-allowed'

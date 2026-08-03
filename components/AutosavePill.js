@@ -9,7 +9,7 @@ import { Loader2, AlertTriangle } from 'lucide-react';
 export default function AutosavePill({ mode, text, countdown, onSaveNow, onCancel }) {
     if (!mode) return null;
     return (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9990] pointer-events-none">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-dropdown pointer-events-none">
             <div className="flex items-center gap-2 rounded-full bg-[var(--surface-card)] shadow-xl border border-[var(--surface-header)] pl-3 pr-2 py-1.5 pointer-events-auto"
                 style={{ fontSize: 'var(--fs-input)' }}>
                 {mode === 'pending' && (

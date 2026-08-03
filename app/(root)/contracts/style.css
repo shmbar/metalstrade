@@ -216,7 +216,7 @@ table td input:focus,
 .table-cell-uniform td input:focus-visible {
   border-color: var(--endeavour) !important;
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba(9,110,182,0.12) !important;
+  box-shadow: 0 0 0 3px rgba(var(--endeavour-rgb), 0.12) !important;
 }
 
 /* Ensure material column inputs align left and remain readable */

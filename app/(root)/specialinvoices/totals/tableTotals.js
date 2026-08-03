@@ -81,7 +81,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
             <div className="glass-table rounded-2xl shadow-lg border border-[var(--border-divider)] p-2 sm:p-4 mb-6 w-full flex flex-col h-full"
                 style={{
                     borderRadius: '16px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                    boxShadow: '0 2px 8px rgba(var(--shadow-rgb), 0.08)'
                 }}>
                 {heading && (
                     <div className="font-normal font-poppins text-[var(--chathams-blue)] mb-3 sm:mb-4 pl-1 pt-1">
@@ -99,7 +99,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         className="rounded-2xl overflow-hidden border border-[var(--border-divider)]"
                         style={{
                             borderRadius: '16px',
-                            boxShadow: '0 3px 8px rgba(0,0,0,0.06)',
+                            boxShadow: '0 3px 8px rgba(var(--shadow-rgb), 0.06)',
                             background: 'var(--surface-card)'
                         }}
                         >

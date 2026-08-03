@@ -210,7 +210,7 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
         }))
     }
 
-    const labelCls = 'text-[11px] font-medium text-[var(--chathams-blue)] whitespace-nowrap mb-0.5'
+    const labelCls = 'responsiveText font-medium text-[var(--chathams-blue)] whitespace-nowrap mb-0.5'
     const inputCls = 'w-full rounded-full border border-[var(--border-divider)] bg-[var(--surface-pill)] text-[var(--chathams-blue)] responsiveTextInput h-7 px-2 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] disabled:opacity-70'
 
     return (

@@ -139,7 +139,7 @@ const Page = () => {
 												key={z}
 												className={({ selected }) =>
 													classNames(
-														'px-5 py-2 h-[32px] flex items-center text-[0.75rem] font-poppins whitespace-nowrap transition-all rounded-full focus:outline-none',
+														'px-5 py-2 h-8 flex items-center responsiveTextInput font-poppins whitespace-nowrap transition-all rounded-full focus:outline-none',
 														'focus:outline-none',
 														selected
 															? 'font-semibold text-white bg-[var(--endeavour)] shadow-md border border-[var(--endeavour)]'
@@ -156,7 +156,7 @@ const Page = () => {
 										<div className='bg-[var(--surface-card)] rounded-2xl p-3 mb-2 w-fit border border-[var(--border-divider)]'>
 											<div className='flex flex-wrap items-end gap-2.5'>
 												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium flex items-center justify-center gap-1'>
+													<span className='responsiveTextInput text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium flex items-center justify-center gap-1'>
 														Ni LME
 														<button onClick={refreshMetal} title="Refresh live price" className="hover:text-[var(--chathams-blue)] transition-colors">
 															<RefreshCw className={`w-3 h-3 ${metalLoading ? 'animate-spin' : ''}`} />
@@ -164,7 +164,7 @@ const Page = () => {
 													</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none w-full text-[0.75rem]'
+														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none w-full responsiveTextInput'
 																						name='nilme'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
@@ -174,10 +174,10 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Mo Oxide - Lb</span>
+													<span className='responsiveTextInput text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Mo Oxide - Lb</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none text-[0.75rem]'
+														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none responsiveTextInput'
 																						value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
 														name='MoOxideLb'
 														onChange={(e) => handleChange(e, 'general')}
@@ -187,10 +187,10 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Charge Cr - Lb</span>
+													<span className='responsiveTextInput text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Charge Cr - Lb</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none text-[0.75rem]'
+														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none responsiveTextInput'
 																						name='chargeCrLb'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'chargeCrLb' ? value.general?.chargeCrLb || '' : addComma(value.general?.chargeCrLb || '0')}
@@ -200,10 +200,10 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>1 MT</span>
+													<span className='responsiveTextInput text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>1 MT</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none text-[0.75rem]'
+														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none responsiveTextInput'
 																						value={(value.general?.mt || '0') + ' Lb'}
 														name='mt'
 														onChange={(e) => handleChange(e, 'general')}
@@ -211,10 +211,10 @@ const Page = () => {
 												</div>
 
 												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
-													<span className='text-[0.75rem] text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Euro / USD</span>
+													<span className='responsiveTextInput text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Euro / USD</span>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none text-[0.75rem]'
+														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none responsiveTextInput'
 																						value={(value.general?.euroRate || '0')}
 														name='euroRate'
 														onChange={(e) => handleChange(e, 'general')}
@@ -225,7 +225,7 @@ const Page = () => {
 													className='flex items-center justify-center rounded-full border border-[var(--endeavour)] overflow-hidden min-w-[80px] px-5 py-2 cursor-pointer bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] hover:border-[var(--chathams-blue)] transition-all self-stretch shadow-md'
 													onClick={saveData}
 												>
-													<span className='text-[0.75rem] font-semibold text-white'>Save</span>
+													<span className='responsiveTextInput font-semibold text-white'>Save</span>
 												</div>
 											</div>
 										</div>

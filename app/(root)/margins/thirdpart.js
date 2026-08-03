@@ -54,7 +54,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                 className="w-full margins-table"
                 style={{
                     borderRadius: '24px',
-                    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(99, 102, 241, 0.1) inset',
+                    boxShadow: '0 20px 60px rgba(var(--shadow-rgb), 0.08), 0 0 1px rgba(var(--shadow-rgb), 0.1) inset',
                     overflow: 'hidden'
                 }}
             >
@@ -79,7 +79,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                 <thead className="sticky top-0 z-10">
                                     <tr>
                                         <th
-                                            className="px-2 py-2 text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]"
+                                            className="px-2 py-2 text-center responsiveTextInput"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '45px',
@@ -91,7 +91,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Months
                                         </th>
                                         <th
-                                            className="px-2 py-2 text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]"
+                                            className="px-2 py-2 text-center responsiveTextInput"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '40px',
@@ -103,7 +103,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Purchased quantity (MT)
                                         </th>
                                         <th
-                                            className="px-2 py-2 text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]"
+                                            className="px-2 py-2 text-center responsiveTextInput"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '105px',
@@ -115,7 +115,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Profit
                                         </th>
                                         <th
-                                            className="px-2 py-2 text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]"
+                                            className="px-2 py-2 text-center responsiveTextInput"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '45px',
@@ -127,7 +127,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Outstanding shipment
                                         </th>
                                         <th
-                                            className="px-2 py-2 text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]"
+                                            className="px-2 py-2 text-center responsiveTextInput"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
@@ -314,7 +314,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 background: 'var(--surface-header)'
                                             }}
                                         >
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[50px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[50px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
                                                 Total
                                             </div>
                                         </td>
@@ -331,7 +331,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 background: 'var(--surface-header)'
                                             }}
                                         >
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[40px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[40px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
                                                 <NumericFormat
                                                     value={purchase}
                                                     displayType="text"
@@ -356,7 +356,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         >
                                             {isGIS ? (
                                             <Tltip direction="top" tltpText={"IMS: " + addComma(totalMargin / 2)}>
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
                                                 <NumericFormat
                                                     value={totalMargin}
                                                     displayType="text"
@@ -369,7 +369,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             </div>
                                             </Tltip>
                                             ) : (
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
                                                 <NumericFormat
                                                     value={totalMargin}
                                                     displayType="text"
@@ -395,7 +395,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 background: 'var(--surface-header)'
                                             }}
                                         >
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[50px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[50px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
                                                 <NumericFormat
                                                     value={outStandingShip}
                                                     displayType="text"
@@ -422,7 +422,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         >
                                             {isGIS ? (
                                             <Tltip direction="top" tltpText={"IMS: " + addComma(remaining / 2)}>
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
                                                 <NumericFormat
                                                     value={remaining}
                                                     displayType="text"
@@ -436,7 +436,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             </div>
                                             </Tltip>
                                             ) : (
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
                                                 <NumericFormat
                                                     value={remaining}
                                                     displayType="text"
@@ -466,7 +466,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                     style={{
                                         backgroundColor: 'var(--surface-card)',
                                         border: '1px solid var(--border-divider)',
-                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
+                                        boxShadow: '0 4px 12px rgba(var(--shadow-rgb), 0.06)'
                                     }}
                                 >
                                     {/* Card Header */}
@@ -480,7 +480,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             className="font-normal"
                                             style={{ 
                                                 fontSize: 'var(--fs-table)',
-                                                textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                                                textShadow: '0 1px 2px rgba(var(--shadow-rgb), 0.2)'
                                             }}
                                         >
                                             Row {i + 1}
@@ -503,7 +503,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 Month
                                             </div>
                                             <div
-                                                className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                                                className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm"
                                                 style={{
                                                     color: 'var(--endeavour)',
                                                     background: 'var(--surface-header)',
@@ -529,7 +529,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 Purchase
                                             </div>
                                             <div 
-                                                className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                                className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                                 style={{ 
                                                     color: 'var(--chathams-blue)',
                                                     background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
@@ -562,7 +562,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 Profit
                                             </div>
                                             <div 
-                                                className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                                className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                                 style={{ 
                                                     color: 'var(--chathams-blue)',
                                                     background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
@@ -591,7 +591,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                 style={{
                                     backgroundColor: 'var(--surface-card)',
                                     border: '2px solid var(--chathams-blue)',
-                                    boxShadow: '0 8px 24px rgba(24, 61, 121, 0.15)'
+                                    boxShadow: '0 8px 24px rgba(var(--chathams-blue-rgb), 0.15)'
                                 }}
                             >
                                 {/* Totals Card Header */}
@@ -628,7 +628,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Total Purchase
                                         </div>
                                         <div 
-                                            className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                            className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                             style={{ 
                                                 color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
@@ -661,7 +661,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Total Profit
                                         </div>
                                         <div 
-                                            className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                            className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                             style={{ 
                                                 color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
@@ -695,7 +695,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Outstanding Shipment
                                         </div>
                                         <div 
-                                            className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                            className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                             style={{ 
                                                 color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
@@ -727,7 +727,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Remaining
                                         </div>
                                         <div 
-                                            className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                            className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                             style={{ 
                                                 color: 'var(--chathams-blue)',
                                                 background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',

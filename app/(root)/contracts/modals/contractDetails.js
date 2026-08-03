@@ -387,7 +387,7 @@ const ContractModal = () => {
 				<div className='md:col-span-2 border border-[var(--border-divider)] p-2 rounded-2xl'>
 					<p className='flex items-center responsiveText font-medium text-[var(--chathams-blue)]'>{getTtl('PoOrderNo', ln)}:</p>
 					<div className='w-full responsiveText'>
-						<input className="border border-[var(--border-cell)] bg-[var(--surface-pill)] rounded-full px-3 py-1 h-7 text-[0.72rem] text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)] w-full" style={{ fontFamily: 'inherit' }} name='order' value={valueCon.order} onChange={handleValue} />
+						<input className="border border-[var(--border-cell)] bg-[var(--surface-pill)] rounded-full px-3 py-1 h-7 responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)] w-full" style={{ fontFamily: 'inherit' }} name='order' value={valueCon.order} onChange={handleValue} />
 						<ErrDiv field='order' errors={errors} ln={ln} />
 					</div>
 					<p className='flex items-center responsiveText mt-3 font-medium text-[var(--chathams-blue)]'>{getTtl('Date', ln)}:</p>
@@ -398,7 +398,7 @@ const ContractModal = () => {
 							popoverDirection='down'
 							onChange={handleDateChange}
 							displayFormat={"DD-MMM-YYYY"}
-							inputClassName='border border-[var(--border-cell)] bg-[var(--surface-pill)] rounded-full px-3 py-1 h-7 text-[0.72rem] text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)] w-full'
+							inputClassName='border border-[var(--border-cell)] bg-[var(--surface-pill)] rounded-full px-3 py-1 h-7 responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)] w-full'
 						/>
 						<ErrDiv field='date' errors={errors} ln={ln} />
 					</div>
@@ -497,7 +497,7 @@ const ContractModal = () => {
 							</div>
 							:
 							<div className='flex relative w-[16rem] responsiveText'>
-								<input type='text' className="input h-[1.86rem] w-full" style={{ fontFamily: 'inherit' }} name='deltime'
+								<input type='text' className="input h-7 w-full" style={{ fontFamily: 'inherit' }} name='deltime'
 									value={valueCon.deltime} onChange={handleValue} />
 								<button className='relative right-6 '>
 									<X className="size-4 text-[var(--regent-gray)]" onClick={caneclEditText} />

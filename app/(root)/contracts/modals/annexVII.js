@@ -5,13 +5,13 @@ import { FileText } from 'lucide-react';
 
 const Field = ({ label, name, value, onChange, placeholder = '', wide = false }) => (
     <div className={wide ? 'md:col-span-2' : ''}>
-        <label className="block text-[0.68rem] font-medium text-[var(--chathams-blue)] mb-0.5">{label}</label>
+        <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">{label}</label>
         <input
             name={name}
             value={value || ''}
             onChange={onChange}
             placeholder={placeholder}
-            className="border border-[var(--border-divider)] rounded-full px-3 h-7 text-[0.75rem] w-full
+            className="border border-[var(--border-divider)] rounded-full px-3 h-7 responsiveTextInput w-full
                 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
             style={{ fontFamily: 'inherit' }}
         />
@@ -19,7 +19,7 @@ const Field = ({ label, name, value, onChange, placeholder = '', wide = false })
 );
 
 const SectionLabel = ({ text }) => (
-    <p className="md:col-span-2 text-[0.7rem] font-medium text-[var(--endeavour)] mt-2 border-b border-[var(--surface-header)] pb-0.5">{text}</p>
+    <p className="md:col-span-2 responsiveText font-medium text-[var(--endeavour)] mt-2 border-b border-[var(--surface-header)] pb-0.5">{text}</p>
 );
 
 const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
@@ -179,7 +179,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 <p className="responsiveText font-medium text-[var(--chathams-blue)]">Annex VII — EU Waste Shipment Document</p>
                 <button
                     onClick={generatePdf}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.72rem] font-medium
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-full responsiveTextInput font-medium
                         bg-[var(--endeavour)] text-white hover:opacity-90 transition-all"
                 >
                     <FileText size={13} /> Annex VII PDF
@@ -189,7 +189,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
             {/* Template selector */}
             {templates.length > 0 && (
                 <div className="mb-3 flex items-center gap-2">
-                    <label className="text-[0.68rem] font-medium text-[var(--chathams-blue)] whitespace-nowrap">Load Template:</label>
+                    <label className="responsiveText font-medium text-[var(--chathams-blue)] whitespace-nowrap">Load Template:</label>
                     <div className="w-64">
                         <Selector
                             arr={templates}
@@ -214,7 +214,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 <SectionLabel text="Section 5(a) — First Carrier" />
                 {carriers.length > 0 && (
                     <div className="md:col-span-2">
-                        <label className="block text-[0.68rem] font-medium text-[var(--chathams-blue)] mb-0.5">Pick Carrier</label>
+                        <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">Pick Carrier</label>
                         <div className="w-64">
                             <Selector
                                 arr={carrierSortedArr}
@@ -240,7 +240,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 <SectionLabel text="Section 5(b) — Second Carrier (optional)" />
                 {carriers.length > 0 && (
                     <div className="md:col-span-2">
-                        <label className="block text-[0.68rem] font-medium text-[var(--chathams-blue)] mb-0.5">Pick Carrier</label>
+                        <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">Pick Carrier</label>
                         <div className="w-64">
                             <Selector
                                 arr={carrierSortedArr}
@@ -277,7 +277,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
 
                 {/* vi) National Code — HS picker or free-text */}
                 <div>
-                    <label className="block text-[0.68rem] font-medium text-[var(--chathams-blue)] mb-0.5">vi) National Code (HS)</label>
+                    <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">vi) National Code (HS)</label>
                     {hsArr.length > 0 ? (
                         <Selector
                             arr={hsArr}
@@ -293,7 +293,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                             value={ax.nationalCode || ''}
                             onChange={handleInput}
                             placeholder="e.g. 7503"
-                            className="border border-[var(--border-divider)] rounded-full px-3 h-7 text-[0.75rem] w-full
+                            className="border border-[var(--border-divider)] rounded-full px-3 h-7 responsiveTextInput w-full
                                 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
                             style={{ fontFamily: 'inherit' }}
                         />

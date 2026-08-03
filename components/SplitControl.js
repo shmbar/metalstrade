@@ -166,13 +166,13 @@ export default function SplitControl({
 
       {open && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[10000] flex items-center justify-center p-4"
-          style={{ background: 'rgba(16,33,61,0.45)' }}
+          className="fixed inset-0 z-command flex items-center justify-center p-4"
+          style={{ background: 'var(--overlay)' }}
           onClick={(e) => { e.stopPropagation(); setOpen(false); }}
         >
           <div
             className="w-full max-w-sm rounded-2xl overflow-hidden bg-[var(--surface-card)]"
-            style={{ border: '1px solid var(--border-divider)', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
+            style={{ border: '1px solid var(--border-divider)', boxShadow: '0 20px 60px rgba(var(--shadow-rgb), 0.2)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-4 py-2.5" style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>

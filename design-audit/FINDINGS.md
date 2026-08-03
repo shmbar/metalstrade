@@ -61,3 +61,34 @@ Severity: **High** = client will see it immediately · **Med** = visible on insp
 | 036 | C3 | `components/ui/table.tsx:76`, `ui/command.tsx:47` | Table header `h-10`, command input `h-10` — off the 24/28/32 control scale. | `h-8` | Med | Fixed |
 
 **Batch 2 result:** 23 findings, 23 fixed, 0 open. `npm run build` clean.
+
+---
+
+## Batch 3 — Colour, size, geometry and stacking sweep (app-wide)
+
+| ID | Cat | Where | What's wrong | Correct value | Sev | Status |
+|----|-----|-------|--------------|---------------|-----|--------|
+| 037 | C4 | 42 files | 62 hex literals that exactly duplicated an existing token (`#838ca7`, `#28264f`, `#ebf2fc`, `#103a7a`, …) — frozen at light values. | `var(--token)` | High | Fixed |
+| 038 | C4 | 42 files | 97 literal `rgba()` — shadows, tints and scrims that could not follow the theme. | `rgba(var(--…-rgb), a)` | High | Fixed |
+| 039 | C4 | 17 files | 44 colours arrived at from Tailwind's palette that are the twin of a token (`#f1f5f9`≡`--surface-muted`, `#cbd5e1`≡`--border-neutral-strong`, `#2563eb`≡`--primary-bright`, …). | matching token | Med | Fixed |
+| 040 | C4 | 14 files | **20 white surfaces.** `background: '#fff'` in zebra-striped tables meant dark mode alternated a **white** row with a dark one. Also white pills and white hover-out resets. | `var(--surface-card)` | High | Fixed |
+| 041 | C4 | `app/(root)/shipment/page.js:157,168` | `onMouseLeave` repainted the row literal white, so hovering any row in dark mode left it white. | `var(--surface-card)` | High | Fixed |
+| 042 | C4 | 15 files | 34 whites used as *foreground* on brand surfaces. Correct in both modes, but indistinguishable from bug-whites to any scan. | New `--on-brand` token, so a literal `#fff` is now **always** a defect | Med | Fixed |
+| 043 | C4 | `app/(root)/dashboard/page.js:637,711` | 8-digit alpha hex `#db27771A` / `#f59e0b1A` — a tint of a token, written as a frozen literal. | `color-mix(in srgb, var(--token) 10%, transparent)` | Med | Fixed |
+| 044 | C2 | 70 files | **328 class-based arbitrary sizes / hand-rolled ramps** collapsed. 27 distinct patterns → 7 ladder classes. | `.responsiveText*` | High | Fixed |
+| 045 | C5 | 27 files | 36 arbitrary `z-[N]` values across the app. | The 8-step ladder | High | Fixed |
+| 046 | C3 | 31 files | 63 off-scale control heights (`h-[26px]`, `h-[28px]`, `h-[30px]`, `h-[1.84rem]`, `h-[1.86rem]`, `h-[32px]`). | `h-6` / `h-7` / `h-8` | High | Fixed |
+| 047 | C2 | 13 export files | `text-sm` on the export buttons in every `excel.js`. Missed at first because the codemod scope wrongly treated those files as document-only — they render a real toolbar button. | `.responsiveTextTitle` | Med | Fixed |
+| 048 | C4 | `components/CommentThread.js:20` | 6 avatar hues, 5 from tokens and 1 literal `#0e7490`. | New `--teal-text` token (light + dark) | Low | Fixed |
+| 049 | C4 | `components/Dashboard/MarketsTicker.js:32` | Gold `#FFD700` euro icon. | `var(--warn-text)` | Low | Fixed |
+| 050 | C4 | `app/(root)/dashboard/page.js:311,1101,1347` | Chart series colours scattered inline, making "themed or mistake?" unanswerable by a scan. | Centralised in `utils/chartTheme.js` as `RANKING_PALETTE` / `CHART_ACCENT`, **deliberately unthemed and documented** | Med | Fixed |
+
+### Two process defects found in my own work — recorded because they affected the result
+
+| ID | What happened | Consequence | Resolution |
+|----|---------------|-------------|------------|
+| P-1 | A codemod built its regexes with a hand-rolled escape that silently failed. `h-[1.84rem]` became the **unescaped** pattern `h-[1.84rem]` — a character class matching `h-1`, `h-8`, `h-4`. | Rewrote **icon sizes** (`h-4`→`h-7`) across 124 files. An earlier z-index pass had the same flaw (`z-[100]` matched `z-0`). | Both runs were **reverted** to the batch-2 commit and redone with `replace-map.js`, which escapes every metacharacter and **self-checks against that exact key at startup, refusing to run if escaping is broken**. Re-run counts matched the true scan counts exactly (36 z-index sites, not the 75 the broken run claimed). |
+| P-2 | Three gates were wrong and flagged correct code: the font-family gate fired on the literal string `font-family` (86 correct `inherit` / `var(--font-poppins)` declarations); the hex gate matched HTML entities (`&#931;`, `&#8209;`); the control-height gate started at 15px and flagged **icon sizes**. | Would have produced a false "55 files failing" and, worse, invited pointless edits to correct code. | Gates rewritten line-based with explicit exclusions for commented-out code, `cssVar()` fallbacks and HTML entities; height gate narrowed to the 24–40px control band. |
+
+**Batch 3 result:** 14 findings, 14 fixed, 0 open. Plus 2 process defects, both resolved.
+`npm run build` clean; lint identical to baseline.

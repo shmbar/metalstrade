@@ -20,7 +20,7 @@ const INPUT_CLASS = `
   bg-[var(--surface-pill)]
   rounded-lg
   px-2
-  text-[0.68rem] xl:text-[0.72rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
+  responsiveText
   !text-[var(--port-gore)]
   border border-[var(--border-cell)]
   outline-none

@@ -183,7 +183,7 @@ const Customtable = ({ data, item }) => {
 					</thead>
 					<tbody>
 						{tableData.map((obj, i) => (
-							<tr key={i} style={{ background: i % 2 === 0 ? '#fff' : 'var(--surface-pill)' }}>
+							<tr key={i} style={{ background: i % 2 === 0 ? 'var(--surface-card)' : 'var(--surface-pill)' }}>
 								{cols.map(x => (
 									<td key={x.field} style={{
 										padding: '5px 10px',

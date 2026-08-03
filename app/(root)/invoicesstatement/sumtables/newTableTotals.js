@@ -45,7 +45,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 borderColor: 'var(--border-divider)',
                 borderWidth: 1,
                 borderRadius: '16px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                boxShadow: '0 2px 8px rgba(var(--shadow-rgb), 0.08)'
             }}>
             <div className="px-4 py-2.5"
                 style={{

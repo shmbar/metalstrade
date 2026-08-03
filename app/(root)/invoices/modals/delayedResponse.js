@@ -26,13 +26,13 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                     <table id='my-table' className="table-fixed min-w-full divide-y divide-[var(--border-divider)]">
                         <thead style={{ background: 'var(--surface-header)' }}>
                             <tr>
-                                <th scope="col" className="w-28 py-2 px-4 text-left text-[0.72rem] font-semibold text-[var(--chathams-blue)]">Customer</th>
-                                <th scope="col" className="w-16 pr-1 py-2 text-left text-[0.72rem] font-semibold text-[var(--chathams-blue)]">Invoice</th>
-                                <th scope="col" className="w-16 pr-1 py-2 text-left text-[0.72rem] font-semibold text-[var(--chathams-blue)]">ETA</th>
-                                <th scope="col" className="w-12 pr-1 py-2 text-left text-[0.72rem] font-semibold text-[var(--chathams-blue)]">Δ ETA</th>
-                                <th scope="col" className="w-16 pr-1 py-2 text-left text-[0.72rem] font-semibold text-[var(--chathams-blue)]">ETD</th>
-                                <th scope="col" className="w-12 pr-1 py-2 text-left text-[0.72rem] font-semibold text-[var(--chathams-blue)]">Δ ETD</th>
-                                <th scope="col" className="w-16 pr-1 py-2 text-left text-[0.72rem] font-semibold text-[var(--chathams-blue)]">Keep Alerting</th>
+                                <th scope="col" className="w-28 py-2 px-4 text-left responsiveTextInput font-semibold text-[var(--chathams-blue)]">Customer</th>
+                                <th scope="col" className="w-16 pr-1 py-2 text-left responsiveTextInput font-semibold text-[var(--chathams-blue)]">Invoice</th>
+                                <th scope="col" className="w-16 pr-1 py-2 text-left responsiveTextInput font-semibold text-[var(--chathams-blue)]">ETA</th>
+                                <th scope="col" className="w-12 pr-1 py-2 text-left responsiveTextInput font-semibold text-[var(--chathams-blue)]">Δ ETA</th>
+                                <th scope="col" className="w-16 pr-1 py-2 text-left responsiveTextInput font-semibold text-[var(--chathams-blue)]">ETD</th>
+                                <th scope="col" className="w-12 pr-1 py-2 text-left responsiveTextInput font-semibold text-[var(--chathams-blue)]">Δ ETD</th>
+                                <th scope="col" className="w-16 pr-1 py-2 text-left responsiveTextInput font-semibold text-[var(--chathams-blue)]">Keep Alerting</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border-divider)]">
@@ -40,22 +40,22 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                 return (
                                     <tr key={i} className="hover:bg-[rgba(var(--surface-header-rgb),0.4)] transition-colors duration-150">
                                         <td className="py-2 pl-4">
-                                            <div className="flex items-center h-5 text-[0.72rem] text-[var(--chathams-blue)]">
+                                            <div className="flex items-center h-5 responsiveTextInput text-[var(--chathams-blue)]">
                                                 {settings.Client.Client.find(z => z.id === obj.client)?.nname}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-[0.72rem] text-[var(--chathams-blue)]">
+                                            <div className="flex items-center h-5 responsiveTextInput text-[var(--chathams-blue)]">
                                                 {obj.invoice}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-[0.72rem] text-[var(--chathams-blue)]">
+                                            <div className="flex items-center h-5 responsiveTextInput text-[var(--chathams-blue)]">
                                                 {dateFormat(obj.shipData?.eta?.endDate, 'dd.mm.yy')}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-[0.72rem] text-[var(--chathams-blue)]">
+                                            <div className="flex items-center h-5 responsiveTextInput text-[var(--chathams-blue)]">
                                                 {(() => {
                                                     const date2 = new Date(obj.shipData?.eta?.endDate);
                                                     const today = new Date();
@@ -66,12 +66,12 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-[0.72rem] text-[var(--chathams-blue)]">
+                                            <div className="flex items-center h-5 responsiveTextInput text-[var(--chathams-blue)]">
                                                 {obj.shipData?.etd?.endDate ? dateFormat(obj.shipData?.etd?.endDate, 'dd.mm.yy') : '-'}
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-[0.72rem] text-[var(--chathams-blue)]">
+                                            <div className="flex items-center h-5 responsiveTextInput text-[var(--chathams-blue)]">
                                                 {(() => {
                                                     const date2 = new Date(obj.shipData?.etd?.endDate);
                                                     const today = new Date();
@@ -82,7 +82,7 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                             </div>
                                         </td>
                                         <td className="px-1 py-2">
-                                            <div className="flex items-center h-5 text-[0.72rem]">
+                                            <div className="flex items-center h-5 responsiveTextInput">
                                                 <CheckBox checked={obj.alert} size='h-4 w-4' onChange={() => { setAlert(obj) }} />
                                             </div>
                                         </td>

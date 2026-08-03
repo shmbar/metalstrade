@@ -202,14 +202,14 @@ const Customtable = ({
 
                 /* Add border, background, and text alignment styles for table cells */
                 .custom-table th{
-                    border: 0.5px solid rgba(0,0,0,0.04);
+                    border: 0.5px solid rgba(var(--shadow-rgb), 0.04);
                     background-color: var(--surface-header);
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
                 }
                 .custom-table td {
-                    border: 0.5px solid rgba(0,0,0,0.04);
+                    border: 0.5px solid rgba(var(--shadow-rgb), 0.04);
                     background-color: var(--surface-card);
                     text-align: center;
                     vertical-align: middle;
@@ -245,7 +245,7 @@ const Customtable = ({
             <div className="custom-table">
                 <div className="relative flex flex-col rounded-2xl glass-table">
                     {/* Border overlay — renders above children so corners always visible */}
-                    <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-[15]" />
+                    <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-sticky" />
 
                     {/* HEADER */}
                     <div
@@ -291,7 +291,7 @@ const Customtable = ({
                                                 return (
                                                     <tr className="summary-green-si">
                                                         {group.headers.map(header => (
-                                                            <th key={header.id} className="responsiveTextTable" style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 500, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
+                                                            <th key={header.id} className="responsiveTextTable" style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 500, borderRight: '1px solid rgba(var(--shadow-rgb), 0.08)' }}>
                                                                 {header.id === 'compName' ? 'Total $:' :
                                                                     header.id === 'qnty' ? (usdWeight % 1 === 0 ? usdWeight : usdWeight.toFixed(2)) :
                                                                         header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(usdTotal) : ''}
@@ -308,7 +308,7 @@ const Customtable = ({
                                                 return (
                                                     <tr className="summary-blue-si">
                                                         {group.headers.map(header => (
-                                                            <th key={header.id} className="responsiveTextTable" style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 500, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
+                                                            <th key={header.id} className="responsiveTextTable" style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 500, borderRight: '1px solid rgba(var(--shadow-rgb), 0.08)' }}>
                                                                 {header.id === 'compName' ? 'Total EUR:' :
                                                                     header.id === 'qnty' ? (eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)) :
                                                                         header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal) : ''}
@@ -318,7 +318,7 @@ const Customtable = ({
                                                 );
                                             })()}
 
-                                            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                                            <tr style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
                                                 {group.headers.map(header => (
                                                     <th
                                                         key={header.id}
@@ -510,7 +510,7 @@ const Customtable = ({
                                     style={{
                                         backgroundColor: 'var(--surface-card)',
                                         border: '1px solid var(--border-divider)',
-                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
+                                        boxShadow: '0 4px 12px rgba(var(--shadow-rgb), 0.06)'
                                     }}
                                 >
                                     {/* Card Header - Multi-gradient */}
@@ -525,7 +525,7 @@ const Customtable = ({
                                             style={{
                                                 color: 'var(--endeavour)',
                                                 fontSize: 'var(--fs-table)',
-                                                textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                                                textShadow: '0 1px 2px rgba(var(--shadow-rgb), 0.2)'
                                             }}
                                         >
                                             {getTtl('Row', ln)} {rowIndex + 1}
@@ -538,7 +538,7 @@ const Customtable = ({
                                                 onChange={row.getToggleSelectedHandler()}
                                                 onClick={(e) => e.stopPropagation()}
                                                 className="w-4 h-4 cursor-pointer rounded"
-                                                style={{ accentColor: '#FFFFFF' }}
+                                                style={{ accentColor: 'var(--on-brand)' }}
                                             />
                                         )}
                                     </div>
@@ -564,7 +564,7 @@ const Customtable = ({
                                                         {cell.column.columnDef.header}
                                                     </div>
                                                     <div
-                                                        className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                                                        className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm"
                                                         style={{
                                                             color: 'var(--port-gore)',
                                                             background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',

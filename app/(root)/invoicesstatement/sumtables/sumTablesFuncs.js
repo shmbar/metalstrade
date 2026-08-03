@@ -183,7 +183,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                     </thead>
                     <tbody>
                         {filteredArr?.map((z, i) => (
-                            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : 'var(--surface-pill)', transition: 'background 150ms ease-in-out' }}>
+                            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--surface-card)' : 'var(--surface-pill)', transition: 'background 150ms ease-in-out' }}>
                                 <td style={tdStyle}>
                                     {Array.isArray(z.supInvoices) ? z.supInvoices.map((item, index) => (
                                         <div key={index}>{item}</div>
@@ -251,7 +251,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                     </thead>
                     <tbody>
                         {filteredArr?.map((z, i) => (
-                            <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : 'var(--surface-pill)', transition: 'background 150ms ease-in-out' }}>
+                            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--surface-card)' : 'var(--surface-pill)', transition: 'background 150ms ease-in-out' }}>
                                 <td style={tdStyle}>{z.InvNum}</td>
                                 <td style={tdAmountStyle}>
                                     <NumericFormat

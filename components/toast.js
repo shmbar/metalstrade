@@ -27,7 +27,7 @@ const Toast = () => {
         }
     }, [secondaryToast]);
 
-    // z-toast (300), not z-[70]: a toast fired from inside a modal used to appear
+    // z-toast (300), not z-toast: a toast fired from inside a modal used to appear
     // BEHIND it. Error colours now come from the status tokens, so they follow
     // dark mode like everything else.
     return (

@@ -2,7 +2,7 @@
 'use client';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { cssVar, cssVarRgba } from '../../../utils/chartTheme';
+import { cssVar, cssVarRgba, RANKING_PALETTE, CHART_ACCENT } from '../../../utils/chartTheme';
 import { useTheme } from '../../../contexts/useThemeContext';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
 import VideoLoader from '@components/videoLoader';
@@ -73,7 +73,7 @@ function CardShell({ className = "", children }) {
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      whileHover={{ boxShadow: '0 10px 30px rgba(16,58,122,0.08)' }}
+      whileHover={{ boxShadow: '0 10px 30px rgba(var(--chathams-blue-rgb), 0.08)' }}
     >
       {children}
     </m.div>
@@ -118,7 +118,7 @@ function StatKpiCard({
   title,
   value,
   chartData,
-  accent = '#2563eb',
+  accent = 'var(--primary-bright)',
   icon,
   goodWhenUp = true,
 }) {
@@ -137,7 +137,7 @@ function StatKpiCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
+      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(var(--chathams-blue-rgb), 0.10)' }}
     >
       <div className="p-3 flex flex-col h-full">
         {/* Icon tile + title */}
@@ -179,7 +179,7 @@ function StatKpiCard({
         </div>
 
         {/* Sparkline */}
-        <div className="mt-auto h-[30px] -mx-1">
+        <div className="mt-auto h-7 -mx-1">
           <Line
             data={{
               labels: series.slice(0, 12).map((_, i) => i),
@@ -252,7 +252,7 @@ function ReceivablesSplitCard({ byCur = {} }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
+      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(var(--chathams-blue-rgb), 0.10)' }}
     >
       <div className="p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2">
@@ -279,26 +279,26 @@ function ReceivablesSplitCard({ byCur = {} }) {
           <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--ok-soft)', boxShadow: 'inset 0 0 0 1px var(--ok-border)' }}>
             <div className="flex items-center gap-1.5">
               <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: 'var(--ok-text)' }} />
-              <span className="text-[0.6rem] font-semibold tracking-wide" style={{ color: 'var(--ok-strong)' }}>FINALIZED</span>
+              <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--ok-strong)' }}>FINALIZED</span>
             </div>
             <div className="mt-1 leading-tight" style={{ color: 'var(--ok-strong)' }}>
               {amountsFor('finalized').map((a, i) => (
                 <div key={i} className="font-semibold" style={{ fontSize: 'var(--fs-page)' }}>{a}</div>
               ))}
             </div>
-            <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">{finCount} invoice{finCount === 1 ? '' : 's'} · after final invoice</div>
+            <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">{finCount} invoice{finCount === 1 ? '' : 's'} · after final invoice</div>
           </div>
           <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--surface-card)beb', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
             <div className="flex items-center gap-1.5">
               <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: 'var(--warn-text)' }} />
-              <span className="text-[0.6rem] font-semibold tracking-wide" style={{ color: 'var(--warn-strong)' }}>PROVISIONAL</span>
+              <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--warn-strong)' }}>PROVISIONAL</span>
             </div>
             <div className="mt-1 leading-tight" style={{ color: 'var(--warn-strong)' }}>
               {amountsFor('provisional').map((a, i) => (
                 <div key={i} className="font-semibold" style={{ fontSize: 'var(--fs-page)' }}>{a}</div>
               ))}
             </div>
-            <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">{provCount} invoice{provCount === 1 ? '' : 's'} · before final invoice</div>
+            <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">{provCount} invoice{provCount === 1 ? '' : 's'} · before final invoice</div>
           </div>
         </div>
       </div>
@@ -308,11 +308,9 @@ function ReceivablesSplitCard({ byCur = {} }) {
 
 // Ranking list (Contracts / Consignees) — avatar + animated progress bar per row.
 function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
-  const colorPalette = [
-    '#38BDF8', '#22B0F0', '#7DD3F8', '#4F46E5',
-    '#7C6FE0', '#1477C0', '#2D3FB8', '#6366F1',
-    '#0A5EA8', '#8B7FE8'
-  ];
+  // Chart series palette lives in utils/chartTheme.js — the one place colour is
+  // deliberately unthemed (see the note there).
+  const colorPalette = RANKING_PALETTE;
   const avatarSize = 26;
   const getInitials = (name = '') =>
     name.toString().split(' ').map((s) => s[0] || '').slice(0, 2).join('').toUpperCase();
@@ -476,7 +474,7 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: i * 0.06 }}
-              whileHover={{ y: -2, boxShadow: '0 6px 18px rgba(16,58,122,0.07)' }}
+              whileHover={{ y: -2, boxShadow: '0 6px 18px rgba(var(--chathams-blue-rgb), 0.07)' }}
             >
               <div className="flex items-center gap-2 mb-1">
                 {metric.icon}
@@ -514,7 +512,7 @@ function FilterSelect({ label, icon, value, onChange, options }) {
           fontSize: 'var(--fs-body)',
           background: active ? 'var(--selago)' : 'var(--surface-pill)',
           borderColor: active ? 'var(--endeavour)' : 'var(--border-cell)',
-          boxShadow: active ? '0 1px 8px rgba(3,102,174,0.16)' : undefined,
+          boxShadow: active ? '0 1px 8px rgba(var(--endeavour-rgb), 0.16)' : undefined,
         }}
       >
         <span className="flex items-center gap-1.5 min-w-0">
@@ -557,7 +555,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
   const pctShipped = purchased > 0 ? Math.min(100, (shipped / purchased) * 100) : 0;
   const fmtMT = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
   const pills = [
-    { label: 'PURCHASED', value: purchased, bg: '#eff6ff', ring: '#bfdbfe', dot: '#2563eb', color: '#1d4ed8' },
+    { label: 'PURCHASED', value: purchased, bg: 'var(--selago)', ring: 'var(--border-divider)', dot: 'var(--primary-bright)', color: 'var(--chathams-blue)' },
     { label: 'SHIPPED', value: shipped, bg: 'var(--ok-soft)', ring: 'var(--ok-border)', dot: 'var(--ok-text)', color: 'var(--ok-strong)' },
     { label: 'PENDING', value: pending, bg: 'var(--warn-soft)', ring: 'var(--warn-border)', dot: 'var(--warn-text)', color: 'var(--warn-strong)' },
   ];
@@ -567,7 +565,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
+      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(var(--chathams-blue-rgb), 0.10)' }}
     >
       <div className="p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
@@ -591,7 +589,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
             <div key={p.label} className="rounded-lg p-2.5" style={{ backgroundColor: p.bg, boxShadow: `inset 0 0 0 1px ${p.ring}` }}>
               <div className="flex items-center gap-1.5">
                 <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: p.dot }} />
-                <span className="text-[0.6rem] font-semibold tracking-wide" style={{ color: p.color }}>{p.label}</span>
+                <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: p.color }}>{p.label}</span>
               </div>
               <div className="font-semibold mt-1 leading-none" style={{ color: p.color, fontSize: 'var(--fs-page)' }}>{fmtMT(p.value)}</div>
             </div>
@@ -608,10 +606,10 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
   const entries = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
 
   const CAT_META = [
-    { id: 'shipments', label: 'Shipments', bg: '#eff6ff', ring: '#bfdbfe', dot: '#2563eb', color: '#1d4ed8' },
+    { id: 'shipments', label: 'Shipments', bg: 'var(--selago)', ring: 'var(--border-divider)', dot: 'var(--primary-bright)', color: 'var(--chathams-blue)' },
     { id: 'personal', label: 'Personal', bg: 'var(--violet-soft)', ring: 'var(--violet-border)', dot: 'var(--violet-text)', color: 'var(--violet-strong)' },
     { id: 'random', label: 'Random', bg: 'var(--warn-soft)', ring: 'var(--warn-border)', dot: 'var(--warn-text)', color: 'var(--warn-strong)' },
-    { id: 'uncategorized', label: 'Uncategorized', bg: '#f1f5f9', ring: '#cbd5e1', dot: 'var(--text-mid)', color: 'var(--text-mid)' },
+    { id: 'uncategorized', label: 'Uncategorized', bg: 'var(--surface-muted)', ring: 'var(--border-neutral-strong)', dot: 'var(--text-mid)', color: 'var(--text-mid)' },
   ];
   const catRows = CAT_META
     .map(c => ({ ...c, byCur: byCat[c.id]?.byCur || {}, count: byCat[c.id]?.count || 0 }))
@@ -629,12 +627,12 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
+      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(var(--chathams-blue-rgb), 0.10)' }}
     >
       <div className="p-4 flex flex-col gap-3 flex-1">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: '#db27771A', color: 'var(--pink-text)', width: 30, height: 30 }}>
+            <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: 'color-mix(in srgb, var(--pink-text) 10%, transparent)', color: 'var(--pink-text)', width: 30, height: 30 }}>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M7 3h10l3 4v14H4V7l3-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M8 11h8M8 15h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
             </span>
             <div className="min-w-0">
@@ -657,7 +655,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
         {catRows.length > 0 ? (
           <>
             {/* Category mix — share of invoice count per category */}
-            <div className="w-full h-2 rounded-full overflow-hidden flex" style={{ backgroundColor: '#f1f5f9' }}>
+            <div className="w-full h-2 rounded-full overflow-hidden flex" style={{ backgroundColor: 'var(--surface-muted)' }}>
               {catRows.map(c => (
                 <div key={c.id} style={{ width: `${c.sharePct}%`, backgroundColor: c.dot }} title={`${c.label} · ${c.sharePct.toFixed(0)}%`} />
               ))}
@@ -670,7 +668,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
                   <div key={c.id} className="rounded-lg p-2.5" style={{ backgroundColor: c.bg, boxShadow: `inset 0 0 0 1px ${c.ring}` }}>
                     <div className="flex items-center gap-1.5">
                       <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: c.dot }} />
-                      <span className="text-[0.6rem] font-semibold tracking-wide truncate" style={{ color: c.color }}>{c.label.toUpperCase()}</span>
+                      <span className="responsiveTextTable font-semibold tracking-wide truncate" style={{ color: c.color }}>{c.label.toUpperCase()}</span>
                     </div>
                     <div className="font-semibold mt-1 leading-none truncate" style={{ color: c.color, fontSize: 'var(--fs-title)' }}>
                       {ents.length === 0 ? '—' : ents.map(([cur, v]) => fmtCur(cur, v)).join(' / ')}
@@ -704,11 +702,11 @@ function UnsoldStockCard({ value = 0, mt = 0 }) {
     <m.div
       className="relative rounded-2xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden"
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(16,58,122,0.10)' }}
+      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(var(--chathams-blue-rgb), 0.10)' }}
     >
       <div className="p-4 flex flex-col gap-2 h-full">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: '#f59e0b1A', color: 'var(--warn-strong)', width: 30, height: 30 }}>
+          <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: 'color-mix(in srgb, var(--warn-text) 10%, transparent)', color: 'var(--warn-strong)', width: 30, height: 30 }}>
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M3 7v10l9 4 9-4V7" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
           </span>
           <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Unsold Stock · not a cost</span>
@@ -716,7 +714,7 @@ function UnsoldStockCard({ value = 0, mt = 0 }) {
         <div className="font-semibold text-[var(--port-gore)] leading-none mt-1" style={{ fontSize: 'var(--fs-stat)' }}>{fmtAutoKM(value)}</div>
         <div className="rounded-lg p-2.5 mt-auto" style={{ backgroundColor: 'var(--surface-card)beb', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
           <div className="font-semibold leading-none" style={{ color: 'var(--warn-strong)', fontSize: 'var(--fs-page)' }}>{fmtMT(mt)}</div>
-          <div className="text-[0.58rem] text-[var(--regent-gray)] mt-1">in stock · capital tied up, excluded from profit</div>
+          <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">in stock · capital tied up, excluded from profit</div>
         </div>
       </div>
     </m.div>
@@ -761,7 +759,7 @@ function AgingCard({ buckets = [] }) {
                   {curs.length
                     ? curs.map(c => <div key={c} className="responsiveTextTable font-medium text-[var(--port-gore)] leading-tight">{fmtCurKM(c, b.byCur[c])}</div>)
                     : <span className="responsiveTextTable text-[var(--regent-gray)]">—</span>}
-                  <div className="text-[0.58rem] text-[var(--regent-gray)]">{b.count} inv</div>
+                  <div className="responsiveTextTableTitle text-[var(--regent-gray)]">{b.count} inv</div>
                 </div>
               </div>
             );
@@ -772,7 +770,7 @@ function AgingCard({ buckets = [] }) {
 }
 
 // Horizontal-bar breakdown card (expenses by type, materials by tonnage, etc.).
-function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = '#2563eb' }) {
+function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 'var(--primary-bright)' }) {
   const max = Math.max(...entries.map(([, v]) => v), 1);
   return (
     <CardShell>
@@ -1083,10 +1081,10 @@ const Dash = () => {
         backgroundColor: (ctx) => {
           const { chart } = ctx;
           const { ctx: c, chartArea } = chart;
-          if (!chartArea) return 'rgba(37,99,235,0.10)';
+          if (!chartArea) return 'rgba(var(--primary-bright-rgb), 0.10)';
           const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-          g.addColorStop(0, 'rgba(37,99,235,0.28)');
-          g.addColorStop(1, 'rgba(37,99,235,0.00)');
+          g.addColorStop(0, 'rgba(var(--primary-bright-rgb), 0.28)');
+          g.addColorStop(1, 'rgba(var(--primary-bright-rgb), 0.00)');
           return g;
         },
         borderWidth: 2.5,
@@ -1098,7 +1096,7 @@ const Dash = () => {
       {
         label: 'Costs',
         data: costsSeries,
-        borderColor: '#f43f5e',
+        borderColor: CHART_ACCENT.costs,
         backgroundColor: 'transparent',
         borderWidth: 2,
         tension: 0.4,
@@ -1111,7 +1109,7 @@ const Dash = () => {
         data: profitSeries,
         // Canvas can't parse CSS var() strings — it silently fell back to black
         // (and a blank tooltip swatch). Resolve the variable to a real color.
-        borderColor: cssVar('--ok-text', '#16a34a'),
+        borderColor: cssVar('--ok-text', 'var(--ok-text)'),
         backgroundColor: 'transparent',
         borderWidth: 2,
         borderDash: [5, 4],
@@ -1132,13 +1130,13 @@ const Dash = () => {
         display: true,
         position: 'top',
         align: 'end',
-        labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 6, padding: 16, font: { size: 11 }, color: cssVar('--port-gore', '#28264f') },
+        labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 6, padding: 16, font: { size: 11 }, color: cssVar('--port-gore', 'var(--port-gore)') },
       },
       tooltip: {
         // Canvas can't parse 'rgba(var(--x),a)' — the black unreadable tooltip.
-        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(255,255,255,0.97)'),
-        titleColor: cssVar('--port-gore', '#28264f'),
-        bodyColor: cssVar('--port-gore', '#28264f'),
+        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(var(--surface-card-rgb), 0.97)'),
+        titleColor: cssVar('--port-gore', 'var(--port-gore)'),
+        bodyColor: cssVar('--port-gore', 'var(--port-gore)'),
         borderColor: cssVar('--selago', '#e6eef8'),
         borderWidth: 1,
         cornerRadius: 10,
@@ -1168,8 +1166,8 @@ const Dash = () => {
       },
     },
     scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 10 }, color: cssVar('--regent-gray', '#838ca7') }, border: { display: false } },
-      y: { grid: { color: cssVar('--selago', '#eef3f9') }, ticks: { callback: (v) => fmtAutoKM(v, 1), font: { size: 10 }, color: '#838ca7' }, border: { display: false } },
+      x: { grid: { display: false }, ticks: { font: { size: 10 }, color: cssVar('--regent-gray', 'var(--regent-gray)') }, border: { display: false } },
+      y: { grid: { color: cssVar('--selago', '#eef3f9') }, ticks: { callback: (v) => fmtAutoKM(v, 1), font: { size: 10 }, color: 'var(--regent-gray)' }, border: { display: false } },
     },
   };
 
@@ -1179,8 +1177,8 @@ const Dash = () => {
     labels: ['Cost of Goods Sold', 'Other Expenses', 'Net Profit'],
     datasets: [{
       data: [cogs, totalExpenses, profitForArc],
-      backgroundColor: [cssVar('--primary-bright', '#2563eb'), '#db2777', '#16a34a'],
-      borderColor: '#ffffff',
+      backgroundColor: [cssVar('--primary-bright', '#2563eb'), 'var(--pink-text)', 'var(--ok-text)'],
+      borderColor: 'var(--on-brand)',
       borderWidth: 2,
       hoverOffset: 6,
     }],
@@ -1194,9 +1192,9 @@ const Dash = () => {
       legend: { display: false },
       tooltip: {
         // Canvas can't parse 'rgba(var(--x),a)' — the black unreadable tooltip.
-        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(255,255,255,0.97)'),
-        titleColor: cssVar('--port-gore', '#28264f'),
-        bodyColor: cssVar('--port-gore', '#28264f'),
+        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(var(--surface-card-rgb), 0.97)'),
+        titleColor: cssVar('--port-gore', 'var(--port-gore)'),
+        bodyColor: cssVar('--port-gore', 'var(--port-gore)'),
         borderColor: cssVar('--selago', '#e6eef8'),
         borderWidth: 1,
         cornerRadius: 10,
@@ -1207,7 +1205,7 @@ const Dash = () => {
   };
 
   const donutLegend = [
-    { label: 'Cost of Goods Sold', value: cogs, color: '#2563eb' },
+    { label: 'Cost of Goods Sold', value: cogs, color: 'var(--primary-bright)' },
     { label: 'Other Expenses', value: totalExpenses, color: 'var(--pink-text)' },
     { label: 'Net Profit', value: totalPL, color: 'var(--ok-text)' },
   ];
@@ -1258,7 +1256,7 @@ const Dash = () => {
             <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--selago)] px-3 py-2.5 shadow-sm"
               style={{ background: 'linear-gradient(180deg,var(--surface-card),var(--surface-pill))' }}>
               <span className="inline-flex items-center gap-1.5 pr-2 mr-0.5 border-r border-[var(--selago)]">
-                <span className="inline-flex items-center justify-center rounded-lg" style={{ background: 'var(--endeavour)', color: '#fff', width: 22, height: 22 }}>
+                <span className="inline-flex items-center justify-center rounded-lg" style={{ background: 'var(--endeavour)', color: 'var(--on-brand)', width: 22, height: 22 }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 5h18M6 12h12M10 19h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                 </span>
                 <span className="font-semibold" style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>Filters</span>
@@ -1329,7 +1327,7 @@ const Dash = () => {
               title="MT Purchased"
               value={`${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`}
               chartData={dataContracts}
-              accent="#2563eb"
+              accent="var(--primary-bright)"
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="2" /><path d="M7 10h10M7 14h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
             />
             <StatKpiCard
@@ -1344,7 +1342,7 @@ const Dash = () => {
               title="Storage Spend"
               value={fmtAutoKM(storageSpend)}
               chartData={storageByMonth}
-              accent="#0ea5e9"
+              accent={CHART_ACCENT.storage}
               goodWhenUp={false}
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 10l9-5 9 5v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M9 21v-6h6v6" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>}
             />
@@ -1445,7 +1443,7 @@ const Dash = () => {
               entries={Object.entries(materialSold).filter(([, v]) => v > 0.01).sort((a, b) => b[1] - a[1]).slice(0, 8)}
               total={shippedMT}
               fmtVal={(v) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)} MT`}
-              accent="#2563eb"
+              accent="var(--primary-bright)"
             />
           </div>
 

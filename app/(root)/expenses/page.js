@@ -417,7 +417,7 @@ const Expenses = () => {
 										>
 											<Split className='w-3.5 h-3.5' />
 											Needs IMS/GIS split
-											<span className='rounded-full px-1.5' style={{ fontSize: 'var(--fs-table)', background: onlyUnsplit ? 'rgba(255,255,255,0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
+											<span className='rounded-full px-1.5' style={{ fontSize: 'var(--fs-table)', background: onlyUnsplit ? 'rgba(var(--surface-card-rgb), 0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
 												{pendingCount}
 											</span>
 										</button>

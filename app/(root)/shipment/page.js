@@ -140,21 +140,21 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                 style={{
                     fontSize: 'var(--fs-body)',
                     borderColor: active ? 'var(--endeavour)' : 'var(--border-divider)',
-                    color: active ? '#fff' : 'var(--chathams-blue)',
-                    backgroundColor: active ? 'var(--endeavour)' : '#fff',
+                    color: active ? 'var(--on-brand)' : 'var(--chathams-blue)',
+                    backgroundColor: active ? 'var(--endeavour)' : 'var(--surface-card)',
                 }}
             >
                 <span>{label}</span>
                 <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
             </button>
             {open && (
-                <div className="absolute z-[200] top-full mt-1 left-0 rounded-2xl shadow-lg overflow-hidden" style={{ border: '1px solid var(--border-cell)', backgroundColor: 'var(--surface-card)', minWidth: '140px', maxHeight: '220px', overflowY: 'auto' }}>
+                <div className="absolute z-toast top-full mt-1 left-0 rounded-2xl shadow-lg overflow-hidden" style={{ border: '1px solid var(--border-cell)', backgroundColor: 'var(--surface-card)', minWidth: '140px', maxHeight: '220px', overflowY: 'auto' }}>
                     <div
                         onClick={() => { onChange(''); setOpen(false); }}
                         className="px-3 py-1.5 cursor-pointer transition-colors"
-                        style={{ fontSize: 'var(--fs-body)', color: value === '' ? 'var(--endeavour)' : 'var(--chathams-blue)', fontWeight: value === '' ? 600 : 400, backgroundColor: value === '' ? 'var(--selago)' : '#fff' }}
+                        style={{ fontSize: 'var(--fs-body)', color: value === '' ? 'var(--endeavour)' : 'var(--chathams-blue)', fontWeight: value === '' ? 600 : 400, backgroundColor: value === '' ? 'var(--selago)' : 'var(--surface-card)' }}
                         onMouseEnter={e => { if (value !== '') e.currentTarget.style.backgroundColor = 'var(--selago)'; }}
-                        onMouseLeave={e => { if (value !== '') e.currentTarget.style.backgroundColor = '#fff'; }}
+                        onMouseLeave={e => { if (value !== '') e.currentTarget.style.backgroundColor = 'var(--surface-card)'; }}
                     >
                         {placeholder}
                     </div>
@@ -163,9 +163,9 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                             key={o.id}
                             onClick={() => { onChange(o.id); setOpen(false); }}
                             className="px-3 py-1.5 cursor-pointer transition-colors"
-                            style={{ fontSize: 'var(--fs-body)', color: value === o.id ? 'var(--endeavour)' : 'var(--port-gore)', fontWeight: value === o.id ? 600 : 400, backgroundColor: value === o.id ? 'var(--selago)' : '#fff' }}
+                            style={{ fontSize: 'var(--fs-body)', color: value === o.id ? 'var(--endeavour)' : 'var(--port-gore)', fontWeight: value === o.id ? 600 : 400, backgroundColor: value === o.id ? 'var(--selago)' : 'var(--surface-card)' }}
                             onMouseEnter={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = 'var(--selago)'; }}
-                            onMouseLeave={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = '#fff'; }}
+                            onMouseLeave={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = 'var(--surface-card)'; }}
                         >
                             {o.label}
                         </div>
@@ -779,7 +779,7 @@ const ShipmentPage = () => {
 
                     {/* Inner card — toolbar + table */}
                     <div className="relative rounded-2xl" style={{ background: 'var(--surface-pill)' }}>
-                      <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-[25]" />
+                      <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-sticky" />
 
                     {/* Toolbar */}
                     <div
@@ -792,7 +792,7 @@ const ShipmentPage = () => {
                             {/* Search */}
                             <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--border-divider)] rounded-2xl bg-[var(--surface-card)] focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
                                 <input
-                                    className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium rounded-2xl"
+                                    className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTableTitle font-medium rounded-2xl"
                                     placeholder="Search"
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
@@ -1116,7 +1116,7 @@ const ShipmentPage = () => {
                                 <div
                                     key={contract.id}
                                     className="rounded-2xl overflow-hidden"
-                                    style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-divider)', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
+                                    style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-divider)', boxShadow: '0 4px 12px rgba(var(--shadow-rgb), 0.06)' }}
                                 >
                                     {/* Card header */}
                                     <div className="px-3 py-2 flex items-center justify-between bg-[var(--border-divider)]">
@@ -1211,7 +1211,7 @@ const ShipmentPage = () => {
                                     <button
                                         onClick={() => setPageIndex(p => Math.max(0, p - 1))}
                                         disabled={safePageIndex === 0}
-                                        className="text-[0.75rem] font-medium transition-colors"
+                                        className="responsiveTextInput font-medium transition-colors"
                                         style={{ color: safePageIndex > 0 ? 'var(--endeavour)' : 'var(--rock-blue)', cursor: safePageIndex > 0 ? 'pointer' : 'not-allowed' }}
                                     >
                                         Previous
@@ -1221,10 +1221,10 @@ const ShipmentPage = () => {
                                             <button
                                                 key={pi}
                                                 onClick={() => setPageIndex(pi)}
-                                                className="min-w-[2rem] h-8 text-[0.75rem] font-medium rounded-full border transition-all duration-200"
+                                                className="min-w-[2rem] h-8 responsiveTextInput font-medium rounded-full border transition-all duration-200"
                                                 style={{
-                                                    backgroundColor: safePageIndex === pi ? 'var(--endeavour)' : '#FFFFFF',
-                                                    color: safePageIndex === pi ? '#FFFFFF' : 'var(--endeavour)',
+                                                    backgroundColor: safePageIndex === pi ? 'var(--endeavour)' : 'var(--surface-card)',
+                                                    color: safePageIndex === pi ? 'var(--on-brand)' : 'var(--endeavour)',
                                                     borderColor: safePageIndex === pi ? 'var(--endeavour)' : 'var(--border-divider)',
                                                 }}
                                             >
@@ -1235,7 +1235,7 @@ const ShipmentPage = () => {
                                     <button
                                         onClick={() => setPageIndex(p => Math.min(pageCount - 1, p + 1))}
                                         disabled={safePageIndex >= pageCount - 1}
-                                        className="text-[0.75rem] font-medium transition-colors"
+                                        className="responsiveTextInput font-medium transition-colors"
                                         style={{ color: safePageIndex < pageCount - 1 ? 'var(--endeavour)' : 'var(--rock-blue)', cursor: safePageIndex < pageCount - 1 ? 'pointer' : 'not-allowed' }}
                                     >
                                         Next
@@ -1244,9 +1244,9 @@ const ShipmentPage = () => {
 
                                 {/* Right — rows per page */}
                                 <div className="py-1 px-1 md:px-4 self-center flex items-center space-x-2">
-                                    <span className="text-[var(--endeavour)] text-[0.72rem]">Rows:</span>
+                                    <span className="text-[var(--endeavour)] responsiveTextInput">Rows:</span>
                                     <Menu as="div" className="relative inline-block">
-                                        <MenuButton className="inline-flex w-full justify-center border border-[var(--endeavour)]/50 rounded-lg px-4 py-1 text-[0.72rem] font-medium hover:border-[var(--endeavour)] transition-colors">
+                                        <MenuButton className="inline-flex w-full justify-center border border-[var(--endeavour)]/50 rounded-lg px-4 py-1 responsiveTextInput font-medium hover:border-[var(--endeavour)] transition-colors">
                                             <span className="items-center flex pt-[2px] text-[var(--endeavour)]">{pageSize}</span>
                                             <HiMiniChevronUpDown className="ml-2 -mr-1 mt-0.5 h-4 w-4 text-[var(--endeavour)]" />
                                         </MenuButton>
@@ -1257,7 +1257,7 @@ const ShipmentPage = () => {
                                                         <MenuItem key={x}>
                                                             <button
                                                                 onClick={() => { setPageSize(x); setPageIndex(0); }}
-                                                                className={`${pageSize === x ? 'bg-[var(--surface-header)] text-[var(--endeavour)] font-semibold' : 'text-[var(--port-gore)]'} flex w-full items-center rounded-lg px-2 py-1.5 text-[0.72rem] mt-0.5 justify-center ${pageSize !== x ? 'hover:bg-[var(--selago)]' : ''}`}
+                                                                className={`${pageSize === x ? 'bg-[var(--surface-header)] text-[var(--endeavour)] font-semibold' : 'text-[var(--port-gore)]'} flex w-full items-center rounded-lg px-2 py-1.5 responsiveTextInput mt-0.5 justify-center ${pageSize !== x ? 'hover:bg-[var(--selago)]' : ''}`}
                                                             >
                                                                 {x}
                                                             </button>

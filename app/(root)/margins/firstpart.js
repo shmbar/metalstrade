@@ -86,7 +86,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
 
                 .stats-card:hover {
                     transform: translateY(-2px);
-                    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+                    box-shadow: 0 12px 28px rgba(var(--shadow-rgb), 0.15);
                 }
             `}</style>
 
@@ -101,13 +101,13 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                 style={{
                                     backgroundColor: card.bg,
                                     border: `1px solid ${card.border}`,
-                                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1), 0 0 1px rgba(255, 255, 255, 0.2) inset',
+                                    boxShadow: '0 8px 25px rgba(var(--shadow-rgb), 0.1), 0 0 1px rgba(var(--surface-card-rgb), 0.2) inset',
                                 }}
                             >
-                                <span className="font-medium text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem] px-1" style={{ color: card.color }}>
+                                <span className="font-medium text-center responsiveTextInput px-1" style={{ color: card.color }}>
                                     {card.label}
                                 </span>
-                                <div className="font-medium text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]" style={{ color: card.color }}>
+                                <div className="font-medium text-center responsiveTextInput" style={{ color: card.color }}>
                                     {card.value}
                                 </div>
 
@@ -122,12 +122,12 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                 <div
                                     key={idx}
                                     className="stats-card flex flex-col items-center justify-center rounded-full py-1 px-1 shadow-lg"
-                                    style={{ backgroundColor: card.bg, border: `1px solid ${card.border}`, boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)' }}
+                                    style={{ backgroundColor: card.bg, border: `1px solid ${card.border}`, boxShadow: '0 8px 25px rgba(var(--shadow-rgb), 0.1)' }}
                                 >
-                                    <span className="font-medium text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem] px-1" style={{ color: card.color }}>
+                                    <span className="font-medium text-center responsiveTextInput px-1" style={{ color: card.color }}>
                                         {card.label}
                                     </span>
-                                    <div className="font-medium text-center text-[0.72rem] xl:text-[0.75rem] 2xl:text-[0.8rem] 3xl:text-[0.875rem]" style={{ color: card.color }}>
+                                    <div className="font-medium text-center responsiveTextInput" style={{ color: card.color }}>
                                         {card.value}
                                     </div>
                                 </div>

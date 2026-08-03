@@ -212,7 +212,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
             <div className="custom-table">
                 <div className="relative flex flex-col rounded-2xl glass-table">
                     {/* Border overlay — renders above children so corners always visible */}
-                    <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-[15]" />
+                    <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-sticky" />
 
                     {/* HEADER */}
                     <div
@@ -244,7 +244,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                 {/* THEAD - Multi-color gradient inspired by all cards */}
                                 <thead className="sticky top-0 z-10">
                                     {table.getHeaderGroups().map(hdGroup => (
-                                        <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                                        <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
                                             {hdGroup.headers.map((header, idx) => (
                                                 <th
                                                     key={header.id}
@@ -427,8 +427,8 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                             ? '2px solid var(--warn-text)' 
                                             : '1px solid var(--border-divider)',
                                         boxShadow: highlightId === row.original.id 
-                                            ? '0 12px 28px rgba(249, 115, 22, 0.2)'
-                                            : '0 4px 12px rgba(0, 0, 0, 0.06)'
+                                            ? 'var(--shadow-lg)'
+                                            : '0 4px 12px rgba(var(--shadow-rgb), 0.06)'
                                     }}
                                 >
                                     {/* Card Header - Multi-gradient */}
@@ -443,7 +443,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                         style={{
                                                             color: 'var(--endeavour)',
                                                             fontSize: 'var(--fs-table)',
-                                                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                                                            textShadow: '0 1px 2px rgba(var(--shadow-rgb), 0.2)'
                                                         }}
                                                     >
                                                         {getTtl('Row', ln)} {rowIndex + 1}
@@ -456,7 +456,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                 onChange={row.getToggleSelectedHandler()}
                                                 onClick={(e) => e.stopPropagation()}
                                                 className="w-4 h-4 cursor-pointer rounded"
-                                                style={{ accentColor: '#FFFFFF' }}
+                                                style={{ accentColor: 'var(--on-brand)' }}
                                             />
                                         )}
                                     </div>
@@ -480,7 +480,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                         {cell.column.columnDef.header}
                                                     </div>
                                                     <div 
-                                                        className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                                                        className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                                         style={{
                                                             color: 'var(--port-gore)',
                                                             background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
@@ -495,7 +495,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                                             className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-md"
                                                                             style={{ 
                                                                                 backgroundColor: 'var(--ok-bg)',
-                                                                                color: '#FFFFFF'
+                                                                                color: 'var(--on-brand)'
                                                                             }}
                                                                 >
                                                                     Completed
@@ -505,7 +505,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                                     className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-sm"
                                                                     style={{ 
                                                                         backgroundColor: 'var(--danger-bg)',
-                                                                        color: '#FFFFFF'
+                                                                        color: 'var(--on-brand)'
                                                                     }}
                                                                 >
                                                                     Pending

@@ -37,7 +37,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 </thead>
                 <tbody>
                     {filteredArr.map((z, i) => (
-                        <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : 'var(--surface-pill)' }}>
+                        <tr key={i} style={{ background: i % 2 === 0 ? 'var(--surface-card)' : 'var(--surface-pill)' }}>
                             <td style={tdStyle}>{z?.order}</td>
                             <td style={tdStyle}>{z.invoice}</td>
                             <td style={tdStyle}>{z.description}</td>

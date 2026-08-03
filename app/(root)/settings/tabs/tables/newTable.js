@@ -85,7 +85,7 @@ const Customtable = ({
         <div className="flex items-center gap-2 p-2">
           <div className="flex items-center relative w-[140px] h-7 border border-[var(--selago)] rounded-2xl bg-[var(--surface-card)] shadow-sm">
             <input
-              className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full text-[0.75rem] rounded-2xl"
+              className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full responsiveTextInput rounded-2xl"
               placeholder="Search..."
               value={globalFilter ?? ''}
               onChange={e => setGlobalFilter(e.target.value)}
@@ -188,7 +188,7 @@ const Customtable = ({
         </div>
         <div className="flex items-center justify-between p-3 border-[var(--border-divider)] bg-[var(--surface-card)] rounded-b-lg">
           {/* LEFT — Showing text */}
-          <div className="hidden lg:flex text-[var(--endeavour)] text-[0.72rem]">
+          <div className="hidden lg:flex text-[var(--endeavour)] responsiveTextInput">
             {`${getTtl("Showing", ln)} ${table.getState().pagination.pageIndex *
               table.getState().pagination.pageSize +
               (table.getFilteredRowModel().rows.length ? 1 : 0)

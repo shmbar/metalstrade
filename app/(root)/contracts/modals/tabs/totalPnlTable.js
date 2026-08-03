@@ -155,7 +155,7 @@ const TotalPnlTable = ({ data, val, mult }) => {
                         <tr>
                             {cols.map(x => (
                                 <td key={x.field} data-label={x.header} className='table_cell px-3 py-0.5 
-                                        text-[0.6rem] items-center' >
+                                        responsiveTextTable items-center' >
                                     <div className='py-1'>
                                         {showDetail(data, x.field)}
                                     </div>

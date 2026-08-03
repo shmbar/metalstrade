@@ -18,7 +18,7 @@ export default function Signup() {
 					<div className="responsiveTextStat font-semibold text-center">Sign Up</div>
 					<div className='text-center pt-5 sm:px-28 md:px-12 lg:px-24 px-6'>
 						<label className="block mb-1 responsiveTextTitle text-gray-600 text-left">Email Adress</label>
-						<input className="input w-full text-[16px] shadow-lg" value={email}
+						<input className="input w-full responsiveTextPage shadow-lg" value={email}
 							onChange={(e) => setEmail(e.target.value)} />
 					</div>
 					<div className='text-center pt-5 sm:px-28 md:px-12 lg:px-24 px-6'>

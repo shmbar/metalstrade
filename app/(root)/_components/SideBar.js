@@ -117,8 +117,8 @@ export default function Sidebar() {
     alignItems: "center",
     cursor: "pointer",
     borderRadius: isCollapsed ? "10px" : "10px",
-    background: active ? "#ffffff" : "transparent",
-    boxShadow: active ? "0 2px 10px 0 rgba(44, 130, 201, 0.18)" : "none",
+    background: active ? "var(--surface-card)" : "transparent",
+    boxShadow: active ? "0 2px 10px 0 rgba(var(--endeavour-rgb), 0.18)" : "none",
     fontWeight: active ? 600 : 500,
     color: "var(--port-gore)",
     marginLeft: isCollapsed ? "auto" : "8px",
@@ -136,7 +136,7 @@ export default function Sidebar() {
   });
 
   const hoverOn = (e, active) => {
-    if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.7)";
+    if (!active) e.currentTarget.style.background = "rgba(var(--surface-card-rgb), 0.7)";
   };
   const hoverOff = (e, active) => {
     if (!active) e.currentTarget.style.background = "transparent";
@@ -447,7 +447,7 @@ export default function Sidebar() {
               <div style={{
                 display: "flex", alignItems: "center",
                 background: "var(--surface-card)", borderRadius: "999px",
-                boxShadow: "0 2px 8px 0 rgba(44,130,201,0.10)",
+                boxShadow: "0 2px 8px 0 rgba(var(--endeavour-rgb), 0.10)",
                 padding: collapsed ? "4px" : "4px 14px 4px 8px",
                 minWidth: 0, width: "100%", maxWidth: 260, gap: collapsed ? 0 : 10,
                 justifyContent: "center",

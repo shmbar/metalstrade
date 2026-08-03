@@ -38,13 +38,13 @@ const General = () => {
                     <div className='border border-[var(--border-divider)] p-4 rounded-2xl mt-1'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='gap-4 flex items-center' >
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpName', ln)}:</p>
                                 <input
                                     type='input'
                                     className="
   flex-1
-  h-[26px]
+  h-7
   px-4
   rounded-full
   border
@@ -56,7 +56,7 @@ const General = () => {
   focus:border-[var(--endeavour)]
   focus:ring-2
   focus:ring-[rgba(var(--endeavour-rgb),0.2)]
-  text-[0.75rem]
+  responsiveTextInput
 "
 
                                     value={compData?.name || ''}
@@ -65,7 +65,7 @@ const General = () => {
                             </div>
 
                             <div className='gap-4 flex items-center w-full' >
-                                <p className="responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]">
+                                <p className="responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]">
                                     {getTtl("lng", ln)}:
                                 </p>
 
@@ -88,33 +88,33 @@ const General = () => {
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2'>
                                     <div className='gap-4 flex items-center' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                             {getTtl('street', ln)}:</p>
                                         <input
                                             type='input'
-                                            className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
+                                            className="flex-1 h-7 px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] responsiveTextInput"
                                             value={compData?.street || ''}
                                             onChange={e => setCompData({ ...(compData || {}), street: e.target.value })}
                                         />
                                     </div>
                                     <div className='flex gap-4 items-center ' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                             {getTtl('city', ln)}: </p>
                                         <input
                                             type='input'
-                                            className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
+                                            className="flex-1 h-7 px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] responsiveTextInput"
                                             value={compData?.city || ''}
                                             onChange={e => setCompData({ ...(compData || {}), city: e.target.value })}
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                             {getTtl('country', ln)}:</p>
                                         <input
                                             type='input'
                                             className="
   flex-1
-  h-[26px]
+  h-7
   px-4
   rounded-full
   border
@@ -126,7 +126,7 @@ const General = () => {
   focus:border-[var(--endeavour)]
   focus:ring-2
   focus:ring-[rgba(var(--endeavour-rgb),0.2)]
-  text-[0.75rem]
+  responsiveTextInput
 "
 
                                             value={compData?.country || ''}
@@ -134,13 +134,13 @@ const General = () => {
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                             {getTtl('zipCode', ln)}:</p>
                                         <input
                                             type='input'
                                             className="
   flex-1
-  h-[26px]
+  h-7
   px-4
   rounded-full
   border
@@ -152,7 +152,7 @@ const General = () => {
   focus:border-[var(--endeavour)]
   focus:ring-2
   focus:ring-[rgba(var(--endeavour-rgb),0.2)]
-  text-[0.75rem]
+  responsiveTextInput
 "
 
                                             value={compData?.zip || ''}
@@ -164,12 +164,12 @@ const General = () => {
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2'>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Reg No.:</p>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Reg No.:</p>
                                         <input
                                             type='input'
                                             className="
   flex-1
-  h-[26px]
+  h-7
   px-4
   rounded-full
   border
@@ -181,7 +181,7 @@ const General = () => {
   focus:border-[var(--endeavour)]
   focus:ring-2
   focus:ring-[rgba(var(--endeavour-rgb),0.2)]
-  text-[0.75rem]
+  responsiveTextInput
 "
 
                                             value={compData?.reg || ''}
@@ -189,12 +189,12 @@ const General = () => {
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>VAT No.:</p>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>VAT No.:</p>
                                         <input
                                             type='input'
                                             className="
   flex-1
-  h-[26px]
+  h-7
   px-4
   rounded-full
   border
@@ -206,7 +206,7 @@ const General = () => {
   focus:border-[var(--endeavour)]
   focus:ring-2
   focus:ring-[rgba(var(--endeavour-rgb),0.2)]
-  text-[0.75rem]
+  responsiveTextInput
 "
 
                                             value={compData?.vat || ''}
@@ -214,12 +214,12 @@ const General = () => {
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>EORI No.:</p>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>EORI No.:</p>
                                         <input
                                             type='input'
                                             className="
   flex-1
-  h-[26px]
+  h-7
   px-4
   rounded-full
   border
@@ -231,7 +231,7 @@ const General = () => {
   focus:border-[var(--endeavour)]
   focus:ring-2
   focus:ring-[rgba(var(--endeavour-rgb),0.2)]
-  text-[0.75rem]
+  responsiveTextInput
 "
 
                                             value={compData?.eori || ''}
@@ -249,13 +249,13 @@ const General = () => {
                     <div className='border border-[var(--border-divider)] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpemail', ln)}:</p>
                                 <input
                                     type='input'
                                     className="
   flex-1
-  h-[26px]
+  h-7
   px-4
   rounded-full
   border
@@ -267,20 +267,20 @@ const General = () => {
   focus:border-[var(--endeavour)]
   focus:ring-2
   focus:ring-[rgba(var(--endeavour-rgb),0.2)]
-  text-[0.75rem]
+  responsiveTextInput
 "
                                     value={compData?.email || ''}
                                     onChange={e => setCompData({ ...(compData || {}), email: e.target.value })}
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpwebsite', ln)}:</p>
                                 <input
                                     type='input'
                                     className="
   flex-1
-  h-[26px]
+  h-7
   px-4
   rounded-full
   border
@@ -292,7 +292,7 @@ const General = () => {
   focus:border-[var(--endeavour)]
   focus:ring-2
   focus:ring-[rgba(var(--endeavour-rgb),0.2)]
-  text-[0.75rem]
+  responsiveTextInput
 "
                                     value={compData?.website || ''}
                                     onChange={e => setCompData({ ...(compData || {}), website: e.target.value })}
@@ -305,39 +305,39 @@ const General = () => {
                     <div className=' border border-[var(--border-divider)] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpPhone', ln)}:</p>
                                 <input
                                     type='input'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
+                                    className="flex-1 h-7 px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] responsiveTextInput"
                                     value={compData?.phone || ''}
                                     onChange={e => setCompData({ ...(compData || {}), phone: e.target.value })}
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpMobile', ln)}:</p>
                                 <input
                                     type='input'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
+                                    className="flex-1 h-7 px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] responsiveTextInput"
                                     value={compData?.mobile || ''}
                                     onChange={e => setCompData({ ...(compData || {}), mobile: e.target.value })}
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Fax:</p>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Fax:</p>
                                 <input
                                     type='input'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
+                                    className="flex-1 h-7 px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] responsiveTextInput"
                                     value={compData?.fax || ''}
                                     onChange={e => setCompData({ ...(compData || {}), fax: e.target.value })}
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Contact Person:</p>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Contact Person:</p>
                                 <input
                                     type='input'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
+                                    className="flex-1 h-7 px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] responsiveTextInput"
                                     value={compData?.contact || ''}
                                     onChange={e => setCompData({ ...(compData || {}), contact: e.target.value })}
                                 />
@@ -349,24 +349,24 @@ const General = () => {
                         <Logos compData={compData} setCompData={setCompData} />
                     </div> */}
                     <div className='border border-[var(--border-divider)] p-4 rounded-2xl mt-5 w-full'>
-                        <p className='responsiveText font-medium text-[0.825rem] mb-3 text-[var(--chathams-blue)]'>Invoice wording</p>
+                        <p className='responsiveText font-medium responsiveTextTitle mb-3 text-[var(--chathams-blue)]'>Invoice wording</p>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='flex gap-4 items-center'>
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[170px] shrink-0 text-[var(--chathams-blue)]'>Prepayment label:</p>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[170px] shrink-0 text-[var(--chathams-blue)]'>Prepayment label:</p>
                                 <input
                                     type='input'
                                     placeholder='Prepayment'
-                                    className="flex-1 h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
+                                    className="flex-1 h-7 px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] responsiveTextInput"
                                     value={compData?.invPrepaymentLabel || ''}
                                     onChange={e => setCompData({ ...(compData || {}), invPrepaymentLabel: e.target.value })}
                                 />
                             </div>
                             <div className='flex gap-4 items-start'>
-                                <p className='responsiveText font-medium text-[0.825rem] w-[170px] shrink-0 pt-1 leading-tight text-[var(--chathams-blue)]'>Invoice note (Non&#8209;Radioactive):</p>
+                                <p className='responsiveText font-medium responsiveTextTitle w-[170px] shrink-0 pt-1 leading-tight text-[var(--chathams-blue)]'>Invoice note (Non&#8209;Radioactive):</p>
                                 <textarea
                                     rows={2}
                                     placeholder='e.g. We hereby certify the goods are non-radioactive and free of contamination.'
-                                    className="flex-1 p-2 rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
+                                    className="flex-1 p-2 rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] responsiveTextInput"
                                     style={{ fontFamily: 'inherit' }}
                                     value={compData?.invNonRadioText || ''}
                                     onChange={e => setCompData({ ...(compData || {}), invNonRadioText: e.target.value })}
@@ -379,26 +379,26 @@ const General = () => {
                     </div>
 
                     <div className='border border-[var(--border-divider)] p-4 rounded-2xl mt-5 w-full'>
-                        <p className='responsiveText font-medium text-[0.825rem] mb-3 text-[var(--chathams-blue)]'>Currency &amp; Terms</p>
+                        <p className='responsiveText font-medium responsiveTextTitle mb-3 text-[var(--chathams-blue)]'>Currency &amp; Terms</p>
                         <div className='flex flex-col gap-3'>
                             <div className='flex gap-4 items-center'>
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[200px] text-[var(--chathams-blue)]'>Standard EUR &rarr; USD rate:</p>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[200px] text-[var(--chathams-blue)]'>Standard EUR &rarr; USD rate:</p>
                                 <input
                                     type='number'
                                     step='0.0001'
                                     placeholder='e.g. 1.08'
-                                    className="flex-1 max-w-[180px] h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
+                                    className="flex-1 max-w-[180px] h-7 px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] responsiveTextInput"
                                     value={compData?.eurUsdRate ?? ''}
                                     onChange={e => setCompData({ ...(compData || {}), eurUsdRate: e.target.value })}
                                 />
                             </div>
                             <div className='flex gap-4 items-center'>
-                                <p className='responsiveText font-medium text-[0.825rem] whitespace-nowrap w-[200px] text-[var(--chathams-blue)]'>Default payment term (days):</p>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[200px] text-[var(--chathams-blue)]'>Default payment term (days):</p>
                                 <input
                                     type='number'
                                     step='1'
                                     placeholder='30'
-                                    className="flex-1 max-w-[180px] h-[26px] px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] text-[0.75rem]"
+                                    className="flex-1 max-w-[180px] h-7 px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] responsiveTextInput"
                                     value={compData?.defaultTermDays ?? ''}
                                     onChange={e => setCompData({ ...(compData || {}), defaultTermDays: e.target.value })}
                                 />
@@ -422,7 +422,7 @@ const General = () => {
 
                         <div className='flex flex-wrap gap-4 items-center' >
                             <p className='responsiveTextTitle font-medium whitespace-nowrap text-slate-600'>Start Invoice Number From:</p>
-                            <input type='number' className='input max-w-[10rem] w-full  h-[26px]' value={invNum}
+                            <input type='number' className='input max-w-[10rem] w-full  h-7' value={invNum}
                                 onChange={(e) => setInvNum(e.target.value)} />
                         </div>
 

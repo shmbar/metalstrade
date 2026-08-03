@@ -75,7 +75,7 @@ const SalesContractDetails = () => {
                 {/* Contract # */}
                 <div className="border border-[var(--border-divider)] p-2 rounded-2xl flex flex-col">
                     <p className="responsiveText text-[var(--port-gore)] font-medium indent-1">Sales Contract #:</p>
-                    <input className="input shadow-sm h-8 text-[0.75rem] w-full mt-1" name='contractNo'
+                    <input className="input shadow-sm h-8 responsiveTextInput w-full mt-1" name='contractNo'
                         value={valueSC.contractNo} onChange={handleValue} />
                     <ErrDiv field='contractNo' errors={errors} />
                 </div>

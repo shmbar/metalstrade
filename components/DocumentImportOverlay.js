@@ -397,8 +397,8 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
 
     const overlay = (
         <div
-            className='fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-4'
-            style={{ background: 'rgba(0,0,0,0.5)' }}
+            className='fixed inset-0 z-command flex items-center justify-center p-3 sm:p-4'
+            style={{ background: 'rgba(var(--shadow-rgb), 0.5)' }}
             role='dialog'
             aria-modal='true'
             aria-labelledby='doc-import-title'
@@ -485,7 +485,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
 
                             {/* Scanned-document warning — digits were read visually, not from a text layer */}
                             {result.visionUsed && (
-                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: 'var(--surface-card)3cd', border: '1px solid #ffc107' }}>
+                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: 'var(--surface-card)3cd', border: '1px solid var(--warn-text)' }}>
                                     <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: 'var(--warn-text)' }} />
                                     <span style={{ fontSize: 'var(--fs-table)', color: 'var(--warn-strong)' }}>
                                         Scanned document — digits were read visually. Double-check quantities, prices and totals before applying.
@@ -495,7 +495,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
 
                             {/* Multi-invoice warning — this PDF holds more than one invoice */}
                             {isExpense && result.multipleInvoices && (
-                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: 'var(--surface-card)3cd', border: '1px solid #ffc107' }}>
+                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: 'var(--surface-card)3cd', border: '1px solid var(--warn-text)' }}>
                                     <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: 'var(--warn-text)' }} />
                                     <span style={{ fontSize: 'var(--fs-table)', color: 'var(--warn-strong)' }}>
                                         This PDF appears to contain more than one invoice. Only the FIRST one was extracted — record the others as separate expenses.
@@ -586,7 +586,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
 
     // Portal escapes any parent stacking context (e.g. sticky/fixed parents in
     // the contract or expense modal). Renders directly under document.body so
-    // the navbar's z-[10000] can't visually cover the overlay's header.
+    // the navbar's z-command can't visually cover the overlay's header.
     return createPortal(overlay, document.body);
 };
 

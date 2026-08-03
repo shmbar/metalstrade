@@ -54,12 +54,12 @@ const MarginTable = memo(function MarginTable(props) {
   <DisclosureButton className="flex items-center justify-center hover:opacity-80 transition-all" onClick={() => saveOpenClose(!open)}>
     {!open ? (
       <IoAddCircleOutline
-        className="text-[14px]"
+        className="responsiveTextTitle"
         style={{ color: 'var(--chathams-blue)' }}
       />
     ) : (
       <FiMinusCircle
-        className="text-[14px]"
+        className="responsiveTextTitle"
         style={{ color: 'var(--chathams-blue)' }}
       />
     )}
@@ -198,7 +198,7 @@ const MarginTable = memo(function MarginTable(props) {
                                     className="px-3 py-1.5 rounded-full font-normal transition-all duration-150 hover:opacity-90"
                                     style={{
                                         background: 'var(--endeavour)',
-                                        color: '#FFFFFF',
+                                        color: 'var(--on-brand)',
                                         fontSize: 'var(--fs-table)',
                                         fontWeight: '400',
                                         border: '1px solid transparent',
@@ -209,11 +209,11 @@ const MarginTable = memo(function MarginTable(props) {
                                     onClick={() => addItem(month)}
                                     onMouseEnter={(e) => {
                                         e.target.style.transform = 'translateY(-1px)';
-                                        e.target.style.boxShadow = '0 3px 8px rgba(24, 61, 121, 0.3)';
+                                        e.target.style.boxShadow = '0 3px 8px rgba(var(--chathams-blue-rgb), 0.3)';
                                     }}
                                     onMouseLeave={(e) => {
                                         e.target.style.transform = 'translateY(0)';
-                                        e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                                        e.target.style.boxShadow = '0 2px 4px rgba(var(--shadow-rgb), 0.1)';
                                     }}
                                 >
                                     Add

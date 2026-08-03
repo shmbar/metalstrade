@@ -57,7 +57,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
         borderColor: 'var(--border-divider)',
         borderWidth: 1,
         borderRadius: '16px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        boxShadow: '0 2px 8px rgba(var(--shadow-rgb), 0.08)'
       }}
     >
       <style jsx global>{`

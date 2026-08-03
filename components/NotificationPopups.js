@@ -19,7 +19,7 @@ const ENTITY_ICON = {
     expense: { Icon: Banknote, color: 'var(--warn-strong)', bg: 'var(--warn-soft)' },
     companyexpense: { Icon: Banknote, color: 'var(--warn-strong)', bg: 'var(--warn-soft)' },
     stock: { Icon: Package, color: 'var(--violet-text)', bg: 'var(--violet-soft)' },
-    settings: { Icon: SettingsIcon, color: 'var(--text-mid)', bg: '#f1f5f9' },
+    settings: { Icon: SettingsIcon, color: 'var(--text-mid)', bg: 'var(--surface-muted)' },
 };
 const SEVERITY_ACCENT = { success: 'var(--ok-text)', warning: 'var(--warn-text)', error: 'var(--danger-text)', info: 'var(--endeavour)' };
 
@@ -41,7 +41,7 @@ function PopupCard({ n, onDismiss, onOpen }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hovered, n.popupId]);
 
-    const { Icon, color, bg } = ENTITY_ICON[n.entityType] || { Icon: Activity, color: 'var(--text-mid)', bg: '#f1f5f9' };
+    const { Icon, color, bg } = ENTITY_ICON[n.entityType] || { Icon: Activity, color: 'var(--text-mid)', bg: 'var(--surface-muted)' };
     const accent = SEVERITY_ACCENT[n.severity] || SEVERITY_ACCENT.info;
 
     return (
@@ -136,7 +136,7 @@ export default function NotificationPopups({ popups, dismissPopup, markRead }) {
     };
 
     return (
-        <div className='fixed right-3 z-[9998] flex flex-col gap-2.5 pointer-events-none'
+        <div className='fixed right-3 z-dropdown flex flex-col gap-2.5 pointer-events-none'
             style={{ top: 'clamp(64px, 8vh, 92px)' }}>
             <style jsx global>{`
                 @keyframes notifPopIn {

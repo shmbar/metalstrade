@@ -69,8 +69,8 @@ function MonthPickerPill({ value, onChange }) {
             </button>
             {open && typeof document !== 'undefined' && createPortal(
                 <>
-                    <div className="fixed inset-0 z-[9998]" onClick={() => setOpen(false)} />
-                    <div className="fixed z-[9999] rounded-2xl shadow-xl bg-[var(--surface-card)] border border-[var(--surface-header)] overflow-hidden" style={{ top: pos.top, bottom: pos.bottom, left: pos.left, width: 224 }}>
+                    <div className="fixed inset-0 z-dropdown" onClick={() => setOpen(false)} />
+                    <div className="fixed z-dropdown rounded-2xl shadow-xl bg-[var(--surface-card)] border border-[var(--surface-header)] overflow-hidden" style={{ top: pos.top, bottom: pos.bottom, left: pos.left, width: 224 }}>
                         <div className="flex items-center justify-between py-1.5 px-2" style={{ background: 'var(--surface-header)' }}>
                             <button type="button" onClick={() => setViewYear(y => y - 1)} className="p-1 rounded hover:bg-[rgba(var(--surface-card-rgb),0.6)]"><ChevronLeft className="w-4 h-4 text-[var(--endeavour)]" /></button>
                             <span className="font-semibold" style={{ fontSize: 'var(--fs-title)', color: 'var(--chathams-blue)' }}>{viewYear}</span>

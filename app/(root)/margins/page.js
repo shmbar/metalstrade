@@ -546,7 +546,7 @@ const Margins = () => {
 
                             {/* Margin Alert Banner */}
                             {!loading && !alertDismissed && alertedItems.length > 0 && (
-                                <div className='rounded-2xl mb-3 overflow-hidden' style={{ border: '1px solid #ffc107', background: 'var(--surface-card)3cd' }} role='alert' aria-live='polite'>
+                                <div className='rounded-2xl mb-3 overflow-hidden' style={{ border: '1px solid var(--warn-text)', background: 'var(--surface-card)3cd' }} role='alert' aria-live='polite'>
                                     <div className='flex items-center justify-between px-3 py-2'>
                                         <div className='flex items-center gap-2'>
                                             <AlertTriangle className='w-4 h-4 flex-shrink-0' style={{ color: 'var(--warn-text)' }} />
@@ -678,7 +678,7 @@ const Margins = () => {
                             <div className="rounded-2xl border border-[var(--border-divider)]">
                                 <div className="p-2 flex gap-3 mt-3">
                                     <button
-                                        className="bg-[var(--surface-header)] text-[var(--chathams-blue)] font-medium px-3 py-1 text-[0.68rem] rounded-full hover:opacity-90 transition-all"
+                                        className="bg-[var(--surface-header)] text-[var(--chathams-blue)] font-medium px-3 py-1 responsiveText rounded-full hover:opacity-90 transition-all"
                                         disabled={data.length >= 12}
                                         onClick={addMonth}
                                     >
@@ -702,7 +702,7 @@ const Margins = () => {
                                         </span>
                                     ) : null}
                                     <button
-                                        className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 text-[0.68rem] rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                        className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 responsiveText rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                         onClick={saveData}
                                     >
                                         Save

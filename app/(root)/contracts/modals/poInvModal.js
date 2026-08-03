@@ -569,7 +569,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
             </div>
 
             {showMirror && (
-                <div className='fixed inset-0 z-50 flex items-center justify-center' style={{ background: 'rgba(16,42,74,0.35)' }}
+                <div className='fixed inset-0 z-50 flex items-center justify-center' style={{ background: 'var(--overlay)' }}
                     onClick={() => setShowMirror(false)}>
                     <div className='bg-[var(--surface-card)] rounded-2xl shadow-2xl w-[560px] max-w-[94vw] p-4 flex flex-col gap-2'
                         onClick={e => e.stopPropagation()}>

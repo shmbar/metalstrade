@@ -297,8 +297,8 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                 onClick={writeOffSelected}
                 className="whiteButton whitespace-nowrap"
                 style={armed
-                  ? { background: 'var(--danger-text)', color: '#fff', borderColor: 'var(--danger-text)' }
-                  : { background: 'var(--chathams-blue)', color: '#fff', borderColor: 'var(--border-divider)' }}
+                  ? { background: 'var(--danger-text)', color: 'var(--on-brand)', borderColor: 'var(--danger-text)' }
+                  : { background: 'var(--chathams-blue)', color: 'var(--on-brand)', borderColor: 'var(--border-divider)' }}
               >
                 {writing ? 'Writing off…'
                   : armed ? `Confirm — write off ${sel.length} item${sel.length > 1 ? 's' : ''} (OUT dated today)`

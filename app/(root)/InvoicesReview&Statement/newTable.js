@@ -240,7 +240,7 @@ const Customtable = ({
       <div className="custom-table">
         <div className="relative flex flex-col rounded-2xl glass-table">
           {/* Border overlay — renders above children so corners always visible */}
-          <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-[15]" />
+          <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-sticky" />
 
           {/* HEADER */}
           <div
@@ -297,7 +297,7 @@ const Customtable = ({
                         ))}
                       </tr>
 
-                      <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                      <tr style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
                         {hdGroup.headers.map((header) => (
                           <th
                             key={header.id}
@@ -481,8 +481,8 @@ const Customtable = ({
                       ? '2px solid var(--warn-text)' 
                       : '1px solid var(--border-divider)',
                     boxShadow: highlightId === row.original.id 
-                      ? '0 12px 28px rgba(249, 115, 22, 0.2)'
-                      : '0 4px 12px rgba(0, 0, 0, 0.06)'
+                      ? 'var(--shadow-lg)'
+                      : '0 4px 12px rgba(var(--shadow-rgb), 0.06)'
                   }}
                 >
                   {/* Card Header - Multi-gradient */}
@@ -497,7 +497,7 @@ const Customtable = ({
                             style={{ 
                               color: 'var(--endeavour)',
                               fontSize: 'var(--fs-table)',
-                              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                              textShadow: '0 1px 2px rgba(var(--shadow-rgb), 0.2)'
                             }}
                           >
                             {getTtl('Row', ln)} {rowIndex + 1}
@@ -510,7 +510,7 @@ const Customtable = ({
                         onChange={row.getToggleSelectedHandler()}
                         onClick={(e) => e.stopPropagation()}
                         className="w-4 h-4 cursor-pointer rounded"
-                        style={{ accentColor: '#FFFFFF' }}
+                        style={{ accentColor: 'var(--on-brand)' }}
                       />
                     )}
                   </div>
@@ -534,7 +534,7 @@ const Customtable = ({
                             {cell.column.columnDef.header}
                           </div>
                           <div
-                            className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                            className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm"
                             style={{
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',

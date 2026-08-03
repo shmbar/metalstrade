@@ -87,7 +87,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
         style={{
           borderRadius: '16px',
           border: '1px solid var(--border-divider)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          boxShadow: '0 2px 8px rgba(var(--shadow-rgb), 0.08)',
           overflow: 'hidden',
         }}
       >

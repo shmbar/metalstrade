@@ -45,7 +45,7 @@ const DetailPanel = ({ lots = [], shipments = [] }) => {
       sold: { bg: 'var(--ok-bg)', c: 'var(--ok-strong)', b: 'var(--ok-border)', t: 'Sold' },
       unsold: { bg: 'var(--danger-bg)', c: 'var(--danger-text)', b: 'var(--danger-border)', t: 'Unsold' },
     };
-    const v = map[s] || { bg: '#f1f5f9', c: 'var(--text-mid)', b: 'var(--border-neutral)', t: status || '—' };
+    const v = map[s] || { bg: 'var(--surface-muted)', c: 'var(--text-mid)', b: 'var(--border-neutral)', t: status || '—' };
     return <span style={{ backgroundColor: v.bg, color: v.c, border: `1px solid ${v.b}`, borderRadius: 8, padding: '1px 8px', fontSize: 'var(--fs-table)' }}>{v.t}</span>;
   };
   return (
@@ -107,7 +107,7 @@ const RowCheckbox = ({ checked = false, indeterminate = false, disabled = false,
         style={{
           width: 16, height: 16, borderRadius: 5,
           border: `1px solid ${active ? 'var(--endeavour)' : 'var(--border-cell)'}`,
-          background: active ? 'var(--endeavour)' : '#ffffff',
+          background: active ? 'var(--endeavour)' : 'var(--surface-card)',
           boxShadow: active ? '0 1px 2px rgba(var(--endeavour-rgb),0.25)' : 'none',
         }}
       >
@@ -115,7 +115,7 @@ const RowCheckbox = ({ checked = false, indeterminate = false, disabled = false,
           <span style={{ width: 8, height: 2, borderRadius: 1, background: 'var(--surface-card)' }} />
         ) : checked ? (
           <svg viewBox="0 0 12 12" width="11" height="11" fill="none">
-            <path d="M2.5 6.2l2.2 2.2 4.8-4.8" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M2.5 6.2l2.2 2.2 4.8-4.8" stroke="var(--on-brand)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         ) : null}
       </span>
@@ -332,7 +332,7 @@ const Customtable = ({
       <div className="custom-table">
         <div className="relative flex flex-col rounded-2xl glass-table">
           {/* Border overlay — renders above children so corners always visible */}
-          <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-[15]" />
+          <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-sticky" />
 
           {/* HEADER */}
           <div
@@ -367,7 +367,7 @@ const Customtable = ({
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(group => (
                     <Fragment key={group.id}>
-                      <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                      <tr style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
                         {group.headers.map(header => (
                           <th
                             key={header.id}
@@ -580,7 +580,7 @@ const Customtable = ({
                                       <div
                                         className="px-3 py-1 rounded-2xl responsiveTextTable font-normal flex items-center justify-center"
                                         style={{
-                                          backgroundColor: val === 'Paid' ? 'var(--ok-bg)' : val === 'Unpaid' ? 'var(--warn-bg)' : '#ffffff',
+                                          backgroundColor: val === 'Paid' ? 'var(--ok-bg)' : val === 'Unpaid' ? 'var(--warn-bg)' : 'var(--surface-card)',
                                           border: val ? `1px solid ${val === 'Paid' ? 'var(--ok-border)' : val === 'Unpaid' ? 'var(--warn-border)' : 'var(--border-neutral-strong)'}` : 'none',
                                           color: val === 'Paid' ? 'var(--ok-strong)' : val === 'Unpaid' ? 'var(--warn-strong)' : 'var(--port-gore)'
                                         }}
@@ -668,7 +668,7 @@ const Customtable = ({
                   style={{
                     backgroundColor: 'var(--surface-card)',
                     border: '1px solid var(--border-divider)',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
+                    boxShadow: '0 4px 12px rgba(var(--shadow-rgb), 0.06)'
                   }}
                 >
                   <div 
@@ -682,7 +682,7 @@ const Customtable = ({
                       style={{ 
                         color: 'var(--endeavour)',
                         fontSize: 'var(--fs-table)',
-                        textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                        textShadow: '0 1px 2px rgba(var(--shadow-rgb), 0.2)'
                       }}
                     >
                       {getTtl('Row', ln)} {rowIndex + 1}
@@ -695,7 +695,7 @@ const Customtable = ({
                         onChange={row.getToggleSelectedHandler()}
                         onClick={(e) => e.stopPropagation()}
                         className="w-4 h-4 cursor-pointer rounded"
-                        style={{ accentColor: '#FFFFFF' }}
+                        style={{ accentColor: 'var(--on-brand)' }}
                       />
                     )}
                   </div>
@@ -721,7 +721,7 @@ const Customtable = ({
                             {cell.column.columnDef.header}
                           </div>
                           <div 
-                            className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm" 
+                            className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                             style={{ 
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
@@ -764,7 +764,7 @@ const Customtable = ({
                                 const hasValue = value !== null && value !== undefined && value !== '';
                                 
                                 return (
-                                  <div key={cell.id} className="flex justify-between items-center py-1.5 min-h-[32px]">
+                                  <div key={cell.id} className="flex justify-between items-center py-1.5 min-h-8">
                                     <span
                                       className="responsiveTextTable font-medium uppercase pr-3"
                                       style={{

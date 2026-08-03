@@ -457,7 +457,7 @@
 //                                 <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-normal"
 //                                   style={{
 //                                     backgroundColor: value ? 'var(--ok-text)' : 'var(--danger-text)',
-//                                     color: '#FFFFFF', border: '1px solid var(--border-cell)'
+//                                     color: 'var(--on-brand)', border: '1px solid var(--border-cell)'
 //                                   }}>
 //                                   {value ? 'Completed' : 'Incompleted'}
 //                                 </div>
@@ -467,7 +467,7 @@
 //                                 <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-normal"
 //                                   style={{
 //                                     backgroundColor: value === 'Completed' ? 'var(--ok-text)' : 'var(--danger-text)',
-//                                     color: '#FFFFFF', border: '1px solid var(--border-cell)'
+//                                     color: 'var(--on-brand)', border: '1px solid var(--border-cell)'
 //                                   }}>
 //                                   {value}
 //                                 </div>
@@ -498,7 +498,7 @@
 //                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
 //                                   </div>
 //                                 ) : (
-//                                   <div className="text-[11px] text-[var(--text-mid)]">
+//                                   <div className="responsiveText text-[var(--text-mid)]">
 //                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
 //                                   </div>
 //                                 )}
@@ -518,7 +518,7 @@
 //                         <div className="flex flex-col items-center justify-center">
 //                           <div className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
 //                             style={{ background: 'linear-gradient(135deg, var(--violet-text), var(--violet-text))' }}>
-//                             <svg className="w-12 h-12" style={{ color: '#FFFFFF' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <svg className="w-12 h-12" style={{ color: 'var(--on-brand)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 //                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
 //                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 //                             </svg>
@@ -567,8 +567,8 @@
 //                     backgroundColor: 'var(--surface-card)',
 //                     border: highlightId === row.original.id ? '2px solid var(--warn-text)' : '1px solid var(--border-divider)',
 //                     boxShadow: highlightId === row.original.id
-//                       ? '0 12px 28px rgba(249,115,22,0.2)'
-//                       : '0 4px 12px rgba(0,0,0,0.06)'
+//                       ? 'var(--shadow-lg)'
+//                       : '0 4px 12px rgba(var(--shadow-rgb), 0.06)'
 //                   }}>
 //                   <div className="px-3 py-2 flex items-center justify-between"
 //                     style={{ background: 'var(--border-divider)' }}>
@@ -582,7 +582,7 @@
 //                         onChange={row.getToggleSelectedHandler()}
 //                         onClick={(e) => e.stopPropagation()}
 //                         className="w-4 h-4 cursor-pointer rounded"
-//                         style={{ accentColor: '#FFFFFF' }}
+//                         style={{ accentColor: 'var(--on-brand)' }}
 //                       />
 //                     )}
 //                   </div>
@@ -596,7 +596,7 @@
 //                             style={{ color: 'var(--text-mid)', fontSize: 'var(--fs-caption)' }}>
 //                             {cell.column.columnDef.header}
 //                           </div>
-//                           <div className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+//                           <div className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm"
 //                             style={{
 //                               color: 'var(--text-strong)',
 //                               background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
@@ -606,10 +606,10 @@
 //                             {cell.column.id === 'completed' ? (
 //                               cell.getValue() ? (
 //                                 <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-md"
-//                                   style={{ backgroundColor: 'var(--ok-text)', color: '#FFFFFF' }}>Completed</div>
+//                                   style={{ backgroundColor: 'var(--ok-text)', color: 'var(--on-brand)' }}>Completed</div>
 //                               ) : (
 //                                 <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-sm"
-//                                   style={{ backgroundColor: 'var(--danger-text)', color: '#FFFFFF' }}>Pending</div>
+//                                   style={{ backgroundColor: 'var(--danger-text)', color: 'var(--on-brand)' }}>Pending</div>
 //                               )
 //                             ) : cell.column.id === 'paid' && cell.getValue() ? (
 //                               <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
@@ -636,7 +636,7 @@
 //                 <div className="flex flex-col items-center justify-center py-24 px-3">
 //                   <div className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
 //                     style={{ background: 'linear-gradient(135deg, var(--violet-text), var(--violet-text))' }}>
-//                     <svg className="w-12 h-12" style={{ color: '#FFFFFF' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                     <svg className="w-12 h-12" style={{ color: 'var(--on-brand)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 //                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
 //                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 //                     </svg>
@@ -995,7 +995,7 @@ const Customtable = ({
 
       <div className="custom-table">
         <div className="relative flex flex-col rounded-2xl">
-          <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-[15]" />
+          <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-sticky" />
 
           {/* ── TOOLBAR ── */}
           <div className="flex-shrink-0 rounded-t-2xl"
@@ -1312,8 +1312,8 @@ const Customtable = ({
                     backgroundColor: 'var(--surface-card)',
                     border: highlightId === row.original.id ? '2px solid var(--warn-text)' : '1px solid var(--border-divider)',
                     boxShadow: highlightId === row.original.id
-                      ? '0 12px 28px rgba(249,115,22,0.2)'
-                      : '0 4px 12px rgba(0,0,0,0.06)'
+                      ? 'var(--shadow-lg)'
+                      : '0 4px 12px rgba(var(--shadow-rgb), 0.06)'
                   }}>
                   <div className="px-3 py-2 flex items-center justify-between"
                     style={{ background: 'var(--border-divider)' }}>
@@ -1327,7 +1327,7 @@ const Customtable = ({
                         onChange={row.getToggleSelectedHandler()}
                         onClick={(e) => e.stopPropagation()}
                         className="w-4 h-4 cursor-pointer rounded"
-                        style={{ accentColor: '#FFFFFF' }}
+                        style={{ accentColor: 'var(--on-brand)' }}
                       />
                     )}
                   </div>
@@ -1349,7 +1349,7 @@ const Customtable = ({
                             style={{ color: 'var(--regent-gray)', fontSize: 'var(--fs-caption)' }}>
                             {cell.column.columnDef.header}
                           </div>
-                          <div className="responsiveTextTable font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center shadow-sm"
+                          <div className="responsiveTextTable font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm"
                             style={{
                               color: 'var(--port-gore)',
                               background: 'linear-gradient(135deg,var(--surface-base),var(--surface-muted))',

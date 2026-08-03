@@ -174,13 +174,13 @@ const PNL = () => {
     <div className='p-1'>
       <div className='grid grid-cols-12 pt-3 gap-4 '>
         <div className='col-span-3 border border-[var(--border-divider)] p-2 rounded-2xl '>
-          <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('selectCurr', ln)}:</p>
+          <p className='responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('selectCurr', ln)}:</p>
           <Selector arr={settings.Currency.Currency} value={valCur}
             onChange={(e) => handleChange(e, 'cur')}
             name='cur'
            />
           <div className='flex gap-2 pt-2 flex-wrap'>
-            <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('purchaseValue', ln)}:</p>
+            <p className='responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('purchaseValue', ln)}:</p>
             <p className='responsiveText items-center flex text-[var(--port-gore)] font-medium'>
               {setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
 
@@ -193,28 +193,28 @@ const PNL = () => {
 
           </div>
           <div className='flex gap-2 pt-2 flex-wrap'>
-            <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>Freight / MT:</p>
+            <p className='responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput'>Freight / MT:</p>
             <p className='responsiveText items-center flex text-[var(--port-gore)] font-medium'>{setNum(valCur, freightPerMT, settings)}</p>
           </div>
         </div>
         <div className='col-span-3 border border-[var(--border-divider)] p-2 rounded-2xl'>
           <div className='flex justify-between whitespace-nowrap gap-2'>
-            <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('invValueSale', ln)}:</p>
+            <p className='responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('invValueSale', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings), settings)}</p>
           </div>
           <div className='w-full text-right h-4 -mt-2'>-</div>
           <div className='flex justify-between whitespace-nowrap gap-2'>
-            <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('purchaseValue', ln)}:</p>
+            <p className='responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('purchaseValue', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
           </div>
           <div className='w-full text-right h-4 -mt-2'>-</div>
           <div className='flex justify-between whitespace-nowrap gap-2'>
-            <p className='responsiveText w-28 font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Expenses', ln)}:</p>
+            <p className='responsiveText w-28 font-medium text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Expenses', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, TotalArrsExp(pnlData, valCur, valueCon.euroToUSD), settings)}</p>
           </div>
           <div className='pt-1.5 border-t border-slate-500'></div>
           <div className='flex justify-between whitespace-nowrap gap-2 font-medium'>
-            <p className='responsiveText w-28 font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Profit', ln)}:</p>
+            <p className='responsiveText w-28 font-medium text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Profit', ln)}:</p>
             <p className='responsiveText'>{setNum(valCur, (Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings) -
               TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD) - TotalArrsExp(pnlData, valCur, valueCon.euroToUSD)), settings)}</p>
           </div>
@@ -226,7 +226,7 @@ const PNL = () => {
         {/* Contract Status — drives the Cashflow "Unsold Stocks" tab. A contract with
             status "Unsold" (or no status set yet) is treated as unsold there. */}
         <div className='col-span-12 flex items-center gap-3 flex-wrap border border-[var(--border-divider)] p-2 rounded-2xl'>
-          <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem] whitespace-nowrap'>Contract Status:</p>
+          <p className='responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput whitespace-nowrap'>Contract Status:</p>
           <div className='w-44'>
             <Selector
               arr={conSttusArr}
@@ -247,13 +247,13 @@ const PNL = () => {
       </div>
 
       <div className='flex flex-wrap mt-4 gap-2 '>
-        <p className='p-2 responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Invoices summary', ln)}:</p>
+        <p className='p-2 responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Invoices summary', ln)}:</p>
         <TotalPnlTable data={pnlData} val={valCur} mult={valueCon.euroToUSD} />
       </div>
 
 
       <div className='flex items-center pt-4 gap-2'>
-        <p className='responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]'>{enabledSwitch ? getTtl('Hide Details', ln) : getTtl('Show Details', ln)}</p>
+        <p className='responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput'>{enabledSwitch ? getTtl('Hide Details', ln) : getTtl('Show Details', ln)}</p>
         <Switch enabled={enabledSwitch} setEnabled={setEnabledSwitch} />
       </div>
 

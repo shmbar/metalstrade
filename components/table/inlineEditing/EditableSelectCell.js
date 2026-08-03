@@ -151,7 +151,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
     >
       <Listbox.Options
         static
-        className="z-[9999] max-h-48 overflow-auto rounded-2xl bg-[var(--surface-card)] py-1 responsiveTextInput shadow-lg focus:outline-none border border-[var(--surface-header)] custom-scrollbar"
+        className="z-dropdown max-h-48 overflow-auto rounded-2xl bg-[var(--surface-card)] py-1 responsiveTextInput shadow-lg focus:outline-none border border-[var(--surface-header)] custom-scrollbar"
         style={{
           position: "absolute",
           ...(dropUp
@@ -182,7 +182,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
                     </span>
                   ) : null}
                   <span
-                    className="block text-left whitespace-normal text-[11px] font-normal"
+                    className="block text-left whitespace-normal responsiveText font-normal"
                   >
                     {o.label}
                   </span>
@@ -221,7 +221,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
             createPortal(
               <>
                 <div
-                  className="fixed inset-0 z-[9998]"
+                  className="fixed inset-0 z-dropdown"
                   onClick={handleClose}
                   aria-hidden="true"
                 />
@@ -235,7 +235,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
       {/* Close dropdown on outside click */}
       {open && (
         <div
-          className="fixed inset-0 z-[9998]"
+          className="fixed inset-0 z-dropdown"
           onClick={handleClose}
           aria-hidden="true"
         />

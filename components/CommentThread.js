@@ -17,7 +17,7 @@ const initials = (name = '') =>
     name.toString().split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(s => s[0]?.toUpperCase() || '').join('') || '?';
 
 // Stable color per author so messages are easy to scan.
-const AVATAR_COLORS = ['var(--endeavour)', 'var(--ok-strong)', 'var(--warn-strong)', 'var(--violet-text)', 'var(--pink-text)', '#0e7490'];
+const AVATAR_COLORS = ['var(--endeavour)', 'var(--ok-strong)', 'var(--warn-strong)', 'var(--violet-text)', 'var(--pink-text)', 'var(--teal-text)'];
 const colorFor = (key = '') => {
     let h = 0;
     for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;

@@ -83,7 +83,7 @@ const Remraks = ({ value, setValue, settings }) => {
                                 </div>
                                 :
                                 <div className='flex pt-1 items-center w-full gap-x-3'>
-                                    <input type='text' className="input responsiveTextTable text-[var(--port-gore)] shadow-lg h-[1.86rem] w-full rounded-lg
+                                    <input type='text' className="input responsiveTextTable text-[var(--port-gore)] shadow-lg h-7 w-full rounded-lg
                                     truncate pr-10" name='rmrk'
                                         value={x.rmrk} onChange={(e) => handleValue(e, i)} />
                                     <div className='absolute right-12 '>

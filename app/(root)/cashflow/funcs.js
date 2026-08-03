@@ -55,7 +55,7 @@ const sumKey = (kind, id) => kind + '_' + id;
 const SumToggle = ({ active, onToggle }) => (
     <Tltip direction='right' tltpText={active ? 'Remove from sum' : 'Add to running sum'}>
         <button type="button" onClick={onToggle}
-            className={`flex items-center justify-center w-4 h-4 rounded-[4px] border text-[10px] leading-none font-bold transition-colors ${active
+            className={`flex items-center justify-center w-4 h-4 rounded-lg border responsiveTextTable leading-none font-bold transition-colors ${active
                 ? 'bg-[var(--endeavour)] border-[var(--endeavour)] text-white'
                 : 'bg-[var(--surface-card)] border-[var(--border-divider)] text-[var(--endeavour)] hover:bg-[var(--surface-header)]'}`}>
             {active ? '✓' : '+'}
@@ -644,7 +644,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 const qSum = grp.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
                                 const tSum = grp.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
                                 out.push(
-                                    <tr key={`grp-${z.order}`} className="cursor-pointer hover:bg-[#f4f9ff]"
+                                    <tr key={`grp-${z.order}`} className="cursor-pointer hover:bg-[var(--surface-pill)]"
                                         onClick={() => setOpenPOs(prev => ({ ...prev, [z.order]: !prev[z.order] }))}>
                                         <td className="!py-1 px-1"></td>
                                         <td className="text-left text-[var(--endeavour)] max-w-20 truncate"

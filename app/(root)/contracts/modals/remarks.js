@@ -83,7 +83,7 @@ const Remraks = ({ value, setValue, ln }) => {
                             {edit.status && edit.id === x.id ?
                                 <input
                                     className="w-full border rounded-full border-[var(--border-cell)] h-7
-focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-[0.72rem] text-[var(--port-gore)]"
+focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 responsiveTextInput text-[var(--port-gore)]"
                                     onKeyDown={handleKeyPress}
                                     value={value1}
                                     maxLength={140}

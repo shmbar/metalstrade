@@ -121,7 +121,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                 key={i}
                 style={{
                   borderBottom: "1px solid var(--border-neutral)",
-                  background: i % 2 === 0 ? "#fff" : "var(--surface-base)",
+                  background: i % 2 === 0 ? "var(--surface-card)" : "var(--surface-base)",
                   transition: "background-color 150ms ease-in-out",
                 }}
               >

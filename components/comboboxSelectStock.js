@@ -94,7 +94,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                                     <ComboboxOption
                                         key={x.id}
                                         className={cn(
-                                            'relative cursor-default select-none py-1 text-[0.75rem] pl-10 pr-4 text-[var(--port-gore)] hover:bg-[var(--surface-header)] hover:text-[var(--endeavour)]',
+                                            'relative cursor-default select-none py-1 responsiveTextInput pl-10 pr-4 text-[var(--port-gore)] hover:bg-[var(--surface-header)] hover:text-[var(--endeavour)]',
                                             selected.id === x.id
                                                 ? 'bg-[var(--surface-header)] text-[var(--endeavour)]'
                                                 : '',

@@ -243,7 +243,7 @@ const Customtable = ({
       <div className="custom-table">
         <div className="relative flex flex-col rounded-2xl glass-table">
           {/* Border overlay — renders above children so corners always visible */}
-          <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-[15]" />
+          <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-sticky" />
 
           {/* HEADER */}
           <div
@@ -284,7 +284,7 @@ const Customtable = ({
                 <thead className="sticky top-0 z-10">
                   {table.getHeaderGroups().map(hdGroup => (
                     <Fragment key={hdGroup.id}>
-                      <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                      <tr style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
                         {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
@@ -520,7 +520,7 @@ const Customtable = ({
                         onChange={row.getToggleSelectedHandler()}
                         onClick={(e) => e.stopPropagation()}
                         className="w-4 h-4 cursor-pointer rounded"
-                        style={{ accentColor: '#FFFFFF' }}
+                        style={{ accentColor: 'var(--on-brand)' }}
                       />
                     )}
                   </div>
@@ -532,7 +532,7 @@ const Customtable = ({
                           <div className="uppercase tracking-wider font-medium responsiveTextTable" style={{ color: 'var(--regent-gray)' }}>
                             {cell.column.columnDef.header}
                           </div>
-                          <div className="responsiveTextTable font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-[28px] flex items-center"
+                          <div className="responsiveTextTable font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center"
                             style={{ color: 'var(--port-gore)', backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>

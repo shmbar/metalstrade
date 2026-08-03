@@ -74,17 +74,17 @@ const Suppliers = () => {
     }
 
     const fieldRow = 'flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0';
-    const labelCls = 'sm:w-[80px] shrink-0 responsiveText font-medium text-[var(--chathams-blue)] text-[0.75rem]';
-    const inputCls = 'w-full sm:flex-1 h-[26px] px-5 responsiveText rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[0.75rem]';
+    const labelCls = 'sm:w-[80px] shrink-0 responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput';
+    const inputCls = 'w-full sm:flex-1 h-7 px-5 responsiveText rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] responsiveTextInput';
 
     return (
         <div className='p-2 rounded-2xl flex flex-col md:flex-row w-full gap-4'>
             <div className='p-4 rounded-2xl mt-1 shadow-md w-full md:w-[28%] bg-[var(--surface-header)]'>
-                <p className='flex items-center responsiveText font-medium pl-2 text-[var(--chathams-blue)] text-[0.75rem]'>{getTtl('Suppliers', ln)}:</p>
+                <p className='flex items-center responsiveText font-medium pl-2 text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Suppliers', ln)}:</p>
                 <ul className="flex flex-col mt-2 max-h-80 overflow-auto p-2 custom-scroll">
                     {sortArr((settings.Supplier?.Supplier || []).filter(q => !q.deleted), 'supplier').map((x, i) => (
                         <li key={i} onClick={() => SelectSupplier(x)}
-                            className={`cursor-pointer flex items-center gap-x-2 py-2 px-4 responsiveText text-[var(--chathams-blue)] text-[0.75rem] rounded-full hover:bg-[var(--surface-header)] ${value.id === x.id && 'font-medium bg-[var(--surface-card)]'}`}>
+                            className={`cursor-pointer flex items-center gap-x-2 py-2 px-4 responsiveText text-[var(--chathams-blue)] responsiveTextInput rounded-full hover:bg-[var(--surface-header)] ${value.id === x.id && 'font-medium bg-[var(--surface-card)]'}`}>
                             {x.supplier}
                         </li>
                     ))}

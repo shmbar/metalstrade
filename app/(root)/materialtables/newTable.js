@@ -268,7 +268,7 @@ const Customtable = ({
         padding: '1px 9px', height: '22px', borderRadius: '99px',
         border: `1px solid ${unit === u ? 'var(--endeavour)' : 'var(--border-cell)'}`,
         background: unit === u ? 'var(--endeavour)' : 'transparent',
-        color: unit === u ? '#fff' : 'var(--endeavour)',
+        color: unit === u ? 'var(--on-brand)' : 'var(--endeavour)',
         cursor: 'pointer', transition: 'all 0.15s',
         fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
     })
@@ -369,7 +369,7 @@ const Customtable = ({
                                 <div style={{
                                     position: 'absolute', top: '26px', left: 0, zIndex: 50,
                                     background: 'var(--surface-card)', border: '1px solid var(--border-cell)',
-                                    borderRadius: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+                                    borderRadius: '10px', boxShadow: '0 4px 20px rgba(var(--shadow-rgb), 0.12)',
                                     padding: '6px', minWidth: '148px',
                                     display: 'flex', flexDirection: 'column', gap: '2px',
                                 }}>
@@ -400,7 +400,7 @@ const Customtable = ({
                                     padding: '2px 7px', borderRadius: '999px',
                                     border: `1px solid ${showHelp ? 'var(--endeavour)' : 'var(--border-divider)'}`,
                                     background: showHelp ? 'var(--endeavour)' : 'var(--surface-pill)',
-                                    color: showHelp ? '#fff' : 'var(--chathams-blue)',
+                                    color: showHelp ? 'var(--on-brand)' : 'var(--chathams-blue)',
                                     cursor: 'pointer', fontWeight: '500',
                                     fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                                 }}
@@ -409,7 +409,7 @@ const Customtable = ({
                                 <div style={{
                                     position: 'absolute', top: '26px', left: 0, zIndex: 60,
                                     background: 'var(--surface-card)', border: '1px solid var(--border-divider)',
-                                    borderRadius: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+                                    borderRadius: '10px', boxShadow: '0 4px 20px rgba(var(--shadow-rgb), 0.12)',
                                     padding: '10px 14px', minWidth: '340px',
                                     fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
                                 }}>
@@ -719,7 +719,7 @@ const Customtable = ({
                                     return (
                                         <div key={cell.id} className="flex flex-col space-y-1 pb-2 last:pb-0" style={{ borderBottom: '1px solid var(--selago)' }}>
                                             <div style={{ color: 'var(--regent-gray)', fontSize: 'var(--fs-caption)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cell.column.columnDef.header}</div>
-                                            <div style={{ backgroundColor: isFe ? 'var(--selago)' : '#fff', border: `1px solid ${isFe ? 'var(--rock-blue)' : 'var(--border-cell)'}`, borderRadius: '8px', padding: '4px 8px', minHeight: '28px', display: 'flex', alignItems: 'center' }}>
+                                            <div style={{ backgroundColor: isFe ? 'var(--selago)' : 'var(--surface-card)', border: `1px solid ${isFe ? 'var(--rock-blue)' : 'var(--border-cell)'}`, borderRadius: '8px', padding: '4px 8px', minHeight: '28px', display: 'flex', alignItems: 'center' }}>
                                                 <input
                                                     type="text"
                                                     inputMode={(colId === 'material' || colId === 'container' || colId === 'kgs') ? 'text' : 'decimal'}
