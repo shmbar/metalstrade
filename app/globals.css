@@ -70,6 +70,34 @@
   --pink-strong: #9d174d;
   --radius: 0.75rem;
 
+  /* ── Design-audit token layer (see design-audit/TOKENS.md) ─────────────────
+     Added so that overlay, shadow and stacking decisions live in ONE place
+     instead of being re-invented per component. */
+
+  /* Modal/dialog overlay — ONE value for every overlay in the app. */
+  --overlay: rgb(0 0 0 / 0.45);
+  /* Shadow colour as an RGB triplet so alpha can be composed. Light mode tints
+     shadows with the brand blue (softer on white); dark mode uses pure black. */
+  --shadow-rgb: 16, 58, 122;
+  --shadow-sm: 0 1px 2px rgb(var(--shadow-rgb) / 0.06);
+  --shadow-md: 0 4px 12px rgb(var(--shadow-rgb) / 0.10);
+  --shadow-lg: 0 12px 40px rgb(var(--shadow-rgb) / 0.16);
+
+  /* Monospace — IDs, hashes, reference codes. The ONLY second family allowed,
+     and it is a system stack (no extra webfont download). */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Stacking ladder — a closed set of 8. Nothing may invent its own z-index.
+     Replaces the 22 competing values found in the Phase-1 scan. */
+  --z-sticky: 20;        /* sticky table headers / toolbars                    */
+  --z-dropdown: 40;      /* select menus, comboboxes, column filters           */
+  --z-popover: 50;       /* datepicker popups, quick-sum, click popovers       */
+  --z-modal: 100;        /* modal overlay (panel sits at 101)                  */
+  --z-modal-nested: 200; /* a modal opened FROM a modal (panel 201)            */
+  --z-toast: 300;        /* toasts, notification popups                        */
+  --z-tooltip: 400;      /* hover tooltips — must clear modals                 */
+  --z-command: 500;      /* command palette, full-screen PDF/document viewers  */
+
   /* shadcn/Radix design tokens — referenced by tailwind.config.js (hsl(var(--x)))
      and the components/ui/* primitives. Mapped to the brand palette so bg-primary,
      text-muted-foreground, border-input, ring-ring, hover:bg-accent, etc. resolve
@@ -122,6 +150,11 @@ body,
    and by the pre-paint boot script in app/layout.js. */
 html.dark {
   color-scheme: dark; /* native scrollbars, inputs, date controls */
+  /* Overlay goes deeper in dark mode: a 45% scrim over an already-dark surface
+     doesn't separate the modal from the page. Shadows go pure black — the blue
+     tint that softens them on white is invisible on a dark surface. */
+  --overlay: rgb(0 0 0 / 0.60);
+  --shadow-rgb: 0, 0, 0;
 }
 /* The /logo/ SVG assets are drawn in brand blue — on dark surfaces they'd
    vanish. White-silhouette them. Rasters (.png company logos) are excluded:
@@ -176,8 +209,16 @@ thead th {
     @apply text-[var(--regent-gray)] hover:text-[var(--endeavour)] font-medium cursor-pointer transition-colors;
   }
 
+  /* THE control. h-7 (28px) is the one input height — it was h-10 (40px), but
+     67 of 71 call sites overrode it to h-7/h-8, so 40px was a value nobody
+     wanted. Size now RAMPS with the rest of the ladder (was pinned at 11.52px,
+     which is what produced the "pill inputs too small next to the figures"
+     report on cashflow). Matches .responsiveText so a control and the body text
+     beside it are always the same size. */
   .input {
-    @apply w-full border rounded-full border-[var(--border-cell)] h-10 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-[0.72rem] text-[var(--port-gore)] bg-[var(--surface-pill)];
+    @apply w-full border rounded-full border-[var(--border-cell)] h-7 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5
+           text-[0.6875rem] xl:text-[0.75rem] 2xl:text-[0.8125rem] 3xl:text-[0.875rem]
+           text-[var(--port-gore)] bg-[var(--surface-pill)];
     font-family: inherit;
   }
 
@@ -193,19 +234,47 @@ thead th {
     @apply rounded-2xl p-5 flex flex-col justify-between min-h-[120px] shadow-lg border border-[var(--selago)];
   }
 
+  /* ── Buttons ──────────────────────────────────────────────────────────────
+     All four share ONE height (h-7 / 28px, same as .input, so a button and the
+     field beside it line up) and ONE type ramp (9/10/11/12 — the bottom rung).
+     They previously used 9 / 10.512 / 11.5 / 12px: the two middle steps were
+     rogue values (0.657rem, 0.71875rem) that existed nowhere else in the app.
+     Heights were py-1.5, h-7, py-1 and py-1 — four buttons, three heights. */
   .blackButton {
-    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1.5 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-lg transition-all
+    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 h-7 text-[0.5625rem] xl:text-[0.625rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed
   }
 
   .whiteButton {
-    @apply bg-[var(--surface-card)] border-[var(--border-divider)] hover:bg-[var(--selago)] text-[var(--chathams-blue)] flex items-center gap-2 justify-center rounded-full border px-3 h-7 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-sm transition-colors
+    @apply bg-[var(--surface-card)] border-[var(--border-divider)] hover:bg-[var(--selago)] text-[var(--chathams-blue)] flex items-center gap-2 justify-center rounded-full border px-3 h-7 text-[0.5625rem] xl:text-[0.625rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed
   }
     .supplierButton {
-    @apply bg-[var(--surface-header)] hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] focus:outline-none shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+    @apply bg-[var(--surface-header)] hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border-0 px-3 h-7 text-[0.5625rem] xl:text-[0.625rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
   }
    .supplierAddButton {
-    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 py-1 text-[0.5625rem] xl:text-[0.657rem] 2xl:text-[0.71875rem] 3xl:text-[0.75rem] focus:outline-none shadow-md transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 h-7 text-[0.5625rem] xl:text-[0.625rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-md transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
   }
+
+  /* Focus ring — one definition, visible in both modes. Applied to every
+     interactive element via the base rule below. */
+  .focus-ring:focus-visible {
+    outline: 2px solid var(--endeavour);
+    outline-offset: 1px;
+  }
+}
+
+/* Global focus-visible. Keyboard users get a ring on every control; mouse users
+   see nothing (that's what :focus-visible means). Previously several components
+   set focus:outline-none with no replacement, leaving no visible focus at all. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid var(--endeavour);
+  outline-offset: 1px;
+  border-radius: inherit;
 }
 
 @layer components {
@@ -237,12 +306,6 @@ thead th {
            break-words min-w-0 whitespace-normal;
   }
 
-  /* Same as responsiveTextTable — kept separate for targeted overrides */
-  .responsiveTextTable1 {
-    @apply text-[0.625rem] xl:text-[0.6875rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
-           break-words min-w-0 whitespace-normal;
-  }
-
   /* Totals row — same size as body but bold */
   .responsiveTextTotal {
     @apply text-[0.6875rem] xl:text-[0.75rem] 2xl:text-[0.8125rem] 3xl:text-[0.875rem]
@@ -259,6 +322,31 @@ thead th {
   .responsiveTextTitle {
     @apply text-[0.8125rem] xl:text-[0.875rem] 2xl:text-[0.9375rem] 3xl:text-[1rem]
            break-words min-w-0 whitespace-normal;
+  }
+
+  /* Page title — 16 / 17 / 18 / 20. Top rung of the ladder. */
+  .responsiveTextPage {
+    @apply text-[1rem] xl:text-[1.0625rem] 2xl:text-[1.125rem] 3xl:text-[1.25rem]
+           font-semibold leading-tight break-words min-w-0;
+  }
+
+  /* KPI / stat figures — 20 / 22 / 24 / 26. */
+  .responsiveTextStat {
+    @apply text-[1.25rem] xl:text-[1.375rem] 2xl:text-[1.5rem] 3xl:text-[1.625rem]
+           font-semibold leading-tight tracking-tight break-words min-w-0;
+  }
+
+  /* Numeric columns: equal-width digits so figures align down a column and
+     don't jitter as values change. Replaces reaching for a mono typeface. */
+  .numeric {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* Document IDs / hashes — the only place a second family is allowed. */
+  .mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
 
   /* Cashflow card overflow wrapper — unchanged */

@@ -132,6 +132,32 @@ module.exports = {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
+			/* Shadows re-pointed at themable tokens (design-audit/TOKENS.md §5.2).
+			   Tailwind's defaults hardcode rgba(0,0,0,…), which is invisible on a
+			   dark surface — that was a large part of the "dark mode looks flat"
+			   report. This one change themes all 348 shadow-* usages in the app.
+			   It also collapses 5 shadow steps into the 3 the spec allows:
+			   xl and 2xl now resolve to the same value as lg. */
+			boxShadow: {
+				sm: 'var(--shadow-sm)',
+				DEFAULT: 'var(--shadow-md)',
+				md: 'var(--shadow-md)',
+				lg: 'var(--shadow-lg)',
+				xl: 'var(--shadow-lg)',
+				'2xl': 'var(--shadow-lg)',
+				inner: 'inset 0 2px 4px 0 rgb(var(--shadow-rgb) / 0.06)',
+				none: 'none',
+			},
+			zIndex: {
+				sticky: 'var(--z-sticky)',
+				dropdown: 'var(--z-dropdown)',
+				popover: 'var(--z-popover)',
+				modal: 'var(--z-modal)',
+				'modal-nested': 'var(--z-modal-nested)',
+				toast: 'var(--z-toast)',
+				tooltip: 'var(--z-tooltip)',
+				command: 'var(--z-command)',
+			},
 			screens: {
 				'3xl': '1920px',
 			}
