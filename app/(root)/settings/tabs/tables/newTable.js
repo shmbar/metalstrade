@@ -110,7 +110,7 @@ const Customtable = ({
 
         <div className="w-full rounded-2xl border border-[var(--selago)] overflow-x-auto shadow-sm">
           <table className="w-full min-w-[700px] border-collapse text-center table-fixed border border-[var(--selago)]">
-            <thead className="md:sticky md:top-0 md:z-10 bg-[var(--surface-header)]">
+            <thead className="md:sticky md:top-0 md:z-sticky bg-[var(--surface-header)]">
               {table.getHeaderGroups().map((hdGroup) => (
                 <tr key={hdGroup.id} className="divide-x divide-[var(--selago)]">
                   {hdGroup.headers.map((header) => (

@@ -76,7 +76,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                         >
                             <table className="w-full rounded-2xl" style={{ tableLayout: 'auto', borderSpacing: '6px' }}>
                                 {/* THEAD - matching newTable header exactly */}
-                                <thead className="sticky top-0 z-10">
+                                <thead className="sticky top-0 z-sticky">
                                     <tr>
                                         <th
                                             className="px-2 py-2 text-center responsiveTextInput"

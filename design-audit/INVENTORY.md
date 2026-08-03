@@ -10,8 +10,8 @@ Generated Phase 1.1, scoped Phase 0, status updated per batch. **Source of truth
 
 | Mark | Meaning | Count |
 |---|---|---|
-| `[x]` | **Hand-audited** — file opened and read against every category C1–C5 | **51** |
-| `[~]` | **Gate-verified** — not opened individually, but proven to contain zero arbitrary font sizes, zero hardcoded colours, zero literal `rgba()`, zero arbitrary z-index, zero off-scale radii, zero off-scale control heights, zero inline size literals and no second font family | **264** |
+| `[x]` | **Hand-audited** — file opened and read against every category C1–C5 | **66** |
+| `[~]` | **Gate-verified** — not opened individually, but proven to contain zero arbitrary font sizes, zero hardcoded colours, zero literal `rgba()`, zero arbitrary z-index, zero off-scale radii, zero off-scale control heights, zero inline size literals and no second font family | **249** |
 | `[ ]` | Still failing at least one gate | **0** |
 
 > The distinction is deliberate. A gate proves the **mechanical** categories (C2/C3/C4/C5
@@ -76,14 +76,14 @@ Generated Phase 1.1, scoped Phase 0, status updated per batch. **Source of truth
 | 52 | app/(root)/contracts/excel.js | export-doc | [~] | gate-verified |
 | 53 | app/(root)/contracts/modals/CertChecker.js | modal | [~] | gate-verified |
 | 54 | app/(root)/contracts/modals/annexVII.js | modal | [~] | gate-verified |
-| 55 | app/(root)/contracts/modals/contractDetails.js | modal | [~] | gate-verified |
+| 55 | app/(root)/contracts/modals/contractDetails.js | modal | [x] | hand-audited |
 | 56 | app/(root)/contracts/modals/dataModal.js | modal | [~] | gate-verified |
 | 57 | app/(root)/contracts/modals/delayedResponse.js | modal | [~] | gate-verified |
 | 58 | app/(root)/contracts/modals/expenses.js | modal | [~] | gate-verified |
 | 59 | app/(root)/contracts/modals/filesModal.js | modal | [~] | gate-verified |
 | 60 | app/(root)/contracts/modals/finalSettlmentModal.js | modal | [~] | gate-verified |
 | 61 | app/(root)/contracts/modals/finalSettlmentRemarks.js | modal | [~] | gate-verified |
-| 62 | app/(root)/contracts/modals/invoiceDetails.js | modal | [~] | gate-verified |
+| 62 | app/(root)/contracts/modals/invoiceDetails.js | modal | [x] | hand-audited |
 | 63 | app/(root)/contracts/modals/invoiceType.js | modal | [~] | gate-verified |
 | 64 | app/(root)/contracts/modals/isf.js | modal | [~] | gate-verified |
 | 65 | app/(root)/contracts/modals/payments.js | modal | [~] | gate-verified |
@@ -94,7 +94,7 @@ Generated Phase 1.1, scoped Phase 0, status updated per batch. **Source of truth
 | 70 | app/(root)/contracts/modals/pdf/pdfISF.js | export-doc | [~] | gate-verified |
 | 71 | app/(root)/contracts/modals/pdf/pdfInvoice.js | export-doc | [~] | gate-verified |
 | 72 | app/(root)/contracts/modals/pdfInvoiceFnlCncl.js | export-doc | [~] | gate-verified |
-| 73 | app/(root)/contracts/modals/poInvModal.js | modal | [~] | gate-verified |
+| 73 | app/(root)/contracts/modals/poInvModal.js | modal | [x] | hand-audited |
 | 74 | app/(root)/contracts/modals/priceRemarks.js | modal | [~] | gate-verified |
 | 75 | app/(root)/contracts/modals/productsTable.js | modal | [~] | gate-verified |
 | 76 | app/(root)/contracts/modals/productsTableInvoice.js | modal | [~] | gate-verified |
@@ -205,7 +205,7 @@ Generated Phase 1.1, scoped Phase 0, status updated per batch. **Source of truth
 | 181 | app/(root)/stocks/sumtables/tableTotals.js | component | [~] | gate-verified |
 | 182 | app/(root)/stocks/sumtables/tablesFuncs.js | component | [~] | gate-verified |
 | 183 | app/(root)/stocks/whModal.js | modal | [~] | gate-verified |
-| 184 | app/(root)/storagecosts/page.js | page | [~] | gate-verified |
+| 184 | app/(root)/storagecosts/page.js | page | [x] | hand-audited |
 | 185 | app/(root)/storagecosts/storageUtils.js | component | [~] | gate-verified |
 | 186 | app/(root)/tableStyles.css | style | [~] | gate-verified |
 | 187 | app/dTable.js | component | [~] | gate-verified |
@@ -216,18 +216,18 @@ Generated Phase 1.1, scoped Phase 0, status updated per batch. **Source of truth
 | 192 | components.json | config | [x] | hand-audited |
 | 193 | components/ActivityLog.js | component | [~] | gate-verified |
 | 194 | components/AutosavePill.js | component | [~] | gate-verified |
-| 195 | components/CommandPalette.js | component | [~] | gate-verified |
+| 195 | components/CommandPalette.js | component | [x] | hand-audited |
 | 196 | components/CommentThread.js | component | [~] | gate-verified |
 | 197 | components/Dashboard/AIAlertsBar.js | component | [~] | gate-verified |
 | 198 | components/Dashboard/HeadlineTicker.js | component | [~] | gate-verified |
 | 199 | components/Dashboard/MarketsTicker.js | component | [~] | gate-verified |
-| 200 | components/DocumentImportOverlay.js | component | [~] | gate-verified |
+| 200 | components/DocumentImportOverlay.js | component | [x] | hand-audited |
 | 201 | components/FloatingChat.js | component | [~] | gate-verified |
-| 202 | components/GlobalSearch.js | component | [~] | gate-verified |
+| 202 | components/GlobalSearch.js | component | [x] | hand-audited |
 | 203 | components/NotificationBell.js | component | [~] | gate-verified |
 | 204 | components/NotificationPopups.js | modal | [~] | gate-verified |
 | 205 | components/PdfPagesView.js | component | [x] | hand-audited |
-| 206 | components/PdfPreview.js | component | [~] | gate-verified |
+| 206 | components/PdfPreview.js | component | [x] | hand-audited |
 | 207 | components/SplitControl.js | component | [x] | hand-audited |
 | 208 | components/StatusBadge.js | component | [x] | hand-audited |
 | 209 | components/backToLoginPage.js | component | [~] | gate-verified |
@@ -248,25 +248,25 @@ Generated Phase 1.1, scoped Phase 0, status updated per batch. **Source of truth
 | 224 | components/index.js | component | [~] | gate-verified |
 | 225 | components/invoicePrdSlct.js | component | [~] | gate-verified |
 | 226 | components/invoices/ReminderModal.js | modal | [~] | gate-verified |
-| 227 | components/layout/Header.tsx | component | [~] | gate-verified |
+| 227 | components/layout/Header.tsx | component | [x] | hand-audited |
 | 228 | components/list.js | component | [~] | gate-verified |
 | 229 | components/modal.js | modal | [x] | hand-audited |
 | 230 | components/modalCopyInvoice.js | modal | [x] | hand-audited |
 | 231 | components/modalToProceed.js | modal | [~] | gate-verified |
 | 232 | components/monthSelect.js | component | [~] | gate-verified |
 | 233 | components/selectWH.js | component | [~] | gate-verified |
-| 234 | components/selectors/selectShad.js | component | [~] | gate-verified |
+| 234 | components/selectors/selectShad.js | component | [x] | hand-audited |
 | 235 | components/selectors/selectWH.js | component | [~] | gate-verified |
 | 236 | components/signOut.js | component | [~] | gate-verified |
 | 237 | components/skeletons.js | component | [x] | hand-audited |
-| 238 | components/spinTable.js | component | [~] | gate-verified |
+| 238 | components/spinTable.js | component | [x] | hand-audited |
 | 239 | components/spinner.js | component | [x] | hand-audited |
 | 240 | components/statusUtils.js | component | [x] | hand-audited |
 | 241 | components/switch.js | component | [x] | hand-audited |
 | 242 | components/table/ColumnsFilter.js | component | [~] | gate-verified |
 | 243 | components/table/EditableCell.js | component | [~] | gate-verified |
 | 244 | components/table/Paginator.js | component | [~] | gate-verified |
-| 245 | components/table/RowsIndicator.js | component | [~] | gate-verified |
+| 245 | components/table/RowsIndicator.js | component | [x] | hand-audited |
 | 246 | components/table/filters/date-between-filter.js | component | [~] | gate-verified |
 | 247 | components/table/filters/filterFunc.js | component | [~] | gate-verified |
 | 248 | components/table/filters/filters.js | component | [~] | gate-verified |
@@ -274,7 +274,7 @@ Generated Phase 1.1, scoped Phase 0, status updated per batch. **Source of truth
 | 250 | components/table/filters/resetTabe.js | component | [~] | gate-verified |
 | 251 | components/table/header.js | component | [~] | gate-verified |
 | 252 | components/table/inlineEditing/EditableCell.js | component | [~] | gate-verified |
-| 253 | components/table/inlineEditing/EditableSelectCell.js | component | [~] | gate-verified |
+| 253 | components/table/inlineEditing/EditableSelectCell.js | component | [x] | hand-audited |
 | 254 | components/table/quicksum/QuickSumControl.js | component | [~] | gate-verified |
 | 255 | components/table/quicksum/detectNumericCols.js | component | [~] | gate-verified |
 | 256 | components/table/quicksum/numberUtils.js | component | [~] | gate-verified |
@@ -295,7 +295,7 @@ Generated Phase 1.1, scoped Phase 0, status updated per batch. **Source of truth
 | 271 | components/ui/switch.tsx | component | [x] | hand-audited |
 | 272 | components/ui/table.tsx | component | [x] | hand-audited |
 | 273 | components/ui/tooltip.tsx | component | [x] | hand-audited |
-| 274 | components/videoLoader.js | component | [~] | gate-verified |
+| 274 | components/videoLoader.js | component | [x] | hand-audited |
 | 275 | components/yearSelect.js | component | [~] | gate-verified |
 | 276 | contexts/useAuthContext.js | context | [~] | gate-verified |
 | 277 | contexts/useContractsContext.js | context | [~] | gate-verified |
@@ -326,7 +326,7 @@ Generated Phase 1.1, scoped Phase 0, status updated per batch. **Source of truth
 | 302 | utils/finance.js | util | [~] | gate-verified |
 | 303 | utils/firebase.js | util | [~] | gate-verified |
 | 304 | utils/fxRates.js | util | [~] | gate-verified |
-| 305 | utils/globalSearch/GlobalSearchBar.js | util | [~] | gate-verified |
+| 305 | utils/globalSearch/GlobalSearchBar.js | util | [x] | hand-audited |
 | 306 | utils/globalSearch/GlobalSearchLoader.js | util | [~] | gate-verified |
 | 307 | utils/languages.js | util | [~] | gate-verified |
 | 308 | utils/loadCache.js | util | [~] | gate-verified |

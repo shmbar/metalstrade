@@ -113,7 +113,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                         afterLeave={() => setQuery('')}
                     >
                       
-                        <ComboboxOptions anchor="bottom" className={`absolute left-0 z-50 w-[var(--input-width)]
+                        <ComboboxOptions anchor="bottom" className={`absolute left-0 z-dropdown w-[var(--input-width)]
                         [--anchor-gap:var(--spacing-1)] empty:hidden
                         mt-1 max-h-60 rounded-2xl bg-[var(--surface-card)] py-1 responsiveText shadow-lg border border-[var(--surface-header)] focus:outline-none
                         ${classes1} dropDownHeight`}>

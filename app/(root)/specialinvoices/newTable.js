@@ -281,7 +281,7 @@ const Customtable = ({
                             <table className="w-full custom-table" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0 }}>
 
                                 {/* THEAD */}
-                                <thead className="sticky top-0 z-10">
+                                <thead className="sticky top-0 z-sticky">
                                     {table.getHeaderGroups().map(group => (
                                         <Fragment key={group.id}>
                                             {/* Total $ row */}

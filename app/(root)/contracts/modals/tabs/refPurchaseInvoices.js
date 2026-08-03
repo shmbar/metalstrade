@@ -106,7 +106,7 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                     <thead>
                         <tr className='text-center'>
                             <th rowSpan={2}
-                                className='sticky left-0 z-10 font-medium responsiveTextTable bg-[var(--surface-header)] text-[var(--chathams-blue)] whitespace-nowrap h-10 px-3 border-b border-r border-[var(--border-divider)]'>
+                                className='sticky left-0 z-sticky font-medium responsiveTextTable bg-[var(--surface-header)] text-[var(--chathams-blue)] whitespace-nowrap h-10 px-3 border-b border-r border-[var(--border-divider)]'>
                                 {getTtl('POInvoices', ln)}
                             </th>
                             <th colSpan={salesInvCols.length}
@@ -129,7 +129,7 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                     <tbody>
                         {rows.map((y) => (
                             <tr key={(y._source?.id || 'local') + '_' + y.id}>
-                                <td className={`sticky left-0 z-10 bg-[var(--surface-pill)] border-b border-r border-[var(--border-cell)] responsiveTextTable
+                                <td className={`sticky left-0 z-sticky bg-[var(--surface-pill)] border-b border-r border-[var(--border-cell)] responsiveTextTable
                                     whitespace-nowrap px-3 h-11 text-center text-[var(--port-gore)] ${y._source ? 'italic' : ''}`} >
                                     <div className='flex flex-col items-center justify-center leading-tight gap-0.5'>
                                         <span className='font-medium'>{y.inv}</span>

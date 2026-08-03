@@ -48,7 +48,7 @@ export default function GlobalSearchBar() {
       />
 
       {open && results.length > 0 && (
-        <div className="absolute z-50 mt-2 w-full rounded-lg border bg-[var(--surface-card)] shadow-lg overflow-hidden">
+        <div className="absolute z-dropdown mt-2 w-full rounded-lg border bg-[var(--surface-card)] shadow-lg overflow-hidden">
           {results.map((r) => (
             <button
               key={r.key}

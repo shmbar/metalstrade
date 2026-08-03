@@ -109,7 +109,7 @@ const SideBarMini = () => {
               }}
             />
             {searchOpen && (
-              <div className="absolute top-12 left-0 w-72 z-sticky responsiveText">
+              <div className="absolute top-12 left-0 w-72 z-dropdown responsiveText">
                 <input
                   type="text"
                   placeholder={placeholderText}

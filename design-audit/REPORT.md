@@ -1,6 +1,6 @@
 # Design consistency audit — report
 
-**Date:** 3 August 2026 · **Branch:** `ims-updates` · **Commits:** 4
+**Date:** 3 August 2026 · **Branch:** `ims-updates` · **Commits:** 5
 
 ---
 
@@ -19,7 +19,7 @@ Here is what was actually happening.
 | **C2** | "uneven spell sizes" | **38 different text sizes were in use.** Nine of them sat between 9px and 11.5px — differences of a third of a pixel. Too small to name, big enough to look sloppy. Worse, most were written in a style that our first scan could not even see. | 1,440 elements | **Fixed** |
 | **C3** | "uneven box sizes" | Buttons and input boxes next to each other were **different heights** — eleven different heights in total. Corners came in **eight different roundnesses**. One combobox was 36px of text crammed into a 32px box, so it was already being cut off. | 11 heights, 8 corner styles, 499 elements | **Fixed** |
 | **C4** | "in dark mode, some places with opacity, some without" | **406 colours were written as fixed values instead of theme colours.** A fixed colour cannot change when you switch to dark mode. The clearest example: striped tables alternated a **white** row with a dark one. Hovering a row and moving away repainted it **white**. Card shadows were pure black, which is invisible on a dark background — that is why dark mode looked flat. And the primary button had **invisible text** in dark mode across 16 screens. | 406 colours, 97 files | **Fixed** |
-| **C5** | "boxes popup" | The app had **three different popup systems** running at once, with **five different background dims** (25%, 40%, 60%, blurred, and none at all). Popups fought over which sat on top using **22 different layer numbers**, up to 100000. A success message triggered from inside a popup appeared *behind* it. | 3 systems, 5 dims, 22 layers | **Fixed** |
+| **C5** | "boxes popup" | The app had **three different popup systems** running at once, with **six different background dims** — 25%, 40%, 60%, a *blue* one, a blurred one, and **one popup with no dim at all**. Popups fought over which sat on top using **22 different layer numbers**, up to 100000. A success message triggered from inside a popup appeared *behind* it. Popups also came in **8 different widths** — "Activity / History" and "Comments" open from the *same toolbar* at different sizes. | 3 systems, 6 dims, 22 layers, 8 widths | **Fixed** |
 | **C6** | "the 4 links of the style I want" | **Not done — we never received the links.** See Open Items. | — | **Open** |
 
 ---
@@ -31,12 +31,12 @@ Here is what was actually happening.
 
 | | Count |
 |---|---|
-| Files opened and read line by line | **51** |
-| Files proven clean by automated check | **264** |
+| Files opened and read line by line | **66** |
+| Files proven clean by automated check | **249** |
 | Duplicate file deleted | **1** |
 | **Files still failing any check** | **0** |
-| Problems found | **50** |
-| Problems fixed | **50** |
+| Problems found | **61** |
+| Problems fixed | **61** |
 | Problems open | **0** (plus 1 whole category not started — C6) |
 
 We are deliberately showing "opened and read" separately from "proven by automated check".
@@ -55,7 +55,8 @@ brought you back here three times.
 | Different popup layer numbers | **22** | **8** (a fixed order) |
 | Different corner roundnesses | **8** | **3** |
 | Different control heights | **11** | **3** |
-| Popup background dims | **5** | **1** |
+| Popup background dims | **6** | **1** |
+| Popup widths | **8** | **4** |
 
 ---
 
@@ -79,13 +80,31 @@ There is now one place for each decision:
    remaining raw colour in the code is now, without exception, a mistake. That is what lets the
    check be trustworthy rather than approximate.
 5. **Shadows follow the theme.** One change fixed elevation on all 348 shadowed elements.
-6. **Ten automated checks** now measure all of this. They live in the project and can be re-run
-   on any future change. **A new screen that drifts will fail them.**
+6. **Eleven automated checks** now measure all of this. They live in the project
+   (`design-audit/tools/`) and can be re-run on any future change.
+   **A new screen that drifts will fail them.**
 
-Two genuine bugs were found on the way that were not cosmetic at all: the primary button had
-**invisible text in dark mode** on 16 screens, and there were **two different Button components
-live at once** — an old unused-looking file was in fact being loaded by half the app, which is
-why the same button looked different on different pages.
+### Three genuine bugs, not cosmetics
+
+These were not "looks a bit off" — they were broken:
+
+- The **primary button had invisible text in dark mode** on 16 screens. It used a dark-mode
+  rule that set a dark background *and* near-black text.
+- The **"invoice copied" notification was unreadable in dark mode** — white text on a panel
+  that turns near-white when the theme flips.
+- There were **two different Button components live at the same time.** A file that looked
+  like leftover scaffolding was in fact being loaded by half the app, because of how the
+  build resolves file extensions. That is why the same button looked different on different
+  pages. We confirmed it in the compiled output before removing it.
+
+### What only reading the files could find
+
+The automated checks proved every popup used a *theme* colour for its background dim. They
+could not prove every popup used the **same** one — and three did not. They used a token that
+happens to be **blue** in light mode, so those three dimmed the screen a different colour from
+every other popup. One popup had no dim at all. Widths told the same story: "Activity /
+History" and "Comments" open from the *same toolbar* at different sizes. None of that is
+visible to a scan; it took opening the files.
 
 ---
 
@@ -136,6 +155,12 @@ Recorded because they affected the result and you should be able to see them.
 2. Three of our own checks were wrong and flagged correct code — including one that reported
    86 perfectly good font declarations as errors. All three were rewritten. A check that cries
    wolf gets ignored, which is worse than no check.
+3. When we renumbered the popup layers automatically, one old number had been used for three
+   different purposes — a fixed top bar, a dropdown, and the search palette. Treating them as
+   one thing pushed **the search palette below the menus it must cover**. We found it while
+   reading the popup files afterwards and reassigned all three by what they actually are.
+   The general lesson, and the reason the last batch existed: **an automatic renumbering pass
+   always needs a human read afterwards**, because a number cannot tell you intent.
 
 ---
 
@@ -155,6 +180,7 @@ Full command output is in **`design-audit/VERIFICATION.md`**. Summary:
 | No off-scale control heights | **0 found** ✓ |
 | No off-scale spacing | **0 found** ✓ |
 | Font declared in one place only | **0 found** ✓ |
+| Popup widths / dims / layers conform | **4 widths, 1 dim, 0 stray layers** ✓ |
 | `npm run build` | **clean** ✓ |
 | `npm run lint` | **3 errors, 121 warnings — identical to before we started.** Zero new. ✓ |
 

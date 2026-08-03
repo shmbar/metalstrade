@@ -74,7 +74,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
     return (
         <div
             ref={ref}
-            className={`fixed z-40 w-[19rem] rounded-2xl overflow-hidden font-poppins
+            className={`fixed z-dropdown w-[19rem] rounded-2xl overflow-hidden font-poppins
                 ring-1 ring-[var(--border-cell)] border border-white/60
                 bg-[rgba(var(--surface-card-rgb),0.85)] backdrop-blur-md shadow-[0_16px_50px_rgba(var(--endeavour-rgb),0.28)]
                 animate-in fade-in slide-in-from-bottom-3 duration-300

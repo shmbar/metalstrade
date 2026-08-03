@@ -524,7 +524,7 @@ function FilterSelect({ label, icon, value, onChange, options }) {
       </SelectTrigger>
       <SelectContent className="rounded-2xl border border-[var(--surface-header)] shadow-md max-h-72 min-w-[var(--radix-select-trigger-width)]">
         {options.length > 7 && (
-          <div className="sticky top-0 z-10 bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
+          <div className="sticky top-0 z-sticky bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}

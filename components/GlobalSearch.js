@@ -206,7 +206,7 @@ const GlobalSearch = () => {
 
             {/* Search Results Dropdown */}
             {isOpen && (
-                <div className='absolute top-full left-0 right-0 mt-2 bg-[var(--surface-card)] rounded-2xl shadow-xl border border-gray-200 z-50 max-h-[70vh] overflow-y-auto'>
+                <div className='absolute top-full left-0 right-0 mt-2 bg-[var(--surface-card)] rounded-2xl shadow-xl border border-gray-200 z-dropdown max-h-[70vh] overflow-y-auto'>
                     {!searchQuery ? (
                         <div className='p-4 text-center text-[var(--regent-gray)] responsiveText'>
                             {getTtl('Type to search contracts, invoices, expenses...', ln)}

@@ -170,3 +170,37 @@ AFTER  sizes: 9 9.92 10 11 12 13 14 15 16 17 18 20 22 24 26
 The 14 'after' values ARE the ladder: each of the 7 rungs at its 4 breakpoints.
 (0.62rem/9.92px appears only inside an explanatory comment in globals.css.)
 ```
+
+---
+
+## GATE 11 — modal & stacking conformance (added in Batch 4)
+
+These are the C5 items no regex could prove; they came from reading the files.
+
+```
+Modal panel widths in use  (spec allows 4):
+      5 max-w-2xl
+      5 max-w-4xl
+      5 max-w-7xl
+      3 max-w-md
+
+Overlay scrims in use  (spec allows 1):
+      6 background: 'var(--overlay)'
+      4 bg-[var(--overlay)]
+
+Globally-positioned raw z-index (fixed/sticky elements outside the ladder):
+  0
+
+Named stacking ladder usage:
+     36 z-sticky
+     33 z-dropdown
+     10 z-toast
+      8 z-modal
+      8 z-command
+      7 z-tooltip
+      6 z-popover
+      2 z-modal-nested
+```
+
+**Remaining raw `z-10`/`z-20` (35 sites) are LOCAL stacking** — an absolutely-positioned
+decoration inside its own card. They create no app-level layer and are deliberately left.

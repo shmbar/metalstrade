@@ -127,13 +127,13 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
 
     return (
         <div
-            className='fixed inset-0 z-command flex items-center justify-center p-3 sm:p-4'
-            style={{ background: 'rgba(var(--shadow-rgb), 0.5)' }}
+            className='fixed inset-0 z-modal flex items-center justify-center p-3 sm:p-4'
+            style={{ background: 'var(--overlay)', backdropFilter: 'blur(2px)' }}
             role='dialog'
             aria-modal='true'
             aria-labelledby='reminder-modal-title'
         >
-            <div className='w-full max-w-lg rounded-2xl bg-[var(--surface-card)] shadow-2xl overflow-hidden' style={{ border: '1px solid var(--border-divider)', maxHeight: '92vh' }}>
+            <div className='w-full max-w-2xl rounded-2xl bg-[var(--surface-card)] shadow-lg overflow-hidden' style={{ border: '1px solid var(--border-divider)', maxHeight: '92vh' }}>
 
                 {/* Header */}
                 <div className='flex items-center justify-between px-4 py-3' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>

@@ -242,7 +242,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                             <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight }}>
                                 <table className="w-full  " style={{ tableLayout: 'auto' }}>
                                 {/* THEAD - Multi-color gradient inspired by all cards */}
-                                <thead className="sticky top-0 z-10">
+                                <thead className="sticky top-0 z-sticky">
                                     {table.getHeaderGroups().map(hdGroup => (
                                         <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
                                             {hdGroup.headers.map((header, idx) => (

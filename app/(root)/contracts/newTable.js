@@ -281,7 +281,7 @@ const Customtable = ({
               <div style={{ maxHeight: dynamicMaxHeight }}>
                 <table className="w-full" style={{ tableLayout: 'auto' }}>
 
-                <thead className="sticky top-0 z-10">
+                <thead className="sticky top-0 z-sticky">
                   {table.getHeaderGroups().map(hdGroup => (
                     <Fragment key={hdGroup.id}>
                       <tr style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>

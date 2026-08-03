@@ -777,7 +777,7 @@ const ContractModal = () => {
 				</Modal>
 			)}
 			{showComments && (
-				<Modal isOpen={showComments} setIsOpen={setShowComments} title={`Comments — PO ${valueCon.order ?? ''}`} w='max-w-lg'>
+				<Modal isOpen={showComments} setIsOpen={setShowComments} title={`Comments — PO ${valueCon.order ?? ''}`} w='max-w-2xl'>
 					<CommentThread entityType='contract' entityId={valueCon.id} entityLabel={`PO ${valueCon.order ?? ''}`} />
 				</Modal>
 			)}

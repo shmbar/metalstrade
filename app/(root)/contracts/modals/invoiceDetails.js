@@ -941,7 +941,7 @@ const ContractModal = () => {
 					</Modal>
 				)}
 				{showComments && (
-					<Modal isOpen={showComments} setIsOpen={setShowComments} title={`Comments — Invoice #${valueInv.invoice ?? ''}`} w='max-w-lg'>
+					<Modal isOpen={showComments} setIsOpen={setShowComments} title={`Comments — Invoice #${valueInv.invoice ?? ''}`} w='max-w-2xl'>
 						<CommentThread entityType='invoice' entityId={valueInv.id} entityLabel={`Invoice #${valueInv.invoice ?? ''}`} />
 					</Modal>
 				)}

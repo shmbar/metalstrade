@@ -189,7 +189,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     const money = (n) => addComma((Math.round((Number(n) || 0) * 100) / 100).toFixed(2), true);
 
     return (
-        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('FinalSettlmnt', ln)} w='max-w-6xl'>
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('FinalSettlmnt', ln)} w='max-w-7xl'>
             <div className='flex flex-col p-1 justify-between gap-4 max-h-[50rem] overflow-y-auto'>
                 {isDraft &&
                     <div className='rounded-2xl px-3 py-2 responsiveTextTable font-medium' style={{ background: 'var(--surface-card)beb', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)' }}>

@@ -45,7 +45,7 @@ const StockComb = ({ value, setValue }) => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <ListboxOptions className="absolute mt-1 max-h-60 w-full overflow-auto rounded-2xl bg-[var(--surface-card)] py-1 responsiveText shadow-lg border border-[var(--surface-header)] focus:outline-none z-50 responsiveTextInput">
+            <ListboxOptions className="absolute mt-1 max-h-60 w-full overflow-auto rounded-2xl bg-[var(--surface-card)] py-1 responsiveText shadow-lg border border-[var(--surface-header)] focus:outline-none z-dropdown responsiveTextInput">
               {types.map((tp, personIdx) => (
                 <ListboxOption
                   key={personIdx}

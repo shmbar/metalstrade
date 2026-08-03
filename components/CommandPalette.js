@@ -83,7 +83,7 @@ export default function CommandPalette() {
         onClick={() => setOpen(true)}
         aria-label="Open command palette (Ctrl+K)"
         title="Search & navigate (Ctrl+K)"
-        className="fixed bottom-4 right-20 z-40 hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-cell)] shadow-md hover:shadow-lg transition-shadow"
+        className="fixed bottom-4 right-20 z-dropdown hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-cell)] shadow-md hover:shadow-lg transition-shadow"
       >
         <Search className="w-3.5 h-3.5 text-[var(--chathams-blue)]" />
         <span className="responsiveTextTable text-[var(--regent-gray)] font-medium">
@@ -95,7 +95,8 @@ export default function CommandPalette() {
 
   return (
     <div
-      className="fixed inset-0 z-sticky flex items-start justify-center pt-[12vh] px-4"
+      className="fixed inset-0 z-command flex items-start justify-center pt-[12vh] px-4"
+      style={{ background: 'var(--overlay)', backdropFilter: 'blur(2px)' }}
       onClick={() => setOpen(false)}
     >
       <div
@@ -104,7 +105,7 @@ export default function CommandPalette() {
       />
       <Command
         label="Command Palette"
-        className="relative w-full max-w-xl rounded-2xl bg-[var(--surface-card)] shadow-2xl border border-[var(--border-cell)] overflow-hidden"
+        className="relative w-full max-w-2xl rounded-2xl bg-[var(--surface-card)] shadow-lg border border-[var(--border-cell)] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         loop
       >

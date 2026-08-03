@@ -386,7 +386,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
         setValueCon({ ...valueCon, poInvoices: newArr });
     }
     return (
-        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('POInvoices', ln)} w='max-w-5xl'>
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('POInvoices', ln)} w='max-w-7xl'>
             <div className='flex flex-col p-1 justify-between gap-2'>
                 {valueCon.poInvoices.map((x, i) => {
 
@@ -569,9 +569,9 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
             </div>
 
             {showMirror && (
-                <div className='fixed inset-0 z-50 flex items-center justify-center' style={{ background: 'var(--overlay)' }}
+                <div className='fixed inset-0 z-modal flex items-center justify-center' style={{ background: 'var(--overlay)', backdropFilter: 'blur(2px)' }}
                     onClick={() => setShowMirror(false)}>
-                    <div className='bg-[var(--surface-card)] rounded-2xl shadow-2xl w-[560px] max-w-[94vw] p-4 flex flex-col gap-2'
+                    <div className='bg-[var(--surface-card)] rounded-2xl shadow-lg w-full max-w-2xl p-4 flex flex-col gap-2'
                         onClick={e => e.stopPropagation()}>
                         <div className='flex items-center justify-between'>
                             <p className='responsiveText font-semibold text-[var(--chathams-blue)]'>

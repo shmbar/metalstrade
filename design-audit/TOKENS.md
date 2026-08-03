@@ -232,7 +232,27 @@ exactly. Every hand-rolled `fixed inset-0` panel adopts the wrapper.
 
 | Property | Value |
 |---|---|
-| **Widths** | `sm` 28rem (448) · `md` 40rem (640) · `me` 56rem (896) · `lg` 72rem (1152) · `full` `calc(100vw - 2rem)` |
+| **Widths** | `sm` `max-w-md` (448) · `md` `max-w-2xl` (672) · `lg` `max-w-4xl` (896) · `xl` `max-w-7xl` (1280) · `full` `max-w-[calc(100vw-2rem)]` |
+
+**Correction made during Batch 4.** The first draft gave widths in raw rem (40rem, 56rem,
+72rem) that do not correspond to any Tailwind step, so they could not be written as a class
+without re-introducing arbitrary values — the exact thing this document forbids. Re-stated as
+the four Tailwind steps above.
+
+Migration rule: **every modal rounds UP to the nearest step, never down.** Rounding down can
+clip a table inside a panel; rounding up cannot. Result — 8 widths collapse to 4, and the 15
+largest data modals (already `max-w-7xl`, explicitly or by default) do not move at all.
+
+| Was | Count | Becomes |
+|---|---|---|
+| `max-w-sm` (384) | 3 | `sm` — `max-w-md` (448) |
+| `max-w-lg` (512) | 2 | `md` — `max-w-2xl` (672) |
+| `max-w-2xl` (672) | 3 | `md` — unchanged |
+| `max-w-3xl` (768) | 4 | `lg` — `max-w-4xl` (896) |
+| `max-w-4xl` (896) | 1 | `lg` — unchanged |
+| `max-w-5xl` (1024) | 3 | `xl` — `max-w-7xl` (1280) |
+| `max-w-6xl` (1152) | 1 | `xl` — `max-w-7xl` (1280) |
+| `max-w-7xl` (1280) | 1 + 14 default | `xl` — unchanged |
 | **Panel** | `rounded-2xl`, `bg-[var(--surface-card)]`, `border border-[var(--border-cell)]`, `--shadow-lg` |
 | **Header** | 40px tall, `bg-[var(--surface-header)]`, `.responsiveTextTitle` 600, `px-4 py-2.5`, bottom border `--border-divider`, `rounded-t-2xl` |
 | **Body** | `p-4`, `max-h-[calc(100vh-12rem)]`, `overflow-y-auto custom-scroll` |

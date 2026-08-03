@@ -4,7 +4,7 @@ import { Input } from "@components/ui/input";
 
 export function Header() {
   return (
-    <header className="h-16 bg-background/50 backdrop-blur-sm border-b border-transparent px-6 flex items-center justify-between sticky top-0 z-40">
+    <header className="h-16 bg-background/50 backdrop-blur-sm border-b border-transparent px-6 flex items-center justify-between sticky top-0 z-sticky">
       <div className="flex items-center w-96">
         <div className="relative w-full">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

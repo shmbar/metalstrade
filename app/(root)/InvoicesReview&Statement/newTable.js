@@ -270,7 +270,7 @@ const Customtable = ({
               <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight }}>
                 <table className="w-full  " style={{ tableLayout: 'auto', borderSpacing: 0 }}>
                 {/* THEAD - Multi-color gradient inspired by all cards */}
-                <thead className="sticky top-0 z-10">
+                <thead className="sticky top-0 z-sticky">
                   {table.getHeaderGroups().map(hdGroup => (
                     <Fragment key={hdGroup.id}>
                       <tr style={{ background: 'var(--ok-bg)', borderBottom: '2px solid var(--rock-blue)' }}>

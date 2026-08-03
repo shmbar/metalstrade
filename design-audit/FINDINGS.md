@@ -92,3 +92,35 @@ Severity: **High** = client will see it immediately · **Med** = visible on insp
 
 **Batch 3 result:** 14 findings, 14 fixed, 0 open. Plus 2 process defects, both resolved.
 `npm run build` clean; lint identical to baseline.
+
+---
+
+## Batch 4 — Modals, structurally (the half of C5 that no gate can prove)
+
+Batch 2 made the two modal *wrappers* correct. Batch 3 made every modal's *tokens* correct.
+Neither proved that a modal opened from screen A looks like one opened from screen B. That
+needed reading the files.
+
+| ID | Cat | Where | What's wrong | Correct value | Sev | Status |
+|----|-----|-------|--------------|---------------|-----|--------|
+| 051 | C3 | 13 files | **8 different modal widths** (`max-w-sm` … `max-w-7xl`). `Activity / History` and `Comments` open from the **same toolbar** at different widths — the clearest possible version of "uneven box sizes". | 4 spec steps; every modal rounds **up**, never down, so nothing can clip | High | Fixed |
+| 052 | C5 | `DocumentImportOverlay.js`, `PdfPreview.js`, `ReminderModal.js` | Overlay scrim `rgba(var(--shadow-rgb), 0.5)`. That **is** a token, so it passed the colour gate — but `--shadow-rgb` is **blue** in light mode, so these three dimmed the page a *different colour* from every other modal. A gate proves "themed"; only reading proves "the same". | `var(--overlay)` + 2px blur | High | Fixed |
+| 053 | C5 | `components/CommandPalette.js:98` | **No overlay scrim at all** — the palette floated over undimmed content. | `var(--overlay)` + 2px blur | High | Fixed |
+| 054 | C5 | `SplitControl.js`, `ReminderModal.js` | Sitting in `z-command` (500), the full-screen-viewer layer. They are dialogs, so they outranked things that should cover them. | `z-modal` | Med | Fixed |
+| 055 | C5 | `poInvModal.js:572`, `videoLoader.js:12` | Raw `z-50` on a modal overlay — outside the ladder. | `z-modal` / `z-command` | Med | Fixed |
+| 056 | C3 | `poInvModal.js:574` | Panel pinned to `w-[560px] max-w-[94vw]` — an arbitrary width belonging to no scale. | `w-full max-w-2xl` | Med | Fixed |
+| 057 | C4 | `components/modalCopyInvoice.js:20` | `text-white bg-slate-700`. `slate-700` is remapped to `--text-strong`, which is **near-white in dark mode** — white text on a white panel. **Unreadable notification.** | brand surface + `--on-brand` | High | Fixed |
+| 058 | C5 | 12 files | Dropdown/listbox/menu panels on raw `z-50` while others used `z-dropdown` — two conventions for one layer. | `z-dropdown` | Med | Fixed |
+| 059 | C5 | 18 files | Sticky table headers on raw `z-10`, below the dropdown layer — the classic "header shows through an open menu". | `z-sticky` | Med | Fixed |
+| 060 | C5 | `productsTable.js`, `productsTableInvoice.js` | In-cell tooltips on `z-50`, below modals. | `z-tooltip` | Med | Fixed |
+| 061 | — | `components/layout/Header.tsx` | Sticky header at `z-40`. **The file has zero consumers** — dead code. Fixed rather than deleted; deleting is outside a visual-only remit. | `z-sticky`, flagged as unused | Low | Fixed |
+
+### A third defect in my own work
+
+| ID | What happened | Consequence | Resolution |
+|----|---------------|-------------|------------|
+| P-3 | The batch-3 z-index sweep mapped `z-[100] → z-sticky` wholesale. But `z-[100]` had been used for **three different intents**: a fixed navbar (genuinely sticky), a dropdown panel, and the **command palette**. | The command palette was demoted from 100 to 20 — *below* dropdowns, popovers and modals. A blanket numeric map cannot infer intent. | Caught while reading the overlay files in this batch. All three reassigned by intent. The lesson is recorded in the report: numeric sweeps need a semantic pass afterwards, which is exactly what this batch was. |
+
+**Batch 4 result:** 11 findings, 11 fixed, 0 open. Plus 1 process defect, resolved.
+Modal widths 8 → 4. Overlay scrims 3 variants + 1 missing → **1**. Globally-positioned raw
+z-index → **0**.

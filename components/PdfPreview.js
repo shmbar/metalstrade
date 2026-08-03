@@ -61,14 +61,14 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
     const overlay = (
         <div
             className='fixed inset-0 z-command flex items-center justify-center p-3 sm:p-4'
-            style={{ background: 'rgba(var(--shadow-rgb), 0.5)' }}
+            style={{ background: 'var(--overlay)', backdropFilter: 'blur(2px)' }}
             role='dialog'
             aria-modal='true'
             aria-label='PDF preview'
             onClick={onClose}
         >
             <div
-                className='w-full max-w-4xl rounded-2xl bg-[var(--surface-card)] shadow-2xl overflow-hidden flex flex-col'
+                className='w-full max-w-4xl rounded-2xl bg-[var(--surface-card)] shadow-lg overflow-hidden flex flex-col'
                 style={{ border: '1px solid var(--border-divider)', height: '92vh' }}
                 onClick={e => e.stopPropagation()}
             >

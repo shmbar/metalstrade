@@ -37,7 +37,7 @@ const RowsIndicator = ({ table }) => {
 					leaveTo="transform opacity-0 scale-95"
 				>
 					<MenuItems className={`absolute right-0 bottom-10 w-[4.2rem] origin-top-right rounded-lg 
-					bg-[var(--surface-card)] shadow-lg ring-1 ring-[var(--selago)] focus:outline-none z-50`}>
+					bg-[var(--surface-card)] shadow-lg ring-1 ring-[var(--selago)] focus:outline-none z-dropdown`}>
 						<div className="px-1 py-1 ">
 							{[5, 10, 20, 30, 50, 100, 500].map((x, i) => {
 								return (

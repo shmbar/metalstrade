@@ -89,7 +89,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                 </button>
             </PopoverTrigger>
 
-              <PopoverContent className="w-full max-w-xs md:max-w-md bg-[var(--surface-card)] p-4 border border-slate-300 shadow-lg rounded-2xl z-50
+              <PopoverContent className="w-full max-w-xs md:max-w-md bg-[var(--surface-card)] p-4 border border-slate-300 shadow-lg rounded-2xl z-dropdown
                  data-[state=open]:animate-fade-zoom-in
                  data-[state=closed]:animate-fade-zoom-out
 ">

@@ -47,7 +47,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                             e.preventDefault()
                             e.stopPropagation()
                         }}
-                        className="absolute right-6 top-1/2 -translate-y-1/2 z-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute right-6 top-1/2 -translate-y-1/2 z-sticky opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                         <X className="size-4 text-[var(--regent-gray)]" />
                     </div>
@@ -57,7 +57,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
             </SelectTrigger>
             <SelectContent className="z-dropdown rounded-2xl border border-[var(--surface-header)] shadow-md responsiveTextInput text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
                 {searchable && (
-                    <div className="sticky top-0 z-10 bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
+                    <div className="sticky top-0 z-sticky bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
                         <input
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}

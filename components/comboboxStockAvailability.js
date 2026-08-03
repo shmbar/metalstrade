@@ -109,7 +109,7 @@ const MyCombobox = ({ data, setValue, value, dt, indx, name, classes, disabled, 
                         afterLeave={() => setQuery('')}
                     >
                         <Portal>
-                            <ComboboxOptions style={dropdownStyle} className={`z-50 mt-1 max-h-60 overflow-auto rounded-lg 
+                            <ComboboxOptions style={dropdownStyle} className={`z-dropdown mt-1 max-h-60 overflow-auto rounded-lg 
                             bg-[var(--surface-card)] py-1 responsiveTextInput shadow-lg ring-1 ring-[var(--selago)] focus:outline-none ${classes1} `}>
                             {filteredData.length === 0 && query !== '' ? (
                                 <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] responsiveTextInput">

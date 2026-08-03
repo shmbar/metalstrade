@@ -368,14 +368,14 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                     </div>
                                                                 )}
                                                                 {convPreview && (
-                                                                    <span className='absolute left-0 top-full mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--surface-header)] border border-[var(--border-divider)] text-[var(--endeavour)] font-semibold shadow-sm whitespace-nowrap z-50'>
+                                                                    <span className='absolute left-0 top-full mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--surface-header)] border border-[var(--border-divider)] text-[var(--endeavour)] font-semibold shadow-sm whitespace-nowrap z-dropdown'>
                                                                         <MoveRight className='size-3' />
                                                                         {convPreview}
                                                                     </span>
                                                                 )}
                                                                 <span className={`absolute hidden ${key === 'unitPrc' && String(value1).substr(0, 1) === "=" ? 'group-hover:flex' : ''}
                                                                  bottom-[30px] w-fit p-1  bg-slate-400 rounded-lg text-center
-                                                                  text-white responsiveTextTable z-50 whitespace-nowrap -left-0.5`}>
+                                                                  text-white responsiveTextTable z-tooltip whitespace-nowrap -left-0.5`}>
                                                                     {value1}</span>
                                                             </div>
                                                         ) : key === 'unitPrc' ?

@@ -1251,7 +1251,7 @@ const ShipmentPage = () => {
                                             <HiMiniChevronUpDown className="ml-2 -mr-1 mt-0.5 h-4 w-4 text-[var(--endeavour)]" />
                                         </MenuButton>
                                         <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
-                                            <MenuItems className="absolute right-0 bottom-10 w-[4.2rem] origin-top-right rounded-lg bg-[var(--surface-card)] shadow-lg ring-1 ring-[var(--selago)] focus:outline-none z-50">
+                                            <MenuItems className="absolute right-0 bottom-10 w-[4.2rem] origin-top-right rounded-lg bg-[var(--surface-card)] shadow-lg ring-1 ring-[var(--selago)] focus:outline-none z-dropdown">
                                                 <div className="px-1 py-1">
                                                     {[5, 10, 20, 25, 50, 100].map(x => (
                                                         <MenuItem key={x}>
