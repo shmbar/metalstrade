@@ -8,16 +8,22 @@ import React from 'react';
 const VideoLoader = ({ loading = true, fullScreen = true }) => {
   if (!loading) return null;
 
-  /* NOT var(--overlay). That token is the MODAL scrim — a black 45/60% dim,
-     correct for a dialog that must push the page back. This is a loading veil
-     over content the user is still looking at, so it tints with the SURFACE:
-     a light haze in light mode, a dark one in dark mode.
-     Using the modal scrim here made every data refresh dim and blur the whole
-     app, which in dark mode (black on an already-dark surface, plus blur) read
-     as "everything looks blurry". Regression from the batch-4 overlay
-     unification, reported by Zak. */
+  /* Two deliberate departures from the modal spec, because this is NOT a modal.
+   *
+   * 1. NOT var(--overlay). That token is the MODAL scrim — a black 45/60% dim,
+   *    right for a dialog that must push the page back. This is a loading veil
+   *    over content the user is still looking at, so it tints with the SURFACE:
+   *    a light haze in light mode, a dark one in dark. Giving it the modal scrim
+   *    (batch 4) is what made dark mode look murky.
+   * 2. NO backdrop-blur. A modal blurs on purpose. Blurring content someone is
+   *    actively reading is what "everything looks blurry" actually described —
+   *    this loader appears on every date-range change and data reload, in BOTH
+   *    modes, so the blur was visible constantly. The translucent veil alone
+   *    already signals "busy" and still blocks interaction.
+   *
+   * Both reported by Zak, 2026-08-04. */
   const containerClasses = fullScreen
-    ? "fixed inset-0 flex items-center justify-center z-command bg-[rgba(var(--surface-card-rgb),0.6)] backdrop-blur-[2px]"
+    ? "fixed inset-0 flex items-center justify-center z-command bg-[rgba(var(--surface-card-rgb),0.55)]"
     : "flex items-center justify-center py-12";
 
   return (

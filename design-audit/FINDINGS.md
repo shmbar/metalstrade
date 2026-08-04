@@ -266,3 +266,23 @@ Dashboard: 0 blur elements after load, 9 charts, no console errors.
 The account's theme (violet) is untouched; its mode was left in **light**, as found.
 
 **Batch 7 result:** 5 findings, 5 fixed. 1 new gate. Gates 1-13 all pass.
+
+### Batch 7b — light mode re-verified, and the blur removed outright
+
+Zak asked whether the marketing pages had been checked in **light** mode too. They had not:
+the `--brand-deep` swap (28 files) and the hero text fix landed *after* the only light-mode
+measurement, so light was unverified. Checked now, on a production build:
+
+| Page | Light surfaces | Dark surfaces (hero/nav, intentional) | Page errors |
+|---|---|---|---|
+| Home | 21 | 1 | none |
+| About | 15 | 1 | none |
+| Features | 9 | 2 | none |
+| Blog | 4 | 1 | none |
+| Sign In | 19 | 0 | none |
+
+Light mode is intact — nothing regressed.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 074 | C5 | `components/videoLoader.js` | Checking light mode revealed the page is blurred **there too**. Fixing the scrim (069) removed the dark-mode murk but left the `backdrop-blur`, which was in the original code. That blur applies to content the user is actively reading, and the loader appears on **every** date-range change and data reload — so it is visible constantly, in both modes. That is the more literal reading of *"everything looks blurry"*. Blur removed; the translucent veil alone still signals "busy" and blocks interaction. Modals keep their blur, which is correct — a dialog *should* push the page back. | **High** | Fixed |
