@@ -254,11 +254,14 @@ const NotificationBell = () => {
             {open && (
                 <div className='absolute right-0 top-full mt-2 w-[330px] bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--border-cell)] z-dropdown overflow-hidden'>
                     {/* Header */}
-                    <div className='flex items-center justify-between px-3 py-2' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
-                        <span className='font-semibold' style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
+                    <div className='flex items-center justify-between gap-2 px-2.5 py-1.5' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
+                        {/* One line, always. The title shrinks and truncates; the action
+                            cluster never shrinks — otherwise "Notifications · 79 new"
+                            wrapped onto a second line inside the narrower panel. */}
+                        <span className='font-semibold whitespace-nowrap truncate min-w-0' style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>
                             Notifications{unreadCount > 0 ? ` · ${unreadCount} new` : ''}
                         </span>
-                        <div className='flex items-center gap-1'>
+                        <div className='flex items-center gap-1 flex-shrink-0'>
                             <button onClick={toggleMute} title={muted ? 'Unmute sound' : 'Mute sound'} className='p-1 rounded-full hover:bg-[rgba(var(--surface-card-rgb),0.6)]'>
                                 {muted
                                     ? <BellOff className='w-3.5 h-3.5' style={{ color: 'var(--regent-gray)' }} />
@@ -266,10 +269,10 @@ const NotificationBell = () => {
                             </button>
                             <button
                                 onClick={() => { setSelectMode(v => !v); setSelected(new Set()); setDetail(null); }}
-                                className='px-2 py-0.5 rounded-full font-medium transition-colors'
+                                className='px-1.5 py-0.5 rounded-full font-medium transition-colors whitespace-nowrap'
                                 style={{
-                                    fontSize: 'var(--fs-table)',
-                                    background: selectMode ? 'var(--chathams-blue)' : 'var(--surface-card)',
+                                    fontSize: 'var(--fs-caption)',
+                                    background: selectMode ? 'var(--brand-deep)' : 'var(--surface-card)',
                                     color: selectMode ? 'var(--on-brand)' : 'var(--chathams-blue)',
                                     border: '1px solid var(--border-divider)',
                                 }}
@@ -280,8 +283,8 @@ const NotificationBell = () => {
                                 onClick={() => markAllRead?.()}
                                 disabled={unreadCount === 0}
                                 title='Mark every notification as read'
-                                className='flex items-center gap-1 px-2 py-0.5 rounded-full font-medium disabled:opacity-40 transition-colors hover:opacity-90'
-                                style={{ fontSize: 'var(--fs-table)', background: 'var(--endeavour)', color: 'var(--on-brand)' }}
+                                className='flex items-center gap-1 px-1.5 py-0.5 rounded-full font-medium disabled:opacity-40 transition-colors hover:opacity-90 whitespace-nowrap'
+                                style={{ fontSize: 'var(--fs-caption)', background: 'var(--endeavour)', color: 'var(--on-brand)' }}
                             >
                                 <CheckCheck className='w-3 h-3' /> Read all
                             </button>

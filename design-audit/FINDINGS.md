@@ -486,3 +486,28 @@ tokens, gate 13 for inverted roles — and each time the same underlying mistake
 a form the pattern did not cover. A colour can be written as hex, as `rgba()`, as a keyword,
 as the *wrong token*, or as a *token in the wrong role*. Enumerating the ways something can
 be wrong is harder than fixing any single instance of it.
+
+### Batch 9b — notification header onto one line
+
+Zak: *"reduce text size so they look in same line, no double line."*
+
+Narrowing the panel to 330px pushed `Notifications · 79 new` onto a second line beside the
+Select / Read all buttons.
+
+| | Before | After |
+|---|---|---|
+| Title | `--fs-input` (12-15px), wrappable | **`--fs-body` (11-14px), `nowrap` + `truncate`** |
+| Action pills | `--fs-table`, `px-2` | **`--fs-caption`, `px-1.5`, `nowrap`** |
+| Header padding | `px-3 py-2` | **`px-2.5 py-1.5`** |
+| Action cluster | shrinkable | **`flex-shrink-0`** |
+
+The title truncates and the buttons never shrink, so the header holds one line at any count —
+`· 999 new` included.
+
+Measured: title 12px, `white-space: nowrap`, **1 visual line**, header 35px tall.
+
+**A measurement trap worth recording.** The first check reported `titleLines: 2` and looked
+like a failure. It was not: React renders `Notifications` and `` · ${unreadCount} new`` as
+two separate text nodes, so `Range.getClientRects()` returns two rectangles even on a single
+line. Counting *distinct `top` values* is the correct test. Nearly "fixed" something that was
+already right.

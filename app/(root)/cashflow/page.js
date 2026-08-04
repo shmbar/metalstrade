@@ -839,12 +839,44 @@ const Cashflow = () => {
             if (pendingChecked.sups.length) await savePmntSupplier(supPaymentsData);
             const clientIds = [...new Set(pendingChecked.clients.map(x => x.client))];
             if (clientIds.length) await savePmntClient(clientIds[0]);
-        } finally {
-            setAutoSaving(false);
             setSavedFlash(true);
             setTimeout(() => setSavedFlash(false), 2500);
+        } catch (e) {
+            // Without this, a failed save vanished silently, the pill even said
+            // "saved", and the countdown re-fired every second into the same
+            // failure. Keep the ticks, stop the loop, tell the user.
+            setToast({ show: true, text: `Autosave failed — payments NOT saved yet. Press "Save now" to retry. (${e?.message || e})`, clr: 'fail' });
+            setAutoCancelled(true);
+            setCountdown(6);
+        } finally {
+            setAutoSaving(false);
         }
     };
+
+    // Ticks live only in memory until the countdown commits — leaving the page
+    // inside that window silently lost them ("autosave not always working").
+    // Three guards: commit immediately when the tab goes hidden (background
+    // timers are throttled, so the countdown may never finish there), flush on
+    // unmount (in-app navigation), and warn before a hard close.
+    const pendingRef = useRef(pendingChecked); pendingRef.current = pendingChecked;
+    const cancelledRef = useRef(autoCancelled); cancelledRef.current = autoCancelled;
+    const savingRef = useRef(autoSaving); savingRef.current = autoSaving;
+    useEffect(() => {
+        const flush = () => {
+            if (pendingRef.current.total > 0 && !cancelledRef.current && !savingRef.current) commitRef.current?.();
+        };
+        const onVis = () => { if (document.visibilityState === 'hidden') flush(); };
+        const warn = (e) => {
+            if (pendingRef.current.total > 0 && !cancelledRef.current) { e.preventDefault(); e.returnValue = ''; }
+        };
+        document.addEventListener('visibilitychange', onVis);
+        window.addEventListener('beforeunload', warn);
+        return () => {
+            document.removeEventListener('visibilitychange', onVis);
+            window.removeEventListener('beforeunload', warn);
+            flush(); // unmount = in-app navigation away from Cashflow
+        };
+    }, []);
 
     // Re-arm the countdown whenever the ticked set changes.
     useEffect(() => {
