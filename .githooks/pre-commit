@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Design-token gates (see design-audit/TOKENS.md).
+#
+# Checks only the files being committed, so it stays fast. It is the mechanism
+# that stops the drift the audit just removed from coming straight back: a new
+# screen using an off-scale font size, a hardcoded colour, or an invented
+# z-index will fail here rather than in front of the client.
+#
+# Bypass with `git commit --no-verify` when you genuinely need to.
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "design gates: node not found, skipping" >&2
+  exit 0
+fi
+
+OUT=$(node design-audit/tools/gates.js --staged 2>&1)
+STATUS=$?
+
+if [ $STATUS -ne 0 ]; then
+  echo ""
+  echo "  ✗ Design gates failed — commit blocked."
+  echo ""
+  # print only the gates that actually failed, with their offending lines
+  echo "$OUT" | awk '
+    /^## GATE/ { title = $0; buf = ""; next }
+    /^RESULT: 0/ { next }
+    /^RESULT:/ { if (title != "") { print ""; print title; printf "%s", buf; title = "" } ; next }
+    /^[^`$]/ { if (title != "") buf = buf "    " $0 "\n" }
+  '
+  echo ""
+  echo "  Each gate maps to a rule in design-audit/TOKENS.md."
+  echo "  To commit anyway: git commit --no-verify"
+  echo ""
+  exit 1
+fi
+
+echo "$OUT" | tail -1
+exit 0

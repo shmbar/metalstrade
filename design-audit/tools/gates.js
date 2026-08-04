@@ -6,9 +6,60 @@
  *   - HTML entities &#931; &#8209;   (characters, not colours)
  *   - the token-source files         (listed per gate, with reason)
  */
+/* Modes:
+ *   node gates.js <fileList>   check an explicit list (used to produce VERIFICATION.md)
+ *   node gates.js --scan       DERIVE the in-scope set from disk (default; covers new files)
+ *   node gates.js --staged     check only staged files that are in scope (pre-commit)
+ *
+ * --scan matters for durability. A frozen file list only proves the files that
+ * existed the day the audit ran; a component added next month would sail past.
+ * The scope rules below are the same ones used to build INVENTORY.md.
+ */
 const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
 
-const files = fs.readFileSync(process.argv[2], "utf8").split(/\r?\n/).filter(Boolean);
+const ROOTS = ["app", "components", "contexts", "hooks", "lib", "utils", "actions"];
+const ROOT_FILES = ["tailwind.config.js", "postcss.config.mjs", "next.config.mjs", "components.json"];
+const EXT = /\.(js|jsx|ts|tsx|css|mjs)$/;
+const MARKETING = /^components\/(CTA|Contact|Features|Footer|Hero|Navbar|Testimonial|platform)\//;
+
+function inScope(p) {
+  p = p.replace(/\\/g, "/");
+  if (!EXT.test(p)) return false;
+  if (/(^|\/)(node_modules|\.next|backups|tests|__tests__)\//.test(p)) return false;
+  if (/^mobile\//.test(p)) return false;            // separate app, out of scope
+  if (/^app\/\(public\)\//.test(p)) return false;   // marketing site, out of scope
+  if (MARKETING.test(p)) return false;
+  if (p === "app/page.js") return false;            // marketing landing
+  if (/^app\/api\//.test(p)) return false;          // no UI
+  if (ROOT_FILES.includes(p)) return true;
+  return ROOTS.some(function (r) { return p.startsWith(r + "/"); });
+}
+
+function walk(dir, acc) {
+  let entries;
+  try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch (e) { return acc; }
+  for (const e of entries) {
+    const full = path.posix.join(dir, e.name);
+    if (e.isDirectory()) {
+      if (/^(node_modules|\.next|\.git|backups|tests|__tests__)$/.test(e.name)) continue;
+      walk(full, acc);
+    } else if (inScope(full)) acc.push(full);
+  }
+  return acc;
+}
+
+const arg = process.argv[2];
+let files;
+if (arg === "--staged") {
+  const out = execSync("git diff --cached --name-only --diff-filter=ACMR", { encoding: "utf8" });
+  files = out.split(/\r?\n/).filter(Boolean).filter(inScope).filter(function (f) { return fs.existsSync(f); });
+} else if (!arg || arg === "--scan") {
+  files = ROOTS.reduce(function (a, r) { return walk(r, a); }, []).concat(ROOT_FILES.filter(function (f) { return fs.existsSync(f); }));
+} else {
+  files = fs.readFileSync(arg, "utf8").split(/\r?\n/).filter(Boolean);
+}
 
 const COLOUR_EXEMPT = new Set([
   "app/globals.css", "utils/themes.js", "utils/chartTheme.js",
@@ -103,4 +154,12 @@ for (const g of GATES) {
 }
 
 console.log(out.join("\n"));
-console.error(allPass ? "ALL GATES PASS" : "SOME GATES FAIL");
+
+const mode = arg === "--staged" ? "staged" : (!arg || arg === "--scan") ? "scan" : "list";
+if (allPass) {
+  console.error("ALL GATES PASS  (" + files.length + " files, mode=" + mode + ")");
+} else {
+  console.error("SOME GATES FAIL  (" + files.length + " files, mode=" + mode + ")");
+  console.error("See design-audit/TOKENS.md for the rule each gate enforces.");
+  process.exitCode = 1;   // so a hook or CI job actually fails
+}
