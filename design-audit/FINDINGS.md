@@ -421,3 +421,30 @@ Left alone deliberately. Zak's message —*"all align centre except…"*— says
 row is the **wanted** result, so making headers follow `align` would move Description,
 Supplier and Client to the left, i.e. change what he likes. Recorded as dead configuration
 worth tidying when someone next touches this table, not as a defect to fix mid-audit.
+
+### Batch 8c — "table text font size — tell me?"
+
+Measured on /margins rather than estimated:
+
+| Element | Before | After |
+|---|---|---|
+| Header | 13 / 14 / 15px (ramps) | unchanged |
+| Totals row | 13 / 14 / 15px (ramps) | unchanged |
+| **Every data cell** | **9px, flat at every width** | **11 / 12 / 13px (ramps)** |
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 080 | C2 | `app/(root)/margins/newTable.js:364` | `.margins-data-table tbody td { font-size: 9px !important; }` — a hardcoded size that pinned every data cell at 9px at every width AND, being `!important`, overrode the class on the input pills themselves: they carried a 13px class and rendered 9px. Removed; cells now follow the ladder the `<Table>` and pills already declare. | **High** | Fixed |
+
+**Pre-existing, and systemic.** The rule was present at `c9aed1a`, and the identical
+`font-size: 9px !important` appears in **13 files** — every major data table in the CRM
+(contracts, accounting, stocks, expenses, shipment, both Review pages, accstatement,
+analysis, companyexpenses, specialinvoices, contractsstatement totals, margins).
+
+The audit did not create it, but it **made it visible**: raising the header and totals rows
+to 13-15px widened the gap against the frozen 9px data from about 2px to about 6px. That is
+why the table suddenly read as "very small" when the individual sizes had barely moved.
+
+Only `margins` is changed here — that is the page Zak reported. The other **12 tables are
+left alone pending his decision**, because removing the override on all of them changes the
+density of every data screen in the product, which is his call and not a defect fix.

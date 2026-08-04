@@ -360,9 +360,14 @@ const Customtable = (props) => {
             sensors={sensors}
         >
             <div className="flex flex-col relative w-full">
-                <style jsx global>{`
-                    .margins-data-table tbody td { font-size: 9px !important; }
-                `}</style>
+                {/* The hardcoded `.margins-data-table tbody td { font-size: 9px !important }`
+                    that used to live here is gone. It pinned every data cell at 9px at
+                    every screen width and, being !important, overrode the class on the
+                    input pills themselves — they carried a 13px class and rendered 9px.
+                    It pre-dates this audit, but raising the header and totals rows to
+                    13-15px widened the gap against it from ~2px to ~6px, which is what
+                    made the table read as "very small". Cells now follow the ladder that
+                    the <Table> and the pills already declare. */}
                 <div className="rounded-lg border border-[var(--border-divider)] overflow-x-auto relative shadow-sm">
                     {/* Desktop Table - Compact Heights */}
                     <div className="hidden sm:block w-full min-w-[900px]">
