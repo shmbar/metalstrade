@@ -12,7 +12,8 @@
     "test:assistant": "node tests/assistant-golden.mjs",
     "design:check": "node design-audit/tools/gates.js --scan",
     "design:metrics": "node design-audit/tools/metrics.js design-audit/tools/in-scope-files.txt",
-    "prepare": "git config core.hooksPath .githooks"
+    "prepare": "git config core.hooksPath .githooks",
+    "design:screenshots": "node design-audit/tools/screenshots.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

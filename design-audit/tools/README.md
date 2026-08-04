@@ -13,6 +13,39 @@ npm run design:metrics    # before/after counts vs the pre-audit commit
 `design:check` prints `ALL GATES PASS` and exits 0, or lists every offending
 file:line and exits 1.
 
+## The visual pass
+
+```bash
+npm run dev                  # in another terminal
+npm run design:screenshots
+```
+
+Walks every route in **both themes** at **1440 / 1024 / 768 / 390px** — 25 x 2 x 4 = 200
+checks — screenshots each one, and records any console error or horizontal overflow.
+
+This exists because the visual half of the audit kept getting skipped. Doing it by hand is
+200 checks; nobody does that honestly, so nobody did it, and the client kept finding things.
+
+Credentials go in `.env.local` (already gitignored):
+
+```
+IMS_TEST_EMAIL=you@example.com
+IMS_TEST_PASSWORD=...
+```
+
+Prefer a **test account**: the harness toggles dark mode, which is saved against the
+signed-in member. It restores the original setting on exit, but a test account avoids the
+question. Playwright and its Chromium build are already present — nothing to install.
+
+Output: `design-audit/screenshots/*.png` (gitignored — regenerate on demand) plus
+`SUMMARY.md`, which IS tracked, because that is the evidence.
+
+Optional: `IMS_BASE_URL` to point at staging, `IMS_ROUTES` to shoot a subset.
+
+**What it cannot judge:** whether cards in a grid are the same height, whether columns
+jump, whether text truncates badly, whether dark mode actually reads well. It turns that
+from an expedition into a review.
+
 ## The pre-commit hook
 
 `.githooks/pre-commit` runs the gates against **staged files only**, so it stays fast.
