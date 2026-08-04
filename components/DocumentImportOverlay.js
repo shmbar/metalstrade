@@ -485,7 +485,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
 
                             {/* Scanned-document warning — digits were read visually, not from a text layer */}
                             {result.visionUsed && (
-                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: 'var(--surface-card)3cd', border: '1px solid var(--warn-text)' }}>
+                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: 'var(--warn-bg)', border: '1px solid var(--warn-text)' }}>
                                     <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: 'var(--warn-text)' }} />
                                     <span style={{ fontSize: 'var(--fs-table)', color: 'var(--warn-strong)' }}>
                                         Scanned document — digits were read visually. Double-check quantities, prices and totals before applying.
@@ -495,7 +495,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
 
                             {/* Multi-invoice warning — this PDF holds more than one invoice */}
                             {isExpense && result.multipleInvoices && (
-                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: 'var(--surface-card)3cd', border: '1px solid var(--warn-text)' }}>
+                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: 'var(--warn-bg)', border: '1px solid var(--warn-text)' }}>
                                     <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: 'var(--warn-text)' }} />
                                     <span style={{ fontSize: 'var(--fs-table)', color: 'var(--warn-strong)' }}>
                                         This PDF appears to contain more than one invoice. Only the FIRST one was extracted — record the others as separate expenses.

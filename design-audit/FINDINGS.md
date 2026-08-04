@@ -124,3 +124,41 @@ needed reading the files.
 **Batch 4 result:** 11 findings, 11 fixed, 0 open. Plus 1 process defect, resolved.
 Modal widths 8 → 4. Overlay scrims 3 variants + 1 missing → **1**. Globally-positioned raw
 z-index → **0**.
+
+---
+
+## Batch 5 — Chart/canvas regression + a pre-existing corruption
+
+Reported by Zak: the dashboard crashed with
+`Failed to execute 'addColorStop' on 'CanvasGradient': The value provided
+('rgba(var(--primary-bright-rgb), 0.28)') could not be parsed as a color.`
+
+| ID | Cat | Where | What's wrong | Correct value | Sev | Status |
+|----|-----|-------|--------------|---------------|-----|--------|
+| 062 | C4 | `app/(root)/dashboard/page.js:1086-1087` | **My regression.** The batch-3 colour sweep rewrote `rgba(37,99,235,0.28)` → `rgba(var(--primary-bright-rgb), 0.28)` inside a canvas gradient stop. **Canvas cannot parse `var()`** — the dashboard threw on render. | `cssVarRgba('--primary-bright-rgb', 0.28, '<literal>')` | **Critical** | Fixed |
+| 063 | C4 | 3 files, 69 sites | **My regression.** The same sweep rewrote the *fallback* argument of `cssVar()`/`cssVarRgba()`, e.g. `cssVar('--ok-text', '#16a34a')` → `cssVar('--ok-text', 'var(--ok-text)')`. A fallback that is itself a `var()` is unparseable, so the fallback silently did nothing. Round 2 of the sweep had a `cssVar(` guard; **round 1 ran before that guard existed.** | literals recovered from the pre-audit commit | High | Fixed |
+| 064 | C4 | `app/(root)/dashboard/page.js:1180-1181` | Donut dataset colours and border passed `var()` straight to canvas. | `cssVar(token, literal)` | High | Fixed |
+| 065 | C3 | 8 files, 12 sites | **NOT mine — pre-existing.** `var(--surface-card)beb`, `…7ed`, `…3cd`. A `#fff` → `var(--surface-card)` replace with **no word boundary** met `#fffbeb` / `#fff7ed` / `#fff3cd` and ate the first three characters. The result is **invalid CSS**, so those alert panels rendered with **no background at all**. Introduced by commit `0f57b43` and shipped. | `var(--warn-soft)` / `var(--warn-bg)` | High | Fixed |
+
+### New gates, so none of this can recur
+
+| Gate | Catches |
+|---|---|
+| **11** | `var()` inside `addColorStop(...)`, and `var()` inside a `cssVar()`/`cssVarRgba()` fallback |
+| **12** | truncated-token corruption — `var(--x)` immediately followed by stray hex characters |
+
+Gate 11 was first written to also flag `backgroundColor: 'var(--x)'`. That produced **170
+false positives**: the form is perfectly correct in a DOM style object, where CSS resolves
+`var()` natively. Narrowed to the two unambiguous patterns. Chart dataset colours are left
+to those plus the fact that chart.js throws loudly and immediately.
+
+### Two further mistakes of mine, caught while fixing this
+
+1. `skipLine()` in the gate runner tested `/cssVar\(/`, which does **not** match
+   `cssVarRgba(`. That failed 9 correct lines on gate 5. Now `/cssVar(Rgba)?\(/`.
+2. My repair script converted **DOM** `style` values to `cssVarRgba()` as well as canvas
+   ones, inventing a black fallback where the original had legitimately used `var()`.
+   Two sites; reverted to the plain CSS form.
+
+**Batch 5 result:** 4 findings fixed (3 mine, 1 pre-existing), 2 gates added.
+All 12 gates pass. Build clean.

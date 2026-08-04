@@ -449,14 +449,14 @@ const Accounting = () => {
         {
           label: 'Debit',
           data: debitByDay,
-          backgroundColor: cssVar('--chathams-blue', 'var(--chathams-blue)'),
+          backgroundColor: cssVar('--chathams-blue', '#103a7a'),
           borderRadius: 6,
           barPercentage: 0.6,
         },
         {
           label: 'Credit',
           data: creditByDay,
-          backgroundColor: cssVar('--rock-blue', 'var(--rock-blue)'),
+          backgroundColor: cssVar('--rock-blue', '#9fb8d4'),
           borderRadius: 6,
           barPercentage: 0.6,
         },
@@ -478,10 +478,10 @@ const Accounting = () => {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(var(--surface-card-rgb), 0.95)'),
-        titleColor: cssVar('--port-gore', 'var(--port-gore)'),
-        bodyColor: cssVar('--regent-gray', 'var(--regent-gray)'),
-        borderColor: cssVar('--selago', 'var(--selago)'),
+        backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
+        titleColor: cssVar('--port-gore', '#28264f'),
+        bodyColor: cssVar('--regent-gray', '#838ca7'),
+        borderColor: cssVar('--selago', '#ebf2fc'),
         borderWidth: 1,
         cornerRadius: 8,
         padding: 12,
@@ -493,13 +493,13 @@ const Accounting = () => {
     scales: {
       y: {
         beginAtZero: true,
-        grid: { color: cssVarRgba('--rock-blue-rgb', 0.2, 'rgba(var(--rock-blue-rgb), 0.2)') },
-        ticks: { color: cssVar('--regent-gray', 'var(--regent-gray)'), font: { size: 11 }, callback: fmtChartVal },
+        grid: { color: cssVarRgba('--rock-blue-rgb', 0.2, 'rgba(159,184,212,0.2)') },
+        ticks: { color: cssVar('--regent-gray', '#838ca7'), font: { size: 11 }, callback: fmtChartVal },
         border: { display: false },
       },
       x: {
         grid: { display: false },
-        ticks: { color: cssVar('--regent-gray', 'var(--regent-gray)'), font: { size: 11 } },
+        ticks: { color: cssVar('--regent-gray', '#838ca7'), font: { size: 11 } },
         border: { display: false },
       },
     },

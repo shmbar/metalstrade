@@ -335,7 +335,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                   {audit.left.map(g => {
                     const k = keyOf(g)
                     return (
-                      <tr key={k} style={sel.includes(k) ? { background: 'var(--surface-card)7ed' } : undefined}>
+                      <tr key={k} style={sel.includes(k) ? { background: 'var(--warn-soft)' } : undefined}>
                         <td style={cellTd}>
                           <input type="checkbox" className="w-3.5 h-3.5 accent-[var(--endeavour)] align-middle"
                             checked={sel.includes(k)} onChange={() => toggleSel(k)} />

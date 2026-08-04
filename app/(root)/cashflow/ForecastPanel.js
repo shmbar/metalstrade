@@ -322,7 +322,7 @@ const ForecastPanel = () => {
                                     </div>
                                 )}
                                 {result.risks?.length > 0 && (
-                                    <div className='rounded-lg p-2.5' style={{ background: 'var(--surface-card)beb', border: '1px solid var(--warn-border)' }}>
+                                    <div className='rounded-lg p-2.5' style={{ background: 'var(--warn-soft)', border: '1px solid var(--warn-border)' }}>
                                         <div className='flex items-center gap-1 mb-1.5'>
                                             <AlertTriangle className='w-3 h-3' style={{ color: 'var(--warn-text)' }} />
                                             <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--warn-strong)' }}>Risks</span>

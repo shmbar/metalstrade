@@ -86,6 +86,44 @@ const GATES = [
     re: /\bh-\[(2[4-9]|3[0-9]|40)px\]|\bh-\[1\.[5-9][0-9]*rem\]|\bh-\[2\.[0-4][0-9]*rem\]/, exempt: new Set() },
   { id: 9, title: "no arbitrary padding / gap", cmd: 'grep -nE "\\b(p|px|py)-\\[|\\bgap-\\["',
     re: /\b(p|px|py)-\[|\bgap-\[/, exempt: new Set() },
+  /* Gate 11 — canvas cannot parse var(). chart.js colour options and the
+     fallback argument of cssVar()/cssVarRgba() must be REAL colour strings.
+     Added after the batch-3 sweep tokenised a gradient stop and crashed the
+     dashboard, and turned 69 fallbacks into self-referential var() strings. */
+  {
+    id: 11, title: "no var() reaching the canvas (chart.js / cssVar fallbacks)",
+    cmd: 'grep -nE "addColorStop.*var\\(|cssVar.*, *.var\\("',
+    wholeFile: function (src) {
+      const bad = [];
+      const lines = src.split("\n");
+      lines.forEach(function (l, i) {
+        // Two unambiguous patterns only.
+        //   1. a gradient stop containing var()  — always a crash
+        //   2. a cssVar/cssVarRgba FALLBACK containing var() — self-referential
+        //      and unparseable, so the fallback silently does nothing
+        // A broader rule that also flagged `backgroundColor: 'var(--x)'` was
+        // tried and produced 170 false positives: that form is correct in a DOM
+        // style object, where CSS resolves var() natively. Chart dataset colours
+        // are left to the two rules above plus the fact that chart.js throws
+        // loudly and immediately on an unparseable colour.
+        if (/addColorStop\([^)]*var\(/.test(l) ||
+          /cssVar(?:Rgba)?\([^)]*,\s*'[^']*var\(/.test(l)) {
+          bad.push((i + 1) + ": " + l.trim().slice(0, 100));
+        }
+      });
+      return bad;
+    }, exempt: new Set()
+  },
+  /* Gate 12 — a token name immediately followed by leftover hex characters,
+     e.g. var(--surface-card)beb. That is what a #fff -> var(--surface-card)
+     replace does when the pattern has no word boundary and meets #fffbeb. The
+     result is INVALID CSS, so the element renders with no background at all.
+     Twelve of these shipped in commit 0f57b43 and survived until this audit. */
+  {
+    id: 12, title: "no truncated-token corruption (var(--x) followed by stray hex)",
+    cmd: 'grep -nE "var\\(--[a-z-]+\\)[0-9a-zA-Z]"',
+    re: /var\(--[a-z0-9-]+\)[0-9a-zA-Z]/, exempt: new Set()
+  },
   /* Gate 10 is whole-file, not per-line: `fontFamily:` is frequently written
      with its value on the following line, which a line-based test reads as a
      family of "" and wrongly fails. */
@@ -120,7 +158,11 @@ function stripComments(src) {
 }
 
 function skipLine(l) {
-  return /cssVar\(/.test(l);           // documented token fallback
+  // Documented token fallbacks. The fallback argument of cssVar()/cssVarRgba()
+  // MUST be a literal colour — canvas cannot parse var() — so a literal on
+  // these lines is correct, not a violation. Note the (Rgba)?: an earlier
+  // version tested only /cssVar\(/ and so failed 9 correct cssVarRgba lines.
+  return /cssVar(Rgba)?\(/.test(l);
 }
 
 const out = [];

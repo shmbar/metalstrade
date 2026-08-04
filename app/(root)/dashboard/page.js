@@ -288,7 +288,7 @@ function ReceivablesSplitCard({ byCur = {} }) {
             </div>
             <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">{finCount} invoice{finCount === 1 ? '' : 's'} · after final invoice</div>
           </div>
-          <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--surface-card)beb', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
+          <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--warn-soft)', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
             <div className="flex items-center gap-1.5">
               <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: 'var(--warn-text)' }} />
               <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--warn-strong)' }}>PROVISIONAL</span>
@@ -712,7 +712,7 @@ function UnsoldStockCard({ value = 0, mt = 0 }) {
           <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Unsold Stock · not a cost</span>
         </div>
         <div className="font-semibold text-[var(--port-gore)] leading-none mt-1" style={{ fontSize: 'var(--fs-stat)' }}>{fmtAutoKM(value)}</div>
-        <div className="rounded-lg p-2.5 mt-auto" style={{ backgroundColor: 'var(--surface-card)beb', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
+        <div className="rounded-lg p-2.5 mt-auto" style={{ backgroundColor: 'var(--warn-soft)', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
           <div className="font-semibold leading-none" style={{ color: 'var(--warn-strong)', fontSize: 'var(--fs-page)' }}>{fmtMT(mt)}</div>
           <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">in stock · capital tied up, excluded from profit</div>
         </div>
@@ -1081,10 +1081,10 @@ const Dash = () => {
         backgroundColor: (ctx) => {
           const { chart } = ctx;
           const { ctx: c, chartArea } = chart;
-          if (!chartArea) return 'rgba(var(--primary-bright-rgb), 0.10)';
+          if (!chartArea) return cssVarRgba('--primary-bright-rgb', 0.10, 'rgba(37,99,235, 0.10)');
           const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-          g.addColorStop(0, 'rgba(var(--primary-bright-rgb), 0.28)');
-          g.addColorStop(1, 'rgba(var(--primary-bright-rgb), 0.00)');
+          g.addColorStop(0, cssVarRgba('--primary-bright-rgb', 0.28, 'rgba(37,99,235, 0.28)'));
+          g.addColorStop(1, cssVarRgba('--primary-bright-rgb', 0.00, 'rgba(37,99,235, 0.00)'));
           return g;
         },
         borderWidth: 2.5,
@@ -1109,7 +1109,7 @@ const Dash = () => {
         data: profitSeries,
         // Canvas can't parse CSS var() strings — it silently fell back to black
         // (and a blank tooltip swatch). Resolve the variable to a real color.
-        borderColor: cssVar('--ok-text', 'var(--ok-text)'),
+        borderColor: cssVar('--ok-text', '#16a34a'),
         backgroundColor: 'transparent',
         borderWidth: 2,
         borderDash: [5, 4],
@@ -1130,13 +1130,13 @@ const Dash = () => {
         display: true,
         position: 'top',
         align: 'end',
-        labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 6, padding: 16, font: { size: 11 }, color: cssVar('--port-gore', 'var(--port-gore)') },
+        labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 6, padding: 16, font: { size: 11 }, color: cssVar('--port-gore', '#28264f') },
       },
       tooltip: {
         // Canvas can't parse 'rgba(var(--x),a)' — the black unreadable tooltip.
-        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(var(--surface-card-rgb), 0.97)'),
-        titleColor: cssVar('--port-gore', 'var(--port-gore)'),
-        bodyColor: cssVar('--port-gore', 'var(--port-gore)'),
+        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(255,255,255,0.97)'),
+        titleColor: cssVar('--port-gore', '#28264f'),
+        bodyColor: cssVar('--port-gore', '#28264f'),
         borderColor: cssVar('--selago', '#e6eef8'),
         borderWidth: 1,
         cornerRadius: 10,
@@ -1166,7 +1166,7 @@ const Dash = () => {
       },
     },
     scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 10 }, color: cssVar('--regent-gray', 'var(--regent-gray)') }, border: { display: false } },
+      x: { grid: { display: false }, ticks: { font: { size: 10 }, color: cssVar('--regent-gray', '#838ca7') }, border: { display: false } },
       y: { grid: { color: cssVar('--selago', '#eef3f9') }, ticks: { callback: (v) => fmtAutoKM(v, 1), font: { size: 10 }, color: 'var(--regent-gray)' }, border: { display: false } },
     },
   };
@@ -1177,8 +1177,13 @@ const Dash = () => {
     labels: ['Cost of Goods Sold', 'Other Expenses', 'Net Profit'],
     datasets: [{
       data: [cogs, totalExpenses, profitForArc],
-      backgroundColor: [cssVar('--primary-bright', '#2563eb'), 'var(--pink-text)', 'var(--ok-text)'],
-      borderColor: 'var(--on-brand)',
+      // Canvas cannot parse var() — every colour here must be resolved first.
+      backgroundColor: [
+        cssVar('--primary-bright', '#2563eb'),
+        cssVar('--pink-text', '#db2777'),
+        cssVar('--ok-text', '#16a34a'),
+      ],
+      borderColor: cssVar('--on-brand', '#ffffff'),
       borderWidth: 2,
       hoverOffset: 6,
     }],
@@ -1192,9 +1197,9 @@ const Dash = () => {
       legend: { display: false },
       tooltip: {
         // Canvas can't parse 'rgba(var(--x),a)' — the black unreadable tooltip.
-        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(var(--surface-card-rgb), 0.97)'),
-        titleColor: cssVar('--port-gore', 'var(--port-gore)'),
-        bodyColor: cssVar('--port-gore', 'var(--port-gore)'),
+        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(255,255,255,0.97)'),
+        titleColor: cssVar('--port-gore', '#28264f'),
+        bodyColor: cssVar('--port-gore', '#28264f'),
         borderColor: cssVar('--selago', '#e6eef8'),
         borderWidth: 1,
         cornerRadius: 10,
@@ -1291,7 +1296,7 @@ const Dash = () => {
 
           {/* FX data-gap warning — a missing rate is counted at 1:1, not silently zeroed */}
           {missingRate > 0 && (
-            <div className="mb-4 flex items-center gap-2 rounded-2xl px-3 py-2" style={{ background: 'var(--surface-card)7ed', border: '1px solid var(--warn-bg)' }}>
+            <div className="mb-4 flex items-center gap-2 rounded-2xl px-3 py-2" style={{ background: 'var(--warn-soft)', border: '1px solid var(--warn-bg)' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0" style={{ color: 'var(--warn-strong)' }}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
               <span className="responsiveTextTable" style={{ color: 'var(--warn-strong)' }}>
                 {missingRate} EUR contract{missingRate === 1 ? '' : 's'} missing an FX rate — counted at 1:1, so USD totals may be understated. Set the EUR→USD rate on those contracts for accurate figures.

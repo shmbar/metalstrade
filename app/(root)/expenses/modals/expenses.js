@@ -244,7 +244,7 @@ const Expenses = () => {
                                 <Selector arr={settings.Expenses.Expenses} value={valueExp} onChange={(e) => handleChange(e, 'expType')} name='expType' clear={clear} />
                                 <ErrDiv field='expType' errors={errorsExp} />
                                 {catResult === 'low' && (
-                                    <p className='responsiveTextInput mt-0.5 px-2 py-0.5 rounded-full inline-block' style={{ backgroundColor: 'var(--surface-card)3cd', color: 'var(--warn-strong)', fontSize: 'var(--fs-table)' }}>
+                                    <p className='responsiveTextInput mt-0.5 px-2 py-0.5 rounded-full inline-block' style={{ backgroundColor: 'var(--warn-bg)', color: 'var(--warn-strong)', fontSize: 'var(--fs-table)' }}>
                                         Low confidence — please verify
                                     </p>
                                 )}

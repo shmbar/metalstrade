@@ -132,7 +132,7 @@ const EmailSetup = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div className='flex items-start gap-2 px-3 py-2.5 rounded-lg' style={{ background: 'var(--surface-card)3cd', border: '1px solid var(--warn-text)' }}>
+                            <div className='flex items-start gap-2 px-3 py-2.5 rounded-lg' style={{ background: 'var(--warn-bg)', border: '1px solid var(--warn-text)' }}>
                                 <AlertTriangle className='w-4 h-4 flex-shrink-0 mt-0.5' style={{ color: 'var(--warn-text)' }} />
                                 <div>
                                     <p className='font-semibold' style={{ fontSize: 'var(--fs-body)', color: 'var(--warn-strong)' }}>
