@@ -1741,6 +1741,17 @@ export const runExpenses = async (uidCollection, settings, yr) => {
 
     dt = [...dt, ...dt1]
 
+    // Same record must never count twice: an expense that exists in both the
+    // supplier-expenses and company-expenses collections (copy flows) — or any
+    // double-load — would duplicate its row and its minus in the totals.
+    const seenExp = new Set();
+    dt = dt.filter(z => {
+        if (!z?.id) return true;
+        if (seenExp.has(z.id)) return false;
+        seenExp.add(z.id);
+        return true;
+    });
+
     dt = dt.filter(z => z && z.paid === '222')
 
     let totalBySupplier = Object.entries(
