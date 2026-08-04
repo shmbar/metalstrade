@@ -1,6 +1,6 @@
 # Design consistency audit — report
 
-**Date:** 3 August 2026 · **Branch:** `ims-updates` · **Commits:** 5
+**Date:** 3 August 2026 · **Branch:** `ims-updates` · **Commits:** 7
 
 ---
 
@@ -35,8 +35,8 @@ Here is what was actually happening.
 | Files proven clean by automated check | **249** |
 | Duplicate file deleted | **1** |
 | **Files still failing any check** | **0** |
-| Problems found | **61** |
-| Problems fixed | **61** |
+| Problems found | **65** |
+| Problems fixed | **65** |
 | Problems open | **0** (plus 1 whole category not started — C6) |
 
 We are deliberately showing "opened and read" separately from "proven by automated check".
@@ -80,9 +80,9 @@ There is now one place for each decision:
    remaining raw colour in the code is now, without exception, a mistake. That is what lets the
    check be trustworthy rather than approximate.
 5. **Shadows follow the theme.** One change fixed elevation on all 348 shadowed elements.
-6. **Eleven automated checks** now measure all of this. They live in the project
-   (`design-audit/tools/`) and can be re-run on any future change.
-   **A new screen that drifts will fail them.**
+6. **Twelve automated checks** now measure all of this. They live in the project
+   (`design-audit/tools/`), run automatically on every commit, and can be re-run at any
+   time with `npm run design:check`. **A new screen that drifts will fail them.**
 
 ### Three genuine bugs, not cosmetics
 
@@ -145,7 +145,7 @@ The measurable causes of those problems are fixed. The visual confirmation is no
 The public marketing site (~30 files) and the mobile app (150 files). Note the mobile app uses a
 **different typeface** (Inter) from the web app (Poppins). That is worth a decision at some point.
 
-### 4.5 Two mistakes we made during this work
+### 4.5 Three mistakes we made during this work
 Recorded because they affected the result and you should be able to see them.
 
 1. An automated edit had a faulty pattern that quietly matched more than intended and resized
@@ -161,6 +161,19 @@ Recorded because they affected the result and you should be able to see them.
    reading the popup files afterwards and reassigned all three by what they actually are.
    The general lesson, and the reason the last batch existed: **an automatic renumbering pass
    always needs a human read afterwards**, because a number cannot tell you intent.
+
+### 4.6 One thing we broke, and fixed · **please confirm**
+While removing the fixed colours, we replaced one on a **chart** with a theme colour. Charts
+are drawn on a canvas, which does not understand theme colours — so the dashboard stopped
+loading. Zak reported it; it is fixed, along with 69 related places where the same mistake
+would have quietly produced the wrong colour on first paint.
+
+We could not verify the fix in a browser ourselves (see 4.2), so **please open the dashboard
+and confirm it loads.** Two new automated checks now catch this specific mistake.
+
+The same investigation turned up a **pre-existing** bug we did not cause: twelve alert panels
+across eight screens were rendering with **no background at all**, because an earlier theming
+change had mangled the colour name. That has been fixed too.
 
 ---
 
@@ -180,6 +193,8 @@ Full command output is in **`design-audit/VERIFICATION.md`**. Summary:
 | No off-scale control heights | **0 found** ✓ |
 | No off-scale spacing | **0 found** ✓ |
 | Font declared in one place only | **0 found** ✓ |
+| No unreadable colour reaching the charts | **0 found** ✓ |
+| No corrupted colour names | **0 found** ✓ |
 | Popup widths / dims / layers conform | **4 widths, 1 dim, 0 stray layers** ✓ |
 | `npm run build` | **clean** ✓ |
 | `npm run lint` | **3 errors, 121 warnings — identical to before we started.** Zero new. ✓ |
@@ -200,7 +215,10 @@ in text — not styling.
 
 ## 6. The honest answer to "will the client find anything?"
 
-**In dark mode: we expect not.** That was measured, and every cause we could find is fixed —
+**In dark mode: we expect not** — with one caveat, that the dashboard fix in 4.6 needs your
+eyes on it, because we have no browser here.
+
+**In dark mode:** That was measured, and every cause we could find is fixed —
 including the white rows, the invisible button text and the flat shadows.
 
 **On a phone: we cannot promise yet.** Nothing has been opened in a browser at 390px. The
