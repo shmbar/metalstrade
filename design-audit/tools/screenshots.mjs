@@ -62,8 +62,12 @@ const ROUTES = (process.env.IMS_ROUTES || [
   'accstatement', 'stocks', 'storagecosts', 'specialinvoices', 'companyexpenses',
   'materialtables', 'incoterms', 'activity', 'margins', 'cashflow', 'formulas',
   'settings', 'apps/Assistant',
-  // reachable by URL but not in the sidebar — in scope by Zak's decision
-  'analysis', 'contractsstatement', 'invoicesstatement',
+  // Has a page.js and is reachable by URL, though absent from the sidebar.
+  'analysis',
+  // NOTE: contractsstatement/ and invoicesstatement/ are deliberately NOT here.
+  // They have no page.js — they are component folders imported by cashflow,
+  // shipment and the two Review pages. Requesting them returns a Next 404,
+  // which is what run 3 captured before this was understood.
 ].join(',')).split(',').map(s => s.trim()).filter(Boolean);
 
 const WIDTHS = [1440, 1024, 768, 390];
@@ -161,20 +165,29 @@ async function signIn() {
 
 /* Wait until the page has actually rendered its data.
  *
- * The first run screenshotted 6 routes mid-"Loading…" because it waited a flat
- * 1.5s. Poll for the loader to disappear instead. */
+ * Two distinct loading states, and missing either one produces a screenshot of
+ * nothing:
+ *   1. the full-page "Loading…" text  (missed in run 1 — flat 1.5s sleep)
+ *   2. the `.skel` shimmer skeleton   (missed in run 3 — it has NO text, so a
+ *      text-based check sails straight past it)
+ *
+ * Must be re-checked after every viewport change, not just after navigation:
+ * resizing to mobile remounts the table components, which drops them back into
+ * their skeleton state. That is why run 3's 390px shots were all skeletons
+ * while the wider ones were fine.
+ */
 async function waitForContent(timeout = 45000) {
   const started = Date.now();
   while (Date.now() - started < timeout) {
     const loading = await page.evaluate(() => {
-      const t = document.body.innerText || '';
-      // the app's own full-page loader
-      if (/^\s*Loading…?\s*$/i.test(t.trim())) return true;
-      if (t.trim().length < 40 && /loading/i.test(t)) return true;
+      if (document.querySelector('.skel')) return true;
+      const t = (document.body.innerText || '').trim();
+      if (/^Loading…?$/i.test(t)) return true;
+      if (t.length < 40 && /loading/i.test(t)) return true;
       return false;
     }).catch(() => false);
-    if (!loading) return true;
-    await page.waitForTimeout(500);
+    if (!loading) { await page.waitForTimeout(250); return true; }
+    await page.waitForTimeout(400);
   }
   return false;
 }
@@ -235,7 +248,11 @@ for (const mode of MODES) {
     for (const width of WIDTHS) {
       current = { route, mode, width };
       await page.setViewportSize({ width, height: width < 500 ? 844 : 900 });
-      await page.waitForTimeout(350);
+      // Re-wait after EVERY resize: the responsive table components remount and
+      // re-enter their skeleton state when the layout switches to mobile.
+      if (!await waitForContent(20000)) {
+        problems.push({ route, mode, width, kind: 'stuck-loading', text: 'skeleton still showing after resize' });
+      }
 
       // horizontal overflow is a defect the client would see immediately
       const overflow = await page.evaluate(() =>

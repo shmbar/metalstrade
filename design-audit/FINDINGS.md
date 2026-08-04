@@ -162,3 +162,54 @@ to those plus the fact that chart.js throws loudly and immediately.
 
 **Batch 5 result:** 4 findings fixed (3 mine, 1 pre-existing), 2 gates added.
 All 12 gates pass. Build clean.
+
+---
+
+## Batch 6 — The visual pass (184 screenshots, 23 routes × 2 themes × 4 widths)
+
+Ran against a **production build** with Zak's account. Validated with
+`npm run design:verify-shots` before any conclusion was drawn from it.
+
+### What the design audit itself scored
+
+| Check | Result |
+|---|---|
+| Horizontal overflow, all 184 checks | **0** |
+| Pages stuck loading | **0** |
+| Dark mode renders correctly (surfaces, text, no white rows) | **confirmed by eye** |
+| Light/dark genuinely differ on every route | **confirmed** |
+
+959 raw "issues" resolve to **957 harness noise** (aborted route prefetches, and a
+Vercel Speed Insights script that 404s outside Vercel) and **2 real defects**, below.
+
+### Real defects found
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 066 | — | `.env:13` + `components/exchangeApi.js` | **A placeholder FX API key is shipped.** `NEXT_PUBLIC_OPENEXCHANGERATES_APP_ID=PASTE_OPENEXCHANGERATES_APP_ID_HERE`, so every call returns **401**. `exchangeApi.js:9-11` then falls through to `return 1` — meaning **EUR↔USD is silently converted at a rate of 1.0**. Used by `formulas/page.js` and `contracts/modals/productsTable.js`, i.e. **pricing**. Not a design issue; found only because the visual pass watches the network. | **Critical** | **OPEN — needs a real API key from Zak** |
+| 067 | C3 | `app/(root)/contractsstatement/`, `app/(root)/invoicesstatement/` | Both return a Next **404**. They have no `page.js` — they are component folders imported by `cashflow`, `shipment` and the two Review pages. **My Phase-0 characterisation of them as "routes not in the sidebar" was wrong.** No audit work was wasted (the files were covered as components) but the real route count is **23, not 25**. | Low | Fixed (docs corrected) |
+
+### Not defects, recorded so they are not re-investigated
+
+- `_vercel/speed-insights/script.js` 404s on a self-hosted `next start`. It resolves on
+  Vercel. 270 of the 959 entries.
+- 768 `net::ERR_ABORTED` — route prefetches the harness itself cancels by navigating away.
+- One transient `identitytoolkit` 400 on `contracts`/dark that dropped the session; the
+  harness re-authenticated, refused to save the login page, and the 4 shots were
+  re-captured in a follow-up run.
+
+### Three more defects in my own harness, all caught by verifying rather than counting
+
+| ID | What happened | Resolution |
+|----|---------------|------------|
+| P-4 | Run 1 reported "200 screenshots, 10 issues" and looked complete. **100 were the login page** (session dropped mid-run, harness kept shooting) and 6 were a spinner. Only **2 of 25 routes** captured the app. | Re-auth-and-retry; refuse to save a screenshot while unauthenticated. |
+| P-5 | Run 3 passed with 0 session drops — but **every 390px shot was a skeleton loader**. The content-wait matched the text "Loading…"; the skeleton is a `.skel` shimmer with **no text**. Resizing to mobile remounts tables into skeleton state. | Wait on `.skel` too, and re-wait after **every** resize, not just after navigation. |
+| P-6 | The `requestfailed` handler filtered noise using the **URL**, but the "ERR_ABORTED" marker is in the *error text*, so the filter never matched. | Filter on both. |
+
+The lesson is `design-audit/tools/verify-shots.mjs`: it checks the **images** — duplicate
+byte-sizes across routes (the signature of a repeated login page), files too small to be a
+real page, light/dark pairs that are identical. Runs 1 and 3 each failed it. Counting files
+proved nothing, three times running.
+
+**Batch 6 result:** 2 real defects (1 open, 1 fixed), 3 harness defects fixed.
+184/184 screenshots valid.

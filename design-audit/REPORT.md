@@ -1,6 +1,6 @@
 # Design consistency audit — report
 
-**Date:** 3 August 2026 · **Branch:** `ims-updates` · **Commits:** 7
+**Date:** 3 August 2026 · **Branch:** `ims-updates` · **Commits:** 10
 
 ---
 
@@ -35,9 +35,9 @@ Here is what was actually happening.
 | Files proven clean by automated check | **249** |
 | Duplicate file deleted | **1** |
 | **Files still failing any check** | **0** |
-| Problems found | **65** |
-| Problems fixed | **65** |
-| Problems open | **0** (plus 1 whole category not started — C6) |
+| Problems found | **67** |
+| Problems fixed | **66** |
+| Problems open | **1** (a broken API key — see 4.7) plus 1 whole category not started — C6 |
 
 We are deliberately showing "opened and read" separately from "proven by automated check".
 The automated checks are exhaustive for measurable things — sizes, colours, corner styles,
@@ -119,18 +119,23 @@ C6 has been checked**: layout density, spacing rhythm, shadow depth, colour temp
 scale versus those four sites. Send the links or screenshots and this becomes a short, focused
 piece of work.
 
-### 4.2 The visual checks have not been done · **needs a person or a login**
-The task asks for every route to be opened in light and dark at 1440 / 1024 / 768 / 390px, with
-screenshots. **We could not do this.** Every screen is behind a login backed by live company
-data, and this environment has no browser and no credentials. So these remain unverified:
+### 4.2 The visual checks — **now done**
+Zak supplied a login, so we ran every route in light and dark at 1440 / 1024 / 768 / 390px:
+**184 screenshots**, in `design-audit/screenshots/`, with `SUMMARY.md` beside them.
 
-- cards in the same row being exactly the same height
-- table columns not jumping as data loads
-- nothing overlapping or clipped at phone width
-- empty states, loading states and error states on every screen
+Results of the design work itself:
 
-The measurable causes of those problems are fixed. The visual confirmation is not done.
-**`design-audit/screenshots/` is empty and we have not pretended otherwise.**
+| Check | Result |
+|---|---|
+| Pages that scroll sideways (the classic phone bug) | **none** |
+| Pages stuck loading | **none** |
+| Dark mode: correct surfaces, readable text, no white rows | **confirmed** |
+| Light and dark genuinely different on every screen | **confirmed** |
+
+What a script still cannot judge, and what the screenshots are for: whether cards in a row
+are truly the same height, whether columns jump, whether anything truncates awkwardly, and
+whether dark mode *reads* well. They are labelled by screen, theme and width, so that is now
+a review rather than an expedition.
 
 ### 4.3 Deliberate exceptions, listed so nothing is hidden
 - **Chart colours are not themed.** A chart needs its own spread of distinct hues; forcing them
@@ -144,6 +149,23 @@ The measurable causes of those problems are fixed. The visual confirmation is no
 ### 4.4 Not in scope, by your decision
 The public marketing site (~30 files) and the mobile app (150 files). Note the mobile app uses a
 **different typeface** (Inter) from the web app (Poppins). That is worth a decision at some point.
+
+### 4.7 A real bug the visual pass found · **needs an API key from you** · URGENT
+Not a design issue at all — the screenshot run watches the network, and caught it.
+
+`.env` line 13 still contains a **placeholder** exchange-rate API key:
+
+    NEXT_PUBLIC_OPENEXCHANGERATES_APP_ID=PASTE_OPENEXCHANGERATES_APP_ID_HERE
+
+So every currency lookup is rejected (401), and `components/exchangeApi.js` then quietly
+falls back to a rate of **1.0** — meaning **euros and dollars are being treated as equal**
+anywhere that runs. It runs on the **Formulas** page and in the **contract products table**,
+i.e. in pricing.
+
+We have **not** changed it. It needs a genuine key, which only you can supply, and the
+fallback behaviour is a commercial decision rather than a styling one: right now a failed
+lookup produces a wrong number silently instead of refusing to calculate. Worth deciding
+which you want.
 
 ### 4.5 Three mistakes we made during this work
 Recorded because they affected the result and you should be able to see them.
