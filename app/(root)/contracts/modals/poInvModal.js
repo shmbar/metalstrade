@@ -245,9 +245,31 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
     // output onto this modal's poInvoice shape (inv# + value); payments start empty.
     const addInvoiceFromDoc = (out) => {
         const val = out?.amount != null && out.amount !== '' ? String(out.amount) : '';
+        const num = String(out?.expense || '').trim();
+        const normNo = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+        // Re-importing a PDF whose invoice number is already recorded must not
+        // create a twin entry (a doubled supplier balance — the Nicrometal
+        // FVEH/00002 case). Refresh the existing row's value instead.
+        const existing = num && (valueCon.poInvoices || []).find(p => normNo(p.inv) === normNo(num));
+        if (existing) {
+            setValueCon(prev => ({
+                ...prev,
+                poInvoices: prev.poInvoices.map(item => {
+                    if (item.id !== existing.id) return item;
+                    const paid = (item.payments || []).reduce((t, z) => t + (parseFloat(z.pmnt) || 0), 0);
+                    const v = val !== '' ? (parseFloat(val) || 0) : (parseFloat(item.invValue) || 0);
+                    return { ...item, invValue: val !== '' ? val : item.invValue, pmnt: paid, blnc: Math.round((v - paid) * 100) / 100 };
+                }),
+            }));
+            setShowDocImport(false);
+            setToast({ show: true, text: `Invoice ${num} is already recorded — its value was refreshed from the PDF`, clr: 'success' });
+            return;
+        }
+
         const newInv = {
             id: uuidv4(),
-            inv: out?.expense || '',
+            inv: num,
             invValue: val,
             pmnt: '0',
             blnc: parseFloat(val) || 0, // number, like every hand-edited row — string blnc broke supplier totals
