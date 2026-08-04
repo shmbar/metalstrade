@@ -286,3 +286,45 @@ Light mode is intact — nothing regressed.
 | ID | Cat | Where | What's wrong | Sev | Status |
 |----|-----|-------|--------------|-----|--------|
 | 074 | C5 | `components/videoLoader.js` | Checking light mode revealed the page is blurred **there too**. Fixing the scrim (069) removed the dark-mode murk but left the `backdrop-blur`, which was in the original code. That blur applies to content the user is actively reading, and the loader appears on **every** date-range change and data reload — so it is visible constantly, in both modes. That is the more literal reading of *"everything looks blurry"*. Blur removed; the translucent veil alone still signals "busy" and blocks interaction. Modals keep their blur, which is correct — a dialog *should* push the page back. | **High** | Fixed |
+
+### Batch 7c — all 19 themes × both modes
+
+Zak asked whether dark/light had been checked on **all** theme colours. It had not — only
+his own (violet). There are **19 presets × 2 modes = 38 combinations**, and the two tokens
+added in batch 7 (`--brand-deep`, `--on-brand-muted`) are *derived from* `--endeavour`, so
+they change with every hue. Checking one proves nothing about the other 37.
+
+Rather than eyeball them, `design-audit/tools/theme-contrast.mjs` (`npm run design:contrast`)
+imports the real `deriveTokens()` from `utils/themes.js`, reproduces the `color-mix` and the
+alpha compositing, and computes WCAG contrast for all 38:
+
+```
+38 combinations checked (19 presets x 2 modes)
+
+pairing                              min    worst theme/mode
+whiteOnDeep                           9.10  steel/dark   PASS (need 4.5)
+mutedOnDeep                           6.24  ocean/dark   PASS (need 3)
+whiteOnEndeavour                      4.51  stone/dark   PASS (need 4.5)
+
+✓ every preset passes in both modes
+```
+
+`whiteOnEndeavour` at 4.51 is the theme engine's own AA fit working as designed — that row
+is a regression check on `utils/themes.js`, not on this audit's tokens.
+
+Visual sample of the extreme hues (yellow / green / near-neutral / magenta) in both modes:
+mustard, moss, graphite and fuchsia all render coherently — themed surfaces, readable text,
+status colours preserved.
+
+### A mistake, and the account state
+
+While automating the theme picker I used a **substring** selector, `[aria-label*="Theme"]`,
+which matched the *first swatch* rather than a menu trigger and silently **changed the
+account's theme from Violet to Ocean**. It was masked for a while because the production
+server was serving a stale build, so the page never hydrated and every token read back as
+the stylesheet default — making a real change look like a non-hydrated page.
+
+Restored and verified: **theme `violet`, mode `dark`** — exactly as found.
+
+Same lesson as P-1: a loose pattern that matches more than intended, and a reading taken
+from an environment that was not actually working.
