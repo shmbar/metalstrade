@@ -359,3 +359,35 @@ hex-alpha trick with `color-mix`, which works for tokens and literals alike.
 **Not verified functionally** (no coverage, and not reachable from here): saving contracts
 and invoices, drag-and-drop ordering, print stylesheets, and the generated Excel/PDF files
 opened in Excel/a PDF reader. The code paths are untouched, but "untouched" is not "tested".
+
+---
+
+## Batch 8 — /margins regressions reported by Zak (with screenshot)
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 076 | C2 | `app/globals.css` ladder + every totals row | **Figures broke mid-number.** The `.responsiveText*` classes carry `break-words` (`overflow-wrap: break-word`), which breaks a long token at ANY character when the box is tight. Totals rendered `$5,159,250.` above `00`, and `305.00` above `0`. Prose may break; a figure may not. | **High** | Fixed |
+| 077 | C3 | `app/(root)/margins/page.js` | `Add month` and `Save` used `px-3 py-1` + body-size text, making them visibly taller than every other button in the app. | Med | Fixed |
+| 078 | C2 | `app/(root)/margins/newTable.js` | The same grid mixed **two rungs for the same kind of cell** — 5 × `responsiveTextTable` (10/11/12/13) beside `responsiveTextInput` (12/13/14/15) and `.input` pills at 11/12/13/14. That mix is why the values read small against their own headers. | Med | Fixed |
+
+### Why 076 needed two passes
+
+`tfoot td { white-space: nowrap }` fixed most cells but **not** the Qty total. The figure is
+wrapped in an inner `<div>` carrying its own ladder class, and that element's
+`whitespace-normal` beats a rule set on the cell. The rule now covers descendants
+(`tfoot td *`). Verified with `Range.getClientRects()` — a genuinely wrapped figure occupies
+more than one line box:
+
+```
+figures wrapped across lines: 0
+buttons: Add month 28px, Save 28px   (the standard control height)
+```
+
+### The lesson
+
+This is a direct consequence of a size utility also dictating **wrapping**. `break-words`
+was in the original `.responsiveText*` definitions, so it was pre-existing — but the audit
+made it bite by migrating numeric cells (which previously carried bare `text-[…]` classes
+with no wrapping rules) onto the ladder, and by widening columns via the `.input` type bump.
+A token that controls two unrelated things will eventually be right for one and wrong for
+the other.

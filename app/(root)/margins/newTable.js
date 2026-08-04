@@ -450,7 +450,7 @@ const Customtable = (props) => {
                                                             columnConfig.align === 'right' && 'text-right',
                                                             columnConfig.align === 'center' && 'text-center',
                                                             'border-t border-t-[var(--border-divider)]',
-                                                            'responsiveTextTable'
+                                                            'responsiveTextInput'
                                                         )}
                                                     >
                                                         {["totalMargin", "remaining", "purchase", "openShip"].includes(accessorKey) && (
@@ -493,7 +493,7 @@ const Customtable = (props) => {
                                     {/* Compact Card Header */}
                                     <div className="bg-[var(--surface-header)] px-3 py-2 border-b border-[var(--border-divider)] flex justify-between items-center min-h-8">
                                         <span
-                                            className="responsiveTextTable font-normal text-[var(--chathams-blue)]"
+                                            className="responsiveTextInput font-normal text-[var(--chathams-blue)]"
                                             style={{ lineHeight: '1.2' }}
                                         >
                                             Entry #{rowIdx + 1}
@@ -517,7 +517,7 @@ const Customtable = (props) => {
                                                     className="flex justify-between items-center gap-2 py-1.5 border-b border-gray-100 last:border-b-0 min-h-7"
                                                 >
                                                     <span
-                                                        className="responsiveTextTable font-normal text-[var(--chathams-blue)] min-w-[80px] flex-shrink-0"
+                                                        className="responsiveTextInput font-normal text-[var(--chathams-blue)] min-w-[80px] flex-shrink-0"
                                                         style={{ lineHeight: '1.2' }}
                                                     >
                                                         {typeof col.header === 'string' ? col.header : ''}
@@ -606,7 +606,7 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                                         prefix={currs.includes(col.accessorKey) ? '$' : ''}
                                                                         decimalScale={currs.includes(col.accessorKey) ? 2 : 3}
                                                                         fixedDecimalScale
-                                                                        className="responsiveTextTable"
+                                                                        className="responsiveTextInput"
                                                                         style={{
                                                                             color: ['openShip', 'remaining'].includes(col.accessorKey) && Number(displayVal) > 0 ? 'var(--danger-text)' : 'var(--chathams-blue)',
                                                                             fontWeight: '400',
@@ -617,7 +617,7 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
                                                             }
                                                             return (
                                                                 <span
-                                                                    className='responsiveTextTable text-[var(--port-gore)]'
+                                                                    className='responsiveTextInput text-[var(--port-gore)]'
                                                                     style={{
                                                                         lineHeight: '1.2'
                                                                     }}

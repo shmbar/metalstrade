@@ -87,7 +87,7 @@ const MarginTable = memo(function MarginTable(props) {
                                             Qty (MT)
                                         </div>
                                         <div
-                                            className="responsiveText font-medium"
+                                            className="responsiveText font-medium numeric"
                                         >
                                             <NumericFormat
                                                 value={purchase}
@@ -115,7 +115,7 @@ const MarginTable = memo(function MarginTable(props) {
                                             Total Margin
                                         </div>
                                         <div
-                                            className="responsiveText font-medium"
+                                            className="responsiveText font-medium numeric"
                                         >
                                             <NumericFormat
                                                 value={totalMargin}
@@ -144,7 +144,7 @@ const MarginTable = memo(function MarginTable(props) {
                                             Open Ship
                                         </div>
                                         <div
-                                            className="responsiveText font-medium"
+                                            className="responsiveText font-medium numeric"
                                         >
                                             <NumericFormat
                                                 value={totalOpenShip}
@@ -172,7 +172,7 @@ const MarginTable = memo(function MarginTable(props) {
                                             Remaining
                                         </div>
                                         <div
-                                            className="responsiveText font-medium"
+                                            className="responsiveText font-medium numeric"
                                         >
                                             <NumericFormat
                                                 value={remaining}

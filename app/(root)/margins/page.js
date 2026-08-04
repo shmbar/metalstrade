@@ -750,7 +750,7 @@ const Margins = () => {
                             <div className="rounded-2xl border border-[var(--border-divider)]">
                                 <div className="p-2 flex gap-3 mt-3">
                                     <button
-                                        className="bg-[var(--surface-header)] text-[var(--chathams-blue)] font-medium px-3 py-1 responsiveText rounded-full hover:opacity-90 transition-all"
+                                        className="bg-[var(--surface-header)] text-[var(--chathams-blue)] font-medium px-3 h-7 responsiveTextTableTitle rounded-full hover:opacity-90 transition-all"
                                         disabled={data.length >= 12}
                                         onClick={addMonth}
                                     >
@@ -774,7 +774,7 @@ const Margins = () => {
                                         </span>
                                     ) : null}
                                     <button
-                                        className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 responsiveText rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                        className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 h-7 responsiveTextTableTitle rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                         onClick={saveData}
                                     >
                                         Save

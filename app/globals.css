@@ -248,6 +248,29 @@ html.dark img[src^="/logo/"][src$=".svg"] {
   filter: brightness(0) invert(1);
 }
 
+/* ── Figures never break mid-number ───────────────────────────────────────────
+   The .responsiveText* ladder carries `break-words`, which is right for prose
+   and wrong for numbers: it splits at any character when the box is tight, so
+   a totals cell showed "$5,159,250." above "00". These rules stop a figure
+   breaking regardless of which size class it happens to carry.
+   Scoped to elements that hold ONLY a number/currency/percent so ordinary text
+   is untouched. Reported by Zak from /margins, 2026-08-05. */
+td .numeric,
+th .numeric,
+[data-numeric],
+[data-numeric] *,
+tfoot td,
+tfoot th,
+/* Descendants too: the figure is usually wrapped in a <div> that carries its
+   own ladder class, and that inner `whitespace-normal` beats a rule set only on
+   the cell. Without this the Qty total still split as "305.00" / "0". */
+tfoot td *,
+tfoot th * {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
 /* Row hover: ensure all tds inherit tr hover background */
 tr.cursor-pointer:hover td,
 tr.hover-row:hover td {
@@ -422,10 +445,26 @@ textarea:focus-visible,
   }
 
   /* Numeric columns: equal-width digits so figures align down a column and
-     don't jitter as values change. Replaces reaching for a mono typeface. */
+     don't jitter as values change. Replaces reaching for a mono typeface.
+
+     whitespace-nowrap is not optional here. The ladder classes carry
+     `break-words` (overflow-wrap: break-word), which breaks a long token
+     ANYWHERE it does not fit — so a squeezed totals cell rendered
+     "$5,159,250." on one line and "00" on the next. Prose may break; a figure
+     may not. Reported by Zak from /margins. */
   .numeric {
     font-variant-numeric: tabular-nums;
     font-feature-settings: 'tnum' 1;
+    white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  /* Totals rows are numeric by definition, so they never break either. */
+  .responsiveTextTotal {
+    white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: normal;
   }
 
   /* Document IDs / hashes — the only place a second family is allowed. */
