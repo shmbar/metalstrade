@@ -386,7 +386,12 @@ const Customtable = (props) => {
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
 >
-  <div className="w-full flex items-center justify-center font-medium font-poppins responsiveTextInput">
+  {/* whitespace-nowrap: "Qty (MT)" and "Open Ship" are the only headers with a
+      space inside a narrow column, so they were the only two that wrapped onto
+      two lines — which is why they read as mis-aligned against the rest. Every
+      header now stays on one line. The table scrolls horizontally if a column
+      genuinely cannot fit, rather than reflowing one label. */}
+  <div className="w-full flex items-center justify-center whitespace-nowrap font-medium font-poppins responsiveTextInput">
     {header.isPlaceholder
       ? null
       : flexRender(header.column.columnDef.header, header.getContext())}

@@ -391,3 +391,33 @@ made it bite by migrating numeric cells (which previously carried bare `text-[�
 with no wrapping rules) onto the ladder, and by widening columns via the `.input` type bump.
 A token that controls two unrelated things will eventually be right for one and wrong for
 the other.
+
+### Batch 8b — margins header alignment
+
+Zak: *"in table header all align centre except Open Ship and Qty (MT) — why?"*
+
+**Measured before assuming.** At 1730px every header was already exactly **0px off-centre**
+on a single line, so alignment was never the fault. The real cause: `Qty (MT)` and
+`Open Ship` are the **only two headers containing a space inside a narrow column**
+(88px and 103px), so they were the only ones that could wrap onto two lines — which reads as
+mis-alignment against ten single-line neighbours.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 079 | C3 | `app/(root)/margins/newTable.js:388` | Header labels could wrap, and only two of twelve did. Headers now `whitespace-nowrap` — the table scrolls horizontally if a column truly cannot fit, rather than reflowing a single label. | Med | Fixed |
+
+Verified at six widths — wrapped headers **0**, max off-centre **0px**, page overflow **0px**
+at 1730 / 1440 / 1280 / 1024 / 768 / 390.
+
+### Noted, not changed: the header ignores its column's alignment
+
+`COLUMN_CONFIGS` gives every column an `align` (`left` / `center` / `right`) and the header
+block reads it into `columnConfig` — then **never uses it**; the header div is hard-coded
+`justify-center`. Two further oddities in the same area: the cell mapping turns
+`align: 'right'` into `text-center`, so no column is actually right-aligned, and `cellWidth`
+is computed from a `width` key that no config defines.
+
+Left alone deliberately. Zak's message —*"all align centre except…"*— says the centred header
+row is the **wanted** result, so making headers follow `align` would move Description,
+Supplier and Client to the left, i.e. change what he likes. Recorded as dead configuration
+worth tidying when someone next touches this table, not as a defect to fix mid-audit.
