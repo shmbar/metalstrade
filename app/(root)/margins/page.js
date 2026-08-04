@@ -14,6 +14,7 @@ import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
 import AutosavePill from "../../../components/AutosavePill";
 import Tooltip from "../../../components/tooltip";
+import Tltip from "../../../components/tlTip";
 import FirstPart from "./firstpart";
 import ThirdPart from "./thirdpart";
 import dateFormat from "dateformat";
@@ -561,35 +562,37 @@ const Margins = () => {
                                 </h1>
 
                                 <div className='flex items-center gap-3 flex-wrap'>
-                                    {/* Search — filters rows across all months by description / supplier / client */}
-                                    <div className='flex items-center gap-1.5'>
-                                        <Search className='w-3 h-3' style={{ color: 'var(--regent-gray)' }} />
+                                    {/* Search — filters rows across all months by description / supplier / client.
+                                        Same pill pattern as the app's table search (components/table/header.js). */}
+                                    <div className="flex items-center relative w-[160px] h-7 border border-[var(--border-divider)] rounded-full bg-[var(--surface-card)] focus-within:ring-1 focus-within:ring-[var(--border-divider)] shadow-sm transition-all duration-200">
                                         <input
+                                            className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTableTitle font-medium rounded-full"
+                                            placeholder={getTtl('Search', ln)}
                                             value={query}
                                             onChange={e => setQuery(e.target.value)}
-                                            placeholder={getTtl('Search', ln) || 'Search…'}
                                             aria-label='Search margin rows'
-                                            className='w-36 rounded-full border px-3 py-0.5 outline-none focus:border-[var(--endeavour)]'
-                                            style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', background: 'var(--surface-pill)', color: 'var(--port-gore)' }}
+                                            type='text'
                                         />
-                                        {query && (
-                                            <button onClick={() => setQuery('')} aria-label='Clear search'
-                                                className='p-0.5 rounded-full hover:bg-[var(--surface-header)]'>
-                                                <X className='w-3 h-3' style={{ color: 'var(--regent-gray)' }} />
-                                            </button>
+                                        {query === '' ? (
+                                            <Search className="absolute right-3 top-1.5 w-3.5 h-3.5" style={{ color: 'var(--regent-gray)' }} />
+                                        ) : (
+                                            <X className="absolute right-3 top-1.5 w-3.5 h-3.5 cursor-pointer hover:text-red-500 transition-colors"
+                                                style={{ color: 'var(--regent-gray)' }}
+                                                onClick={() => setQuery('')} aria-label='Clear search' />
                                         )}
                                     </div>
 
                                     {/* Undo — restores the state before the last change (edit / row / month) */}
                                     {undoCount > 0 && (
-                                        <button
-                                            onClick={undo}
-                                            title='Undo the last change — works for edits, added/deleted rows and deleted months. Autosave then stores the restored state.'
-                                            className='flex items-center gap-1 px-2.5 py-1 rounded-full transition-all hover:opacity-80'
-                                            style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}
-                                        >
-                                            <Undo2 className='w-3 h-3' /> Undo
-                                        </button>
+                                        <Tltip direction='top' tltpText='Undo the last change — edits, added/deleted rows and deleted months'>
+                                            <button
+                                                onClick={undo}
+                                                className='flex items-center gap-1 px-2.5 py-1 rounded-full transition-all hover:opacity-80'
+                                                style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}
+                                            >
+                                                <Undo2 className='w-3 h-3' /> Undo
+                                            </button>
+                                        </Tltip>
                                     )}
 
                                     {/* Margin alert threshold — flags items whose total margin (profit) is at/below this amount */}
