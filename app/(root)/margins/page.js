@@ -17,7 +17,7 @@ import Tooltip from "../../../components/tooltip";
 import FirstPart from "./firstpart";
 import ThirdPart from "./thirdpart";
 import dateFormat from "dateformat";
-import { AlertTriangle, Loader2, X, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { AlertTriangle, Loader2, X, ChevronDown, ChevronUp, Info, Search, Undo2 } from 'lucide-react';
 import { authedFetch } from '../../../utils/aiClient';
 
 // needed for table body level scope DnD setup
@@ -108,6 +108,31 @@ const Margins = () => {
     const [savedFlash, setSavedFlash] = useState(false);
     const dataRef = useRef(data); dataRef.current = data;
     const dirtyRef = useRef(dirty); dirtyRef.current = dirty;
+
+    // ── Undo + search ────────────────────────────────────────────────────────
+    // Every mutation handler rebuilds `data` immutably (map/spread), so pushing
+    // the pre-mutation reference is a free snapshot — no cloning needed. Pushes
+    // within 2s coalesce, so a typing burst is ONE undo step, not one per key.
+    const undoStack = useRef([]);
+    const lastPushAt = useRef(0);
+    const [undoCount, setUndoCount] = useState(0);
+    const [query, setQuery] = useState('');
+    const pushUndo = useCallback(() => {
+        const now = Date.now();
+        if (now - lastPushAt.current < 2000) return;
+        lastPushAt.current = now;
+        undoStack.current.push(dataRef.current);
+        if (undoStack.current.length > 25) undoStack.current.shift();
+        setUndoCount(undoStack.current.length);
+    }, []);
+    const undo = useCallback(() => {
+        const snap = undoStack.current.pop();
+        setUndoCount(undoStack.current.length);
+        if (!snap) return;
+        lastPushAt.current = 0;
+        setDirty(true); // autosave persists the restored state
+        setData(snap);
+    }, []);
     // The year the CURRENT data belongs to (set when a load completes) — autosave writes to
     // this year, never to a freshly-picked year whose data hasn't loaded yet.
     const dataYrRef = useRef(null);
@@ -350,6 +375,7 @@ const Margins = () => {
     }, [data, threshold])
 
     const handleChangeDate = useCallback((e, id, month) => {
+        pushUndo();
         setDirty(true);
         const dd = dateFormat(e, 'yyyy-mm-dd')
         setData(prev => prev.map(z => z.month === month ? {
@@ -360,6 +386,7 @@ const Margins = () => {
     }, [])
 
     const handleCancelDate = useCallback((e, id, month) => {
+        pushUndo();
         setDirty(true);
         setData(prev => prev.map(z => z.month === month ? {
             ...z, items: z.items.map(x => x.id === id ? {
@@ -371,6 +398,7 @@ const Margins = () => {
     const handleDragEnd = useCallback((event) => {
         const { active, over } = event;
         if (!active || !over || active.id === over.id) return;
+        pushUndo();
         setDirty(true);
         setData(prev => {
             const index = prev.findIndex(monthData =>
@@ -395,6 +423,7 @@ const Margins = () => {
     );
 
     const addItem = useCallback((month) => {
+        pushUndo();
         setDirty(true);
         const newId = uuidv4();
         const newItem1 = { ...newItm, id: newId };
@@ -405,6 +434,9 @@ const Margins = () => {
     }, []);
 
     const deleteRow = useCallback((e, id, month) => {
+        // Deletions always get their own snapshot (see deleteMonth).
+        lastPushAt.current = 0;
+        pushUndo();
         setDirty(true);
         setData(prev => prev.map(z => z.month === month ? {
             ...z,
@@ -414,6 +446,7 @@ const Margins = () => {
     }, [])
 
     const addMonth = () => {
+        pushUndo();
         setDirty(true);
         const month = data.length + 1;
         const formattedMonth = String(month).padStart(2, '0');
@@ -429,6 +462,7 @@ const Margins = () => {
     const handleChange = useCallback((e, id, month) => {
         if (countDecimalDigits(e.target.value) > 3) return;
         const name = e.target.name;
+        pushUndo();
         setDirty(true);
         const value = name === 'description' ? e.target.value : removeNonNumeric(e.target.value);
 
@@ -456,6 +490,7 @@ const Margins = () => {
     }, [])
 
     const handleChangeSelect = useCallback((e, id, month, name) => {
+        pushUndo();
         setDirty(true);
         setData((prevData) =>
             prevData.map((z) =>
@@ -472,6 +507,7 @@ const Margins = () => {
     }, [setData]); // Add `setData` as a dependency
 
     const handleCheckBox = useCallback((value, id, month) => {
+        pushUndo();
         setDirty(true);
         setData(prev => {
             let newArr = prev.map(z => z.month === month ? {
@@ -493,8 +529,13 @@ const Margins = () => {
     }
 
     const deleteMonth = useCallback((month) => {
+        // A deleted month must get its own snapshot — never coalesced into a
+        // preceding typing burst.
+        lastPushAt.current = 0;
+        pushUndo();
         setDirty(true);
         setData(prev => prev.filter(z => z.month !== month));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -519,7 +560,38 @@ const Margins = () => {
                                     {getTtl('Margins', ln)}
                                 </h1>
 
-                                <div className='flex items-center gap-3'>
+                                <div className='flex items-center gap-3 flex-wrap'>
+                                    {/* Search — filters rows across all months by description / supplier / client */}
+                                    <div className='flex items-center gap-1.5'>
+                                        <Search className='w-3 h-3' style={{ color: 'var(--regent-gray)' }} />
+                                        <input
+                                            value={query}
+                                            onChange={e => setQuery(e.target.value)}
+                                            placeholder={getTtl('Search', ln) || 'Search…'}
+                                            aria-label='Search margin rows'
+                                            className='w-36 rounded-full border px-3 py-0.5 outline-none focus:border-[var(--endeavour)]'
+                                            style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', background: 'var(--surface-pill)', color: 'var(--port-gore)' }}
+                                        />
+                                        {query && (
+                                            <button onClick={() => setQuery('')} aria-label='Clear search'
+                                                className='p-0.5 rounded-full hover:bg-[var(--surface-header)]'>
+                                                <X className='w-3 h-3' style={{ color: 'var(--regent-gray)' }} />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Undo — restores the state before the last change (edit / row / month) */}
+                                    {undoCount > 0 && (
+                                        <button
+                                            onClick={undo}
+                                            title='Undo the last change — works for edits, added/deleted rows and deleted months. Autosave then stores the restored state.'
+                                            className='flex items-center gap-1 px-2.5 py-1 rounded-full transition-all hover:opacity-80'
+                                            style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}
+                                        >
+                                            <Undo2 className='w-3 h-3' /> Undo
+                                        </button>
+                                    )}
+
                                     {/* Margin alert threshold — flags items whose total margin (profit) is at/below this amount */}
                                     <div className='flex items-center gap-1.5' title='Flag items whose Total Margin (profit) is at or below this amount. 0 = flag zero/negative profit.'>
                                         <AlertTriangle className='w-3 h-3' style={{ color: 'var(--warn-text)' }} />
@@ -713,13 +785,23 @@ const Margins = () => {
                                 <div className="w-full p-2 mt-2">
                                     <div className="w-full max-w-8xl divide-y divide-[var(--surface-header)] rounded-2xl">
                                         {data.map(({ month, items, openMonth }) => {
+                                            // Search filters the DISPLAY only — edits address rows by id+month
+                                            // and autosave writes the full dataset, so nothing can be lost.
+                                            const q = query.trim().toLowerCase();
+                                            const supName = (id) => settings?.Supplier?.Supplier?.find(x => x.id === id)?.nname || '';
+                                            const cliName = (id) => settings?.Client?.Client?.find(x => x.id === id)?.nname || '';
+                                            const shown = !q ? items : items.filter(x =>
+                                                String(x.description || '').toLowerCase().includes(q)
+                                                || supName(x.supplier).toLowerCase().includes(q)
+                                                || cliName(x.client).toLowerCase().includes(q));
+                                            if (q && shown.length === 0) return null;
                                             return (
                                                 <div key={month}>
                                                     <MarginTable
                                                         month={month}
                                                         year={yr}
-                                                        items={items}
-                                                        openMonth={openMonth}
+                                                        items={shown}
+                                                        openMonth={q ? true : openMonth}
                                                         setData={setData}
                                                         uidCollection={uidCollection}
                                                         addItem={addItem}
