@@ -824,7 +824,7 @@ const Accounting = () => {
                   </div>
                   <div className="flex items-center gap-4 responsiveText flex-shrink-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-3 h-3 rounded-full bg-[var(--chathams-blue)]"></span>
+                      <span className="w-3 h-3 rounded-full bg-[var(--brand-deep)]"></span>
                       <span className="text-[var(--regent-gray)]">Debit</span>
                     </div>
                     <div className="flex items-center gap-1.5">

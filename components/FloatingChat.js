@@ -700,7 +700,7 @@ const FloatingChat = () => {
                                     </span>
                                 </div>
                                 {msg.role === 'user' && (
-                                    <div className="w-7 h-7 rounded-full bg-[var(--port-gore)]/10 flex items-center justify-center ml-2 flex-shrink-0 mt-1">
+                                    <div className="w-7 h-7 rounded-full bg-[var(--brand-deep)]/10 flex items-center justify-center ml-2 flex-shrink-0 mt-1">
                                         <BsPerson className="w-3.5 h-3.5 text-[var(--port-gore)]" />
                                     </div>
                                 )}
@@ -738,7 +738,7 @@ const FloatingChat = () => {
                                         <a
                                             key={p.route}
                                             href={p.route}
-                                            className="flex items-center gap-1 px-2.5 py-1 bg-[var(--endeavour)] text-white rounded-full hover:bg-[var(--chathams-blue)] transition-colors"
+                                            className="flex items-center gap-1 px-2.5 py-1 bg-[var(--endeavour)] text-white rounded-full hover:bg-[var(--brand-deep)] transition-colors"
                                             style={{ fontSize: 'var(--fs-table)' }}
                                         >
                                             <ExternalLink className="w-2.5 h-2.5" />
@@ -765,7 +765,7 @@ const FloatingChat = () => {
                             <button
                                 onClick={() => handleSendMessage()}
                                 disabled={!newMessage.trim() || isLoading || dataLoading}
-                                className="p-1.5 bg-[var(--endeavour)] text-white rounded-lg hover:bg-[var(--chathams-blue)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+                                className="p-1.5 bg-[var(--endeavour)] text-white rounded-lg hover:bg-[var(--brand-deep)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
                             >
                                 {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                             </button>

@@ -14,7 +14,7 @@ interface TestimonialCardProps {
 export default function TestimonialCard({ name, role, image, quote, isActive = false }: TestimonialCardProps) {
   return (
     <motion.div
-      className={`relative bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden transition-all duration-300 ${
+      className={`relative bg-[var(--surface-card)] rounded-3xl shadow-2xl border border-slate-100 overflow-hidden transition-all duration-300 ${
         isActive ? "p-8" : "p-6 opacity-70"
       }`}
       whileHover={isActive ? { y: -5, boxShadow: "0 20px 40px rgba(0,86,210,0.25)" } : {}}
@@ -28,7 +28,7 @@ export default function TestimonialCard({ name, role, image, quote, isActive = f
         </div>
 
         {/* Name */}
-        <h3 className={`font-bold text-[#0056D2] ${isActive ? "text-xl" : "text-lg"} mb-1`}>
+        <h3 className={`font-bold text-[var(--primary-bright)] ${isActive ? "text-xl" : "text-lg"} mb-1`}>
           {name}
         </h3>
 
@@ -38,7 +38,7 @@ export default function TestimonialCard({ name, role, image, quote, isActive = f
         </p>
 
         {/* Quote Icon */}
-        <Quote className={`text-[#0056D2] ${isActive ? "w-6 h-6" : "w-5 h-5"} mb-3`} />
+        <Quote className={`text-[var(--primary-bright)] ${isActive ? "w-6 h-6" : "w-5 h-5"} mb-3`} />
 
         {/* Quote Text */}
         <p className={`text-gray-600 leading-relaxed ${isActive ? "text-sm" : "text-xs"} line-clamp-6`}>

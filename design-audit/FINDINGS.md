@@ -221,3 +221,48 @@ proved nothing, three times running.
 `/dashboard`, production data, after login: **fully rendered, 9 charts, ZERO console errors.**
 The crash reported at the start of batch 5 is confirmed fixed against the real app.
 The account's theme was left in dark by the screenshot run and has been **restored to light**.
+
+---
+
+## Batch 7 — Dark-mode regressions and the marketing pages
+
+Two reports from Zak: *"in dark theme everything looks blurry"* and *"also check
+Home / About / Features / Blog / Sign In in dark mode"*.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 069 | C5 | `components/videoLoader.js:12` | **My regression.** The batch-4 "one overlay everywhere" pass gave the **loading veil** the **modal scrim**. A loader is not a modal: it was correctly tinted with the surface (`rgba(var(--surface-card-rgb),.6)`). With the modal scrim it dimmed *and* blurred the whole app on every data refresh — in dark mode, black over an already-dark surface plus a 2px blur, i.e. **"everything looks blurry"**. | **High** | Fixed |
+| 070 | C4 | 28 files (17 app, 11 marketing) | **Text tokens used to paint backgrounds.** `--chathams-blue`, `--port-gore`, `--bunting` are *ink* colours — the theme engine **inverts** them in dark mode. Painting a surface with one works in light and flips **light** in dark, while the white text on it stays white. This is why the marketing hero was unreadable, and it was doing the same to button hover states and table header bands **inside the app**. | **High** | Fixed |
+| 071 | C4 | `components/Hero/hero.jsx:44,45,58,69,84` | The mirror image: **surface tokens used as text** on a brand surface. `--surface-header`/`--rock-blue` go dark in dark mode → dark text on the dark hero. | **High** | Fixed |
+| 072 | C4 | 30 marketing files | The public pages ignored dark mode entirely: 39 × `bg-white` (Tailwind's `white` is not remapped, so it is a literal and cannot follow the theme) plus 44 hardcoded hex. `.dark` *was* applied to `<html>`, so the result was a **half-dark page** — a themed hero above a pure-white section. | **High** | Fixed |
+| 073 | C5 | `components/Navbar/navbar.jsx:22` | Sticky nav `bg-white/95` → a white bar in dark mode; also `z-[10000]`, outside the ladder (marketing was never gated). | Med | Fixed |
+
+### Two new tokens, because the existing ones could not express this
+
+- `--brand-deep` — a deep brand surface that stays deep in **both** modes. Built with
+  `color-mix` from `--endeavour`, which the engine keeps mid-tone (L 45 light / 48 dark), so
+  it follows the user's chosen hue without inverting.
+- `--on-brand-muted` — secondary text on a brand surface; the companion to `--on-brand`.
+
+### Gate 13
+
+`no text token used as a background (it inverts in dark mode)`.
+
+This is the class my first twelve gates could not see: they check for **hardcoded** colours,
+and every one of these 28 sites was using a **proper token** — just the wrong *role*. A token
+being present is not the same as it being correct.
+
+### Verified live, dark mode, production build
+
+| Page | Large light surfaces before | After |
+|---|---|---|
+| Home | 21 | **0** |
+| About | 15 | **0** |
+| Features | 9 | **0** |
+| Blog | 4 | **0** |
+| Sign In | 5 | **0** |
+
+Dashboard: 0 blur elements after load, 9 charts, no console errors.
+The account's theme (violet) is untouched; its mode was left in **light**, as found.
+
+**Batch 7 result:** 5 findings, 5 fixed. 1 new gate. Gates 1-13 all pass.

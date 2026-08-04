@@ -87,6 +87,23 @@
      scan for hardcoded colour can be exhaustive — literal #fff in the source
      is now always a bug, never "the one legitimate white". */
   --on-brand: #ffffff;
+
+  /* A DEEP brand surface that stays deep in BOTH modes.
+     Needed because --chathams-blue, --port-gore and --bunting are TEXT tokens:
+     the theme engine inverts them in dark mode (dark ink on light paper becomes
+     light ink on dark paper). Painting a background with one therefore works in
+     light mode and flips LIGHT in dark — while the white text on it stays
+     white. That is what made the marketing hero unreadable in dark mode, and it
+     was doing the same to button hover states and table header bands in the app.
+     --endeavour is safe to build from: it is a mid-tone accent the engine keeps
+     at roughly the same lightness in both modes (L 45 vs 48), so mixing it
+     toward near-black yields a deep surface that still follows the chosen hue. */
+  --brand-deep: color-mix(in srgb, var(--endeavour) 55%, #0a1020);
+  /* Secondary text on a brand surface. Same reasoning as --on-brand: it must
+     NOT invert. The hero used --surface-header and --rock-blue for its
+     sub-heading, body copy and pills — surface tokens, which the engine turns
+     DARK in dark mode, giving dark text on a dark hero. */
+  --on-brand-muted: rgb(255 255 255 / 0.78);
   /* Shadow colour as an RGB triplet so alpha can be composed. Light mode tints
      shadows with the brand blue (softer on white); dark mode uses pure black. */
   --shadow-rgb: 16, 58, 122;

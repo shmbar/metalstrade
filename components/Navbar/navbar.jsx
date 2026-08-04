@@ -19,10 +19,10 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-[10000] transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-sticky transition-all duration-300 ${
         scrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-md border-b border-[#d8e8f5]'
-          : 'bg-[#e3f3ff] border-b border-[#b8ddf8] shadow-sm'
+          ? 'bg-[rgba(var(--surface-card-rgb),0.95)] backdrop-blur-md shadow-md border-b border-[var(--border-cell)]'
+          : 'bg-[var(--surface-header)] border-b border-[var(--border-divider)] shadow-sm'
       }`}
       style={{ height: 'clamp(56px, 7vh, 80px)' }}
     >

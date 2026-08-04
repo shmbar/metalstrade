@@ -109,7 +109,7 @@ export function QuickSumButton({
         type="button"
         onClick={toggleEnabled}
         className={enabled
-            ? 'whiteButton whitespace-nowrap !bg-[var(--chathams-blue)] !text-white !border-[var(--border-divider)]'
+            ? 'whiteButton whitespace-nowrap !bg-[var(--brand-deep)] !text-white !border-[var(--border-divider)]'
             : 'whiteButton whitespace-nowrap'}
         title="Quick Sum"
       >

@@ -55,7 +55,7 @@ export default function SignInPage() {
     <div className="h-screen w-full overflow-hidden flex font-sans">
 
       {/* LEFT — Brand Panel */}
-      <div className="hidden md:flex md:w-1/2 flex-col justify-between p-12" style={{ background: 'var(--chathams-blue)' }}>
+      <div className="hidden md:flex md:w-1/2 flex-col justify-between p-12" style={{ background: 'var(--brand-deep)' }}>
         {/* Spacer top */}
         <div />
 
@@ -90,8 +90,8 @@ export default function SignInPage() {
       </div>
 
       {/* RIGHT — Form Panel */}
-      <div className="w-full md:w-1/2 flex items-center justify-center bg-[#f4f8fd]">
-        <div className="w-full max-w-md mx-8 bg-white rounded-2xl shadow-sm border border-[#dbeeff] p-10">
+      <div className="w-full md:w-1/2 flex items-center justify-center bg-[var(--selago)]">
+        <div className="w-full max-w-md mx-8 bg-[var(--surface-card)] rounded-2xl shadow-sm border border-[var(--surface-header)] p-10">
 
           {/* Header */}
           <div className="mb-7 text-center">
@@ -99,7 +99,7 @@ export default function SignInPage() {
               <Image src={imsLogo} alt="IMS Logo" width={90} height={44} priority className="mb-1" />
             </div>
             <h1 className="text-xl font-bold text-[var(--chathams-blue)]">Welcome back</h1>
-            <p className="text-sm text-gray-400 mt-0.5">Sign in to your IMS account to continue</p>
+            <p className="text-sm text-[var(--text-faint)] mt-0.5">Sign in to your IMS account to continue</p>
           </div>
 
           {/* Form */}
@@ -114,7 +114,7 @@ export default function SignInPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="you@example.com"
-                className="w-full px-4 py-2.5 border border-[#dbeeff] rounded-lg text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-white"
+                className="w-full px-4 py-2.5 border border-[var(--surface-header)] rounded-lg text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--surface-card)]"
               />
             </div>
 
@@ -128,7 +128,7 @@ export default function SignInPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 border border-[#dbeeff] rounded-lg text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-white pr-10"
+                  className="w-full px-4 py-2.5 border border-[var(--surface-header)] rounded-lg text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--surface-card)] pr-10"
                 />
                 <button
                   type="button"
@@ -179,7 +179,7 @@ export default function SignInPage() {
           </div>
 
           {/* Divider + copyright */}
-          <div className="mt-8 pt-5 border-t border-[#eef4fb] text-center">
+          <div className="mt-8 pt-5 border-t border-[var(--selago)] text-center">
             <p className="text-xs text-gray-300">© {new Date().getFullYear()} IMS Inc. All Rights Reserved</p>
           </div>
         </div>

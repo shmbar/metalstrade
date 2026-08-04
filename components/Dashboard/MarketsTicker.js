@@ -28,7 +28,7 @@ const makeFlagIcon = (cc) => ({ className = '' }) => {
     const code = (cc || 'un').toLowerCase();
     if (code === 'eu') {
         return (
-            <div className={className} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 12, background: 'var(--chathams-blue)', borderRadius: 2 }}>
+            <div className={className} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 12, background: 'var(--brand-deep)', borderRadius: 2 }}>
                 <FaEuroSign style={{ color: 'var(--warn-text)', width: 12, height: 12 }} />
             </div>
         );

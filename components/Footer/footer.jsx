@@ -6,7 +6,7 @@ const linkCls = "text-[var(--endeavour)] hover:text-[var(--chathams-blue)] trans
 
 export default function Footer() {
   return (
-    <footer className="relative bg-[#e3f3ff] border-t border-[#b8ddf8] overflow-hidden">
+    <footer className="relative bg-[var(--surface-header)] border-t border-[var(--border-divider)] overflow-hidden">
       <div className="container mx-auto px-8 md:px-16 py-5">
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 mb-4">
@@ -50,7 +50,7 @@ export default function Footer() {
         </div>
 
         {/* Divider + Copyright */}
-        <div className="border-t border-[#b8ddf8] pt-4">
+        <div className="border-t border-[var(--border-divider)] pt-4">
           <p className="text-[var(--chathams-blue)] text-xs text-center opacity-60">
             © {new Date().getFullYear()} IMS Inc. All rights reserved.
           </p>

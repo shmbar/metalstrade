@@ -24,8 +24,8 @@ export default function NavbarMenu({ isMenuOpen }) {
           href={link.href}
           className={`font-medium text-sm py-2 px-3 rounded-lg transition-all duration-200 ${
             pathname === link.href
-              ? 'text-[var(--endeavour)] bg-[#dbeeff]'
-              : 'text-[var(--chathams-blue)] hover:text-[var(--endeavour)] hover:bg-[#dbeeff]/60'
+              ? 'text-[var(--endeavour)] bg-[var(--surface-header)]'
+              : 'text-[var(--chathams-blue)] hover:text-[var(--endeavour)] hover:bg-[var(--surface-header)]/60'
           }`}
         >
           {link.label}
@@ -33,7 +33,7 @@ export default function NavbarMenu({ isMenuOpen }) {
       ))}
       <Link
         href="/signin"
-        className="mt-2 bg-[var(--endeavour)] text-white font-medium text-sm py-2 px-3 rounded-lg text-center hover:bg-[var(--chathams-blue)] transition-all duration-200"
+        className="mt-2 bg-[var(--endeavour)] text-white font-medium text-sm py-2 px-3 rounded-lg text-center hover:bg-[var(--brand-deep)] transition-all duration-200"
       >
         Sign In
       </Link>

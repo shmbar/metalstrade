@@ -289,7 +289,7 @@
 //         /* ── Pagination ── */
 //         .pagination-center { display: flex; justify-content: center; align-items: center; gap: 10px; }
 //         .page-btn   { padding: 6px 12px; border-radius: 8px; font-weight: 500; }
-//         .page-active { background-color: var(--chathams-blue); color: white; }
+//         .page-active { background-color: var(--brand-deep); color: white; }
 //         .page-normal { color: var(--chathams-blue); }
 //       `}</style>
 
@@ -989,7 +989,7 @@ const Customtable = ({
 
         .pagination-center { display:flex; justify-content:center; align-items:center; gap:10px; }
         .page-btn   { padding:6px 12px; border-radius:8px; font-weight:500; }
-        .page-active { background-color:var(--chathams-blue); color:white; }
+        .page-active { background-color:var(--brand-deep); color:white; }
         .page-normal { color:var(--chathams-blue); }
       `}</style>
 

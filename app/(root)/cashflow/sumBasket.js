@@ -140,7 +140,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                 {hasEur &&
                     <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-gradient-to-r from-[var(--selago)] to-[rgba(var(--surface-header-rgb),0.7)] border border-[var(--border-cell)]">
                         <span className="flex items-center gap-1.5 responsiveTextTable font-semibold tracking-wide uppercase text-[var(--regent-gray)]">
-                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--chathams-blue)] text-white responsiveTextTable font-bold leading-none">€</span>
+                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--brand-deep)] text-white responsiveTextTable font-bold leading-none">€</span>
                             {metricLabel[metric]}
                         </span>
                         <NumericFormat value={eur} displayType="text" thousandSeparator prefix="€"

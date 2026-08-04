@@ -119,7 +119,7 @@ export default function ContactForm() {
           <div className="text-center">
             <button
               type="submit"
-              className="px-10 py-4 bg-[var(--endeavour)] text-white font-bold rounded-xl shadow-lg hover:bg-[var(--port-gore)] transition-colors duration-300"
+              className="px-10 py-4 bg-[var(--endeavour)] text-white font-bold rounded-xl shadow-lg hover:bg-[var(--brand-deep)] transition-colors duration-300"
             >
               Send Message
             </button>

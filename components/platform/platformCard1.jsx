@@ -13,13 +13,13 @@ const salesTrendData = [
   { name: 'Jun', blue: 45, yellow: 35 },
 ];
 const salesTrendSeries = [
-  { data: salesTrendData.map(d => d.blue), stroke: '#0056D2', strokeWidth: 2.5, fill: true, gradientFrom: '#0056D2', gradientFromOpacity: 0.2, gradientToOpacity: 0 },
-  { data: salesTrendData.map(d => d.yellow), stroke: '#FFC107', strokeWidth: 2.5, fill: false },
+  { data: salesTrendData.map(d => d.blue), stroke: 'var(--primary-bright)', strokeWidth: 2.5, fill: true, gradientFrom: 'var(--primary-bright)', gradientFromOpacity: 0.2, gradientToOpacity: 0 },
+  { data: salesTrendData.map(d => d.yellow), stroke: 'var(--warn-text)', strokeWidth: 2.5, fill: false },
 ];
 
 const pieData = [
-  { name: 'July', value: 62, color: '#0056D2' }, // Blue
-  { name: 'August', value: 38, color: '#FFC107' }, // Yellow
+  { name: 'July', value: 62, color: 'var(--primary-bright)' }, // Blue
+  { name: 'August', value: 38, color: 'var(--warn-text)' }, // Yellow
 ];
 
 export function PlatformCard1() {
@@ -32,12 +32,12 @@ export function PlatformCard1() {
       className="relative h-full py-4 lg:pr-4"
     >
       {/* Browser Window Frame */}
-      <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100/50 relative overflow-visible">
+      <div className="bg-[var(--surface-card)] rounded-[2rem] p-8 shadow-sm border border-slate-100/50 relative overflow-visible">
         
         {/* Window Controls (Dots) */}
         <div className="flex space-x-2 mb-8 absolute top-8 left-8">
           <div className="w-3 h-3 rounded-full bg-[#C084FC]" /> {/* Purple */}
-          <div className="w-3 h-3 rounded-full bg-[#FFC107]" /> {/* Yellow */}
+          <div className="w-3 h-3 rounded-full bg-[var(--warn-text)]" /> {/* Yellow */}
           <div className="w-3 h-3 rounded-full bg-[#2DD4BF]" /> {/* Teal */}
         </div>
 
@@ -58,7 +58,7 @@ export function PlatformCard1() {
           {/* Sales Trend Column */}
           <div className="space-y-4">
             <div>
-              <p className="text-gray-400 text-sm font-medium">Sales trend</p>
+              <p className="text-[var(--text-faint)] text-sm font-medium">Sales trend</p>
               <h3 className="text-3xl font-bold text-[var(--port-gore)]">68%</h3>
             </div>
             <div className="h-24 w-full">
@@ -80,12 +80,12 @@ export function PlatformCard1() {
             <div className="flex space-x-6 w-full justify-center">
               <div className="text-center">
                 <p className="text-sm font-bold text-[var(--port-gore)]">62%</p>
-                <p className="text-xs text-gray-400">July</p>
+                <p className="text-xs text-[var(--text-faint)]">July</p>
               </div>
               <div className="w-px h-8 bg-gray-200" />
               <div className="text-center">
                 <p className="text-sm font-bold text-[var(--port-gore)]">38%</p>
-                <p className="text-xs text-gray-400">August</p>
+                <p className="text-xs text-[var(--text-faint)]">August</p>
               </div>
             </div>
 

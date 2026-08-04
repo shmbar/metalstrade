@@ -275,7 +275,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                 type="button"
                 onClick={() => setTab(t.id)}
                 className={active
-                  ? 'whiteButton whitespace-nowrap !bg-[var(--chathams-blue)] !text-white !border-[var(--border-divider)]'
+                  ? 'whiteButton whitespace-nowrap !bg-[var(--brand-deep)] !text-white !border-[var(--border-divider)]'
                   : 'whiteButton whitespace-nowrap'}
               >
                 {t.label}
@@ -298,7 +298,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                 className="whiteButton whitespace-nowrap"
                 style={armed
                   ? { background: 'var(--danger-text)', color: 'var(--on-brand)', borderColor: 'var(--danger-text)' }
-                  : { background: 'var(--chathams-blue)', color: 'var(--on-brand)', borderColor: 'var(--border-divider)' }}
+                  : { background: 'var(--brand-deep)', color: 'var(--on-brand)', borderColor: 'var(--border-divider)' }}
               >
                 {writing ? 'Writing off…'
                   : armed ? `Confirm — write off ${sel.length} item${sel.length > 1 ? 's' : ''} (OUT dated today)`

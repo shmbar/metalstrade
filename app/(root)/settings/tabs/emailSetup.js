@@ -17,7 +17,7 @@ function CodeBlock({ children }) {
     return (
         <div
             className='relative rounded-lg p-2.5 mt-1 mb-2 font-mono'
-            style={{ background: 'var(--text-strong)', color: 'var(--border-neutral)', fontSize: 'var(--fs-table)' }}
+            style={{ background: 'var(--brand-deep)', color: 'var(--border-neutral)', fontSize: 'var(--fs-table)' }}
         >
             <button
                 onClick={copy}

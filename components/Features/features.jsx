@@ -5,7 +5,7 @@ import FeatureCard from "./feature-card";
 const features = [
   {
     icon: Activity,
-    color: "bg-[#FF5555]",
+    color: "bg-[var(--danger-text)]",
     title: "AI Autofill from PDF",
     description: "Supplier invoices, purchase confirmations and sales contracts read automatically — dates, amounts, materials and weights, in any format."
   },
@@ -17,7 +17,7 @@ const features = [
   },
   {
     icon: TrendingUp,
-    color: "bg-[#F59E0B]",
+    color: "bg-[var(--warn-text)]",
     title: "Figures That Reconcile",
     description: "Dashboard, cashflow, reviews and statements all read the same records — from purchase order to final settlement, every number adds up."
   },
@@ -31,7 +31,7 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="py-10 bg-[var(--chathams-blue)]">
+    <section className="py-10 bg-[var(--brand-deep)]">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

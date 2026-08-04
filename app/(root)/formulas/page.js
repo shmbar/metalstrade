@@ -222,7 +222,7 @@ const Page = () => {
 												</div>
 
 												<div
-													className='flex items-center justify-center rounded-full border border-[var(--endeavour)] overflow-hidden min-w-[80px] px-5 py-2 cursor-pointer bg-[var(--endeavour)] hover:bg-[var(--chathams-blue)] hover:border-[var(--chathams-blue)] transition-all self-stretch shadow-md'
+													className='flex items-center justify-center rounded-full border border-[var(--endeavour)] overflow-hidden min-w-[80px] px-5 py-2 cursor-pointer bg-[var(--endeavour)] hover:bg-[var(--brand-deep)] hover:border-[var(--chathams-blue)] transition-all self-stretch shadow-md'
 													onClick={saveData}
 												>
 													<span className='responsiveTextInput font-semibold text-white'>Save</span>

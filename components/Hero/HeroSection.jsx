@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 export default function HeroSection({ title, subtitle }) {
   return (
     <section className="relative text-white overflow-hidden flex items-center justify-center py-12 md:py-16"
-      style={{ background: 'var(--chathams-blue)' }}>
+      style={{ background: 'var(--brand-deep)' }}>
 
       <div className="container px-8 md:px-16 relative z-20">
         <motion.div

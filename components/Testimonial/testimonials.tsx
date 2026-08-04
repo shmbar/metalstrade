@@ -53,20 +53,20 @@ export default function Testimonials() {
   const nextIdx = (activeIndex + 1) % testimonials.length;
 
   return (
-    <section className="py-20 bg-white overflow-hidden">
+    <section className="py-20 bg-[var(--surface-card)] overflow-hidden">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <button onClick={prevSlide} className="p-2 hover:opacity-70">
-            <ChevronLeft className="w-10 h-10 text-[#0056D2]" strokeWidth={2.5} />
+            <ChevronLeft className="w-10 h-10 text-[var(--primary-bright)]" strokeWidth={2.5} />
           </button>
 
-          <h2 className="text-3xl md:text-4xl font-bold text-[#0056D2] text-center flex-1">
+          <h2 className="text-3xl md:text-4xl font-bold text-[var(--primary-bright)] text-center flex-1">
             What Our Clients Say About Us
           </h2>
 
           <button onClick={nextSlide} className="p-2 hover:opacity-70">
-            <ChevronRight className="w-10 h-10 text-[#0056D2]" strokeWidth={2.5} />
+            <ChevronRight className="w-10 h-10 text-[var(--primary-bright)]" strokeWidth={2.5} />
           </button>
         </div>
 
@@ -80,7 +80,7 @@ export default function Testimonials() {
                 setActiveIndex(idx);
               }}
               className={`rounded-full transition-all duration-300 cursor-pointer ${
-                idx === activeIndex ? "w-3 h-3 bg-[#0056D2]" : "w-2.5 h-2.5 bg-[#0056D2] opacity-30"
+                idx === activeIndex ? "w-3 h-3 bg-[var(--primary-bright)]" : "w-2.5 h-2.5 bg-[var(--primary-bright)] opacity-30"
               }`}
             />
           ))}

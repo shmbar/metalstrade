@@ -103,7 +103,7 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
                 </div>
 
                 {/* Viewer */}
-                <div className='flex-1 min-h-0' style={{ background: 'var(--text-mid)' }}>
+                <div className='flex-1 min-h-0' style={{ background: 'var(--brand-deep)' }}>
                     {url ? (
                         // #navpanes=0 hints the browser's built-in PDF viewer to open with the
                         // thumbnail/outline sidebar collapsed, so the document fills the frame.

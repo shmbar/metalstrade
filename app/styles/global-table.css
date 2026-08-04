@@ -162,5 +162,5 @@ table input:focus {
 }
 
 .table-container::-webkit-scrollbar-track {
-  background: var(--chathams-blue);
+  background: var(--brand-deep);
 }

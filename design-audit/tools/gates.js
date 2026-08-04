@@ -124,6 +124,22 @@ const GATES = [
     cmd: 'grep -nE "var\\(--[a-z-]+\\)[0-9a-zA-Z]"',
     re: /var\(--[a-z0-9-]+\)[0-9a-zA-Z]/, exempt: new Set()
   },
+  /* Gate 13 — a TEXT token used to paint a BACKGROUND.
+     --chathams-blue / --port-gore / --bunting / --regent-gray / --text-* are
+     ink colours; the theme engine INVERTS them in dark mode (dark ink on light
+     paper becomes light ink on dark paper). Painting a surface with one works
+     in light mode and flips LIGHT in dark, while the white text on it stays
+     white — unreadable. This is how the marketing hero broke, and it was doing
+     the same to button hover states and table header bands in the app.
+     Use --brand-deep for a deep brand surface, or --surface-* for a neutral one.
+     Note --endeavour is NOT listed: the engine keeps it mid-tone in both modes,
+     so it is legitimate as a background. */
+  {
+    id: 13, title: "no text token used as a background (it inverts in dark mode)",
+    cmd: 'grep -nE "bg-\\[var\\(--(chathams-blue|port-gore|bunting|regent-gray|text-strong|text-mid)\\)\\]"',
+    re: /\bbg-\[var\(--(chathams-blue|port-gore|bunting|regent-gray|text-strong|text-mid)\)\]|background(-color)?\s*:\s*['"]?var\(--(chathams-blue|port-gore|bunting|regent-gray|text-strong|text-mid)\)/,
+    exempt: new Set()
+  },
   /* Gate 10 is whole-file, not per-line: `fontFamily:` is frequently written
      with its value on the following line, which a line-based test reads as a
      family of "" and wrongly fails. */

@@ -19,8 +19,8 @@ const lineData = [
 ];
 
 const pieData = [
-  { name: "Facebook", value: 36, color: "#FFC107" },
-  { name: "Others", value: 64, color: "rgba(255,255,255,0.2)" },
+  { name: "Facebook", value: 36, color: "var(--warn-text)" },
+  { name: "Others", value: 64, color: "rgba(var(--surface-card-rgb), 0.2)" },
 ];
 
 export function PlatformCard2() {
@@ -47,7 +47,7 @@ export function PlatformCard2() {
             to optimize growth and decision-making.
           </p>
         </div>
-        <Button className="bg-[var(--endeavour)] hover:bg-[var(--port-gore)] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md shadow-[var(--endeavour)]/25 transition-transform hover:scale-105 cursor-pointer">
+        <Button className="bg-[var(--endeavour)] hover:bg-[var(--brand-deep)] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md shadow-[var(--endeavour)]/25 transition-transform hover:scale-105 cursor-pointer">
           Explore Features
         </Button>
       </motion.div>
@@ -58,7 +58,7 @@ export function PlatformCard2() {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.2 }}
-        className="relative h-full w-full bg-white rounded-[2rem] shadow-sm border border-slate-100/50 p-8 lg:pr-12"
+        className="relative h-full w-full bg-[var(--surface-card)] rounded-[2rem] shadow-sm border border-slate-100/50 p-8 lg:pr-12"
       >
         {/* Floating Card - Financial Overview */}
         <div className="absolute -top-16 right-8 w-56 bg-[var(--endeavour)] text-white p-5 rounded-3xl shadow-2xl shadow-blue-500/30 z-10">

@@ -8,7 +8,7 @@ export default function FeatureCard({ icon: Icon, color, title, description, ind
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       whileHover={{ y: -6 }}
-      className="bg-white rounded-2xl p-6 border border-[#b8ddf8] shadow-sm hover:shadow-md hover:border-[var(--endeavour)] transition-all h-full flex flex-col items-start text-left"
+      className="bg-[var(--surface-card)] rounded-2xl p-6 border border-[var(--border-divider)] shadow-sm hover:shadow-md hover:border-[var(--endeavour)] transition-all h-full flex flex-col items-start text-left"
     >
       <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center mb-4 shadow-sm`}>
         <Icon className="w-6 h-6 text-white" />

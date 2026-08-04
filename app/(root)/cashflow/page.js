@@ -1077,13 +1077,13 @@ const Cashflow = () => {
                             <div className="inline-flex gap-1 mb-2 bg-[var(--surface-header)] border border-[var(--border-divider)] rounded-full p-0">
                                 <button
                                     onClick={() => setActiveTab('general')}
-                                    className={`px-4 py-1 responsiveTextInput rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}
+                                    className={`px-4 py-1 responsiveTextInput rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--brand-deep)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}
                                 >
                                     General Cashflow
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('unsold')}
-                                    className={`px-4 py-1 responsiveTextInput rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--chathams-blue)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}
+                                    className={`px-4 py-1 responsiveTextInput rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--brand-deep)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}
                                 >
                                     Unsold Stocks
                                 </button>
@@ -1758,7 +1758,7 @@ const Cashflow = () => {
                                                         />
                                                     </div>
 
-                                                    <div className="flex justify-between items-center bg-[var(--chathams-blue)] text-white border-2 border-[var(--chathams-blue)] rounded-full px-3 py-0.5">
+                                                    <div className="flex justify-between items-center bg-[var(--brand-deep)] text-white border-2 border-[var(--chathams-blue)] rounded-full px-3 py-0.5">
                                                         <span className="font-medium responsiveText whitespace-nowrap">
                                                             Balance
                                                         </span>

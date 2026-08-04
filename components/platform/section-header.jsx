@@ -28,7 +28,7 @@ export function SectionHeader({
       </div>
 
       {/* Button */}
-      <Button className="bg-[var(--endeavour)] hover:bg-[var(--port-gore)] text-white px-8 py-6 rounded-xl text-lg font-medium shadow-lg shadow-[var(--endeavour)]/25 transition-transform hover:scale-105 cursor-pointer">
+      <Button className="bg-[var(--endeavour)] hover:bg-[var(--brand-deep)] text-white px-8 py-6 rounded-xl text-lg font-medium shadow-lg shadow-[var(--endeavour)]/25 transition-transform hover:scale-105 cursor-pointer">
         {buttonText}
       </Button>
 

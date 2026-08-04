@@ -168,7 +168,7 @@ export default function SignInPage() {
                   <button
                     onClick={handleSubmit}
                     disabled={disabled && !err}
-                    className="w-full bg-[var(--endeavour)] text-white py-3 rounded-lg font-medium hover:bg-[var(--port-gore)] transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                    className="w-full bg-[var(--endeavour)] text-white py-3 rounded-lg font-medium hover:bg-[var(--brand-deep)] transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                   >
                     {(disabled && !err) ? 'Connecting' : 'Sign In'}
                     {(disabled && !err) && <div className="animate-spin"><RiRefreshLine className="scale-125" /></div>}

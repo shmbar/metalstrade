@@ -448,7 +448,7 @@ const AssistantChat = () => {
                                                     </div>
                                                 </div>
                                                 {message.role === 'user' && (
-                                                    <div className="w-8 h-8 rounded-full bg-[var(--port-gore)]/10 flex items-center justify-center ml-2 flex-shrink-0 mt-1">
+                                                    <div className="w-8 h-8 rounded-full bg-[var(--brand-deep)]/10 flex items-center justify-center ml-2 flex-shrink-0 mt-1">
                                                         <BsPerson className="w-4 h-4 text-[var(--port-gore)]" />
                                                     </div>
                                                 )}
@@ -494,7 +494,7 @@ const AssistantChat = () => {
                                     <button
                                         onClick={() => handleSendMessage()}
                                         disabled={!newMessage.trim() || isLoading || dataLoading}
-                                        className="p-2 bg-[var(--endeavour)] text-white rounded-full hover:bg-[var(--chathams-blue)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+                                        className="p-2 bg-[var(--endeavour)] text-white rounded-full hover:bg-[var(--brand-deep)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
                                     >
                                         {isLoading
                                             ? <IoRefresh className="w-4 h-4 animate-spin" />

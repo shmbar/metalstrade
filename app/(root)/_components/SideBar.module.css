@@ -11,5 +11,5 @@
   border-radius: 8px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: var(--chathams-blue);
+  background: var(--brand-deep);
 }

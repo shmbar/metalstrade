@@ -210,7 +210,7 @@ const Customtable = ({
         }
 
         .page-active {
-          background-color: var(--chathams-blue);
+          background-color: var(--brand-deep);
           color: white;
         }
 
