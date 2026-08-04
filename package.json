@@ -13,7 +13,8 @@
     "design:check": "node design-audit/tools/gates.js --scan",
     "design:metrics": "node design-audit/tools/metrics.js design-audit/tools/in-scope-files.txt",
     "prepare": "git config core.hooksPath .githooks",
-    "design:screenshots": "node design-audit/tools/screenshots.mjs"
+    "design:screenshots": "node design-audit/tools/screenshots.mjs",
+    "design:verify-shots": "node design-audit/tools/verify-shots.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
