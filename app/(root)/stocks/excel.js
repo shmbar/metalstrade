@@ -144,6 +144,39 @@ export const EXD = (dataTable, settings, name, ln, sumData, columnVisibility = {
             });
         });
 
+        // ---- Grand total of the (filtered) stock ----
+        // The per-warehouse summary alone left the report without a bottom line.
+        // One bold "Total stock" row per currency, right under the summary.
+        const stockIdx = visibleCols.findIndex(c => c.accessorKey === 'stock') + 1;
+        const totalsByCur = {};
+        sumData.forEach(it => {
+            if (!it) return;
+            const cur = it.cur || 'us';
+            if (!totalsByCur[cur]) totalsByCur[cur] = { qnty: 0, total: 0 };
+            totalsByCur[cur].qnty += it.qnty * 1 || 0;
+            totalsByCur[cur].total += it.total * 1 || 0;
+        });
+        const curKeys = Object.keys(totalsByCur);
+        curKeys.forEach((cur) => {
+            const r = sheet.addRow({
+                stock: curKeys.length > 1 ? `Total stock (${cur === 'eu' ? 'EUR' : 'USD'})` : 'Total stock',
+                qnty: totalsByCur[cur].qnty,
+                total: totalsByCur[cur].total,
+            });
+            r.font = { bold: true };
+            [stockIdx, qntyIdx, totalIdx].forEach(ci => {
+                if (ci > 0) r.getCell(ci).border = {
+                    top: { style: 'thin' }, left: { style: 'thin' },
+                    bottom: { style: 'thin' }, right: { style: 'thin' },
+                };
+            });
+            if (qntyIdx > 0) r.getCell(qntyIdx).numFmt = `#,##0.000;[Red]#,##0.000`;
+            if (totalIdx > 0) {
+                const sym = getNumFmtForCurrency(cur);
+                r.getCell(totalIdx).numFmt = `${sym}#,##0.00;[Red]$#,##0.00`;
+            }
+        });
+
         // ---- Avg Cost Price per Grade (separate sheet) ----
         // Total weight + weighted average cost per MT for each grade, based on the
         // same (filtered) rows shown in the table.
