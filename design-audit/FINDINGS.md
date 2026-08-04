@@ -186,7 +186,7 @@ Vercel Speed Insights script that 404s outside Vercel) and **2 real defects**, b
 
 | ID | Cat | Where | What's wrong | Sev | Status |
 |----|-----|-------|--------------|-----|--------|
-| 066 | — | `.env:13` + `components/exchangeApi.js` | **A placeholder FX API key is shipped.** `NEXT_PUBLIC_OPENEXCHANGERATES_APP_ID=PASTE_OPENEXCHANGERATES_APP_ID_HERE`, so every call returns **401**. `exchangeApi.js:9-11` then falls through to `return 1` — meaning **EUR↔USD is silently converted at a rate of 1.0**. Used by `formulas/page.js` and `contracts/modals/productsTable.js`, i.e. **pricing**. Not a design issue; found only because the visual pass watches the network. | **Critical** | **OPEN — needs a real API key from Zak** |
+| 066 | — | `.env:13` + `components/exchangeApi.js` | **A placeholder FX API key is shipped.** `NEXT_PUBLIC_OPENEXCHANGERATES_APP_ID=PASTE_OPENEXCHANGERATES_APP_ID_HERE`, so every call returns **401** and `exchangeApi.js:9-11` falls through to `return 1` — a EUR↔USD rate of **1.0**. **Scope, verified:** this affects only `getCur()`, whose sole callers are `formulas/page.js` and `contracts/modals/productsTable.js` (historical, date-specific lookups). The dashboard rate strip and general displays are **fine** — they use different, key-less services (`utils/fxRates.js` → frankfurter.app, `hooks/useExchangeRates.js` → exchangerate-api.com). So the damage is confined to the two places above, but those are **pricing**. Not a design issue; found only because the visual pass watches the network. | **High** | **OPEN — needs a real API key from Zak** |
 | 067 | C3 | `app/(root)/contractsstatement/`, `app/(root)/invoicesstatement/` | Both return a Next **404**. They have no `page.js` — they are component folders imported by `cashflow`, `shipment` and the two Review pages. **My Phase-0 characterisation of them as "routes not in the sidebar" was wrong.** No audit work was wasted (the files were covered as components) but the real route count is **23, not 25**. | Low | Fixed (docs corrected) |
 
 ### Not defects, recorded so they are not re-investigated
@@ -211,5 +211,13 @@ byte-sizes across routes (the signature of a repeated login page), files too sma
 real page, light/dark pairs that are identical. Runs 1 and 3 each failed it. Counting files
 proved nothing, three times running.
 
-**Batch 6 result:** 2 real defects (1 open, 1 fixed), 3 harness defects fixed.
+| 068 | — | `utils/fxRates.js`, `hooks/useExchangeRates.js`, `components/exchangeApi.js` | **Three different FX providers** in one app (frankfurter.app, exchangerate-api.com, openexchangerates.org), so the same currency pair can be sourced three ways and disagree. Noticed while scoping 066. Consolidating is a logic change, so it is flagged rather than done. | Med | **OPEN — needs a decision** |
+
+**Batch 6 result:** 3 real defects (2 open, 1 fixed), 3 harness defects fixed.
 184/184 screenshots valid.
+
+### Live re-verification on Zak's restarted server (2026-08-04)
+
+`/dashboard`, production data, after login: **fully rendered, 9 charts, ZERO console errors.**
+The crash reported at the start of batch 5 is confirmed fixed against the real app.
+The account's theme was left in dark by the screenshot run and has been **restored to light**.

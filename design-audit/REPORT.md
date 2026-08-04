@@ -35,9 +35,9 @@ Here is what was actually happening.
 | Files proven clean by automated check | **249** |
 | Duplicate file deleted | **1** |
 | **Files still failing any check** | **0** |
-| Problems found | **67** |
+| Problems found | **68** |
 | Problems fixed | **66** |
-| Problems open | **1** (a broken API key — see 4.7) plus 1 whole category not started — C6 |
+| Problems open | **2** (see 4.7 and 4.8) plus 1 whole category not started — C6 |
 
 We are deliberately showing "opened and read" separately from "proven by automated check".
 The automated checks are exhaustive for measurable things — sizes, colours, corner styles,
@@ -157,15 +157,24 @@ Not a design issue at all — the screenshot run watches the network, and caught
 
     NEXT_PUBLIC_OPENEXCHANGERATES_APP_ID=PASTE_OPENEXCHANGERATES_APP_ID_HERE
 
-So every currency lookup is rejected (401), and `components/exchangeApi.js` then quietly
-falls back to a rate of **1.0** — meaning **euros and dollars are being treated as equal**
-anywhere that runs. It runs on the **Formulas** page and in the **contract products table**,
-i.e. in pricing.
+So that lookup is rejected (401), and `components/exchangeApi.js` then quietly falls back to a
+rate of **1.0** — euros and dollars treated as equal.
+
+**We checked how far this reaches.** Your dashboard exchange-rate strip is **fine** — it uses a
+different, free service. The broken key is used by one function, and that function is called
+from exactly two places: the **Formulas** page and the **contract products table**. Both are
+pricing. So it is contained, but it is in the wrong place to be wrong.
 
 We have **not** changed it. It needs a genuine key, which only you can supply, and the
 fallback behaviour is a commercial decision rather than a styling one: right now a failed
 lookup produces a wrong number silently instead of refusing to calculate. Worth deciding
 which you want.
+
+### 4.8 Three different currency services · **needs a decision**
+While tracing the above we found the app fetches exchange rates from **three** different
+providers in three different files. The same pair can therefore be sourced three ways and
+disagree. Picking one is a business decision and a logic change, so we have flagged it
+rather than changed it.
 
 ### 4.5 Three mistakes we made during this work
 Recorded because they affected the result and you should be able to see them.
