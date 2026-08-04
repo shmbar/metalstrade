@@ -8,8 +8,16 @@ import React from 'react';
 const VideoLoader = ({ loading = true, fullScreen = true }) => {
   if (!loading) return null;
 
+  /* NOT var(--overlay). That token is the MODAL scrim — a black 45/60% dim,
+     correct for a dialog that must push the page back. This is a loading veil
+     over content the user is still looking at, so it tints with the SURFACE:
+     a light haze in light mode, a dark one in dark mode.
+     Using the modal scrim here made every data refresh dim and blur the whole
+     app, which in dark mode (black on an already-dark surface, plus blur) read
+     as "everything looks blurry". Regression from the batch-4 overlay
+     unification, reported by Zak. */
   const containerClasses = fullScreen
-    ? "fixed inset-0 flex items-center justify-center z-command bg-[var(--overlay)] backdrop-blur-[2px]"
+    ? "fixed inset-0 flex items-center justify-center z-command bg-[rgba(var(--surface-card-rgb),0.6)] backdrop-blur-[2px]"
     : "flex items-center justify-center py-12";
 
   return (
