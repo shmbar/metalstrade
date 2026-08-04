@@ -328,3 +328,34 @@ Restored and verified: **theme `violet`, mode `dark`** — exactly as found.
 
 Same lesson as P-1: a loose pattern that matches more than intended, and a reading taken
 from an environment that was not actually working.
+
+### Batch 7d — "did the audit hurt any functionality?"
+
+Asked by Zak. Verified rather than asserted.
+
+**Method:** classified every changed line in the 240 changed app files (`design-audit/` and
+new tooling excluded). Of ~2,000 edits, **34** lines contain a logic keyword — and on
+inspection every one is a *colour value sitting inside* an unchanged construct
+(`if (!active) e.currentTarget.style.background = …`). No condition, handler, data flow,
+query or write path was altered.
+
+**Checks:** `npm run test` → **131 passed / 9 files**. `npm run build` clean.
+`npm run lint` identical to the pre-audit baseline. Gates 1-13 pass.
+Excel/PDF exports: **0** document-colour lines changed — only a toolbar button's class.
+
+But two real regressions **were** introduced and are worth recording honestly:
+
+| ID | What | Status |
+|----|------|--------|
+| 075 | `StatKpiCard` in `dashboard/page.js`: `accent` is used as `` `${accent}1A` `` (hex-alpha concatenation) **and** fed to a chart.js `borderColor`. Tokenising the last two literal accents meant `var(--primary-bright)1A` — invalid CSS, so the icon tint vanished — and `var()` on a canvas, which cannot parse it. | Fixed |
+| — | Previously found and already fixed: the dashboard canvas crash (062), 69 self-referential `cssVar` fallbacks (063), and a codemod that resized icons across 124 files (P-1, reverted before it was ever committed). | Fixed |
+
+**The same inspection found this bug was mostly pre-existing.** Six of the eight `accent`
+call sites were **already** passing `var(--…)` tokens at `c9aed1a`, so the broken tint and
+the unparseable chart colour shipped before this audit began. The audit added two more and
+then fixed all eight, by resolving tokens to real colours (`solidColor()`) and replacing the
+hex-alpha trick with `color-mix`, which works for tokens and literals alike.
+
+**Not verified functionally** (no coverage, and not reachable from here): saving contracts
+and invoices, drag-and-drop ordering, print stylesheets, and the generated Excel/PDF files
+opened in Excel/a PDF reader. The code paths are untouched, but "untouched" is not "tested".

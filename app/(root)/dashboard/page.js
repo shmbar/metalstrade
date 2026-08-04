@@ -114,6 +114,19 @@ function computeTrend(series) {
   return { pct, up: pct >= 0 };
 }
 
+/* `accent` may arrive as a token (`var(--ok-text)`) or a literal (`#0ea5e9`).
+ * Two things downstream cannot cope with a token:
+ *   - canvas (chart.js) has no CSS parser, so `var()` is not a colour
+ *   - the old `${accent}1A` trick appends hex-alpha digits, which yields
+ *     `var(--ok-text)1A` — invalid CSS, so the tint silently disappears
+ * Six of the eight call sites were already passing tokens BEFORE this audit, so
+ * both bugs predate it; the audit added two more by tokenising the last literals.
+ * Resolving to a real colour here fixes all eight. */
+const solidColor = (c) =>
+  typeof c === 'string' && c.startsWith('var(')
+    ? cssVar(c.slice(4, -1).trim(), '#2563eb')
+    : c;
+
 function StatKpiCard({
   title,
   value,
@@ -145,7 +158,7 @@ function StatKpiCard({
           {icon && (
             <span
               className="inline-flex items-center justify-center rounded-lg flex-shrink-0"
-              style={{ background: `${accent}1A`, color: accent, width: 30, height: 30 }}
+              style={{ background: `color-mix(in srgb, ${accent} 10%, transparent)`, color: accent, width: 30, height: 30 }}
             >
               {icon}
             </span>
@@ -185,8 +198,8 @@ function StatKpiCard({
               labels: series.slice(0, 12).map((_, i) => i),
               datasets: [{
                 data: series.slice(0, 12),
-                borderColor: accent,
-                backgroundColor: `${accent}1F`,
+                borderColor: solidColor(accent),
+                backgroundColor: `color-mix(in srgb, ${solidColor(accent)} 12%, transparent)`,
                 borderWidth: 2,
                 tension: 0.4,
                 pointRadius: 0,
