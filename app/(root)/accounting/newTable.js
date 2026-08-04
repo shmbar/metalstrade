@@ -196,13 +196,13 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
         }
 
         .custom-table td {
+          font-size: var(--fs-table);   /* dense-cell rung; was a hardcoded 9px */
           background-color: var(--surface-card);
           text-align: center;
           vertical-align: middle;
           padding: 6px;
           border-bottom: 1px solid var(--selago);
           border-right: 1px solid var(--selago);
-          font-size: 9px !important;
         }
 
         .custom-table td:last-child {

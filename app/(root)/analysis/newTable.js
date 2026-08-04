@@ -152,9 +152,9 @@ const Customtable = ({
           background-color: var(--border-cell);
         }
         .custom-table td {
+          font-size: var(--fs-table);   /* dense-cell rung; was a hardcoded 9px */
           background-color: var(--surface-card);
           border: 1px solid var(--border-neutral);
-          font-size: 9px !important;
         }
       `}</style>
 

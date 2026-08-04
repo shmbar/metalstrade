@@ -165,9 +165,9 @@ const Customtable = ({
           font-family: var(--font-poppins), 'Poppins', sans-serif;
         }
         .custom-table td {
+          font-size: var(--fs-table);   /* dense-cell rung; was a hardcoded 9px */
           border: 1px solid var(--selago);
           text-align: center;
-          font-size: 9px !important;
           font-family: var(--font-poppins), 'Poppins', sans-serif;
 
         }

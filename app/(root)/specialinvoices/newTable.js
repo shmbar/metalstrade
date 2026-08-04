@@ -209,12 +209,12 @@ const Customtable = ({
                     padding: 6px;
                 }
                 .custom-table td {
+                  font-size: var(--fs-table);   /* dense-cell rung; was a hardcoded 9px */
                     border: 0.5px solid rgba(var(--shadow-rgb), 0.04);
                     background-color: var(--surface-card);
                     text-align: center;
                     vertical-align: middle;
                     padding: 6px;
-                    font-size: 9px !important;
                     white-space: nowrap;
                 }
 

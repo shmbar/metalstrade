@@ -511,3 +511,32 @@ like a failure. It was not: React renders `Notifications` and `` · ${unreadCoun
 two separate text nodes, so `Range.getClientRects()` returns two rectangles even on a single
 line. Counting *distinct `top` values* is the correct test. Nearly "fixed" something that was
 already right.
+
+---
+
+## Batch 10 — the remaining 12 tables (Zak approved the margins density)
+
+Zak: *"margin page now looks good"* — the go-ahead to apply the same change everywhere.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 083 | C2 | 12 files | `.custom-table td { font-size: 9px !important }` — data cells pinned at 9px at every screen width, under headers that scale. The last of the 13; margins was 080. | **High** | Fixed |
+
+Now consistent at 1440px — **cells 11px, headers 11px** — on contracts, stocks, expenses,
+accounting, shipment, specialinvoices and margins. Zero page overflow, zero page errors.
+
+### Deleting the rule was not the fix, and measuring caught it
+
+The obvious move — delete the line, as on margins — was wrong here. The margins `<Table>`
+carries `responsiveTextTable`, so its cells had something to inherit. These tables carry no
+ladder class, so removing the override dropped them to the **browser default of 16px**:
+
+```
+contracts   cell 16px | header 11px      <- cells LARGER than headers
+```
+
+Caught by measuring after the change rather than assuming the deletion was sufficient. The
+line is now **replaced**, not removed: `font-size: var(--fs-table)` — the rung meant for
+dense cells (10/11/12/13), landing on the 11px Zak just approved.
+
+Two commented-out copies of the old rule were left untouched.

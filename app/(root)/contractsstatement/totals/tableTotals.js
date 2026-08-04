@@ -50,9 +50,9 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                   background-color: var(--surface-header);
                 }
                 .custom-table td {
+                  font-size: var(--fs-table);   /* dense-cell rung; was a hardcoded 9px */
                   background-color: var(--surface-card);
                   border: 1px solid var(--selago);
-                  font-size: 9px !important;
                 }
                 .dashboard-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
                 .dashboard-scroll::-webkit-scrollbar-track { background: var(--selago); border-radius: 6px; }

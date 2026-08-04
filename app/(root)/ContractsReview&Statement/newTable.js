@@ -257,13 +257,13 @@ const Customtable = ({
         }
 
         .custom-table td {
+          font-size: var(--fs-table);   /* dense-cell rung; was a hardcoded 9px */
           border: 1px solid var(--border-cell);
           background-color: var(--surface-pill);
           text-align: center;
           vertical-align: middle;
           padding: 6px;
           border-radius: 4px;
-          font-size: 9px !important;
         }
 
         .custom-table th {
@@ -271,6 +271,7 @@ const Customtable = ({
         }
 
         .custom-table td {
+          font-size: var(--fs-table);   /* dense-cell rung; was a hardcoded 9px */
           background-color: var(--surface-card);
           border: 1px solid var(--border-neutral);
         }

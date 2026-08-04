@@ -959,9 +959,9 @@ const Customtable = ({
 
         /* ── Data cells ── */
         .custom-table td {
+          font-size: var(--fs-table);   /* dense-cell rung; was a hardcoded 9px */
           border: 1px solid var(--border-neutral-strong);
           text-align: center;
-          font-size: 9px !important;
           font-family: var(--font-poppins), 'Poppins', sans-serif;
           padding: 3px 6px !important;
           vertical-align: middle;
