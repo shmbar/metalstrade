@@ -725,14 +725,14 @@ const Invoices = () => {
 											className='inline-flex items-center gap-1.5 rounded-full transition-colors'
 											style={{
 												fontSize: 'var(--fs-body)', padding: '4px 12px',
-												color: onlyUnsplit ? 'white' : 'var(--chathams-blue)',
+												color: onlyUnsplit ? 'var(--on-brand)' : 'var(--chathams-blue)',
 												background: onlyUnsplit ? 'var(--endeavour)' : 'var(--surface-pill)',
 												border: '1px solid var(--border-divider)',
 											}}
 										>
 											<Split className='w-3.5 h-3.5' />
 											Needs IMS/GIS split
-											<span className='rounded-full px-1.5' style={{ fontSize: 'var(--fs-table)', background: onlyUnsplit ? 'rgba(var(--surface-card-rgb), 0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'white' : 'var(--endeavour)' }}>
+											<span className='rounded-full px-1.5' style={{ fontSize: 'var(--fs-table)', background: onlyUnsplit ? 'rgba(var(--surface-card-rgb), 0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'var(--on-brand)' : 'var(--endeavour)' }}>
 												{pendingCount}
 											</span>
 										</button>

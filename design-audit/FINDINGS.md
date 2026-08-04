@@ -448,3 +448,41 @@ why the table suddenly read as "very small" when the individual sizes had barely
 Only `margins` is changed here — that is the page Zak reported. The other **12 tables are
 left alone pending his decision**, because removing the override on all of them changes the
 density of every data screen in the product, which is his call and not a defect fix.
+
+---
+
+## Batch 9 — Notification panel + CSS colour keywords
+
+Zak: *"notification when open covers a lot — reduce its size and make it more advanced and attractive."*
+
+### The panel
+
+| | Before | After |
+|---|---|---|
+| Width | 360px | **330px** |
+| Height cap | `60vh` (≈540px on a 900px screen) | **`min(56vh, 420px)`** |
+| Row padding | `px-3 py-2.5` | **`px-2.5 py-1.5`** |
+| Message | `--fs-input` (12-15px), unclamped | **`--fs-body` (11-14px), `line-clamp-2`** |
+| Meta line | `--fs-table` | **`--fs-caption`** |
+| Type icon | 26px circle / 3.5 icon | **22px / 3** |
+| Left accent | 3px | **2px** |
+
+The clamp matters as much as the size: one long message used to run to three lines and make
+its row triple-height, so the list had no rhythm. Every row is now at most two lines.
+
+### What resizing it uncovered
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 081 | C5 | `components/NotificationBell.js` | Panel too large and rows unbounded (above). | Med | Fixed |
+| 082 | C4 | 10 files | **CSS colour KEYWORDS.** Gate 4 only matches `#hex` and `rgba()`, so `background: 'white'` passed it — the same defect written differently. A read notification row rendered **white in dark mode**, and `CertChecker` zebra-stripes its table with a literal white, alternating a white row with a dark one. 7 surfaces + 15 foregrounds fixed. | **High** | Fixed |
+
+### Gate 4b
+
+`no CSS colour keywords as style values (white/black)`.
+
+Third time a gate has been too narrow: gate 4 looked for `#hex`, gate 12 for truncated
+tokens, gate 13 for inverted roles — and each time the same underlying mistake showed up in
+a form the pattern did not cover. A colour can be written as hex, as `rgba()`, as a keyword,
+as the *wrong token*, or as a *token in the wrong role*. Enumerating the ways something can
+be wrong is harder than fixing any single instance of it.

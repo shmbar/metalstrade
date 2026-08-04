@@ -196,7 +196,7 @@ const ForecastPanel = () => {
                                 style={{
                                     fontSize: 'var(--fs-table)',
                                     background: activeHorizon === h ? 'var(--endeavour)' : 'var(--surface-pill)',
-                                    color: activeHorizon === h ? 'white' : 'var(--chathams-blue)',
+                                    color: activeHorizon === h ? 'var(--on-brand)' : 'var(--chathams-blue)',
                                     border: `1px solid ${activeHorizon === h ? 'var(--endeavour)' : 'var(--border-divider)'}`,
                                 }}
                             >

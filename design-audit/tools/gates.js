@@ -76,6 +76,17 @@ const GATES = [
     re: /fontSize: *['"][0-9]/, exempt: TOKEN_SOURCE },
   { id: 4, title: "no hardcoded hex colours", cmd: 'grep -nE "#[0-9a-fA-F]{3,8}\\b"',
     re: /(^|[^&])#[0-9a-fA-F]{3,8}\b/, exempt: COLOUR_EXEMPT },
+  /* Gate 4b — the same defect written as a CSS colour KEYWORD.
+     Gate 4 only sees #hex, so `background: 'white'` sailed through: a surface
+     frozen light, which in dark mode rendered a white notification row and
+     white zebra stripes in CertChecker. Use --surface-card for a themed
+     surface, --on-brand for text on a brand-coloured one. */
+  {
+    id: 41, title: "no CSS colour keywords as style values (white/black)",
+    cmd: 'grep -nE "(background|color)[^,}]*[quote](white|black)[quote]"',
+    re: /\b(background|backgroundColor|color|borderColor)\s*:[^,}\n]*['"](white|black)['"]/,
+    exempt: COLOUR_EXEMPT
+  },
   { id: 5, title: "no literal rgb()/rgba()", cmd: 'grep -nE "rgba?\\([0-9]"',
     re: /rgba?\([0-9]/, exempt: COLOUR_EXEMPT },
   { id: 6, title: "no arbitrary z-index", cmd: 'grep -nE "z-\\[[0-9]+\\]"',

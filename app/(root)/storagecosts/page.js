@@ -82,7 +82,7 @@ function MonthPickerPill({ value, onChange }) {
                                 return (
                                     <button key={m} type="button" onClick={() => pick(i)}
                                         className={`rounded-lg py-1.5 font-medium transition-colors ${isSel ? '' : 'hover:bg-[var(--selago)]'}`}
-                                        style={{ fontSize: 'var(--fs-input)', background: isSel ? 'var(--endeavour)' : 'transparent', color: isSel ? 'white' : 'var(--chathams-blue)' }}>
+                                        style={{ fontSize: 'var(--fs-input)', background: isSel ? 'var(--endeavour)' : 'transparent', color: isSel ? 'var(--on-brand)' : 'var(--chathams-blue)' }}>
                                         {m}
                                     </button>
                                 );
@@ -249,8 +249,8 @@ const StorageCosts = () => {
                                     className="rounded-full font-medium transition-colors"
                                     style={{
                                         fontSize: 'var(--fs-body)', padding: '5px 12px',
-                                        background: unit === u.key ? 'var(--endeavour)' : 'white',
-                                        color: unit === u.key ? 'white' : 'var(--chathams-blue)',
+                                        background: unit === u.key ? 'var(--endeavour)' : 'var(--surface-card)',
+                                        color: unit === u.key ? 'var(--on-brand)' : 'var(--chathams-blue)',
                                         border: `1px solid ${unit === u.key ? 'var(--endeavour)' : 'var(--border-cell)'}`,
                                     }}>
                                     {u.label}

@@ -205,7 +205,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                     {!body && (
                         <button onClick={generate} disabled={generating || !email.trim()}
                             className='w-full flex items-center justify-center gap-2 py-2 rounded-2xl font-medium transition-all disabled:opacity-50'
-                            style={{ background: 'var(--endeavour)', color: 'white', fontSize: 'var(--fs-input)' }}>
+                            style={{ background: 'var(--endeavour)', color: 'var(--on-brand)', fontSize: 'var(--fs-input)' }}>
                             {generating ? <><Loader2 className='w-4 h-4 animate-spin' /> Generating email…</> : <><Sparkles className='w-4 h-4' /> Generate Reminder Email</>}
                         </button>
                     )}

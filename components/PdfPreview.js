@@ -116,8 +116,8 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
                         />
                     ) : (
                         <div className='flex items-center justify-center h-full gap-2'>
-                            <Loader2 className='w-5 h-5 animate-spin' style={{ color: 'white' }} />
-                            <span style={{ fontSize: 'var(--fs-input)', color: 'white' }}>Preparing preview…</span>
+                            <Loader2 className='w-5 h-5 animate-spin' style={{ color: 'var(--on-brand)' }} />
+                            <span style={{ fontSize: 'var(--fs-input)', color: 'var(--on-brand)' }}>Preparing preview…</span>
                         </div>
                     )}
                 </div>

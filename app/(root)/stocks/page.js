@@ -374,8 +374,8 @@ const Stocks = () => {
                     className='rounded-full font-medium transition-colors'
                     style={{
                       fontSize: 'var(--fs-input)', padding: '5px 14px',
-                      background: activeTab === key ? 'var(--endeavour)' : 'white',
-                      color: activeTab === key ? 'white' : 'var(--chathams-blue)',
+                      background: activeTab === key ? 'var(--endeavour)' : 'var(--surface-card)',
+                      color: activeTab === key ? 'var(--on-brand)' : 'var(--chathams-blue)',
                       border: `1px solid ${activeTab === key ? 'var(--endeavour)' : 'var(--border-cell)'}`,
                     }}>
                     {label}

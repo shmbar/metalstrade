@@ -276,7 +276,7 @@ const CertChecker = () => {
                                     </thead>
                                     <tbody>
                                         {result.results.map((row, i) => (
-                                            <tr key={i} style={{ background: i % 2 === 0 ? 'white' : 'var(--surface-pill)', borderTop: '1px solid var(--surface-header)' }}>
+                                            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--surface-card)' : 'var(--surface-pill)', borderTop: '1px solid var(--surface-header)' }}>
                                                 <td className='px-3 py-1.5 font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--port-gore)' }}>{row.element}</td>
                                                 <td className='px-3 py-1.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>{row.spec || '—'}</td>
                                                 <td className='px-3 py-1.5 font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--port-gore)' }}>{row.actual ?? '—'}{row.actual != null ? '%' : ''}</td>

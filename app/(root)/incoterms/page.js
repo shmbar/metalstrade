@@ -198,8 +198,8 @@ const Incoterms = () => {
                                 className="rounded-full font-medium transition-colors"
                                 style={{
                                     fontSize: 'var(--fs-body)', padding: '5px 12px',
-                                    background: mode === f.key ? 'var(--endeavour)' : 'white',
-                                    color: mode === f.key ? 'white' : 'var(--chathams-blue)',
+                                    background: mode === f.key ? 'var(--endeavour)' : 'var(--surface-card)',
+                                    color: mode === f.key ? 'var(--on-brand)' : 'var(--chathams-blue)',
                                     border: `1px solid ${mode === f.key ? 'var(--endeavour)' : 'var(--border-cell)'}`,
                                 }}>
                                 {f.label}
