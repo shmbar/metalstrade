@@ -61,7 +61,7 @@ export default function Testimonials() {
             <ChevronLeft className="w-10 h-10 text-[var(--primary-bright)]" strokeWidth={2.5} />
           </button>
 
-          <h2 className="text-3xl md:text-4xl font-bold text-[var(--primary-bright)] text-center flex-1">
+          <h2 className="responsiveTextDisplay font-bold text-[var(--primary-bright)] text-center flex-1">
             What Our Clients Say About Us
           </h2>
 

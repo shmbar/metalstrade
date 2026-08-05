@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-const linkCls = "text-[var(--endeavour)] hover:text-[var(--chathams-blue)] transition-colors text-sm";
+const linkCls = "text-[var(--endeavour)] hover:text-[var(--chathams-blue)] transition-colors responsiveTextTitle";
 
 export default function Footer() {
   return (
@@ -15,7 +15,7 @@ export default function Footer() {
             <div className="mb-3 overflow-hidden h-11">
               <img src="/logo/logoNew.svg" alt="IMS Logo" className="h-24 w-auto -mt-[26px]" />
             </div>
-            <p className="text-[var(--chathams-blue)] text-sm leading-relaxed max-w-xs opacity-80">
+            <p className="text-[var(--chathams-blue)] responsiveTextTitle leading-relaxed max-w-xs opacity-80">
               The operations platform for metals &amp; alloys trading — contracts, inventory,
               cashflow and AI-assisted document handling in one place.
             </p>
@@ -23,7 +23,7 @@ export default function Footer() {
 
           {/* Product Column */}
           <div>
-            <h4 className="font-semibold text-[var(--chathams-blue)] mb-3 text-xs tracking-wide uppercase">Product</h4>
+            <h4 className="font-semibold text-[var(--chathams-blue)] mb-3 responsiveTextInput tracking-wide uppercase">Product</h4>
             <ul className="space-y-2">
               <li><Link href="/features" className={linkCls}>Features</Link></li>
               <li><Link href="/signin" className={linkCls}>Sign In</Link></li>
@@ -32,7 +32,7 @@ export default function Footer() {
 
           {/* Company Column */}
           <div>
-            <h4 className="font-semibold text-[var(--chathams-blue)] mb-3 text-xs tracking-wide uppercase">Company</h4>
+            <h4 className="font-semibold text-[var(--chathams-blue)] mb-3 responsiveTextInput tracking-wide uppercase">Company</h4>
             <ul className="space-y-2">
               <li><Link href="/about" className={linkCls}>About IMS</Link></li>
               <li><Link href="/blog" className={linkCls}>Blog</Link></li>
@@ -41,7 +41,7 @@ export default function Footer() {
 
           {/* Legal Column */}
           <div>
-            <h4 className="font-semibold text-[var(--chathams-blue)] mb-3 text-xs tracking-wide uppercase">Legal</h4>
+            <h4 className="font-semibold text-[var(--chathams-blue)] mb-3 responsiveTextInput tracking-wide uppercase">Legal</h4>
             <ul className="space-y-2">
               <li><Link href="/about" className={linkCls}>Privacy Policy</Link></li>
               <li><Link href="/about" className={linkCls}>Terms of Service</Link></li>
@@ -51,7 +51,7 @@ export default function Footer() {
 
         {/* Divider + Copyright */}
         <div className="border-t border-[var(--border-divider)] pt-4">
-          <p className="text-[var(--chathams-blue)] text-xs text-center opacity-60">
+          <p className="text-[var(--chathams-blue)] responsiveTextInput text-center opacity-60">
             © {new Date().getFullYear()} IMS Inc. All rights reserved.
           </p>
         </div>

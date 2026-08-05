@@ -19,16 +19,16 @@ export function SectionHeader({
 
       {/* Title + Description */}
       <div className="space-y-4">
-        <h2 className="text-3xl font-bold text-[var(--endeavour)] tracking-tight">
+        <h2 className="responsiveTextDisplay font-bold text-[var(--endeavour)] tracking-tight">
           {title}
         </h2>
-        <p className="text-gray-500 leading-relaxed text-lg max-w-md">
+        <p className="text-gray-500 leading-relaxed responsiveTextPage max-w-md">
           {description}
         </p>
       </div>
 
       {/* Button */}
-      <Button className="bg-[var(--endeavour)] hover:bg-[var(--brand-deep)] text-white px-8 py-6 rounded-xl text-lg font-medium shadow-lg shadow-[var(--endeavour)]/25 transition-transform hover:scale-105 cursor-pointer">
+      <Button className="bg-[var(--endeavour)] hover:bg-[var(--brand-deep)] text-white px-8 py-6 rounded-2xl responsiveTextPage font-medium shadow-lg shadow-[var(--endeavour)]/25 transition-transform hover:scale-105 cursor-pointer">
         {buttonText}
       </Button>
 

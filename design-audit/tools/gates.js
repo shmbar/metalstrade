@@ -29,10 +29,11 @@ function inScope(p) {
   if (!EXT.test(p)) return false;
   if (/(^|\/)(node_modules|\.next|backups|tests|__tests__)\//.test(p)) return false;
   if (/^mobile\//.test(p)) return false;            // separate app, out of scope
-  if (/^app\/\(public\)\//.test(p)) return false;   // marketing site, out of scope
-  if (MARKETING.test(p)) return false;
-  if (p === "app/page.js") return false;            // marketing landing
   if (/^app\/api\//.test(p)) return false;          // no UI
+  /* The public marketing pages WERE excluded — that is how they kept ad-hoc
+     Tailwind sizes and no dark mode while the CRM was normalised. They are now
+     on the same ladder and the same tokens, so they are gated too. Anything
+     excluded from the gate drifts; that is the lesson. */
   if (ROOT_FILES.includes(p)) return true;
   return ROOTS.some(function (r) { return p.startsWith(r + "/"); });
 }

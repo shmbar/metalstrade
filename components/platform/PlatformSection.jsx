@@ -34,13 +34,13 @@ export function PlatformSection() {
             transition={{ duration: 0.5 }}
             className="text-center mb-10"
           >
-            <span className="text-xs font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[var(--surface-header)] px-4 py-1.5 rounded-full border border-[var(--border-divider)]">
+            <span className="responsiveTextInput font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[var(--surface-header)] px-4 py-1.5 rounded-full border border-[var(--border-divider)]">
               Why It&apos;s Different
             </span>
-            <h2 className="text-2xl md:text-4xl font-bold text-[var(--chathams-blue)] mt-4 mb-2">
+            <h2 className="responsiveTextDisplay font-bold text-[var(--chathams-blue)] mt-4 mb-2">
               Built for Modern Metal Trading
             </h2>
-            <p className="text-slate-500 text-sm max-w-xl mx-auto">
+            <p className="text-slate-500 responsiveTextTitle max-w-xl mx-auto">
               Not a generic ERP — the workflows, documents and market data of a metals trading desk, built in.
             </p>
           </motion.div>
@@ -56,11 +56,11 @@ export function PlatformSection() {
                 whileHover={{ y: -4 }}
                 className="rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-pill)] p-8 flex flex-col gap-4 hover:border-[var(--endeavour)] hover:shadow-md transition-all"
               >
-                <div className="w-12 h-12 bg-[var(--endeavour)] rounded-xl flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 bg-[var(--endeavour)] rounded-2xl flex items-center justify-center shadow-md">
                   <card.icon className="w-6 h-6 text-white" strokeWidth={2} />
                 </div>
-                <h3 className="text-lg font-bold text-[var(--chathams-blue)]">{card.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{card.description}</p>
+                <h3 className="responsiveTextPage font-bold text-[var(--chathams-blue)]">{card.title}</h3>
+                <p className="text-gray-500 responsiveTextTitle leading-relaxed">{card.description}</p>
               </motion.div>
             ))}
           </div>

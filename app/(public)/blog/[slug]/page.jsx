@@ -67,9 +67,9 @@ export default function BlogPostPage({ params }) {
         <section className="py-20 bg-[var(--selago)] text-center">
           <div className="container mx-auto px-4 max-w-3xl">
             <div className="flex flex-col items-center mb-6">{post.icon}</div>
-            <h1 className="text-4xl font-extrabold mb-2 text-[var(--port-gore)]">{post.title}</h1>
-            <div className="text-xs text-[var(--text-faint)] mb-6">{post.date} &middot; {post.author}</div>
-            <article className="text-lg text-gray-700 whitespace-pre-line text-left mx-auto">{post.content}</article>
+            <h1 className="responsiveTextHero font-extrabold mb-2 text-[var(--port-gore)]">{post.title}</h1>
+            <div className="responsiveTextInput text-[var(--text-faint)] mb-6">{post.date} &middot; {post.author}</div>
+            <article className="responsiveTextPage text-gray-700 whitespace-pre-line text-left mx-auto">{post.content}</article>
           </div>
         </section>
       </main>

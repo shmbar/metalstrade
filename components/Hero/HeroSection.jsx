@@ -13,11 +13,11 @@ export default function HeroSection({ title, subtitle }) {
           transition={{ duration: 0.6 }}
           className="max-w-4xl mx-auto text-center"
         >
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+          <h1 className="responsiveTextHero font-bold mb-4 tracking-tight">
             {title}
           </h1>
 
-          <p className="text-sm sm:text-base text-white/80 max-w-2xl mx-auto leading-relaxed">
+          <p className="responsiveTextTitle text-white/80 max-w-2xl mx-auto leading-relaxed">
             {subtitle}
           </p>
         </motion.div>

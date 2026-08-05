@@ -31,13 +31,13 @@ export default function FeatureSection() {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <span className="text-xs font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[var(--surface-header)] px-4 py-1.5 rounded-full border border-[var(--border-divider)]">
+            <span className="responsiveTextInput font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[var(--surface-header)] px-4 py-1.5 rounded-full border border-[var(--border-divider)]">
               Platform Modules
             </span>
-            <h2 className="text-2xl md:text-4xl font-bold text-[var(--chathams-blue)] mt-4 mb-3">
+            <h2 className="responsiveTextDisplay font-bold text-[var(--chathams-blue)] mt-4 mb-3">
               Everything in One Platform
             </h2>
-            <p className="text-slate-500 text-sm max-w-xl mx-auto">
+            <p className="text-slate-500 responsiveTextTitle max-w-xl mx-auto">
               Nine integrated modules built specifically for metals &amp; alloys traders —
               one record of truth from purchase to settlement.
             </p>
@@ -53,12 +53,12 @@ export default function FeatureSection() {
                 transition={{ duration: 0.4, delay: i * 0.06 }}
                 className="group flex items-start gap-4 p-5 rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-pill)] hover:bg-[var(--surface-header)] hover:border-[var(--endeavour)] hover:shadow-md transition-all"
               >
-                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[var(--endeavour)] flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-[var(--endeavour)] flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                   <f.icon size={18} className="text-white" strokeWidth={2} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-[var(--chathams-blue)] mb-1">{f.title}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">{f.description}</p>
+                  <h3 className="responsiveTextTitle font-bold text-[var(--chathams-blue)] mb-1">{f.title}</h3>
+                  <p className="responsiveTextInput text-slate-500 leading-relaxed">{f.description}</p>
                 </div>
               </motion.div>
             ))}

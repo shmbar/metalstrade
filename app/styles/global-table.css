@@ -2,7 +2,7 @@
    GLOBAL DESIGN TOKENS (SYNC WITH SIDEBAR)
 ===================================================== */
 :root {
-  --ui-font-size: 0.78rem;
+  --ui-font-size: var(--fs-input);
   /* Neutral aliases — resolve through the themable base layer in globals.css
      so dark mode flips every global-table style automatically. */
   --ui-font-color: var(--text-strong);
@@ -145,7 +145,7 @@ table input:focus {
     color: var(--ui-muted-color);
     padding-right: 10px;
     text-transform: uppercase;
-    font-size: 0.7rem;
+    font-size: var(--fs-body);
   }
 }
 

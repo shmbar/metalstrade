@@ -35,19 +35,19 @@ export function PlatformCard2() {
         transition={{ delay: 0.1 }}
         className="flex flex-col items-start space-y-3 py-4 lg:pl-4 h-full justify-start"
       >
-        <div className="w-10 h-10 bg-[var(--endeavour)] rounded-xl flex items-center justify-center shadow-lg shadow-[var(--endeavour)]/20">
+        <div className="w-10 h-10 bg-[var(--endeavour)] rounded-2xl flex items-center justify-center shadow-lg shadow-[var(--endeavour)]/20">
           <Clock className="w-5 h-5 text-white" strokeWidth={2} />
         </div>
         <div className="space-y-2">
-          <h2 className="text-base font-bold text-[var(--chathams-blue)] tracking-tight">
+          <h2 className="responsiveTextPage font-bold text-[var(--chathams-blue)] tracking-tight">
             Real-Time Analytics
           </h2>
-          <p className="text-gray-500 leading-relaxed text-sm">
+          <p className="text-gray-500 leading-relaxed responsiveTextTitle">
             Monitor your platform performance and user engagement live. Gain actionable insights instantly 
             to optimize growth and decision-making.
           </p>
         </div>
-        <Button className="bg-[var(--endeavour)] hover:bg-[var(--brand-deep)] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md shadow-[var(--endeavour)]/25 transition-transform hover:scale-105 cursor-pointer">
+        <Button className="bg-[var(--endeavour)] hover:bg-[var(--brand-deep)] text-white px-4 py-2 rounded-lg responsiveTextTitle font-medium shadow-md shadow-[var(--endeavour)]/25 transition-transform hover:scale-105 cursor-pointer">
           Explore Features
         </Button>
       </motion.div>
@@ -58,19 +58,19 @@ export function PlatformCard2() {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.2 }}
-        className="relative h-full w-full bg-[var(--surface-card)] rounded-[2rem] shadow-sm border border-slate-100/50 p-8 lg:pr-12"
+        className="relative h-full w-full bg-[var(--surface-card)] rounded-2xl shadow-sm border border-slate-100/50 p-8 lg:pr-12"
       >
         {/* Floating Card - Financial Overview */}
         <div className="absolute -top-16 right-8 w-56 bg-[var(--endeavour)] text-white p-5 rounded-3xl shadow-2xl shadow-blue-500/30 z-10">
           <div className="space-y-1 mb-4">
-            <h3 className="text-sm font-semibold opacity-90">Financial Growth</h3>
-            <p className="text-[10px] opacity-70">Total platform revenue increased by 46%</p>
+            <h3 className="responsiveTextTitle font-semibold opacity-90">Financial Growth</h3>
+            <p className="responsiveTextTable opacity-70">Total platform revenue increased by 46%</p>
           </div>
           <div className="h-32 relative flex items-center justify-center">
             <Donut segments={pieData} innerRadius={38} outerRadius={48} />
             <div className="absolute inset-0 flex flex-col items-center justify-center mt-2">
-              <span className="text-[10px] font-light opacity-70">Facebook</span>
-              <span className="text-xl font-bold">36%</span>
+              <span className="responsiveTextTable font-light opacity-70">Facebook</span>
+              <span className="responsiveTextStat font-bold">36%</span>
             </div>
           </div>
         </div>
@@ -89,7 +89,7 @@ export function PlatformCard2() {
         </div>
         
         {/* X Axis Labels */}
-        <div className="flex justify-between text-[10px] text-gray-300 mt-2 px-2 font-medium uppercase tracking-wider">
+        <div className="flex justify-between responsiveTextTable text-gray-300 mt-2 px-2 font-medium uppercase tracking-wider">
           <span>10:30 AM</span>
           <span>11:30 AM</span>
           <span>12:30 PM</span>

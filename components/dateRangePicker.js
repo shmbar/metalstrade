@@ -114,7 +114,7 @@ const DateRangePicker = ({ displayLabel }) => {
             }
             .grid.grid-cols-7.border-b.border-gray-300.py-2 > div {
                 color: var(--chathams-blue) !important;
-                font-size: 11px !important;
+                font-size: var(--fs-body) !important;
                 font-weight: 600 !important;
             }
 
@@ -128,7 +128,7 @@ const DateRangePicker = ({ displayLabel }) => {
             .flex.items-center.justify-center.w-10.h-10,
             .flex.items-center.justify-center.lg\\:w-10.lg\\:h-10 {
                 border-radius: 999px !important;
-                font-size: 12px !important;
+                font-size: var(--fs-input) !important;
             }
             .flex.items-center.justify-center.w-12.h-12:hover,
             .flex.items-center.justify-center.lg\\:w-10.lg\\:h-10:hover {
@@ -151,7 +151,7 @@ const DateRangePicker = ({ displayLabel }) => {
             .whitespace-nowrap.lg\\:w-auto.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded {
                 border-radius: 999px !important;
                 color: var(--endeavour) !important;
-                font-size: 12px !important;
+                font-size: var(--fs-input) !important;
             }
             .whitespace-nowrap.w-1\\/2.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded:hover,
             .whitespace-nowrap.lg\\:w-auto.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded:hover {

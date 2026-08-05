@@ -11,8 +11,8 @@
 //         {/* Hero Section */}
 //         <section className="py-20 bg-blue-600 text-white">
 //           <div className="container mx-auto px-4 text-center">
-//             <h1 className="text-5xl font-bold mb-4">About MetalsTrade</h1>
-//             <p className="text-xl text-blue-100">
+//             <h1 className="responsiveTextHero font-bold mb-4">About MetalsTrade</h1>
+//             <p className="responsiveTextStat text-blue-100">
 //               Revolutionizing the metal trade industry with innovative solutions
 //             </p>
 //           </div>
@@ -23,19 +23,19 @@
 //           <div className="container mx-auto px-4">
 //             <div className="grid md:grid-cols-2 gap-12 items-center">
 //               <div>
-//                 <h2 className="text-4xl font-bold mb-6">Our Mission</h2>
-//                 <p className="text-gray-600 text-lg mb-4">
+//                 <h2 className="responsiveTextHero font-bold mb-6">Our Mission</h2>
+//                 <p className="text-gray-600 responsiveTextPage mb-4">
 //                   We believe that technology should simplify business operations, not complicate them.
 //                 </p>
-//                 <p className="text-gray-600 text-lg mb-4">
+//                 <p className="text-gray-600 responsiveTextPage mb-4">
 //                   MetalsTrade was founded with a mission to provide metal trade companies with a
 //                   comprehensive, easy-to-use platform that handles all aspects of their business.
 //                 </p>
-//                 <p className="text-gray-600 text-lg">
+//                 <p className="text-gray-600 responsiveTextPage">
 //                   From contracts to invoices, expenses to inventory—we've got you covered.
 //                 </p>
 //               </div>
-//               <div className="bg-blue-100 rounded-xl h-96 flex items-center justify-center">
+//               <div className="bg-blue-100 rounded-2xl h-96 flex items-center justify-center">
 //                 <div className="text-center">
 //                   <svg
 //                     className="w-20 h-20 mx-auto mb-4 text-[var(--endeavour)] opacity-50"
@@ -60,7 +60,7 @@
 //         {/* Values Section */}
 //         <section className="py-20 bg-gray-50">
 //           <div className="container mx-auto px-4">
-//             <h2 className="text-4xl font-bold text-center mb-16">Our Values</h2>
+//             <h2 className="responsiveTextHero font-bold text-center mb-16">Our Values</h2>
 //             <div className="grid md:grid-cols-3 gap-8">
 //               {[
 //                 {
@@ -76,8 +76,8 @@
 //                   description: 'Your success is our success. We prioritize your needs.',
 //                 },
 //               ].map((value, index) => (
-//                 <div key={index} className="bg-[var(--surface-card)] p-8 rounded-xl shadow-lg">
-//                   <h3 className="text-2xl font-bold mb-4">{value.title}</h3>
+//                 <div key={index} className="bg-[var(--surface-card)] p-8 rounded-2xl shadow-lg">
+//                   <h3 className="responsiveTextStat font-bold mb-4">{value.title}</h3>
 //                   <p className="text-gray-600">{value.description}</p>
 //                 </div>
 //               ))}
@@ -88,7 +88,7 @@
 //         {/* Team Section */}
 //         <section className="py-20 bg-[var(--surface-card)]">
 //           <div className="container mx-auto px-4">
-//             <h2 className="text-4xl font-bold text-center mb-16">Our Team</h2>
+//             <h2 className="responsiveTextHero font-bold text-center mb-16">Our Team</h2>
 //             <div className="grid md:grid-cols-4 gap-8">
 //               {[
 //                 { name: 'John Doe', role: 'CEO & Founder' },
@@ -106,7 +106,7 @@
 //                       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
 //                     </svg>
 //                   </div>
-//                   <h3 className="text-xl font-bold">{member.name}</h3>
+//                   <h3 className="responsiveTextStat font-bold">{member.name}</h3>
 //                   <p className="text-gray-600">{member.role}</p>
 //                 </div>
 //               ))}
@@ -148,12 +148,12 @@ export default function AboutPage() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="text-3xl font-bold text-[var(--chathams-blue)] mb-6">Our Mission</h2>
-        <p className="text-lg text-gray-600 leading-relaxed mb-4">
+        <h2 className="responsiveTextDisplay font-bold text-[var(--chathams-blue)] mb-6">Our Mission</h2>
+        <p className="responsiveTextPage text-gray-600 leading-relaxed mb-4">
           We believe technology should simplify metal trading — not complicate it.
           MetalsTrade was built to streamline trade operations end-to-end.
         </p>
-        <p className="text-lg text-gray-600 leading-relaxed">
+        <p className="responsiveTextPage text-gray-600 leading-relaxed">
           From real-time expense tracking, smart invoicing, contract automation, inventory
           optimization, and analytics — we provide the infrastructure for the future of metal trade.
         </p>
@@ -178,16 +178,16 @@ export default function AboutPage() {
             className="absolute -inset-16 border border-blue-200/70 rounded-full"
           >
             {/* OUTER ICONS */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--endeavour)] text-white p-3 rounded-xl shadow-md">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--endeavour)] text-white p-3 rounded-2xl shadow-md">
               <TrendingUp className="w-6 h-6" />
             </div>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-[var(--endeavour)] text-white p-3 rounded-xl shadow-md">
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-[var(--endeavour)] text-white p-3 rounded-2xl shadow-md">
               <Globe className="w-6 h-6" />
             </div>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 bg-[var(--endeavour)] text-white p-3 rounded-xl shadow-md">
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 bg-[var(--endeavour)] text-white p-3 rounded-2xl shadow-md">
               <Users className="w-6 h-6" />
             </div>
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[var(--endeavour)] text-white p-3 rounded-xl shadow-md">
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[var(--endeavour)] text-white p-3 rounded-2xl shadow-md">
               <BarChart className="w-6 h-6" />
             </div>
           </motion.div>
@@ -233,8 +233,8 @@ export default function AboutPage() {
 
     {/* Header */}
     <div className="text-center max-w-3xl mx-auto mb-10">
-      <h2 className="text-3xl font-bold text-[var(--chathams-blue)] mb-4">Core Values</h2>
-      <p className="text-gray-600 text-lg leading-relaxed">
+      <h2 className="responsiveTextDisplay font-bold text-[var(--chathams-blue)] mb-4">Core Values</h2>
+      <p className="text-gray-600 responsiveTextPage leading-relaxed">
         Principles that drive our culture, our decisions, and the experiences we create.
       </p>
     </div>
@@ -281,7 +281,7 @@ export default function AboutPage() {
           </div>
 
           {/* Content */}
-          <h3 className="text-lg font-bold text-[var(--chathams-blue)] group-hover:text-[var(--endeavour)] transition-colors duration-300 mb-3">
+          <h3 className="responsiveTextPage font-bold text-[var(--chathams-blue)] group-hover:text-[var(--endeavour)] transition-colors duration-300 mb-3">
             {value.title}
           </h3>
           <p className="text-gray-600 leading-relaxed relative z-10">
@@ -300,10 +300,10 @@ export default function AboutPage() {
 
     {/* Heading */}
     <div className="text-center max-w-3xl mx-auto mb-10">
-      <h2 className="text-3xl font-bold text-[var(--chathams-blue)] mb-4">
+      <h2 className="responsiveTextDisplay font-bold text-[var(--chathams-blue)] mb-4">
         Why Businesses Choose Us
       </h2>
-      <p className="text-gray-500 text-lg">
+      <p className="text-gray-500 responsiveTextPage">
         Trusted by global organizations for unmatched performance,
         intelligent automation, and enterprise-grade scalability.
       </p>
@@ -346,11 +346,11 @@ export default function AboutPage() {
           transition={{ delay: index * 0.1 }}
           className="bg-[var(--surface-pill)] p-6 rounded-2xl border border-[var(--border-divider)] shadow-sm hover:shadow-md hover:border-[var(--endeavour)] hover:-translate-y-1 transition-all duration-300 group"
         >
-          <div className="w-14 h-14 flex items-center justify-center rounded-xl bg-[var(--selago)] mb-5 group-hover:bg-[var(--endeavour)] transition-colors duration-300">
+          <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--selago)] mb-5 group-hover:bg-[var(--endeavour)] transition-colors duration-300">
             <item.icon className="w-7 h-7 text-[var(--endeavour)] group-hover:text-white transition-all duration-300" />
           </div>
 
-          <h3 className="text-base font-bold text-[var(--chathams-blue)] mb-2 group-hover:text-[var(--endeavour)] transition-colors duration-300">
+          <h3 className="responsiveTextPage font-bold text-[var(--chathams-blue)] mb-2 group-hover:text-[var(--endeavour)] transition-colors duration-300">
             {item.title}
           </h3>
 

@@ -43,11 +43,11 @@ export function PlatformCard3() {
         {/* Main Card */}
         <div className="relative z-10 bg-gradient-to-r from-[var(--endeavour)] to-[var(--port-gore)] rounded-2xl p-6 text-white shadow-2xl shadow-[var(--endeavour)]/20 w-[85%]">
           <div className="flex justify-between items-start mb-6">
-            <span className="text-sm font-medium opacity-90">Credit Balance</span>
+            <span className="responsiveTextTitle font-medium opacity-90">Credit Balance</span>
             <MoreHorizontal className="w-6 h-6 opacity-70" />
           </div>
           <div className="flex justify-between items-end">
-            <h3 className="text-4xl font-bold tracking-tight">$25,215</h3>
+            <h3 className="responsiveTextStat font-bold tracking-tight">$25,215</h3>
             <div className="h-10 w-20 pb-1">
               <Sparkline data={creditBalanceData} stroke="white" strokeWidth={2} fill={false} />
             </div>
@@ -90,17 +90,17 @@ export function PlatformCard3() {
         transition={{ delay: 0.4 }}
         className="flex flex-col items-start space-y-3 py-4 lg:pl-4 h-full justify-start"
       >
-        <div className="w-10 h-10 bg-[var(--endeavour)] rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/20">
+        <div className="w-10 h-10 bg-[var(--endeavour)] rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/20">
           <Lock className="w-5 h-5 text-white" strokeWidth={2} />
         </div>
         <div className="space-y-2">
-          <h2 className="text-base font-bold text-[var(--chathams-blue)] tracking-tight">Secure & Reliable</h2>
-          <p className="text-gray-500 leading-relaxed text-sm">
+          <h2 className="responsiveTextPage font-bold text-[var(--chathams-blue)] tracking-tight">Secure & Reliable</h2>
+          <p className="text-gray-500 leading-relaxed responsiveTextTitle">
             Protect your financial data with industry-standard security protocols. 
             Keep your transactions safe and maintain complete peace of mind.
           </p>
         </div>
-        <Button className="bg-[var(--endeavour)] hover:bg-[var(--brand-deep)] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md shadow-blue-500/25 transition-transform hover:scale-105 cursor-pointer">
+        <Button className="bg-[var(--endeavour)] hover:bg-[var(--brand-deep)] text-white px-4 py-2 rounded-lg responsiveTextTitle font-medium shadow-md shadow-blue-500/25 transition-transform hover:scale-105 cursor-pointer">
           Learn More
         </Button>
       </motion.div>

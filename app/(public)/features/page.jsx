@@ -26,7 +26,7 @@ export default function FeaturesPage() {
   <div className="container mx-auto px-4">
 
     {/* SECTION TITLE */}
-    <h2 className="text-3xl font-bold text-center text-[var(--chathams-blue)] mb-12 leading-tight">
+    <h2 className="responsiveTextDisplay font-bold text-center text-[var(--chathams-blue)] mb-12 leading-tight">
       Powerful Tools to Streamline Your Workflow
     </h2>
 
@@ -44,7 +44,7 @@ export default function FeaturesPage() {
         ],
         preview: (
           <div className="flex flex-col items-start justify-center w-full h-full p-6">
-            <h4 className="text-lg font-semibold text-[var(--endeavour)] mb-2">Contracts Overview</h4>
+            <h4 className="responsiveTextPage font-semibold text-[var(--endeavour)] mb-2">Contracts Overview</h4>
             <div className="flex items-center justify-between w-full mb-4">
               <span className="text-gray-500">Active Contracts</span>
               <span className="font-bold text-gray-700">128</span>
@@ -78,7 +78,7 @@ export default function FeaturesPage() {
         ],
         preview: (
           <div className="flex flex-col items-start justify-center w-full h-full p-6">
-            <h4 className="text-lg font-semibold text-[var(--endeavour)] mb-2">Invoices Status</h4>
+            <h4 className="responsiveTextPage font-semibold text-[var(--endeavour)] mb-2">Invoices Status</h4>
             <div className="flex items-center justify-between w-full mb-4">
               <span className="text-gray-500">Paid</span>
               <span className="font-bold text-gray-700">340</span>
@@ -112,7 +112,7 @@ export default function FeaturesPage() {
         ],
         preview: (
           <div className="flex flex-col items-start justify-center w-full h-full p-6">
-            <h4 className="text-lg font-semibold text-[var(--endeavour)] mb-2">Expenses Overview</h4>
+            <h4 className="responsiveTextPage font-semibold text-[var(--endeavour)] mb-2">Expenses Overview</h4>
             <div className="flex items-center justify-between w-full mb-4">
               <span className="text-gray-500">Operational</span>
               <span className="font-bold text-gray-700">$12,450</span>
@@ -141,10 +141,10 @@ export default function FeaturesPage() {
             <>
               {/* TEXT BLOCK */}
               <div>
-                <h3 className="text-2xl font-bold text-[var(--chathams-blue)] mb-3">
+                <h3 className="responsiveTextPage font-bold text-[var(--chathams-blue)] mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                <p className="text-gray-600 responsiveTextPage leading-relaxed mb-6">
                   {feature.description}
                 </p>
 
@@ -206,10 +206,10 @@ export default function FeaturesPage() {
 
               {/* TEXT BLOCK */}
               <div>
-                <h3 className="text-2xl font-bold text-[var(--chathams-blue)] mb-3">
+                <h3 className="responsiveTextPage font-bold text-[var(--chathams-blue)] mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                <p className="text-gray-600 responsiveTextPage leading-relaxed mb-6">
                   {feature.description}
                 </p>
 

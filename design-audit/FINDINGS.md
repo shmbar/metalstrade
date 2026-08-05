@@ -540,3 +540,76 @@ line is now **replaced**, not removed: `font-size: var(--fs-table)` — the rung
 dense cells (10/11/12/13), landing on the 11px Zak just approved.
 
 Two commented-out copies of the old rule were left untouched.
+
+---
+
+## Batch 11 — hardcoded fonts on the public pages, and the size the codemod lost
+
+Zak: *"cross check all web pages if hardcoded font found replace accordingly so no
+inconsistency in any page"*.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 084 | C1/C2 | 30 marketing files | The public tree was never in gate scope, so it kept ad-hoc `text-3xl/4xl/5xl` while the CRM was normalised. 107 sizes mapped, 13 fixed-size responsive variants dropped. | **High** | Fixed |
+| 085 | C2 | app-wide, 80 headings | Tailwind preflight resets `h1`–`h6` to `font-size: inherit` and is emitted **unlayered**, so it beat every `.responsiveText*` class in `@layer app`. Ladder classes on headings did nothing. | **High** | Fixed |
+| 086 | C2 | 6 headings | The codemod mapped from the **base** class, but these carried a larger variant (`md:text-4xl`) that is what actually rendered on a desktop. The shared page hero went 36px → 22px. | **High** | Fixed |
+| 087 | C2 | 12 headings | Section heads spread across four rungs (36/25/22/17) — the C2 complaint reproduced on the public site. | Medium | Fixed |
+| 088 | C1 | `globals.css` | `.cf-uniform` hardcoded 12px with a bespoke **1780px** breakpoint — the only place in the app that stepped at that width. | Medium | Fixed |
+| 089 | C4 | 3 components | The dark-mode logo rule matched `img[src^="/logo/"]`, but `next/image` static imports rewrite src to `/_next/static/media/…`, so it silently stopped matching. Brand-blue wordmark on a dark bar. | Medium | Fixed |
+
+### 086 — why `promote.js` missed it
+
+The first promotion pass only inspected lines that had become `responsiveTextDisplay`. A
+heading whose base was `text-2xl` landed on `responsiveTextStat` instead, so it was never
+looked at — even though its `md:text-4xl` meant it had been rendering at 36px.
+
+The general check is `design-audit/tools/shrink-audit.js`: it pairs each removed line with
+its replacement inside a `git diff -U0` hunk, computes the size that actually applied at
+1440px **before** (largest of base/sm/md/lg/xl) against the rung that applies now, and
+reports anything that moved by more than a rung. Whole-file comparison cannot do this —
+the files' line counts changed. Across 345 files it found 22 movements: 16 were the
+intended ladder compression (30→25, 18→14, 14→11 — the density Zak approved on margins),
+and 6 were this bug.
+
+### 087 — one rung per role
+
+Every real section `h2` on the public site was originally 30px or 36px: one Tailwind step
+apart, i.e. the same role rendered inconsistently. Rather than preserve that, the public
+pages now use the same role table as the app:
+
+| Role | Rung | px @1440 |
+|------|------|----------|
+| Page hero `h1` | `responsiveTextHero` | 36 |
+| Section head `h2` | `responsiveTextDisplay` | 25 |
+| Stat figure | `responsiveTextStat` | 22 |
+| Card title `h3` | `responsiveTextPage` | 17 |
+| List-item title | `responsiveTextTitle` | 14 |
+
+Measured after the change, light and dark, at 1440px — identical on all six pages, zero
+overflow:
+
+```
+home/about/features/blog/contact/landing   h1 36  h2 25  h3 17  (14 for list items)
+signin                                     h1 22  h2 25
+```
+
+### Two false-evidence traps in this batch
+
+**A stale server.** A measurement run reported `h1 32 / h2 24 / h3 19` on every page —
+those are the browser's *default* heading sizes. The build had been replaced underneath a
+running `next start`, so the HTML referenced a CSS bundle no longer on disk. The harness
+now asserts every served CSS URL exists in `.next` before it trusts a number, and reads
+`--fs-hero` from the document as proof the ladder is live.
+
+**A theme that never applied.** The dark screenshots were taken by toggling `.dark` on
+`<html>`. This app themes by rewriting CSS variables via `applyTheme()`, so the class alone
+changes almost nothing — the "dark" shots were light. Fixed by seeding the real
+`ims-theme` payload the boot script reads. `themeVarMap` also takes a theme *object*, not
+an id; passing `'violet'` produced `#5a3fNaN` values that the browser silently discarded.
+The harness now rejects any shot where `--border-divider` is not the expected value.
+
+### Remaining hardcoded sizes, and why they stay
+
+- 15 `text-<size>` classes — **all inside comments**, zero live.
+- 3 literal `font-size` values in `app/api/ai/send-reminder/route.js` — an HTML **email**
+  template. Mail clients do not resolve CSS variables, so these must stay literal.

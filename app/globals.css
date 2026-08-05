@@ -132,6 +132,8 @@
   --fs-title:   0.8125rem; /* 13px — card / section titles    */
   --fs-page:    1rem;      /* 16px — page titles              */
   --fs-stat:    1.25rem;   /* 20px — KPI figures              */
+  --fs-display: 1.375rem;  /* 22px — marketing section heads  */
+  --fs-hero:    1.875rem;  /* 30px — marketing hero headline  */
 
   /* Stacking ladder — a closed set of 8. Nothing may invent its own z-index.
      Replaces the 22 competing values found in the Phase-1 scan. */
@@ -189,6 +191,8 @@
     --fs-title:   0.875rem;  /* 14 */
     --fs-page:    1.0625rem; /* 17 */
     --fs-stat:    1.375rem;  /* 22 */
+    --fs-display: 1.5625rem; /* 25 */
+    --fs-hero:    2.25rem;   /* 36 */
   }
 }
 @media (min-width: 1536px) {
@@ -200,6 +204,8 @@
     --fs-title:   0.9375rem; /* 15 */
     --fs-page:    1.125rem;  /* 18 */
     --fs-stat:    1.5rem;    /* 24 */
+    --fs-display: 1.75rem;   /* 28 */
+    --fs-hero:    2.625rem;  /* 42 */
   }
 }
 @media (min-width: 1920px) {
@@ -211,6 +217,8 @@
     --fs-title:   1rem;      /* 16 */
     --fs-page:    1.25rem;   /* 20 */
     --fs-stat:    1.625rem;  /* 26 */
+    --fs-display: 2rem;      /* 32 */
+    --fs-hero:    3rem;      /* 48 */
   }
 }
 
@@ -246,10 +254,42 @@ html.dark {
 }
 /* The /logo/ SVG assets are drawn in brand blue — on dark surfaces they'd
    vanish. White-silhouette them. Rasters (.png company logos) are excluded:
-   brightness(0) would destroy their detail. */
-html.dark img[src^="/logo/"][src$=".svg"] {
+   brightness(0) would destroy their detail.
+
+   The second selector catches the same assets imported as ES modules and
+   rendered through next/image: that rewrites src to
+   /_next/static/media/<name>.<hash>.svg, so the /logo/ prefix is gone and the
+   rule above silently stopped matching. That is what left the IMS wordmark
+   drawn in brand blue on the dark public navbar, the signin page and the app's
+   mini sidebar — the only three places that import the logo rather than link
+   it. Still restricted to .svg for the same reason as above. */
+html.dark img[src^="/logo/"][src$=".svg"],
+html.dark img[src*="/_next/static/media/logo"][src$=".svg"] {
   filter: brightness(0) invert(1);
 }
+
+/* ── The ladder must also work on <h1>–<h6> ───────────────────────────────────
+   Tailwind's preflight resets every heading with `font-size: inherit`, and
+   preflight is emitted UNLAYERED — so it beats anything inside `@layer app`,
+   where the .responsiveText* classes live. The result: a ladder class on a
+   heading did nothing, and the element silently fell back to its parent's size.
+   The marketing hero carried .responsiveTextDisplay (22px) and rendered at 16px.
+   80 headings across the app were affected.
+
+   These declarations are unlayered and come after preflight, so they win. They
+   read the same --fs-* variables the classes use, so there is still ONE source
+   of truth and they ramp at the same breakpoints. */
+.responsiveTextTableTitle { font-size: var(--fs-caption); }
+.responsiveTextTable,
+.responsiveTextTable1     { font-size: var(--fs-table); }
+.responsiveText,
+.responsiveTextTotal      { font-size: var(--fs-body); }
+.responsiveTextInput      { font-size: var(--fs-input); }
+.responsiveTextTitle      { font-size: var(--fs-title); }
+.responsiveTextPage       { font-size: var(--fs-page); }
+.responsiveTextStat       { font-size: var(--fs-stat); }
+.responsiveTextDisplay    { font-size: var(--fs-display); }
+.responsiveTextHero       { font-size: var(--fs-hero); }
 
 /* ── Figures never break mid-number ───────────────────────────────────────────
    The .responsiveText* ladder carries `break-words`, which is right for prose
@@ -441,6 +481,21 @@ textarea:focus-visible,
            font-semibold leading-tight break-words min-w-0;
   }
 
+  /* ── Display rungs, for the public marketing pages ────────────────────────
+     The CRM ladder tops out at 26px, which is right for a dense data product
+     and far too small for a landing-page headline. Rather than let the
+     marketing pages keep their own ad-hoc text-3xl/4xl/5xl, they get two rungs
+     that continue the same ladder — so every page in the product, app or
+     marketing, is on one system. */
+  .responsiveTextDisplay {
+    @apply text-[1.375rem] xl:text-[1.5625rem] 2xl:text-[1.75rem] 3xl:text-[2rem]
+           font-bold leading-tight tracking-tight break-words min-w-0;
+  }
+  .responsiveTextHero {
+    @apply text-[1.875rem] xl:text-[2.25rem] 2xl:text-[2.625rem] 3xl:text-[3rem]
+           font-bold leading-[1.15] tracking-tight break-words min-w-0;
+  }
+
   /* KPI / stat figures — 20 / 22 / 24 / 26. */
   .responsiveTextStat {
     @apply text-[1.25rem] xl:text-[1.375rem] 2xl:text-[1.5rem] 3xl:text-[1.625rem]
@@ -606,10 +661,13 @@ input::-webkit-inner-spin-button {
 /* ── Cashflow: ONE middle text size page-wide ─────────────────────────────────
    Client feedback: the big figures scaled up to 14px on large screens while the
    pill inputs were fixed at 11.5px (.input) — "top too large, bottom too small".
-   Inside .cf-uniform everything textual lands on one middle size: 12px, stepping
-   to 13px only on very large screens. Unlayered rules, so they win over the
-   @layer utilities that responsiveText/.input apply. Inline-styled chips/badges
-   (intentionally tiny) are untouched. */
+   Inside .cf-uniform everything textual collapses onto the single body rung, so
+   the page reads at one size top to bottom. It used to hardcode 12px with a
+   bespoke 1780px step — the only place in the app that broke at that width — so
+   it now takes --fs-body and rides the shared breakpoints instead. Identical at
+   1440px and 1780px; +/-1px at the extremes. Unlayered, so it still wins over
+   the @layer utilities that responsiveText/.input apply. Inline-styled
+   chips/badges (intentionally tiny) are untouched. */
 .cf-uniform .responsiveText,
 .cf-uniform .responsiveTextTotal,
 .cf-uniform .responsiveTextTable,
@@ -617,18 +675,7 @@ input::-webkit-inner-spin-button {
 .cf-uniform .input,
 .cf-uniform .cashflow-detail-table th,
 .cf-uniform .cashflow-detail-table td {
-  font-size: 0.75rem; /* 12px */
-}
-@media (min-width: 1780px) {
-  .cf-uniform .responsiveText,
-  .cf-uniform .responsiveTextTotal,
-  .cf-uniform .responsiveTextTable,
-  .cf-uniform .responsiveTextInput,
-  .cf-uniform .input,
-  .cf-uniform .cashflow-detail-table th,
-  .cf-uniform .cashflow-detail-table td {
-    font-size: 0.8125rem; /* 13px */
-  }
+  font-size: var(--fs-body);
 }
 
 .cashflow-detail-table {
@@ -724,7 +771,7 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
   border: 1px solid var(--border-divider) !important;
   border-radius: 999px !important;
   color: var(--chathams-blue) !important;
-  font-size: 11px !important;
+  font-size: var(--fs-body) !important;
   padding: 3px 8px !important;
 }
 .rounded-full.p-\[0\.45rem\]:hover {
@@ -742,7 +789,7 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 }
 .grid.grid-cols-7.border-b.border-gray-300.py-2 > div {
   color: var(--chathams-blue) !important;
-  font-size: 11px !important;
+  font-size: var(--fs-body) !important;
   font-weight: 600 !important;
 }
 .grid.grid-cols-7.gap-y-0\.5.my-1 > div {
@@ -752,7 +799,7 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 .flex.items-center.justify-center.w-10.h-10,
 .flex.items-center.justify-center.lg\:w-10.lg\:h-10 {
   border-radius: 999px !important;
-  font-size: 12px !important;
+  font-size: var(--fs-input) !important;
 }
 .flex.items-center.justify-center.w-12.h-12:hover,
 .flex.items-center.justify-center.lg\:w-10.lg\:h-10:hover {
@@ -861,7 +908,7 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 
 /* Only target disabled buttons inside the datepicker wrapper */
 .datepicker-wrapper button[disabled] {
-  @apply cursor-not-allowed relative text-xs text-[var(--regent-gray)];
+  @apply cursor-not-allowed relative responsiveTextInput text-[var(--regent-gray)];
 }
 
 /* Scope to datepicker only */

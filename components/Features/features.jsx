@@ -23,7 +23,7 @@ const features = [
   },
   {
     icon: MousePointer2,
-    color: "bg-[#14B8A6]",
+    color: "bg-[var(--teal-text)]",
     title: "Secure Access",
     description: "Per-user accounts with role restrictions, controlled sessions, and a full activity log of who changed what, when."
   }
@@ -40,7 +40,7 @@ export default function Features() {
           transition={{ duration: 0.5 }}
           className="text-center mb-10"
         >
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight">
+          <h2 className="responsiveTextDisplay font-bold text-white tracking-tight">
             Everything you need to grow your business
           </h2>
         </motion.div>

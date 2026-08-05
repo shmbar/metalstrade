@@ -27,7 +27,7 @@ export default function Hero() {
         <div className="absolute -bottom-40 right-0 w-[520px] h-[520px] rounded-full opacity-20"
           style={{ background: 'radial-gradient(circle, var(--rock-blue) 0%, transparent 70%)' }} />
         <div className="absolute inset-0 opacity-[0.05]"
-          style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
+          style={{ backgroundImage: 'linear-gradient(var(--on-brand) 1px, transparent 1px), linear-gradient(90deg, var(--on-brand) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
       </div>
 
       <div className="container mx-auto px-8 md:px-16 relative z-20">
@@ -42,7 +42,7 @@ export default function Hero() {
               className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 mb-5 border border-white/25 bg-white/10 backdrop-blur-sm"
             >
               <Sparkles className="w-3.5 h-3.5 text-[var(--on-brand-muted)]" />
-              <span className="text-[11px] font-semibold tracking-wide uppercase text-[var(--on-brand-muted)]">
+              <span className="responsiveText font-semibold tracking-wide uppercase text-[var(--on-brand-muted)]">
                 AI-powered IMS for metals &amp; alloys trading
               </span>
             </motion.div>
@@ -51,7 +51,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-5 leading-[1.15] tracking-tight"
+              className="responsiveTextHero font-bold mb-5 leading-[1.15] tracking-tight"
             >
               The operating system for{' '}
               <span style={{
@@ -66,7 +66,7 @@ export default function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-sm md:text-base text-[var(--on-brand-muted)] mb-6 leading-relaxed font-light max-w-lg"
+              className="responsiveTextTitle text-[var(--on-brand-muted)] mb-6 leading-relaxed font-light max-w-lg"
             >
               Contracts, inventory, shipments, cashflow and margins — connected end to end.
               Drop a supplier invoice and the AI fills it in. Watch live metal prices and FX.
@@ -81,7 +81,7 @@ export default function Hero() {
               className="flex flex-wrap gap-2 mb-8"
             >
               {heroStats.map((s) => (
-                <span key={s} className="text-[11px] font-medium text-[var(--on-brand-muted)] rounded-full px-3 py-1 border border-white/20 bg-white/[0.07]">
+                <span key={s} className="responsiveText font-medium text-[var(--on-brand-muted)] rounded-full px-3 py-1 border border-white/20 bg-white/[0.07]">
                   {s}
                 </span>
               ))}
@@ -94,12 +94,12 @@ export default function Hero() {
               className="flex flex-col sm:flex-row gap-4 items-start"
             >
               <Link href="/signin">
-                <span className="bg-[var(--surface-card)] text-[var(--chathams-blue)] px-8 py-2.5 rounded-xl font-bold hover:bg-[var(--surface-header)] transition-all shadow-lg cursor-pointer inline-block hover:scale-105 active:scale-95 text-sm">
+                <span className="bg-[var(--surface-card)] text-[var(--chathams-blue)] px-8 py-2.5 rounded-2xl font-bold hover:bg-[var(--surface-header)] transition-all shadow-lg cursor-pointer inline-block hover:scale-105 active:scale-95 responsiveTextTitle">
                   Sign In
                 </span>
               </Link>
               <a href="#modules">
-                <span className="border border-[var(--border-divider)]/60 text-white px-8 py-2.5 rounded-xl font-bold hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 text-sm">
+                <span className="border border-[var(--border-divider)]/60 text-white px-8 py-2.5 rounded-2xl font-bold hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 responsiveTextTitle">
                   Explore the platform <ArrowRight className="w-4 h-4" />
                 </span>
               </a>
