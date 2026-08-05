@@ -83,7 +83,9 @@ export default function CommandPalette() {
         onClick={() => setOpen(true)}
         aria-label="Open command palette (Ctrl+K)"
         title="Search & navigate (Ctrl+K)"
-        className="fixed bottom-4 right-20 z-dropdown hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-cell)] shadow-md hover:shadow-lg transition-shadow"
+        /* z-sticky, not z-dropdown: this is the persistent hint pill, not the
+           palette itself. At dropdown level it sat on top of every open modal. */
+        className="fixed bottom-4 right-20 z-sticky hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-cell)] shadow-md hover:shadow-lg transition-shadow"
       >
         <Search className="w-3.5 h-3.5 text-[var(--chathams-blue)]" />
         <span className="responsiveTextTable text-[var(--regent-gray)] font-medium">

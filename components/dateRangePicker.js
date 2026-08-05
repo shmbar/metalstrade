@@ -208,7 +208,10 @@ const DateRangePicker = ({ displayLabel }) => {
                     showShortcuts={true}
                     readOnly={true}
                     popoverDirection="down"
-                    containerClassName="relative z-popover"
+                    /* NOT z-popover: this wrapper holds the always-visible input as
+                       well as the calendar, so a portal-level z floated the input
+                       itself over every modal. See --z-page-popover in globals.css. */
+                    containerClassName="relative z-page-popover"
                     configs={{
                         shortcuts: {
                             today: {

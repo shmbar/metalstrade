@@ -135,14 +135,25 @@
   --fs-display: 1.375rem;  /* 22px — marketing section heads  */
   --fs-hero:    1.875rem;  /* 30px — marketing hero headline  */
 
-  /* Stacking ladder — a closed set of 8. Nothing may invent its own z-index.
+  /* Stacking ladder — a closed set of 9. Nothing may invent its own z-index.
      Replaces the 22 competing values found in the Phase-1 scan. */
   --z-sticky: 20;        /* sticky table headers / toolbars                    */
+  /* A popup that does NOT portal renders inside its own wrapper, so its
+     z-index resolves against that wrapper — and the wrapper's own value is
+     what the rest of the page sees. react-tailwindcss-datepicker is the case
+     in point: the calendar is an `absolute z-10` child of the input wrapper,
+     so lifting the WRAPPER to --z-popover (260) lifted the always-visible
+     input with it, and the page date filter floated on top of every modal on
+     all 12 pages that render one. This rung clears page furniture (sticky
+     headers at 20) while staying under a modal, and because the wrapper is a
+     descendant when the picker is used INSIDE a modal, it still paints above
+     that modal's own content. */
+  --z-page-popover: 50;  /* in-flow popups that must stay under modals        */
   /* Dropdowns/popovers PORTAL to <body> (Radix), so they must clear even a
      nested modal's panel (201) or every select inside a modal opens invisibly
      UNDERNEATH it and traps focus — "can't choose, can't type" app-wide. */
   --z-dropdown: 250;     /* select menus, comboboxes, column filters           */
-  --z-popover: 260;      /* datepicker popups, quick-sum, click popovers       */
+  --z-popover: 260;      /* PORTALLED popups: quick-sum, click popovers       */
   --z-modal: 100;        /* modal overlay (panel sits at 101)                  */
   --z-modal-nested: 200; /* a modal opened FROM a modal (panel 201)            */
   --z-toast: 300;        /* toasts, notification popups                        */

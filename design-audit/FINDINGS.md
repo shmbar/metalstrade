@@ -681,3 +681,79 @@ and refuses anything still showing a skeleton. That also recovered
 that was an `<input type="checkbox">` — it renders no glyph, so its font-size is
 inert, and its `value` is the string `"on"`. Checkboxes, radios and the other
 glyphless input types are now excluded.
+
+---
+
+## Batch 13 — the page date filter floating on top of every modal
+
+Zak, with a screenshot of the contract popup: *"see date showing above the
+popup?"* — the `01.01.26 ~ 31.12.26` range picker was painting **over** the
+open modal, and extending past the panel's right edge.
+
+I first misread the screenshot as the app header escaping the scrim. Measured
+it: with the modal open, `elementFromPoint` at the header returns the modal's
+own fixed layer, and a before/after pixel capture shows the header correctly
+dimmed and blurred. That was not the bug.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 092 | C5 | `components/dateRangePicker.js` | The picker's **wrapper** carried `z-popover` (260). The wrapper holds the always-visible input as well as the calendar, so the input itself sat above `--z-modal` (100) — on all **12 pages** that render a picker. | **High** | Fixed |
+| 093 | C5 | `components/CommandPalette.js` | The persistent "Ctrl + K" hint pill carried `z-dropdown` (250), so it too floated over every open modal. | Medium | Fixed |
+
+### Root cause
+
+The ladder deliberately places `--z-dropdown` (250) and `--z-popover` (260)
+**above** `--z-modal` (100). That is correct and load-bearing: Radix and
+Headless UI portal their popups to `<body>`, so a select inside a modal must
+clear the modal's panel or it opens invisibly underneath and traps focus.
+
+But that reasoning only holds for popups that **portal**.
+`react-tailwindcss-datepicker` does not. Its calendar is an `absolute z-10`
+child of the input wrapper:
+
+```
+div.z-popover              <- 260, position: relative, ALWAYS VISIBLE
+├── input                  <- the date field the user sees
+├── button                 <- the calendar icon
+└── div.absolute.z-10      <- the calendar, only 10 *within* the wrapper
+```
+
+Because the wrapper both creates the stacking context and holds the input,
+lifting it to 260 lifted the input too. The calendar never needed 260 — inside
+its own wrapper it only needs to beat its siblings.
+
+### The fix — a rung for in-flow popups
+
+The ladder had nothing between `--z-sticky` (20) and `--z-modal` (100), which is
+exactly why someone reached for a portal-level value. Added:
+
+```css
+--z-page-popover: 50;  /* in-flow popups that must stay under modals */
+```
+
+It clears page furniture (sticky headers at 20) and stays under a modal. And
+because the wrapper is a *descendant* when a picker is used inside a modal, its
+50 is resolved in the modal's stacking context — so it still paints above that
+modal's own content. One value works in both places.
+
+### Verified
+
+Picker measured at `z=50` on all 11 pages that render one. On the 6 where a
+modal could be opened, **zero elements outside the dialog sit at or above
+`--z-modal`**:
+
+```
+contracts / invoices / expenses / companyexpenses /
+specialinvoices / ContractsReview&Statement      escapees: NONE
+```
+
+Regression check on the calendar itself — it must still clear the table it
+opens over. Opened on contracts and invoices, sampled 5 points across the popup:
+fully in viewport, **0 of 5 covered** by any other element.
+
+### Still on a popup-level z, deliberately
+
+`AutosavePill`, `NotificationPopups` and `spinTable` sit at dropdown/popover
+level and therefore above modals. That is what those want — a toast or a saving
+spinner should be visible while a modal is open. They are mis-*named* rather
+than mis-placed (`--z-toast` would say it better), and are left alone.
