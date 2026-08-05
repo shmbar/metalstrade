@@ -85,7 +85,7 @@ const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, clas
                         leaveTo="opacity-0"
                         afterLeave={() => setQuery('')}
                     >
-                        <ComboboxOptions className={`w-[var(--input-width)] z-10 absolute mt-1 max-h-60 overflow-auto rounded-lg 
+                        <ComboboxOptions className={`w-[var(--input-width)] z-dropdown absolute mt-1 max-h-60 overflow-auto rounded-lg 
                         bg-[var(--surface-card)] py-1 responsiveTextInput shadow-lg ring-1 ring-[var(--selago)] focus:outline-none ${classes1}
                         [--anchor-gap:var(--spacing-1)]`} 
                         >

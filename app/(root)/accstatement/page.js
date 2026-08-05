@@ -77,6 +77,12 @@ const AccountStatement = () => {
        
         <div className='flex-1 w-[12rem]'>
           <Selector
+            /* Toolbar, not a form: match the .whiteButton pills either side of it —
+               caption rung, and the same ink even while showing its placeholder
+               (the primitive greys placeholders via data-[placeholder], which needs
+               an equally specific override to beat). */
+            sizeVar='var(--fs-caption)'
+            classes='font-medium data-[placeholder]:text-[var(--chathams-blue)]'
             arr={settings.Client.Client}
             value={selectedClient}
             onChange={(e) => setselectedClient({ client: e })}
@@ -90,7 +96,7 @@ const AccountStatement = () => {
         <div className='flex group datepicker-wrapper w-full sm:w-auto'>
           <Datepicker
             inputClassName='border border-[var(--border-divider)] h-7 py-2 pl-3 pr-3 rounded-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] w-full sm:w-44
-              focus:outline-none focus:ring-1 focus:ring-blue-200 cursor-pointer bg-[var(--surface-card)] shadow-sm responsiveTextInput'
+              focus:outline-none focus:ring-1 focus:ring-blue-200 cursor-pointer bg-[var(--surface-card)] shadow-sm responsiveTextTableTitle font-medium'
             useRange={false}
             asSingle={true}
             value={valueDate}
@@ -99,7 +105,10 @@ const AccountStatement = () => {
             placeholder="Select date"
             showShortcuts={false}
             readOnly={true}
-            containerClassName="z-20 relative"
+            /* z-20 tied exactly with --z-sticky, so the sticky table header — which
+               comes later in the DOM — painted over the open calendar. This rung sits
+               above page furniture and below modals. */
+            containerClassName="z-page-popover relative"
             disabledDates={disabledDates}
           />
         </div>

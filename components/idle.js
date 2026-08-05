@@ -82,7 +82,9 @@ export default function App() {
     return (
         <>
             <Transition appear show={isOpen} as={Fragment}>
-                <Dialog as="div" className="relative z-10" onClose={() => {}}>
+                {/* z-modal, matching components/modal.js. At z-10 the session-timeout
+                    warning sat below the header (20) and every sticky table toolbar. */}
+                <Dialog as="div" className="relative z-modal" onClose={() => {}}>
                     <TransitionChild
                         as={Fragment}
                         enter="ease-out duration-300"

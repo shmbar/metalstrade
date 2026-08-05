@@ -12,7 +12,19 @@ import { X } from "lucide-react"
 import { useState } from "react"
 
 
-export function Selector({ arr, value, onChange, name, clear, disabled, secondaryName, classes, row }) {
+/* sizeVar: the rung the trigger renders at, as a --fs-* variable. Undefined keeps
+   whatever ui/select.tsx sets, which is the form rung and is right for the ~85
+   call sites inside modals and forms. It is wrong in a page toolbar, where the
+   trigger sits beside .whiteButton pills at the caption rung — there it rendered
+   13px against their 10px.
+
+   It is a VARIABLE applied inline rather than a class, because a class cannot win
+   here: ui/select.tsx hardcodes responsiveTextInput inside its own cn(), and
+   tailwind-merge does not dedupe two custom classes, so both land on the element
+   and the one declared later in globals.css takes it. The --fs-* vars exist for
+   exactly this — inline sizes that still ride the shared ladder. */
+export function Selector({ arr, value, onChange, name, clear, disabled, secondaryName, classes, row,
+    sizeVar }) {
 
     // Type-to-filter for long lists (client request: every list gets a search box).
     const [query, setQuery] = useState('')
@@ -31,7 +43,8 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
     return (
         <Select className='border-slate-400' value={value[name]} onValueChange={onChange}
             defaultValue="df" onOpenChange={(open) => { if (!open) setQuery('') }}>
-            <SelectTrigger className={`group relative border-[var(--border-divider)] hover:border-[var(--rock-blue)] rounded-full h-8 responsiveTextInput gap-0.5 px-2
+            <SelectTrigger style={sizeVar ? { fontSize: sizeVar } : undefined}
+                className={`group relative border-[var(--border-divider)] hover:border-[var(--rock-blue)] rounded-full h-8 gap-0.5 px-2
                     text-[var(--chathams-blue)] outline-none focus:ring-0
                     focus:outline-none focus:ring-offset-0 shadow-sm pointer-events-auto
                     w-full max-w-full overflow-hidden [&>span]:truncate [&>span]:pr-4

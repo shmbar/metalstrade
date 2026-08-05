@@ -107,7 +107,7 @@ export default function MonthSelect(props) {
             </button>
 
 
-            <div className="absolute z-10 top-7 transform px-2 ml-10 sm:px-0">
+            <div className="absolute z-dropdown top-7 transform px-2 ml-10 sm:px-0">
                 <Transition show={openMonth} enter="transition-opacity duration-300"
                     enterFrom="opacity-0 "
                     enterTo="opacity-100 "

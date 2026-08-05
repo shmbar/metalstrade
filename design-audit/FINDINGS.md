@@ -995,3 +995,77 @@ popup title     14px      panel heading, matches the summary's own title
 
 The title bar stays on `--fs-title`: it is a panel heading, not data, and it
 already matched the "Summary - Stocks" caption above it.
+
+---
+
+## Batch 17 — the calendar under the table header, and a gate that only saw half the problem
+
+Zak: *"IN accstatement page see calender hide under header of table"*, and
+*"select and select date not match to neighbour i mean font color size"*.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 098 | C5 | accstatement | The picker's container was `z-20`, **tied exactly with `--z-sticky` (20)**. A tie is broken by DOM order, and the table comes after the toolbar — so the sticky header painted over the open calendar. | **High** | Fixed |
+| 099 | C2 | accstatement | `Select date` was 13px/400 and `Select` 13px, against Search and Quick Sum at 10px/500. | Medium | Fixed |
+| 100 | C5 | 6 components | Dropdown popups at raw `z-10`, below the same `z-20` sticky header. The idle-session dialog was a `Dialog` at `z-10` — below the header and every toolbar. | **High** | Fixed |
+| 101 | tooling | `gates.js` | Gate 6 forbids `z-[123]` — arbitrary values only. **Standard Tailwind z-scale classes (`z-10`, `z-20`, `z-40`) were never checked**, and 46 remain. | Medium | Open |
+
+### 098 — not caused by the earlier z work
+
+Worth stating plainly, because the datepicker z-index was changed two batches
+ago: this page does **not** use `components/dateRangePicker.js`. It imports
+`react-tailwindcss-datepicker` directly and carries its own hardcoded
+`containerClassName="z-20 relative"` — present at the pre-audit baseline. It
+never went through the shared wrapper, so it never got the fix. Now on
+`--z-page-popover` (50), the rung added in batch 13 for exactly this.
+
+Verified: calendar opens at `z=50`, **0 of 5 sampled points covered**.
+
+### 100 — the same defect, found by scanning for the cause rather than the symptom
+
+Rather than fix only the reported picker, every raw z-class in the app was
+listed and read. Six were popups that lose to the sticky header:
+
+```
+comboboxPNL / comboboxProductSelect / comboboxRemarks / comboboxWH   z-10 -> z-dropdown
+monthSelect                                                          z-10 -> z-dropdown
+idle.js  <Dialog className="relative z-10">                          z-10 -> z-modal
+```
+
+The idle one is the worst of them: a session-expiry warning that could render
+underneath the page header. The other four already had siblings in the app doing
+it correctly (`comboboxSelectStock.js` uses `z-dropdown`), which is what made
+them identifiable as mistakes rather than intent.
+
+Left alone deliberately: `z-0`/`z-10` used for decorative layering inside a
+marketing section, `hover:z-10` on table rows, and tooltips at `z-10` inside a
+modal panel — all self-contained in their own stacking context.
+
+### 099 — a third component needing the same prop treatment
+
+`Selector` (`selectShad.js`) is used in **86 places**, nearly all inside modals
+and forms where the form rung is right. So, as with `CBox`, the rung became a
+prop rather than a global change.
+
+But a *class* could not win here. `components/ui/select.tsx` hardcodes
+`responsiveTextInput` inside its own `cn()`, and tailwind-merge does not dedupe
+two custom classes — both land on the element and the one declared later in
+globals.css takes it. So the prop is `sizeVar`, applied as an inline
+`fontSize: var(--fs-caption)`. That is what the `--fs-*` variables were added
+for: inline sizes that still ride the shared ladder.
+
+The placeholder also needed `data-[placeholder]:text-[var(--chathams-blue)]` —
+the primitive greys placeholders via an attribute selector, which a plain colour
+class cannot outrank.
+
+```
+AFTER   Search=10/500   Quick Sum=10/500   Select=10/500   Select date=10/500   (all one ink)
+```
+
+### 101 — the gate gap, open
+
+Gate 6 matches `z-\[[0-9]+\]` only. `z-20` is a *standard* Tailwind class, so it
+was never in scope — which is precisely how a hardcoded 20 survived the whole
+audit and tied with `--z-sticky`. 46 raw z-classes remain. Most are legitimate
+in-component layering, so a blanket gate would fail on day one; the honest fix is
+to sweep them by hand first, then close the gate behind them.
