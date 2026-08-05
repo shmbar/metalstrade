@@ -38,7 +38,7 @@ const General = () => {
                     <div className='border border-[var(--border-divider)] p-4 rounded-2xl mt-1'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='gap-4 flex items-center' >
-                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpName', ln)}:</p>
                                 <input
                                     type='input'
@@ -65,7 +65,7 @@ const General = () => {
                             </div>
 
                             <div className='gap-4 flex items-center w-full' >
-                                <p className="responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]">
+                                <p className="responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]">
                                     {getTtl("lng", ln)}:
                                 </p>
 
@@ -88,7 +88,7 @@ const General = () => {
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2'>
                                     <div className='gap-4 flex items-center' >
-                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>
                                             {getTtl('street', ln)}:</p>
                                         <input
                                             type='input'
@@ -98,7 +98,7 @@ const General = () => {
                                         />
                                     </div>
                                     <div className='flex gap-4 items-center ' >
-                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>
                                             {getTtl('city', ln)}: </p>
                                         <input
                                             type='input'
@@ -108,7 +108,7 @@ const General = () => {
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>
                                             {getTtl('country', ln)}:</p>
                                         <input
                                             type='input'
@@ -134,7 +134,7 @@ const General = () => {
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>
                                             {getTtl('zipCode', ln)}:</p>
                                         <input
                                             type='input'
@@ -164,7 +164,7 @@ const General = () => {
                             <div className='col-span-12 sm:col-span-1'>
                                 <div className='flex flex-col gap-2'>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Reg No.:</p>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>Reg No.:</p>
                                         <input
                                             type='input'
                                             className="
@@ -189,7 +189,7 @@ const General = () => {
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>VAT No.:</p>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>VAT No.:</p>
                                         <input
                                             type='input'
                                             className="
@@ -214,7 +214,7 @@ const General = () => {
                                         />
                                     </div>
                                     <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>EORI No.:</p>
+                                        <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>EORI No.:</p>
                                         <input
                                             type='input'
                                             className="
@@ -249,7 +249,7 @@ const General = () => {
                     <div className='border border-[var(--border-divider)] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpemail', ln)}:</p>
                                 <input
                                     type='input'
@@ -274,7 +274,7 @@ const General = () => {
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpwebsite', ln)}:</p>
                                 <input
                                     type='input'
@@ -305,7 +305,7 @@ const General = () => {
                     <div className=' border border-[var(--border-divider)] p-4 rounded-2xl  mt-5 w-full'>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpPhone', ln)}:</p>
                                 <input
                                     type='input'
@@ -315,7 +315,7 @@ const General = () => {
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>
                                     {getTtl('cmpMobile', ln)}:</p>
                                 <input
                                     type='input'
@@ -325,7 +325,7 @@ const General = () => {
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Fax:</p>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>Fax:</p>
                                 <input
                                     type='input'
                                     className="flex-1 h-7 px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] responsiveTextInput"
@@ -334,7 +334,7 @@ const General = () => {
                                 />
                             </div>
                             <div className='col-span-12 md:col-span-1 flex gap-4 items-center' >
-                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[100px] text-[var(--chathams-blue)]'>Contact Person:</p>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[100px] text-[var(--chathams-blue)]'>Contact Person:</p>
                                 <input
                                     type='input'
                                     className="flex-1 h-7 px-4 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--chathams-blue)] outline-none transition focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[rgba(var(--endeavour-rgb),0.2)] responsiveTextInput"
@@ -382,7 +382,7 @@ const General = () => {
                         <p className='responsiveText font-medium responsiveTextTitle mb-3 text-[var(--chathams-blue)]'>Currency &amp; Terms</p>
                         <div className='flex flex-col gap-3'>
                             <div className='flex gap-4 items-center'>
-                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[200px] text-[var(--chathams-blue)]'>Standard EUR &rarr; USD rate:</p>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[200px] text-[var(--chathams-blue)]'>Standard EUR &rarr; USD rate:</p>
                                 <input
                                     type='number'
                                     step='0.0001'
@@ -393,7 +393,7 @@ const General = () => {
                                 />
                             </div>
                             <div className='flex gap-4 items-center'>
-                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap w-[200px] text-[var(--chathams-blue)]'>Default payment term (days):</p>
+                                <p className='responsiveText font-medium responsiveTextTitle whitespace-nowrap shrink-0 min-w-[200px] text-[var(--chathams-blue)]'>Default payment term (days):</p>
                                 <input
                                     type='number'
                                     step='1'
