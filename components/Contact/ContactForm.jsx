@@ -37,7 +37,7 @@ export default function ContactForm() {
     >
       <div className="bg-[var(--surface-card)] p-10 sm:p-12 lg:p-16 rounded-3xl shadow-2xl">
         {submitted && (
-          <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg text-center font-medium">
+          <div className="responsiveTextTitle mb-6 p-4 bg-green-100 text-green-700 rounded-lg text-center font-medium">
             Thank you! Your message has been sent.
           </div>
         )}
@@ -49,7 +49,7 @@ export default function ContactForm() {
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
+            <label htmlFor="name" className="responsiveTextTitle block text-gray-700 font-medium mb-2">
               Name
             </label>
             <input
@@ -66,7 +66,7 @@ export default function ContactForm() {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+            <label htmlFor="email" className="responsiveTextTitle block text-gray-700 font-medium mb-2">
               Email
             </label>
             <input
@@ -83,7 +83,7 @@ export default function ContactForm() {
 
           {/* Subject */}
           <div>
-            <label htmlFor="subject" className="block text-gray-700 font-medium mb-2">
+            <label htmlFor="subject" className="responsiveTextTitle block text-gray-700 font-medium mb-2">
               Subject
             </label>
             <input
@@ -100,7 +100,7 @@ export default function ContactForm() {
 
           {/* Message */}
           <div>
-            <label htmlFor="message" className="block text-gray-700 font-medium mb-2">
+            <label htmlFor="message" className="responsiveTextTitle block text-gray-700 font-medium mb-2">
               Message
             </label>
             <textarea

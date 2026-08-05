@@ -613,3 +613,71 @@ The harness now rejects any shot where `--border-divider` is not the expected va
 - 15 `text-<size>` classes — **all inside comments**, zero live.
 - 3 literal `font-size` values in `app/api/ai/send-reminder/route.js` — an HTML **email**
   template. Mail clients do not resolve CSS variables, so these must stay literal.
+
+---
+
+## Batch 12 — measuring the paint, not the source
+
+Zak: *"still some fonts too large, some too small, some uneven, same issue in
+some pages."*
+
+The gates only prove the **source** is on the ladder. They cannot see what a
+browser actually paints once inheritance and third-party components have had
+their turn. `design-audit/tools/font-census.mjs` logs in, visits all 28 pages,
+and records the computed font-size of every element that owns a text node.
+
+The first run explained the complaint exactly:
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 090 | C2 | 22 CRM pages | Every page title — "Contracts", "Invoices", "Margins", "Settings" — sat on `responsiveTextTitle`, the **14px card/section rung**. So the page title rendered at exactly the size of the clock beside it, and 21 of 22 pages had **no text above 14px anywhere**. Meanwhile dashboard reached 22px. | **High** | Fixed |
+| 091 | C2 | 6 pages, 45 elements | Elements carrying **no size class at all** inherit the 16px root default — off-ladder. On the public pages that made them *larger* than the body copy around them. | **High** | Fixed |
+
+### 090 — the flat-hierarchy finding
+
+```
+BEFORE                                    AFTER
+contracts   max 14px  "Contracts"         contracts   max 17px  "Contracts"
+invoices    max 14px  "Invoices"          invoices    max 17px  "Invoices"
+margins     max 14px  "Margins"           margins     max 17px  "Margins"
+settings    max 14px  "Settings"          settings    max 17px  "Settings"
+dashboard   max 22px  "$0.00"             dashboard   max 22px  "$0.00"
+```
+
+`responsiveTextPage` (16/17/18/20) is the rung *literally named* "page titles"
+and it was going unused. 22 titles promoted onto it — 21 `<h1>` carrying the
+shared `border-l-4` signature, plus settings, which uses a `<div>` with the same
+signature and so was missed by the first, `<h1>`-scoped pass. Nothing below the
+title moved: the dense table sizes Zak approved are untouched.
+
+### 091 — the limit of a codemod
+
+The type codemod could only rewrite elements that **already declared a size**.
+An element with no size class had nothing to match, so it silently kept the
+16px root default. That is invisible to a source scan — the markup looks clean —
+and only a census of the rendered page finds it.
+
+Not changed, deliberately: **margins** is dominated by 12px where the other data
+tables are 11px. Its cells are `<input>` fields (it is an editable grid) and its
+own read-only spans match at 12px, so the page is internally consistent — and
+Zak signed it off.
+
+### Result — all 28 pages, measured
+
+```
+28 pages measured, 0 rejected, every size on the ladder
+```
+
+### Two more harness traps
+
+**"Page likely empty."** Four pages that had measured fine came back with 1 text
+node. They were not broken — they render **no skeleton** and populate straight
+from Firestore, so the `.skel` wait returned instantly against an empty page.
+The census now waits for the text length to stop changing (two equal readings)
+and refuses anything still showing a skeleton. That also recovered
+`storagecosts`, which had been rejected on every previous run.
+
+**A checkbox is not text.** `specialinvoices` reported a phantom off-ladder 16px
+that was an `<input type="checkbox">` — it renders no glyph, so its font-size is
+inert, and its `value` is the string `"on"`. Checkboxes, radios and the other
+glyphless input types are now excluded.

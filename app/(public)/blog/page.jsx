@@ -79,7 +79,7 @@ export default function BlogPage() {
                   <h3 className="responsiveTextPage font-bold text-[var(--chathams-blue)] mb-2 text-center">{post.title}</h3>
                   <p className="text-gray-500 responsiveTextTitle mb-4 text-center">{post.excerpt}</p>
                   <div className="responsiveTextInput text-[var(--text-faint)] mb-4">{post.date} &middot; {post.author}</div>
-                  <span className="inline-block mt-auto px-4 py-2 bg-[var(--endeavour)] text-white rounded-lg font-semibold hover:bg-[var(--brand-deep)] transition">Read More</span>
+                  <span className="responsiveTextTitle inline-block mt-auto px-4 py-2 bg-[var(--endeavour)] text-white rounded-lg font-semibold hover:bg-[var(--brand-deep)] transition">Read More</span>
                 </Link>
               ))}
             </div>

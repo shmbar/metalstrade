@@ -17,13 +17,13 @@ export default function CTA() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-4">
           <Link
             href="/signin"
-            className="bg-[var(--endeavour)] text-white px-8 py-3 rounded-2xl font-bold hover:bg-[var(--brand-deep)] transition-all hover:shadow-lg"
+            className="responsiveTextTitle bg-[var(--endeavour)] text-white px-8 py-3 rounded-2xl font-bold hover:bg-[var(--brand-deep)] transition-all hover:shadow-lg"
           >
             Sign In
           </Link>
           <a
             href="#modules"
-            className="border border-[var(--border-divider)] text-[var(--chathams-blue)] px-8 py-3 rounded-2xl font-bold hover:bg-[var(--surface-header)] transition-all"
+            className="responsiveTextTitle border border-[var(--border-divider)] text-[var(--chathams-blue)] px-8 py-3 rounded-2xl font-bold hover:bg-[var(--surface-header)] transition-all"
           >
             See the modules
           </a>

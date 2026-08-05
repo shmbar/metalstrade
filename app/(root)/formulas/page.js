@@ -129,7 +129,7 @@ const Page = () => {
 					<VideoLoader loading={loading} fullScreen={true} />
 					<div className="bg-[var(--surface-card)] rounded-2xl p-2 sm:p-3 mt-4 border border-[var(--border-divider)]">
 						<div className='pb-2'>
-							<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">Formulas</h1>
+							<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">Formulas</h1>
 
 							<div className="w-full">
 								<TabGroup>

@@ -221,7 +221,7 @@ const StorageCosts = () => {
                 {/* Header + unit toggle */}
                 <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
                     <div>
-                        <h1 className="text-[var(--chathams-blue)] responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
+                        <h1 className="text-[var(--chathams-blue)] responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                             Storage Costs
                         </h1>
                         <p className="responsiveTextTable text-[var(--regent-gray)] pl-3 mt-1">

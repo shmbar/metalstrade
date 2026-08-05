@@ -915,7 +915,7 @@ const Shipments = () => {
             <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)]  w-full bg-[var(--surface-card)]">
               {/* Header Section */}
               <div className='flex items-center justify-between flex-wrap gap-2 pb-1'>
-                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
+                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
                   {getTtl('Invoices', ln)}
                 </h1>
                 {/* <div className='flex group'>

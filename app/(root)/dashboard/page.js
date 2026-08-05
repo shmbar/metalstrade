@@ -340,7 +340,7 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
           right={
             <div className="text-right flex-shrink-0">
               <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
-              <span className="font-semibold text-[var(--chathams-blue)]">{fmtAutoKM(totalValue)}</span>
+              <span className="responsiveTextPage font-semibold text-[var(--chathams-blue)]">{fmtAutoKM(totalValue)}</span>
             </div>
           }
         />
@@ -791,7 +791,7 @@ function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 
         <SectionHeader
           title={title}
           subtitle={subtitle}
-          right={total != null ? <div className="text-right flex-shrink-0"><div className="responsiveTextTable text-[var(--regent-gray)]">Total</div><span className="font-semibold text-[var(--chathams-blue)]">{fmtVal(total)}</span></div> : null}
+          right={total != null ? <div className="text-right flex-shrink-0"><div className="responsiveTextTable text-[var(--regent-gray)]">Total</div><span className="responsiveTextPage font-semibold text-[var(--chathams-blue)]">{fmtVal(total)}</span></div> : null}
         />
         {entries.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No data for this period</div>
@@ -1255,7 +1255,7 @@ const Dash = () => {
           <m.div className="mb-5 flex flex-wrap items-center justify-between gap-3"
             initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
             <div>
-              <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextTitle font-semibold border-l-4 border-[var(--chathams-blue)] pl-2">
+              <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-semibold border-l-4 border-[var(--chathams-blue)] pl-2">
                 {getTtl('Dashboard', ln)}
               </h1>
               <p className="responsiveText text-[var(--regent-gray)] pl-3 mt-0.5">
