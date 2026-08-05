@@ -831,14 +831,19 @@ const Cashflow = () => {
 
     // Refreshed every render so the commit always uses the current save closures.
     const commitRef = useRef(null);
-    commitRef.current = async () => {
+    commitRef.current = async (opts = {}) => {
         if (autoSaving || pendingChecked.total === 0) return;
         setAutoSaving(true);
         try {
             if (pendingChecked.exps.length) await savePmntExp(expensesAll);
             if (pendingChecked.sups.length) await savePmntSupplier(supPaymentsData);
             const clientIds = [...new Set(pendingChecked.clients.map(x => x.client))];
-            if (clientIds.length) await savePmntClient(clientIds[0]);
+            if (opts.allClients) {
+                // Final flush (page going away): the per-cycle state-refresh concern
+                // doesn't apply to an unmounting page — save EVERY pending client
+                // group now, or the ones after the first are lost with the navigation.
+                for (const cid of clientIds) await savePmntClient(cid);
+            } else if (clientIds.length) await savePmntClient(clientIds[0]);
             setSavedFlash(true);
             setTimeout(() => setSavedFlash(false), 2500);
         } catch (e) {
@@ -874,7 +879,10 @@ const Cashflow = () => {
         return () => {
             document.removeEventListener('visibilitychange', onVis);
             window.removeEventListener('beforeunload', warn);
-            flush(); // unmount = in-app navigation away from Cashflow
+            // Unmount = in-app navigation away from Cashflow — final flush, every group.
+            if (pendingRef.current.total > 0 && !cancelledRef.current && !savingRef.current) {
+                commitRef.current?.({ allClients: true });
+            }
         };
     }, []);
 
@@ -1076,8 +1084,10 @@ const Cashflow = () => {
                     <>
                         <Toast />
                         <AutosavePill
-                            mode={autoSaving ? 'saving' : (pendingChecked.total > 0 && !autoCancelled) ? 'pending' : savedFlash ? 'saved' : null}
-                            text={autoSaving ? 'Saving payments…' : savedFlash ? 'Payments saved' : `Recording ${pendingChecked.total} payment${pendingChecked.total > 1 ? 's' : ''}`}
+                            mode={autoSaving ? 'saving' : (pendingChecked.total > 0 && !autoCancelled) ? 'pending' : (pendingChecked.total > 0 && autoCancelled) ? 'paused' : savedFlash ? 'saved' : null}
+                            text={autoSaving ? 'Saving payments…' : savedFlash ? 'Payments saved'
+                                : (pendingChecked.total > 0 && autoCancelled) ? `Autosave paused — ${pendingChecked.total} payment${pendingChecked.total > 1 ? 's' : ''} pending`
+                                    : `Recording ${pendingChecked.total} payment${pendingChecked.total > 1 ? 's' : ''}`}
                             countdown={countdown}
                             onSaveNow={() => commitRef.current?.()}
                             onCancel={() => setAutoCancelled(true)}

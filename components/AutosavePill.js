@@ -28,6 +28,18 @@ export default function AutosavePill({ mode, text, countdown, onSaveNow, onCance
                         </button>
                     </>
                 )}
+                {mode === 'paused' && (
+                    <>
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--warn-strong)' }} />
+                        <span className="font-medium whitespace-nowrap" style={{ color: 'var(--chathams-blue)' }}>
+                            {text || 'Autosave paused'}
+                        </span>
+                        <button onClick={onSaveNow} className="rounded-full px-2.5 py-1 text-white font-semibold hover:brightness-110"
+                            style={{ background: 'var(--endeavour)', fontSize: 'var(--fs-body)' }}>
+                            Save now
+                        </button>
+                    </>
+                )}
                 {mode === 'info' && (
                     <>
                         <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--warn-strong)' }} />
