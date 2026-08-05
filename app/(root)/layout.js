@@ -42,7 +42,9 @@ export default function MyLayout({
 			<div className='hidden md:flex shadow-xl z-10 mx-auto'>
 				<Sidebar />
 			</div>
-			<div className='md:hidden flex drop-shadow-xl z-sticky fixed top-0 left-0 right-0 h-14'>
+			{/* Same chrome role as MainNav, so the same rung — its search dropdown was
+			    trapped under sticky table headers for the same reason. */}
+			<div className='md:hidden flex drop-shadow-xl z-appbar fixed top-0 left-0 right-0 h-14'>
 				<SideBarMini />
 			</div>
 			<div className="grow md:overflow-auto h-screen relative pt-14 md:pt-0">

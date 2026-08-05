@@ -151,6 +151,7 @@ module.exports = {
 			zIndex: {
 				sticky: 'var(--z-sticky)',
 				'page-popover': 'var(--z-page-popover)',
+				appbar: 'var(--z-appbar)',
 				dropdown: 'var(--z-dropdown)',
 				popover: 'var(--z-popover)',
 				modal: 'var(--z-modal)',

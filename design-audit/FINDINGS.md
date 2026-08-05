@@ -1234,3 +1234,54 @@ The first check clicked `button[role="combobox"]` **first on the page**, which i
 the company switcher in the top nav — not an Activity filter. It selected "IMS",
 which happened to already be the active company, so nothing changed. Anything
 touching that control has to be pinned by position, not by index.
+
+---
+
+## Batch 21 — the app bar trapped its own dropdowns
+
+Zak: *"why theme selector hide under table header"*.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 108 | C5 | `MainNav.js`, `layout.js` | The fixed app bar sat at `--z-sticky` (20) — the same value as every sticky table header. Being `position: fixed` **with** a z-index, it is a stacking context, so its dropdowns could not escape it whatever z they carried. The header, later in the DOM, won the tie and painted across the open profile menu. | **High** | Fixed |
+
+The profile panel already had `z-dropdown` (250) and it made no difference — a
+descendant's z-index is resolved *inside* its ancestor's stacking context, so
+250 only ordered it against its siblings in the bar. The bar itself was still
+competing at 20. Exactly the mechanism behind finding 092 (the datepicker
+wrapper), one level up.
+
+Two things were painting over the menu, and the screenshot showed both: the
+sticky table header at 20 (tie, DOM order decides) and the page date filter at
+`--z-page-popover` 50 — the rung added in batch 13, which had been *above* the
+app bar ever since.
+
+### The rung
+
+```css
+--z-appbar: 80;   /* the fixed top nav and its mobile counterpart */
+```
+
+Above page furniture (20) and above page popovers (50), below a modal (100) so
+the scrim still covers it. Applied to `MainNav` and to the mobile bar in
+`layout.js`, which has the same chrome role and the same trapped-dropdown
+problem.
+
+### Verified both directions
+
+```
+profile menu open   nav z=80  panel z=250   0 of 6 sampled points covered
+modal open          clock / Sharon / bell   all report MODAL LAYER (covered)
+                    elements outside the dialog at or above --z-modal: NONE
+```
+
+The second check matters: raising the bar risks it punching through a modal.
+It does not — 80 is still below 100, and the scrim covers the chrome exactly as
+it did before.
+
+### Ladder now
+
+```
+20 sticky · 50 page-popover · 80 appbar · 100 modal · 200 modal-nested
+250 dropdown · 260 popover · 300 toast · 400 tooltip · 500 command
+```

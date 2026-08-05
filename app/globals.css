@@ -149,6 +149,14 @@
      descendant when the picker is used INSIDE a modal, it still paints above
      that modal's own content. */
   --z-page-popover: 50;  /* in-flow popups that must stay under modals        */
+  /* The app bar. It is `position: fixed` with a z-index, which makes it a
+     stacking context — so its own dropdowns cannot escape it no matter what
+     z-index they carry. At --z-sticky it tied with every sticky table header,
+     and the header, coming later in the DOM, won: the profile menu's theme
+     swatches were painted over mid-panel. This rung puts the chrome above page
+     furniture and above page popovers, while staying under a modal so the
+     scrim still covers it. */
+  --z-appbar: 80;        /* the fixed top nav and its mobile counterpart      */
   /* Dropdowns/popovers PORTAL to <body> (Radix), so they must clear even a
      nested modal's panel (201) or every select inside a modal opens invisibly
      UNDERNEATH it and traps focus — "can't choose, can't type" app-wide. */

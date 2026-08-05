@@ -88,7 +88,7 @@ export const MainNav = () => {
 
   return (
     <div
-      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[var(--surface-header)] z-sticky rounded-lg'
+      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[var(--surface-header)] z-appbar rounded-lg'
       style={{
         height: 'clamp(56px, 7vh, 80px)',
         borderRadius: '12px',
