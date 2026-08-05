@@ -562,39 +562,6 @@ const Margins = () => {
                                 </h1>
 
                                 <div className='flex items-center gap-3 flex-wrap'>
-                                    {/* Search — filters rows across all months by description / supplier / client.
-                                        Same pill pattern as the app's table search (components/table/header.js). */}
-                                    <div className="flex items-center relative w-[160px] h-7 border border-[var(--border-divider)] rounded-full bg-[var(--surface-card)] focus-within:ring-1 focus-within:ring-[var(--border-divider)] shadow-sm transition-all duration-200">
-                                        <input
-                                            className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTableTitle font-medium rounded-full"
-                                            placeholder={getTtl('Search', ln)}
-                                            value={query}
-                                            onChange={e => setQuery(e.target.value)}
-                                            aria-label='Search margin rows'
-                                            type='text'
-                                        />
-                                        {query === '' ? (
-                                            <Search className="absolute right-3 top-1.5 w-3.5 h-3.5" style={{ color: 'var(--regent-gray)' }} />
-                                        ) : (
-                                            <X className="absolute right-3 top-1.5 w-3.5 h-3.5 cursor-pointer hover:text-red-500 transition-colors"
-                                                style={{ color: 'var(--regent-gray)' }}
-                                                onClick={() => setQuery('')} aria-label='Clear search' />
-                                        )}
-                                    </div>
-
-                                    {/* Undo — restores the state before the last change (edit / row / month) */}
-                                    {undoCount > 0 && (
-                                        <Tltip direction='top' tltpText='Undo the last change — edits, added/deleted rows and deleted months'>
-                                            <button
-                                                onClick={undo}
-                                                className='flex items-center gap-1 px-2.5 py-1 rounded-full transition-all hover:opacity-80'
-                                                style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}
-                                            >
-                                                <Undo2 className='w-3 h-3' /> Undo
-                                            </button>
-                                        </Tltip>
-                                    )}
-
                                     {/* Margin alert threshold — flags items whose total margin (profit) is at/below this amount */}
                                     <div className='flex items-center gap-1.5' title='Flag items whose Total Margin (profit) is at or below this amount. 0 = flag zero/negative profit.'>
                                         <AlertTriangle className='w-3 h-3' style={{ color: 'var(--warn-text)' }} />
@@ -751,7 +718,7 @@ const Margins = () => {
 
                             {/* Action Buttons - Keep original position */}
                             <div className="rounded-2xl border border-[var(--border-divider)]">
-                                <div className="p-2 flex gap-3 mt-3">
+                                <div className="p-2 flex gap-3 mt-3 items-center flex-wrap">
                                     <button
                                         className="bg-[var(--surface-header)] text-[var(--chathams-blue)] font-medium px-3 h-7 responsiveTextTableTitle rounded-full hover:opacity-90 transition-all"
                                         disabled={data.length >= 12}
@@ -782,6 +749,39 @@ const Margins = () => {
                                     >
                                         Save
                                     </button>
+
+                                    {/* Undo — next to Save, per the client's request */}
+                                    {undoCount > 0 && (
+                                        <Tltip direction='top' tltpText='Undo the last change — edits, added/deleted rows and deleted months'>
+                                            <button
+                                                onClick={undo}
+                                                className='flex items-center gap-1 px-2.5 h-7 rounded-full transition-all hover:opacity-80'
+                                                style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}
+                                            >
+                                                <Undo2 className='w-3 h-3' /> Undo
+                                            </button>
+                                        </Tltip>
+                                    )}
+
+                                    {/* Search — filters rows across all months by description / supplier / client.
+                                        Same pill pattern as the app's table search (components/table/header.js). */}
+                                    <div className="flex items-center relative w-[160px] h-7 border border-[var(--border-divider)] rounded-full bg-[var(--surface-card)] focus-within:ring-1 focus-within:ring-[var(--border-divider)] shadow-sm transition-all duration-200">
+                                        <input
+                                            className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTableTitle font-medium rounded-full"
+                                            placeholder={getTtl('Search', ln)}
+                                            value={query}
+                                            onChange={e => setQuery(e.target.value)}
+                                            aria-label='Search margin rows'
+                                            type='text'
+                                        />
+                                        {query === '' ? (
+                                            <Search className="absolute right-3 top-1.5 w-3.5 h-3.5" style={{ color: 'var(--regent-gray)' }} />
+                                        ) : (
+                                            <X className="absolute right-3 top-1.5 w-3.5 h-3.5 cursor-pointer hover:text-red-500 transition-colors"
+                                                style={{ color: 'var(--regent-gray)' }}
+                                                onClick={() => setQuery('')} aria-label='Clear search' />
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Margins Tables */}
