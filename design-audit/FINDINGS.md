@@ -1181,3 +1181,56 @@ uses a border colour change instead. Unrelated to this rule.)
 
 This one declaration was reaching every `input`, `select`, `textarea`,
 `[role=button]` and tabbable element in the app.
+
+---
+
+## Batch 20 — the two dropdowns the browser was drawing
+
+Zak: *"in actiity page dropdown not match to our app theme"*.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 107 | C5 | `components/ActivityLog.js` | The type and user filters were native `<select>` elements. The **browser** paints the open list — square corners, system font, OS-blue highlight — and **no CSS can reach it**. | Medium | Fixed |
+
+This is the one class of mismatch the audit could never have styled its way out
+of. The triggers *were* themed (`${pill}`, ladder font, brand ink), so closed
+they looked correct and every gate passed; the defect only existed while the
+menu was open, drawn by the operating system.
+
+Replaced with the app's own `Selector`, the same component behind every other
+dropdown in the CRM. `clear` is optional on it, so the filters need no clear
+affordance they did not have before.
+
+### Verified — appearance and behaviour
+
+```
+native <select> on the page : 0
+type dropdown               : radius 16px, 13px, options
+                              [All types, Contract, Expense, Invoice, Settings, Stock]
+selecting "Invoice"         : trigger -> "Invoice",  count 200 entries -> 154 of 200
+page errors                 : none
+```
+
+The filter still filters — worth stating, because this was a component swap
+rather than a restyle, and the brief is visual-changes-only. Option order is now
+alphabetical (`Selector` sorts), which is how every other dropdown in the app
+behaves; "All types" and "All users" still sort to the top.
+
+### Ten native selects remain, unfixed
+
+```
+contracts/modals/CertChecker.js      contracts/modals/productsTable.js
+specialinvoices/page.js              components/table/EditableCell.js
+components/table/filters/filterFunc.js  (x6)
+```
+
+Each will have the same OS-drawn menu. They are inside table cells and column
+filters rather than page toolbars, so they are less prominent — but they are the
+same defect, and worth a single pass rather than one report at a time.
+
+### A near miss in the verification
+
+The first check clicked `button[role="combobox"]` **first on the page**, which is
+the company switcher in the top nav — not an Activity filter. It selected "IMS",
+which happened to already be the active company, so nothing changed. Anything
+touching that control has to be pinned by position, not by index.

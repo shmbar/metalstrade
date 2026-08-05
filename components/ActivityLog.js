@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { UserAuth } from '../contexts/useAuthContext';
 import { loadActivity } from '../utils/utils';
+import { Selector } from './selectors/selectShad';
 import { FileText, Receipt, Banknote, Package, Settings as SettingsIcon, Activity, RefreshCw, Loader2, Search } from 'lucide-react';
 
 // Visual identity per entity type (aligns with the future #7 status-color system).
@@ -79,6 +80,18 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
         [items]
     );
 
+    // Shaped for <Selector>: it reads value[name] for the selection and
+    // item[secondaryName] for the label. Fresh arrays each time, because the
+    // component sorts its options in place.
+    const typeOptions = useMemo(() => [
+        { id: 'all', label: 'All types' },
+        ...Object.entries(ENTITY_META).map(([k, v]) => ({ id: k, label: v.label })),
+    ], []);
+    const actorOptions = useMemo(
+        () => [{ id: 'all', label: 'All users' }, ...actors.map(a => ({ id: a, label: a }))],
+        [actors]
+    );
+
     const filtered = useMemo(() => {
         if (!showFilters) return items;
         let rows = items;
@@ -136,14 +149,22 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                             style={{ fontSize: 'var(--fs-input)', color: 'var(--port-gore)' }}
                         />
                     </div>
-                    <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className={`${pill} px-3 py-1`} style={{ fontSize: 'var(--fs-input)', color: 'var(--port-gore)' }}>
-                        <option value='all'>All types</option>
-                        {Object.entries(ENTITY_META).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-                    </select>
-                    <select value={actorFilter} onChange={e => setActorFilter(e.target.value)} className={`${pill} px-3 py-1`} style={{ fontSize: 'var(--fs-input)', color: 'var(--port-gore)' }}>
-                        <option value='all'>All users</option>
-                        {actors.map(a => <option key={a} value={a}>{a}</option>)}
-                    </select>
+                    {/* The app's own select, not a native <select>. A browser draws the
+                        open list itself — square corners, system font, blue OS highlight —
+                        and no CSS can reach it, which is why these two were the only
+                        dropdowns in the app that did not look like the app. */}
+                    <div className='w-32'>
+                        <Selector
+                            arr={typeOptions} value={{ id: typeFilter }} name='id' secondaryName='label'
+                            onChange={setTypeFilter} sizeVar='var(--fs-input)' classes='!h-7'
+                        />
+                    </div>
+                    <div className='w-32'>
+                        <Selector
+                            arr={actorOptions} value={{ id: actorFilter }} name='id' secondaryName='label'
+                            onChange={setActorFilter} sizeVar='var(--fs-input)' classes='!h-7'
+                        />
+                    </div>
                     <button onClick={load} aria-label='Refresh activity' className={`${pill} flex items-center gap-1 px-2.5 py-1 hover:border-[var(--endeavour)]`} style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
                         <RefreshCw className='w-3 h-3' /> Refresh
                     </button>
