@@ -15,7 +15,9 @@
     "prepare": "git config core.hooksPath .githooks",
     "design:screenshots": "node design-audit/tools/screenshots.mjs",
     "design:verify-shots": "node design-audit/tools/verify-shots.mjs",
-    "design:contrast": "node design-audit/tools/theme-contrast.mjs"
+    "design:contrast": "node design-audit/tools/theme-contrast.mjs",
+    "design:census": "node design-audit/tools/font-census.mjs",
+    "design:rows": "node design-audit/tools/row-consistency.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

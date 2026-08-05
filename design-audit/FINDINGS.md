@@ -846,3 +846,53 @@ Analysis           Search=10/500  Quick Sum=10/500  Select=10/500  all rgb(28,51
 Settings is provably untouched: it is the only other live call site, it passes
 neither prop, and both defaults are the exact strings that were hardcoded
 before. (`stocks/page.js` has a fourth `<CBox>`, commented out.)
+
+---
+
+## Batch 14b — a check for the class of bug Zak keeps finding
+
+Three reports in a row (090, 094, 094b) were all the same shape: an element
+perfectly **on** the ladder but on the **wrong rung for the company it keeps**.
+The gates read the source. `font-census.mjs` proves every size is on the ladder.
+Neither can see that 12px is wrong *because the two controls beside it are 10px*.
+
+`design-audit/tools/row-consistency.mjs` (`npm run design:rows`) groups visible
+controls into visual rows and flags a row whose controls disagree on size,
+weight or ink. It would have caught all three unprompted.
+
+### Tuning it was most of the work
+
+The first run returned **134 findings** — nearly all table rows, where a red
+delete `×` at 13px/500 sits beside 12px/400 cell inputs. That is not a defect;
+a row action is *meant* to look unlike the data. Shipping that would have
+repeated the mistake of P-2, where gates flagged correct code until nobody read
+them. Excluded, with the reason recorded in the source:
+
+- anything inside `table / tbody / thead / [role=row]` — data rows, not control rows
+- active/selected states (`aria-selected`, Headless UI's `data-*-state`)
+- status colours (`--danger-text` etc.) — red means *negative*, not *styled differently*
+- ink is only compared between controls that share a background, so a filled
+  primary beside an outline secondary is not reported
+
+That takes it to **25 rows across 22 pages**, and it independently re-found the
+two boxes Zak had just reported.
+
+### What it flags now, triaged
+
+Genuine, still open:
+
+| Where | Row |
+|-------|-----|
+| ContractsReview, InvoicesReview, specialinvoices, companyexpenses, analysis | the date range reads **12px** in a row of **10px** controls — the last outlier on that strip, on 5 pages |
+| accstatement | a *different* date control at **13px/400**, out of line with both its row and the other 11 date pickers |
+| incoterms | search field 11px/400 against its filter pills at 12px/500 |
+| margins | `Save` at weight 400 against `Add month` at 500 |
+| cashflow | year select at 400 against `Export` at 500 |
+
+Known residual noise (state, not styling — left visible rather than
+special-cased into invisibility): the Review pages' active/inactive tab pair, and
+pagination, where the current page is white-on-blue and a disabled `Previous` is
+greyed.
+
+The date-range row is the one to decide first: it is the same strip Zak has now
+reported twice, and it is the only thing left on it that does not match.
