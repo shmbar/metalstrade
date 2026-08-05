@@ -10,8 +10,17 @@ import { sortArr } from '../utils/utils';
    WRAPPER, not on the input — the input is style={{fontSize:'inherit'}}, and the
    wrapper's rung is declared unlayered, so no class the caller adds alongside it
    can win the cascade. Defaults to the body rung, which is what every existing
-   call site was already getting. */
-const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, classes2, dis, sizeClass = 'responsiveText' }) => {
+   call site was already getting.
+
+   toneClass: ink and weight. The accent blue at weight 400 is right for a form
+   field, where the combobox is the thing you are meant to look at. It is wrong
+   in a toolbar, where the box sits in a row of .whiteButton pills that are all
+   --chathams-blue at 500 — there it read as a different kind of control. Same
+   reasoning as sizeClass: the hardcoded value had to become a prop, because a
+   colour passed via classes2 lands on the same element as the hardcoded one and
+   which wins is decided by Tailwind's output order, not by the caller. */
+const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, classes2, dis,
+    sizeClass = 'responsiveText', toneClass = 'text-[var(--endeavour)]' }) => {
 
     const newArr = [{ id: '00000', [name]: 'Select' }, ...sortArr(data.filter(x => !x.deleted), name)]
 
@@ -89,7 +98,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                     <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-[var(--surface-card)] text-left
                      focus:outline-none ${sizeClass} border border-[var(--border-divider)] hover:border-[var(--endeavour)] transition-colors h-7 ${classes}`}>
                         <ComboboxInput
-                            className={`w-full py-2 pl-3 pr-10 responsiveText ${classes2} leading-5 text-[var(--endeavour)] focus:outline-none`}
+                            className={`w-full py-2 pl-3 pr-10 responsiveText ${classes2} leading-5 ${toneClass} focus:outline-none`}
                             style={{ fontSize: 'inherit' }}
                             displayValue={(value) => (data.find(y => y.id === value[name]) || {})[name] || value[name]}
                             onChange={(event) => setQuery(event.target.value)}

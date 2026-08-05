@@ -810,3 +810,39 @@ right for them.
 The date range stays at 12px on purpose — it is a borderless value readout, not
 one of the bordered pill controls, and it is the one figure on the strip a user
 actually reads rather than clicks.
+
+### 094b — and the ink and weight were off too
+
+Zak, same control: *"font color weight not match to rest table also his
+neighbours"*. Measured across the whole strip:
+
+```
+Contracts Review     11px  500  rgb(28, 51, 120)
+Search               10px  500  rgb(28, 51, 120)
+Quick Sum            10px  500  rgb(28, 51, 120)
+USD                  10px  400  rgb(14, 101, 216)   <-- alone
+01.01.26 ~ 31.12.26  12px  500  rgb(28, 51, 120)
+$48,785,053.49       11px  500  rgb(28, 51, 120)     (and every other total)
+```
+
+Every control, tab and figure on that strip is `--chathams-blue` at weight 500.
+The combobox alone was `--endeavour` at 400 — the brighter accent, a lighter
+weight. Accent-at-400 is right for a *form field*, where the box is the thing
+you are meant to look at; in a toolbar it read as a different class of control.
+
+Fixed by the same mechanism as the size — `toneClass`, defaulting to the old
+hardcoded `text-[var(--endeavour)]`. A colour could not be passed through
+`classes2` either: it lands on the same element as the hardcoded one, and which
+of two equal-specificity Tailwind utilities wins is decided by their order in
+the generated stylesheet, not by the caller.
+
+Both toolbar comboboxes now measure identically to their neighbours:
+
+```
+Contracts Review   Search=10/500  Quick Sum=10/500  USD=10/500     all rgb(28,51,120)
+Analysis           Search=10/500  Quick Sum=10/500  Select=10/500  all rgb(28,51,120)
+```
+
+Settings is provably untouched: it is the only other live call site, it passes
+neither prop, and both defaults are the exact strings that were hardcoded
+before. (`stocks/page.js` has a fourth `<CBox>`, commented out.)

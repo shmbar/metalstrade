@@ -193,12 +193,14 @@ const statusRollupFilter = (row, columnId, filterValue) => {
     return String(label).toLowerCase().includes(fv) || String(key).toLowerCase().includes(fv);
 };
 
-// Caption rung, matching .whiteButton (9/10/11/12). This sits in a row of pill
-// controls (Search, Quick Sum) and was the only one left on the body rung, so it
-// rendered 12px against their 10px and read a size larger than everything beside it.
+// Matched to .whiteButton, which is what sits either side of it: the caption rung
+// (9/10/11/12) and --chathams-blue at weight 500. It used to render 12px in accent
+// blue at 400 — a size larger and a shade brighter than every control, tab and
+// total on the same strip.
 const CB = (settings, setValCur, valCur) => {
     return (
-        <CBox sizeClass='responsiveTextTableTitle' data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='input border-slate-300 shadow-sm items-center flex max-w-[100px] !h-7'
+        <CBox sizeClass='responsiveTextTableTitle' toneClass='text-[var(--chathams-blue)] font-medium'
+            data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='input border-slate-300 shadow-sm items-center flex max-w-[100px] !h-7'
             classes2='responsiveText' dis={true} />
     )
 }
