@@ -436,7 +436,13 @@ textarea:focus-visible,
 [tabindex]:not([tabindex="-1"]):focus-visible {
   outline: 2px solid var(--endeavour);
   outline-offset: 1px;
-  border-radius: inherit;
+  /* No `border-radius: inherit` here. It was meant to make the focus ring follow
+     the control's shape, but `inherit` takes the PARENT's radius — so any focused
+     control inside a square parent had its OWN radius overwritten with 0 and went
+     rectangular while focused. The navbar search is the visible case: it carries
+     rounded-full, autofocuses when opened, and its wrapper is a plain flex div, so
+     it rendered as a rectangle every single time. The declaration was never needed
+     — `outline` already follows the element's own border-radius. */
 }
 
 @layer components {

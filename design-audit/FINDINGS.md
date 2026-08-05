@@ -1130,3 +1130,54 @@ The stocks page holds its loading veil (`role=status`, `z-command`) long past
 first paint, and it flickers back while Firestore refreshes — it intercepted
 every real click. Measurements there have to wait on the veil explicitly and
 then dispatch events on the element rather than clicking through the page.
+
+---
+
+## Batch 19 — one CSS declaration was squaring off every focused control
+
+Zak: *"see nabar search is in rectangle that not match to app theme"*.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 106 | C3 | `globals.css`, app-wide | The `:focus-visible` rule carried `border-radius: inherit`. `inherit` takes the **parent's** radius, so any focused control inside a square parent had its own radius overwritten with 0 and turned rectangular while focused. | **High** | Fixed |
+
+### The measurement that settled it
+
+The navbar search carries `rounded-full` in its class list, and still computed
+`0px`:
+
+```
+rad: "0px"   focusVisible: true   parentRad: "0px"
+cls: "ml-2 w-60 pl-3 pr-8 py-2 rounded-full bg-gray-50 border border-gray-200 …"
+```
+
+It `autoFocus`es the moment it opens and its wrapper is a plain
+`flex items-center` div, so it was a rectangle **every single time** it was used.
+
+### Why I nearly dismissed it
+
+The first control I measured was the *toolbar* Search, which came back `9999px`
+while focused and looked fine — so my first read was that the rule was innocent.
+It only looked fine because that input's parent happens to be a pill, so
+`inherit` handed it back the right value by coincidence. The bug is invisible
+wherever the parent is already rounded, and only shows where the parent is
+square. Checking a second instance is what exposed it.
+
+### The fix
+
+The declaration was never needed. `outline` already follows the element's own
+`border-radius`, so nothing was gained by setting it and every square-parented
+control was broken by it. Removed.
+
+```
+BEFORE   navbar search, focused   border-radius 0px
+AFTER    navbar search, focused   border-radius 9999px
+```
+
+Focus rings verified intact afterwards: the toolbar Search still paints
+`2px solid` on `:focus-visible`. (The navbar input reports a transparent
+outline, but that is its own pre-existing `focus:outline-none` — it opts out and
+uses a border colour change instead. Unrelated to this rule.)
+
+This one declaration was reaching every `input`, `select`, `textarea`,
+`[role=button]` and tabbable element in the app.
