@@ -393,16 +393,18 @@ const InvoiceModal = () => {
 			    Sales Contract) or pick one from the dropdown. Stored as clientContractNo + salesContractId. */}
 			<div className='grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1'>
 				<div className='border border-[var(--border-divider)] p-2 rounded-2xl flex items-center gap-2'>
-					<p className='responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>Client Contract #:</p>
+					{/* shrink-0 + flex-1/min-w-0: a w-full input beside a nowrap label made
+					    the input overlap the label text ("text hidden under the field"). */}
+					<p className='responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap shrink-0'>Client Contract #:</p>
 					{!fnl ?
-						<input className="input shadow-sm h-8 responsiveTextInput w-full" name='clientContractNo'
+						<input className="input shadow-sm h-8 responsiveTextInput flex-1 min-w-0" name='clientContractNo'
 							value={valueInv.clientContractNo || ''} onChange={handleClientContractNo} />
 						:
 						<p className='pl-1 responsiveText text-[var(--port-gore)]'>{valueInv.clientContractNo}</p>
 					}
 				</div>
 				<div className='border border-[var(--border-divider)] p-2 rounded-2xl flex items-center gap-2'>
-					<p className='responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap'>Sales Contract:</p>
+					<p className='responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap shrink-0'>Sales Contract:</p>
 					{!fnl ?
 						<div className='flex-1 min-w-0'>
 							{valueInv.salesContractId ?
