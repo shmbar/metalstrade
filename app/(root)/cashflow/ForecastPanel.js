@@ -130,11 +130,13 @@ const ForecastPanel = () => {
         }
     }, [uidCollection, settings, results, resolveCurrency]);
 
+    // Toggle — the old handler could only OPEN (guarded on !opened), so the ▲
+    // arrow never collapsed the panel. Closing keeps the cached results; the
+    // forecast only (re)loads when opening without data for the horizon.
     const handleOpen = () => {
-        if (!opened) {
-            setOpened(true);
-            loadAndForecast(30);
-        }
+        if (opened) { setOpened(false); return; }
+        setOpened(true);
+        if (!results[activeHorizon]) loadAndForecast(activeHorizon || 30);
     };
 
     const handleRefresh = () => {
