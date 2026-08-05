@@ -6,7 +6,12 @@ import { HiChevronDown, HiChevronUp } from 'react-icons/hi2';
 import { MdClear } from 'react-icons/md';
 import { sortArr } from '../utils/utils';
 
-const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, classes2, dis }) => {
+/* sizeClass: the ladder rung the control renders at. It has to live on the
+   WRAPPER, not on the input — the input is style={{fontSize:'inherit'}}, and the
+   wrapper's rung is declared unlayered, so no class the caller adds alongside it
+   can win the cascade. Defaults to the body rung, which is what every existing
+   call site was already getting. */
+const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, classes2, dis, sizeClass = 'responsiveText' }) => {
 
     const newArr = [{ id: '00000', [name]: 'Select' }, ...sortArr(data.filter(x => !x.deleted), name)]
 
@@ -82,7 +87,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled} >
                 <div className="relative my-1">
                     <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-[var(--surface-card)] text-left
-                     focus:outline-none responsiveText border border-[var(--border-divider)] hover:border-[var(--endeavour)] transition-colors h-7 ${classes}`}>
+                     focus:outline-none ${sizeClass} border border-[var(--border-divider)] hover:border-[var(--endeavour)] transition-colors h-7 ${classes}`}>
                         <ComboboxInput
                             className={`w-full py-2 pl-3 pr-10 responsiveText ${classes2} leading-5 text-[var(--endeavour)] focus:outline-none`}
                             style={{ fontSize: 'inherit' }}

@@ -193,9 +193,12 @@ const statusRollupFilter = (row, columnId, filterValue) => {
     return String(label).toLowerCase().includes(fv) || String(key).toLowerCase().includes(fv);
 };
 
+// Caption rung, matching .whiteButton (9/10/11/12). This sits in a row of pill
+// controls (Search, Quick Sum) and was the only one left on the body rung, so it
+// rendered 12px against their 10px and read a size larger than everything beside it.
 const CB = (settings, setValCur, valCur) => {
     return (
-        <CBox data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='input border-slate-300 shadow-sm items-center flex max-w-[100px] !h-7'
+        <CBox sizeClass='responsiveTextTableTitle' data={settings.Currency.Currency} setValue={setValCur} value={valCur} name='cur' classes='input border-slate-300 shadow-sm items-center flex max-w-[100px] !h-7'
             classes2='responsiveText' dis={true} />
     )
 }

@@ -15,8 +15,12 @@ import { EXD } from './excel'
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
 
+// Caption rung, matching .whiteButton — same case as the currency box on the
+// Contracts Review toolbar: a pill control sitting beside Search and Quick Sum,
+// left on the body rung and so rendering 12px against their 10px.
 const CB = (settings, setSelectedStock, selectedStock) => (
   <CBox
+    sizeClass='responsiveTextTableTitle'
     data={settings.Supplier.Supplier}
     setValue={setSelectedStock}
     value={selectedStock}

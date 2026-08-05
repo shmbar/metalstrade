@@ -757,3 +757,56 @@ fully in viewport, **0 of 5 covered** by any other element.
 level and therefore above modals. That is what those want — a toast or a saving
 spinner should be visible while a modal is open. They are mis-*named* rather
 than mis-placed (`--z-toast` would say it better), and are left alone.
+
+---
+
+## Batch 14 — the currency box was a rung above the controls beside it
+
+Zak, circling the USD dropdown on Contracts Review: *"marked usd dropdown text
+size not matched to to rest"*.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 094 | C2 | Contracts Review, Analysis | The toolbar's combobox rendered at **12px** beside Search and Quick Sum at **10px** — three pill controls in one row, one of them a rung larger. | Medium | Fixed |
+
+Measured across the strip before the fix:
+
+```
+Search = 10px   Quick Sum = 10px   USD = 12px   01.01.26 ~ 31.12.26 = 12px
+```
+
+`.whiteButton` / `.blackButton` carry the **caption** ramp
+(`9/10/11/12` → 10px at 1440). The combobox inherited `.input` plus
+`responsiveText`, both of which are the **body** ramp (`11/12/13/14` → 12px). So
+every button in the app is a rung below every combobox next to it.
+
+### Why the caller could not simply pass a smaller class
+
+`components/combobox.js` hardcoded `responsiveText` on the **wrapper**, and the
+`ComboboxInput` is `style={{ fontSize: 'inherit' }}` — so the wrapper is the only
+thing that decides the size, and `classes` / `classes2` from the caller cannot
+reach it. Worse, the rung classes are declared *unlayered* (so they beat
+Tailwind's preflight, see finding 085), which means a utility passed alongside
+`responsiveText` loses the cascade to it regardless of order in the attribute.
+
+So the size became a prop: `sizeClass`, defaulting to `'responsiveText'` — every
+existing call site keeps exactly what it had. Only 4 call sites exist, all
+checked.
+
+### Both toolbar comboboxes, not just the one reported
+
+The same pattern was on **Analysis** — a supplier `Select` at 12px between
+Quick Sum (10) and the date. Fixed with it. After:
+
+```
+Contracts Review   Search=10  Quick Sum=10  USD=10     date=12
+Analysis           Search=10  Quick Sum=10  Select=10  date=12
+```
+
+The Settings comboboxes are deliberately untouched: they are form fields in a
+column of labelled inputs, not pill controls in a toolbar, so the body rung is
+right for them.
+
+The date range stays at 12px on purpose — it is a borderless value readout, not
+one of the bordered pill controls, and it is the one figure on the strip a user
+actually reads rather than clicks.
