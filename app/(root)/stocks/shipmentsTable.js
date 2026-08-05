@@ -159,7 +159,7 @@ const Customtable = ({ data, item }) => {
 	return (
 		<div className='mx-4 mb-4 rounded-2xl overflow-hidden border border-[var(--border-divider)]' style={{ boxShadow: '0 2px 12px rgba(var(--endeavour-rgb),0.08)' }}>
 			<div className="w-full overflow-x-auto">
-				<table className="w-full" style={{ borderCollapse: 'collapse', fontFamily: "var(--font-poppins), 'Poppins', sans-serif", fontSize: 'var(--fs-input)' }}>
+				<table className="w-full" style={{ borderCollapse: 'collapse', fontFamily: "var(--font-poppins), 'Poppins', sans-serif", fontSize: 'var(--fs-table)' }}>
 					<thead>
 						<tr>
 							{cols.map((x, k) => (
@@ -167,7 +167,7 @@ const Customtable = ({ data, item }) => {
 									background: 'var(--surface-header)',
 									color: 'var(--chathams-blue)',
 									fontWeight: 600,
-									fontSize: 'var(--fs-input)',
+									fontSize: 'var(--fs-table)',
 									textAlign: 'center',
 									padding: '7px 10px',
 									border: '1px solid var(--border-divider)',
@@ -188,7 +188,7 @@ const Customtable = ({ data, item }) => {
 									<td key={x.field} style={{
 										padding: '5px 10px',
 										border: '1px solid var(--selago)',
-										fontSize: 'var(--fs-input)',
+										fontSize: 'var(--fs-table)',
 										color: 'var(--chathams-blue)',
 										textAlign: 'center',
 										whiteSpace: x.field === 'description' || x.field === 'supplier' ? 'normal' : 'nowrap',

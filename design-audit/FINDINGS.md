@@ -939,3 +939,59 @@ harness needed after run 3.
 The date range at 12px in a row of 10px controls, on 5 pages, plus the four
 smaller rows listed under 14b. Awaiting Zak's call on whether the date comes down
 to 10.
+
+---
+
+## Batch 16 — popup tables were mapped by their old NUMBER, not by their role
+
+Zak, hovering a row in Summary - Stocks: *"popup table text is larger then
+summary text why tell me reason"*.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 097 | C2/C5 | 6 files | Popup and totals tables used inline `--fs-input` (13px, the **controls** rung) for their `th`/`td`, while the tables they overlay or sit beside use `--fs-table` (11px, the **dense-cell** rung). | Medium | Fixed |
+
+### The reason, precisely
+
+At the pre-audit baseline this popup was a hardcoded `0.75rem` — a flat **12px**
+that never scaled — and the summary table under it was `font-size: 9px
+!important`. So the popup was already **3px larger** than the table it covers.
+The mismatch predates the audit.
+
+What the audit did was migrate both onto the ladder, and there the popup was
+mapped to `--fs-input`, whose **base value is also 12px**. The number was
+preserved exactly; the *role* was not. `--fs-input` means "labels, controls" —
+these are dense table cells, and their rung is `--fs-table`. At 1440px that put
+the popup on 13px against the summary's 11px, so the gap narrowed from 3px to
+2px but never closed.
+
+That is the same failure mode as findings 086 and 094: a mechanical mapping
+carries the old size across faithfully and silently gets the meaning wrong.
+
+### Scope — checked all 66 inline ladder sizes, changed 6 files
+
+Every inline `--fs-input` in the app was classified by what it actually styles.
+Most are correct and were left alone: modal bodies, toast text, filter pills,
+tab buttons, comment boxes, the notification panel. Only styles applied to a
+`<table>`, `<th>` or `<td>` were moved to `--fs-table`:
+
+- `stocks/sumtables/tablesFuncs.js` — the reported Stock Details popup (3)
+- `stocks/shipmentsTable.js` (3)
+- `contractsstatement/totals/funcs.js`, `expenses/totals/funcs.js`,
+  `specialinvoices/totals/funcs.js` — the totals tables (1 each)
+- `InvoicesReview&Statement/newTable.js` (1)
+
+Verified afterwards that **no inline `--fs-input` remains within 4 lines of a
+`<table>`, `<th>` or `<td>`**.
+
+### Measured
+
+```
+summary cells   11px
+popup header    11px      (was 13)
+popup cells     11px      (was 13)
+popup title     14px      panel heading, matches the summary's own title
+```
+
+The title bar stays on `--fs-title`: it is a panel heading, not data, and it
+already matched the "Summary - Stocks" caption above it.

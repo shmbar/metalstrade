@@ -22,7 +22,7 @@ export const expensesToolTip = (row, expensesData, settings) => {
             <div style={{ background: 'var(--surface-header)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
                 Contract Details
             </div>
-            <table style={{ fontFamily: 'inherit', fontSize: 'var(--fs-input)', width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>
+            <table style={{ fontFamily: 'inherit', fontSize: 'var(--fs-table)', width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>
                 <thead>
                     <tr>
                         <th style={thStyle}>PO#</th>
