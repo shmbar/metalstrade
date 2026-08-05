@@ -896,3 +896,46 @@ greyed.
 
 The date-range row is the one to decide first: it is the same strip Zak has now
 reported twice, and it is the only thing left on it that does not match.
+
+---
+
+## Batch 15 — the "Expanded mode" toggle, and the tab the checker never opened
+
+Zak: *"expanded mode font color and size not match to their neaghbours in table
+header"*.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 095 | C2 | Contracts Statement toolbar | The toggle label was `responsiveTextTitle` (**14px**) in `--port-gore` — two rungs above Search and Quick Sum at 10px, and a different ink from every other control on the strip. | Medium | Fixed |
+| 096 | tooling | `row-consistency.mjs` | The checker only ever saw a route's **default tab**, so anything on a second tab was invisible to it. | Medium | Fixed |
+
+Before / after, measured on the strip:
+
+```
+BEFORE   Search=10/500/rgb(28,51,120)   Quick Sum=10/500/rgb(28,51,120)   Expanded mode=14/500/rgb(39,38,54)
+AFTER    Search=10/500/rgb(28,51,120)   Quick Sum=10/500/rgb(28,51,120)   Expanded mode=10/500/rgb(28,51,120)
+```
+
+### 096 — why the checker missed it
+
+`row-consistency.mjs` was written one turn earlier precisely to catch this class
+of bug, and it did not, because it scanned each route once in its landing state.
+The toggle lives on **Contracts Statement**, the second tab. So the tool
+reported that page clean while the defect sat one click away.
+
+It now opens the secondary tabs listed in `TABS` and scans each as a separate
+view. Re-run confirms it: `Expanded mode` appears in **zero** findings after the
+fix, and the tool now reports 28 rows across 22 pages including
+`ContractsReview&Statement > Contracts Statement` and
+`InvoicesReview&Statement > Invoices Statement`.
+
+Three of the eight Settings tabs are not reachable by label click and are
+reported as **skipped** rather than silently counted as clean — an untested view
+must not look like a passing one. That is the same discipline the screenshot
+harness needed after run 3.
+
+### Still open, unchanged
+
+The date range at 12px in a row of 10px controls, on 5 pages, plus the four
+smaller rows listed under 14b. Awaiting Zak's call on whether the date comes down
+to 10.

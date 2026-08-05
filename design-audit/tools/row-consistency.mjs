@@ -33,6 +33,16 @@ const APP = ['dashboard','contracts','salescontracts','shipment','invoices','exp
   'specialinvoices','companyexpenses','materialtables','incoterms','activity','margins','cashflow',
   'formulas','settings','analysis'];
 
+/* Secondary tabs to open before scanning. A route only ever renders its default
+   tab, so anything living on the second one is invisible to this check — which
+   is exactly where the "Expanded mode" toggle sat when Zak found it at 14px in a
+   row of 10px controls. These are clicked by label after the default scan. */
+const TABS = {
+  'ContractsReview&Statement': ['Contracts Statement'],
+  'InvoicesReview&Statement': ['Invoices Statement'],
+  settings: ['Setup', 'Suppliers', 'Clients', 'Bank Account', 'Stocks', 'Documents', 'Email Setup', 'Users'],
+};
+
 const SCAN = ({ tol, minRow }) => {
   const px = v => Math.round(parseFloat(v));
   const items = [];
@@ -118,11 +128,21 @@ for (const route of APP) {
     if (!s.skel && s.n > 400 && s.n === prev) { if (++stable >= 2) break; } else stable = 0;
     prev = s.n; await page.waitForTimeout(500);
   }
-  const f = await page.evaluate(SCAN, { tol: ROW_TOL, minRow: MIN_ROW });
-  if (!f.length) { console.log(`  ${route.padEnd(28)} clean`); continue; }
-  total += f.length;
-  console.log(`  ${route.padEnd(28)} ${f.length} row(s) disagree`);
-  for (const x of f) console.log(`      y${String(x.top).padStart(4)} [${x.kinds.join('+')}]  ${x.items.join('   ')}`);
+  const views = [['', null], ...(TABS[route] || []).map(t => [t, t])];
+  for (const [viewName, tabLabel] of views) {
+    if (tabLabel) {
+      try {
+        await page.getByText(tabLabel, { exact: true }).first().click({ timeout: 8000 });
+        await page.waitForTimeout(2500);
+      } catch { console.log(`  ${route.padEnd(28)} (tab "${tabLabel}" not reachable — skipped)`); continue; }
+    }
+    const label = viewName ? `${route} > ${viewName}` : route;
+    const f = await page.evaluate(SCAN, { tol: ROW_TOL, minRow: MIN_ROW });
+    if (!f.length) { console.log(`  ${label.padEnd(46)} clean`); continue; }
+    total += f.length;
+    console.log(`  ${label.padEnd(46)} ${f.length} row(s) disagree`);
+    for (const x of f) console.log(`      y${String(x.top).padStart(4)} [${x.kinds.join('+')}]  ${x.items.join('   ')}`);
+  }
 }
 console.log(`\n${total} inconsistent row(s) across ${APP.length} pages`);
 await browser.close();

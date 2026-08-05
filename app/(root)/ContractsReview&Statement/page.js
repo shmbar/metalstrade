@@ -820,7 +820,11 @@ const ContractsMerged = () => {
 
         return (
             <div className='flex items-center gap-3'>
-                <span className='responsiveTextTitle text-[var(--port-gore)] font-medium select-none'>
+                {/* Matched to .whiteButton, which is what the rest of this toolbar is:
+                    caption rung and --chathams-blue at 500. It was responsiveTextTitle
+                    (14px) in --port-gore — two rungs above Search and Quick Sum, and a
+                    different ink from every other control on the strip. */}
+                <span className='responsiveTextTableTitle text-[var(--chathams-blue)] font-medium select-none'>
                     {enabledSwitch ? 'Expanded mode' : 'Table mode'}
                 </span>
                 <button
