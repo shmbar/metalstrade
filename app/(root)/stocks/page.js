@@ -32,12 +32,16 @@ const CB = (settings, handleSelectStock, selectedStock) => {
   return (
     <div className='w-full sm:w-44'>
       <Selector
-        arr={dt}  
+        /* Toolbar, not a form: the caption rung and the same ink as the Search and
+           Quick Sum pills beside it. sizeVar also reaches the open panel, so the
+           list and its search box stop being a rung larger than the trigger. */
+        sizeVar='var(--fs-caption)'
+        arr={dt}
         value={selectedStock}
         onChange={(e) => handleSelectStock(dt.find(x => x.id === e))}
         name='stock'
         secondaryName='nname'
-        classes='w-full'
+        classes='w-full font-medium data-[placeholder]:text-[var(--chathams-blue)]'
       />
     </div>
   )

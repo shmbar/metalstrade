@@ -1069,3 +1069,64 @@ was never in scope — which is precisely how a hardcoded 20 survived the whole
 audit and tied with `--z-sticky`. 46 raw z-classes remain. Most are legitimate
 in-component layering, so a blanket gate would fail on day one; the honest fix is
 to sweep them by hand first, then close the gate behind them.
+
+---
+
+## Batch 18 — the stocks filter, its dropdown, and a calendar with square corners
+
+Zak: *"all stock font size not match to neighbour and also dropdown font size
+and font not match to rest page also why in rectangle shape when i slect date
+picker makesure it wont rectangle and also search bar in rectangle"*.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 102 | C2 | stocks | The `..All Stocks` trigger was 13px against Search and Quick Sum at 10px. | Medium | Fixed |
+| 103 | C2 | `selectShad.js` | The open panel, its search box and its options were **all 13px** — a rung above the trigger they belong to. | Medium | Fixed |
+| 104 | C3 | `selectShad.js` | The dropdown's search box was `rounded-lg` (**12px**) where every other search field in the app is a pill (`9999px`). | Medium | Fixed |
+| 105 | C3 | `globals.css` | The **calendar card had `border-radius: 0px`** — a true rectangle. Both selectors meant to round it are pinned to class names from an older build of the datepicker library and silently stopped matching. | **High** | Fixed |
+
+### 105 — the one that had been broken invisibly
+
+```
+BEFORE   calendar card  border-radius: 0px
+AFTER    calendar card  border-radius: 20px, overflow hidden
+```
+
+`globals.css` carried a rule intended to round the calendar, targeting
+`.react-tailwindcss-datepicker-container > div:not(:first-child)` and a literal
+`.shadow-sm.border.border-gray-300...bg-white.rounded-lg`. Neither matches what
+the library renders today, so the rule had been dead — and nothing failed
+loudly, the corners just stayed square. Replaced with a **structural** selector
+that does not depend on the library's class list:
+
+```css
+.z-page-popover > div[class*="absolute"] > div { border-radius: 1.25rem; … }
+```
+
+It keys off the wrapper class we control, so it covers every picker in the app
+at once. Verified on contracts and accstatement: both now 20px.
+
+### 103 — one rung for the whole control
+
+`sizeVar` (batch 17) now reaches `SelectContent` as well as the trigger, so one
+value governs trigger, search box and options together. Two children had to stop
+carrying a rung of their own:
+
+- the panel's search input — dropped its `responsiveTextInput`, now inherits
+- `SelectItem` — needs `style={{ fontSize: 'inherit' }}`, because
+  `ui/select.tsx` hardcodes the rung on the item and a class cannot outrank it
+
+### Measured
+
+```
+TRIGGER   ..All Stocks   10px / 500 / rgb(35,33,115) / radius 9999px   = Search, Quick Sum
+DROPDOWN  panel 10px  r 16px   search 10px  r 9999px   options 10/10/10
+CALENDAR  card r 20px (was 0px)
+```
+
+### A harness note
+
+The stocks page holds its loading veil (`role=status`, `z-command`) long past
+first paint, and it flickers back while Firestore refreshes — it intercepted
+every real click. Measurements there have to wait on the veil explicitly and
+then dispatch events on the element rather than clicking through the page.

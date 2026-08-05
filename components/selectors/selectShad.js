@@ -68,7 +68,8 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
 
 
             </SelectTrigger>
-            <SelectContent className="z-dropdown rounded-2xl border border-[var(--surface-header)] shadow-md responsiveTextInput text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
+            <SelectContent style={sizeVar ? { fontSize: sizeVar } : undefined}
+                className="z-dropdown rounded-2xl border border-[var(--surface-header)] shadow-md responsiveTextInput text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
                 {searchable && (
                     <div className="sticky top-0 z-sticky bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
                         <input
@@ -77,7 +78,9 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                             onKeyDown={(e) => e.stopPropagation()}
                             onPointerDown={(e) => e.stopPropagation()}
                             placeholder="Search…"
-                            className="w-full h-7 px-2 rounded-lg border border-[var(--border-cell)] bg-[var(--surface-pill)] responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]"
+                            /* rounded-full, not rounded-lg: every other search field in the
+                               app is a pill, so a 12px radius here read as a rectangle. */
+                            className="w-full h-7 px-3 rounded-full border border-[var(--border-cell)] bg-[var(--surface-pill)] text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]"
                         />
                     </div>
                 )}
@@ -87,7 +90,12 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                     {sortArr(shown, secondaryName || name).map(k => {
                         return (
                             <SelectItem key={k.id} value={k.id}
-                                className={cn('responsiveTextInput rounded-2xl', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks' || k.id === 'EditTextTermPmnt') ?
+                                /* Inherit the panel's rung so one sizeVar governs trigger,
+                                   search box and options together. It has to be inline:
+                                   ui/select.tsx hardcodes responsiveTextInput on the item,
+                                   and that class would otherwise win over the panel. */
+                                style={{ fontSize: 'inherit' }}
+                                className={cn('rounded-2xl', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks' || k.id === 'EditTextTermPmnt') ?
                                     'font-semibold italic text-purple-900' : 'text-[var(--chathams-blue)]')} >
                                 {secondaryName ? k[secondaryName] : k[name]}
                             </SelectItem>

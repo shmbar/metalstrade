@@ -765,7 +765,15 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 .react-tailwindcss-datepicker-container > div:not(:first-child),
 /* NOTE: selector must keep the literal class names the datepicker library
    renders (bg-white comes from node_modules) — do not tokenise selectors. */
-.shadow-sm.border.border-gray-300.px-1.py-0\.5.bg-white.rounded-lg {
+.shadow-sm.border.border-gray-300.px-1.py-0\.5.bg-white.rounded-lg,
+/* Structural fallback. Both selectors above are pinned to class names from an
+   older build of react-tailwindcss-datepicker and no longer match what it
+   renders, so the calendar card was painting with square corners — measured at
+   border-radius 0px. This targets the shape instead of the class list: the
+   popup is the absolutely-positioned child of the wrapper we control, and the
+   white card is its first child. Covers every picker in the app, since they all
+   carry .z-page-popover. */
+.z-page-popover > div[class*="absolute"] > div {
   border-radius: 1.25rem !important;
   border: 1px solid var(--selago) !important;
   box-shadow: 0 12px 40px rgba(var(--chathams-blue-rgb),0.12) !important;
