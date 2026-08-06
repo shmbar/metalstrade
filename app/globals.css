@@ -104,6 +104,13 @@
      sub-heading, body copy and pills — surface tokens, which the engine turns
      DARK in dark mode, giving dark text on a dark hero. */
   --on-brand-muted: rgb(255 255 255 / 0.78);
+  /* A chip or hover fill ON a brand surface. Same non-inverting reasoning as
+     --on-brand. The sum basket was tinting its header chips with
+     rgba(var(--surface-card-rgb), 0.2) — which reads as a light chip on blue in
+     light mode and a DARK chip on blue in dark mode, i.e. almost invisible.
+     Anything painted on top of --endeavour has to be built from white. */
+  --on-brand-soft: rgb(255 255 255 / 0.18);
+  --on-brand-soft-strong: rgb(255 255 255 / 0.26);
   /* Shadow colour as an RGB triplet so alpha can be composed. Light mode tints
      shadows with the brand blue (softer on white); dark mode uses pure black. */
   --shadow-rgb: 16, 58, 122;

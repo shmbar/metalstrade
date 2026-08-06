@@ -1371,3 +1371,58 @@ it still computes 13px" were resolved not by reading more CSS but by asking the
 browser directly (`CSS.getMatchedStylesForNode` over CDP). When a rule provably
 matches and provably loses, stop reading source and get the cascade from the
 engine.
+
+---
+
+## Batch 24 — the sum basket, and a fill that inverted in dark mode
+
+Zak: *"see in ss it not match to app theme"* (the Selected-invoices basket), then
+*"font size text color according to theme check all"*.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 112 | C4 | `cashflow/sumBasket.js` | The only **content** panel in the CRM using `backdrop-blur` and translucent surfaces (0.85 / 0.7 / 0.6 / 0.4), plus two gradients and an arbitrary blue-tinted shadow. | Medium | Fixed |
+| 113 | C4 | `cashflow/sumBasket.js` | Header chips filled with `rgba(var(--surface-card-rgb), 0.2)` — a **surface** token used on a **brand** background, so it inverts in dark mode. | **High** | Fixed |
+
+### 113 — proven, not assumed
+
+```
+LIGHT   --surface-card-rgb 255,255,255  ->  chip rgba(255,255,255,0.2)   light on blue  ✓
+DARK    --surface-card-rgb 24, 28, 32   ->  chip rgba(24,28,32,0.2)      near-black on blue  ✗
+```
+
+The Σ badge, the count pill and all three header hover states were painting
+almost-invisible dark chips on the blue bar in dark mode. Same family as finding
+"text tokens used as backgrounds" from batch 6, one layer down: **anything drawn
+on top of `--endeavour` has to be built from white, because every surface token
+flips.** New tokens:
+
+```css
+--on-brand-soft: rgb(255 255 255 / 0.18);
+--on-brand-soft-strong: rgb(255 255 255 / 0.26);
+```
+
+Verified they composite to `rgba(255,255,255,0.18)` in **both** modes.
+
+### 112 — the app's own rule, applied
+
+`videoLoader.js` already carries the principle, written after Zak reported
+blurriness twice: *a modal blurs on purpose; blurring content someone is reading
+is not a style choice.* The basket was the last content panel breaking it. Now a
+solid `--surface-card` on `shadow-lg` (a real token, replacing
+`shadow-[0_16px_50px_rgba(var(--endeavour-rgb),0.28)]`), gradients flattened to
+`--surface-header`, and the header on flat `--endeavour` with `--on-brand` ink.
+
+`backdrop-blur` now appears only where it should: modal scrims, the command
+palette, and the marketing navbar.
+
+### "check all" — what the app-wide scan says
+
+| Pattern | Count | Assessment |
+|---|---|---|
+| literal `text-white` in the CRM | 117 | Cosmetically **correct** — `--on-brand` *is* `#fff`, so these render right in both modes. A semantic sweep with no visual change; worth doing for scan-ability, not urgent. |
+| `rgba(var(--surface-*-rgb), α)` fills | many | Only a bug **when the element sits on a brand background**. Detecting that needs parent context, not grep. |
+
+Not swept blind — 117 edits with no visual outcome carries more regression risk
+than value, and the second pattern cannot be judged by pattern-matching alone.
+Recorded as a scoped sweep rather than done half-guessed.
