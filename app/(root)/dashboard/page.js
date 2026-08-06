@@ -1143,7 +1143,16 @@ const Dash = () => {
         display: true,
         position: 'top',
         align: 'end',
-        labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 6, padding: 16, font: { size: 11 }, color: cssVar('--port-gore', '#28264f') },
+        labels: {
+          usePointStyle: true, pointStyle: 'circle', boxWidth: 6, padding: 16, font: { size: 11 }, color: cssVar('--port-gore', '#28264f'),
+          // Chart.js has no icon-to-text gap option — run the default generator and
+          // pad the label text so the marker doesn't sit flush against the word.
+          generateLabels: (chart) => {
+            const items = chart.constructor.defaults.plugins.legend.labels.generateLabels(chart);
+            items.forEach((it) => { it.text = `  ${it.text}`; });
+            return items;
+          },
+        },
       },
       tooltip: {
         // Canvas can't parse 'rgba(var(--x),a)' — the black unreadable tooltip.
