@@ -18,6 +18,7 @@ import {
   ReceivablesSlot,
   AgingBucket,
 } from '@shared/finance';
+import { computePnl } from './pnlChain';
 
 export interface DashboardData {
   contractCount: number;
@@ -32,6 +33,25 @@ export interface DashboardData {
   miscByCur: Record<string, number>;
   miscCount: number;
   topSuppliers: { name: string; value: number }[];
+
+  // ── sold-basis P&L (web's Net Profit / COGS / Expenses / Storage KPIs) ──────
+  /** revenue − COGS − expenses, all deal-basis (contract month, contract rate) */
+  netProfit: number;
+  cogs: number;
+  expensesTotal: number;
+  storageTotal: number;
+  shippedMT: number;
+  /** netProfit / shippedMT */
+  avgProfitPerMT: number;
+  /** purchase value of material NOT yet sold — capital tied up, not a loss */
+  unsoldValue: number;
+  freightTotal: number;
+  /** EUR contracts with no usable FX rate, counted 1:1 */
+  missingRate: number;
+  cogsByMonth: number[];
+  expensesByMonth: number[];
+  profitByMonth: number[];
+  expByType: { name: string; value: number }[];
 }
 
 // Loads everything the dashboard needs in parallel, then derives KPIs. The
@@ -142,6 +162,15 @@ export function useDashboard() {
       miscByCur[cur] = (miscByCur[cur] || 0) + (parseFloat(r.total) || 0);
     });
 
+    // Sold-basis P&L chain (web calContracts). Deal basis: revenue, COGS and
+    // expenses are all attributed to the CONTRACT month using the CONTRACT rate —
+    // deliberately different from the invoice-dated Sales Revenue KPI above.
+    const pnl = computePnl(enriched, settings, companyRate);
+    const profitByMonth = pnl.purchaseByMonth.map(
+      (_v, i) => revenueByMonth[i] - pnl.cogsByMonth[i] - pnl.expensesByMonth[i]
+    );
+    const netProfit = profitByMonth.reduce((s2, v) => s2 + v, 0);
+
     const topSuppliers = Object.entries(supplierTotals)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
@@ -159,6 +188,22 @@ export function useDashboard() {
       miscByCur,
       miscCount: misc.length,
       topSuppliers,
+      netProfit,
+      cogs: pnl.cogs,
+      expensesTotal: pnl.expensesTotal,
+      storageTotal: pnl.storageTotal,
+      shippedMT: pnl.shippedMT,
+      avgProfitPerMT: pnl.shippedMT > 0 ? netProfit / pnl.shippedMT : 0,
+      unsoldValue: pnl.unsoldValue,
+      freightTotal: pnl.freightTotal,
+      missingRate: pnl.missingRate,
+      cogsByMonth: pnl.cogsByMonth,
+      expensesByMonth: pnl.expensesByMonth,
+      profitByMonth,
+      expByType: Object.entries(pnl.expByType)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 6),
     };
   }, [query.data, settings, termDays, companyRate]);
 

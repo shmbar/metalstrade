@@ -173,6 +173,60 @@ export default function Dashboard() {
                 </Card>
               )}
 
+              {/* Sold-basis P&L — web's Net Profit / COGS / Expenses / Storage /
+                  Avg-Profit-per-MT KPIs. Deal basis: attributed to the CONTRACT
+                  month at the CONTRACT rate, deliberately unlike the invoice-dated
+                  revenue figure in the hero above. */}
+              <View style={{ flexDirection: 'row', gap: 14 }}>
+                <View style={{ flex: 1 }}>
+                  <StatCard
+                    label="Net Profit"
+                    value={fmtAutoKM(data.netProfit)}
+                    accent={data.netProfit >= 0 ? colors.positive : colors.negative}
+                    icon={<Ionicons name={data.netProfit >= 0 ? 'trending-up' : 'trending-down'} size={16} color={data.netProfit >= 0 ? colors.positive : colors.negative} />}
+                    sub="sold basis"
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <StatCard
+                    label="Cost of Goods Sold"
+                    value={fmtAutoKM(data.cogs)}
+                    accent={colors.negative}
+                    icon={<Ionicons name="pricetag" size={16} color={colors.negative} />}
+                    sub="sold portion"
+                  />
+                </View>
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 14 }}>
+                <View style={{ flex: 1 }}>
+                  <StatCard label="Other Expenses" value={fmtAutoKM(data.expensesTotal)} accent={colors.warn} icon={<Ionicons name="card" size={16} color={colors.warn} />} sub="contract expenses" onPress={() => router.push('/(app)/expenses')} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <StatCard label="Storage Spend" value={fmtAutoKM(data.storageTotal)} accent={colors.warn} icon={<Ionicons name="business" size={16} color={colors.warn} />} sub="storage + warehouse" onPress={() => router.push('/(app)/stocks')} />
+                </View>
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 14 }}>
+                <View style={{ flex: 1 }}>
+                  <StatCard label="Avg Profit / MT" value={fmtAutoKM(data.avgProfitPerMT)} accent={colors.primary} icon={<Ionicons name="analytics" size={16} color={colors.primary} />} sub={`${fmtMT(data.shippedMT)} shipped`} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <StatCard label="Unsold Stock" value={fmtAutoKM(data.unsoldValue)} accent={colors.warn} icon={<Ionicons name="albums" size={16} color={colors.warn} />} sub="capital tied up" onPress={() => router.push('/(app)/stocks')} />
+                </View>
+              </View>
+
+              {/* An EUR contract with no usable rate is counted 1:1 — web surfaces
+                  this so a silently understated total is visible. */}
+              {data.missingRate > 0 && (
+                <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Ionicons name="warning-outline" size={16} color={colors.warn} />
+                  <Text variant="caption" tone="muted" style={{ flex: 1 }}>
+                    {data.missingRate} EUR contract{data.missingRate === 1 ? '' : 's'} have no exchange rate — counted 1:1, so totals may read low.
+                  </Text>
+                </Card>
+              )}
+
               <View style={{ flexDirection: 'row', gap: 14 }}>
                 <View style={{ flex: 1 }}>
                   <StatCard label="Purchase Value" value={curLine(data.purchaseByCur)} accent={colors.primary} icon={<Ionicons name="cart" size={16} color={colors.primary} />} sub="contracts" onPress={() => router.push('/(app)/contracts')} />
@@ -181,6 +235,25 @@ export default function Dashboard() {
                   <StatCard label="Tonnage" value={fmtMT(data.totalMT)} accent={colors.warn} icon={<Ionicons name="cube" size={16} color={colors.warn} />} sub="purchased" onPress={() => router.push('/(app)/stocks')} />
                 </View>
               </View>
+
+              {/* Expenses by type — web's breakdown card. */}
+              {data.expByType.length > 0 && (
+                <Card>
+                  <SectionHeader title="Expenses by type" subtitle={`${data.expByType.length} categor${data.expByType.length === 1 ? 'y' : 'ies'}`} />
+                  {data.expByType.map((e, i) => (
+                    <View
+                      key={e.name}
+                      style={{
+                        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+                        paddingVertical: 6, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border,
+                      }}
+                    >
+                      <Text variant="body" numberOfLines={1} style={{ flex: 1 }}>{e.name}</Text>
+                      <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(e.value)}</Text>
+                    </View>
+                  ))}
+                </Card>
+              )}
 
               <ReceivablesCard byCur={data.receivables} onPress={() => router.push('/(app)/invoices?filter=Unpaid' as any)} />
               <AgingCard buckets={data.aging} onPress={() => router.push('/(app)/invoices?filter=Unpaid' as any)} />
