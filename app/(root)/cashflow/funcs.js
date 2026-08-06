@@ -942,6 +942,83 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
     )
 }
 
+// ── Shared Stock (IMS + GIS) on the cashflow ─────────────────────────────────
+// The joint pool's lots with value and who finances each (financedBy, falling
+// back to sole ownership for legacy lots) — informational: not part of any
+// paid/unpaid totals, since the pool is not tied to purchase invoices.
+export const SharedStockDetails = ({ rows, settings }) => {
+    const whName = (id) => { const w = settings?.Stocks?.Stocks?.find(k => k.id === id); return w?.stock || w?.nname || '—'; };
+    const finOf = (x) => x?.financedBy && ['IMS', 'GIS', 'BOTH'].includes(x.financedBy) ? x.financedBy
+        : (Array.isArray(x?.owners) && x.owners.length === 1 ? x.owners[0] : 'BOTH');
+    const valOf = (r) => (parseFloat(r.qnty) || 0) * (parseFloat(r.unitPrc) || 0);
+    const fin = { IMS: 0, GIS: 0 };
+    (rows || []).forEach(r => {
+        const f = finOf(r); const v = valOf(r);
+        if (f === 'BOTH') { fin.IMS += v / 2; fin.GIS += v / 2; } else fin[f] += v;
+    });
+    return (
+        <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
+            <div className="max-h-[30rem] overflow-y-auto overflow-x-auto">
+                <table className="cashflow-detail-table w-full table-auto">
+                    <thead>
+                        <tr>
+                            <th className="text-left w-28 max-w-28">Material</th>
+                            <th className="text-left w-20">Warehouse</th>
+                            <th className="text-left w-14">Quantity</th>
+                            <th className="text-left w-20">Unit Price</th>
+                            <th className="text-left w-16">Financed by</th>
+                            <th className="text-right w-20">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {(rows || []).map((r, i) => (
+                            <tr key={r.id || i}>
+                                <td className="text-left w-28 max-w-28">
+                                    <Tltip direction='top' tltpText={r.descriptionText || r.description || ''}>
+                                        <span className="block truncate cursor-default">{r.descriptionText || r.description || '—'}</span>
+                                    </Tltip>
+                                </td>
+                                <td className="text-left w-20">
+                                    <span className="block truncate cursor-default">{whName(r.stock)}</span>
+                                </td>
+                                <td className="text-left">
+                                    <NumericFormat value={r.qnty} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
+                                </td>
+                                <td className="text-left">
+                                    <NumericFormat value={r.unitPrc} displayType="text" thousandSeparator
+                                        prefix={r.cur === 'eu' ? '€' : '$'} decimalScale='2' fixedDecimalScale />
+                                </td>
+                                <td className="text-left">{finOf(r) === 'BOTH' ? 'IMS + GIS' : finOf(r)}</td>
+                                <td className="text-right">
+                                    <NumericFormat value={valOf(r)} displayType="text" thousandSeparator
+                                        prefix={r.cur === 'eu' ? '€' : '$'} decimalScale='2' fixedDecimalScale />
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                    <tfoot>
+                        <tr className="bg-[var(--surface-header)]">
+                            <th className="text-left">Total</th>
+                            <th></th>
+                            <th className="text-left">
+                                <NumericFormat value={(rows || []).reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0)}
+                                    displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
+                            </th>
+                            <th></th>
+                            <th className="text-left whitespace-nowrap">
+                                IMS {showAmount(fin.IMS, 'usd')} · GIS {showAmount(fin.GIS, 'usd')}
+                            </th>
+                            <th className="text-right">
+                                {showAmount((rows || []).reduce((s, r) => s + valOf(r), 0), 'usd')}
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    );
+};
+
 const makeGroup = (arr) => {
     const groupedByPoSupplierId = arr.reduce((acc, invoice) => {
         const poSupplierId = invoice.poSupplier?.id; // Safely access poSupplier.id

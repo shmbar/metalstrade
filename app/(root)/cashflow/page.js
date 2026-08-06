@@ -9,12 +9,12 @@ import AutosavePill from "../../../components/AutosavePill";
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
 import { CardsSkeleton } from "../../../components/skeletons";
-import { loadData, loadDataSettings, loadInvoice, loadMargins, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, saveStockIn, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments } from "../../../utils/utils";
+import { loadData, loadDataSettings, loadInvoice, loadMargins, loadSharedStock, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, saveStockIn, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments } from "../../../utils/utils";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
 import { MdDeleteOutline } from "react-icons/md";
 import { MdOutlineClose } from "react-icons/md";
-import { addComma, ClientDetails, clientToolTip, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
+import { addComma, ClientDetails, clientToolTip, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
 import Tltip from "../../../components/tlTip";
 import { FaSortAmountDown } from "react-icons/fa";
 import { FaSortAmountUpAlt } from "react-icons/fa";
@@ -818,6 +818,17 @@ const Cashflow = () => {
     const [autoCancelled, setAutoCancelled] = useState(false);
     const [countdown, setCountdown] = useState(6);
 
+    // Shared Stock (IMS + GIS) — the joint pool, shown as its own cashflow card.
+    // Informational: the pool has no purchase invoices, so it joins no
+    // paid/unpaid totals; the card shows value + who finances it.
+    const [sharedStock, setSharedStock] = useState([]);
+    useEffect(() => {
+        if (!uidCollection) return;
+        loadSharedStock()
+            .then(d => setSharedStock((d || []).filter(Boolean)))
+            .catch(() => setSharedStock([]));
+    }, [uidCollection]);
+
     const pendingChecked = useMemo(() => {
         const clients = clientsData.filter(x => x.checked);
         const sups = supPaymentsData.filter(x => x.checked);
@@ -1358,6 +1369,36 @@ const Cashflow = () => {
                                                             fixedDecimalScale
                                                             className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
                                                         />
+                                                    </div>
+                                                </div>}
+
+
+                                                {sharedStock.length > 0 && <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Shared Stock (IMS + GIS)</span>
+                                                    </div>
+                                                    <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors">
+                                                        <MyAccordion title={
+                                                            <div className="flex w-full justify-between">
+                                                                <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
+                                                                    Joint inventory pool · {sharedStock.length} lot{sharedStock.length !== 1 ? 's' : ''}
+                                                                </div>
+                                                                <div className="leading-4 2xl:leading-6">
+                                                                    <NumericFormat
+                                                                        value={sharedStock.reduce((s, r) => s + (parseFloat(r.qnty) || 0) * (parseFloat(r.unitPrc) || 0), 0)}
+                                                                        displayType="text"
+                                                                        thousandSeparator
+                                                                        allowNegative={true}
+                                                                        prefix='$'
+                                                                        decimalScale='2'
+                                                                        fixedDecimalScale
+                                                                        className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        }>
+                                                            <SharedStockDetails rows={sharedStock} settings={settings} />
+                                                        </MyAccordion>
                                                     </div>
                                                 </div>}
 
