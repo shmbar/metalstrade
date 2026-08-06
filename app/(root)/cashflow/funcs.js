@@ -964,21 +964,21 @@ export const SharedStockDetails = ({ rows, settings }) => {
     });
     return (
         <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
-            {/* overflow-x-auto + a min table width: on normal screens the proportional
-                layout fits the card (no slider); on small screens the table keeps a
-                readable minimum and a horizontal scroller appears only then. */}
+            {/* Same recipe as the other cashflow detail tables (StocksUnSold etc.):
+                table-auto so every column hugs its content — no fixed percentages,
+                no min-width, no dead space. Text cells are capped (max-w + truncate,
+                full text in the hover popup), so all six columns fit the card and
+                the scroller appears only if a screen genuinely can't fit them. */}
             <div className="max-h-[30rem] overflow-y-auto overflow-x-auto">
-                <table className="cashflow-detail-table w-full table-fixed min-w-[640px]">
+                <table className="cashflow-detail-table w-full table-auto">
                     <thead>
                         <tr>
-                            {/* Text columns kept tight per client — the hover popup shows the
-                                full material/warehouse name, so truncation costs nothing. */}
-                            <th className="text-left" style={{ width: '22%' }}>Material</th>
-                            <th className="text-left" style={{ width: '15%' }}>Warehouse</th>
-                            <th className="text-left" style={{ width: '13%' }}>Quantity</th>
-                            <th className="text-left" style={{ width: '15%' }}>Unit Price</th>
-                            <th className="text-left" style={{ width: '15%' }}>Financed by</th>
-                            <th className="text-right" style={{ width: '20%' }}>Total</th>
+                            <th className="text-left">Material</th>
+                            <th className="text-left">Warehouse</th>
+                            <th className="text-left w-14">Quantity</th>
+                            <th className="text-left w-20">Unit Price</th>
+                            <th className="text-left w-16">Financed</th>
+                            <th className="text-right w-20">Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -986,12 +986,12 @@ export const SharedStockDetails = ({ rows, settings }) => {
                             <tr key={r.id || i}>
                                 <td className="text-left">
                                     <Tltip direction='top' tltpText={r.descriptionText || r.description || ''}>
-                                        <span className="block truncate cursor-default">{r.descriptionText || r.description || '—'}</span>
+                                        <span className="block truncate cursor-default max-w-44">{r.descriptionText || r.description || '—'}</span>
                                     </Tltip>
                                 </td>
                                 <td className="text-left">
                                     <Tltip direction='top' tltpText={whName(r.stock)}>
-                                        <span className="block truncate cursor-default">{whName(r.stock)}</span>
+                                        <span className="block truncate cursor-default max-w-32">{whName(r.stock)}</span>
                                     </Tltip>
                                 </td>
                                 <td className="text-left">
