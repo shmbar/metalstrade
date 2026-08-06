@@ -12,19 +12,26 @@ interface AreaChartProps {
   formatY?: (v: number) => string;
   // Full-length names for the scrub tooltip (falls back to `labels`).
   tooltipLabels?: string[];
+  /**
+   * Extra line series drawn over the area (web's Revenue/Costs/Profit chart).
+   * They share the primary series' scale, so the axis stays comparable.
+   */
+  series?: { name: string; color: string; data: number[]; dashed?: boolean }[];
 }
 
 // Lightweight SVG area/line chart with touch scrubbing: drag a finger across it
 // to inspect each point (stock-app style). No chart library required.
-export function AreaChart({ data, labels, height = 140, color, formatY, tooltipLabels }: AreaChartProps) {
+export function AreaChart({ data, labels, height = 140, color, formatY, tooltipLabels, series }: AreaChartProps) {
   const { colors } = useTheme();
   const stroke = color || colors.primary;
   const w = 320; // viewBox width; scales to container via preserveAspectRatio
   const padX = 6;
   const padY = 12;
   const vals = data.length ? data : [0];
-  const max = Math.max(...vals, 1);
-  const min = Math.min(...vals, 0);
+  // Every series shares one scale — otherwise the lines are not comparable.
+  const allVals = [...vals, ...(series || []).flatMap((sr) => sr.data)];
+  const max = Math.max(...allVals, 1);
+  const min = Math.min(...allVals, 0);
   const range = max - min || 1;
   const innerW = w - padX * 2;
   const innerH = height - padY * 2;
@@ -41,6 +48,15 @@ export function AreaChart({ data, labels, height = 140, color, formatY, tooltipL
   const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
   const areaPath = `${linePath} L${pts[pts.length - 1].x.toFixed(1)},${(padY + innerH).toFixed(1)} L${pts[0].x.toFixed(1)},${(padY + innerH).toFixed(1)} Z`;
   const lastIdx = pts.length - 1;
+
+  const seriesPaths = (series || []).map((sr) => {
+    const p2 = sr.data.map((v, i) => {
+      const x = padX + (sr.data.length === 1 ? innerW / 2 : (i / (sr.data.length - 1)) * innerW);
+      const y = padY + innerH - ((v - min) / range) * innerH;
+      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    return { ...sr, d: p2 };
+  });
 
   // Touch → nearest data point (screen px → viewBox fraction → index).
   const scrub = (e: GestureResponderEvent) => {
@@ -102,6 +118,19 @@ export function AreaChart({ data, labels, height = 140, color, formatY, tooltipL
           ))}
           <Path d={areaPath} fill="url(#areaFill)" />
           <Path d={linePath} stroke={stroke} strokeWidth={2.5} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+          {/* Overlaid comparison series (Costs solid, Profit dashed — web parity). */}
+          {seriesPaths.map((sr) => (
+            <Path
+              key={sr.name}
+              d={sr.d}
+              stroke={sr.color}
+              strokeWidth={2}
+              fill="none"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              strokeDasharray={sr.dashed ? '5,4' : undefined}
+            />
+          ))}
 
           {/* Scrub guide */}
           {active != null && (

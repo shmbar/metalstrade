@@ -19,6 +19,13 @@ import {
   AgingBucket,
 } from '@shared/finance';
 import { computePnl } from './pnlChain';
+import { resolveClientName } from '@/features/invoices/useInvoices';
+
+export interface DashboardFilters {
+  supplier: string;
+  client: string;
+  material: string;
+}
 
 export interface DashboardData {
   contractCount: number;
@@ -69,7 +76,7 @@ export interface DashboardData {
 // Loads everything the dashboard needs in parallel, then derives KPIs. The
 // financial aggregates come straight from the shared finance.js so they match
 // the web CRM to the cent.
-export function useDashboard() {
+export function useDashboard(filters: DashboardFilters = { supplier: '', client: '', material: '' }) {
   const { uidCollection } = useAuth();
   const { settings, dateSelect, loaded } = useSettings();
   const termDays = useSettings(selectTermDays);
@@ -111,7 +118,39 @@ export function useDashboard() {
 
   const data = useMemo<DashboardData | null>(() => {
     if (!query.data) return null;
-    const { enriched, periodInvoices, recvInvoices, misc } = query.data;
+    const { enriched: allEnriched, periodInvoices: allPeriodInv, recvInvoices: allRecv, misc } = query.data;
+    const { supplier: fSupplier, client: fClient, material: fMaterial } = filters;
+
+    // Web's exact predicates (dashboard/page.js:928-934): supplier by id, material
+    // by an exact productsData description match, client by the RESOLVED NAME —
+    // which has to work against both the draft shape (an id) and the finalized
+    // shape ({ nname }), hence resolveClientName on both sides.
+    const enriched = allEnriched.filter((c: any) => {
+      if (fSupplier && c.supplier !== fSupplier) return false;
+      if (fMaterial && !(c.productsData || []).some((p: any) => (p.description || '') === fMaterial)) return false;
+      if (
+        fClient &&
+        !(c.invoicesData || []).some((g: any[]) =>
+          (g || []).some((inv: any) => resolveClientName(inv.client, settings) === fClient)
+        )
+      )
+        return false;
+      return true;
+    });
+
+    // Revenue: the Client filter matches the invoice directly; Supplier/Material can
+    // only resolve through a loaded contract, so they narrow by the filtered PO set.
+    const allowedPO = fSupplier || fMaterial ? new Set(enriched.map((c: any) => c.id)) : null;
+    const periodInvoices = allPeriodInv.filter((inv: any) => {
+      if (fClient && resolveClientName(inv.client, settings) !== fClient) return false;
+      if (allowedPO && !allowedPO.has(inv.poSupplier?.id)) return false;
+      return true;
+    });
+
+    // Receivables + aging follow the Client filter only (web page.js:1030, 1039).
+    const recvInvoices = fClient
+      ? allRecv.filter((inv: any) => resolveClientName(inv.client, settings) === fClient)
+      : allRecv;
 
     // Purchase value + tonnage from contracts.
     const purchaseByCur: Record<string, number> = {};
@@ -244,7 +283,36 @@ export function useDashboard() {
         .sort((a, b) => b.value - a.value)
         .slice(0, 6),
     };
-  }, [query.data, settings, termDays, companyRate]);
+  }, [query.data, settings, termDays, companyRate, filters.supplier, filters.client, filters.material]);
 
-  return { data, isLoading: query.isLoading, isError: query.isError, error: query.error, refetch: query.refetch, enabled };
+  // Option lists come from the UNFILTERED set so a chosen filter never removes
+  // the other options.
+  const options = useMemo(() => {
+    const raw = query.data?.enriched || [];
+    const suppliers = new Map<string, string>();
+    const materials = new Set<string>();
+    const clients = new Set<string>();
+    raw.forEach((c: any) => {
+      if (c.supplier) {
+        suppliers.set(
+          c.supplier,
+          settings?.Supplier?.Supplier?.find((s: any) => s.id === c.supplier)?.nname || c.supplier
+        );
+      }
+      (c.productsData || []).forEach((p: any) => p.description && materials.add(p.description));
+      (c.invoicesData || []).forEach((g: any[]) =>
+        (g || []).forEach((inv: any) => {
+          const n = resolveClientName(inv.client, settings);
+          if (n) clients.add(n);
+        })
+      );
+    });
+    return {
+      suppliers: [...suppliers].map(([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label)),
+      clients: [...clients].sort().map((v) => ({ value: v, label: v })),
+      materials: [...materials].sort().map((v) => ({ value: v, label: v })),
+    };
+  }, [query.data, settings]);
+
+  return { data, options, isLoading: query.isLoading, isError: query.isError, error: query.error, refetch: query.refetch, enabled };
 }

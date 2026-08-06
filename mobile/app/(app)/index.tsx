@@ -1,14 +1,14 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { View, ScrollView, RefreshControl, Pressable } from 'react-native';
 import { router, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StatCard, Text, Card, AreaChart, ProgressBar, SectionHeader, SkeletonList, ErrorState } from '@/components/ui';
+import { StatCard, Text, Card, AreaChart, ProgressBar, Select, SectionHeader, SkeletonList, ErrorState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
-import { useDashboard } from '@/features/dashboard/useDashboard';
+import { useDashboard, DashboardFilters } from '@/features/dashboard/useDashboard';
 import { ReceivablesCard, AgingCard, RankingCard } from '@/features/dashboard/components';
 import { MetalPricesStrip } from '@/features/prices/MetalPricesStrip';
 import { BriefingCard } from '@/features/briefing/BriefingCard';
@@ -26,21 +26,11 @@ export default function Dashboard() {
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
   const { currentUser, userTitle } = useAuth();
-  const { data, isLoading, isError, error, refetch } = useDashboard();
-
-  // Web parity: 'accounting' users are restricted to the accounting view.
-  if (userTitle === 'accounting') return <Redirect href="/(app)/accounting" />;
-
-  const curLine = (byCur: Record<string, number>) => {
-    const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
-    if (!ents.length) return '$0';
-    return ents.map(([c, v]) => fmtCurKM(c, v)).join('  ');
-  };
-
-  const outstanding: Record<string, number> = {};
-  if (data) Object.entries(data.receivables).forEach(([c, s]) => (outstanding[c] = s.due + s.balance));
-
-  const firstName = currentUser.name.split(' ')[0] || 'there';
+  // Supplier / Client / Material filters — web parity. Every aggregate on the page
+  // narrows with them.
+  const [filters, setFilters] = useState<DashboardFilters>({ supplier: '', client: '', material: '' });
+  const { data, options, isLoading, isError, error, refetch } = useDashboard(filters);
+  const activeFilters = [filters.supplier, filters.client, filters.material].filter(Boolean).length;
 
   const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -69,6 +59,23 @@ export default function Dashboard() {
     if (!Number.isFinite(pct)) return null;
     return { pct, last, prev };
   }, [data?.revenueByMonth]);
+
+  // Web parity: 'accounting' users are restricted to the accounting view.
+  // NOTE: every hook must run BEFORE this early return.
+  if (userTitle === 'accounting') return <Redirect href="/(app)/accounting" />;
+
+  const curLine = (byCur: Record<string, number>) => {
+    const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
+    if (!ents.length) return '$0';
+    return ents.map(([c, v]) => fmtCurKM(c, v)).join('  ');
+  };
+
+  const outstanding: Record<string, number> = {};
+  if (data) Object.entries(data.receivables).forEach(([c, s]) => (outstanding[c] = s.due + s.balance));
+
+  const firstName = currentUser.name.split(' ')[0] || 'there';
+
+
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -129,6 +136,22 @@ export default function Dashboard() {
           </View>
         </LinearGradient>
 
+        {/* Filters — narrow every figure below (web's filter bar). */}
+        <View style={{ paddingHorizontal: spacing.lg, marginTop: 14, gap: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name="funnel-outline" size={15} color={colors.textMuted} />
+            <Text variant="caption" tone="muted">Filters</Text>
+            {activeFilters > 0 && (
+              <Pressable onPress={() => setFilters({ supplier: '', client: '', material: '' })} hitSlop={8} style={{ marginLeft: 'auto' }}>
+                <Text variant="caption" tone="primary">Clear ({activeFilters})</Text>
+              </Pressable>
+            )}
+          </View>
+          <Select label="" value={filters.supplier} options={[{ value: '', label: 'All suppliers' }, ...options.suppliers]} onChange={(v) => setFilters((f) => ({ ...f, supplier: v }))} />
+          <Select label="" value={filters.client} options={[{ value: '', label: 'All clients' }, ...options.clients]} onChange={(v) => setFilters((f) => ({ ...f, client: v }))} />
+          <Select label="" value={filters.material} options={[{ value: '', label: 'All materials' }, ...options.materials]} onChange={(v) => setFilters((f) => ({ ...f, material: v }))} />
+        </View>
+
         {/* AI morning briefing */}
         <View style={{ paddingHorizontal: spacing.lg, marginTop: 14 }}>
           <BriefingCard />
@@ -159,7 +182,44 @@ export default function Dashboard() {
             <ErrorState message={(error as Error)?.message || 'Failed to load dashboard data.'} onRetry={refetch} />
           ) : data ? (
             <View style={{ gap: 14 }}>
-              {/* Revenue trend chart */}
+              {/* Revenue / Costs / Profit — web's 3-series hero chart. All three are
+                  DEAL basis (contract month + contract rate), which is why revenue
+                  here is dealRevenueByMonth, not the invoice-dated series. */}
+              {data.dealRevenueByMonth.some((v) => v !== 0) && (
+                <Card>
+                  <SectionHeader title="Revenue, costs & profit" subtitle="Sold basis · unsold stock excluded" />
+                  <View style={{ flexDirection: 'row', gap: 14, marginBottom: 6 }}>
+                    {[
+                      { k: 'Revenue', c: colors.primary },
+                      { k: 'Costs', c: colors.negative },
+                      { k: 'Profit', c: colors.positive },
+                    ].map((l) => (
+                      <View key={l.k} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                        <View style={{ width: 9, height: 9, borderRadius: 5, borderWidth: 2, borderColor: l.c }} />
+                        <Text variant="caption" tone="muted">{l.k}</Text>
+                      </View>
+                    ))}
+                  </View>
+                  <AreaChart
+                    data={data.dealRevenueByMonth}
+                    labels={['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']}
+                    tooltipLabels={MONTHS}
+                    color={colors.primary}
+                    formatY={(v) => fmtAutoKM(v, 1)}
+                    series={[
+                      {
+                        name: 'Costs',
+                        color: colors.negative,
+                        data: data.cogsByMonth.map((c, i) => c + data.expensesByMonth[i]),
+                      },
+                      { name: 'Profit', color: colors.positive, data: data.profitByMonth, dashed: true },
+                    ]}
+                  />
+                </Card>
+              )}
+
+              {/* Invoiced revenue trend — kept as a separate card because it is a
+                  different basis (invoice month) from the chart above. */}
               {data.revenueByMonth.some((v) => v > 0) && (
                 <Card onPress={() => router.push('/(app)/invoices')}>
                   <SectionHeader title="Revenue trend" subtitle="Invoiced by month" />
